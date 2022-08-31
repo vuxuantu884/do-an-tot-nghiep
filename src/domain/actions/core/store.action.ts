@@ -52,8 +52,8 @@ export const StoreRankAction = (setData: (data: Array<StoreRankResponse>) => voi
   return BaseAction(StoreType.STORE_RANK, { setData });
 };
 
-export const getListAllStoresSimpleAction = (setData: (data: Array<StoreResponse>) => void) => {
-  return BaseAction(StoreType.GET_LIST_ALL_STORE_REQUEST_SIMPLE, { setData });
+export const getAllPublicSimpleStoreAction = (setData: (data: Array<StoreResponse>) => void) => {
+  return BaseAction(StoreType.GET_ALL_PUBLIC_SIMPLE_STORE, { setData });
 };
 
 export const getListStoresSimpleAction = (setData: (data: Array<StoreResponse>) => void) => {

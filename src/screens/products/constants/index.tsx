@@ -3,6 +3,7 @@ export const TYPE_EXPORT = {
   page: "page",
   selected: "selected",
   allin: "allin",
+  all_out: "all_out",
 };
 
 export const documentTypes = [

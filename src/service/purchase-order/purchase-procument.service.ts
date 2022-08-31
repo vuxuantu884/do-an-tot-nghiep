@@ -1,4 +1,7 @@
-import { ProcurementCancel } from "./../../model/purchase-order/purchase-procument";
+import {
+  ProcurementCancel,
+  ProcurementManualCreate,
+} from "./../../model/purchase-order/purchase-procument";
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
@@ -8,7 +11,6 @@ import {
   ImportProcument,
   ProcurementConfirm,
   ProcurementItemsReceipt,
-  ProcurementManual,
   ProcurementQuery,
   PurchaseProcument,
 } from "model/purchase-order/purchase-procument";
@@ -113,7 +115,7 @@ export const updatePurchaseProcumentNoteService = (
 
 export const createPurchaseProcumentManualService = (
   poId: number,
-  data: ProcurementManual,
+  data: ProcurementManualCreate,
 ): Promise<BaseResponse<PurchaseOrder>> => {
   return BaseAxios.post(
     `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/procurements/create-manual`,

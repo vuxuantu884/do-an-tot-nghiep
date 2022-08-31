@@ -2,7 +2,7 @@ import React, { createRef, useCallback, useEffect, useMemo, useState } from "rea
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { Button, Card, Col, DatePicker, Form, FormInstance, Input, Radio, Row, Select, Space } from "antd";
-import { ArrowLeftOutlined, MenuOutlined, PlusOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, MenuOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import UrlConfig from "config/url.config";
@@ -23,15 +23,24 @@ import androidNavHome from "assets/icon/android-nav-home.svg";
 import androidNavMulti from "assets/icon/android-nav-multi.svg";
 import {
   createCampaignAction,
-  getBrandNameAction, getCampaignContactAction, getCampaignDetailAction,
+  getBrandNameAction,
+  getCampaignContactAction,
+  getCampaignDetailAction,
   getImportFileTemplateAction,
   getMessageTemplateAction, updateCampaignAction,
 } from "domain/actions/marketing/marketing.action";
 import CampaignImportFile from "screens/marketing/campaign/campaign-create/CampaignImportFile";
 import { PageResponse } from "model/base/base-metadata.response";
 import CustomTable from "component/table/CustomTable";
+import useAuthorization from "hook/useAuthorization";
+import { CAMPAIGN_PERMISSION } from "config/permissions/marketing.permission";
+import { CampaignContactSearchQuery } from "model/marketing/marketing.model";
 
 const { Option } = Select;
+
+// campaign permission
+const viewContactPermission = [CAMPAIGN_PERMISSION.marketings_contacts_read];
+const createContactPermission = [CAMPAIGN_PERMISSION.marketings_contacts_create];
 
 const CampaignCreateUpdate = () => {
   const [form] = Form.useForm();
@@ -40,8 +49,20 @@ const CampaignCreateUpdate = () => {
   const dispatch = useDispatch();
   const params: any = useParams();
 
+// campaign permission
+  const [allowViewContact] = useAuthorization({
+    acceptPermissions: viewContactPermission,
+    not: false,
+  });
+  const [allowCreateContact] = useAuthorization({
+    acceptPermissions: createContactPermission,
+    not: false,
+  });
+
   let activeCampaign = true;
 
+  const [isCreateCampaign, setIsCreateCampaign] = useState<boolean>(true);
+  
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSelectedNow, setIsSelectedNow] = useState(true);
   const [campaignMessage, setCampaignMessage] = useState<string>("");
@@ -62,6 +83,14 @@ const CampaignCreateUpdate = () => {
   const [campaignDetail, setCampaignDetail] = useState<any>();
   const [isEditInfo, setIsEditInfo] = useState<boolean>(true);
 
+  const [queryContactSearch, setQueryContactSearch] = useState<CampaignContactSearchQuery>(
+    {
+      page: 1,
+      limit: 30,
+      phone: null,
+      statuses: null,
+    },
+  );
   const [campaignCustomerData, setCampaignCustomerData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
@@ -81,10 +110,14 @@ const CampaignCreateUpdate = () => {
 
   const getContactList = useCallback(
     (campaignId, params) => {
+      if (!allowViewContact) {
+        return;
+      }
+      
       setIsLoading(true);
       dispatch(getCampaignContactAction(campaignId, params, updateContactListData));
     },
-    [dispatch, updateContactListData],
+    [allowViewContact, dispatch, updateContactListData],
   );
   /** end get contact data */
 
@@ -133,6 +166,12 @@ const CampaignCreateUpdate = () => {
       );
     }
   }, [brandNameList, dispatch, getContactList, params.id, updateCampaignDetail]);
+  
+  useEffect(() => {
+    if (params?.id) {
+      setIsCreateCampaign(false);
+    }
+  }, [params?.id]);
   /** end handle update campaign */
 
   useEffect(() => {
@@ -170,14 +209,15 @@ const CampaignCreateUpdate = () => {
     setIsLoading(false);
     if (response) {
       setCampaignDetail(response);
-      showSuccess("Đã cập nhật thông tin chiến dịch")
+      showSuccess("Chỉnh sửa thông tin chiến dịch thành công")
       setIsEditInfo(false);
     }
   }, []);
 
   const onUpdateCampaign = () => {
     form.validateFields().then(() => {
-      const params = form.getFieldsValue();
+      const formValues = form.getFieldsValue();
+      const params = {...campaignDetail, ...formValues};
       setIsLoading(true);
       dispatch(updateCampaignAction(campaignDetail?.id, { ...params }, updateCampaignInfoCallback));
     });
@@ -406,7 +446,7 @@ const CampaignCreateUpdate = () => {
   const importFile = useCallback(() => {
     let conditions: Array<string> = [];
     KEYWORD_LIST.forEach((item: any) => {
-      const position = campaignMessage.search(item.value);
+      const position = campaignMessage?.search(item.value);
       if (position !== -1) {
         conditions.push(item.key);
       }
@@ -486,16 +526,37 @@ const CampaignCreateUpdate = () => {
   }, [campaignCustomerData.metadata.limit, campaignCustomerData.metadata.page]);
 
   const onPageChange = useCallback((page, limit) => {
-    getContactList(campaignDetail?.id, { page, limit });
-    }, [campaignDetail?.id, getContactList],
+    const contactQuery = {
+      ...queryContactSearch,
+      page,
+      limit,
+    }
+    setQueryContactSearch(contactQuery);
+    getContactList(campaignDetail?.id, contactQuery);
+    }, [campaignDetail?.id, getContactList, queryContactSearch],
   );
+
+  const onSearchContact = useCallback(() => {
+    const contactQuery = {
+      ...queryContactSearch,
+      page: 1,
+    }
+    getContactList(campaignDetail?.id, contactQuery);
+  }, [campaignDetail?.id, getContactList, queryContactSearch]);
+
+  const onChangeContactInputSearch = (e: any) => {
+    setQueryContactSearch({
+      ...queryContactSearch,
+      phone: e.target.value
+    });
+  };
   /** end contact table */
   
 
   return (
     <CampaignCreateStyled>
       <ContentContainer
-        title="Tạo chiến dịch"
+        title={`${isCreateCampaign ? "Tạo chiến dịch" : "Chỉnh sửa chiến dịch"}`}
         breadcrumb={[
           {
             name: "Khách hàng",
@@ -509,7 +570,7 @@ const CampaignCreateUpdate = () => {
             path: `${UrlConfig.MARKETING}/campaigns`,
           },
           {
-            name: "Tạo chiến dịch",
+            name: `${isCreateCampaign ? "Tạo chiến dịch" : "Chỉnh sửa chiến dịch"}`
           },
         ]}
       >
@@ -534,7 +595,7 @@ const CampaignCreateUpdate = () => {
                   <Input
                     disabled={isLoading || (campaignDetail && !isEditInfo)}
                     maxLength={255}
-                    placeholder="Nhập họ và tên chiến dịch"
+                    placeholder="Nhập tên chiến dịch"
                     onBlur={(e) => form?.setFieldsValue({ campaign_name: e.target.value?.trim() })}
                   />
                 </Form.Item>
@@ -753,38 +814,70 @@ const CampaignCreateUpdate = () => {
                 </Row>
               </Card>
 
-              <Card
-                title={"THIẾT LẬP ĐỐI TƯỢNG GỬI TIN"}
-              >
-                <Button onClick={importFile}>Nhập file</Button>
+              {(allowViewContact || allowCreateContact) &&
+                <Card
+                  title={"THIẾT LẬP ĐỐI TƯỢNG GỬI TIN"}
+                  className={"campaign-contact"}
+                >
+                  {allowCreateContact &&
+                    <Button onClick={importFile}>Nhập file</Button>
+                  }
 
-                <div style={{ margin: "20px 0", fontSize: "16px" }}>
-                  <b>Danh sách khách hàng áp dụng</b>
-                </div>
-                <CustomTable
-                  bordered
-                  isLoading={isLoading}
-                  sticky={{ offsetScroll: 5, offsetHeader: 55 }}
-                  pagination={{
-                    pageSize: campaignCustomerData?.metadata?.limit,
-                    total: campaignCustomerData?.metadata?.total,
-                    current: campaignCustomerData?.metadata?.page,
-                    showSizeChanger: true,
-                    onChange: onPageChange,
-                    onShowSizeChange: onPageChange,
-                  }}
-                  isShowPaginationAtHeader
-                  dataSource={campaignCustomerData?.items}
-                  columns={columns}
-                  rowKey={(item: any) => item.key}
-                />
-              </Card>
+                  {allowViewContact &&
+                    <>
+                      <div style={{ margin: "20px 0", fontSize: "16px" }}>
+                        <b>Danh sách khách hàng áp dụng</b>
+                      </div>
+                      
+                      <div className={"search-contact"}>
+                        <Input
+                          disabled={isLoading}
+                          allowClear
+                          prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
+                          placeholder="Tên kiếm KH theo sđt"
+                          onChange={onChangeContactInputSearch}
+                          onPressEnter={onSearchContact}
+                          className={"input-search"}
+                        />
+
+                        <Button type="primary" disabled={isLoading} onClick={onSearchContact}>
+                          Lọc
+                        </Button>
+                      </div>
+                      
+                      <CustomTable
+                        bordered
+                        isLoading={isLoading}
+                        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+                        pagination={{
+                          pageSize: campaignCustomerData?.metadata?.limit,
+                          total: campaignCustomerData?.metadata?.total,
+                          current: campaignCustomerData?.metadata?.page,
+                          showSizeChanger: true,
+                          onChange: onPageChange,
+                          onShowSizeChange: onPageChange,
+                        }}
+                        isShowPaginationAtHeader
+                        dataSource={campaignCustomerData?.items}
+                        columns={columns}
+                        rowKey={(item: any) => item.key}
+                      />
+                    </>
+                  }
+                </Card>
+              }
             </>
           }
           
           <BottomBarContainer
-            back="Quay lại danh sách chiến dịch"
-            backAction={() => history.push(`${UrlConfig.MARKETING}/campaigns`)}
+            back={`${isCreateCampaign ? "Quay lại danh sách chiến dịch" : "Quay lại chi tiết chiến dịch"}`}
+            backAction={() => {
+              if (isCreateCampaign) {
+                history.push(`${UrlConfig.MARKETING}/campaigns`)
+              } else {
+                history.push(`${UrlConfig.MARKETING}/campaigns/${params?.id}`)
+              }
+            }}
             rightComponent={
             campaignDetail && !isEditInfo &&
               <>

@@ -1,9 +1,10 @@
-import { KDGroup } from "model/report";
+import { KDGroup, KeyDriverDimension } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getKeyDriversTarget } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
+import { DATE_FORMAT } from "utils/DateUtils";
 import {
   findKDProductAndUpdateValueUtil,
   nonAccentVietnameseKD,
@@ -11,9 +12,10 @@ import {
 import { showErrorReport } from "utils/ReportUtils";
 import { KDOfflineStoresContext } from "../provider/kd-offline-stores-provider";
 
-function useFetchStoresKeyDriverTarget() {
+function useFetchStoresKeyDriverTarget(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedStores } = useContext(KDOfflineStoresContext);
+  const { setData, selectedStores, selectedStaffs, selectedDate } =
+    useContext(KDOfflineStoresContext);
 
   const [isFetchingStoresKeyDriverTarget, setIsFetchingStoresKeyDriverTarget] = useState<
     boolean | undefined
@@ -43,56 +45,86 @@ function useFetchStoresKeyDriverTarget() {
       if (!selectedStores.length) {
         return;
       }
+      if (
+        dimension === KeyDriverDimension.Staff &&
+        (!selectedStores.length || !selectedStaffs.length)
+      ) {
+        return;
+      }
       setIsFetchingStoresKeyDriverTarget(true);
-
+      const { YYYYMMDD } = DATE_FORMAT;
       const res = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKeyDriversTarget, {
-        "year.equals": moment().year(),
-        "month.equals": moment().month() + 1,
+        "year.equals": moment(selectedDate, YYYYMMDD).year(),
+        "month.equals": moment(selectedDate, YYYYMMDD).month() + 1,
       });
 
       if (!res) {
-        showErrorReport("Lỗi khi lấy dữ liệu mục tiêu");
+        showErrorReport("Lỗi khi lấy dữ liệu mục tiêu tháng");
         setIsFetchingStoresKeyDriverTarget(false);
         return;
       }
 
       setData((prev: any) => {
-        res
-          .filter((item: any) =>
+        let resMapper = [];
+        if (dimension === KeyDriverDimension.Store) {
+          resMapper = res.filter((item: any) =>
             [...selectedStores.map((asmItem) => nonAccentVietnameseKD(asmItem))].includes(
               item.department,
             ),
-          )
-          .forEach((item: any) => {
-            const { department } = item;
-            const kdTotalSalesTarget = Object.keys(item.data).reduce((res0, key: string) => {
-              if (!key.includes(KDGroup.SKU3)) {
-                res0 = { ...res0, [key]: item.data[key] };
-              }
-              return res0;
-            }, {});
-            const kdProductTarget = Object.keys(item.data).reduce((res1, key: string) => {
-              if (key.includes(KDGroup.SKU3)) {
-                res1 = { ...res1, [key]: item.data[key] };
-              }
-              return res1;
-            }, {});
+          );
+        } else if (dimension === KeyDriverDimension.Staff) {
+          resMapper = res.filter((item: any) =>
+            [...selectedStaffs.map((staff) => JSON.parse(staff).code.toUpperCase())].includes(
+              item.department,
+            ),
+          );
+        }
 
-            [...selectedStores].forEach((asm) => {
-              const asmKey = nonAccentVietnameseKD(asm);
-              if (department === asmKey) {
-                findKeyDriverAndUpdateValue(prev[0], kdTotalSalesTarget, asmKey, "month");
-                findKDProductAndUpdateValue(prev[1], kdProductTarget, asmKey, "month");
-              }
-            });
+        resMapper.forEach((item: any) => {
+          const { department } = item;
+          const kdTotalSalesTarget = Object.keys(item.data).reduce((res0, key: string) => {
+            if (!key.includes(KDGroup.SKU3)) {
+              res0 = { ...res0, [key]: item.data[key] };
+            }
+            return res0;
+          }, {});
+          const kdProductTarget = Object.keys(item.data).reduce((res1, key: string) => {
+            if (key.includes(KDGroup.SKU3)) {
+              res1 = { ...res1, [key]: item.data[key] };
+            }
+            return res1;
+          }, {});
+          let selectedData: any[] = [];
+          if (dimension === KeyDriverDimension.Staff) {
+            selectedData = selectedStaffs.map((staff) => JSON.parse(staff).code.toUpperCase());
+          } else if (dimension === KeyDriverDimension.Store) {
+            selectedData = selectedStores;
+          }
+          [...selectedData].forEach((asm) => {
+            const asmKey = nonAccentVietnameseKD(asm);
+            if (department === asmKey) {
+              findKeyDriverAndUpdateValue(prev[0], kdTotalSalesTarget, asmKey, "month");
+              findKDProductAndUpdateValue(prev[1], kdProductTarget, asmKey, "month");
+            }
           });
+        });
         return [...prev];
       });
-
       setIsFetchingStoresKeyDriverTarget(false);
     };
-    fetchStoresKeyDriverTarget();
-  }, [selectedStores, dispatch, setData, findKeyDriverAndUpdateValue, findKDProductAndUpdateValue]);
+    if (selectedDate) {
+      fetchStoresKeyDriverTarget();
+    }
+  }, [
+    selectedStores,
+    dimension,
+    selectedStaffs,
+    dispatch,
+    selectedDate,
+    setData,
+    findKeyDriverAndUpdateValue,
+    findKDProductAndUpdateValue,
+  ]);
 
   useEffect(() => {
     refetch();

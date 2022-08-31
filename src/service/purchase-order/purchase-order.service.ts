@@ -4,6 +4,7 @@ import {
   POStampPrinting,
   ProcumentLogQuery,
   PurchaseOrderBySupplierQuery,
+  PurchaseOrderPercentsQuery,
   PurchaseOrderQuery,
   PurchaseOrderReturnQuery,
 } from "model/purchase-order/purchase-order.model";
@@ -180,4 +181,10 @@ export const getPurchaseOrderReturnList = (
 ): Promise<BaseResponse<any>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/returns?${queryString}`);
+};
+
+export const getPercentMonth = (query?: PurchaseOrderPercentsQuery) => {
+  return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/asm/percent-month?`, {
+    params: query,
+  });
 };

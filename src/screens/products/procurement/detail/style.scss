@@ -1,0 +1,21 @@
+.pr-detail {
+  .ant-card-body {
+    padding-top: 0;
+  }
+  &-pr-code {
+    display: flex;
+  }
+  &-pr-code-icon {
+    background-color: #f4f4fc;
+    height: 44px;
+    width: 44px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
+  }
+  &-pr-code-icon > img {
+    display: block;
+  }
+}

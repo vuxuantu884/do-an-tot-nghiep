@@ -1,4 +1,4 @@
-import { Modal, Radio, Row, Space } from "antd";
+import { Divider, Modal, Radio, Row, Space } from "antd";
 import PurchaseOrderFilter from "component/filter/purchase-order.filter";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
@@ -39,7 +39,13 @@ import {
   updatePurchaseOrderStatusWaitingApproval,
 } from "service/purchase-order/purchase-order.service";
 import { generateQuery } from "utils/AppUtils";
-import { ArrPoStatus, COLUMN_CONFIG_TYPE, PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
+import {
+  ArrPoStatus,
+  COLUMN_CONFIG_TYPE,
+  PoPaymentStatus,
+  POStatus,
+  ProcumentStatus,
+} from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -99,13 +105,13 @@ const actionsDefault: Array<MenuAction> = [
 ];
 
 const typeStatus: any = {
-  received: 'success',
-  not_received: 'warning'
+  received: "success",
+  not_received: "warning",
 };
 
 const labelStatus: any = {
-  received: 'Kho đã nhận',
-  not_received: 'Đã chia hàng'
+  received: "Kho đã nhận",
+  not_received: "Đã chia hàng",
 };
 
 interface PurchaseOrderListScreenProps {
@@ -278,7 +284,10 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
         render: (value: string, i: PurchaseOrder) => {
           return (
             <>
-              <Link to={`${UrlConfig.PURCHASE_ORDERS}/${i.id}`} style={{ fontWeight: 500, fontSize: 16 }}>
+              <Link
+                to={`${UrlConfig.PURCHASE_ORDERS}/${i.id}`}
+                style={{ fontWeight: 500, fontSize: 16 }}
+              >
                 {value}
               </Link>
               <div className="fs-12 text-muted">
@@ -292,9 +301,8 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
                 <span className="font-weight-500">{i.planned_quantity}</span>
               </div>
               <div>
-                <span
-                  className="text-muted">Mã tham chiếu</span>: <span
-                style={{ color: "#75757B", fontWeight: 500 }}>{i.reference}</span>
+                <span className="text-muted">Mã tham chiếu</span>:{" "}
+                <span style={{ color: "#75757B", fontWeight: 500 }}>{i.reference}</span>
               </div>
             </>
           );
@@ -305,7 +313,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
       {
         title: "Nhà cung cấp",
         dataIndex: "supplier",
-        width: 120,
+        width: 140,
         visible: true,
         render: (value, record) => {
           return (
@@ -318,8 +326,8 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
                 >
                   {record.supplier_code}
                 </Link>
-                <img src={phoneIcon} alt="phone" /> <span
-                className="text-muted fs-12">{record.phone}</span>
+                <img src={phoneIcon} alt="phone" />{" "}
+                <span className="text-muted fs-12">{record.phone}</span>
               </div>
               <div className="fs-12 font-weight-500" style={{ color: "#222222" }}>
                 {value}
@@ -344,42 +352,42 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
             case ProcumentStatus.NOT_RECEIVED:
             case null:
               processIcon = iconPo3;
-              textProcurementStatus = 'Chưa nhập kho';
+              textProcurementStatus = "Chưa nhập kho";
               break;
             case ProcumentStatus.PARTIAL_RECEIVED:
-              textProcurementStatus = 'Nhập kho 1 phần';
+              textProcurementStatus = "Nhập kho 1 phần";
               processIcon = iconPo2;
               break;
             case ProcumentStatus.RECEIVED:
             case ProcumentStatus.FINISHED:
               processIcon = iconPo1;
-              textProcurementStatus = 'Đã nhập kho';
+              textProcurementStatus = "Đã nhập kho";
               break;
             default:
               processIcon = iconPo3;
-              textProcurementStatus = 'Chưa nhập kho'
+              textProcurementStatus = "Chưa nhập kho";
           }
 
           let financeProcessIcon = undefined;
-          let textFinanceStatus = '';
+          let textFinanceStatus = "";
           switch (record.financial_status) {
             case PoPaymentStatus.UNPAID:
             case null:
               financeProcessIcon = iconPo3;
-              textFinanceStatus = 'Chưa thanh toán';
+              textFinanceStatus = "Chưa thanh toán";
               break;
             case PoPaymentStatus.PARTIAL_PAID:
               financeProcessIcon = iconPo2;
-              textFinanceStatus = 'Thanh toán 1 phần';
+              textFinanceStatus = "Thanh toán 1 phần";
               break;
             case PoPaymentStatus.PAID:
             case PoPaymentStatus.FINISHED:
               financeProcessIcon = iconPo1;
-              textFinanceStatus = 'Đã thanh toán';
+              textFinanceStatus = "Đã thanh toán";
               break;
             default:
               processIcon = iconPo3;
-              textProcurementStatus = 'Chưa nhập kho';
+              textProcurementStatus = "Chưa nhập kho";
               break;
           }
 
@@ -428,18 +436,23 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
               icon = statusDraft;
               break;
           }
-          return <div>
-            <TextStatus icon={icon}
-                        type={type}>{isFinishedStored ? "Kết thúc nhập kho" : ArrPoStatus.find(e => e.key === value)?.value}</TextStatus>
-            <div className="display-flex" style={{alignItems: 'center'}}>
-              <img src={processIcon} alt={textProcurementStatus}
-                   style={{marginRight: 5}}/><span>{textProcurementStatus}</span>
+          return (
+            <div>
+              <TextStatus icon={icon} type={type}>
+                {isFinishedStored
+                  ? "Kết thúc nhập kho"
+                  : ArrPoStatus.find((e) => e.key === value)?.value}
+              </TextStatus>
+              <div className="display-flex" style={{ alignItems: "center" }}>
+                <img src={processIcon} alt={textProcurementStatus} style={{ marginRight: 5 }} />
+                <span>{textProcurementStatus}</span>
+              </div>
+              <div className="display-flex" style={{ alignItems: "center" }}>
+                <img src={financeProcessIcon} alt={textFinanceStatus} style={{ marginRight: 5 }} />
+                <span>{textFinanceStatus}</span>
+              </div>
             </div>
-            <div className="display-flex" style={{alignItems: 'center'}}>
-              <img src={financeProcessIcon} alt={textFinanceStatus}
-                   style={{marginRight: 5}}/><span>{textFinanceStatus}</span>
-            </div>
-          </div>;
+          );
         },
         visible: true,
       },
@@ -448,21 +461,84 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
         dataIndex: "procurements",
         render: (value: Array<PurchaseProcument>) => {
           if (value && value.length > 0) {
-            value.sort((a, b) =>
-              moment(a.expect_receipt_date).diff(moment(b.expect_receipt_date)),
-            )
+            value.sort((a, b) => moment(a.expect_receipt_date).diff(moment(b.expect_receipt_date)));
+            const procurementData: Array<Array<PurchaseProcument>> = [];
+            // nhóm pr có chung ngày nhận dự kiến vào 1 array
+            for (let i = 0; i < value.length; i++) {
+              const procurementArrayMap = [];
+              let dateI = ConvertUtcToLocalDate(value[i]?.expect_receipt_date, DATE_FORMAT.DDMMYYY);
+              let dateIPlus = ConvertUtcToLocalDate(
+                value[i + 1]?.expect_receipt_date,
+                DATE_FORMAT.DDMMYYY,
+              );
+              for (let j = 0; j < value.length; j++) {
+                let dateJ = ConvertUtcToLocalDate(
+                  value[j]?.expect_receipt_date,
+                  DATE_FORMAT.DDMMYYY,
+                );
+                if (dateI === dateJ) {
+                  procurementArrayMap.push(value[j]);
+                }
+              }
+              if (dateI !== dateIPlus) {
+                procurementData.push(procurementArrayMap);
+              }
+            }
+            const procurementSupplier: Array<Array<PurchaseProcument>> =
+              Object.values(procurementData);
+            const procurementFilter: Array<Array<PurchaseProcument>> = procurementSupplier.filter(
+              (element) =>
+                !element.every(
+                  (item: PurchaseProcument) => item.status === ProcumentStatus.CANCELLED,
+                ),
+            );
+            return (
+              <div>
+                {procurementFilter.map((i, idx, row) => {
+                  let status = "draft";
+                  if (
+                    i.every(
+                      (el: PurchaseProcument) =>
+                        el.status !== ProcumentStatus.RECEIVED &&
+                        el.status !== ProcumentStatus.DRAFT,
+                    )
+                  ) {
+                    status = ProcumentStatus.NOT_RECEIVED;
+                  } else if (
+                    i.some((el: PurchaseProcument) => el.status === ProcumentStatus.RECEIVED)
+                  ) {
+                    status = ProcumentStatus.RECEIVED;
+                  }
+                  return (
+                    <>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: idx + 1 === row.length ? 3 : 0,
+                        }}
+                      >
+                        <div style={{ marginRight: 8, paddingTop: 3 }}>
+                          {ConvertUtcToLocalDate(i[0].expect_receipt_date, DATE_FORMAT.DDMMYYY)}
+                        </div>
+                        {status !== "draft" && (
+                          <div>
+                            {TagStatus({
+                              type: typeStatus[status],
+                              children: labelStatus[status],
+                            })}
+                          </div>
+                        )}
+                      </div>
+                      {idx + 1 !== row.length && <Divider style={{ margin: "8px 0" }} />}
+                    </>
+                  );
+                })}
+              </div>
+            );
+          } else {
+            return null;
           }
-          return <div>
-            {value.map((i, idx) => idx % 3 === 0 && <div style={{display: 'flex', alignItems: 'center'}}>
-              <div style={{marginRight: 5}}>{ConvertUtcToLocalDate(i.expect_receipt_date, DATE_FORMAT.DDMMYYY)}</div>
-              {i.status !== "draft" && (
-                <div>{TagStatus({
-                  type: typeStatus[i.status],
-                  children: labelStatus[i.status],
-                })}</div>
-              )}
-            </div>)}
-          </div>;
         },
         visible: true,
         width: 200,
@@ -470,7 +546,8 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
       {
         title: "Ngày chốt công nợ",
         dataIndex: "ap_closing_date",
-        width: 110,
+        width: 100,
+        align: "center",
         visible: true,
         render: (date: string) => {
           return date ? ConvertUtcToLocalDate(date, DATE_FORMAT.DDMMYYY) : "";
@@ -479,6 +556,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
       {
         title: "Tổng tiền",
         dataIndex: "total",
+        width: 100,
         render: (value: number) => (
           <NumberFormat
             value={value}
@@ -488,7 +566,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
           />
         ),
         visible: true,
-        align: "right",
+        align: "center",
       },
       {
         title: "Merchandiser",
@@ -541,7 +619,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
             </div>
           );
         },
-        width: 220,
+        width: 150,
         visible: true,
       },
       {
@@ -555,17 +633,20 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
             </div>
           );
         },
-        width: 100,
+        width: 170,
       },
       {
         title: "Ghi chú nhà cung cấp",
         dataIndex: "supplier_note",
-        width: 100,
+        width: 150,
         visible: true,
         render: (value, item: PurchaseOrder) => {
           return (
             <div className="note">
-              <EditNote note={value} onOk={(value) => onEditPurchaseOrder(item, value, "supplier_note")} />
+              <EditNote
+                note={value}
+                onOk={(value) => onEditPurchaseOrder(item, value, "supplier_note")}
+              />
             </div>
           );
         },
@@ -577,7 +658,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
           return <div className="txt-muted">{value}</div>;
         },
         visible: true,
-        width: 80,
+        width: 120,
       },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -804,7 +885,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
           isRowSelection
           isLoading={tableLoading}
           showColumnSetting={true}
-          scroll={{x: "max-content"}}
+          scroll={{ x: "max-content" }}
           sticky={{ offsetScroll: 10, offsetHeader: 55 }}
           pagination={false}
           onShowColumnSetting={() => setShowSettingColumn(true)}

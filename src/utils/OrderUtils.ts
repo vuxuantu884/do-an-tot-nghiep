@@ -1,3 +1,4 @@
+import { AccountStoreResponse } from "model/account/account.model";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
 import {
@@ -457,4 +458,16 @@ export const checkIfOrderPageType = {
   isOrderReturnCreatePage: (orderPageType: string) =>
     orderPageType === OrderPageTypeModel.orderReturnCreate,
   isOtherPage: (orderPageType: string) => orderPageType === OrderPageTypeModel.other,
+};
+
+export const getDefaultReceiveReturnStoreIdFormValue = (
+  currentStores: AccountStoreResponse[] | undefined,
+  OrderDetail: OrderResponse | null,
+) => {
+  return currentStores?.length === 1
+    ? currentStores[0].store_id
+    : currentStores && currentStores?.length > 1 && OrderDetail?.store_id
+    ? currentStores?.find((single) => single.store_id === OrderDetail?.store_id)?.store_id ||
+      undefined
+    : undefined;
 };

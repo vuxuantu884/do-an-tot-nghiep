@@ -26,8 +26,8 @@ import {
   DEFAULT_KEY_DRIVER_GROUP_LV_1,
   getAllDepartmentByAnalyticResult,
   getBreadcrumbByLevel,
-  getInputTargetId,
-  handleMoveFocusInput,
+  // getInputTargetId,
+  // handleMoveFocusInput,
   saveMonthTargetKeyDriver,
 } from "./helper";
 import { KeyDriverOnlineStyle } from "./index.style";
@@ -59,7 +59,7 @@ const baseColumns: any = [
 ];
 
 const SHOP_LEVEL = 3;
-const PREFIX_CELL_TABLE = "KEY_DRIVER_ONLINE";
+// const PREFIX_CELL_TABLE = "KEY_DRIVER_ONLINE";
 
 const inputTargetDefaultProps: any = {
   className: "input-number",
@@ -114,6 +114,10 @@ function KeyDriverOnline() {
       valueSetter?.call(element, value);
     }
   };
+  const expandedDefault = localStorage.getItem("key-dirver-online-rowkeys-expanded");
+  const [expandRowKeys, setExpandRowKeys] = useState<any[]>(
+    expandedDefault ? JSON.parse(expandedDefault) : [],
+  );
 
   const setObjectiveColumns = useCallback(
     (
@@ -156,21 +160,20 @@ function KeyDriverOnline() {
             className: "input-cell",
             render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
               const targetDrillingLevel = +record[`target_drilling_level`];
-              const inputId = getInputTargetId(index, columnIndex * 2, PREFIX_CELL_TABLE);
+              // const inputId = getInputTargetId(index, columnIndex * 2, PREFIX_CELL_TABLE);
+              const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-month-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
               return (
                 <VerifyCell row={record} value={text} type="edit">
-                  <div>
+                  <div style={{ position: "relative" }}>
                     <NumberInput
                       id={inputId}
                       value={newValue}
                       disabled={departmentDrillingLevel > targetDrillingLevel}
                       onPressEnter={(e: any) => {
                         const input: any = document.getElementById(inputId);
-                        if (input.value != newValue) {
-                          input.blur();
-                        }
+                        input.blur();
                       }}
                       onFocus={(e) => {
                         document.getElementById(`${inputId}-action`)?.removeAttribute("hidden");
@@ -206,14 +209,14 @@ function KeyDriverOnline() {
                         }, 100);
                       }}
                       onKeyDown={(e: any) => {
-                        if (e.shiftKey) {
-                          handleMoveFocusInput(
-                            index,
-                            columnIndex * 2 + 1,
-                            PREFIX_CELL_TABLE,
-                            e.key,
-                          );
-                        }
+                        // if (e.shiftKey) {
+                        //   handleMoveFocusInput(
+                        //     index,
+                        //     columnIndex * 2 + 1,
+                        //     PREFIX_CELL_TABLE,
+                        //     e.key,
+                        //   );
+                        // }
                         if (e.key === "Escape") {
                           const event = new Event("input", { bubbles: true });
                           const input: any = document.getElementById(inputId);
@@ -222,17 +225,25 @@ function KeyDriverOnline() {
                           input.blur();
                         }
                       }}
+                      suffix={record.unit === "percent" ? "%" : null}
                       {...inputTargetDefaultProps}
                     />
                     <div
                       id={`${inputId}-action`}
                       hidden
-                      style={{ display: "flex", justifyContent: "flex-end" }}
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        position: "absolute",
+                        zIndex: 2,
+                        paddingTop: "2px",
+                        right: 0,
+                      }}
                     >
                       <Button
                         size="small"
                         icon={<CloseOutlined style={{ verticalAlign: "0.25em" }} />}
-                        style={{ borderColor: "#ddd" }}
+                        style={{ borderColor: "#ddd", backgroundColor: "#fff" }}
                         onClick={(e) => {
                           clickCancel = true;
                           const event = new Event("input", { bubbles: true });
@@ -245,7 +256,7 @@ function KeyDriverOnline() {
                       <Button
                         size="small"
                         icon={<CheckOutlined style={{ verticalAlign: "0.25em" }} />}
-                        style={{ marginLeft: 5, borderColor: "#ddd" }}
+                        style={{ marginLeft: 5, borderColor: "#ddd", backgroundColor: "#fff" }}
                         onClick={(e) => {
                           const input: any = document.getElementById(inputId);
                           input.blur();
@@ -307,21 +318,20 @@ function KeyDriverOnline() {
             className: "input-cell",
             render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
               const targetDrillingLevel = +record[`target_drilling_level`];
-              const inputId = getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE);
+              // const inputId = getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE);
+              const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-day-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
               return (
                 <VerifyCell row={record} value={text} type="edit">
-                  <div>
+                  <div style={{ position: "relative" }}>
                     <NumberInput
                       id={inputId}
                       disabled={departmentDrillingLevel > targetDrillingLevel}
                       value={newValue}
                       onPressEnter={(e: any) => {
                         const input: any = document.getElementById(inputId);
-                        if (input.value != newValue) {
-                          input.blur();
-                        }
+                        input.blur();
                       }}
                       onFocus={(e) => {
                         document.getElementById(`${inputId}-action`)?.removeAttribute("hidden");
@@ -363,14 +373,14 @@ function KeyDriverOnline() {
                         }, 100);
                       }}
                       onKeyDown={(e: any) => {
-                        if (e.shiftKey) {
-                          handleMoveFocusInput(
-                            index,
-                            columnIndex * 2 + 1,
-                            PREFIX_CELL_TABLE,
-                            e.key,
-                          );
-                        }
+                        // if (e.shiftKey) {
+                        //   handleMoveFocusInput(
+                        //     index,
+                        //     columnIndex * 2 + 1,
+                        //     PREFIX_CELL_TABLE,
+                        //     e.key,
+                        //   );
+                        // }
                         if (e.key === "Escape") {
                           const event = new Event("input", { bubbles: true });
                           const input: any = document.getElementById(inputId);
@@ -384,12 +394,19 @@ function KeyDriverOnline() {
                     <div
                       id={`${inputId}-action`}
                       hidden
-                      style={{ display: "flex", justifyContent: "flex-end" }}
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        position: "absolute",
+                        zIndex: 2,
+                        paddingTop: "2px",
+                        right: 0,
+                      }}
                     >
                       <Button
                         size="small"
                         icon={<CloseOutlined style={{ verticalAlign: "0.25em" }} />}
-                        style={{ borderColor: "#ddd" }}
+                        style={{ borderColor: "#ddd", backgroundColor: "#fff" }}
                         onClick={(e) => {
                           clickCancel = true;
                           const event = new Event("input", { bubbles: true });
@@ -402,7 +419,7 @@ function KeyDriverOnline() {
                       <Button
                         size="small"
                         icon={<CheckOutlined style={{ verticalAlign: "0.25em" }} />}
-                        style={{ marginLeft: 5, borderColor: "#ddd" }}
+                        style={{ marginLeft: 5, borderColor: "#ddd", backgroundColor: "#fff" }}
                         onClick={(e) => {
                           const input: any = document.getElementById(inputId);
                           input.blur();
@@ -588,8 +605,14 @@ function KeyDriverOnline() {
                 },
               };
             }}
+            expandedRowKeys={expandRowKeys}
             expandable={{
               defaultExpandAllRows: true,
+              onExpandedRowsChange: (rowKeys: any) => {
+                console.log("rowKeys", rowKeys);
+                setExpandRowKeys(rowKeys);
+                localStorage.setItem("key-dirver-online-rowkeys-expanded", JSON.stringify(rowKeys));
+              },
             }}
             columns={finalColumns}
             dataSource={data}

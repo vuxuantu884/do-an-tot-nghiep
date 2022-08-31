@@ -210,3 +210,40 @@ export const StyledCustomerInfo = styled.div`
     }
   }
 `;
+
+export const StyledCustomerModalConfirmTime = styled.div`
+  .modal_confirm_time {
+    display: flex;
+    align-items: center;
+    padding: 24px 0 0 0;
+
+    &-icon {
+      flex-shrink: 0;
+      width: 60px;
+      height: 60px;
+      margin-right: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #fcaf17;
+      border-radius: 50%;
+
+      &-img {
+        padding: 20px;
+      }
+    }
+
+    &-title {
+      font-size: 16px;
+      line-height: 14px;
+      font-weight: 700;
+      color: #222222;
+      margin: 0 12px 20px 0;
+    }
+
+    &-desc {
+      display: flex;
+      font-size: 14px;
+    }
+  }
+`;

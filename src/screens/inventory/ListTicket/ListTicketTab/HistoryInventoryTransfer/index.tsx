@@ -255,7 +255,6 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
 
   const setSearchResult = useCallback(
     (result: PageResponse<Array<InventoryTransferLog>> | false) => {
-      setTableLoading(true);
       if (!!result) {
         setTableLoading(false);
         setData(result);
@@ -307,6 +306,7 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
             from_store_id: params.from_store_id ? params.from_store_id : element.id,
           };
           setAccountStoresSelected(element);
+          setTableLoading(true);
           dispatch(getListLogInventoryTransferAction(newParams, setSearchResult));
         }
       });
@@ -320,6 +320,7 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
 
   useEffect(() => {
     if (accountStoresSelected !== "SECOND_SEARCH") return;
+    setTableLoading(true);
     dispatch(getListLogInventoryTransferAction(params, setSearchResult));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, setSearchResult, params]);

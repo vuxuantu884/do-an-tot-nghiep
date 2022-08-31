@@ -5,8 +5,10 @@ import { keyDriverOfflineTemplateData } from "../constant/key-driver-offline-tem
 type KeyDriverOfflineProviderValue = {
   data: any;
   setData: React.Dispatch<React.SetStateAction<any>>;
-  targetMonth: KeyDriverTarget[];
-  setTargetMonth: React.Dispatch<React.SetStateAction<KeyDriverTarget[]>>;
+  kdTarget: KeyDriverTarget[];
+  setKDTarget: React.Dispatch<React.SetStateAction<KeyDriverTarget[]>>;
+  selectedDate: string;
+  setSelectedDate: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export const KeyDriverOfflineContext = React.createContext<KeyDriverOfflineProviderValue>(
@@ -14,8 +16,11 @@ export const KeyDriverOfflineContext = React.createContext<KeyDriverOfflineProvi
 );
 
 function KeyDriverOfflineProvider(props: { children: React.ReactNode }) {
-  const [data, setData] = React.useState<any>(keyDriverOfflineTemplateData);
-  const [targetMonth, setTargetMonth] = React.useState<KeyDriverTarget[]>([]);
+  const [data, setData] = React.useState<any>(
+    JSON.parse(JSON.stringify(keyDriverOfflineTemplateData)),
+  );
+  const [kdTarget, setKDTarget] = React.useState<KeyDriverTarget[]>([]);
+  const [selectedDate, setSelectedDate] = React.useState<string>("");
 
   return (
     <KeyDriverOfflineContext.Provider
@@ -23,8 +28,10 @@ function KeyDriverOfflineProvider(props: { children: React.ReactNode }) {
       value={{
         data,
         setData,
-        targetMonth,
-        setTargetMonth,
+        kdTarget,
+        setKDTarget,
+        selectedDate,
+        setSelectedDate,
       }}
     />
   );

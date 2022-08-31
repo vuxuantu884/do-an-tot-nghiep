@@ -402,6 +402,14 @@
     {
       "name": "Phiếu nhặt hàng sàn",
       "value": "ecommerce_shipment"
+    },
+    {
+      "name": "Phiếu chia hàng ncc",
+      "value": "purchase_order_split_good"
+    },
+    {
+      "name": "Phiếu xuất kho ncc",
+      "value": "purchase_order_procurement_ncc"
     }
   ],
   "moq_unit": [

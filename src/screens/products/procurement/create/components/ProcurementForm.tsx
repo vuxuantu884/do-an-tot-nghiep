@@ -23,14 +23,12 @@ import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import { EnumImportStatus } from "config/enum.config";
 import UrlConfig from "config/url.config";
 import { uploadFileAction } from "domain/actions/core/import.action";
-import { StoreGetListAction } from "domain/actions/core/store.action";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { debounce, isEmpty } from "lodash";
 import { AccountStoreResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { SupplierResponse } from "model/core/supplier.model";
 import { ProcurementField } from "model/procurement/field";
-import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { VscError } from "react-icons/vsc";
@@ -38,14 +36,15 @@ import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import SupplierItem from "screens/purchase-order/component/supplier-item";
 import { getAccountDetail } from "service/accounts/account.service";
-import { getStoreApi } from "service/inventory/transfer/index.service";
 import { callApiNative } from "utils/ApiUtils";
 import excelIcon from "assets/icon/icon-excel.svg";
 import { CON_STATUS_IMPORT } from "..";
+import { PurchaseProcument } from "model/purchase-order/purchase-procument";
+import { checkStoresEnvironment } from "../helper";
 
 interface ProcurementFormProps {
   formMain: FormInstance;
-  listPO: Array<PurchaseOrder>;
+  procurementsResult: Array<PurchaseProcument>;
   setLinkFileImport: (file: string) => void;
   linkFileImport?: string;
   setStatusImport: (step: number) => void;
@@ -65,7 +64,7 @@ type UploadStatus = "ERROR" | "SUCCESS" | "DONE" | "PROCESSING" | "REMOVED" | un
 const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormProps) => {
   const {
     formMain,
-    listPO,
+    procurementsResult,
     setLinkFileImport,
     setStatusImport,
     statusImport,
@@ -80,7 +79,6 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
   } = props;
   const [data, setData] = useState<Array<SupplierResponse>>([]);
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
-  const [listStore, setListStore] = useState<Array<Store>>([]);
   const [accountStores, setAccountStores] = useState<Array<AccountStoreResponse>>([]);
 
   const dispatch = useDispatch();
@@ -92,77 +90,46 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
     }
   }, [dispatch]);
 
-  const getStores = useCallback(async () => {
-    const res = await callApiNative({ isShowLoading: false }, dispatch, getStoreApi, {
-      status: "active",
-      simple: true,
-    });
-    if (res) {
-      setListStore(res);
-    }
-  }, [dispatch]);
+  // const getStores = useCallback(async () => {
+  //   const res = await callApiNative(
+  //     { isShowLoading: false },
+  //     dispatch,
+  //     getStoreApi,
+  //     { status: "active", simple: true },
+  //   );
+  //   if (res) {
+  //     setListStore(res);
+  //   }
+  // }, [dispatch]);
+
+  // useEffect(() => {
+  //   dispatch(StoreGetListAction(setListStore));
+  // }, [dispatch]);
 
   useEffect(() => {
-    dispatch(StoreGetListAction(setListStore));
-  }, [dispatch]);
-
-  useEffect(() => {
-    getMe();
-    getStores();
-  }, [dispatch, getMe, getStores]);
-
-  useEffect(() => {
-    if (listStore.length === 0) return;
+    let stores: Array<Store> = checkStoresEnvironment();
 
     if (accountStores?.length === 1) {
-      listStore.forEach((element) => {
-        if (element.id === accountStores[0].store_id) {
+      stores.forEach((element) => {
+        if (element.store_id === accountStores[0].store_id) {
           formMain.setFieldsValue({ [ProcurementField.store_id]: element.id });
         }
       });
     }
 
     if (accountStores?.length === 0) {
-      const newStore = listStore.map((i) => {
-        return {
-          store_id: i.id,
-          store: i.name,
-        };
-      });
-      setAccountStores(newStore);
+      setAccountStores(stores);
     }
-  }, [listStore, accountStores, formMain]);
+  }, [accountStores, formMain]);
 
   useEffect(() => {
     getMe();
-    getStores();
-  }, [dispatch, getMe, getStores]);
-
-  useEffect(() => {
-    if (listStore.length === 0) return;
-
-    if (accountStores?.length === 1) {
-      listStore.forEach((element) => {
-        if (element.id === accountStores[0].store_id) {
-          formMain.setFieldsValue({ [ProcurementField.store_id]: element.id });
-        }
-      });
-    }
-
-    if (accountStores?.length === 0) {
-      const newStore = listStore.map((i) => {
-        return {
-          store_id: i.id,
-          store: i.name,
-        };
-      });
-      setAccountStores(newStore);
-    }
-  }, [listStore, accountStores, formMain]);
+    // getStores();
+  }, [dispatch, getMe]);
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
-    data.forEach((item: SupplierResponse, index: number) => {
+    data.forEach((item: SupplierResponse) => {
       options.push({
         label: <SupplierItem data={item} key={item.id.toString()} />,
         value: item.id.toString(),
@@ -265,7 +232,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
                           >
                             {supplier}
                           </Link>
-                          {isEmpty(listPO) && supplier_id && (
+                          {isEmpty(procurementsResult) && supplier_id && (
                             <Button
                               type="link"
                               onClick={removeSupplier}
@@ -286,7 +253,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
                           </Form.Item>
                           <Row>
                             <div>
-                              <PhoneOutlined /> <Text strong>{phone}</Text>
+                              <PhoneOutlined /> <Text strong>{phone.indexOf("{") !== -1 ? `+${JSON.parse(phone).code}${JSON.parse(phone).phone}` : phone}</Text>
                             </div>
                           </Row>
                         </>
@@ -344,7 +311,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
                 optionFilterProp="children"
                 placeholder="Chọn kho nhận"
                 onChange={onChangeStore}
-                disabled={!isEmpty(listPO)}
+                disabled={!isEmpty(procurementsResult)}
               >
                 {!isEmpty(accountStores) &&
                   accountStores.map((item) => (
@@ -384,7 +351,11 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
                   );
                 }}
               >
-                <Button disabled={!isEmpty(listPO)} size="middle" icon={<UploadOutlined />}>
+                <Button
+                  disabled={!isEmpty(procurementsResult)}
+                  size="middle"
+                  icon={<UploadOutlined />}
+                >
                   Nhập file sản phẩm <span style={{ color: "red", marginLeft: 3 }}>*</span>
                 </Button>
               </Upload>
@@ -396,7 +367,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
               <Typography.Text>
                 <img src={excelIcon} alt="" />{" "}
                 <a
-                  href="https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/M%E1%BA%ABu%20file%20nh%E1%BA%ADp%20kho%20ncc_1654596346688.xlsx"
+                  href="https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/M%C3%A2%CC%83u_file_nh%C3%A2%CC%A3p_kho_ncc.xlsx"
                   download="Import_Procurement"
                 >
                   Mẫu file nhập kho NCC(.xlsx)
@@ -413,7 +384,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
             rows={4}
             maxLength={500}
             placeholder="Nhập ghi chú"
-            disabled={!isEmpty(listPO)}
+            disabled={!isEmpty(procurementsResult)}
           />
         </Form.Item>
       </Col>
@@ -430,28 +401,28 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
         footer={[
           <>
             {/* {statusImport === CON_STATUS_IMPORT.CREATE_JOB_SUCCESS && (
-						<>
-							<Button
-								key="ok"
-								type="primary"
-								// onClick={onImportFile}
-							>
-								Xác nhận
-							</Button>
-							<Button
-								key="cancel"
-								type="primary"
-								onClick={() => {
-									setUploadStatus(undefined);
-									setStatusImport(CON_STATUS_IMPORT.CHANGE_FILE);
-									setShowModal(false)
-									setErrorMessage('')
-								}}
-							>
-								Hủy
-							</Button>
-						</>
-					)} */}
+						  <>
+							  <Button
+								  key="ok"
+								  type="primary"
+								  // onClick={onImportFile}
+							  >
+								  Xác nhận
+							  </Button>
+							  <Button
+								  key="cancel"
+								  type="primary"
+								  onClick={() => {
+									  setUploadStatus(undefined);
+									  setStatusImport(CON_STATUS_IMPORT.CHANGE_FILE);
+									  setShowModal(false)
+									  setErrorMessage('')
+								  }}
+							  >
+								  Hủy
+							  </Button>
+						  </>
+					  )} */}
             {(statusImport === CON_STATUS_IMPORT.JOB_FINISH ||
               statusImport === CON_STATUS_IMPORT.ERROR) && (
               <Button
@@ -473,9 +444,9 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
         <div>
           <Row justify={"center"}>
             {/* {!uploadStatus ?
-							<div>
-								<p>Bạn chắc chắn muốn tạo phiếu?</p>
-							</div> : ""} */}
+							  <div>
+								  <p>Bạn chắc chắn muốn tạo phiếu?</p>
+							  </div> : ""} */}
             {uploadStatus === EnumImportStatus.processing ? (
               <Col span={24}>
                 <Row justify={"center"}>
@@ -513,7 +484,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
                     </Row>
                     <Row justify={"center"}>
                       <h2 style={{ padding: "10px 30px" }}>
-                        Xử lý nhập hoàn tất: <strong style={{ color: "#2A2A86" }}></strong>{" "}
+                        Xử lý nhập hoàn tất: <strong style={{ color: "#2A2A86" }} />{" "}
                       </h2>
                       <h4>{errorMessage ?? ""}</h4>
                     </Row>

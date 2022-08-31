@@ -14,7 +14,8 @@ function useCheckIfCanCreateMoneyRefund(
 
   const canCreateMoneyRefund =
     (isOrderFromPOS(orderDetail) || allowCreateMoneyReturn) && isReceivedReturnProducts;
-
+  console.log("allowCreateMoneyReturn", allowCreateMoneyReturn);
+  console.log("canCreateMoneyRefund", canCreateMoneyRefund);
   return canCreateMoneyRefund;
 }
 

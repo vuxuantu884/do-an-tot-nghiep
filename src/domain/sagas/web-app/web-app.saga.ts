@@ -32,6 +32,8 @@ import {
   webAppGetInfoShopify,
   webAppCreateShopify,
   webAppGetSourceList,
+  webAppGetAbandonCartList,
+  getDetailAbandonCart,
 } from "service/web-app/web-app.service";
 import { showError } from "utils/ToastUtils";
 import { WebAppResponse } from "model/response/web-app/ecommerce.response";
@@ -609,6 +611,52 @@ function* webAppGetSourceListSaga(action: YodyAction) {
   }
 }
 
+function* webAppGetAbandonCArtListSaga(action: YodyAction) {
+  const { query, setData } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(webAppGetAbandonCartList, query);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+function* webAppGetAbandonCArtDetailSaga(action: YodyAction) {
+  const { id, setData } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(getDetailAbandonCart, id);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
 export function* webAppSaga() {
   yield takeLatest(WebAppType.WEB_APP_UPDATE_CONFIG_REQUEST, webAppUpdateConfigSaga);
   yield takeLatest(WebAppType.WEB_APP_CREATE_CONFIG_REQUEST, webAppCreateConfigSaga);
@@ -635,4 +683,9 @@ export function* webAppSaga() {
   yield takeLatest(WebAppType.WEB_APP_GET_INFO_SHOPIFY, webAppGetInfoShopifySaga); //get info shopify
   yield takeLatest(WebAppType.WEB_APP_CRATE_SHOPIFY, webAppCreateShopifySaga); //create shopify
   yield takeLatest(WebAppType.WEB_APP_GET_LIST_SOURCE_REQUEST, webAppGetSourceListSaga); //get source list
+  yield takeLatest(WebAppType.WEB_APP_GET_LIST_ABANDON_CART_REQUEST, webAppGetAbandonCArtListSaga); //get list abandon cart
+  yield takeLatest(
+    WebAppType.WEB_APP_GET_DETAIL_ABANDON_CART_REQUEST,
+    webAppGetAbandonCArtDetailSaga,
+  ); //get detail abandon cart
 }

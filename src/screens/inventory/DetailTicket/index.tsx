@@ -84,6 +84,7 @@ import { InventoryType } from "domain/types/inventory.type";
 import { HttpStatus } from "config/http-status.config";
 import ModalShowError from "../common/ModalShowError";
 import TagStatus from "component/tag/tag-status";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 export interface InventoryParams {
   id: string;
@@ -109,7 +110,6 @@ const DetailTicket: FC = () => {
 
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [isError, setError] = useState(false);
-  const [isLoading, setLoading] = useState<boolean>(false);
   const [isLoadingBtn, setLoadingBtn] = useState<boolean>(false);
   const [isLoadingBtnSave, setIsLoadingBtnSave] = useState<boolean>(false);
   const [isVisibleModalReceiveWarning, setIsVisibleModalReceiveWarning] = useState<boolean>(false);
@@ -166,7 +166,7 @@ const DetailTicket: FC = () => {
 
   const onResult = useCallback(
     (result: InventoryTransferDetailItem | false) => {
-      setLoading(false);
+      dispatch(hideLoading());
       setLoadingBtn(false);
       setIsLoadingBtnSave(false);
       setIsDisableEditNote(false);
@@ -518,6 +518,8 @@ const DetailTicket: FC = () => {
         showSuccess("Nhập hàng thành công");
         setDataTable(result.line_items);
         dispatch(getDetailInventoryTransferAction(idNumber, onResult));
+      } else {
+        dispatch(showLoading())
       }
     },
     [dispatch, idNumber, onResult],
@@ -526,6 +528,7 @@ const DetailTicket: FC = () => {
   const updateCallback = useCallback(
     (result: InventoryTransferDetailItem) => {
       setIsDisableEditNote(false);
+      dispatch(hideLoading())
       if (!result) return;
       showSuccess("Đổi dữ liệu thành công");
       onReload();
@@ -536,6 +539,7 @@ const DetailTicket: FC = () => {
 
   const updateNoteApi = (key: string) => {
     setIsLoadingBtnSave(true);
+    dispatch(showLoading())
     if (data && dataTable) {
       setIsDisableEditNote(true);
       data.line_items = dataTable;
@@ -579,6 +583,7 @@ const DetailTicket: FC = () => {
   const onReceive = useCallback(() => {
     if (data && dataTable) {
       setLoadingBtn(true);
+      dispatch(showLoading())
       data.line_items = dataTable;
       let dataUpdate: any = {};
 
@@ -930,10 +935,9 @@ const DetailTicket: FC = () => {
       dataIndex: "transfer_quantity",
       render: (value: string, row: any, index: number) => {
         if (
-          (parseInt(value) !== 0 &&
-            (row.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status ||
-              row.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)) ||
-          row?.status === STATUS_INVENTORY_TRANSFER.PENDING.status
+          (parseInt(value) !== 0 && row.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
+            || row.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
+          || row?.status === STATUS_INVENTORY_TRANSFER.PENDING.status
         ) {
           return false;
         }
@@ -983,6 +987,7 @@ const DetailTicket: FC = () => {
 
   const onReload = useCallback(() => {
     setLoadingBtn(true);
+    dispatch(showLoading())
     dispatch(getDetailInventoryTransferAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
@@ -1097,10 +1102,10 @@ const DetailTicket: FC = () => {
   };
 
   const exportTransfer = (transfer: InventoryTransferDetailItem | null) => {
-    setLoading(true);
+    dispatch(showLoading());
     if (transfer == null || transfer.line_items == null || transfer.line_items.length === 0) {
       showWarning("Không có dữ liệu để xuất file");
-      setLoading(false);
+      dispatch(hideLoading());
       return;
     }
 
@@ -1114,7 +1119,7 @@ const DetailTicket: FC = () => {
     const day = today.format("D");
     const year = today.format("YYYY");
     XLSX.writeFile(workbook, `${transfer.code}_${day}_${month}_${year}.xlsx`);
-    setLoading(false);
+    dispatch(hideLoading());
   };
 
   const onMenuClick = React.useCallback(
@@ -1163,7 +1168,6 @@ const DetailTicket: FC = () => {
     <StyledWrapper>
       <ContentContainer
         isError={isError}
-        isLoading={isLoading}
         title={`Chuyển hàng ${data ? data.code : ""}`}
         breadcrumb={[
           {
@@ -1601,6 +1605,7 @@ const DetailTicket: FC = () => {
                         loading={isLoadingBtn}
                         onClick={() => {
                           setLoadingBtn(true);
+                          dispatch(showLoading())
                           if (data) dispatch(exportInventoryAction(data?.id, onReload));
                         }}
                       >

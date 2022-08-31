@@ -443,22 +443,30 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     [createdDateClick],
   );
 
-  const handleCreatedDateStart = (date: any) => {
+  const convertDateStringToDate = (dateString: string) => {
+    const arrDate = dateString.split("-");
+    const stringDate = arrDate[2] + "-" + arrDate[1] + "-" + arrDate[0];
+    return new Date(stringDate);
+  }
+
+  const handleCreatedDateStart = (dateString: string) => {
     setCreatedDateClick("");
-    if (!date) {
+    if (!dateString) {
       setCreatedDateStart(null);
     } else {
-      const startOfDate = date.utc().startOf("day");
+      const _date = convertDateStringToDate(dateString);
+      const startOfDate = moment(_date).utc().startOf("day");
       setCreatedDateStart(startOfDate?.toISOString());
     }
   };
 
-  const handleCreatedDateEnd = (date: any) => {
+  const handleCreatedDateEnd = (dateString: string) => {
     setCreatedDateClick("");
-    if (!date) {
+    if (!dateString) {
       setCreatedDateEnd(null);
     } else {
-      const endOfDate = date.utc().endOf("day");
+      const _date = convertDateStringToDate(dateString);
+      const endOfDate = moment(_date).utc().endOf("day");
       setCreatedDateEnd(endOfDate?.toISOString());
     }
   };
@@ -764,7 +772,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
           onClearFilter={onClearFilterClick}
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
-          width={700}
+          width={800}
         >
           <Form onFinish={onFinish} form={form} initialValues={params} layout="vertical">
             <Row gutter={20}>

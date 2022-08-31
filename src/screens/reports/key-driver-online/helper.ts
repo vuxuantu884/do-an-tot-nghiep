@@ -42,6 +42,7 @@ const ATTRIBUTE_TITLE = [
   "key_driver",
   "key_driver_title",
   "key_driver_description",
+  "unit",
   "key_driver_group_lv1",
   "key_driver_group_lv2",
   "key_driver_group_lv3",
@@ -112,6 +113,7 @@ export const convertDataToFlatTableKeyDriver = (
     attributeOrdered.forEach((attr) => {
       otherValue[nonAccentVietnamese(department) + "_" + attr] =
         row[attributeOrdered.indexOf(attr)];
+      otherValue[attr] = row[attributeOrdered.indexOf(attr)];
     });
 
     if (currentKeyDriver !== keyDriver) {
@@ -125,6 +127,7 @@ export const convertDataToFlatTableKeyDriver = (
           : null;
       data.push({
         key: keyDriver,
+        key_driver: keyDriver,
         title: row[keyDriverTitleDataIndex],
         method: row[keyDriverDescriptionDataIndex],
         target_drilling_level: currentTargetDrillingValue,
@@ -142,8 +145,98 @@ export const convertDataToFlatTableKeyDriver = (
       data[data.length - 1] = newRow;
     }
   });
-  return data;
+  return buildSchemas(data);
 };
+
+const sliceGroups = (schema: any) => {
+  const { key_driver_group_lv1, key_driver_group_lv2, key_driver_group_lv3, key_driver_group_lv4 } =
+    schema;
+  const groups = [
+    key_driver_group_lv1,
+    key_driver_group_lv2,
+    key_driver_group_lv3,
+    key_driver_group_lv4,
+  ];
+  return groups.filter((_group) => !!_group);
+};
+
+const findParent: any = (groups: any, prev_schema: any) => {
+  if (!groups || !prev_schema) {
+    return {
+      _parent: null,
+      _grouped: true,
+    };
+  }
+  const prev_groups = sliceGroups(prev_schema);
+  // TODO update comparation
+  if (JSON.stringify(groups) === JSON.stringify(prev_groups)) {
+    const { _parent, _grouped } = prev_schema;
+    if (_grouped) {
+      return {
+        _parent: prev_schema,
+        _grouped: false,
+      };
+    }
+    return {
+      _parent,
+      _grouped: false,
+    };
+  }
+  if (groups.length > prev_groups.length) {
+    const next_groups = groups.slice(0, -1);
+    const { _parent } = findParent(next_groups, prev_schema);
+    return { _parent, _grouped: true };
+  }
+  const { _parent } = findParent(groups, prev_schema._parent);
+  return { _parent, _grouped: true };
+};
+// code by TO, ý kiến qua TO mà hỏi :))
+const buildSchemas = (_input: any) => {
+  console.log("_input", _input);
+  const _schemas = _input.reduce(
+    (schemas: any, current_value: any, current_index: any, arr: any) => {
+      const schema = current_value;
+      const groups = sliceGroups(schema);
+      const prev_schema = current_index > 0 ? schemas[current_index - 1] : null;
+      const parent = findParent(groups, prev_schema);
+      return [
+        ...schemas,
+        {
+          ...schema,
+          ...parent,
+          parent_key_driver:
+            parent && parent._parent && parent._parent.key_driver
+              ? parent._parent.key_driver
+              : null,
+        },
+      ];
+    },
+    [],
+  );
+  _schemas.forEach((_schema: any) => {
+    delete _schema["_parent"];
+    delete _schema["_grouped"];
+  });
+  const treeData: any = (arr: any[], key_driver = null) =>
+    arr
+      .filter((item) => item.parent_key_driver === key_driver)
+      .map((child) => ({ ...child, children: treeData(arr, child.key_driver) }));
+  // console.log("treeData", treeData(_schemas));
+
+  return removeChildrentEmpty(treeData(_schemas));
+};
+
+function removeChildrentEmpty(arrTreeLayers: any[]) {
+  const removeChildrent = arrTreeLayers.map((item) => {
+    if (item.children.length === 0) {
+      delete item.children;
+    } else {
+      removeChildrentEmpty(item.children);
+    }
+    return item;
+  });
+  return removeChildrent;
+}
 
 export const getAllDepartmentByAnalyticResult = (
   analyticResultData: Array<ArrayAny>,

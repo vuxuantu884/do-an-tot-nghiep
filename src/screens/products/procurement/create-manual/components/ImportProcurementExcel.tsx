@@ -8,19 +8,20 @@ import * as FileSaver from "file-saver";
 import NumberFormat from "react-number-format";
 import { isNullOrUndefined } from "utils/AppUtils";
 import { StyledProgressDownloadModal } from "screens/ecommerce/common/commonStyle";
-import { PurchaseProcumentLineItemManual } from "model/purchase-order/purchase-procument";
+// import { PurchaseProcumentLineItemManual } from "model/purchase-order/purchase-procument";
 import { cloneDeep } from "lodash";
 
 export interface ModalImportProps {
   visible?: boolean;
-  onOk: (res: any) => void;
-  onCancel: (res: any) => void;
+  onOk: (res: any, code?: string) => void;
+  onCancel: (res: any, code?: string) => void;
   title: string | React.ReactNode;
   subTitle?: string | React.ReactNode;
   okText?: string;
   cancelText?: string;
   loading?: boolean;
-  dataTable?: Array<PurchaseProcumentLineItemManual>;
+  dataTable?: Array<any>;
+  prCode?: string;
 }
 
 type ImportProps = {
@@ -39,14 +40,10 @@ type Process = {
 let firstLoad = true;
 
 const ImportProcurementExcel: React.FC<ModalImportProps> = (props: ModalImportProps) => {
-  const { visible, onOk, onCancel, title, dataTable } = props;
+  const { visible, onOk, onCancel, title, dataTable, prCode } = props;
   const [fileList, setFileList] = useState<Array<any>>([]);
-  const [data, setData] = useState<Array<PurchaseProcumentLineItemManual>>(
-    dataTable ? [...dataTable] : [],
-  );
-  const [preData, setPreData] = useState<Array<PurchaseProcumentLineItemManual>>(
-    dataTable ? [...dataTable] : [],
-  );
+  const [data, setData] = useState<Array<any>>(dataTable ? [...dataTable] : []);
+  const [preData, setPreData] = useState<Array<any>>(dataTable ? [...dataTable] : []);
   const [errorData, setErrorData] = useState<Array<any>>([]);
   const [progressData, setProgressData] = useState<Process>({
     processed: 0,
@@ -73,12 +70,12 @@ const ImportProcurementExcel: React.FC<ModalImportProps> = (props: ModalImportPr
   const ActionImport = {
     Ok: useCallback(() => {
       resetFile();
-      onOk(data);
-    }, [onOk, data]),
+      onOk(data, prCode);
+    }, [onOk, data, prCode]),
     Cancel: useCallback(() => {
       resetFile();
-      onCancel(preData);
-    }, [onCancel, preData]),
+      onCancel(preData, prCode);
+    }, [onCancel, prCode, preData]),
   };
 
   const uploadProps = {
@@ -160,8 +157,7 @@ const ImportProcurementExcel: React.FC<ModalImportProps> = (props: ModalImportPr
             for (let i = 0; i < convertData.length; i++) {
               const element = convertData[i];
               const fi = data?.findIndex(
-                (e: PurchaseProcumentLineItemManual) =>
-                  e.sku.toString().trim() === element.sku.toString().trim(),
+                (e: any) => e.sku.toString().trim() === element.sku.toString().trim(),
               );
 
               if (
@@ -175,10 +171,6 @@ const ImportProcurementExcel: React.FC<ModalImportProps> = (props: ModalImportPr
 
               if (fi >= 0) {
                 data[fi].real_quantity = element.quantity;
-                data[fi].fake_real_quantity = element.quantity;
-                data[fi].accepted_quantity = element.quantity;
-                data[fi].line_item_id = fi;
-                delete data[fi].code;
                 process.success += 1;
               } else {
                 error.push(`${element.sku}: Sản phẩm không tồn tại trên đơn đặt hàng`);

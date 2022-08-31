@@ -37,11 +37,16 @@ export const actionCreateOrderReturn = (
   };
 };
 
-export const actionSetIsReceivedOrderReturn = (id: number, handleData: (data: any) => void) => {
+export const actionSetIsReceivedOrderReturn = (
+  orderId: number,
+  returned_store_id: number,
+  handleData: (data: any) => void,
+) => {
   return {
     type: ORDER_RETURN_TYPES.SET_IS_RECEIVED_PRODUCT,
     payload: {
-      id,
+      id: orderId,
+      returned_store_id,
       handleData,
     },
   };

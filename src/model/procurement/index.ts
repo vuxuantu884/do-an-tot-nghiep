@@ -1,4 +1,4 @@
-export interface ProcurementCreate {
+export interface ProcurementDataResult {
   id: number;
   code: string;
   status: string;
@@ -9,10 +9,16 @@ export interface ProcurementCreate {
   success: number;
   percent: number;
   error: number;
-  message: ProcurementCreatePO[];
+  message: Array<ProcurementImportResult>;
 }
 
-export interface ProcurementCreatePO {
-  po_ids?: string;
+export interface ProcurementImportResult {
+  purchase_orders: Array<PurchaseOrderImportResult>;
   total_po?: number;
+  total_pr?: number;
+}
+
+export interface PurchaseOrderImportResult {
+  id: string;
+  pr_ids: string;
 }

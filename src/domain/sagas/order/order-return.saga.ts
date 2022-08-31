@@ -60,10 +60,14 @@ function* createOrderReturnSaga(action: YodyAction) {
 }
 
 function* setIsReceivedProductReturnSaga(action: YodyAction) {
-  const { id, handleData } = action.payload;
+  const { id, returned_store_id, handleData } = action.payload;
   try {
     yield put(showLoading());
-    let response: BaseResponse<any> = yield call(setIsReceivedProductOrderReturnService, id);
+    let response: BaseResponse<any> = yield call(
+      setIsReceivedProductOrderReturnService,
+      id,
+      returned_store_id,
+    );
     if (isFetchApiSuccessful(response)) {
       handleData(response.data);
       showSuccess("Thay đổi trạng thái đã nhận hàng thành công!");

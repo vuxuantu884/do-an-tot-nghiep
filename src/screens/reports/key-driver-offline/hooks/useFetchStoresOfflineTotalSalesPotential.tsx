@@ -1,10 +1,11 @@
-import { START_OF_MONTH, TODAY, YESTERDAY } from "config/dashboard";
-import { KeyDriverField } from "model/report";
+import { TODAY } from "config/dashboard";
+import { KDOfflineTotalSalesParams, KeyDriverDimension, KeyDriverField } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getKDOfflineTotalSalesPotential } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
+import { DATE_FORMAT } from "utils/DateUtils";
 import {
   calculateTargetMonth,
   findKeyDriver,
@@ -13,30 +14,36 @@ import {
 import { showErrorReport } from "utils/ReportUtils";
 import { KDOfflineStoresContext } from "../provider/kd-offline-stores-provider";
 
-function useFetchStoresOfflineTotalSalesPotential() {
+function useFetchStoresOfflineTotalSalesPotential(
+  dimension: KeyDriverDimension = KeyDriverDimension.Store,
+) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm } = useContext(KDOfflineStoresContext);
+  const { setData, selectedStores, selectedAsm, selectedDate } = useContext(KDOfflineStoresContext);
 
   const [
     isFetchingStoresOfflineTotalSalesPotential,
     setIsFetchingStoresOfflineTotalSalesPotential,
   ] = useState<boolean | undefined>();
 
-  const findKeyDriverAndUpdateValue = useCallback((data: any, asmData: any, columnKey: string) => {
-    let potentialCustomerCount: any = [];
-    const { PotentialCustomerCount } = KeyDriverField;
-    findKeyDriver(data, PotentialCustomerCount, potentialCustomerCount);
-    potentialCustomerCount = potentialCustomerCount[0];
-    const asmName = nonAccentVietnameseKD(asmData["store_name"]);
-    if (asmName) {
-      potentialCustomerCount[`${asmName}_${columnKey}`] = asmData[PotentialCustomerCount];
-      if (columnKey === "accumulatedMonth") {
-        potentialCustomerCount[`${asmName}_targetMonth`] = calculateTargetMonth(
-          potentialCustomerCount[`${asmName}_accumulatedMonth`],
-        );
+  const findKeyDriverAndUpdateValue = useCallback(
+    (data: any, asmData: any, columnKey: string) => {
+      let potentialCustomerCount: any = [];
+      const { PotentialCustomerCount } = KeyDriverField;
+      findKeyDriver(data, PotentialCustomerCount, potentialCustomerCount);
+      potentialCustomerCount = potentialCustomerCount[0];
+      const asmName = nonAccentVietnameseKD(asmData["store_name"]);
+      if (asmName) {
+        potentialCustomerCount[`${asmName}_${columnKey}`] = asmData[PotentialCustomerCount];
+        if (columnKey === "accumulatedMonth") {
+          potentialCustomerCount[`${asmName}_targetMonth`] = calculateTargetMonth(
+            potentialCustomerCount[`${asmName}_accumulatedMonth`],
+            selectedDate,
+          );
+        }
       }
-    }
-  }, []);
+    },
+    [selectedDate],
+  );
 
   const calculateConversionRate = useCallback((data: any, asmData: any, columnKey: string) => {
     let newCustomersConversionRate: any = [];
@@ -49,12 +56,12 @@ function useFetchStoresOfflineTotalSalesPotential() {
       newCustomersConversionRate[`${asmName}_${columnKey}`] = (
         (asmData[NewCustomersCount] / asmData[PotentialCustomerCount]) *
         100
-      ).toFixed(1);
+      ).toFixed(2);
       if (columnKey === "accumulatedMonth") {
         newCustomersConversionRate[`${asmName}_targetMonth`] = (
           (asmData[NewCustomersCount] / asmData[PotentialCustomerCount]) *
           100
-        ).toFixed(1);
+        ).toFixed(2);
       }
     }
   }, []);
@@ -64,27 +71,55 @@ function useFetchStoresOfflineTotalSalesPotential() {
       if (!selectedStores.length || !selectedAsm.length) {
         return;
       }
+      if (dimension === KeyDriverDimension.Staff) {
+        setIsFetchingStoresOfflineTotalSalesPotential(false);
+        return;
+      }
       setIsFetchingStoresOfflineTotalSalesPotential(true);
+      const params: KDOfflineTotalSalesParams = {
+        from: TODAY,
+        to: TODAY,
+        posLocationNames: selectedStores,
+        departmentLv2s: selectedAsm,
+      };
       const dayApi = callApiNative(
         { notifyAction: "SHOW_ALL" },
         dispatch,
         getKDOfflineTotalSalesPotential,
         {
-          from: TODAY,
-          to: TODAY,
-          posLocationNames: selectedStores,
-          departmentLv2s: selectedAsm,
+          ...params,
+          from: selectedDate,
+          to: selectedDate,
         },
       );
-      const monthApi =
-        moment().date() > 1
-          ? callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDOfflineTotalSalesPotential, {
-              from: START_OF_MONTH,
-              to: YESTERDAY,
-              posLocationNames: selectedStores,
-              departmentLv2s: selectedAsm,
-            })
-          : Promise.resolve(0);
+      const { YYYYMMDD } = DATE_FORMAT;
+      let monthApi: Promise<any>;
+      if (selectedDate === moment().format(YYYYMMDD)) {
+        monthApi =
+          moment(selectedDate, YYYYMMDD).date() > 1
+            ? callApiNative(
+                { notifyAction: "SHOW_ALL" },
+                dispatch,
+                getKDOfflineTotalSalesPotential,
+                {
+                  ...params,
+                  from: moment(selectedDate, YYYYMMDD).startOf("month").format(YYYYMMDD),
+                  to: moment(selectedDate, YYYYMMDD).subtract(1, "days").format(YYYYMMDD),
+                },
+              )
+            : Promise.resolve(0);
+      } else {
+        monthApi = callApiNative(
+          { notifyAction: "SHOW_ALL" },
+          dispatch,
+          getKDOfflineTotalSalesPotential,
+          {
+            ...params,
+            from: moment(selectedDate, YYYYMMDD).startOf("month").format(YYYYMMDD),
+            to: moment(selectedDate, YYYYMMDD).format(YYYYMMDD),
+          },
+        );
+      }
 
       await Promise.all([dayApi, monthApi]).then(([resDay, resMonth]) => {
         if (!resDay) {
@@ -138,12 +173,16 @@ function useFetchStoresOfflineTotalSalesPotential() {
 
       setIsFetchingStoresOfflineTotalSalesPotential(false);
     };
-    fetchStoresOfflineTotalSalesPotential();
+    if (selectedDate) {
+      fetchStoresOfflineTotalSalesPotential();
+    }
   }, [
     calculateConversionRate,
+    dimension,
     dispatch,
     findKeyDriverAndUpdateValue,
     selectedAsm,
+    selectedDate,
     selectedStores,
     setData,
   ]);

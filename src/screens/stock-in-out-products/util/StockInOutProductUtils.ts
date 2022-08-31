@@ -1,6 +1,6 @@
 import { StockInOutItemsOther } from "model/stock-in-out-other";
 import { VariantResponse } from "model/product/product.model";
-import { Products } from "utils/AppUtils";
+import { isNullOrUndefined, Products } from "utils/AppUtils";
 
 const StockInOutProductUtils = {
   convertVariantToStockInOutItem: (
@@ -32,10 +32,10 @@ const StockInOutProductUtils = {
         unit: variant.product.unit,
         receipt_quantity: 0,
         policy_price: policyPriceType,
-        retail_price: retailPrice ?? 0,
-        cost_price: costPrice ?? 0,
-        wholesale_price: wholeSalePrice ?? 0,
-        import_price: importPrice ?? 0,
+        retail_price: retailPrice,
+        cost_price: costPrice,
+        wholesale_price: wholeSalePrice,
+        import_price: importPrice,
       };
       result.push(newItem);
     });
@@ -45,7 +45,7 @@ const StockInOutProductUtils = {
     oldItems: Array<StockInOutItemsOther>,
     newItems: Array<StockInOutItemsOther>,
     policyPriceType: string,
-    type: string
+    type: string,
   ) => {
     newItems.forEach((item) => {
       let index = oldItems.findIndex((oldItem) => oldItem.sku === item.sku);
@@ -53,8 +53,9 @@ const StockInOutProductUtils = {
         oldItems.unshift(item);
       } else {
         let oldItem = oldItems[index];
-        let newQuantity = oldItem.quantity + (type === 'SELECT' ? 1 : item.quantity);
-        let amount = newQuantity * oldItem[policyPriceType];
+        let newQuantity = oldItem.quantity + (type === "SELECT" ? 1 : item.quantity);
+        let amount: any = newQuantity * oldItem[policyPriceType];
+        if (isNullOrUndefined(oldItem[policyPriceType])) amount = null;
         oldItems[index] = {
           ...oldItem,
           quantity: newQuantity,
@@ -69,7 +70,8 @@ const StockInOutProductUtils = {
     quantity: number,
     typePrice: string,
   ): StockInOutItemsOther => {
-    let amount = quantity * stockInOutItem[typePrice];
+    let amount: any = quantity * stockInOutItem[typePrice];
+    if (isNullOrUndefined(stockInOutItem[typePrice])) amount = null;
     return {
       ...stockInOutItem,
       quantity: quantity,

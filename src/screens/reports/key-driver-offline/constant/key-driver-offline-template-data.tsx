@@ -1,6 +1,6 @@
 import { KeyDriverField } from "model/report";
 
-export const keyDriverOfflineTemplateData = [
+export const keyDriverOfflineTemplateData: readonly any[] = [
   {
     key: "total_sales",
     name: "Doanh thu",
@@ -27,6 +27,7 @@ export const keyDriverOfflineTemplateData = [
           {
             key: "convertion_rate",
             name: "Tỷ lệ chuyển đổi",
+            suffix: "%",
           },
           {
             key: "customers_count",
@@ -46,6 +47,7 @@ export const keyDriverOfflineTemplateData = [
                     key: "vip_call_conversion_rate",
                     name: "TỶ LỆ CHUYỂN ĐỔI",
                     method: "",
+                    suffix: "%",
                   },
                 ],
               },
@@ -63,6 +65,7 @@ export const keyDriverOfflineTemplateData = [
                     key: "near_vip_call_conversion_rate",
                     name: "TỶ LỆ CHUYỂN ĐỔI",
                     method: "",
+                    suffix: "%",
                   },
                 ],
               },
@@ -85,6 +88,7 @@ export const keyDriverOfflineTemplateData = [
                         key: "birthday_call_conversion_rate",
                         name: "TỶ LỆ CHUYỂN ĐỔI",
                         method: "",
+                        suffix: "%",
                       },
                     ],
                   },
@@ -102,6 +106,7 @@ export const keyDriverOfflineTemplateData = [
                         key: "birthday_sms_conversion_rate",
                         name: "TỶ LỆ CHUYỂN ĐỔI",
                         method: "",
+                        suffix: "%",
                       },
                     ],
                   },
@@ -121,6 +126,7 @@ export const keyDriverOfflineTemplateData = [
                     key: "customer_sms_conversion_rate",
                     name: "TỶ LỆ CHUYỂN ĐỔI",
                     method: "",
+                    suffix: "%",
                   },
                 ],
               },
@@ -138,6 +144,7 @@ export const keyDriverOfflineTemplateData = [
                     key: "shoper_sms_conversion_rate",
                     name: "TỶ LỆ CHUYỂN ĐỔI",
                     method: "",
+                    suffix: "%",
                   },
                 ],
               },
@@ -155,6 +162,7 @@ export const keyDriverOfflineTemplateData = [
                     key: KeyDriverField.NewCustomersConversionRate,
                     name: "TỶ LỆ CHUYỂN ĐỔI",
                     method: "",
+                    suffix: "%",
                   },
                 ],
               },
@@ -201,3 +209,6 @@ export const keyDriverOfflineTemplateData = [
 ];
 
 export const ASM_LIST = ["ASM Dương Sơn Tùng", "ASM Nguyễn Văn Ánh", "ASM Đỗ Quang Hiếu"];
+
+export const loadingMessage =
+  "Dữ liệu đang được đưa lên báo cáo, có thể mất vài phút để hiển thị. Quý khách vui lòng chờ hệ thống xử lý.";

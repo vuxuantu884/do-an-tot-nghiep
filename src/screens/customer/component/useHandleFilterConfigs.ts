@@ -21,6 +21,7 @@ function useHandleFilterConfigs(
   },
   setTagActive?: (value: number | null) => void,
   onSuccessCallback?: (res: BaseResponse<FilterConfig>) => void,
+  onFilterBySavedConfig?: (formValue: any) => void,
 ) {
   const [filterConfigs, setFilterConfigs] = useState<Array<FilterConfig>>([]);
   const [configId, setConfigId] = useState<number>();
@@ -112,11 +113,12 @@ function useHandleFilterConfigs(
         Object.keys(json_content).forEach(function (key, index) {
           if (json_content[key] == null) json_content[key] = undefined;
         }, json_content);
-        formRef.setFieldsValue(json_content);
-        formRef.submit();
+        onFilterBySavedConfig && onFilterBySavedConfig(json_content);
+        // formRef.setFieldsValue(json_content);
+        // formRef.submit();
       }
     },
-    [filterConfigs, formRef, setTagActive],
+    [filterConfigs, onFilterBySavedConfig, setTagActive],
   );
 
   useEffect(() => {

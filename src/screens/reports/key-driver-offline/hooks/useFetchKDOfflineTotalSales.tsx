@@ -1,10 +1,10 @@
-import { START_OF_MONTH, TODAY, YESTERDAY } from "config/dashboard";
 import { KeyDriverField } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getKDOfflineTotalSales } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
+import { DATE_FORMAT } from "utils/DateUtils";
 import { calculateTargetMonth, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { ASM_LIST } from "../constant/key-driver-offline-template-data";
@@ -12,37 +12,41 @@ import { KeyDriverOfflineContext } from "../provider/key-driver-offline-provider
 
 function useFetchKDOfflineTotalSales() {
   const dispatch = useDispatch();
-  const { setData } = useContext(KeyDriverOfflineContext);
+  const { setData, selectedDate } = useContext(KeyDriverOfflineContext);
 
   const [isFetchingKDOfflineTotalSales, setIsFetchingKDOfflineTotalSales] = useState<
     boolean | undefined
   >();
 
-  const findKeyDriverAndUpdateValue = useCallback((data: any, asmData: any, columnKey: string) => {
-    Object.keys(asmData).forEach((keyDriver) => {
-      const asmName = nonAccentVietnameseKD(asmData["department_lv2"]);
-      if (data.key === keyDriver && asmName) {
-        data[`${asmName}_${columnKey}`] = asmData[keyDriver];
-        if (
-          columnKey === "accumulatedMonth" &&
-          !["average_order_value", "average_customer_spent"].includes(keyDriver)
-        ) {
-          data[`${asmName}_targetMonth`] = calculateTargetMonth(
-            data[`${asmName}_accumulatedMonth`],
-          );
+  const findKeyDriverAndUpdateValue = useCallback(
+    (data: any, asmData: any, columnKey: string) => {
+      Object.keys(asmData).forEach((keyDriver) => {
+        const asmName = nonAccentVietnameseKD(asmData["department_lv2"]);
+        if (data.key === keyDriver && asmName) {
+          data[`${asmName}_${columnKey}`] = asmData[keyDriver];
+          if (
+            columnKey === "accumulatedMonth" &&
+            !["average_order_value", "average_customer_spent"].includes(keyDriver)
+          ) {
+            data[`${asmName}_targetMonth`] = calculateTargetMonth(
+              data[`${asmName}_accumulatedMonth`],
+              selectedDate,
+            );
+          }
+        } else {
+          if (
+            data.children?.length &&
+            [KeyDriverField.TotalSales, KeyDriverField.OfflineTotalSales].includes(data.key)
+          ) {
+            data.children.forEach((item: any) => {
+              findKeyDriverAndUpdateValue(item, asmData, columnKey);
+            });
+          }
         }
-      } else {
-        if (
-          data.children?.length &&
-          [KeyDriverField.TotalSales, KeyDriverField.OfflineTotalSales].includes(data.key)
-        ) {
-          data.children.forEach((item: any) => {
-            findKeyDriverAndUpdateValue(item, asmData, columnKey);
-          });
-        }
-      }
-    });
-  }, []);
+      });
+    },
+    [selectedDate],
+  );
 
   const calculateCompanyKeyDriver = useCallback((response) => {
     let companyData: any = { department_lv2: "COMPANY" };
@@ -68,21 +72,32 @@ function useFetchKDOfflineTotalSales() {
   const refetchKDOfflineTotalSales = useCallback(() => {
     const fetchKDOfflineTotalSales = async () => {
       setIsFetchingKDOfflineTotalSales(true);
-      const dayApi = callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDOfflineTotalSales, {
-        from: TODAY,
-        to: TODAY,
+      const dayApi = callApiNative({ isShowError: true }, dispatch, getKDOfflineTotalSales, {
+        from: selectedDate,
+        to: selectedDate,
         posLocationNames: [""],
         departmentLv2s: [""],
       });
-      const monthApi =
-        moment().date() > 1
-          ? callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDOfflineTotalSales, {
-              from: START_OF_MONTH,
-              to: YESTERDAY,
-              posLocationNames: [""],
-              departmentLv2s: [""],
-            })
-          : Promise.resolve(0);
+      const { YYYYMMDD } = DATE_FORMAT;
+      let monthApi: Promise<any>;
+      if (selectedDate === moment().format(YYYYMMDD)) {
+        monthApi =
+          moment(selectedDate, YYYYMMDD).date() > 1
+            ? callApiNative({ isShowError: true }, dispatch, getKDOfflineTotalSales, {
+                from: moment(selectedDate, YYYYMMDD).startOf("month").format(YYYYMMDD),
+                to: moment(selectedDate, YYYYMMDD).subtract(1, "days").format(YYYYMMDD),
+                posLocationNames: [""],
+                departmentLv2s: [""],
+              })
+            : Promise.resolve(0);
+      } else {
+        monthApi = callApiNative({ isShowError: true }, dispatch, getKDOfflineTotalSales, {
+          from: moment(selectedDate, YYYYMMDD).startOf("month").format(YYYYMMDD),
+          to: moment(selectedDate, YYYYMMDD).format(YYYYMMDD),
+          posLocationNames: [""],
+          departmentLv2s: [""],
+        });
+      }
       await Promise.all([dayApi, monthApi]).then(([resDay, resMonth]) => {
         if (!resDay) {
           showErrorReport("Lỗi khi lấy dữ liệu thực đạt doanh thu offline");
@@ -122,8 +137,10 @@ function useFetchKDOfflineTotalSales() {
 
       setIsFetchingKDOfflineTotalSales(false);
     };
-    fetchKDOfflineTotalSales();
-  }, [calculateCompanyKeyDriver, dispatch, findKeyDriverAndUpdateValue, setData]);
+    if (selectedDate) {
+      fetchKDOfflineTotalSales();
+    }
+  }, [calculateCompanyKeyDriver, dispatch, findKeyDriverAndUpdateValue, selectedDate, setData]);
 
   useEffect(() => {
     refetchKDOfflineTotalSales();

@@ -80,6 +80,7 @@ import TreeCategory from "../component/TreeCategory";
 import SupplierSearchSelect from "component/custom/select-search/supplier-select";
 import { callApiNative } from "utils/ApiUtils";
 import { productUpdateApi } from "service/product/product.service";
+import { SupplierResponse } from "model/core/supplier.model";
 
 const { Item } = Form;
 let tempActive: number = 0;
@@ -297,7 +298,8 @@ const ProductDetailScreen: React.FC = () => {
         if (
           newData.variants[i].name.slice(0, newData.variants[i].name.indexOf("-")).trim() ===
             newData.name.trim() ||
-          newData.variants[i].sku.indexOf("-MAU") !== -1
+          newData.variants[i].sku.indexOf("-MAU") !== -1 ||
+          newData.variants[i].sku === newData.code
         ) {
           if (newData.variants[i].name.indexOf("Lỗi") !== -1) {
             const errorName = newData.variants[i].name.split(" - ")
@@ -305,7 +307,10 @@ const ProductDetailScreen: React.FC = () => {
               : "";
             newData.variants[i].name = newName.trim() + " - " + errorName;
           }
-          if (newData.variants[i].sku.indexOf("-MAU") !== -1) {
+          if (
+            newData.variants[i].sku.indexOf("-MAU") !== -1 ||
+            newData.variants[i].sku === newData.code
+          ) {
             newData.variants[i].name = newName.trim();
           } else {
             if (newData.variants[i].color === null && newData.variants[i].size != null) {
@@ -339,6 +344,12 @@ const ProductDetailScreen: React.FC = () => {
       if (product.collections) {
         product.collections = product.collections.map((e: CollectionCreateRequest) => e.code);
       }
+      product.variants?.forEach((e: VariantRequest) => {
+        e.suppliers = null;
+        if (e.supplier_ids && e.supplier_ids.length > 0) {
+          e.suppliers = e.supplier_ids;
+        }
+      });
 
       setLoadingVariant(true);
       callApiNative({ isShowLoading: false }, dispatch, productUpdateApi, idNumber, product).then(
@@ -393,22 +404,24 @@ const ProductDetailScreen: React.FC = () => {
 
   const onMaterialChange = useCallback(
     (id: number) => {
+      let careLabels = null;
       if (isChangeDescription && id) {
         dispatch(
           detailMaterialAction(id, (material) => {
             handleChangeMaterial(material, form);
             if (material && material.care_labels) {
               setCareLabelsString(material.care_labels);
+              careLabels = material.care_labels;
             } else {
               setCareLabelsString("");
+              careLabels = null;
             }
           }),
         );
-      } else {
-        form.setFieldsValue({
-          material: null,
-        });
       }
+      form.setFieldsValue({
+        material: careLabels,
+      });
     },
     [dispatch, form, isChangeDescription],
   );
@@ -698,6 +711,13 @@ const ProductDetailScreen: React.FC = () => {
         result.product_collections = result.collections?.map((e) => {
           return e.code;
         });
+        result.variants.forEach((e: VariantResponse) => {
+          if (e.suppliers && e.suppliers.length > 0) {
+            e.supplier_ids = e.suppliers.map((p) => p.id);
+          } else {
+            e.supplier_ids = [];
+          }
+        });
         setData(result);
         setCareLabelsString(result.care_labels);
         setStatus(result.status);
@@ -798,11 +818,15 @@ const ProductDetailScreen: React.FC = () => {
   const onFinish = useCallback(
     async (values: ProductRequest) => {
       setLoadingButton(true);
-      let request: any = _.cloneDeep(values);
+      let request: ProductRequest = _.cloneDeep(values);
       request.variants?.forEach((e: VariantRequest) => {
         if (e.saleable) e.status = "active"; //CO-3415
+        e.suppliers = null;
+        if (e.supplier_ids && e.supplier_ids.length > 0) {
+          e.suppliers = e.supplier_ids;
+        }
       });
-
+      request.care_labels = careLabelsString;
       const res = await callApiNative(
         { isShowLoading: false },
         dispatch,
@@ -820,7 +844,7 @@ const ProductDetailScreen: React.FC = () => {
       }
       getDetail();
     },
-    [dispatch, idNumber, getDetail, history],
+    [careLabelsString, dispatch, idNumber, getDetail, history],
   );
 
   return (
@@ -1367,8 +1391,8 @@ const ProductDetailScreen: React.FC = () => {
                                       </Item>
                                     </Col>
                                     <Col span={24} md={12}>
-                                      <Item name={[name, "supplier_id"]} label="Nhà cung cấp">
-                                        <SupplierSearchSelect />
+                                      <Item name={[name, "supplier_ids"]} label="Nhà cung cấp">
+                                        <SupplierSearchSelect mode="multiple" />
                                       </Item>
                                     </Col>
                                   </Row>

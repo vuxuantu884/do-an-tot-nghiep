@@ -88,6 +88,7 @@ import {
   checkIfFinishedPayment,
   checkIfMomoPayment,
   checkIfOrderHasNotFinishPaymentMomo,
+  getDefaultReceiveReturnStoreIdFormValue,
   isDeliveryOrderReturned,
 } from "utils/OrderUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -202,6 +203,12 @@ const OrderDetail = (props: PropTypes) => {
     OrderDetail,
   );
 
+  const currentStores = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.account_stores,
+  );
+
+  const [isShowReceiveProductConfirmModal, setIsShowReceiveProductConfirmModal] = useState(false);
+
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
@@ -302,13 +309,19 @@ const OrderDetail = (props: PropTypes) => {
 
   const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] = useState(false);
 
-  const handleReceivedReturnProducts = () => {
-    setIsReceivedReturnProducts(true);
+  const handleReceivedReturnProductsToStore = () => {
     if (OrderDetail?.order_return_origin?.id) {
+      const returned_store_id: number = form.getFieldValue("orderReturn_receive_return_store_id");
+      console.log("returned_store_id ", returned_store_id);
       dispatch(
-        actionSetIsReceivedOrderReturn(OrderDetail?.order_return_origin?.id, () => {
-          dispatch(OrderDetailAction(id, onGetDetailSuccess));
-        }),
+        actionSetIsReceivedOrderReturn(
+          OrderDetail?.order_return_origin?.id,
+          returned_store_id,
+          () => {
+            setIsReceivedReturnProducts(true);
+            dispatch(OrderDetailAction(id, onGetDetailSuccess));
+          },
+        ),
       );
     }
   };
@@ -891,6 +904,12 @@ const OrderDetail = (props: PropTypes) => {
 
   const initialFormValue = {
     returnMoneyField: [{ returnMoneyMethod: undefined, returnMoneyNote: undefined }],
+    orderReturn_receive_return_store_id: getDefaultReceiveReturnStoreIdFormValue(
+      currentStores,
+      OrderDetail,
+    ),
+    ffm_receive_return_store_id:
+      currentStores?.length === 1 ? currentStores[0].store_id : undefined,
   };
 
   const onSelectShipment = (value: number) => {
@@ -1121,14 +1140,23 @@ const OrderDetail = (props: PropTypes) => {
                   orderConfig={orderConfig}
                   ref={updateShipmentCardRef}
                   orderPageType={OrderPageTypeModel.orderDetail}
+                  currentStores={currentStores}
+                  form={form}
+                  isShowReceiveProductConfirmModal={isShowReceiveProductConfirmModal}
+                  setIsShowReceiveProductConfirmModal={setIsShowReceiveProductConfirmModal}
                 />
                 {/*--- end shipment ---*/}
 
                 {OrderDetail?.order_return_origin?.items && (
                   <CardReturnReceiveProducts
-                    handleReceivedReturnProducts={handleReceivedReturnProducts}
+                    handleReceivedReturnProductsToStore={handleReceivedReturnProductsToStore}
                     isReceivedReturnProducts={isReceivedReturnProducts}
                     isDetailPage
+                    currentStores={currentStores}
+                    isShowReceiveProductConfirmModal={isShowReceiveProductConfirmModal}
+                    setIsShowReceiveProductConfirmModal={setIsShowReceiveProductConfirmModal}
+                    form={form}
+                    OrderDetail={OrderDetail}
                   />
                 )}
                 {/*--- end product ---*/}

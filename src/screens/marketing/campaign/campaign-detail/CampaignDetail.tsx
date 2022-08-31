@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useHistory, useParams } from "react-router-dom";
-import { Button, Card, Col, Form, Input, Row, Select, Space, Tooltip } from "antd";
+import { useHistory, useParams } from "react-router-dom";
+import { Button, Card, Col, Form, Input, Row, Select, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import { showError, showWarning } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 
@@ -15,6 +15,7 @@ import {
   getCampaignContactListAction,
   getCampaignDetailAction,
   getCampaignRefIdAction,
+  updateCampaignAction,
 } from "domain/actions/marketing/marketing.action";
 import { CampaignContactSearchQuery } from "model/marketing/marketing.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -25,14 +26,20 @@ import circleCountBlue from "assets/icon/circle-count-blue.svg";
 import userYellowIcon from "assets/icon/user-yellow.svg";
 import failIcon from "assets/icon/fail-icon.svg";
 import circleCountSuccess from "assets/icon/circle-count-success.svg";
-import editIcon from "assets/icon/edit.svg";
-import eyeGrayIcon from "assets/icon/eye-gray.svg";
-import reloadGrayIcon from "assets/icon/reload-gray.svg";
+// import editIcon from "assets/icon/edit.svg";
+// import eyeGrayIcon from "assets/icon/eye-gray.svg";
+// import reloadGrayIcon from "assets/icon/reload-gray.svg";
 import BottomBarContainer from "../../../../component/container/bottom-bar.container";
 import { RiEditLine } from "react-icons/ri";
 import TagStatus from "component/tag/tag-status";
+import useAuthorization from "hook/useAuthorization";
+import { CAMPAIGN_PERMISSION } from "config/permissions/marketing.permission";
 
 const { Option } = Select;
+
+// campaign permission
+const updateCampaignPermission = [CAMPAIGN_PERMISSION.marketings_campaigns_update];
+const viewContactPermission = [CAMPAIGN_PERMISSION.marketings_contacts_read];
 
 const CampaignDetail = () => {
 
@@ -40,6 +47,16 @@ const CampaignDetail = () => {
   const params: any = useParams();
   const [form] = Form.useForm();
   const history = useHistory();
+
+  // campaign permission
+  const [allowUpdateCampaign] = useAuthorization({
+    acceptPermissions: updateCampaignPermission,
+    not: false,
+  });
+  const [allowViewContact] = useAuthorization({
+    acceptPermissions: viewContactPermission,
+    not: false,
+  });
 
   const [campaignDetail, setCampaignDetail] = useState<any>();
   const [campaignAnalysis, setCampaignAnalysis] = useState<any>();
@@ -155,44 +172,44 @@ const CampaignDetail = () => {
   });
 
   /** column table */
-  const CustomerRowAction = (item: any) => {
-    return (
-      <div>
-        <Button
-          type="link"
-          icon={
-            <Tooltip title={"Chi tiết"}>
-              <img src={eyeGrayIcon} alt="eyeGrayIcon" />
-            </Tooltip>
-          }
-          style={{ padding: 0, width: "30px", marginRight: "8px" }}
-          onClick={() => showWarning(`Hiển thị chi tiết ${item.customer_phone_number}`)}
-        />
-
-        <Button
-          type="link"
-          icon={
-            <Tooltip title={"Chỉnh sửa"}>
-              <img src={editIcon} alt="editIcon" style={{ width: "24px" }} />
-            </Tooltip>
-          }
-          style={{ padding: 0, width: "30px", marginRight: "8px" }}
-          onClick={() => showWarning("Hiển thị chỉnh sửa")}
-        />
-
-        <Button
-          type="link"
-          icon={
-            <Tooltip title={"Gửi lại"}>
-              <img src={reloadGrayIcon} alt="reloadGrayIcon" />
-            </Tooltip>
-          }
-          style={{ padding: 0, width: "30px" }}
-          onClick={() => showWarning("Hành động gủi lại")}
-        />
-      </div>
-    );
-  };
+  // const CustomerRowAction = (item: any) => {
+  //   return (
+  //     <div>
+  //       <Button
+  //         type="link"
+  //         icon={
+  //           <Tooltip title={"Chi tiết"}>
+  //             <img src={eyeGrayIcon} alt="eyeGrayIcon" />
+  //           </Tooltip>
+  //         }
+  //         style={{ padding: 0, width: "30px", marginRight: "8px" }}
+  //         onClick={() => showWarning(`Hiển thị chi tiết ${item.customer_phone_number}`)}
+  //       />
+  //
+  //       <Button
+  //         type="link"
+  //         icon={
+  //           <Tooltip title={"Chỉnh sửa"}>
+  //             <img src={editIcon} alt="editIcon" style={{ width: "24px" }} />
+  //           </Tooltip>
+  //         }
+  //         style={{ padding: 0, width: "30px", marginRight: "8px" }}
+  //         onClick={() => showWarning("Hiển thị chỉnh sửa")}
+  //       />
+  //
+  //       <Button
+  //         type="link"
+  //         icon={
+  //           <Tooltip title={"Gửi lại"}>
+  //             <img src={reloadGrayIcon} alt="reloadGrayIcon" />
+  //           </Tooltip>
+  //         }
+  //         style={{ padding: 0, width: "30px" }}
+  //         onClick={() => showWarning("Hành động gủi lại")}
+  //       />
+  //     </div>
+  //   );
+  // };
 
   const columns: Array<ICustomTableColumType<any>> = useMemo(() => {
     return [
@@ -259,18 +276,22 @@ const CampaignDetail = () => {
     if (responseData) {
       setCampaignCustomerData(responseData);
     }
-  }, [setCampaignCustomerData]);
+  }, []);
 
   const getCampaignCustomerList = useCallback((query: any) => {
-    const queryCustomer = {
-      ...queryContactSearch,
-      ...query,
-    };
-    setQueryContactSearch(queryCustomer);
-
-    setIsLoading(true);
-    dispatch(getCampaignContactListAction(Number(params?.id), queryCustomer, updateCampaignCustomerListData));
-  }, [dispatch, params.id, queryContactSearch, updateCampaignCustomerListData]);
+    if (!allowViewContact) {
+      return;
+    } else {
+      const queryCustomer = {
+        ...queryContactSearch,
+        ...query,
+      };
+      setQueryContactSearch(queryCustomer);
+      setIsLoading(true);
+      dispatch(getCampaignContactListAction(Number(params?.id), queryCustomer, updateCampaignCustomerListData));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allowViewContact, dispatch, params?.id, updateCampaignCustomerListData]);
 
   const onPageChange = useCallback((page, limit) => {
       getCampaignCustomerList({ page, limit });
@@ -285,10 +306,26 @@ const CampaignDetail = () => {
   );
 
   useEffect(() => {
-    getCampaignCustomerList({});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (allowViewContact) {
+      getCampaignCustomerList({});
+    }
+  }, [allowViewContact, getCampaignCustomerList]);
   /** --- */
+
+  /** update campaign status */
+  const updateCampaignStatus = (status: string) => {
+    const params = {
+      ...campaignDetail,
+      status: status,
+    };
+
+    setIsLoading(true);
+    dispatch(updateCampaignAction(campaignDetail?.id, { ...params }, (response) => {
+      setIsLoading(false);
+      showSuccess(`${status === "ACTIVE" ? "Kích hoạt" : "Tạm ngừng"} chiến dịch thành công.`);
+      setCampaignDetail(response);
+    }));
+  };
 
 
   const renderCampaignStatus = useCallback(() => {
@@ -297,8 +334,8 @@ const CampaignDetail = () => {
       <>
         <span style={{ marginRight: "20px" }}>THÔNG TIN CHIẾN DỊCH</span>
         {campaignStatus &&
-          <TagStatus type={campaignStatus.type}>
-            {campaignStatus?.name}
+          <TagStatus type={campaignStatus.tagStatus}>
+            {campaignStatus.name}
           </TagStatus>
         }
       </>
@@ -308,12 +345,12 @@ const CampaignDetail = () => {
   const renderMessageStatus = useCallback(() => {
     const campaignStatus =  MESSAGE_STATUS_LIST.find(item => item.value === campaignDetail?.message_status?.toUpperCase());
     return (
-      <>
+      <div style={{ display: "flex", alignItems: "center"}}>
         <span>THỐNG KÊ CHIẾN DỊCH</span>
         {campaignStatus &&
           <span
             style={{
-              marginLeft: "16px",
+              marginLeft: "20px",
               color: campaignStatus.color,
               fontWeight: 400,
               fontSize: "14px",
@@ -326,7 +363,7 @@ const CampaignDetail = () => {
             {campaignStatus?.name}
           </span>
         }
-      </>
+      </div>
     )
   }, [campaignDetail?.message_status]);
 
@@ -420,78 +457,81 @@ const CampaignDetail = () => {
             </Row>
           </Card>
 
-          <Card
-            title={"DANH SÁCH KHÁCH HÀNG"}
-            className="campaign-customer-list"
-          >
-            <CampaignListFilterStyled>
-              <Form
-                form={form}
-                onFinish={onFinish}
-                layout="inline"
-                className="inline-filter"
-              >
-                <Form.Item name="phone" className="input-search">
-                  <Input
-                    disabled={isLoading}
-                    allowClear
-                    prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                    placeholder="Tên kiếm KH theo sđt"
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  name="statuses"
-                  className="status"
+          {allowViewContact &&
+            <Card
+              title={"DANH SÁCH KHÁCH HÀNG"}
+              className="campaign-customer-list"
+            >
+              <CampaignListFilterStyled>
+                <Form
+                  form={form}
+                  onFinish={onFinish}
+                  layout="inline"
+                  className="inline-filter"
                 >
-                  <Select
-                    mode="multiple"
-                    maxTagCount="responsive"
-                    showArrow
-                    showSearch
-                    placeholder="Trạng thái"
-                    allowClear
-                    getPopupContainer={(trigger: any) => trigger.parentElement}
-                    optionFilterProp="children"
-                  >
-                    {MESSAGE_STATUS_LIST?.map((item: any) => (
-                      <Option key={item.value} value={item.value}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-                <Form.Item>
-                  <Button type="primary" htmlType="submit" disabled={isLoading}>
-                    Lọc
-                  </Button>
-                </Form.Item>
-              </Form>
-            </CampaignListFilterStyled>
+                  <Form.Item name="phone" className="input-search">
+                    <Input
+                      disabled={isLoading}
+                      allowClear
+                      prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
+                      placeholder="Tên kiếm KH theo sđt"
+                    />
+                  </Form.Item>
 
-            <CustomTable
-              bordered
-              isLoading={isLoading}
-              sticky={{ offsetScroll: 5, offsetHeader: 55 }}
-              pagination={{
-                pageSize: campaignCustomerData?.metadata?.limit,
-                total: campaignCustomerData?.metadata?.total,
-                current: campaignCustomerData?.metadata?.page,
-                showSizeChanger: true,
-                onChange: onPageChange,
-                onShowSizeChange: onPageChange,
-              }}
-              isShowPaginationAtHeader
-              dataSource={campaignCustomerData?.items}
-              columns={columns}
-              rowKey={(item: any) => item.id}
-            />
-          </Card>
+                  <Form.Item
+                    name="statuses"
+                    className="status"
+                  >
+                    <Select
+                      mode="multiple"
+                      maxTagCount="responsive"
+                      showArrow
+                      showSearch
+                      placeholder="Trạng thái"
+                      allowClear
+                      getPopupContainer={(trigger: any) => trigger.parentElement}
+                      optionFilterProp="children"
+                    >
+                      {MESSAGE_STATUS_LIST?.map((item: any) => (
+                        <Option key={item.value} value={item.value}>
+                          {item.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                  <Form.Item>
+                    <Button type="primary" htmlType="submit" disabled={isLoading}>
+                      Lọc
+                    </Button>
+                  </Form.Item>
+                </Form>
+              </CampaignListFilterStyled>
+
+              <CustomTable
+                bordered
+                isLoading={isLoading}
+                sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+                pagination={{
+                  pageSize: campaignCustomerData?.metadata?.limit,
+                  total: campaignCustomerData?.metadata?.total,
+                  current: campaignCustomerData?.metadata?.page,
+                  showSizeChanger: true,
+                  onChange: onPageChange,
+                  onShowSizeChange: onPageChange,
+                }}
+                isShowPaginationAtHeader
+                dataSource={campaignCustomerData?.items}
+                columns={columns}
+                rowKey={(item: any) => item.id}
+              />
+            </Card>
+          }
 
           <BottomBarContainer
             back="Quay lại danh sách chiến dịch"
             backAction={() => history.push(`${UrlConfig.MARKETING}/campaigns`)}
             rightComponent={
+              allowUpdateCampaign &&
               <Space>
                 <Button onClick={() => history.push(`${UrlConfig.MARKETING}/campaigns/${params?.id}/update`)}>
                   <div style={{ display: "flex", alignItems: "center" }}>
@@ -499,6 +539,18 @@ const CampaignDetail = () => {
                     <span>Chỉnh sửa</span>
                   </div>
                 </Button>
+
+                {(campaignDetail?.status?.toUpperCase() === "WAITING" || campaignDetail?.status?.toUpperCase() === "PAUSE") &&
+                  <Button onClick={() => updateCampaignStatus("ACTIVE")} type={"primary"}>
+                    Kích hoạt
+                  </Button>
+                }
+
+                {(campaignDetail?.status?.toUpperCase() === "ACTIVE") &&
+                  <Button onClick={() => updateCampaignStatus("PAUSE")} type={"primary"}>
+                    Tạm ngừng
+                  </Button>
+                }
               </Space>
             }
           />

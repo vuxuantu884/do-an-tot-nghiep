@@ -22,6 +22,7 @@ import { ApiConfig } from "config/api.config";
 import { ImportResponse } from "model/other/files/export-model";
 import ModalImport from "../components/ModalImport";
 import StockInOutProductUtils from "../util/StockInOutProductUtils";
+import { isNullOrUndefined } from "utils/AppUtils";
 
 const StockOutOtherCreate: React.FC = () => {
   const [isRequireNote, setIsRequireNote] = useState<boolean>(false);
@@ -34,7 +35,7 @@ const StockOutOtherCreate: React.FC = () => {
   const [data, setData] = useState<any>(null);
   const [formMain] = Form.useForm();
   const [fileId, setFileId] = useState<string | null>(null);
-  const [fileUrl, setFileUrl] = useState<string>('');
+  const [fileUrl, setFileUrl] = useState<string>("");
   const [typePrice, setTypePrice] = useState<string>(StockInOutPolicyPriceField.import_price);
 
   const history = useHistory();
@@ -53,9 +54,7 @@ const StockOutOtherCreate: React.FC = () => {
         setDataProcess(res.process);
 
         const newDataUpdateError =
-          !res.errors || (res.errors && res.errors.length === 0)
-            ? null
-            : res.errors;
+          !res.errors || (res.errors && res.errors.length === 0) ? null : res.errors;
         setDataUploadError(newDataUpdateError);
         if (res.status !== "FINISH") return;
         setFileId(null);
@@ -99,7 +98,7 @@ const StockOutOtherCreate: React.FC = () => {
     setIsEmptyFile(false);
 
     BaseAxios.post(`${ApiConfig.PURCHASE_ORDER}/other-stock-io/import`, {
-      url: fileUrl
+      url: fileUrl,
     })
       .then((res: any) => {
         if (res) {
@@ -108,9 +107,7 @@ const StockOutOtherCreate: React.FC = () => {
           setIsLoading(true);
           setDataProcess(res.process);
           const newDataUpdateError =
-            !res.errors || (res.errors && res.errors.length === 0)
-              ? null
-              : res.data.errors;
+            !res.errors || (res.errors && res.errors.length === 0) ? null : res.data.errors;
           setDataUploadError(newDataUpdateError);
         }
       })
@@ -123,21 +120,23 @@ const StockOutOtherCreate: React.FC = () => {
     setIsStatusModalVisible(false);
     if (!data) return;
     let newData = JSON.parse(data.data).map((i: any) => {
+      let amount: any = i[typePrice] * i.quantity;
+      if (isNullOrUndefined(i[typePrice])) amount = null;
       return {
         ...i,
         [typePrice]: i[typePrice],
-        amount: i[typePrice] * i.quantity
-      }
+        amount: amount,
+      };
     });
 
-    let stockInOutOtherItems = formMain.getFieldValue('stock_in_out_other_items');
+    let stockInOutOtherItems = formMain.getFieldValue("stock_in_out_other_items");
 
     if (stockInOutOtherItems && stockInOutOtherItems.length > 0) {
       let newStockInOutOtherItems = StockInOutProductUtils.addProduct(
         stockInOutOtherItems,
         newData,
         typePrice,
-        'IMPORT'
+        "IMPORT",
       );
 
       formMain.setFieldsValue({

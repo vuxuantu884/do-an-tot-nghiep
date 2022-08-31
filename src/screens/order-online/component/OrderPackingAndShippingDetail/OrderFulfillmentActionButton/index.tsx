@@ -157,6 +157,13 @@ function OrderFulfillmentActionButton(props: PropTypes) {
     if (sortedFulfillments.length === 0 || checkIfFulfillmentCancelled(sortedFulfillments[0])) {
       return null;
     }
+    if (
+      sortedFulfillments[0]?.shipment?.delivery_service_provider_type ===
+        ShipmentMethod.EXTERNAL_SERVICE &&
+      OrderDetailAllFulfillment?.fulfillment_status === FulFillmentStatus.SHIPPING
+    ) {
+      return null;
+    }
     return (
       <Button
         onClick={cancelFulfillment}

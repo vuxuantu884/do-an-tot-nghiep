@@ -4,6 +4,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getKeyDriversTarget } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
+import { DATE_FORMAT } from "utils/DateUtils";
 import {
   findKDProductAndUpdateValueUtil,
   nonAccentVietnameseKD,
@@ -14,7 +15,7 @@ import { KeyDriverOfflineContext } from "../provider/key-driver-offline-provider
 
 function useFetchKeyDriverTarget() {
   const dispatch = useDispatch();
-  const { setData } = useContext(KeyDriverOfflineContext);
+  const { setData, selectedDate } = useContext(KeyDriverOfflineContext);
 
   const [isFetchingKeyDriverTarget, setIsFetchingKeyDriverTarget] = useState<boolean | undefined>();
 
@@ -23,6 +24,9 @@ function useFetchKeyDriverTarget() {
       Object.keys(keyDriversTarget).forEach((keyDriver) => {
         if (data.key === keyDriver) {
           data[`${asmName}_${targetTime}`] = keyDriversTarget[keyDriver].value;
+          if (!data[`${asmName}_month`]) {
+            data[`${asmName}_day`] = "";
+          }
         } else {
           if (data.children?.length) {
             data.children.forEach((item: any) => {
@@ -40,10 +44,10 @@ function useFetchKeyDriverTarget() {
   const refetch = useCallback(() => {
     const fetchKeyDriverTarget = async () => {
       setIsFetchingKeyDriverTarget(true);
-
-      const res = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKeyDriversTarget, {
-        "year.equals": moment().year(),
-        "month.equals": moment().month() + 1,
+      const { YYYYMMDD } = DATE_FORMAT;
+      const res = await callApiNative({ isShowError: true }, dispatch, getKeyDriversTarget, {
+        "year.equals": moment(selectedDate, YYYYMMDD).year(),
+        "month.equals": moment(selectedDate, YYYYMMDD).month() + 1,
       });
 
       if (!res) {
@@ -87,8 +91,10 @@ function useFetchKeyDriverTarget() {
 
       setIsFetchingKeyDriverTarget(false);
     };
-    fetchKeyDriverTarget();
-  }, [dispatch, findKDProductAndUpdateValue, findKeyDriverAndUpdateValue, setData]);
+    if (selectedDate) {
+      fetchKeyDriverTarget();
+    }
+  }, [dispatch, findKDProductAndUpdateValue, findKeyDriverAndUpdateValue, selectedDate, setData]);
 
   useEffect(() => {
     refetch();

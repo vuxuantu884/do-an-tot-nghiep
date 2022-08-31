@@ -17,8 +17,8 @@ const KeyDriverOffline = React.lazy(() => import("screens/reports/key-driver-off
 const KeyDriverOfflineStore = React.lazy(
   () => import("screens/reports/key-driver-offline/key-driver-offline-store"),
 );
-const CustomerPhoneSMSCounters = React.lazy(
-  () => import("screens/reports/key-driver-offline/customer-phone-sms-counters"),
+const KeyDriverOfflineStaff = React.lazy(
+  () => import("screens/reports/key-driver-offline/key-driver-offline-staff"),
 );
 
 const KeyDriverOnline = React.lazy(() => import("screens/reports/key-driver-online"));
@@ -184,11 +184,11 @@ const reports: Array<RouteMenu> = [
             subMenu: [],
           },
           {
-            path: `${UrlConfig.KEY_DRIVER_OFFLINE}/customer-phone-sms-counters`,
+            path: `${UrlConfig.KEY_DRIVER_OFFLINE}/:asmName/:storeName`,
             exact: true,
-            title: "Nhập số lượng cuộc gọi ra và SMS đi tin",
+            title: "Báo cáo Kết quả kinh doanh offline các NV cửa hàng",
             icon: "icon-dot",
-            component: CustomerPhoneSMSCounters,
+            component: KeyDriverOfflineStaff,
             key: "submenureport052",
             isShow: true,
             header: null,
