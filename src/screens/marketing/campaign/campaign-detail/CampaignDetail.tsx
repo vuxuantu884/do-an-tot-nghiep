@@ -71,7 +71,7 @@ const CampaignDetail = () => {
       {
         name: "Thời gian tạo",
         value: campaignDetail?.created_date ? (
-          <span>{ConvertUtcToLocalDate(campaignDetail?.created_date, DATE_FORMAT.DDMMYYY)}</span>
+          <span>{ConvertUtcToLocalDate(campaignDetail?.created_date, DATE_FORMAT.DDMMYY_HHmm)}</span>
         ) : null,
       },
       {
@@ -81,7 +81,7 @@ const CampaignDetail = () => {
       {
         name: "Thời gian gửi",
         value: campaignDetail?.send_date ? (
-          <span>{ConvertUtcToLocalDate(campaignDetail?.send_date, DATE_FORMAT.DDMMYYY)}</span>
+          <span>{ConvertUtcToLocalDate(campaignDetail?.send_date, DATE_FORMAT.DDMMYY_HHmm)}</span>
         ) : null,
       },
       {
