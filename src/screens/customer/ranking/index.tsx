@@ -261,8 +261,8 @@ const CustomerRanking = () => {
   }, []);
 
   const handleUpdateRankingCustomer = () => {
-    const startTimeFirst = 14 * 60 + 0;
-    const endTimeFirst = 16 * 60 + 0;
+    const startTimeFirst = 12 * 60 + 0;
+    const endTimeFirst = 12 * 60 + 45;
 
     const startTimeSecond = 22 * 60 + 30;
     const endTimeSecond = 7 * 60 + 0;
