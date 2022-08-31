@@ -5,12 +5,20 @@ import { keyDriverOfflineTemplateData } from "../constant/key-driver-offline-tem
 type KDOfflineStoresProviderValue = {
   data: any;
   setData: React.Dispatch<React.SetStateAction<any>>;
-  targetMonth: KeyDriverTarget[];
-  setTargetMonth: React.Dispatch<React.SetStateAction<KeyDriverTarget[]>>;
+  kdTarget: KeyDriverTarget[];
+  setKDTarget: React.Dispatch<React.SetStateAction<KeyDriverTarget[]>>;
   selectedStores: string[];
   setSelectedStores: React.Dispatch<React.SetStateAction<string[]>>;
   selectedAsm: string[];
   setSelectedAsm: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedStaffs: string[];
+  setSelectedStaffs: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedDate: string;
+  setSelectedDate: React.Dispatch<React.SetStateAction<string>>;
+  selectedStoreRank: number | undefined;
+  setSelectedStoreRank: React.Dispatch<React.SetStateAction<number | undefined>>;
+  selectedAllStores: boolean;
+  setSelectedAllStores: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const KDOfflineStoresContext = React.createContext<KDOfflineStoresProviderValue>(
@@ -18,10 +26,16 @@ export const KDOfflineStoresContext = React.createContext<KDOfflineStoresProvide
 );
 
 function KDOfflineStoresProvider(props: { children: React.ReactNode }) {
-  const [data, setData] = React.useState<any>(keyDriverOfflineTemplateData);
-  const [targetMonth, setTargetMonth] = React.useState<KeyDriverTarget[]>([]);
+  const [data, setData] = React.useState<any>(
+    JSON.parse(JSON.stringify(keyDriverOfflineTemplateData)),
+  );
+  const [kdTarget, setKDTarget] = React.useState<KeyDriverTarget[]>([]);
   const [selectedStores, setSelectedStores] = React.useState<string[]>([]);
   const [selectedAsm, setSelectedAsm] = React.useState<string[]>([]);
+  const [selectedStaffs, setSelectedStaffs] = React.useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = React.useState<string>("");
+  const [selectedStoreRank, setSelectedStoreRank] = React.useState<number | undefined>(undefined);
+  const [selectedAllStores, setSelectedAllStores] = React.useState<boolean>(true);
 
   return (
     <KDOfflineStoresContext.Provider
@@ -29,12 +43,20 @@ function KDOfflineStoresProvider(props: { children: React.ReactNode }) {
       value={{
         data,
         setData,
-        targetMonth,
-        setTargetMonth,
+        kdTarget,
+        setKDTarget,
         selectedAsm,
         setSelectedAsm,
         selectedStores,
         setSelectedStores,
+        selectedStaffs,
+        setSelectedStaffs,
+        selectedDate,
+        setSelectedDate,
+        selectedStoreRank,
+        setSelectedStoreRank,
+        selectedAllStores,
+        setSelectedAllStores,
       }}
     />
   );

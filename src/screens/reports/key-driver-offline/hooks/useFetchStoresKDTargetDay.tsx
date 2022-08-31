@@ -12,12 +12,12 @@ import {
 import { showErrorReport } from "utils/ReportUtils";
 import { KDOfflineStoresContext } from "../provider/kd-offline-stores-provider";
 
-function useFetchStoresKeyDriverTarget(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
+function useFetchStoresKDTargetDay(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
   const { setData, selectedStores, selectedStaffs, selectedDate } =
     useContext(KDOfflineStoresContext);
 
-  const [isFetchingStoresKeyDriverTarget, setIsFetchingStoresKeyDriverTarget] = useState<
+  const [isFetchingStoresKDTargetDay, setIsFetchingStoresKDTargetDay] = useState<
     boolean | undefined
   >();
 
@@ -27,6 +27,7 @@ function useFetchStoresKeyDriverTarget(dimension: KeyDriverDimension = KeyDriver
         if (data.key === keyDriver) {
           data[`${asmName}_${targetTime}`] = keyDriversTarget[keyDriver].value;
         } else {
+          data[`${asmName}_${targetTime}`] = undefined;
           if (data.children?.length) {
             data.children.forEach((item: any) => {
               findKeyDriverAndUpdateValue(item, keyDriversTarget, asmName, targetTime);
@@ -41,7 +42,7 @@ function useFetchStoresKeyDriverTarget(dimension: KeyDriverDimension = KeyDriver
   const findKDProductAndUpdateValue = useCallback(findKDProductAndUpdateValueUtil, []);
 
   const refetch = useCallback(() => {
-    const fetchStoresKeyDriverTarget = async () => {
+    const fetchStoresKDTargetDay = async () => {
       if (!selectedStores.length) {
         return;
       }
@@ -51,16 +52,17 @@ function useFetchStoresKeyDriverTarget(dimension: KeyDriverDimension = KeyDriver
       ) {
         return;
       }
-      setIsFetchingStoresKeyDriverTarget(true);
+      setIsFetchingStoresKDTargetDay(true);
       const { YYYYMMDD } = DATE_FORMAT;
       const res = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKeyDriversTarget, {
         "year.equals": moment(selectedDate, YYYYMMDD).year(),
         "month.equals": moment(selectedDate, YYYYMMDD).month() + 1,
+        "day.equals": moment(selectedDate, YYYYMMDD).date(),
       });
 
       if (!res) {
-        showErrorReport("Lỗi khi lấy dữ liệu mục tiêu tháng");
-        setIsFetchingStoresKeyDriverTarget(false);
+        showErrorReport("Lỗi khi lấy dữ liệu mục tiêu ngày");
+        setIsFetchingStoresKDTargetDay(false);
         return;
       }
 
@@ -74,7 +76,7 @@ function useFetchStoresKeyDriverTarget(dimension: KeyDriverDimension = KeyDriver
           );
         } else if (dimension === KeyDriverDimension.Staff) {
           resMapper = res.filter((item: any) =>
-            [...selectedStaffs.map((staff) => JSON.parse(staff).code.toUpperCase())].includes(
+            [...selectedStaffs.map((item) => JSON.parse(item).code.toUpperCase())].includes(
               item.department,
             ),
           );
@@ -94,6 +96,7 @@ function useFetchStoresKeyDriverTarget(dimension: KeyDriverDimension = KeyDriver
             }
             return res1;
           }, {});
+
           let selectedData: any[] = [];
           if (dimension === KeyDriverDimension.Staff) {
             selectedData = selectedStaffs.map((staff) => JSON.parse(staff).code.toUpperCase());
@@ -103,18 +106,18 @@ function useFetchStoresKeyDriverTarget(dimension: KeyDriverDimension = KeyDriver
           [...selectedData].forEach((asm) => {
             const asmKey = nonAccentVietnameseKD(asm);
             if (department === asmKey) {
-              findKeyDriverAndUpdateValue(prev[0], kdTotalSalesTarget, asmKey, "month");
-              findKDProductAndUpdateValue(prev[1], kdProductTarget, asmKey, "month");
+              findKeyDriverAndUpdateValue(prev[0], kdTotalSalesTarget, asmKey, "day");
+              findKDProductAndUpdateValue(prev[1], kdProductTarget, asmKey, "day");
             }
           });
         });
         return [...prev];
       });
-      setIsFetchingStoresKeyDriverTarget(false);
+      if (selectedDate) {
+        setIsFetchingStoresKDTargetDay(false);
+      }
     };
-    if (selectedDate) {
-      fetchStoresKeyDriverTarget();
-    }
+    fetchStoresKDTargetDay();
   }, [
     selectedStores,
     dimension,
@@ -130,7 +133,7 @@ function useFetchStoresKeyDriverTarget(dimension: KeyDriverDimension = KeyDriver
     refetch();
   }, [refetch]);
 
-  return { isFetchingStoresKeyDriverTarget, refetch };
+  return { isFetchingStoresKDTargetDay, refetch };
 }
 
-export default useFetchStoresKeyDriverTarget;
+export default useFetchStoresKDTargetDay;

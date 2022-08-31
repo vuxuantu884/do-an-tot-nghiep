@@ -2,6 +2,7 @@ import { KDGroup } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { DATE_FORMAT } from "utils/DateUtils";
 import {
   calculateTargetMonth,
   getDataManyQueryKeyDriverOffline,
@@ -16,7 +17,7 @@ import { KeyDriverOfflineContext } from "../provider/key-driver-offline-provider
 
 function useFetchProductTotalSales() {
   const dispatch = useDispatch();
-  const { setData } = useContext(KeyDriverOfflineContext);
+  const { setData, selectedDate } = useContext(KeyDriverOfflineContext);
 
   const [isFetchingProductTotalSales, setIsFetchingProductTotalSales] = useState<
     boolean | undefined
@@ -40,13 +41,24 @@ function useFetchProductTotalSales() {
   useEffect(() => {
     const fetchProductTotalSale = async () => {
       setIsFetchingProductTotalSales(true);
-
-      const res = await getDataManyQueryKeyDriverOffline(
-        dispatch,
-        moment().date() > 1
-          ? [PRODUCT_TOTAL_SALES_DAY_QUERY, PRODUCT_TOTAL_SALES_MONTH_QUERY]
-          : [PRODUCT_TOTAL_SALES_DAY_QUERY],
-      );
+      const { YYYYMMDD } = DATE_FORMAT;
+      let res: any[];
+      if (selectedDate === moment().format(YYYYMMDD)) {
+        res = await getDataManyQueryKeyDriverOffline(
+          dispatch,
+          moment(selectedDate, YYYYMMDD).date() > 1
+            ? [
+                PRODUCT_TOTAL_SALES_DAY_QUERY(selectedDate),
+                PRODUCT_TOTAL_SALES_MONTH_QUERY(selectedDate),
+              ]
+            : [PRODUCT_TOTAL_SALES_DAY_QUERY(selectedDate)],
+        );
+      } else {
+        res = await getDataManyQueryKeyDriverOffline(dispatch, [
+          PRODUCT_TOTAL_SALES_DAY_QUERY(selectedDate),
+          PRODUCT_TOTAL_SALES_MONTH_QUERY(selectedDate),
+        ]);
+      }
 
       if (!res?.length) {
         showErrorReport("Lỗi khi lấy dữ liệu Doanh thu theo nhóm sản phẩm");
@@ -85,13 +97,16 @@ function useFetchProductTotalSales() {
                 childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_accumulatedMonth`] =
                   item[2];
                 childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_targetMonth`] =
-                  calculateTargetMonth(item[2]);
+                  calculateTargetMonth(item[2], selectedDate);
               } else {
                 childrenProduct.push({
                   key: itemKey,
                   name: item[0],
                   [`${nonAccentVietnameseKD(item[1])}_accumulatedMonth`]: item[2],
-                  [`${nonAccentVietnameseKD(item[1])}_targetMonth`]: calculateTargetMonth(item[2]),
+                  [`${nonAccentVietnameseKD(item[1])}_targetMonth`]: calculateTargetMonth(
+                    item[2],
+                    selectedDate,
+                  ),
                 });
               }
             }
@@ -103,8 +118,10 @@ function useFetchProductTotalSales() {
       });
       setIsFetchingProductTotalSales(false);
     };
-    fetchProductTotalSale();
-  }, [calculateCompanyKeyDriver, dispatch, setData]);
+    if (selectedDate) {
+      fetchProductTotalSale();
+    }
+  }, [calculateCompanyKeyDriver, dispatch, selectedDate, setData]);
 
   return { isFetchingProductTotalSales };
 }
