@@ -2187,9 +2187,7 @@ export const convertVariantPrices = (
 
     item.variant_prices.forEach((e) => {
       if (e.retail_price !== null) {
-        const retailPriceActive =
-          variantActive.variant_prices.find((p) => p.currency_code === e.currency_code)
-            ?.retail_price ?? 0;
+        const retailPriceActive = variantActive.variant_prices[0]?.retail_price ?? 0;
 
         e.retail_price = retailPriceActive;
         if (variantDefect) {
@@ -2197,6 +2195,8 @@ export const convertVariantPrices = (
             ((retailPriceActive * (100 - variantDefect.value)) / 100).toFixed(2),
           );
         }
+        e.currency_code = variantActive.variant_prices[0].currency_code;
+        e.currency_symbol = variantActive.variant_prices[0].currency_symbol;
       }
     });
     v.push(item);
