@@ -257,7 +257,8 @@ const TabHistoryPrice: React.FC = () => {
         bordered
         rowKey={(record) => record.id}
         isRowSelection
-        scroll={{ x: 1300 }}
+        // scroll={{ x: 1300 }}
+        scroll={{ x: "max-content" }}
         columns={columnFinal}
         dataSource={data.items}
         isLoading={loading}
