@@ -1202,7 +1202,7 @@ const AllTab: React.FC<any> = (props) => {
         className="small-padding"
         bordered
         dataSource={data.items}
-        scroll={{ x: 1200 }}
+        scroll={{ x: "max-content" }}
         sticky={{ offsetHeader: OFFSET_HEADER_TABLE, offsetSummary: 10 }}
         expandedRowKeys={expandRow}
         onSelectedChange={onSelect}
