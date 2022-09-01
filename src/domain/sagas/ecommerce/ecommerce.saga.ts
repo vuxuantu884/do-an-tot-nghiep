@@ -40,6 +40,7 @@ import {
   getEcommerceAddressByShopIdApi,
   batchShippingShopeeProductApi,
   getLogInventoryVariantApi,
+  getDataInventoryUnicornProductActionApi,
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import {
@@ -777,6 +778,33 @@ function* getLogInventoryVariantSaga(action: YodyAction) {
   }
 }
 
+function* getDataInventoryUnicornProductActionSaga(action: YodyAction) {
+  let { variantId, queryParams, callback } = action.payload;
+
+  try {
+    const response: BaseResponse<PageResponse<any>> = yield call(
+      getDataInventoryUnicornProductActionApi,
+      variantId,
+      queryParams,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        callback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        callback(false);
+        break;
+    }
+  } catch (error) {
+    callback(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* ecommerceSaga() {
   yield takeLatest(EcommerceType.ADD_FPAGE_PHONE, addFpagePhoneSaga);
   yield takeLatest(EcommerceType.DELETE_FPAGE_PHONE, deleteFpagePhoneSaga);
@@ -852,4 +880,9 @@ export function* ecommerceSaga() {
 
   //get log inventory follow variant
   yield takeLatest(EcommerceType.GET_LOG_INVENTORY_VARIANT, getLogInventoryVariantSaga);
+
+  yield takeLatest(
+    EcommerceType.CHECK_INVENTORY_VARIANT_PRODUCT,
+    getDataInventoryUnicornProductActionSaga,
+  );
 }
