@@ -166,8 +166,9 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
                   dataIndex: POProcumentField.stock_in_date,
                   align: "center",
                   width: 170,
-                  render: (value: string, item, index: number) =>
-                    ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
+                  render: (value: string, item, index: number) => {
+                    return value ? ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY) : <></>;
+                  },
                 },
                 // {
                 //   title: "",

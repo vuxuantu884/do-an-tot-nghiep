@@ -212,8 +212,6 @@ export const PoPrTable = (props: Props) => {
         procurementTableData[indexItem].expectedDate[index]["value"] = value || 0;
       }
     });
-    console.log(expectedDate);
-    console.log(procurementTableData.filter((item) => item.quantity));
 
     setExpectedDate([...expectedDate]);
     setProcurementTableData([...procurementTableData]);

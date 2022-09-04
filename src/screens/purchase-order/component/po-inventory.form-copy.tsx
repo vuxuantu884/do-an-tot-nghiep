@@ -1,5 +1,6 @@
 import { Card, Col, Form, Input, Row, Tabs } from "antd";
 import { FormInstance } from "antd/es/form/Form";
+import { CardInterface } from "antd/lib/card";
 import RenderTabBar from "component/table/StickyTabBar";
 import { groupBy } from "lodash";
 import { StoreResponse } from "model/core/store.model";
@@ -39,22 +40,6 @@ const POInventoryFormCopy: React.FC<POInventoryFormProps> = (props: POInventoryF
   //page context
   const { purchaseOrder } = useContext(PurchaseOrderCreateContext);
   const defaultTabs = useMemo(() => {
-    const procurementsFilter = groupBy(
-      purchaseOrder?.procurements,
-      ProcurementLineItemField.expect_receipt_date,
-    );
-    const procurementsAll: Array<PurchaseProcument[]> = Object.values(procurementsFilter);
-    const dateSelected = procurementsAll
-      .map((procurement) => {
-        return {
-          ...procurement[0],
-        };
-      })
-      .filter(
-        (procurement) =>
-          procurement.status === ProcurementStatus.not_received ||
-          procurement.status === ProcurementStatus.received,
-      );
     return [
       {
         name: "Kế hoạch nhận hàng",
@@ -80,6 +65,9 @@ const POInventoryFormCopy: React.FC<POInventoryFormProps> = (props: POInventoryF
   }, [idNumber, isEditDetail, formMain, purchaseOrder]);
 
   const [activeTab, setActiveTab] = useState<string | "">("1");
+  const procurements = (formMain?.getFieldsValue()?.procurements as PurchaseProcument[]) || [];
+  const isMarginTop =
+    procurements.some((item) => item.status === ProcurementStatus.draft) && isEditDetail;
 
   return (
     <StyledRow
@@ -97,7 +85,8 @@ const POInventoryFormCopy: React.FC<POInventoryFormProps> = (props: POInventoryF
           paddingRight: "0",
         }}
       >
-        <Card
+        <StyledCardLeft
+          isMarginTop={!!isMarginTop}
           className="po-form"
           title={
             <div className="d-flex">
@@ -144,7 +133,7 @@ const POInventoryFormCopy: React.FC<POInventoryFormProps> = (props: POInventoryF
             code={poData ? poData.code : undefined}
             id={idNumber}
           />
-        </Card>
+        </StyledCardLeft>
       </Col>
       <Col
         span={12}
@@ -208,6 +197,15 @@ const StyledRow = styled(Row)`
   }
   .ant-tabs.ant-tabs-top div:first-child {
     position: initial !important;
+  }
+`;
+interface IStyledCardLeft {
+  isMarginTop: boolean;
+}
+
+const StyledCardLeft = styled<CardInterface>(Card)<IStyledCardLeft>`
+  .ant-card-body {
+    margin-top: ${(p) => (p.isMarginTop ? "30px" : "0px")} !important;
   }
 `;
 

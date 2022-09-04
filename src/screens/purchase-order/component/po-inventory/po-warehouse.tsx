@@ -1,4 +1,4 @@
-import { Col, Form, Input, Row, Table, Tooltip } from "antd";
+import { Col, Form, Input, Row, Select, Table, Tooltip } from "antd";
 import { FormInstance } from "antd/es/form/Form";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
@@ -7,6 +7,8 @@ import ButtonRemove from "component/icon/ButtonRemove";
 import { IConDivided } from "component/icon/Divided";
 import { IConPlan } from "component/icon/Plan";
 import { ICustomTableColumType } from "component/table/CustomTable";
+import { AppConfig } from "config/app.config";
+import { EnumOptionValueOrPercent } from "config/enum.config";
 import { groupBy } from "lodash";
 import { ProcurementLineItemField } from "model/procurement/field";
 import { POField } from "model/purchase-order/po-field";
@@ -32,11 +34,15 @@ import { v4 as uuidv4 } from "uuid";
 const DEFAULT_SPAN = window.screen.width <= 1360 ? 8 : window.screen.width <= 1600 ? 7 : 5;
 const DEFAULT_SCROLL = 50;
 const AMOUNT_COLUMNS = window.screen.width <= 1600 ? 3 : 5;
+
+const { Option } = Select;
 interface IExpectReceiptDates {
   status: string;
   isAdd: boolean;
   date: string;
   uuid: string;
+  option: EnumOptionValueOrPercent;
+  value: number;
 }
 
 interface IProps {
@@ -243,6 +249,8 @@ export const PoWareHouse = (props: IProps) => {
         isAdd: true,
         uuid,
         date: "",
+        option: EnumOptionValueOrPercent.PERCENT,
+        value: 0,
       });
       formMain?.setFieldsValue({
         ["expectedDate" + (expectReceiptDates.length - 1)]: "",
@@ -426,85 +434,160 @@ export const PoWareHouse = (props: IProps) => {
     }
   };
 
+  const onChangeExpectedNumber = (index: number, value: number | null) => {
+    expectReceiptDates[index].value = value || 0;
+    const totalExpectedDate = expectReceiptDates.reduce((sum, date) => sum + date.value, 0);
+    const isCheckOneHundredPercent =
+      totalExpectedDate === AppConfig.ONE_HUNDRED_PERCENT &&
+      expectReceiptDates.every((item) => item.option === EnumOptionValueOrPercent.PERCENT);
+
+    procurementTable.forEach((item, indexItem) => {
+      if (expectReceiptDates[index].option === EnumOptionValueOrPercent.PERCENT) {
+        const quantityLineItems = Number(procurementTable[indexItem].quantityLineItems) || 0;
+        let valueExpectedDate = quantityLineItems;
+        expectReceiptDates.forEach((item, indexDate) => {
+          if (item.status !== ProcurementStatus.draft) {
+            valueExpectedDate -= procurementTable[indexItem].plannedQuantities[indexDate] || 0;
+          }
+        });
+        const valueExpectedDateItem = Math.floor((valueExpectedDate * (value || 0)) / 100);
+        procurementTable[indexItem].plannedQuantities[index] = valueExpectedDateItem;
+        const totalValueExpectedDateItem =
+          procurementTable[indexItem].plannedQuantities.reduce(
+            (sum, ele) => (sum || 0) + (ele || 0),
+            0,
+          ) || 0;
+        if (isCheckOneHundredPercent && totalValueExpectedDateItem < quantityLineItems) {
+          procurementTable[indexItem].plannedQuantities[index] =
+            quantityLineItems - (totalValueExpectedDateItem - valueExpectedDateItem);
+        }
+      } else {
+        procurementTable[indexItem].plannedQuantities[index] = value || 0;
+      }
+      handleSetQuantityWarehouses(
+        indexItem,
+        procurementTable[indexItem].plannedQuantities[index] || 0,
+        procurementTable[indexItem].uuids[index] + index,
+      );
+    });
+    setExpectReceiptDates([...expectReceiptDates]);
+    setProcurementTable([...procurementTable]);
+  };
+
+  const onChangeOptionExpected = (value: EnumOptionValueOrPercent, index: number) => {
+    expectReceiptDates[index].option = value;
+    setExpectReceiptDates([...expectReceiptDates]);
+  };
+
   const title = useCallback(
-    (
-      date: IExpectReceiptDates,
-      index: number,
-      received: boolean,
-      notReceived: boolean,
-      draft: boolean,
-    ) => {
+    (date: IExpectReceiptDates, index: number, received: boolean, notReceived: boolean) => {
       if (!(received || notReceived) && isEditDetail) {
         formMain?.setFieldsValue({
           ["expectedDate" + index]: date.date,
         });
       }
       return (
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <StyledButton type="button">{index + 1}</StyledButton>
-          {date.isAdd || (draft && isEditDetail) ? (
-            <Form.Item
-              name={"expectedDate" + index}
-              rules={[
-                {
-                  required: true,
-                },
-              ]}
-              help={false}
-            >
-              <CustomDatePicker
-                id={"expectedDate" + index}
-                value={date.date}
-                // disableDate={(date) => date < moment().startOf("days")} // nhớ sửa lại ngày cho đúng
-                format={DATE_FORMAT.DDMMYYY}
-                style={{ width: "100%" }}
-                placeholder="Ngày nhận dự kiến"
-                disabled={disabledDate}
-                onChange={(value) => {
-                  onChangeExpectedDate(index, value);
-                }}
-              />
-            </Form.Item>
-          ) : (
-            <>
-              <span
-                style={{
-                  flex: "1",
-                  textAlign: "center",
-                }}
+        <StyleHeader>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <StyledButton type="button">{index + 1}</StyledButton>
+            {date.isAdd || (!(received || notReceived) && isEditDetail) ? (
+              <Form.Item
+                name={"expectedDate" + index}
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+                help={false}
               >
-                {date.date}
-              </span>
+                <CustomDatePicker
+                  id={"expectedDate" + index}
+                  value={date.date}
+                  disableDate={(date) => date < moment().startOf("days")} // nhớ sửa lại ngày cho đúng
+                  format={DATE_FORMAT.DDMMYYY}
+                  style={{ width: "100%" }}
+                  placeholder="Ngày nhận dự kiến"
+                  onChange={(value) => {
+                    onChangeExpectedDate(index, value);
+                  }}
+                />
+              </Form.Item>
+            ) : (
+              <>
+                <span
+                  style={{
+                    flex: "1",
+                    textAlign: "center",
+                  }}
+                >
+                  {date.date}
+                </span>
 
-              {notReceived && (
-                <Tooltip title="Đã duyệt">
-                  <span
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      marginRight: "8px",
-                    }}
-                  >
-                    <IConDivided />
-                  </span>
-                </Tooltip>
-              )}
-              {received && (
-                <Tooltip title="Đã nhận">
-                  <span
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      marginRight: "8px",
-                    }}
-                  >
-                    <IConPlan />
-                  </span>
-                </Tooltip>
-              )}
-            </>
-          )}
-        </div>
+                {notReceived && (
+                  <Tooltip title="Đã duyệt">
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginRight: "8px",
+                      }}
+                    >
+                      <IConDivided />
+                    </span>
+                  </Tooltip>
+                )}
+                {received && (
+                  <Tooltip title="Đã nhận">
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginRight: "8px",
+                      }}
+                    >
+                      <IConPlan />
+                    </span>
+                  </Tooltip>
+                )}
+              </>
+            )}
+          </div>
+          {date.isAdd ||
+            (!(received || notReceived) && isEditDetail && (
+              <Row justify="end" style={{ margin: "4px 0", marginLeft: "20px" }}>
+                <Col span={24}>
+                  <Input.Group compact style={{ display: "flex" }}>
+                    <Form.Item style={{ marginBottom: "0", flex: "1", display: "flex" }}>
+                      <NumberInput
+                        size="small"
+                        min={0}
+                        className="input-number"
+                        value={date.value}
+                        onChange={(value) => {
+                          onChangeExpectedNumber(index, value);
+                        }}
+                      />
+                    </Form.Item>
+                    <Select
+                      defaultValue={EnumOptionValueOrPercent.PERCENT}
+                      value={date.option}
+                      style={{ width: 60 }}
+                      onChange={(value) => {
+                        onChangeOptionExpected(value, index);
+                      }}
+                    >
+                      <Option value={EnumOptionValueOrPercent.PERCENT}>
+                        {EnumOptionValueOrPercent.PERCENT}
+                      </Option>
+                      <Option value={EnumOptionValueOrPercent.SL}>
+                        {EnumOptionValueOrPercent.SL}
+                      </Option>
+                    </Select>
+                  </Input.Group>
+                </Col>
+              </Row>
+            ))}
+        </StyleHeader>
       );
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -513,7 +596,6 @@ export const PoWareHouse = (props: IProps) => {
       expectReceiptDates,
       isEditDetail,
       purchaseOrder,
-      disabledDate,
       formMain?.getFieldValue(POField.procurements),
     ],
   );
@@ -561,6 +643,8 @@ export const PoWareHouse = (props: IProps) => {
             date: procurementsExpectReceiptDate
               ? moment(procurementsExpectReceiptDate).format(DATE_FORMAT.DDMMYYY)
               : "",
+            option: EnumOptionValueOrPercent.PERCENT,
+            value: 0,
           };
         },
       );
@@ -577,9 +661,8 @@ export const PoWareHouse = (props: IProps) => {
           data.status === ProcurementStatus.received;
         const notReceived = data.status === ProcurementStatus.not_received;
         const received = data.status === ProcurementStatus.received;
-        const draft = data.status === ProcurementStatus.draft;
         return {
-          title: title(data, indexDate, received, notReceived, draft),
+          title: title(data, indexDate, received, notReceived),
           align: "center",
           className: isEditDetail ? "custom-date" : "",
           width: receivedOrNotReceived ? 50 : 40,
@@ -786,4 +869,17 @@ const StyledColSummary = styled(Col)`
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+`;
+
+const StyleHeader = styled.div`
+  .ant-input.ant-input-sm.input-number,
+  .ant-select-selector {
+    height: 32px !important;
+  }
+  .ant-select-selector {
+    align-items: center;
+  }
+  .ant-select-selection-item {
+    font-size: 12px !important;
+  }
 `;
