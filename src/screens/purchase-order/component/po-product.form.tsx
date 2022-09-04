@@ -276,7 +276,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         poLineItemType,
       );
       formMain.setFieldsValue({
-        procurements: newProcument,
+        [POField.procurements]: newProcument,
+        // [POField.line_items]: lineItems,
       });
       setProcurementTableData([...procurementTableData]);
     }
