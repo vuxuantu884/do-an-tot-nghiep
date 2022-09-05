@@ -12,7 +12,10 @@ import {
   RequestSyncStockQuery,
 } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
-import { EcommerceStoreAddress } from "model/ecommerce/ecommerce.model";
+import {
+  EcommerceStoreAddress,
+  ListInventoryUnicornProduct,
+} from "model/ecommerce/ecommerce.model";
 
 export const addFpagePhone = (
   userId: string,
@@ -296,6 +299,18 @@ export const batchShippingAction = (request: any, callback: (data: any) => any) 
 export const getLogInventoryVariantAction = (request: any, callback: (data: any) => any) => {
   return BaseAction(EcommerceType.GET_LOG_INVENTORY_VARIANT, {
     request,
+    callback,
+  });
+};
+
+export const getDataInventoryUnicornProductAction = (
+  variantId: string,
+  queryParams: any,
+  callback: (data: Array<ListInventoryUnicornProduct>) => any,
+) => {
+  return BaseAction(EcommerceType.CHECK_INVENTORY_VARIANT_PRODUCT, {
+    variantId,
+    queryParams,
     callback,
   });
 };
