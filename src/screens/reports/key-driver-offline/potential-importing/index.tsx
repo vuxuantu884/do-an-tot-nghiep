@@ -257,6 +257,7 @@ const PotentialImporting: FC = () => {
                       onChange={({ fileList }) => {
                         setFileList(fileList);
                       }}
+                      maxCount={1}
                     >
                       <Button icon={<UploadOutlined />}>Chọn file</Button>
                     </Upload>

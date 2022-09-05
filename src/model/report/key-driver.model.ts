@@ -34,11 +34,13 @@ export interface UpdateKeyDriverParams {
 export interface KeyDriverTarget {
   department: string;
   key_drivers: KeyDriverItem[];
+  time: "month" | "day";
 }
 
 export interface KeyDriverParams {
   ["year.equals"]: number;
   ["month.equals"]: number;
+  ["day.equals"]?: number;
 }
 
 export interface KDOfflineTotalSalesParams {
@@ -46,6 +48,7 @@ export interface KDOfflineTotalSalesParams {
   to: string;
   posLocationNames: string[];
   departmentLv2s: string[];
+  staffCodes?: string[];
 }
 
 export enum KeyDriverField {
@@ -210,3 +213,20 @@ export type DepartmentLevelGroup = {
 };
 
 export type DepartmentLevel4 = Omit<DepartmentLevelGroup, "department_lv2" | "department_lv3">;
+
+export enum KeyDriverDimension {
+  Asm = "Asm",
+  Store = "Store",
+  Staff = "Staff",
+}
+
+export enum KeyDriverFilter {
+  Date = "date",
+  Rank = "rank",
+}
+
+export interface TargetInfo {
+  departmentKey: string;
+  kdTarget: KeyDriverTarget[];
+  date: string;
+}

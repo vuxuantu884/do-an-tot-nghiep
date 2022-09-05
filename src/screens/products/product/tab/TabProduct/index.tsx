@@ -683,7 +683,8 @@ const TabProduct: React.FC<any> = (props) => {
         onChangeRowKey={(rowKey) => setRowKey(rowKey)}
         isRowSelection
         isLoading={tableLoading}
-        scroll={{ x: 1200 }}
+        // scroll={{ x: 100 }}
+        scroll={{ x: "max-content" }}
         sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         pagination={{
           pageSize: data.metadata.limit,

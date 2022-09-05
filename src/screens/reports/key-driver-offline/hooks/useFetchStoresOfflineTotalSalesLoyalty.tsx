@@ -1,10 +1,11 @@
-import { START_OF_MONTH, TODAY, YESTERDAY } from "config/dashboard";
-import { KeyDriverField } from "model/report";
+import { TODAY } from "config/dashboard";
+import { KDOfflineTotalSalesParams, KeyDriverDimension, KeyDriverField } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getKDOfflineTotalSalesLoyalty } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
+import { DATE_FORMAT } from "utils/DateUtils";
 import {
   calculateTargetMonth,
   findKeyDriver,
@@ -13,79 +14,117 @@ import {
 import { showErrorReport } from "utils/ReportUtils";
 import { KDOfflineStoresContext } from "../provider/kd-offline-stores-provider";
 
-function useFetchStoresOfflineTotalSalesLoyalty() {
+function useFetchStoresOfflineTotalSalesLoyalty(
+  dimension: KeyDriverDimension = KeyDriverDimension.Store,
+) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm } = useContext(KDOfflineStoresContext);
+  const { setData, selectedStores, selectedAsm, selectedStaffs, selectedDate } =
+    useContext(KDOfflineStoresContext);
 
   const [isFetchingStoresOfflineTotalSalesLoyalty, setIsFetchingStoresOfflineTotalSalesLoyalty] =
     useState<boolean | undefined>();
 
-  const findKeyDriverAndUpdateValue = useCallback((data: any, asmData: any, columnKey: string) => {
-    let customersCount: any = [];
-    const {
-      CustomersCount,
-      CustomerLte90DaysTotalSales,
-      ShopperLte90DaysTotalSales,
-      OthersTotalSales,
-    } = KeyDriverField;
-    findKeyDriver(data, CustomersCount, customersCount);
-    customersCount = customersCount[0];
-    const asmName = nonAccentVietnameseKD(asmData["pos_location_name"]);
-    if (asmName) {
-      customersCount[`${asmName}_${columnKey}`] = asmData[CustomersCount];
-      if (columnKey === "accumulatedMonth") {
-        customersCount[`${asmName}_targetMonth`] = calculateTargetMonth(
-          customersCount[`${asmName}_accumulatedMonth`],
-        );
-      }
-    }
-    if (customersCount.children?.length) {
-      customersCount.children.forEach((item: any) => {
-        if (Object.keys(asmData).findIndex((itemKey) => item.key === itemKey) !== -1) {
-          item[`${asmName}_${columnKey}`] = asmData[item.key];
-          // doanh thu nhóm KH khác = tổng doanh thu các nhóm khách hàng còn lại không show trên BC
-          if (item.key === OthersTotalSales) {
-            item[`${asmName}_${columnKey}`] =
-              asmData[item.key] +
-              asmData[CustomerLte90DaysTotalSales] +
-              asmData[ShopperLte90DaysTotalSales];
-          }
-          if (columnKey === "accumulatedMonth") {
-            item[`${asmName}_targetMonth`] = calculateTargetMonth(
-              item[`${asmName}_accumulatedMonth`],
-            );
-          }
+  const findKeyDriverAndUpdateValue = useCallback(
+    (data: any, asmData: any, columnKey: string) => {
+      let customersCount: any = [];
+      const {
+        CustomersCount,
+        CustomerLte90DaysTotalSales,
+        ShopperLte90DaysTotalSales,
+        OthersTotalSales,
+      } = KeyDriverField;
+      findKeyDriver(data, CustomersCount, customersCount);
+      customersCount = customersCount[0];
+      const dimensionKey =
+        KeyDriverDimension.Store === dimension ? "pos_location_name" : "staff_code";
+      const dimensionName = nonAccentVietnameseKD(asmData[dimensionKey]);
+      if (dimensionName) {
+        customersCount[`${dimensionName}_${columnKey}`] = asmData[CustomersCount];
+        if (columnKey === "accumulatedMonth") {
+          customersCount[`${dimensionName}_targetMonth`] = calculateTargetMonth(
+            customersCount[`${dimensionName}_accumulatedMonth`],
+            selectedDate,
+          );
         }
-      });
-    }
-  }, []);
+      }
+      if (customersCount.children?.length) {
+        customersCount.children.forEach((item: any) => {
+          if (Object.keys(asmData).findIndex((itemKey) => item.key === itemKey) !== -1) {
+            item[`${dimensionName}_${columnKey}`] = asmData[item.key];
+            // doanh thu nhóm KH khác = tổng doanh thu các nhóm khách hàng còn lại không show trên BC
+            if (item.key === OthersTotalSales) {
+              item[`${dimensionName}_${columnKey}`] =
+                asmData[item.key] +
+                asmData[CustomerLte90DaysTotalSales] +
+                asmData[ShopperLte90DaysTotalSales];
+            }
+            if (columnKey === "accumulatedMonth") {
+              item[`${dimensionName}_targetMonth`] = calculateTargetMonth(
+                item[`${dimensionName}_accumulatedMonth`],
+                selectedDate,
+              );
+            }
+          }
+        });
+      }
+    },
+    [dimension, selectedDate],
+  );
 
   const refetchStoresOfflineTotalSalesLoyalty = useCallback(() => {
     const fetchStoresOfflineTotalSalesLoyalty = async () => {
       if (!selectedStores.length || !selectedAsm.length) {
         return;
       }
+      if (
+        dimension === KeyDriverDimension.Staff &&
+        (!selectedStores.length || !selectedAsm.length || !selectedStaffs.length)
+      ) {
+        return;
+      }
       setIsFetchingStoresOfflineTotalSalesLoyalty(true);
+      let params: KDOfflineTotalSalesParams = {
+        from: TODAY,
+        to: TODAY,
+        posLocationNames: selectedStores,
+        departmentLv2s: selectedAsm,
+      };
+      if (dimension === KeyDriverDimension.Staff) {
+        params = { ...params, staffCodes: selectedStaffs.map((item) => JSON.parse(item).code) };
+      }
       const dayApi = callApiNative(
         { notifyAction: "SHOW_ALL" },
         dispatch,
         getKDOfflineTotalSalesLoyalty,
         {
-          from: TODAY,
-          to: TODAY,
-          posLocationNames: selectedStores,
-          departmentLv2s: selectedAsm,
+          ...params,
+          from: selectedDate,
+          to: selectedDate,
         },
       );
-      const monthApi =
-        moment().date() > 1
-          ? callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDOfflineTotalSalesLoyalty, {
-              from: START_OF_MONTH,
-              to: YESTERDAY,
-              posLocationNames: selectedStores,
-              departmentLv2s: selectedAsm,
-            })
-          : Promise.resolve(0);
+      const { YYYYMMDD } = DATE_FORMAT;
+      let monthApi: Promise<any>;
+      if (selectedDate === moment().format(YYYYMMDD)) {
+        monthApi =
+          moment(selectedDate, YYYYMMDD).date() > 1
+            ? callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDOfflineTotalSalesLoyalty, {
+                ...params,
+                from: moment(selectedDate, YYYYMMDD).startOf("month").format(YYYYMMDD),
+                to: moment(selectedDate, YYYYMMDD).subtract(1, "days").format(YYYYMMDD),
+              })
+            : Promise.resolve(0);
+      } else {
+        monthApi = callApiNative(
+          { notifyAction: "SHOW_ALL" },
+          dispatch,
+          getKDOfflineTotalSalesLoyalty,
+          {
+            ...params,
+            from: moment(selectedDate, YYYYMMDD).startOf("month").format(YYYYMMDD),
+            to: moment(selectedDate, YYYYMMDD).format(YYYYMMDD),
+          },
+        );
+      }
 
       await Promise.all([dayApi, monthApi]).then(([resDay, resMonth]) => {
         if (!resDay) {
@@ -136,8 +175,19 @@ function useFetchStoresOfflineTotalSalesLoyalty() {
 
       setIsFetchingStoresOfflineTotalSalesLoyalty(false);
     };
-    fetchStoresOfflineTotalSalesLoyalty();
-  }, [dispatch, findKeyDriverAndUpdateValue, selectedAsm, selectedStores, setData]);
+    if (selectedDate) {
+      fetchStoresOfflineTotalSalesLoyalty();
+    }
+  }, [
+    dimension,
+    dispatch,
+    findKeyDriverAndUpdateValue,
+    selectedAsm,
+    selectedDate,
+    selectedStaffs,
+    selectedStores,
+    setData,
+  ]);
 
   useEffect(() => {
     refetchStoresOfflineTotalSalesLoyalty();

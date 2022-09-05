@@ -1,10 +1,10 @@
-import { START_OF_MONTH, TODAY, YESTERDAY } from "config/dashboard";
 import { KeyDriverField } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getKDCustomerVisitors } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
+import { DATE_FORMAT } from "utils/DateUtils";
 import {
   calculateTargetMonth,
   findKeyDriver,
@@ -16,26 +16,30 @@ import { KeyDriverOfflineContext } from "../provider/key-driver-offline-provider
 
 function useFetchCustomerVisitors() {
   const dispatch = useDispatch();
-  const { setData } = useContext(KeyDriverOfflineContext);
+  const { setData, selectedDate } = useContext(KeyDriverOfflineContext);
 
   const [isFetchingCustomerVisitors, setIsFetchingCustomerVisitors] = useState<
     boolean | undefined
   >();
 
-  const findKeyDriverAndUpdateValue = useCallback((data: any, asmData: any, columnKey: string) => {
-    let visitors: any = [];
-    findKeyDriver(data, KeyDriverField.Visitors, visitors);
-    visitors = visitors[0];
-    const asmName = nonAccentVietnameseKD(asmData["department_lv2"]);
-    if (asmName) {
-      visitors[`${asmName}_${columnKey}`] = asmData.value;
-      if (columnKey === "accumulatedMonth") {
-        visitors[`${asmName}_targetMonth`] = calculateTargetMonth(
-          visitors[`${asmName}_accumulatedMonth`],
-        );
+  const findKeyDriverAndUpdateValue = useCallback(
+    (data: any, asmData: any, columnKey: string) => {
+      let visitors: any = [];
+      findKeyDriver(data, KeyDriverField.Visitors, visitors);
+      visitors = visitors[0];
+      const asmName = nonAccentVietnameseKD(asmData["department_lv2"]);
+      if (asmName) {
+        visitors[`${asmName}_${columnKey}`] = asmData.value;
+        if (columnKey === "accumulatedMonth") {
+          visitors[`${asmName}_targetMonth`] = calculateTargetMonth(
+            visitors[`${asmName}_accumulatedMonth`],
+            selectedDate,
+          );
+        }
       }
-    }
-  }, []);
+    },
+    [selectedDate],
+  );
 
   const calculateCompanyKeyDriver = useCallback((response) => {
     let companyData: any = { department_lv2: "COMPANY" };
@@ -53,21 +57,32 @@ function useFetchCustomerVisitors() {
   const refetchCustomerVisitors = useCallback(() => {
     const fetchCustomerVisitors = async () => {
       setIsFetchingCustomerVisitors(true);
-      const dayApi = callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDCustomerVisitors, {
-        from: TODAY,
-        to: TODAY,
+      const dayApi = callApiNative({ isShowError: true }, dispatch, getKDCustomerVisitors, {
+        from: selectedDate,
+        to: selectedDate,
         posLocationNames: [],
-        departmentLv2s: [],
+        departmentLv2s: ASM_LIST,
       });
-      const monthApi =
-        moment().date() > 1
-          ? callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDCustomerVisitors, {
-              from: START_OF_MONTH,
-              to: YESTERDAY,
-              posLocationNames: [],
-              departmentLv2s: [],
-            })
-          : Promise.resolve(0);
+      const { YYYYMMDD } = DATE_FORMAT;
+      let monthApi: Promise<any>;
+      if (selectedDate === moment().format(YYYYMMDD)) {
+        monthApi =
+          moment(selectedDate, YYYYMMDD).date() > 1
+            ? callApiNative({ isShowError: true }, dispatch, getKDCustomerVisitors, {
+                from: moment(selectedDate, YYYYMMDD).startOf("month").format(YYYYMMDD),
+                to: moment(selectedDate, YYYYMMDD).subtract(1, "days").format(YYYYMMDD),
+                posLocationNames: [],
+                departmentLv2s: ASM_LIST,
+              })
+            : Promise.resolve(0);
+      } else {
+        monthApi = callApiNative({ isShowError: true }, dispatch, getKDCustomerVisitors, {
+          from: moment(selectedDate, YYYYMMDD).startOf("month").format(YYYYMMDD),
+          to: moment(selectedDate, YYYYMMDD).format(YYYYMMDD),
+          posLocationNames: [],
+          departmentLv2s: ASM_LIST,
+        });
+      }
 
       await Promise.all([dayApi, monthApi]).then(([resDay, resMonth]) => {
         if (!resDay) {
@@ -109,8 +124,10 @@ function useFetchCustomerVisitors() {
 
       setIsFetchingCustomerVisitors(false);
     };
-    fetchCustomerVisitors();
-  }, [calculateCompanyKeyDriver, dispatch, findKeyDriverAndUpdateValue, setData]);
+    if (selectedDate) {
+      fetchCustomerVisitors();
+    }
+  }, [calculateCompanyKeyDriver, dispatch, findKeyDriverAndUpdateValue, selectedDate, setData]);
 
   useEffect(() => {
     refetchCustomerVisitors();

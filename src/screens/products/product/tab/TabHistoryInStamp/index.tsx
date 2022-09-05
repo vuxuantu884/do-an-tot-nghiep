@@ -522,7 +522,8 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
         isRowSelection
         selectedRowKey={selected.map((e) => e.id)}
         isShowPaginationAtHeader
-        scroll={{ x: 1300 }}
+        // scroll={{ x: 1300 }}
+        scroll={{ x: "max-content" }}
         columns={columnFinal}
         dataSource={data.items}
         isLoading={loading}

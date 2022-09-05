@@ -13,20 +13,19 @@ import { showErrorReport } from "utils/ReportUtils";
 import { ASM_LIST } from "../constant/key-driver-offline-template-data";
 import { KeyDriverOfflineContext } from "../provider/key-driver-offline-provider";
 
-function useFetchKeyDriverTarget() {
+function useFetchKeyDriverTargetDay() {
   const dispatch = useDispatch();
   const { setData, selectedDate } = useContext(KeyDriverOfflineContext);
 
-  const [isFetchingKeyDriverTarget, setIsFetchingKeyDriverTarget] = useState<boolean | undefined>();
+  const [isFetchingKeyDriverTargetDay, setIsFetchingKeyDriverTargetDay] = useState<
+    boolean | undefined
+  >();
 
   const findKeyDriverAndUpdateValue = useCallback(
     (data: any, keyDriversTarget: any, asmName: string, targetTime: "month" | "day") => {
       Object.keys(keyDriversTarget).forEach((keyDriver) => {
         if (data.key === keyDriver) {
           data[`${asmName}_${targetTime}`] = keyDriversTarget[keyDriver].value;
-          if (!data[`${asmName}_month`]) {
-            data[`${asmName}_day`] = "";
-          }
         } else {
           if (data.children?.length) {
             data.children.forEach((item: any) => {
@@ -42,17 +41,18 @@ function useFetchKeyDriverTarget() {
   const findKDProductAndUpdateValue = useCallback(findKDProductAndUpdateValueUtil, []);
 
   const refetch = useCallback(() => {
-    const fetchKeyDriverTarget = async () => {
-      setIsFetchingKeyDriverTarget(true);
+    const fetchKeyDriverTargetDay = async () => {
+      setIsFetchingKeyDriverTargetDay(true);
       const { YYYYMMDD } = DATE_FORMAT;
       const res = await callApiNative({ isShowError: true }, dispatch, getKeyDriversTarget, {
         "year.equals": moment(selectedDate, YYYYMMDD).year(),
         "month.equals": moment(selectedDate, YYYYMMDD).month() + 1,
+        "day.equals": moment(selectedDate, YYYYMMDD).date(),
       });
 
       if (!res) {
-        showErrorReport("Lỗi khi lấy dữ liệu mục tiêu");
-        setIsFetchingKeyDriverTarget(false);
+        showErrorReport("Lỗi khi lấy dữ liệu mục tiêu ngày");
+        setIsFetchingKeyDriverTargetDay(false);
         return;
       }
 
@@ -81,18 +81,18 @@ function useFetchKeyDriverTarget() {
             ["COMPANY", ...ASM_LIST].forEach((asm) => {
               const asmKey = nonAccentVietnameseKD(asm);
               if (department === asmKey) {
-                findKeyDriverAndUpdateValue(prev[0], kdTotalSalesTarget, asmKey, "month");
-                findKDProductAndUpdateValue(prev[1], kdProductTarget, asmKey, "month");
+                findKeyDriverAndUpdateValue(prev[0], kdTotalSalesTarget, asmKey, "day");
+                findKDProductAndUpdateValue(prev[1], kdProductTarget, asmKey, "day");
               }
             });
           });
         return [...prev];
       });
 
-      setIsFetchingKeyDriverTarget(false);
+      setIsFetchingKeyDriverTargetDay(false);
     };
     if (selectedDate) {
-      fetchKeyDriverTarget();
+      fetchKeyDriverTargetDay();
     }
   }, [dispatch, findKDProductAndUpdateValue, findKeyDriverAndUpdateValue, selectedDate, setData]);
 
@@ -100,7 +100,7 @@ function useFetchKeyDriverTarget() {
     refetch();
   }, [refetch]);
 
-  return { isFetchingKeyDriverTarget, refetch };
+  return { isFetchingKeyDriverTargetDay, refetch };
 }
 
-export default useFetchKeyDriverTarget;
+export default useFetchKeyDriverTargetDay;

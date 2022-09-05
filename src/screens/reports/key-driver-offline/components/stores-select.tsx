@@ -5,6 +5,7 @@ import { ReactElement, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { strForSearch } from "utils/StringUtils";
+import { keyDriverOfflineTemplateData } from "../constant/key-driver-offline-template-data";
 import { KDOfflineStoresContext } from "../provider/kd-offline-stores-provider";
 interface Props extends SelectProps<number> {
   asmName: string;
@@ -16,10 +17,17 @@ StoresSelect.defaultProps = {};
 function StoresSelect(props: Props): ReactElement {
   const { asmName } = props;
   const dispatch = useDispatch();
-  const { setSelectedAsm, setSelectedStores } = useContext(KDOfflineStoresContext);
+  const { setSelectedAsm, setSelectedStores, setData, selectedStoreRank, setSelectedAllStores } =
+    useContext(KDOfflineStoresContext);
   const [listStore, setStore] = useState<Array<StoreResponse>>([]);
 
   const handleOnChange = (stores: string[]) => {
+    setData((prev: any) => JSON.parse(JSON.stringify(keyDriverOfflineTemplateData)));
+    if (!stores.length) {
+      setSelectedAllStores(true);
+    } else {
+      setSelectedAllStores(false);
+    }
     setSelectedStores(
       stores.length
         ? stores.map((item) => JSON.parse(item).name)
@@ -53,6 +61,16 @@ function StoresSelect(props: Props): ReactElement {
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (selectedStoreRank) {
+      setData((prev: any) => JSON.parse(JSON.stringify(keyDriverOfflineTemplateData)));
+      setSelectedAllStores(true);
+      setSelectedStores(
+        storesInAsm.filter((item) => item.rank === selectedStoreRank).map((item) => item.name),
+      );
+    }
+  }, [selectedStoreRank, setData, setSelectedAllStores, setSelectedStores, storesInAsm]);
   return (
     <Select
       mode="multiple"
@@ -69,6 +87,7 @@ function StoresSelect(props: Props): ReactElement {
         return false;
       }}
       onChange={handleOnChange}
+      disabled={!!selectedStoreRank}
     >
       {storesInAsm.map((item, index) => (
         <Option key={"store_id" + index} value={JSON.stringify(item)}>

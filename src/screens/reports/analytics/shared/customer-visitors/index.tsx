@@ -111,16 +111,13 @@ function CustomerVisitors() {
         `${moment(`${year}-${month}`, "YYYY-M").startOf("month").add(i, "days").format("DD")}`,
     ).forEach((day: string) => {
       const diffDay = moment(`${day}-${month}-${year}`, "DD-M-YYYY").diff(moment(), "days", true);
+
       const column = {
         title: day,
         dataIndex: `day${day}`,
         key: `day${day}`,
         isToday: currentYear === year && currentMonth === month && +day === +moment().date(),
-        disabled:
-          +day > +moment().date() ||
-          +day <= +moment().subtract(3, "days").date() ||
-          diffDay < -3 ||
-          diffDay > 0,
+        disabled: diffDay < -3 || diffDay > 0,
       };
       columnsTmp.push(column);
     });

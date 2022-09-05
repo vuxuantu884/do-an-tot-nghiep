@@ -18,7 +18,7 @@ import { showError } from "utils/ToastUtils";
 import { StyledComponent } from "../pack/styles";
 import AddOrderBottomBar from "./component/bottom-bar/add-order-bottom-bar";
 import FulfillmentComponent from "./component/fulfillment/fulfillment.component";
-import { HandoverTransfer, HandoverType } from "./handover.config";
+import { HandoverReturn, HandoverTransfer, HandoverType } from "./handover.config";
 
 const CreateHandoverScreeen: React.FC<any> = (props: any) => {
   const history = useHistory();
@@ -231,7 +231,11 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
                           disabled={orders.length > 0 ? true : false}
                         >
                           {HandoverType.map((item, index) => (
-                            <Select.Option key={index.toString()} value={item.value}>
+                            <Select.Option
+                              key={index.toString()}
+                              value={item.value}
+                              // disabled={item.value === HandoverReturn}
+                            >
                               {item.display}
                             </Select.Option>
                           ))}
