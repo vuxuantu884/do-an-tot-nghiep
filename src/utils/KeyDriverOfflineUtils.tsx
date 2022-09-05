@@ -298,7 +298,7 @@ const calculateDepartmentMonthRate = (keyDriver: any, department: string) => {
   if (keyDriver[`${department}_accumulatedMonth`] && keyDriver[`${department}_month`]) {
     keyDriver[`${department}_rateMonth`] = keyDriver[`${department}_month`]
       ? +(
-          (keyDriver[`${department}_accumulatedMonth`] / keyDriver[`${department}_month`]) *
+          ((keyDriver[`${department}_accumulatedMonth`] || 0) / keyDriver[`${department}_month`]) *
           100
         ).toFixed(2)
       : "";
@@ -311,23 +311,27 @@ const calculateDepartmentDayTarget = (keyDriver: any, department: string, select
   if (keyDriver[`${department}_month`]) {
     const { YYYYMMDD } = DATE_FORMAT;
     const isPastDate = moment(selectedDate, YYYYMMDD).diff(moment(), "days", true) <= -1;
-    const dayNumber = isPastDate
-      ? moment(selectedDate, YYYYMMDD).date()
-      : moment(selectedDate, YYYYMMDD).date() - 1;
     const dayInMonth = moment(selectedDate, YYYYMMDD).daysInMonth();
+    const selectedDateNumber = moment(selectedDate, YYYYMMDD).date();
+    const dayNumber = selectedDateNumber - 1;
+    const { CustomersCount, AverageOrderValue, AverageCustomerSpent, NewCustomersConversionRate } =
+      KeyDriverField;
     if (
-      ![KeyDriverField.AverageOrderValue, KeyDriverField.AverageCustomerSpent].includes(
+      ![AverageOrderValue, AverageCustomerSpent, NewCustomersConversionRate].includes(
         keyDriver["key"],
       )
     ) {
       if (!keyDriver[`${department}_day`]) {
+        const remainingValue = isPastDate
+          ? keyDriver[`${department}_month`] -
+            (+keyDriver[`${department}_accumulatedMonth`] || 0) +
+            (+keyDriver[`${department}_actualDay`] || 0)
+          : keyDriver[`${department}_month`] - (+keyDriver[`${department}_accumulatedMonth`] || 0);
         keyDriver[`${department}_day`] =
-          keyDriver[`${department}_month`] - (keyDriver[`${department}_accumulatedMonth`] || 0) > 0
+          remainingValue > 0
             ? Math.round(
-                (keyDriver[`${department}_month`] -
-                  (keyDriver[`${department}_accumulatedMonth`] || 0)) /
-                  (dayInMonth - dayNumber) +
-                  (KeyDriverField.CustomersCount === keyDriver["key"] ? 0.5 : 0),
+                remainingValue / (dayInMonth - dayNumber) +
+                  (CustomersCount === keyDriver["key"] ? 0.5 : 0),
               )
             : Math.round(keyDriver[`${department}_month`] / dayInMonth);
       }
@@ -338,7 +342,10 @@ const calculateDepartmentDayTarget = (keyDriver: any, department: string, select
 const calculateDepartmentDayRate = (keyDriver: any, department: string) => {
   if (keyDriver[`${department}_actualDay`] && keyDriver[`${department}_day`]) {
     keyDriver[`${department}_rateDay`] = keyDriver[`${department}_day`]
-      ? +((keyDriver[`${department}_actualDay`] / keyDriver[`${department}_day`]) * 100).toFixed(2)
+      ? +(
+          ((keyDriver[`${department}_actualDay`] || 0) / keyDriver[`${department}_day`]) *
+          100
+        ).toFixed(2)
       : "";
   } else if (!keyDriver[`${department}_day`]) {
     keyDriver[`${department}_rateDay`] = undefined;
