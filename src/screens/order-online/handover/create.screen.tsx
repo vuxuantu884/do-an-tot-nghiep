@@ -234,7 +234,7 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
                             <Select.Option
                               key={index.toString()}
                               value={item.value}
-                              disabled={item.value === HandoverReturn}
+                              // disabled={item.value === HandoverReturn}
                             >
                               {item.display}
                             </Select.Option>
