@@ -1,4 +1,4 @@
-import { DownOutlined, SearchOutlined, SettingOutlined } from "@ant-design/icons";
+import { DownOutlined, EyeOutlined, SearchOutlined, SettingOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -16,6 +16,7 @@ import {
   TreeSelect,
   Tag,
   Table,
+  Popover,
 } from "antd";
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
 import disconnectIcon from "assets/icon/disconnect.svg";
@@ -23,7 +24,7 @@ import filterIcon from "assets/icon/filter.svg";
 import warningCircleIcon from "assets/icon/warning-circle.svg";
 import BaseResponse from "base/base.response";
 import BaseFilter from "component/filter/base.filter";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import CustomTable from "component/table/CustomTable";
 import { HttpStatus } from "config/http-status.config";
 import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
 import UrlConfig from "config/url.config";
@@ -35,6 +36,7 @@ import {
   postSyncStockEcommerceProduct,
   exitEcommerceJobsAction,
   getLogInventoryVariantAction,
+  getDataInventoryUnicornProductAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -48,7 +50,11 @@ import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
-import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
+import {
+  ECOMMERCE_ID,
+  ECOMMERCE_LIST,
+  getEcommerceIcon,
+} from "screens/ecommerce/common/commonAction";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import { StyledProductFilter, StyledProductLink } from "screens/ecommerce/products/styles";
 import ConnectedItemActionColumn from "screens/ecommerce/products/tab/connected-items/ConnectedItemActionColumn";
@@ -64,6 +70,9 @@ import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
 import ConcatenateByExcel from "screens/ecommerce/products/tab/not-connected-items/ConcatenateByExcel";
+import { ColumnsType } from "antd/lib/table";
+import { ListInventoryUnicornProduct } from "model/ecommerce/ecommerce.model";
+import { cloneDeep } from "lodash";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsUpdateStockPermission = [EcommerceProductPermission.products_update_stock];
@@ -124,6 +133,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
 
   //inventory log
   const [inventoryHistoryLog, setInventoryHistoryLog] = useState<Array<any>>([]);
+  const [isLoadingInventory, setIsLoadingInventory] = useState<boolean>(false);
+  const [dataInventoryUnicornProduct, setDataInventoryUnicornProduct] = useState<
+    Array<ListInventoryUnicornProduct>
+  >([]);
 
   const [selectedRow, setSelectedRow] = useState<Array<any>>([]);
 
@@ -191,21 +204,24 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   };
 
   //handle sync stock
-  const handleSyncStock = (item: any) => {
-    const requestSyncStock = {
-      sync_type: "selected",
-      variant_ids: [item.id],
-      shop_ids: null,
-    };
+  const handleSyncStock = useCallback(
+    (item: any) => {
+      const requestSyncStock = {
+        sync_type: "selected",
+        variant_ids: [item.id],
+        shop_ids: null,
+      };
 
-    dispatch(
-      postSyncStockEcommerceProduct(requestSyncStock, (result) => {
-        if (result) {
-          handleSyncStockJob(result.process_id);
-        }
-      }),
-    );
-  };
+      dispatch(
+        postSyncStockEcommerceProduct(requestSyncStock, (result) => {
+          if (result) {
+            handleSyncStockJob(result.process_id);
+          }
+        }),
+      );
+    },
+    [dispatch, handleSyncStockJob],
+  );
 
   const handleSyncStockItemsSelected = () => {
     const itemSelected: any[] = [];
@@ -353,12 +369,15 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     setInventoryHistoryLog([data.items[0]]);
   };
 
-  const handleShowLogInventory = (item: any) => {
-    dispatch(
-      getLogInventoryVariantAction(item.ecommerce_variant_id, GetRequestResponseInventoryLog),
-    );
-    setInventoryHistoryLog([]);
-  };
+  const handleShowLogInventory = useCallback(
+    (item: any) => {
+      dispatch(
+        getLogInventoryVariantAction(item.ecommerce_variant_id, GetRequestResponseInventoryLog),
+      );
+      setInventoryHistoryLog([]);
+    },
+    [dispatch],
+  );
 
   useEffect(() => {
     if (inventoryHistoryLog.length) {
@@ -518,169 +537,266 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     return ConvertUtcToLocalDate(dateTimeData, formatDateTime);
   };
 
-  const [columns] = React.useState<Array<ICustomTableColumType<any>>>([
-    {
-      title: "Ảnh",
-      visible: true,
-      align: "center",
-      width: "70px",
-      render: (item: any) => {
-        return <img src={item.ecommerce_image_url} style={{ height: "40px" }} alt="" />;
-      },
-    },
-    {
-      title: "Sku/ itemID (Sàn)",
-      visible: true,
-      width: "150px",
-      render: (item: any) => {
-        return (
-          <div>
-            <div>{item.ecommerce_sku}</div>
-            <div style={{ color: "#737373" }}>{item.ecommerce_product_id}</div>
-            <div style={{ color: "#737373", fontStyle: "italic" }}>
-              ({item.ecommerce_variant_id})
-            </div>
-            <div style={{ color: "#2a2a86", fontWeight: 500 }}>({item.shop})</div>
-          </div>
-        );
-      },
-    },
-    {
-      title: "Sản phẩm (Sàn)",
-      visible: true,
-      width: "300px",
-      render: (item: any) => {
-        return <div>{item.ecommerce_variant}</div>;
-      },
-    },
-    {
-      title: "Giá bán (Sàn)",
-      visible: true,
-      align: "center",
-      width: "100px",
-      render: (item: any) => {
-        return <span>{item.ecommerce_price ? formatCurrency(item.ecommerce_price) : "-"}</span>;
-      },
-    },
-    {
-      title: "Sản phẩm (Unicorn)",
-      visible: true,
-      render: (item: any) => {
-        return (
-          <StyledProductLink>
-            <Link
-              target="_blank"
-              to={`${UrlConfig.PRODUCT}/${item.core_product_id}/variants/${item.core_variant_id}`}
-            >
-              {item.core_variant}
-            </Link>
-            <div>{item.core_sku}</div>
-          </StyledProductLink>
-        );
-      },
-    },
-    {
-      title: "Giá bán (Yody)",
-      visible: true,
-      align: "center",
-      width: "100px",
-      render: (item: any) => {
-        return <span>{formatCurrency(item.core_price)}</span>;
-      },
-    },
-    {
-      title: "Tồn",
-      visible: true,
-      align: "center",
-      width: "60px",
-      render: (item: any) => {
-        return <span>{item.stock}</span>;
-      },
-    },
+  const handleGetDataInventoryUnicornProduct = useCallback(
+    (data: Array<ListInventoryUnicornProduct>, variantIndex: number) => {
+      setIsLoadingInventory(false);
+      setDataInventoryUnicornProduct(data);
 
-    {
-      title: "Tồn an toàn",
-      visible: true,
-      align: "center",
-      width: "120px",
-      render: (item: any) => {
-        return (
-          <span>
-            {item?.available_minimum
-              ? item.available_minimum
-              : item.available_minimum === 0
-              ? 0
-              : "-"}
-          </span>
+      /** Cập nhật tồn ngoài danh sách sản phẩm tại thời điểm xem chi tiết tồn */
+      if (data?.length > 0) {
+        const variantInventoryStock = data.map((item) => item.stock);
+        let sumInventoryStock = variantInventoryStock.reduce(
+          (previousValue, currentValue) => previousValue + currentValue,
         );
-      },
+        const newVariantData = cloneDeep(variantData);
+        newVariantData.items[variantIndex].stock = sumInventoryStock;
+        setVariantData(newVariantData);
+      } else {
+        const newVariantData = cloneDeep(variantData);
+        newVariantData.items[variantIndex].stock = 0;
+      }
     },
-    {
-      title: "Ghép nối",
-      visible: true,
-      align: "center",
-      width: "150px",
-      render: (item: any) => {
-        return (
-          <StyledStatus>
-            {item.connect_status === "connected" && (
-              <div className="green-status" style={{ width: 120 }}>
-                Thành công
+    [variantData],
+  );
+
+  const handleInventoryUnicornProductData = useCallback(
+    (item: any, variantIndex: number) => {
+      setDataInventoryUnicornProduct([]);
+      if (item.ecommerce_variant_id) {
+        const requestParams = {
+          shop_id: item.shop_id,
+          core_variant_id: item.core_variant_id,
+        };
+        setIsLoadingInventory(true);
+        dispatch(
+          getDataInventoryUnicornProductAction(
+            item.ecommerce_variant_id,
+            requestParams,
+            (data: Array<ListInventoryUnicornProduct>) => {
+              handleGetDataInventoryUnicornProduct(data, variantIndex);
+            },
+          ),
+        );
+      }
+    },
+    [dispatch, handleGetDataInventoryUnicornProduct],
+  );
+
+  const columns = useCallback((): ColumnsType => {
+    return [
+      {
+        title: "Ảnh",
+        align: "center",
+        width: "70px",
+        render: (item: any) => {
+          return <img src={item.ecommerce_image_url} style={{ height: "40px" }} alt="" />;
+        },
+      },
+      {
+        title: "Sku/ itemID (Sàn)",
+        width: "150px",
+        render: (item: any) => {
+          return (
+            <div>
+              <div>{item.ecommerce_sku}</div>
+              <div style={{ color: "#737373" }}>{item.ecommerce_product_id}</div>
+              <div style={{ color: "#737373", fontStyle: "italic" }}>
+                ({item.ecommerce_variant_id})
               </div>
-            )}
-          </StyledStatus>
-        );
+              <div style={{ color: "#2a2a86", fontWeight: 500 }}>({item.shop})</div>
+            </div>
+          );
+        },
       },
-    },
-    {
-      title: () => {
-        return (
-          <div>
-            <span>Đồng bộ tồn</span>
-            <Tooltip overlay="Kết quả đồng bộ tồn kho lần gần nhất" placement="top" color="blue">
-              <img src={warningCircleIcon} style={{ marginLeft: 5 }} alt="" />
-            </Tooltip>
-          </div>
-        );
+      {
+        title: "Sản phẩm (Sàn)",
+        width: "300px",
+        render: (item: any) => {
+          return <div>{item.ecommerce_variant}</div>;
+        },
       },
-      visible: true,
-      align: "center",
-      width: "150px",
-      render: (item: any) => {
-        return (
-          <StyledStatus>
-            {item.sync_stock_status === "done" && (
-              <Tooltip title={convertDateTimeFormat(item.updated_date)}>
+      {
+        title: "Giá bán (Sàn)",
+        align: "center",
+        width: "100px",
+        render: (item: any) => {
+          return <span>{item.ecommerce_price ? formatCurrency(item.ecommerce_price) : "-"}</span>;
+        },
+      },
+      {
+        title: "Sản phẩm (Unicorn)",
+        render: (item: any) => {
+          return (
+            <StyledProductLink>
+              <Link
+                target="_blank"
+                to={`${UrlConfig.PRODUCT}/${item.core_product_id}/variants/${item.core_variant_id}`}
+              >
+                {item.core_variant}
+              </Link>
+              <div>{item.core_sku}</div>
+            </StyledProductLink>
+          );
+        },
+      },
+      {
+        title: "Giá bán (Yody)",
+        align: "center",
+        width: "100px",
+        render: (item: any) => {
+          return <span>{formatCurrency(item.core_price)}</span>;
+        },
+      },
+      {
+        title: "Tồn",
+        align: "center",
+        width: "80px",
+        render: (value: any, item: any, index: number) => {
+          return (
+            <div>
+              <span>{item.stock}</span>
+              {item.ecommerce_id === ECOMMERCE_ID.TIKI && item.connect_status === "connected" && (
+                <Popover
+                  placement="right"
+                  overlayStyle={{ zIndex: 1000, top: "150px", maxWidth: "60%" }}
+                  content={
+                    <Table
+                      columns={[
+                        {
+                          title: "Kho (Unicorn)",
+                          render: (item: any) => (
+                            <div style={{ display: "flex", flexDirection: "column" }}>
+                              <span style={{ color: "#2a2a86", textAlign: "center" }}>
+                                {item?.core_warehouse_name}
+                              </span>
+                              <span>{`ID: ${item?.core_warehouse_id}`}</span>
+                            </div>
+                          ),
+                        },
+
+                        {
+                          title: "Tồn kho (Có thể bán)",
+                          render: (item: any) => {
+                            return (
+                              <span style={{ display: "flex", justifyContent: "center" }}>
+                                {item?.stock}
+                              </span>
+                            );
+                          },
+                        },
+                      ]}
+                      loading={isLoadingInventory}
+                      dataSource={dataInventoryUnicornProduct}
+                      pagination={false}
+                      rowKey={(item: any) => item.core_warehouse_id}
+                    />
+                  }
+                  trigger="click"
+                  onVisibleChange={(visible) => {
+                    visible && handleInventoryUnicornProductData(item, index);
+                  }}
+                >
+                  <Button
+                    type="link"
+                    className="checkInventoryButton"
+                    icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />}
+                    style={{ width: "100%", padding: 0 }}
+                    title="Kiểm tra tồn kho"
+                  ></Button>
+                </Popover>
+              )}
+            </div>
+          );
+        },
+      },
+
+      {
+        title: "Tồn an toàn",
+        align: "center",
+        width: "120px",
+        render: (item: any) => {
+          return (
+            <span>
+              {item?.available_minimum
+                ? item.available_minimum
+                : item.available_minimum === 0
+                ? 0
+                : "-"}
+            </span>
+          );
+        },
+      },
+      {
+        title: "Ghép nối",
+        align: "center",
+        width: "150px",
+        render: (item: any) => {
+          return (
+            <StyledStatus>
+              {item.connect_status === "connected" && (
                 <div className="green-status" style={{ width: 120 }}>
                   Thành công
                 </div>
-              </Tooltip>
-            )}
-
-            {item.sync_stock_status === "error" && (
-              <Tooltip title={item.error_msg_stock}>
-                <div className="red-status" style={{ width: 120 }}>
-                  Thất bại
-                </div>
-              </Tooltip>
-            )}
-
-            {item.sync_stock_status === "in_progress" && (
-              <div className="yellow-status" style={{ width: 120 }}>
-                Đang xử lý
-              </div>
-            )}
-          </StyledStatus>
-        );
+              )}
+            </StyledStatus>
+          );
+        },
       },
-    },
+      {
+        title: () => {
+          return (
+            <div>
+              <span>Đồng bộ tồn</span>
+              <Tooltip overlay="Kết quả đồng bộ tồn kho lần gần nhất" placement="top" color="blue">
+                <img src={warningCircleIcon} style={{ marginLeft: 5 }} alt="" />
+              </Tooltip>
+            </div>
+          );
+        },
+        align: "center",
+        width: "150px",
+        render: (item: any) => {
+          return (
+            <StyledStatus>
+              {item.sync_stock_status === "done" && (
+                <Tooltip title={convertDateTimeFormat(item.updated_date)}>
+                  <div className="green-status" style={{ width: 120 }}>
+                    Thành công
+                  </div>
+                </Tooltip>
+              )}
 
-    ConnectedItemActionColumn(
-      handleDeleteItem,
-      handleSyncStock,
-      handleDisconnectItem,
-      handleShowLogInventory,
-    ),
+              {item.sync_stock_status === "error" && (
+                <Tooltip title={item.error_msg_stock}>
+                  <div className="red-status" style={{ width: 120 }}>
+                    Thất bại
+                  </div>
+                </Tooltip>
+              )}
+
+              {item.sync_stock_status === "in_progress" && (
+                <div className="yellow-status" style={{ width: 120 }}>
+                  Đang xử lý
+                </div>
+              )}
+            </StyledStatus>
+          );
+        },
+      },
+
+      ConnectedItemActionColumn(
+        handleDeleteItem,
+        handleSyncStock,
+        handleDisconnectItem,
+        handleShowLogInventory,
+      ),
+    ];
+  }, [
+    isLoadingInventory,
+    dataInventoryUnicornProduct,
+    handleInventoryUnicornProductData,
+    handleShowLogInventory,
+    handleSyncStock,
   ]);
 
   const [columnLogInventory] = useState<any>([
@@ -1315,7 +1431,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           isRowSelection={isShowAction}
           isLoading={isLoading}
           onSelectedChange={onSelectTableRow}
-          columns={columns}
+          columns={columns()}
           dataSource={variantData.items}
           scroll={{ x: 1400 }}
           sticky={{ offsetScroll: 10, offsetHeader: 55 }}
