@@ -1864,7 +1864,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                       form={form}
                       shippingServiceConfig={shippingServiceConfig}
                       orderConfig={orderConfig}
-                      isOrderReturnOffline={isOrderFromPOS(OrderDetail)}
+                      isOrderReturnOffline={orderReturnType === RETURN_TYPE_VALUES.offline}
                       payments={payments}
                       orderPageType={OrderPageTypeModel.orderReturnCreate}
                     />
