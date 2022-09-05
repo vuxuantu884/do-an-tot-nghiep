@@ -13,9 +13,13 @@ export interface EcommerceChangeOrderStatusReponse {
   success_list: Array<string>;
   error_list: Array<ChangeOrderStatusErrorLine>;
 }
-export interface EcommerceShopInventoryDto {
-  store: String; //
+export interface EcommerceShopInventoryDto extends BaseObject {
+  store: String;
   store_id: Number;
+  warehouse_id: Number | null;
+  warehouse: String | null;
+  shop_id: Number | null;
+  deleted: boolean;
 }
 
 export interface EcommerceResponse extends BaseObject {
@@ -38,4 +42,5 @@ export interface EcommerceResponse extends BaseObject {
   inventories: Array<EcommerceShopInventoryDto>; // danh sách kho
   source: String; // nguồn
   source_id: number; // id nguồn
+  stores: Array<any>;
 }
