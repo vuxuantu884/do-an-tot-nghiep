@@ -213,10 +213,9 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
         procurement_items: procurement.procurement_items,
       };
     });
-    let procurementsResult: PurchaseProcument[] = [...procurementsBackUp];
-    lineItemsBackUp.forEach((lineItem) => {
-      procurementsResult = procurementsBackUp.map((procurement, index) => {
-        const procurementItem: PurchaseProcumentLineItem = {
+    const procurementsResult: PurchaseProcument[] = procurementsBackUp.map((procurement, index) => {
+      const procurementItem: PurchaseProcumentLineItem[] = lineItemsBackUp.map((lineItem) => {
+        return {
           accepted_quantity: 0,
           line_item_id: lineItem.id || 0,
           amount: lineItem.amount,
@@ -235,20 +234,17 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
           variant_image: lineItem.variant_image,
           id: uuidv4() + index.toString(),
         };
-        if (procurement.status !== ProcurementStatus.draft) {
-          return {
-            ...procurement,
-            procurement_items: [...procurement.procurement_items],
-          };
-        }
+      });
+      if (procurement.status !== ProcurementStatus.draft) {
         return {
           ...procurement,
-          procurement_items: [
-            ...procurement.procurement_items,
-            { ...procurementItem, id: procurementItem?.id || "" },
-          ],
+          procurement_items: [...procurement.procurement_items],
         };
-      });
+      }
+      return {
+        ...procurement,
+        procurement_items: [...procurement.procurement_items, ...procurementItem],
+      };
     });
     const procurementsFilter = groupBy(
       procurementsResult,

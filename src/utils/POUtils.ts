@@ -591,7 +591,6 @@ export const combineLineItemToSubmitData = (
   taxRate: number,
   line_items?: PurchaseOrderLineItem[],
 ): any[] => {
-  console.log(line_items);
   const newDataItems: any[] = [];
   poLineItemGridValue.forEach((item: Map<string, POLineItemGridValue>, index: number) => {
     poLineItemGridChema[index].mappingColorAndSize.forEach((pair: POPairSizeColor) => {
