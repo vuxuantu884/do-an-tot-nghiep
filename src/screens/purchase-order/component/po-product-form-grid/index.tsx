@@ -336,7 +336,8 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
    * @param size
    */
   const onChangeQuantityHeader = (inputValue: number | null, size: string) => {
-    if (typeof inputValue === "number") {
+    const value = inputValue || 0;
+    if (typeof value === "number") {
       let isCreate = false;
       const newpoLineItemGridValue = [...poLineItemGridValue];
       newpoLineItemGridValue.forEach((schema: Map<string, POLineItemGridValue>) => {
@@ -346,13 +347,13 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
           const { sizeValues } = mapIterator.next().value;
           sizeValues.forEach((sizeValue: POPairSizeQuantity) => {
             if (sizeValue.size === size) {
-              sizeValue.quantity = inputValue;
+              sizeValue.quantity = value;
               const index = procurementTableData.findIndex(
                 (item) => item.variantId === sizeValue.variantId,
               );
               if (index >= 0) {
                 isCreate = true;
-                procurementTableData[index].quantity = inputValue; //create
+                procurementTableData[index].quantity = value; //create
               }
             }
           });
@@ -375,8 +376,8 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
         ...gridLineItems.filter((item) => !item.id),
         ...supplementLineItems,
       ];
-      !isCreate && handleChangeProcument(formMain);
       formMain.setFieldsValue({ ...valueForm });
+      !isCreate && handleChangeProcument(formMain);
       isCreate && setProcurementTableData([...procurementTableData]);
     }
   };

@@ -102,19 +102,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
 
     const index = resultSearch.findIndex((item) => item.id.toString() === variantId);
     if (index !== -1) {
-      let variants: Array<VariantResponse> = [resultSearch[index]];
-      let newItems: Array<PurchaseOrderLineItem> = [
+      const variants: Array<VariantResponse> = [resultSearch[index]];
+      const newItems: Array<PurchaseOrderLineItem> = [
         ...POUtils.convertVariantToLineitem(variants, position, poLineItemType),
       ];
       position = position + newItems.length;
-      let newLineItems = POUtils.addProduct(lineItems, newItems, false);
-      let newLineItemsFilter = [
+      const newLineItems = POUtils.addProduct(lineItems, newItems, false);
+      const newLineItemsFilter = [
         ...newLineItems.filter((item) => item.id),
         ...newLineItems.filter((item) => !item.id),
       ];
-      formMain.setFieldsValue({
-        line_items: newLineItemsFilter,
-      });
 
       const dataSourceGrid: Array<PODataSourceGrid | any> = newLineItemsFilter.map((item) => {
         const retailPrice =
@@ -124,7 +121,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
             ...itemDate,
           };
         });
-        console.log("item", item);
         return {
           variantId: item.variant_id,
           productId: item?.product_id,
@@ -151,6 +147,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         newLineItems,
         poLineItemType,
       );
+      formMain.setFieldsValue({
+        line_items: newLineItemsFilter,
+      });
       formMain.setFieldsValue({
         procurements: newProcument,
       });
@@ -372,7 +371,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       numberOfExistItem &&
         showError(`${numberOfExistItem} Sản phẩm bổ sung đã tồn tại trong đơn hàng`);
     }
-
     setVisibleManyProduct(false);
 
     const newItems: Array<PurchaseOrderLineItem> = [
@@ -382,7 +380,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     let newLineItems = POUtils.addProduct(lineItems, newItems, false);
     const dataSourceGrid: Array<PODataSourceGrid | any> = newLineItems.map((item) => {
       const retailPrice =
-        item.variant_prices.length > 0 ? item.variant_prices[0]?.retail_price : null;
+        item?.variant_prices?.length > 0 ? item.variant_prices[0]?.retail_price : null;
       const expectedDateClone = expectedDate.map((item) => {
         return {
           ...item,
@@ -395,7 +393,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         quantity: item.quantity,
         expectedDate: [...expectedDateClone],
         retail_price: retailPrice,
-        price: item.variant_prices[0].import_price,
+        price: item?.variant_prices?.length ? item?.variant_prices[0].import_price : 0,
         barcode: item.barcode,
         variant_images: item.variant_image,
         product_name: item.product,
@@ -429,6 +427,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     formMain.setFieldsValue({
       procurements: newProcument,
     });
+    handleChangeProcument(formMain);
   };
   const onNoteChange = useCallback(
     (value: string, index: number) => {
