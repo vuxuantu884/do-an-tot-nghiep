@@ -1,7 +1,7 @@
 import { LoadingOutlined } from "@ant-design/icons";
 import { AutoComplete, Input } from "antd";
 import { RefSelectProps } from "rc-select";
-import React, { createRef, useCallback, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import search from "assets/img/search.svg";
 import { VariantResponse } from "model/product/product.model";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
@@ -16,7 +16,7 @@ type Props = {
   setKeySearch: (v: string) => void;
   id?: string;
   onSelect?: (v?: VariantResponse, ds?: any) => void;
-  storeId?: number;
+  storeId?: number | null;
   dataSource?: any;
 };
 
@@ -102,6 +102,16 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
     },
     [setKeySearch, autoCompleteRef, handleSearchProductData, id],
   );
+
+  useEffect(() => {
+    if (storeId && typeof storeId === "number") {
+      if (keySearch.length >= 3) {
+        handleSearchProductData(keySearch);
+      } else {
+        setResultSearchVariant([]);
+      }
+    }
+  }, [handleSearchProductData, keySearch, storeId]);
 
   const convertResultSearchVariant = useMemo(() => {
     let options: any[] = [];
