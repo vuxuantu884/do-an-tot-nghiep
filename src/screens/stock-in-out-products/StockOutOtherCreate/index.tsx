@@ -101,7 +101,7 @@ const StockOutOtherCreate: React.FC = () => {
       url: fileUrl,
     })
       .then((res: any) => {
-        if (res) {
+        if (res.data) {
           setFileId(res.data);
           setIsStatusModalVisible(true);
           setIsLoading(true);
@@ -109,6 +109,8 @@ const StockOutOtherCreate: React.FC = () => {
           const newDataUpdateError =
             !res.errors || (res.errors && res.errors.length === 0) ? null : res.data.errors;
           setDataUploadError(newDataUpdateError);
+        } else {
+          showError(res.errors);
         }
       })
       .catch((err) => {
