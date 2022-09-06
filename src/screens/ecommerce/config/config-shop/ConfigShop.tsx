@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { useHistory } from "react-router-dom";
 import CustomSelect from "component/custom/select.custom";
-import { Button, Col, Form, Row, Select, Spin } from "antd";
+import { Button, Col, Form, Row, Select, Spin, Table } from "antd";
 
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
@@ -21,9 +21,9 @@ import { EcommerceConfigPermission } from "config/permissions/ecommerce.permissi
 import useAuthorization from "hook/useAuthorization";
 import disconnectIcon from "assets/icon/e-disconnect.svg";
 import saveIcon from "assets/icon/e-save-config.svg";
-import { ECOMMERCE_ICON } from "screens/ecommerce/common/commonAction";
+import { ECOMMERCE_ICON, ECOMMERCE_ID } from "screens/ecommerce/common/commonAction";
 import { StyledConfig } from "screens/ecommerce/config/config-shop/StyledConfigShop";
-import { debounce } from "lodash";
+import _, { debounce } from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { actionFetchListOrderSources } from "domain/actions/settings/order-sources.action";
 import { SourceResponse } from "model/response/order/source.response";
@@ -160,6 +160,63 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
   const [sourceList, setSourceList] = useState<SourceResponse[]>([]);
   const [sourceSearching, setSourceSearching] = React.useState<boolean>(false);
 
+  const [listWareHouseInventory, setListWareHouseInventory] = useState<Array<any>>([]);
+
+  useEffect(() => {
+    if (configDetail) {
+      let _listWareHouseInventory: Array<any> = [];
+
+      const inventoriesValid = configDetail.inventories?.filter(item => !item.deleted && item.store_id);
+      console.log("Lọc inventories deleted !== true và store_id !== null ");
+      console.log("inventoriesValid: ", inventoriesValid);
+      inventoriesValid?.forEach(inventory => {
+        const indexItem = _listWareHouseInventory.findIndex(_item => _item.warehouse_id === inventory.warehouse_id);
+        if ( indexItem === -1) {
+          _listWareHouseInventory.push({
+            warehouse: inventory.warehouse,
+            warehouse_id: inventory.warehouse_id,
+            store: null,
+            store_id: null,
+            inventories: [
+              {
+                store: inventory.store,
+                store_id: inventory.store_id,
+              }
+            ],
+          })
+        } else {
+          _listWareHouseInventory[indexItem].inventories?.push(
+            {
+              store: inventory.store,
+              store_id: inventory.store_id,
+            }
+          );
+        }
+      });
+
+      configDetail.stores?.forEach(storeItem => {
+        const indexItem = _listWareHouseInventory.findIndex(_item => _item.warehouse_id === storeItem.warehouse_id);
+        if ( indexItem === -1) {
+          _listWareHouseInventory.push({
+            warehouse: storeItem.warehouse,
+            warehouse_id: storeItem.warehouse_id,
+            store: storeItem.store,
+            store_id: storeItem.store_id,
+            inventories: [],
+          })
+        } else {
+          _listWareHouseInventory[indexItem].store = storeItem.store;
+          _listWareHouseInventory[indexItem].store_id = storeItem.store_id;
+        }
+      });
+
+      _listWareHouseInventory.sort((a, b) => {
+        return b.warehouse_id < a.warehouse_id ? -1 : b.warehouse_id > a.warehouse_id ? 1 : 0;
+      });
+      setListWareHouseInventory(_listWareHouseInventory);
+    }
+  }, [configDetail]);
+
   const handleSetInitSourceList = useCallback(() => {
     setSourceList(initSourceList);
   }, [initSourceList]);
@@ -186,6 +243,53 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
   const onSearchSource = debounce((value: string) => {
     handleSearchingSource(value);
   }, 800);
+
+  /** select single store */
+  const handleSelectSingleWareHouse = (value: number, option: any, item: any) => {
+    const _listWareHouseInventory = _.cloneDeep(listWareHouseInventory);
+    const indexItem = _listWareHouseInventory.findIndex(_item => _item.warehouse_id === item.warehouse_id);
+    _listWareHouseInventory[indexItem].store = option.children;
+    _listWareHouseInventory[indexItem].store_id = option.value;
+    setListWareHouseInventory(_listWareHouseInventory);
+  };
+
+  const handleClearSingleWareHouse = (item: any) => {
+    const _listWareHouseInventory = _.cloneDeep(listWareHouseInventory);
+    const indexItem = _listWareHouseInventory.findIndex(_item => _item.warehouse_id === item.warehouse_id);
+    _listWareHouseInventory[indexItem].store = null;
+    _listWareHouseInventory[indexItem].store_id = null;
+    setListWareHouseInventory(_listWareHouseInventory);
+  };
+  /** end select single store */
+
+  /** select multiple store */
+  const handleSelectMultipleWareHouse = (value: number, option: any, item: any) => {
+    const _listWareHouseInventory = _.cloneDeep(listWareHouseInventory);
+    const indexItem = _listWareHouseInventory.findIndex(_item => _item.warehouse_id === item.warehouse_id);
+    _listWareHouseInventory[indexItem].inventories?.push(
+      {
+        store: option.children,
+        store_id: value,
+      }
+    );
+    setListWareHouseInventory(_listWareHouseInventory);
+  };
+
+  const handleDeselectMultipleWareHouse = (value: number, option: any, item: any) => {
+    const _listWareHouseInventory = _.cloneDeep(listWareHouseInventory);
+    const indexItem = _listWareHouseInventory.findIndex(_item => _item.warehouse_id === item.warehouse_id);
+    const indexItemDeselect = _listWareHouseInventory[indexItem].inventories?.findIndex((_item: any) => _item.store_id === value);
+    _listWareHouseInventory[indexItem].inventories?.splice(indexItemDeselect, 1);
+    setListWareHouseInventory(_listWareHouseInventory);
+  };
+
+  const handleClearMultipleWareHouse = (item: any) => {
+    const _listWareHouseInventory = _.cloneDeep(listWareHouseInventory);
+    const indexItem = _listWareHouseInventory.findIndex(_item => _item.warehouse_id === item.warehouse_id);
+    _listWareHouseInventory[indexItem].inventories = [];
+    setListWareHouseInventory(_listWareHouseInventory);
+  };
+  /** end select multiple store */
 
   //get init source
   useEffect(() => {
@@ -310,6 +414,41 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
           store: listStores?.find((item) => item.id === value.store_id)?.name || "",
         };
 
+        if (configDetail?.ecommerce_id === ECOMMERCE_ID.TIKI) {
+          const invalidWarehouseConfig = listWareHouseInventory.find(item => !item.store_id);
+          if (invalidWarehouseConfig) {
+            showError(`Kho Tiki "${invalidWarehouseConfig.warehouse}" chưa chọn kho đồng bộ đơn hàng.`);
+            return;
+          }
+
+          let storesQuery: Array<any> = [];
+          let inventoriesQuery: Array<any> = [];
+          listWareHouseInventory?.forEach(item => {
+            storesQuery.push(
+              {
+                store: item.store,
+                store_id: item.store_id,
+                warehouse: item.warehouse,
+                warehouse_id: item.warehouse_id,
+              }
+            )
+
+            item.inventories?.forEach((inventoryItem: any) => {
+              inventoriesQuery.push(
+                {
+                  store: inventoryItem.store,
+                  store_id: inventoryItem.store_id,
+                  warehouse: item.warehouse,
+                  warehouse_id: item.warehouse_id,
+                }
+              )
+            });
+          });
+
+          request.stores = storesQuery;
+          request.inventories = inventoriesQuery;
+        }
+
         setIsLoading(true);
         if (_isExist) {
           dispatch(ecommerceConfigUpdateAction(id, request, handleConfigCallback));
@@ -319,15 +458,16 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
       }
     },
     [
+      configDetail,
+      configData,
+      inventories,
+      assigneeAccountData,
+      sourceList,
+      listStores,
       dispatch,
       handleConfigCallback,
       handleCreateConfigCallback,
-      configDetail,
-      inventories,
-      assigneeAccountData,
-      configData,
-      sourceList,
-      listStores,
+      listWareHouseInventory,
     ],
   );
   const handleDisconnectEcommerce = () => {
@@ -348,7 +488,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
     setInventories(_inventories);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (configDetail) {
       const _inventories = configDetail.inventories?.filter((item: any) => !item.deleted);
       setInventories(_inventories);
@@ -449,12 +589,12 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
             </Col>
           </Row>
           <Row gutter={24}>
-            <Col span={12}>
+            <Col span={10}>
               <span className="description-name">{`Thông tin của shop trên ${
                 convertToCapitalizedString() || "sàn"
               }`}</span>
             </Col>
-            <Col span={12}>
+            <Col span={14}>
               <div className="ecommerce-user-detail">
                 <Row>
                   <Col span={5}>Tên Shop</Col>
@@ -480,7 +620,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
             </Col>
           </Row>
           <Row gutter={24}>
-            <Col span={12}>
+            <Col span={10}>
               <span className="description-name">Đặt tên gian hàng</span>
               <ul className="description">
                 <li>
@@ -491,7 +631,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
                 </li>
               </ul>
             </Col>
-            <Col span={12}>
+            <Col span={14}>
               <CustomInput
                 name="name"
                 label={<span>Tên gian hàng</span>}
@@ -505,7 +645,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
             </Col>
           </Row>
           <Row gutter={24}>
-            <Col span={12}>
+            <Col span={10}>
               <span className="description-name">Cấu hình nhân viên, cửa hàng</span>
               <ul className="description">
                 <li>
@@ -519,33 +659,35 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
                 </li>
               </ul>
             </Col>
-            <Col span={12}>
-              <Form.Item
-                label={<span>Cửa hàng</span>}
-                name="store_id"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn cửa hàng",
-                  },
-                ]}
-              >
-                <Select
-                  showSearch
-                  placeholder="Chọn cửa hàng"
-                  disabled={!configDetail || !allowShopsUpdate}
-                  allowClear
-                  optionFilterProp="children"
-                  onSearch={(value) => storeChangeSearch(value)}
+            <Col span={14}>
+              {configDetail?.ecommerce_id !== ECOMMERCE_ID.TIKI && (
+                <Form.Item
+                  label={<span>Cửa hàng</span>}
+                  name="store_id"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn cửa hàng",
+                    },
+                  ]}
                 >
-                  {listStores &&
-                    listStores?.map((item, index) => (
-                      <Option style={{ width: "100%" }} key={index.toString()} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))}
-                </Select>
-              </Form.Item>
+                  <Select
+                    showSearch
+                    placeholder="Chọn cửa hàng"
+                    disabled={!configDetail || !allowShopsUpdate}
+                    allowClear
+                    optionFilterProp="children"
+                    onSearch={(value) => storeChangeSearch(value)}
+                  >
+                    {listStores &&
+                      listStores?.map((item, index) => (
+                        <Option style={{ width: "100%" }} key={index.toString()} value={item.id}>
+                          {item.name}
+                        </Option>
+                      ))}
+                  </Select>
+                </Form.Item>
+              )}
 
               <Form.Item label="Nhân viên bán hàng" name="assign_account_code">
                 <AccountCustomSearchSelect
@@ -589,7 +731,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
             </Col>
           </Row>
           <Row gutter={24}>
-            <Col span={12}>
+            <Col span={10}>
               <span className="description-name">Cấu hình tồn kho</span>
               <ul className="description">
                 <li>
@@ -607,40 +749,42 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
                 </li>
               </ul>
             </Col>
-            <Col span={12}>
-              <Form.Item
-                name="inventories"
-                label={<span>Kho đồng bộ tồn</span>}
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn kho đồng bộ tồn",
-                  },
-                ]}
-              >
-                <CustomSelect
-                  disabled={!configDetail || !allowShopsUpdate}
-                  onChange={handleStoreChange}
-                  mode="multiple"
-                  maxTagCount="responsive"
-                  className="dropdown-rule"
-                  showArrow
-                  showSearch
-                  placeholder="Chọn kho đồng bộ tồn"
-                  notFoundContent="Không tìm thấy kết quả"
-                  style={{
-                    width: "100%",
-                  }}
-                  optionFilterProp="children"
-                  getPopupContainer={(trigger) => trigger.parentNode}
+            <Col span={14}>
+              {configDetail?.ecommerce_id !== ECOMMERCE_ID.TIKI && (
+                <Form.Item
+                  name="inventories"
+                  label={<span>Kho đồng bộ tồn</span>}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn kho đồng bộ tồn",
+                    },
+                  ]}
                 >
-                  {listStores?.map((item) => (
-                    <CustomSelect.Option key={item.id} value={item.id}>
-                      {item.name}
-                    </CustomSelect.Option>
-                  ))}
-                </CustomSelect>
-              </Form.Item>
+                  <CustomSelect
+                    disabled={!configDetail || !allowShopsUpdate}
+                    onChange={handleStoreChange}
+                    mode="multiple"
+                    maxTagCount="responsive"
+                    className="dropdown-rule"
+                    showArrow
+                    showSearch
+                    placeholder="Chọn kho đồng bộ tồn"
+                    notFoundContent="Không tìm thấy kết quả"
+                    style={{
+                      width: "100%",
+                    }}
+                    optionFilterProp="children"
+                    getPopupContainer={(trigger) => trigger.parentNode}
+                  >
+                    {listStores?.map((item) => (
+                      <CustomSelect.Option key={item.id} value={item.id}>
+                        {item.name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Form.Item>
+              )}
 
               <Form.Item
                 label={<span>Kiểu đồng bộ tồn kho</span>}
@@ -663,7 +807,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
             </Col>
           </Row>
           <Row gutter={24}>
-            <Col span={12}>
+            <Col span={10}>
               <span className="description-name">Cấu hình đơn hàng</span>
               <ul className="description">
                 <li>
@@ -680,7 +824,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
                 </li>
               </ul>
             </Col>
-            <Col span={12}>
+            <Col span={14}>
               <Form.Item
                 label={<span>Kiểu đồng bộ đơn hàng</span>}
                 name="order_sync"
@@ -720,6 +864,132 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
               </Form.Item>
             </Col>
           </Row>
+
+          {configDetail?.ecommerce_id === ECOMMERCE_ID.TIKI && (
+            <Row gutter={24} style={{ padding: "24px 0" }}>
+              <Col span={10}>
+                <span className="description-name">Cấu hình đa kho</span>
+                <ul className="description">
+                  <li>
+                    <span>Kho Tiki: là kho hàng của Tiki.</span>
+                  </li>
+                  <li>
+                    <span>
+                      Kho đồng bộ đơn hàng: là kho hàng của Unicorn để ghi nhận kho trừ tồn khi có
+                      đơn hàng phát sinh từ kho Tiki tương ứng.
+                    </span>
+                  </li>
+                  <li>
+                    <span>
+                      Kho đồng bộ tồn: là kho để lấy dữ liệu tồn ở Unicorn đồng bộ lên kho Tiki
+                      tương ứng, có thể chọn được nhiều kho và hệ thống sẽ cộng tồn các kho bạn chọn
+                      để đồng bộ.
+                    </span>
+                  </li>
+                </ul>
+              </Col>
+
+              <Col span={14}>
+                <Table
+                  columns={[
+                    {
+                      title: "Kho Tiki",
+                      width: "30%",
+                      render: (item: any) =>
+                        item.warehouse ? (
+                          <div style={{ display: "flex", flexDirection: "column" }}>
+                            <span style={{ color: "#2A2A86" }}>{item.warehouse}</span>
+                            <span>{`ID: ${item.warehouse_id}`}</span>
+                          </div>
+                        ) : (
+                          <span></span>
+                        ),
+                    },
+
+                    {
+                      title: <span>Kho đồng bộ đơn hàng <span style={{ color: "red" }}>*</span></span>,
+                      width: "35%",
+                      render: (item: any) =>
+                        item.warehouse ? (
+                          <Select
+                            style={{ width: "100%" }}
+                            showSearch
+                            placeholder="Chọn kho đơn hàng"
+                            allowClear
+                            optionFilterProp="children"
+                            onSearch={(value) => onSearchSource(value.trim())}
+                            value={item.store_id}
+                            onSelect={(value, option) => {
+                              handleSelectSingleWareHouse(value, option, item);
+                            }}
+                            onClear={() => {
+                              handleClearSingleWareHouse(item);
+                            }}
+                            loading={sourceSearching}
+                            notFoundContent={
+                              sourceSearching ? <Spin size="small" /> : "Không có dữ liệu"
+                            }
+                          >
+                            {listStores?.map((store: any, index: number) => (
+                              <Option key={index} value={store.id}>
+                                {store.name}
+                              </Option>
+                            ))}
+                          </Select>
+                        ) : (
+                          <span></span>
+                        ),
+                    },
+
+                    {
+                      title: "Kho đồng bộ tồn",
+                      width: "35%",
+                      render: (item: any) =>
+                        item.warehouse ? (
+                          <CustomSelect
+                            allowClear
+                            mode="multiple"
+                            maxTagCount="responsive"
+                            className="dropdown-rule"
+                            showArrow
+                            showSearch
+                            placeholder="Chọn kho tồn"
+                            notFoundContent="Không tìm thấy kết quả"
+                            style={{
+                              width: "100%",
+                            }}
+                            optionFilterProp="children"
+                            getPopupContainer={(trigger) => trigger.parentNode}
+                            onSelect={function (value, option) {
+                              handleSelectMultipleWareHouse(value, option, item);
+                            }}
+                            onDeselect={function (value,option) {
+                              handleDeselectMultipleWareHouse(value, option, item);
+                            }}
+                            onClear={() => {
+                              handleClearMultipleWareHouse(item);
+                            }}
+                            value={item.inventories?.map((item: any) => item.store_id)}
+                          >
+                            {listStores?.map((item, index: number) => (
+                              <CustomSelect.Option key={index} value={item.id}>
+                                {item.name}
+                              </CustomSelect.Option>
+                            ))}
+                          </CustomSelect>
+                        ) : (
+                          <span></span>
+                        ),
+                    },
+                  ]}
+                  dataSource={listWareHouseInventory}
+                  pagination={false}
+                  rowKey={(item: any) => item.warehouse_id}
+                />
+              </Col>
+            </Row>
+          )}
+
           <div className="config-setting-footer">
             {isConfigExist && allowShopsDelete ? (
               <Button

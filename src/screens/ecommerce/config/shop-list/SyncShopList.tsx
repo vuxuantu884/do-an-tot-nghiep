@@ -5,7 +5,7 @@ import CustomTable from "component/table/CustomTable";
 import actionColumn from "screens/ecommerce/config/actions/action.column";
 import { useHistory } from "react-router-dom";
 import successIcon from "assets/icon/success_2.svg";
-import { ECOMMERCE_ICON } from "screens/ecommerce/common/commonAction";
+import { ECOMMERCE_ICON, ECOMMERCE_ID } from "screens/ecommerce/common/commonAction";
 import {
   StyledHeader,
   StyledComponent,
@@ -106,6 +106,13 @@ const SyncShopList: React.FC<SyncShopListProps> = (props: SyncShopListProps) => 
         title: "Cửa hàng",
         width: "10%",
         dataIndex: "store",
+        render: (value: any, data: any) => {
+          let storeValue = value;
+          if (data.ecommerce_id === ECOMMERCE_ID.TIKI) {
+            storeValue = "Đa kho";
+          }
+          return <div>{storeValue}</div>;
+        },
       },
       {
         title: "Kho đồng bộ tồn",
@@ -113,7 +120,11 @@ const SyncShopList: React.FC<SyncShopListProps> = (props: SyncShopListProps) => 
         render: (value: any, data: any) => {
           let inventories = "";
           data.inventories?.forEach((item: any) => {
-            inventories = item.deleted ? inventories : inventories + item.store + ", ";
+            if (value?.ecommerce_id === ECOMMERCE_ID.TIKI) {
+              inventories = "Đa kho";
+            } else {
+              inventories = item.deleted ? inventories : inventories + item.store + ", ";
+            }
           });
           return <div>{inventories}</div>;
         },

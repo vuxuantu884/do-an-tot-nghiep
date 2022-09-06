@@ -59,3 +59,9 @@ export interface ErrorMessageBatchShipping {
   warning: any;
   order_sn: string;
 }
+
+export interface ListInventoryUnicornProduct {
+  core_warehouse_id: number;
+  core_warehouse_name: string;
+  stock: number;
+}

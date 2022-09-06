@@ -47,6 +47,7 @@ import SourceModal from "./SourceModal";
 type formValuesType = {
   name: string | undefined;
   department_ids: number | undefined;
+  active: boolean | undefined;
 };
 
 type PropTypes = {
@@ -76,6 +77,7 @@ function OrderSources(props: PropTypes) {
   const initFilterParams: formValuesType = {
     name: "",
     department_ids: undefined,
+    active: undefined,
   };
   const [tableLoading, setTableLoading] = useState(false);
   const [isShowModalOrderSource, setIsShowModalOrderSource] = useState(false);
@@ -259,8 +261,8 @@ function OrderSources(props: PropTypes) {
       ...values,
       department_ids: values.department_ids ? values.department_ids.join(",") : null,
       page: 1,
+      name: name.trim(),
     };
-    fetchData({ ...resultParams, name: name.trim() });
     handleNavigateByQueryParams(resultParams);
   };
 
@@ -334,12 +336,10 @@ function OrderSources(props: PropTypes) {
         ...queryParams,
         name: queryParams.name ? queryParams.name.trim() : "",
       };
-
-      fetchData(resultParams);
-      history.push(`${UrlConfig.ORDER_SOURCES}?${generateQuery(queryParams)}`);
+      history.push(`${UrlConfig.ORDER_SOURCES}?${generateQuery(resultParams)}`);
       window.scrollTo(0, 0);
     },
-    [history, queryParams, fetchData],
+    [history, queryParams],
   );
 
   const handleFormOrderSource = {
@@ -392,9 +392,10 @@ function OrderSources(props: PropTypes) {
       department_ids: queryParamsParsed.department_ids
         ? queryParamsParsed.department_ids.split(",").map((i: any) => Number(i))
         : undefined,
+      active: queryParamsParsed.active || undefined,
     };
     form.setFieldsValue(valuesFromParams);
-  }, [form, queryParamsParsed.department_ids, queryParamsParsed.name]);
+  }, [form, queryParamsParsed.active, queryParamsParsed.department_ids, queryParamsParsed.name]);
 
   useEffect(() => {
     const currentParams = {
@@ -404,11 +405,12 @@ function OrderSources(props: PropTypes) {
       sort_column: "updated_date",
       name: queryParamsParsed.name,
       department_ids: queryParamsParsed.department_ids,
+      active: queryParamsParsed.active,
     };
     setQueryParams(currentParams);
     fetchData(currentParams);
     // eslint-disable-next-line
-  }, []);
+  }, [location.search]);
 
   const filterDepartmentLevelThree = (newList: Array<Object>, list: Array<Object>) => {
     list.forEach((i: any) => {

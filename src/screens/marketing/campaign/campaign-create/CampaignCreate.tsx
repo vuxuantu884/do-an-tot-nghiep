@@ -74,7 +74,13 @@ const CampaignCreateUpdate = () => {
 
 
   const [brandNameList, setBrandNameList] = useState<Array<any>>([]);
-  const [messageTemplateList, setMessageTemplateList] = useState<Array<any>>([]);
+  const [messageTemplateList, setMessageTemplateList] = useState<Array<any>>([
+    {
+      NetworkID: null,
+      TempContent: "YODY ky niem 3 thang ban trai nghiem sp,tang ban ma GIAM GIA 100K:{P}(AD SPTK nguyen gia>200k),HSD:07/12/17.Moi ban mang TN den Yody nhan uu dai.LH:18002086.",
+      TempId: 18659,
+    }
+  ]);
 
   const [importFileTemplate, setImportFileTemplate] = useState<string>("");
   const [isVisibleImportFileModal, setIsVisibleImportFileModal] = useState<boolean>(false);
@@ -123,21 +129,25 @@ const CampaignCreateUpdate = () => {
 
   /** message template */
   const resetMessageTemplate = useCallback(() => {
-    setMessageTemplateList([]);
-    form.setFieldsValue({
-      message_template: null,
-    });
-  }, [form]);
+    return;   //fake message template
+    // setMessageTemplateList([]);
+    // form.setFieldsValue({
+    //   message_template: null,
+    // });
+  }, []);
 
   const getMessageTemplate = useCallback((query: any) => {
-    dispatch(getMessageTemplateAction(query, (response) => {
-      setMessageTemplateList(response);
-    }));
-  }, [dispatch]);
+    return; //fake data
+    // dispatch(getMessageTemplateAction(query, (response) => {
+    //   setMessageTemplateList(response);
+    // }));
+  }, []);
 
   /** handle update campaign */
   const updateCampaignDetail = useCallback((response: any) => {
     if (response) {
+      response.message_type = 2;  //fake message_type
+      response.message_template = 18659;  //fake message_template
       setCampaignDetail(response);
       setIsEditInfo(false);
       form.setFieldsValue({
@@ -301,6 +311,7 @@ const CampaignCreateUpdate = () => {
     const params = {
       ...values,
       channel: activatedBtn.value,
+      message_type: 2,  //fake message_type
     };
 
     if (activeCampaign) {

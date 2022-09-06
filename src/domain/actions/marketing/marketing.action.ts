@@ -41,6 +41,14 @@ export const getCampaignContactAction = (campaignId: number, queryParams: any, s
   return BaseAction(MarketingType.CAMPAIGN_CONTACT, { campaignId, queryParams, setData });
 };
 
+export const updateContactMessageAction = (queryParams: any, callback: (data: any) => void) => {
+  return BaseAction(MarketingType.UPDATE_CONTACT_MESSAGE, { queryParams, callback });
+};
+
+export const resendContactMessageAction = (contactId: number, callback: (data: any) => void) => {
+  return BaseAction(MarketingType.RESEND_CONTACT_MESSAGE, { contactId, callback });
+};
+
 export const createCampaignAction = (params: any, setData: (data: any) => void) => {
   return BaseAction(MarketingType.CREATE_CAMPAIGN, { params, setData });
 };
