@@ -14,6 +14,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import {
   calculateDayRateUtil,
@@ -523,7 +524,11 @@ function KeyDriverOfflineStaff() {
               tip: loadingMessage,
               spinning: loadingPage,
             }}
-            scroll={{ x: "max-content", y: 450 }}
+            scroll={{ x: "max-content" }}
+            sticky={{
+              offsetHeader: OFFSET_HEADER_UNDER_NAVBAR,
+              offsetScroll: 5,
+            }}
             bordered
             pagination={false}
             onRow={(record: any) => {
