@@ -283,14 +283,11 @@ const FixedAndQuantityGroup = (props: Props) => {
     if (Array.isArray(dataSourceForm)) {
       setDataProductForPagging((prev: any) => {
         const { limit, page } = prev.metadata;
-        const [getData, ...rest] = dataSourceForm.slice((page - 1) * limit, page * limit);
-        const listProduct = [...prev.items, getData, ...rest];
-        const checkListProduct = listProduct.filter((item) => JSON.stringify(item) !== "{}");
         return {
-          items: checkListProduct,
+          items: dataSourceForm.slice((page - 1) * limit, page * limit),
           metadata: {
             ...prev.metadata,
-            total: checkListProduct.length,
+            total: dataSourceForm.length,
           },
         };
       });
