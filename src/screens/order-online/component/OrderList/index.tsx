@@ -995,7 +995,7 @@ function OrderList(props: PropTypes) {
               subStatuses={subStatuses}
             />
           ) : (
-            "Đang tải dữ liệu..."
+            <span>Đang tải dữ liệu...</span>
           )}
         </Card>
 

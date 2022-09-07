@@ -82,6 +82,7 @@ export interface FulfillmentDto {
   shipped_on: Date | null;
   status_before_cancellation: string | null;
   stock_location_id: number | null;
+  returned_store_id: number | null;
   total: number;
   total_discount: number;
   total_line_amount_after_line_discount: number;

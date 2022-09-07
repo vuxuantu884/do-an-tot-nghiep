@@ -68,6 +68,16 @@ export const getCampaignContactService = (campaignId: number, query: any): Promi
   return BaseAxios.get(url);
 };
 
+export const updateContactMessageService = (queryParams: any): Promise<BaseResponse<PageResponse<any>>> => {
+  const url = `${ApiConfig.MARKETING}/campaigns/contacts/${queryParams.id}`;
+  return BaseAxios.put(url, queryParams);
+};
+
+export const resendContactMessageService = (contactId: number): Promise<BaseResponse<PageResponse<any>>> => {
+  const url = `${ApiConfig.MARKETING}/campaigns/contacts/${contactId}/send-message`;
+  return BaseAxios.get(url);
+};
+
 export const createCampaignService = (params: any): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.MARKETING}/campaigns`;
   return BaseAxios.post(url, params);

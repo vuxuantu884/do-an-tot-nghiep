@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux";
 import { fulfillmentSearchService } from "service/handover/ffm.service";
 import { validateHandoverService } from "service/handover/handover.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
-import { PUSHING_STATUS } from "utils/Constants";
+import { PUSHING_STATUS, ShipmentMethod } from "utils/Constants";
 import { FulfillmentStatus } from "utils/FulfillmentStatus.constant";
 import { isFulfillmentReturned, isFulfillmentReturning } from "utils/OrderUtils";
 import { showError, showModalError, showSuccess } from "utils/ToastUtils";
@@ -88,10 +88,8 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
 
   const toggleInput = useCallback(() => {
     setSearching(false);
-    console.log("setSearching ok");
     setTimeout(() => {
       let element: any = document.getElementById("input-search");
-      console.log("element", element);
       setKeySearch("");
       element?.focus();
       element?.select();
@@ -175,10 +173,21 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
               );
               return;
             }
-            if (data.stock_location_id !== store_id) {
+
+            //kiểm tra kho
+            if (type === HandoverTransfer && data.stock_location_id !== store_id) {
               showNotification(`Đơn hàng ${data.order.code} không thuộc kho đóng gói`);
               return;
             }
+            if (
+              type === HandoverReturn &&
+              data.returned_store_id !== store_id
+              //&& data.shipment.delivery_service_provider_type !== ShipmentMethod.EMPLOYEE
+            ) {
+              showNotification(`Đơn hàng ${data.order.code} không thuộc kho hoàn về`);
+              return;
+            }
+            /////////
             let delivery = -1;
             if (data.shipment.delivery_service_provider_id !== null) {
               delivery = data.shipment.delivery_service_provider_id;

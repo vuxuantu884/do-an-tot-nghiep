@@ -15,7 +15,10 @@ import {
 } from "model/response/ecommerce/ecommerce.response";
 import { YDPageCustomerResponse } from "model/response/ecommerce/fpage.response";
 import { generateQuery } from "utils/AppUtils";
-import { EcommerceCreateLogistic } from "../../model/ecommerce/ecommerce.model";
+import {
+  EcommerceCreateLogistic,
+  ListInventoryUnicornProduct,
+} from "../../model/ecommerce/ecommerce.model";
 
 const addFpagePhone = (
   userId: string,
@@ -240,6 +243,16 @@ export const getEcommerceOrdersPrintFormService = (
   };
   const queryString = generateQuery(queryParams);
   return BaseAxios.get(`${ApiConfig.ECOMMERCE}/orders/core-print-forms?${queryString}`);
+};
+
+export const getDataInventoryUnicornProductActionApi = (
+  variantId: string,
+  queryParams: any,
+): Promise<BaseResponse<ListInventoryUnicornProduct>> => {
+  const queryString = generateQuery(queryParams);
+  return BaseAxios.get(
+    `${ApiConfig.ECOMMERCE}/variants/${variantId}/multi-warehouses?${queryString}`,
+  );
 };
 
 export {

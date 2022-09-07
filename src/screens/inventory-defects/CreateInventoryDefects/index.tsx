@@ -298,9 +298,11 @@ const InventoryDefectCreate: React.FC = () => {
   const onSelectProduct = useCallback(
     (selectedItem: VariantResponse | undefined, dataSource: any) => {
       const storeId = form.getFieldValue("store_id");
-      console.log("dataSource", dataSource);
-
-      if (storeId && selectedItem) {
+      if (!storeId && typeof storeId !== "number") {
+        showError("Vui lòng chọn cửa hàng");
+        return;
+      }
+      if (selectedItem) {
         const store = myStores.find(
           (e: AccountStoreResponse) => e.store_id === Number.parseInt(storeId),
         );
@@ -336,7 +338,6 @@ const InventoryDefectCreate: React.FC = () => {
             ...itemExist,
             defect: itemExist.defect + 1,
           };
-          // const newDataTable = cloneDeep(dataTable)
           dataTableClone[index] = item;
           setDataTable(dataTableClone);
           calculatingDefectAndInventory(dataTableClone);
@@ -348,12 +349,15 @@ const InventoryDefectCreate: React.FC = () => {
 
   const onChangeStore = useCallback(() => {
     const storeId = form.getFieldValue("store_id");
-
     setDefectStoreIdBak(storeId);
     setIsShowModalChangeStore(false);
+    setKeySearch("");
+    setObjSummaryTable({
+      total_defect: 0,
+      total_on_hand: 0,
+    });
     setDataTable([]);
   }, [form]);
-  console.log("dataTable", dataTable);
 
   const handleSearchProduct = useCallback(
     async (keyCode: string, code: string) => {
@@ -466,12 +470,12 @@ const InventoryDefectCreate: React.FC = () => {
                 >
                   {Array.isArray(myStores) && myStores.length > 0
                     ? myStores.map((item, index) => (
-                        <Option key={"store_id" + index} value={item.store_id.toString()}>
+                        <Option key={"store_id" + index} value={item.store_id}>
                           {item.store}
                         </Option>
                       ))
                     : stores.map((item, index) => (
-                        <Option key={"store_id" + index} value={item.id.toString()}>
+                        <Option key={"store_id" + index} value={item.id}>
                           {item.name}
                         </Option>
                       ))}
@@ -502,6 +506,7 @@ const InventoryDefectCreate: React.FC = () => {
               setKeySearch={setKeySearch}
               id="search_product"
               onSelect={onSelectProduct}
+              storeId={defectStoreIdBak}
               dataSource={dataTable}
             />
           </Form.Item>

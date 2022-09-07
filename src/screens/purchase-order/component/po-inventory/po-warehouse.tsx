@@ -60,7 +60,6 @@ export const PoWareHouse = (props: IProps) => {
     procurementTable,
     setProcurementTable,
     handleSetProcurementTableContext,
-    disabledDate,
     setDisabledDate,
   } = useContext(PurchaseOrderCreateContext);
   const [columns, setColumns] = useState<Array<ICustomTableColumType<any>>>([]);
@@ -107,7 +106,6 @@ export const PoWareHouse = (props: IProps) => {
         };
       }); //uuid + index lấy uuid theo vị trí
     const procurements = formMain?.getFieldValue(POField.procurements) as PurchaseProcument[];
-
     const totalQuantityProcurementItemsIndex = procurementItemsIndex.reduce(
       (acc, ele) => acc + ele.quantity,
       0,
@@ -719,6 +717,7 @@ export const PoWareHouse = (props: IProps) => {
       setExpectReceiptDates([]);
     };
   }, []);
+
   return (
     <StyledRowPoWareHouse gutter={24}>
       <Col span={ratio.span}>
@@ -840,7 +839,9 @@ const StyledRowPoWareHouse = styled(Row)`
     z-index: 100;
   } */
   .ant-picker-clear {
-    margin-right: 21px;
+    margin-right: 18px;
+    padding-bottom: 38px;
+    background: transparent;
     @media screen and (max-width: 1550px) {
       margin-right: 18px;
     }
