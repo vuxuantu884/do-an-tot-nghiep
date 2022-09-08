@@ -33,3 +33,5 @@ yarn-error.log*
 
 # eslint cache
 .eslintcache
+classtocss_apply.scss
+classtocss_global.css

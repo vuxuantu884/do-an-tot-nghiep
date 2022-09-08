@@ -11,6 +11,7 @@ export const AppConfig = {
   channel_id: 1,
   VARIANT_TYPE_ERROR: 1,
   DEFAULT_PAYMENT: 1,
+  ESPECIALLY_VALUE_PO: 1,
   WIN_DEPARTMENT: null,
   KD_DEPARTMENT_CODE: "KD",
   KDO_DEPARTMENT_CODE: "KDO",

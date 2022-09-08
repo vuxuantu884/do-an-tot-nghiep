@@ -105,6 +105,14 @@ export const PoWareHouse = (props: IProps) => {
           quantity,
         };
       }); //uuid + index lấy uuid theo vị trí
+    //trường hợp đặc biệt khi value = 1
+    if (Number(value) === AppConfig.ESPECIALLY_VALUE_PO && procurementItemsIndex.length) {
+      const index = procurementItemsIndex.findIndex((item) => item.percent);
+      if (index >= 0) {
+        procurementItemsIndex[index].planned_quantity = value;
+        procurementItemsIndex[index].quantity = value;
+      }
+    }
     const procurements = formMain?.getFieldValue(POField.procurements) as PurchaseProcument[];
     const totalQuantityProcurementItemsIndex = procurementItemsIndex.reduce(
       (acc, ele) => acc + ele.quantity,
