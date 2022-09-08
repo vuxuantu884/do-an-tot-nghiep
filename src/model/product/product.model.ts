@@ -70,6 +70,7 @@ export interface ProductResponse extends BaseObject {
   material_component: string | null;
   material_advantages: string | null;
   material_defect: string | null;
+  num_variant?: number;
 }
 
 export interface ProductWrapperResponse extends BaseObject {
