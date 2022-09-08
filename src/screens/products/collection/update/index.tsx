@@ -187,25 +187,6 @@ const GroupUpdate: React.FC = () => {
   const defaultColumns: Array<ICustomTableColumType<ProductResponse>> = useMemo(() => {
     return [
       {
-        title: "Ảnh",
-        width: "60px",
-        render: (record: ProductResponse) => {
-          let url = null;
-          record.variants.forEach((item) => {
-            item.variant_images?.forEach((item1) => {
-              if (item1.product_avatar) {
-                url = item1.url;
-              }
-            });
-          });
-          return (
-            <div className="product-item-image">
-              <img src={!url ? imgDefIcon : url} alt="" className="" />
-            </div>
-          );
-        },
-      },
-      {
         title: ActionComponent,
         className: "ant-col-info",
         dataIndex: "name",
@@ -231,9 +212,9 @@ const GroupUpdate: React.FC = () => {
         title: "SL Phiên bản",
         dataIndex: "variants",
         width: 120,
-        render: (value: Array<VariantResponse>) => (
+        render: (value: Array<VariantResponse>, record: ProductResponse) => (
           <>
-            <div>{value ? formatCurrency(value.length, ".") : ""}</div>
+            <div>{record.num_variant}</div>
           </>
         ),
         visible: true,
