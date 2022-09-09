@@ -905,6 +905,11 @@ const UpdateTicket: FC = () => {
     },
   ];
 
+  const continuesCreateData = (continueData: any) => {
+    dispatch(showLoading());
+    dispatch(creatInventoryTransferAction(continueData, createCallback));
+  };
+
   return (
     <ContentContainer
       title={
@@ -1235,7 +1240,7 @@ const UpdateTicket: FC = () => {
             setIsOpenModalErrors(false);
           }}
           errorData={errorData}
-          onOk={() => continueData && dispatch(creatInventoryTransferAction(continueData, createCallback))}
+          onOk={() => continueData && continuesCreateData(continueData)}
           title={"Có một số phiếu chuyển tương tự được tạo trong 1 tháng trở lại đây. Tiếp tục thực hiện?"}
           visible={isOpenModalErrors}
         />
