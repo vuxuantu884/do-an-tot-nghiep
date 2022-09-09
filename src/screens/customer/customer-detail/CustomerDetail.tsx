@@ -97,14 +97,14 @@ const CustomerDetail = () => {
       id: 4,
       name: "Trừ tiền tích lũy",
     },
-    {
-      id: 5,
-      name: "Tính lại điểm tích lũy",
-    },
-    {
-      id: 6,
-      name: "Tính lại tiền tích lũy",
-    },
+    // {
+    //   id: 5,
+    //   name: "Tính lại điểm tích lũy",
+    // },
+    // {
+    //   id: 6,
+    //   name: "Tính lại tiền tích lũy",
+    // },
   ];
 
   useEffect(() => {
