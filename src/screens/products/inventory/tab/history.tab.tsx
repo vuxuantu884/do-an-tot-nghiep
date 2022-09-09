@@ -29,6 +29,7 @@ enum DocumentType {
   RETURN_PO = "return_po",
   INVENTORY_TRANSFER = "inventory_transfer",
   INVENTORY_ADJUSTMENT = "inventory_adjustment",
+  OTHER_STOCK_IN_OUT = "other_stock_in_out",
 }
 let firstLoad = true;
 
@@ -110,6 +111,8 @@ const HistoryTab: React.FC<any> = (props) => {
         return UrlConfig.INVENTORY_TRANSFERS;
       case DocumentType.INVENTORY_ADJUSTMENT:
         return UrlConfig.INVENTORY_ADJUSTMENTS;
+      case DocumentType.OTHER_STOCK_IN_OUT:
+        return UrlConfig.STOCK_IN_OUT_OTHERS;
       default:
         return type;
     }
