@@ -190,6 +190,16 @@ const getRecalculatePointCustomerAction = (
   });
 };
 
+const getRecalculateMoneyCustomerAction = (
+  customerId: number | null,
+  callback: (data: any) => void,
+) => {
+  return BaseAction(LoyaltyPointsAdjustmentType.GET_RECALCULATE_MONEY, {
+    customerId,
+    callback,
+  });
+};
+
 export {
   createLoyaltyAccumulationProgram,
   getLoyaltyAccumulationProgram,
@@ -209,4 +219,5 @@ export {
   getImportCodeCustomerAdjustmentAction,
   getInfoAdjustmentByJobAction,
   getRecalculatePointCustomerAction,
+  getRecalculateMoneyCustomerAction,
 };

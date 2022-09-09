@@ -22,8 +22,9 @@ import {
   getLoyaltyPoint,
   getLoyaltyUsage,
   getRecalculatePointCustomerAction,
+  getRecalculateMoneyCustomerAction,
 } from "domain/actions/loyalty/loyalty.action";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+// import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { LoyaltyCardSearch } from "domain/actions/loyalty/card/loyalty-card.action";
@@ -99,6 +100,10 @@ const CustomerDetail = () => {
     {
       id: 5,
       name: "Tính lại điểm tích lũy",
+    },
+    {
+      id: 6,
+      name: "Tính lại tiền tích lũy",
     },
   ];
 
@@ -228,13 +233,13 @@ const CustomerDetail = () => {
       },
       {
         name: "Tiền tích lũy",
-        value: loyaltyPoint?.total_money_spend ? (
+        value: (
           <NumberFormat
             value={loyaltyPoint?.total_money_spend}
             displayType={"text"}
             thousandSeparator={true}
           />
-        ) : null,
+        ),
       },
       {
         name: "Ngày mua đầu",
@@ -421,6 +426,15 @@ const CustomerDetail = () => {
     });
   };
 
+  const handleRecalculateMoneyCustomer = (data: any) => {
+    setLoyaltyPoint((prev: any) => {
+      return {
+        ...prev,
+        total_money_spend: data?.total_money_spend,
+      };
+    });
+  };
+
   const onMenuClick = React.useCallback(
     (menuId: number) => {
       switch (menuId) {
@@ -450,6 +464,14 @@ const CustomerDetail = () => {
               getRecalculatePointCustomerAction(customer.id, handleRecalculatePointCustomer),
             );
             showSuccess("Cập nhập điểm tích lũy thành công");
+          }
+          break;
+        case 6:
+          if (customer?.id) {
+            dispatch(
+              getRecalculateMoneyCustomerAction(customer.id, handleRecalculateMoneyCustomer),
+            );
+            showSuccess("Cập nhập tiền tích lũy thành công");
           }
           break;
       }
