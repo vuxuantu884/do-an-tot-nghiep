@@ -1,17 +1,18 @@
 /* eslint-disable eqeqeq */
-import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { CheckOutlined, CloseOutlined, SettingOutlined } from "@ant-design/icons";
 import { Button, Card, Form, Table, Tooltip } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
 import ContentContainer from "component/container/content.container";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
+import ModalSettingColumnData from "component/table/ModalSettingColumnData";
 import UrlConfig from "config/url.config";
 // import { KeyboardKey } from "model/other/keyboard/keyboard.model";
 import { KeyDriverOnlineDataSourceType } from "model/report";
 import moment from "moment";
 import queryString from "query-string";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { getKeyDriverOnlineApi } from "service/report/key-driver.service";
@@ -115,9 +116,74 @@ function KeyDriverOnline() {
     }
   };
   const expandedDefault = localStorage.getItem("key-dirver-online-rowkeys-expanded");
+  const getColumns = localStorage.getItem("key-dirver-online-columns");
   const [expandRowKeys, setExpandRowKeys] = useState<any[]>(
     expandedDefault ? JSON.parse(expandedDefault) : [],
   );
+  const [showSettingColumn, setShowSettingColumn] = useState(false);
+  const [columns, setColumns] = useState<any[]>(
+    getColumns
+      ? JSON.parse(getColumns)
+      : [
+          {
+            title: "Mục tiêu tháng",
+            name: "monthly_target",
+            index: 0,
+            visible: true,
+          },
+          {
+            title: "Luỹ kế",
+            name: "monthly_actual",
+            index: 1,
+            visible: true,
+            fixed: true,
+          },
+          {
+            title: "Tỉ lệ",
+            name: "monthly_progress",
+            index: 2,
+            visible: true,
+          },
+          {
+            title: "Dự kiến đạt",
+            name: "monthly_forecasted",
+            index: 3,
+            visible: true,
+          },
+          {
+            title: "Mục tiêu ngày",
+            name: "daily_target",
+            index: 4,
+            visible: true,
+          },
+          {
+            title: "Thực đạt",
+            name: "daily_actual",
+            index: 5,
+            visible: true,
+            fixed: true,
+          },
+          {
+            title: "Tỉ lệ",
+            name: "daily_progress",
+            index: 6,
+            visible: true,
+          },
+        ],
+  );
+
+  const newFinalColumns = useMemo(() => {
+    return finalColumns.map((columnDetails: any) => {
+      return {
+        ...columnDetails,
+        children: columnDetails.children
+          ? columnDetails.children.filter((children: any, index: number) =>
+              columns.some((i) => i.visible && i.index === index),
+            )
+          : undefined,
+      };
+    });
+  }, [columns, finalColumns]);
 
   const setObjectiveColumns = useCallback(
     (
@@ -560,34 +626,39 @@ function KeyDriverOnline() {
       title={"Báo cáo kết quả kinh doanh Online"}
       breadcrumb={getBreadcrumbByLevel(departmentLv2, departmentLv3)}
     >
-      <Card>
-        <Form
-          onFinish={onFinish}
-          onFinishFailed={() => {}}
-          form={form}
-          name="report-form-base"
-          layout="inline"
-          initialValues={{
-            date: date
-              ? moment(date).format(DATE_FORMAT.DDMMYYY)
-              : moment().format(DATE_FORMAT.DDMMYYY),
-          }}
-        >
-          <Form.Item name="date" style={{ width: 300 }}>
-            <CustomDatePicker
-              format={DATE_FORMAT.DDMMYYY}
-              placeholder="Chọn ngày"
-              style={{ width: "100%" }}
-              onChange={() => onFinish()}
-              showToday={false}
-            />
-          </Form.Item>
-          {/* <Button htmlType="submit" type="primary" loading={loadingPage}>
+      <KeyDriverOnlineStyle>
+        <Card>
+          <Form
+            onFinish={onFinish}
+            onFinishFailed={() => {}}
+            form={form}
+            name="report-form-base"
+            layout="inline"
+            initialValues={{
+              date: date
+                ? moment(date).format(DATE_FORMAT.DDMMYYY)
+                : moment().format(DATE_FORMAT.DDMMYYY),
+            }}
+          >
+            <Form.Item name="date" style={{ width: 300 }}>
+              <CustomDatePicker
+                format={DATE_FORMAT.DDMMYYY}
+                placeholder="Chọn ngày"
+                style={{ width: "100%" }}
+                onChange={() => onFinish()}
+                showToday={false}
+              />
+            </Form.Item>
+            {/* <Button htmlType="submit" type="primary" loading={loadingPage}>
             Lọc
           </Button> */}
-        </Form>
-      </Card>
-      <KeyDriverOnlineStyle>
+          </Form>
+          <Button
+            className="columns-setting"
+            icon={<SettingOutlined />}
+            onClick={() => setShowSettingColumn(true)}
+          ></Button>
+        </Card>
         <Card title={`BÁO CÁO NGÀY: ${day}`}>
           <Table
             className="disable-table-style" // để tạm background màu trắng vì chưa group data
@@ -614,9 +685,19 @@ function KeyDriverOnline() {
                 localStorage.setItem("key-dirver-online-rowkeys-expanded", JSON.stringify(rowKeys));
               },
             }}
-            columns={finalColumns}
+            columns={newFinalColumns}
             dataSource={data}
             loading={loadingPage}
+          />
+          <ModalSettingColumnData
+            visible={showSettingColumn}
+            onCancel={() => setShowSettingColumn(false)}
+            onOk={(data) => {
+              setShowSettingColumn(false);
+              setColumns(data);
+              localStorage.setItem("key-dirver-online-columns", JSON.stringify(data));
+            }}
+            data={columns}
           />
         </Card>
       </KeyDriverOnlineStyle>
