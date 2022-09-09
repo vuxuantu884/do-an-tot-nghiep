@@ -489,3 +489,27 @@ export const RECEIPT_TYPE = {
   SHIPPING: 1,
   RETURNED: 2,
 };
+
+export const REVENUE_STATE = [
+  {
+    code: "draft",
+    name: "Tạo mới",
+  },
+  {
+    code: "paying",
+    name: "Đang giao dịch",
+  },
+  {
+    code: "paid",
+    name: "Đã nộp tiền",
+  },
+  {
+    code: "finished",
+    name: "Hoàn thành",
+  },
+];
+
+export const DAILY_REVENUE_IMPORT = {
+  OTHER_PAYMENT: "other_payment",
+  CONFIRM_PAYMENT: "confirm_payment",
+};

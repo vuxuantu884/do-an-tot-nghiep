@@ -9,7 +9,7 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment, { Moment } from "moment";
-import { sortFulfillments } from "./AppUtils";
+import { formatCurrency, sortFulfillments } from "./AppUtils";
 import {
   DELIVERY_SERVICE_PROVIDER_CODE,
   ECOMMERCE_CHANNEL_CODES,
@@ -458,6 +458,17 @@ export const checkIfOrderPageType = {
   isOrderReturnCreatePage: (orderPageType: string) =>
     orderPageType === OrderPageTypeModel.orderReturnCreate,
   isOtherPage: (orderPageType: string) => orderPageType === OrderPageTypeModel.other,
+};
+
+export const getArrayFromObject = (obj: object) => {
+  return Object.entries(obj).map((single) => {
+    const [, value] = single;
+    return value;
+  });
+};
+
+export const renderFormatCurrency = (value?: number | string) => {
+  return typeof value === "number" ? formatCurrency(value) : "-";
 };
 
 export const getDefaultReceiveReturnStoreIdFormValue = (

@@ -64,6 +64,8 @@ const UrlConfig = {
   STOCK_IN_OUT_OTHERS: `/stock-in-out-others`,
   KEY_DRIVER_ONLINE: "/key-driver-online",
   HANDOVER: `/handovers`,
+  DAILY_REVENUE: `/daily-revenue`,
+  EXPENDITURE: `/expenditure`,
 };
 
 export const ProductTabUrl = {

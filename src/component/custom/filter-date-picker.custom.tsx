@@ -190,7 +190,7 @@ function CustomFilterDatePicker(props: PropTypes) {
           style={{ width: "100%" }}
           onChange={() => onChangeDate()}
           showToday={false}
-          showTime={showTime ? { format: "HH:mm", defaultValue: moment("00:00", "HH:mm") } : {}}
+          showTime={showTime ? { format: "HH:mm", defaultValue: moment("00:00", "HH:mm") } : false}
           renderExtraFooter={renderExtraFooter}
         />
       </Form.Item>
@@ -210,7 +210,7 @@ function CustomFilterDatePicker(props: PropTypes) {
                   format: "HH:mm:ss",
                   defaultValue: moment("23:59:59", "HH:mm:ss"),
                 }
-              : {}
+              : false
           }
           renderExtraFooter={renderExtraFooter}
         />
