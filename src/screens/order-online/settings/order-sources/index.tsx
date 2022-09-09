@@ -402,7 +402,7 @@ function OrderSources(props: PropTypes) {
       page: +(queryParamsParsed.page || DEFAULT_PAGINATION.page),
       limit: +(queryParamsParsed.limit || DEFAULT_PAGINATION.limit),
       sort_type: "desc",
-      sort_column: "updated_date",
+      sort_column: "updatedDate",
       name: queryParamsParsed.name,
       department_ids: queryParamsParsed.department_ids,
       active: queryParamsParsed.active,
