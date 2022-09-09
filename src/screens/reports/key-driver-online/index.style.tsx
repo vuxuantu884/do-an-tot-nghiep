@@ -139,4 +139,12 @@ export const KeyDriverOnlineStyle = styled.div`
       }
     }
   }
+  .columns-setting {
+    right: 20px;
+    top: 20px;
+    position: absolute;
+    .anticon {
+      vertical-align: 0.125em;
+    }
+  }
 `;
