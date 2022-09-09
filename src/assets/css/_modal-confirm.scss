@@ -50,4 +50,13 @@
     text-align: justify;
     color: rgb(255, 77, 79);
   }
+  .yody-modal {
+    p {
+      margin-bottom: 0.5em;
+    }
+    .notification-detail {
+      max-height: 415px;
+      overflow: auto;
+    }
+  }
 }

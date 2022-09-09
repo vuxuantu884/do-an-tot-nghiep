@@ -5,7 +5,10 @@ import { showError } from "../utils/ToastUtils";
 import { HttpStatus } from "../config/http-status.config";
 const ACCESS_TOKEN = "access_token";
 
-export function getAxiosBase(config: AxiosRequestConfig) {
+export function getAxiosBase(
+  config: AxiosRequestConfig,
+  isGetAllResponseAxios: boolean = false, // tổng kết ca cần
+) {
   const BaseAxios = axios.create({
     timeout: AppConfig.timeOut,
     ...config,
@@ -39,6 +42,9 @@ export function getAxiosBase(config: AxiosRequestConfig) {
 
   BaseAxios.interceptors.response.use(
     function (response: AxiosResponse) {
+      if (isGetAllResponseAxios) {
+        return response;
+      }
       /**
        * Thông báo lỗi
        */
@@ -74,6 +80,9 @@ export function getAxiosBase(config: AxiosRequestConfig) {
       /**
        * Record api 401 để check lỗi tự đăng xuất
        */
+      if (isGetAllResponseAxios) {
+        return error?.response;
+      }
       if (error?.response?.status === 401) {
         console.warn("Lỗi xác thực: \n", error?.response?.config);
       }
@@ -84,4 +93,11 @@ export function getAxiosBase(config: AxiosRequestConfig) {
 }
 
 const BaseAxios = getAxiosBase({ baseURL: AppConfig.baseUrl });
+
+export const DailyRevenueBaseAxios = getAxiosBase({ baseURL: AppConfig.baseApi });
+export const DailyRevenueIncludeHeaderInfoBaseAxios = getAxiosBase(
+  { baseURL: AppConfig.baseApi },
+  true,
+);
+
 export default BaseAxios;

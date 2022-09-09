@@ -27,6 +27,7 @@ const ServiceNames = {
   POTENTIAL_CUSTOMER_BOUGHT_SERVICE: "potential-customers/import-bought-potential-customers",
   OFFLINE_TOTAL_SALES_POTENTIAL_SERVICE: "potential-customers/count-by-asm",
   HANDOVER_SERVICE: "handover-service",
+  DAILY_PAYMENT_SERVICE: "api/daily-payments",
 };
 
 const v1 = ``;
@@ -64,6 +65,7 @@ const ApiConfig = {
   POTENTIAL_CUSTOMER_BOUGHT: `${v1}/${ServiceNames.POTENTIAL_CUSTOMER_BOUGHT_SERVICE}`,
   OFFLINE_TOTAL_SALES_POTENTIAL: `${v1}/${ServiceNames.OFFLINE_TOTAL_SALES_POTENTIAL_SERVICE}`,
   HANDOVER: `${v1}/${ServiceNames.HANDOVER_SERVICE}`,
+  DAILY_PAYMENT: `${v1}/${ServiceNames.DAILY_PAYMENT_SERVICE}`,
 };
 
 export { ApiConfig };

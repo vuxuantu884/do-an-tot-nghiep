@@ -60,6 +60,8 @@ import {
   getLoyaltyAdjustMoneyService,
   getImportCodeCustomerAdjustmentService,
   getInfoAdjustmentByJobService,
+  getRecalculatePointCustomerService,
+  getRecalculateMoneyCustomerService,
 } from "service/loyalty/loyalty.service";
 
 function* uploadLoyaltyCardSaga(action: YodyAction) {
@@ -701,6 +703,50 @@ function* getInfoAdjustmentByJobSaga(action: YodyAction) {
   }
 }
 
+function* getRecalculatePointCustomerSaga(action: YodyAction) {
+  const { customerId, callback } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(getRecalculatePointCustomerService, customerId);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        callback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e: any) => showError(e));
+        callback(false);
+        break;
+    }
+  } catch (error) {
+    callback(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* getRecalculateMoneyCustomerSaga(action: YodyAction) {
+  const { customerId, callback } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(getRecalculateMoneyCustomerService, customerId);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        callback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e: any) => showError(e));
+        callback(false);
+        break;
+    }
+  } catch (error) {
+    callback(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* loyaltySaga() {
   yield takeLatest(LoyaltyCardReleaseType.UPLOAD, uploadLoyaltyCardSaga);
   yield takeLatest(LoyaltyRankType.SEARCH_LOYALTY_RANK_REQUEST, getLoyaltyRankingList);
@@ -756,5 +802,13 @@ export function* loyaltySaga() {
   yield takeLatest(
     LoyaltyChangeValueAdjustmentType.GET_LOYALTY_VALUE_CHANGE_ADJUSTMENT,
     getInfoAdjustmentByJobSaga,
+  );
+  yield takeLatest(
+    LoyaltyPointsAdjustmentType.GET_RECALCULATE_POINT,
+    getRecalculatePointCustomerSaga,
+  );
+  yield takeLatest(
+    LoyaltyPointsAdjustmentType.GET_RECALCULATE_MONEY,
+    getRecalculateMoneyCustomerSaga,
   );
 }

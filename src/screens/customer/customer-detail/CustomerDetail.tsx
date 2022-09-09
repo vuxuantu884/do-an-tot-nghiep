@@ -18,8 +18,13 @@ import CustomerActivityLog from "screens/customer/customer-detail/CustomerActivi
 import CustomerCareHistory from "screens/customer/customer-detail/CustomerCareHistory";
 
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
-import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import {
+  getLoyaltyPoint,
+  getLoyaltyUsage,
+  getRecalculatePointCustomerAction,
+  getRecalculateMoneyCustomerAction,
+} from "domain/actions/loyalty/loyalty.action";
+// import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { LoyaltyCardSearch } from "domain/actions/loyalty/card/loyalty-card.action";
@@ -35,6 +40,7 @@ import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import { RegionResponse } from "model/content/country.model";
 import { GetRegionAction } from "domain/actions/content/content.action";
 import CustomerOrderHistory from "./CustomerOrderHistory";
+import { showSuccess } from "utils/ToastUtils";
 
 const { TabPane } = Tabs;
 
@@ -67,7 +73,7 @@ const CustomerDetail = () => {
   const [customer, setCustomer] = React.useState<CustomerResponse>();
   const [customerPointInfo, setCustomerPoint] = React.useState<any>([]);
   const [modalAction, setModalAction] = React.useState<modalActionType>("create");
-  const [loyaltyPoint, setLoyaltyPoint] = React.useState<LoyaltyPoint | null>(null);
+  const [loyaltyPoint, setLoyaltyPoint] = React.useState<any>(null);
   const [loyaltyCard, setLoyaltyCard] = React.useState<any>();
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = React.useState<Array<LoyaltyUsageResponse>>(
     [],
@@ -91,6 +97,14 @@ const CustomerDetail = () => {
       id: 4,
       name: "Trừ tiền tích lũy",
     },
+    // {
+    //   id: 5,
+    //   name: "Tính lại điểm tích lũy",
+    // },
+    // {
+    //   id: 6,
+    //   name: "Tính lại tiền tích lũy",
+    // },
   ];
 
   useEffect(() => {
@@ -219,13 +233,13 @@ const CustomerDetail = () => {
       },
       {
         name: "Tiền tích lũy",
-        value: purchaseInfo?.total_paid_amount ? (
+        value: (
           <NumberFormat
-            value={purchaseInfo?.total_paid_amount}
+            value={loyaltyPoint?.total_money_spend}
             displayType={"text"}
             thousandSeparator={true}
           />
-        ) : null,
+        ),
       },
       {
         name: "Ngày mua đầu",
@@ -304,9 +318,9 @@ const CustomerDetail = () => {
     const _detail = [
       {
         name: "Điểm hiện tại",
-        value: loyaltyPoint?.point ? (
-          <NumberFormat value={loyaltyPoint.point} displayType={"text"} thousandSeparator={true} />
-        ) : null,
+        value: (
+          <NumberFormat value={loyaltyPoint?.point} displayType={"text"} thousandSeparator={true} />
+        ),
       },
       {
         name: "Hạng thẻ",
@@ -403,6 +417,24 @@ const CustomerDetail = () => {
     }
   };
 
+  const handleRecalculatePointCustomer = (data: any) => {
+    setLoyaltyPoint((prev: any) => {
+      return {
+        ...prev,
+        point: data?.point,
+      };
+    });
+  };
+
+  const handleRecalculateMoneyCustomer = (data: any) => {
+    setLoyaltyPoint((prev: any) => {
+      return {
+        ...prev,
+        total_money_spend: data?.total_money_spend,
+      };
+    });
+  };
+
   const onMenuClick = React.useCallback(
     (menuId: number) => {
       switch (menuId) {
@@ -426,9 +458,25 @@ const CustomerDetail = () => {
             `${UrlConfig.CUSTOMER2}-adjustments/create?type=SUBTRACT_MONEY&customer_ids=${customer?.id}`,
           );
           break;
+        case 5:
+          if (customer?.id) {
+            dispatch(
+              getRecalculatePointCustomerAction(customer.id, handleRecalculatePointCustomer),
+            );
+            showSuccess("Cập nhập điểm tích lũy thành công");
+          }
+          break;
+        case 6:
+          if (customer?.id) {
+            dispatch(
+              getRecalculateMoneyCustomerAction(customer.id, handleRecalculateMoneyCustomer),
+            );
+            showSuccess("Cập nhập tiền tích lũy thành công");
+          }
+          break;
       }
     },
-    [customer, history],
+    [customer?.id, dispatch, history],
   );
 
   return (

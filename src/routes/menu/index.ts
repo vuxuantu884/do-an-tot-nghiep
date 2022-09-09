@@ -18,11 +18,13 @@ import shipments from "./shipment.route";
 import supplierRoutes from "./supplier.route";
 import warrantyRoute from "./warranty.route";
 import webAppRoute from "./web-app.route";
+import dailyRevenueRoute from "routes/menu/daily-revenue.route";
 
 const Dashboard = React.lazy(() => import("screens/dashboard"));
 const Product = React.lazy(() => import("screens/products/product/ProductSearchScreen"));
 const OnlineOrders = React.lazy(() => import("screens/order-online/orders/online-orders.screen"));
 const PosOrders = React.lazy(() => import("screens/order-online/orders/offline-orders.screen"));
+const DailyRevenueScreen = React.lazy(() => import("screens/DailyRevenue/DailyRevenueDetail"));
 const Customer = React.lazy(() => import("screens/customer"));
 const Campaign = React.lazy(() => import("screens/marketing/campaign/Campaign"));
 const EcommerceConfig = React.lazy(() => import("screens/ecommerce/config"));
@@ -93,11 +95,21 @@ const menu: Array<RouteMenu> = [
     title: "Bán lẻ offline",
     icon: "icon-offline-order",
     component: PosOrders,
-    // key: ordersMenuKey.offlineOrders,
     key: "bán lẻ offline",
     isShow: true,
     header: null,
     subMenu: offlineOrdersRoute,
+  },
+  {
+    path: UrlConfig.DAILY_REVENUE,
+    exact: true,
+    title: "Tổng kết ca",
+    icon: "icon-daily-revenue",
+    component: DailyRevenueScreen,
+    key: "tong-ket-ca",
+    isShow: true,
+    header: null,
+    subMenu: dailyRevenueRoute,
   },
   {
     path: UrlConfig.SHIPMENTS,

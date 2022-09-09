@@ -5,8 +5,7 @@ import TextWithLineBreak from "../TextWithLineBreak";
 import { StyledComponent } from "./styles";
 
 type FormValueType = {
-  note: string | null | undefined;
-  customer_note: string | null | undefined;
+  [key: string]: any;
 };
 type PropTypes = {
   note?: any;
