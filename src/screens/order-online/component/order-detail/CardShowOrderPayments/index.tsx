@@ -4,7 +4,6 @@ import { OrderPageTypeModel } from "model/order/order.model";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { OrderPaymentResponse, OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useMemo } from "react";
 import { useDispatch } from "react-redux";
 import CopyIcon from "screens/order-online/component/CopyIcon";
 import {

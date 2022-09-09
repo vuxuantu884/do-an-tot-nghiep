@@ -1217,17 +1217,14 @@ export default function Order() {
   return (
     <StyledComponent>
       <ContentContainer
-        title="Tạo mới đơn hàng"
+        title="Tạo đơn Online"
         breadcrumb={[
           {
-            name: "Tổng quan",
-            path: "/",
+            name: "Đơn hàng Online",
+            path: UrlConfig.ORDER,
           },
           {
-            name: "Đơn hàng",
-          },
-          {
-            name: "Tạo mới đơn hàng",
+            name: "Tạo đơn Online",
           },
         ]}
         extra={<CreateBillStep orderDetail={null} />}

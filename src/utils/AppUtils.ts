@@ -1086,12 +1086,15 @@ export const getServiceName = (item: OrderResponse) => {
   }
 };
 
-export const scrollAndFocusToDomElement = (element?: HTMLElement | null) => {
+export const scrollAndFocusToDomElement = (
+  element?: HTMLElement | null,
+  offsetY: number = -250,
+) => {
   if (!element) {
     return;
   }
   element.focus();
-  const y = element.getBoundingClientRect()?.top + window.pageYOffset + -250;
+  const y = element.getBoundingClientRect()?.top + window.pageYOffset + offsetY;
   window.scrollTo({ top: y, behavior: "smooth" });
 };
 
