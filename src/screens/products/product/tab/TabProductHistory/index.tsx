@@ -17,6 +17,8 @@ enum DocumentType {
   RETURN_ORDER = "return_order",
   RETURN_PO = "return_po",
   INVENTORY_TRANSFER = "inventory_transfer",
+  INVENTORY_ADJUSTMENT = "inventory_adjustment",
+  OTHER_STOCK_IN_OUT = "other_stock_in_out",
 }
 
 const TabProductHistory: React.FC<IProps> = (props: IProps) => {
@@ -33,6 +35,10 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
         return UrlConfig.PURCHASE_ORDERS;
       case DocumentType.INVENTORY_TRANSFER:
         return UrlConfig.INVENTORY_TRANSFERS;
+      case DocumentType.INVENTORY_ADJUSTMENT:
+        return UrlConfig.INVENTORY_ADJUSTMENTS;
+      case DocumentType.OTHER_STOCK_IN_OUT:
+        return UrlConfig.STOCK_IN_OUT_OTHERS;
       default:
         return type;
     }
