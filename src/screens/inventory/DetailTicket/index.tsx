@@ -631,7 +631,7 @@ const DetailTicket: FC = () => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [history],
+    [history, data],
   );
 
   const checkDuplicateRecord = () => {
@@ -661,6 +661,7 @@ const DetailTicket: FC = () => {
         }
 
         dataCheck.line_items = dataTable;
+        dataCheck.ignore_id = data.id;
       });
       dispatch(checkDuplicateInventoryTransferAction(dataCheck, checkCallback));
     }
