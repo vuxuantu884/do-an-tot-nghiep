@@ -131,3 +131,11 @@ export const getImportCodeCustomerAdjustmentService = (
 export const getInfoAdjustmentByJobService = (code: any): Promise<BaseResponse<any>> => {
   return BaseAxios.get(`${ApiConfig.LOYALTY}/jobs/${code}`);
 };
+
+export const getRecalculatePointCustomerService = (
+  customerId: number,
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.get(
+    `${ApiConfig.LOYALTY}/loyalty-points/customer/${customerId}/recalculate-point/apply`,
+  );
+};
