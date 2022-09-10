@@ -370,9 +370,19 @@ function KeyDriverOnline() {
             className: "input-cell",
             render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
               return (
-                <VerifyCell row={record} value={text}>
-                  {formatCurrency(text)}
-                </VerifyCell>
+                <div
+                  className={
+                    Number(text) / record[`${departmentKey}_monthly_target`] > 1
+                      ? "background-green"
+                      : Number(text) / record[`${departmentKey}_monthly_target`] < 1 / 2
+                      ? "background-red"
+                      : ""
+                  }
+                >
+                  <VerifyCell row={record} value={text}>
+                    {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
+                  </VerifyCell>
+                </div>
               );
             },
           },
@@ -657,7 +667,7 @@ function KeyDriverOnline() {
             className="columns-setting"
             icon={<SettingOutlined />}
             onClick={() => setShowSettingColumn(true)}
-          ></Button>
+          />
         </Card>
         <Card title={`BÁO CÁO NGÀY: ${day}`}>
           <Table
