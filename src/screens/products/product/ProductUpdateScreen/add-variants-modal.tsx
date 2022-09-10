@@ -595,7 +595,7 @@ function AddVariantsModal(props: Props) {
                 ]}
                 name={[modalInputField, "currency_code"]}
               >
-                <CustomSelect placeholder="Đơn vị tiền tệ">
+                <CustomSelect disabled placeholder="Đơn vị tiền tệ">
                   {currencyList?.map((item) => (
                     <CustomSelect.Option key={item.value} value={item.value}>
                       {item.name}
