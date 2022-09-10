@@ -1,4 +1,5 @@
 import { Layout, Menu } from "antd";
+import { AppConfig } from "config/app.config";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React from "react";
 import { Scrollbars } from "react-custom-scrollbars";
@@ -32,7 +33,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (props: SidebarContain
   );
   // console.log("routeMatched", routeMatched);
   // console.log("selectedKeys", selectedKeys);
-
+  const menuAccess = AppConfig.ENV === "PROD" ? menu.filter((p) => p.key !== "tong-ket-ca") : menu;
   return (
     <Sider collapsed={collapsed} collapsedWidth={52} width={240} style={{ zIndex: 2 }}>
       <Scrollbars autoHide>
@@ -42,7 +43,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (props: SidebarContain
           mode="inline"
           style={{ borderRight: "none" }}
         >
-          {menu.map((route) => {
+          {menuAccess.map((route) => {
             if (route.subMenu.length > 0) {
               return (
                 checkPermission(route.permissions) && (

@@ -13,7 +13,7 @@ const ExpenditureListScreen = React.lazy(
   () => import("screens/DailyRevenue/expenditure/expenditure-list"),
 );
 const DailyRevenueImport = React.lazy(() => import("screens/DailyRevenue/DailyRevenueImport"));
-const isHiddenMenuEnvPro = AppConfig.ENV === "PROD" ? false : true;
+// const isHiddenMenuEnvPro = AppConfig.ENV === "PROD" ? false : true;
 const dailyRevenueRoute: Array<RouteMenu> = [
   {
     path: `${UrlConfig.DAILY_REVENUE}`,
@@ -22,7 +22,7 @@ const dailyRevenueRoute: Array<RouteMenu> = [
     icon: "icon-dot",
     component: DailyRevenueListScreen,
     key: "danh-sach-tong-ket-ca",
-    isShow: isHiddenMenuEnvPro,
+    isShow: true,
     header: null,
     permissions: [DAILY_REVENUE_PERMISSIONS.daily_payments_read],
     subMenu: [
@@ -59,7 +59,7 @@ const dailyRevenueRoute: Array<RouteMenu> = [
     icon: "icon-dot",
     component: DailyRevenueToday,
     key: "phieu-tong-ket-ca-hom-nay",
-    isShow: isHiddenMenuEnvPro,
+    isShow: true,
     header: null,
     permissions: [DAILY_REVENUE_PERMISSIONS.daily_payments_read],
     subMenu: [],
