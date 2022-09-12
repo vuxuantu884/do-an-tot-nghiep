@@ -44,6 +44,31 @@ function useFetchStoresCustomerVisitors(dimension: KeyDriverDimension = KeyDrive
     [dimension, selectedDate],
   );
 
+  const calculateDimKeyDriver = useCallback(
+    (response) => {
+      let dimData: any = {};
+      dimData = {
+        department_lv2: selectedAsm[0],
+        pos_location_name: selectedAsm[0],
+      };
+      if (dimension === KeyDriverDimension.Staff) {
+        dimData = {
+          ...dimData,
+          staff_name: selectedStores[0],
+          staff_code: nonAccentVietnameseKD(selectedStores[0]),
+        };
+      }
+      response.forEach((item: any) => {
+        Object.keys(item).forEach((key) => {
+          dimData.value = dimData.value || 0;
+          dimData.value += +item.value || 0;
+        });
+      });
+      return dimData;
+    },
+    [dimension, selectedAsm, selectedStores],
+  );
+
   const refetchStoresCustomerVisitors = useCallback(() => {
     const fetchStoresCustomerVisitors = async () => {
       if (!selectedStores.length || !selectedAsm.length) {
@@ -95,13 +120,15 @@ function useFetchStoresCustomerVisitors(dimension: KeyDriverDimension = KeyDrive
           setIsFetchingStoresCustomerVisitors(false);
           return;
         }
+        const dimDayData = calculateDimKeyDriver(resDay);
+
         if (!resMonth?.length) {
           if (!resMonth && resMonth !== 0) {
             showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Khách vào cửa hàng");
           }
           setData((prev: any) => {
             let dataPrev: any = prev[0];
-            resDay.forEach((item: any) => {
+            [dimDayData, ...resDay].forEach((item: any) => {
               findKeyDriverAndUpdateValue(prev[0], item, "actualDay");
             });
             prev[0] = dataPrev;
@@ -110,13 +137,13 @@ function useFetchStoresCustomerVisitors(dimension: KeyDriverDimension = KeyDrive
           setIsFetchingStoresCustomerVisitors(false);
           return;
         }
-
+        const dimMonthData = calculateDimKeyDriver(resMonth);
         setData((prev: any) => {
           let dataPrev: any = prev[0];
-          resDay.forEach((item: any) => {
+          [dimDayData, ...resDay].forEach((item: any) => {
             findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
           });
-          resMonth.forEach((item: any) => {
+          [dimMonthData, ...resMonth].forEach((item: any) => {
             findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
           });
           prev[0] = dataPrev;
@@ -129,6 +156,7 @@ function useFetchStoresCustomerVisitors(dimension: KeyDriverDimension = KeyDrive
       fetchStoresCustomerVisitors();
     }
   }, [
+    calculateDimKeyDriver,
     dimension,
     dispatch,
     findKeyDriverAndUpdateValue,

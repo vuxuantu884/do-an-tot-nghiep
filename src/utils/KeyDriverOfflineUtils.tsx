@@ -121,12 +121,16 @@ export const calculateKDConvertionRate = (keyDriverData: any, department: string
   visitors = visitors[0];
   if (!convertionRate[`${department}_day`]) {
     convertionRate[`${department}_day`] = visitors[`${department}_day`]
-      ? +(+(customersCount[`${department}_day`] / visitors[`${department}_day`]) * 100).toFixed(2)
+      ? +(
+          ((customersCount[`${department}_day`] || 0) / visitors[`${department}_day`]) *
+          100
+        ).toFixed(2)
       : "";
   }
   convertionRate[`${department}_targetMonth`] = visitors[`${department}_targetMonth`]
     ? +(
-        (+customersCount[`${department}_targetMonth`] / visitors[`${department}_targetMonth`]) *
+        ((customersCount[`${department}_targetMonth`] || 0) /
+          visitors[`${department}_targetMonth`]) *
         100
       ).toFixed(2)
     : "";
@@ -325,6 +329,7 @@ const calculateDepartmentDayTarget = (keyDriver: any, department: string, select
       BirthdaySmsConversions,
       CustomerSmsRate,
       ShoperSmsRate,
+      ConvertionRate,
     } = KeyDriverField;
     if (
       ![
@@ -337,6 +342,7 @@ const calculateDepartmentDayTarget = (keyDriver: any, department: string, select
         BirthdaySmsConversions,
         CustomerSmsRate,
         ShoperSmsRate,
+        ConvertionRate,
       ].includes(keyDriver["key"])
     ) {
       if (!keyDriver[`${department}_day`]) {

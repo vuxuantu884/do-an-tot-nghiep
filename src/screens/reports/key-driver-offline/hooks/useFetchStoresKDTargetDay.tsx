@@ -14,7 +14,7 @@ import { KDOfflineStoresContext } from "../provider/kd-offline-stores-provider";
 
 function useFetchStoresKDTargetDay(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedStaffs, selectedDate } =
+  const { setData, selectedStores, selectedStaffs, selectedDate, selectedAsm } =
     useContext(KDOfflineStoresContext);
 
   const [isFetchingStoresKDTargetDay, setIsFetchingStoresKDTargetDay] = useState<
@@ -42,12 +42,12 @@ function useFetchStoresKDTargetDay(dimension: KeyDriverDimension = KeyDriverDime
 
   const refetch = useCallback(() => {
     const fetchStoresKDTargetDay = async () => {
-      if (!selectedStores.length) {
+      if (!selectedStores.length || !selectedAsm.length) {
         return;
       }
       if (
         dimension === KeyDriverDimension.Staff &&
-        (!selectedStores.length || !selectedStaffs.length)
+        (!selectedStores.length || !selectedStaffs.length || !selectedAsm.length)
       ) {
         return;
       }
@@ -69,15 +69,16 @@ function useFetchStoresKDTargetDay(dimension: KeyDriverDimension = KeyDriverDime
         let resMapper = [];
         if (dimension === KeyDriverDimension.Store) {
           resMapper = res.filter((item: any) =>
-            [...selectedStores.map((asmItem) => nonAccentVietnameseKD(asmItem))].includes(
-              item.department,
-            ),
+            [...selectedStores, selectedAsm[0]]
+              .map((asmItem) => nonAccentVietnameseKD(asmItem))
+              .includes(item.department),
           );
         } else if (dimension === KeyDriverDimension.Staff) {
           resMapper = res.filter((item: any) =>
-            [...selectedStaffs.map((item) => JSON.parse(item).code.toUpperCase())].includes(
-              item.department,
-            ),
+            [
+              ...selectedStaffs.map((item) => JSON.parse(item).code.toUpperCase()),
+              nonAccentVietnameseKD(selectedStores[0]),
+            ].includes(item.department),
           );
         }
 
@@ -98,9 +99,12 @@ function useFetchStoresKDTargetDay(dimension: KeyDriverDimension = KeyDriverDime
 
           let selectedData: any[] = [];
           if (dimension === KeyDriverDimension.Staff) {
-            selectedData = selectedStaffs.map((staff) => JSON.parse(staff).code.toUpperCase());
+            selectedData = [
+              ...selectedStaffs.map((staff) => JSON.parse(staff).code.toUpperCase()),
+              selectedStores[0],
+            ];
           } else if (dimension === KeyDriverDimension.Store) {
-            selectedData = selectedStores;
+            selectedData = [...selectedStores, selectedAsm[0]];
           }
           [...selectedData].forEach((asm) => {
             const asmKey = nonAccentVietnameseKD(asm);
@@ -119,6 +123,7 @@ function useFetchStoresKDTargetDay(dimension: KeyDriverDimension = KeyDriverDime
     fetchStoresKDTargetDay();
   }, [
     selectedStores,
+    selectedAsm,
     dimension,
     selectedStaffs,
     dispatch,
