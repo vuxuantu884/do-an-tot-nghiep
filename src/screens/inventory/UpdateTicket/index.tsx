@@ -714,11 +714,13 @@ const UpdateTicket: FC = () => {
   );
 
   const onDeleteTicket = (value: string | undefined) => {
+    dispatch(showLoading());
     dispatch(
       deleteInventoryTransferAction(
         idNumber,
         { note: value ? value : "" },
         (result: InventoryTransferDetailItem | false) => {
+          dispatch(hideLoading());
           if (!result) {
             return;
           } else {

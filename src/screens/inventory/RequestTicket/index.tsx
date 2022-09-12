@@ -59,7 +59,8 @@ import { AccountStoreResponse } from "model/account/account.model";
 import { RefSelectProps } from "antd/lib/select";
 import { strForSearch } from "utils/StringUtils";
 import { searchVariantsApi } from "service/product/product.service";
-import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 const { Option } = Select;
 
@@ -330,6 +331,7 @@ const RequestTicket: FC = () => {
   const createCallback = useCallback(
     (result: InventoryTransferDetailItem) => {
       setIsLoading(false);
+      dispatch(hideLoading());
       if (result) {
         showSuccess("Thêm mới dữ liệu thành công");
         history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
@@ -465,6 +467,7 @@ const RequestTicket: FC = () => {
     delete data.to_store_id;
 
     setIsLoading(true);
+    dispatch(showLoading());
     dispatch(creatInventoryTransferRequestAction(data, createCallback));
   };
 
@@ -500,8 +503,8 @@ const RequestTicket: FC = () => {
 
         onSearchProduct(txtSearchProductElement?.value);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, onSelectProduct, onSearchProduct, form],
   );
 

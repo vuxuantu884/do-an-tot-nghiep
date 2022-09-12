@@ -623,6 +623,7 @@ const DetailTicket: FC = () => {
 
   const checkCallback = useCallback(
     (result: any) => {
+      dispatch(hideLoading());
       if (result.responseData.code === HttpStatus.SUCCESS) {
         dispatch(acceptInventoryAction(Number(data?.id), onReload));
       } else if (result.responseData.code === HttpStatus.BAD_REQUEST) {
@@ -663,6 +664,7 @@ const DetailTicket: FC = () => {
         dataCheck.line_items = dataTable;
         dataCheck.ignore_id = data.id;
       });
+      dispatch(showLoading());
       dispatch(checkDuplicateInventoryTransferAction(dataCheck, checkCallback));
     }
   };
@@ -955,6 +957,7 @@ const DetailTicket: FC = () => {
 
   const deleteTicketResult = useCallback((result) => {
     setLoadingBtn(false);
+    dispatch(hideLoading());
     if (!result) {
       setError(true);
       return;
@@ -963,10 +966,12 @@ const DetailTicket: FC = () => {
       showSuccess("Huỷ phiếu thành công");
       setData(result);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onDeleteTicket = (value: string | undefined) => {
     setLoadingBtn(true);
+    dispatch(showLoading());
     dispatch(
       deleteInventoryTransferAction(idNumber, { note: value ? value : "" }, deleteTicketResult),
     );
