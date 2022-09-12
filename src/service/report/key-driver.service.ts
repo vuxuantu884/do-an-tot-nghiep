@@ -14,6 +14,7 @@ import {
   UpdateKeyDriverParams,
 } from "model/report";
 
+/* keydriver offline api */
 export const importFileApi = (
   file: File | undefined,
   params: KeyDriverImportFileParams,
@@ -111,6 +112,20 @@ export const getKDOfflineTotalSalesPotential = (
   });
 };
 
+export const getKDCallLoyalty = (params: KDOfflineTotalSalesParams): Promise<BaseResponse<any>> => {
+  return BaseAxiosApi.get(`${ApiConfig.OFFLINE_CALL_LOYALTY_LEVEL}`, {
+    params,
+  });
+};
+
+export const getKDSmsLoyalty = (params: KDOfflineTotalSalesParams): Promise<BaseResponse<any>> => {
+  return BaseAxiosApi.get(`${ApiConfig.OFFLINE_SMS_LOYALTY_LEVEL}`, {
+    params,
+  });
+};
+/* keydriver offline api */
+
+/* keydriver online api */
 export const getKeyDriverOnlineApi = (
   params: KeyDriverOnlineParams,
 ): Promise<BaseResponse<Omit<AnalyticDataQuery, "query">>> => {
@@ -130,3 +145,4 @@ export const onlineCounterService = (params: MonthlyCounter): Promise<BaseRespon
 export const getOnlineCounterService = (params: KeyCounterParams): Promise<BaseResponse<any>> => {
   return BaseAxiosApi.get(`/monthly-counters`, { params });
 };
+/* keydriver online api */

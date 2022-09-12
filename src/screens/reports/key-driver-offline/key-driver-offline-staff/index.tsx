@@ -244,7 +244,7 @@ function KeyDriverOfflineStaff() {
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text || text === 0
-                ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
+                ? record.suffix === "%"
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -267,11 +267,7 @@ function KeyDriverOfflineStaff() {
             dataIndex: `${departmentKey}_targetMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return text
-                ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
-                  ? `${text}%`
-                  : formatCurrency(text)
-                : "-";
+              return text ? (record.suffix === "%" ? `${text}%` : formatCurrency(text)) : "-";
             },
           },
           {
@@ -322,7 +318,7 @@ function KeyDriverOfflineStaff() {
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text || text === 0
-                ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
+                ? record.suffix === "%"
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";

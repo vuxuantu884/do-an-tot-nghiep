@@ -1,42 +1,30 @@
-import { KeyDriverField } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { getKDCustomerVisitors } from "service/report/key-driver.service";
+import { getKDSmsLoyalty } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
-import {
-  calculateTargetMonth,
-  findKeyDriver,
-  nonAccentVietnameseKD,
-} from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { ASM_LIST } from "../constant/key-driver-offline-template-data";
 import { KeyDriverOfflineContext } from "../provider/key-driver-offline-provider";
+import { findKDAndUpdateCallSmsValue } from "../utils/CallSmsKDUtils";
 
-function useFetchCustomerVisitors() {
+function useFetchSmsLoyalty() {
   const dispatch = useDispatch();
   const { setData, selectedDate } = useContext(KeyDriverOfflineContext);
 
-  const [isFetchingCustomerVisitors, setIsFetchingCustomerVisitors] = useState<
-    boolean | undefined
-  >();
+  const [isFetchingSmsLoyalty, setIsFetchingSmsLoyalty] = useState<boolean | undefined>();
 
   const findKeyDriverAndUpdateValue = useCallback(
     (data: any, asmData: any, columnKey: string) => {
-      let visitors: any = [];
-      findKeyDriver(data, KeyDriverField.Visitors, visitors);
-      visitors = visitors[0];
-      const asmName = nonAccentVietnameseKD(asmData["department_lv2"]);
-      if (asmName) {
-        visitors[`${asmName}_${columnKey}`] = asmData.value;
-        if (columnKey === "accumulatedMonth") {
-          visitors[`${asmName}_targetMonth`] = calculateTargetMonth(
-            visitors[`${asmName}_accumulatedMonth`],
-            selectedDate,
-          );
-        }
-      }
+      findKDAndUpdateCallSmsValue({
+        data,
+        asmData,
+        columnKey,
+        selectedDate,
+        type: "sms",
+        dimKey: "department_lv2",
+      });
     },
     [selectedDate],
   );
@@ -54,10 +42,10 @@ function useFetchCustomerVisitors() {
     return companyData;
   }, []);
 
-  const refetchCustomerVisitors = useCallback(() => {
-    const fetchCustomerVisitors = async () => {
-      setIsFetchingCustomerVisitors(true);
-      const dayApi = callApiNative({ isShowError: true }, dispatch, getKDCustomerVisitors, {
+  const refetchSmsLoyalty = useCallback(() => {
+    const fetchSmsLoyalty = async () => {
+      setIsFetchingSmsLoyalty(true);
+      const dayApi = callApiNative({ isShowError: true }, dispatch, getKDSmsLoyalty, {
         from: selectedDate,
         to: selectedDate,
         posLocationNames: [],
@@ -68,7 +56,7 @@ function useFetchCustomerVisitors() {
       if (selectedDate === moment().format(YYYYMMDD)) {
         monthApi =
           moment(selectedDate, YYYYMMDD).date() > 1
-            ? callApiNative({ isShowError: true }, dispatch, getKDCustomerVisitors, {
+            ? callApiNative({ isShowError: true }, dispatch, getKDSmsLoyalty, {
                 from: moment(selectedDate, YYYYMMDD).startOf("month").format(YYYYMMDD),
                 to: moment(selectedDate, YYYYMMDD).subtract(1, "days").format(YYYYMMDD),
                 posLocationNames: [],
@@ -76,7 +64,7 @@ function useFetchCustomerVisitors() {
               })
             : Promise.resolve(0);
       } else {
-        monthApi = callApiNative({ isShowError: true }, dispatch, getKDCustomerVisitors, {
+        monthApi = callApiNative({ isShowError: true }, dispatch, getKDSmsLoyalty, {
           from: moment(selectedDate, YYYYMMDD).startOf("month").format(YYYYMMDD),
           to: moment(selectedDate, YYYYMMDD).format(YYYYMMDD),
           posLocationNames: [],
@@ -86,15 +74,15 @@ function useFetchCustomerVisitors() {
 
       await Promise.all([dayApi, monthApi]).then(([resDay, resMonth]) => {
         if (!resDay) {
-          showErrorReport("Lỗi khi lấy dữ liệu thực đạt Khách vào cửa hàng");
-          setIsFetchingCustomerVisitors(false);
+          showErrorReport("Lỗi khi lấy dữ liệu thực đạt SMS theo hạng khách hàng");
+          setIsFetchingSmsLoyalty(false);
           return;
         }
         const companyDayData = calculateCompanyKeyDriver(resDay);
 
         if (!resMonth?.length) {
           if (!resMonth && resMonth !== 0) {
-            showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Khách vào cửa hàng");
+            showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế SMS theo hạng khách hàng");
           }
           setData((prev: any) => {
             let dataPrev: any = prev[0];
@@ -104,7 +92,7 @@ function useFetchCustomerVisitors() {
             prev[0] = dataPrev;
             return [...prev];
           });
-          setIsFetchingCustomerVisitors(false);
+          setIsFetchingSmsLoyalty(false);
           return;
         }
         const companyMonthData = calculateCompanyKeyDriver(resMonth);
@@ -122,18 +110,21 @@ function useFetchCustomerVisitors() {
         });
       });
 
-      setIsFetchingCustomerVisitors(false);
+      setIsFetchingSmsLoyalty(false);
     };
     if (selectedDate) {
-      fetchCustomerVisitors();
+      fetchSmsLoyalty();
     }
   }, [calculateCompanyKeyDriver, dispatch, findKeyDriverAndUpdateValue, selectedDate, setData]);
 
   useEffect(() => {
-    refetchCustomerVisitors();
-  }, [refetchCustomerVisitors]);
+    refetchSmsLoyalty();
+  }, [refetchSmsLoyalty]);
 
-  return { isFetchingCustomerVisitors, refetchCustomerVisitors };
+  return {
+    isFetchingSmsLoyalty,
+    refetchSmsLoyalty,
+  };
 }
 
-export default useFetchCustomerVisitors;
+export default useFetchSmsLoyalty;
