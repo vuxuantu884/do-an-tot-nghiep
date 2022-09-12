@@ -107,8 +107,8 @@ function useFetchStoresOfflineOnlineTotalSales(
           setIsFetchingStoresOfflineOnlineTotalSales(false);
           return;
         }
-        if (!resMonth) {
-          if (resMonth !== 0) {
+        if (!resMonth?.length) {
+          if (!resMonth && resMonth !== 0) {
             showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Doanh thu đóng hàng Online");
           }
           if (resDay.length) {

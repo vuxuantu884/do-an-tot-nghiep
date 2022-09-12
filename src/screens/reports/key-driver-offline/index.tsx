@@ -34,6 +34,7 @@ import {
   keyDriverOfflineTemplateData,
   loadingMessage,
 } from "./constant/key-driver-offline-template-data";
+import useFetchCallLoyalty from "./hooks/useFetchCallLoyalty";
 import useFetchCustomerVisitors from "./hooks/useFetchCustomerVisitors";
 import useFetchKDOfflineTotalSales from "./hooks/useFetchKDOfflineTotalSales";
 import useFetchKeyDriverTarget from "./hooks/useFetchKeyDriverTarget";
@@ -42,6 +43,7 @@ import useFetchOfflineOnlineTotalSales from "./hooks/useFetchOfflineOnlineTotalS
 import useFetchOfflineTotalSalesLoyalty from "./hooks/useFetchOfflineTotalSalesLoyalty";
 import useFetchOfflineTotalSalesPotential from "./hooks/useFetchOfflineTotalSalesPotential";
 import useFetchProductTotalSales from "./hooks/useFetchProductTotalSales";
+import useFetchSmsLoyalty from "./hooks/useFetchSmsLoyalty";
 import { KeyDriverOfflineStyle } from "./index.style";
 import KeyDriverOfflineProvider, {
   KeyDriverOfflineContext,
@@ -156,6 +158,8 @@ function KeyDriverOffline() {
   const { isFetchingOfflineOnlineTotalSales } = useFetchOfflineOnlineTotalSales();
   const { isFetchingProductTotalSales } = useFetchProductTotalSales();
   const { isFetchingOfflineTotalSalesPotential } = useFetchOfflineTotalSalesPotential();
+  const { isFetchingCallLoyalty } = useFetchCallLoyalty();
+  const { isFetchingSmsLoyalty } = useFetchSmsLoyalty();
   const { isFetchingKeyDriverTargetDay, refetch: refetchTargetDay } = useFetchKeyDriverTargetDay();
   const { data, kdTarget, setData, setSelectedDate, selectedDate } =
     useContext(KeyDriverOfflineContext);
@@ -199,7 +203,9 @@ function KeyDriverOffline() {
       isFetchingOfflineOnlineTotalSales === false &&
       isFetchingProductTotalSales === false &&
       isFetchingOfflineTotalSalesPotential === false &&
-      isFetchingKeyDriverTargetDay === false
+      isFetchingCallLoyalty === false &&
+      isFetchingKeyDriverTargetDay === false &&
+      isFetchingSmsLoyalty === false
     ) {
       setData((prev: any[]) => {
         prev.forEach((item: any, index) => {
@@ -226,6 +232,7 @@ function KeyDriverOffline() {
     calculateDayTarget,
     calculateMonthRate,
     departmentsList,
+    isFetchingCallLoyalty,
     isFetchingCustomerVisitors,
     isFetchingKDOfflineTotalSales,
     isFetchingKeyDriverTarget,
@@ -234,6 +241,7 @@ function KeyDriverOffline() {
     isFetchingOfflineTotalSalesLoyalty,
     isFetchingOfflineTotalSalesPotential,
     isFetchingProductTotalSales,
+    isFetchingSmsLoyalty,
     selectedDate,
     setData,
   ]);
@@ -244,7 +252,7 @@ function KeyDriverOffline() {
       department: string,
       className: string = "department-name--secondary",
     ): ColumnGroupType<any> | ColumnType<any> => {
-      const { ConvertionRate, ProductTotalSales, NewCustomersConversionRate } = KeyDriverField;
+      const { ProductTotalSales } = KeyDriverField;
       return {
         title: department.toLowerCase().includes("tổng công ty") ? (
           department
@@ -319,9 +327,7 @@ function KeyDriverOffline() {
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text || text === 0
-                ? [ConvertionRate, NewCustomersConversionRate].includes(
-                    record.key as KeyDriverField,
-                  )
+                ? record.suffix === "%"
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -345,9 +351,7 @@ function KeyDriverOffline() {
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text || text === 0
-                ? [ConvertionRate, NewCustomersConversionRate].includes(
-                    record.key as KeyDriverField,
-                  )
+                ? record.suffix === "%"
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -401,9 +405,7 @@ function KeyDriverOffline() {
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text || text === 0
-                ? [ConvertionRate, NewCustomersConversionRate].includes(
-                    record.key as KeyDriverField,
-                  )
+                ? record.suffix === "%"
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";

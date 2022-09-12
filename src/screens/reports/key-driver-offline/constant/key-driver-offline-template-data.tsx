@@ -44,7 +44,7 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
                     method: "",
                   },
                   {
-                    key: "vip_call_conversion_rate",
+                    key: KeyDriverField.VipCallRate,
                     name: "TỶ LỆ CHUYỂN ĐỔI",
                     method: "",
                     suffix: "%",
@@ -62,7 +62,7 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
                     method: "",
                   },
                   {
-                    key: "near_vip_call_conversion_rate",
+                    key: KeyDriverField.NearVipCallRate,
                     name: "TỶ LỆ CHUYỂN ĐỔI",
                     method: "",
                     suffix: "%",
@@ -75,7 +75,7 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
                 method: "(Là khách hàng có sinh nhật trong tháng ko bao gồm VIP và CẬN VIP)",
                 children: [
                   {
-                    key: "birthday_call_customers",
+                    key: KeyDriverField.BirthdayCallConversions,
                     name: "SỐ LƯỢNG KHÁCH HÀNG MUA TỪ TỔNG ĐÀI",
                     method: "SỐ LƯỢNG KHÁCH HÀNG MUA TỪ TỔNG ĐÀI",
                     children: [
@@ -85,7 +85,7 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
                         method: "",
                       },
                       {
-                        key: "birthday_call_conversion_rate",
+                        key: KeyDriverField.BirthdayCallRate,
                         name: "TỶ LỆ CHUYỂN ĐỔI",
                         method: "",
                         suffix: "%",
@@ -93,17 +93,17 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
                     ],
                   },
                   {
-                    key: "birthday_sms_customers",
+                    key: KeyDriverField.BirthdaySmsConversions,
                     name: "SỐ LƯỢNG KHÁCH HÀNG MUA TỪ TỔNG ĐÀI",
                     method: "SỐ LƯỢNG KHÁCH HÀNG MUA TỪ TỔNG ĐÀI",
                     children: [
                       {
-                        key: "birthday_sms",
+                        key: "birthday_smss",
                         name: "SỐ CUỘC GỌI RA TỪ TỔNG ĐÀI",
                         method: "",
                       },
                       {
-                        key: "birthday_sms_conversion_rate",
+                        key: KeyDriverField.BirthdaySmsRate,
                         name: "TỶ LỆ CHUYỂN ĐỔI",
                         method: "",
                         suffix: "%",
@@ -118,12 +118,12 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
                 method: "(KH mua 2 lần trở lên, > 90 ngày chưa mua, 3TR > tích lũy >= 200k)",
                 children: [
                   {
-                    key: "customer_sms",
+                    key: "customer_smss",
                     name: "SỐ LƯỢNG SMS ĐI TIN",
                     method: "",
                   },
                   {
-                    key: "customer_sms_conversion_rate",
+                    key: KeyDriverField.CustomerSmsRate,
                     name: "TỶ LỆ CHUYỂN ĐỔI",
                     method: "",
                     suffix: "%",
@@ -136,12 +136,12 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
                 method: "(KH mua 1 lần, > 90 ngày chưa mua, 3TR > tích lũy >= 200k)",
                 children: [
                   {
-                    key: "shoper_sms",
+                    key: "shoper_smss",
                     name: "SỐ LƯỢNG SMS ĐI TIN",
                     method: "",
                   },
                   {
-                    key: "shoper_sms_conversion_rate",
+                    key: KeyDriverField.ShoperSmsRate,
                     name: "TỶ LỆ CHUYỂN ĐỔI",
                     method: "",
                     suffix: "%",
@@ -149,7 +149,7 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
                 ],
               },
               {
-                key: "new_total_sales",
+                key: KeyDriverField.NewTotalSales,
                 name: "MỚI",
                 method: "(Là data mới toanh)",
                 children: [
@@ -167,7 +167,7 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
                 ],
               },
               {
-                key: "others_total_sales",
+                key: KeyDriverField.OthersTotalSales,
                 name: "KH CÒN LẠI",
                 method: "(là KH còn lại ko nằm trong các tệp trên)",
               },

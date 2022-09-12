@@ -33,6 +33,7 @@ import {
   keyDriverOfflineTemplateData,
   loadingMessage,
 } from "../constant/key-driver-offline-template-data";
+import useFetchStoresCallLoyalty from "../hooks/useFetchStoresCallLoyalty";
 import useFetchStoresCustomerVisitors from "../hooks/useFetchStoresCustomerVisitors";
 import useFetchStoresKDOfflineTotalSales from "../hooks/useFetchStoresKDOfflineTotalSales";
 import useFetchStoresKDTargetDay from "../hooks/useFetchStoresKDTargetDay";
@@ -41,6 +42,7 @@ import useFetchStoresOfflineOnlineTotalSales from "../hooks/useFetchStoresOfflin
 import useFetchStoresOfflineTotalSalesLoyalty from "../hooks/useFetchStoresOfflineTotalSalesLoyalty";
 import useFetchStoresOfflineTotalSalesPotential from "../hooks/useFetchStoresOfflineTotalSalesPotential";
 import useFetchStoresProductTotalSales from "../hooks/useFetchStoresProductTotalSales";
+import useFetchStoresSmsLoyalty from "../hooks/useFetchStoresSmsLoyalty";
 import { KeyDriverOfflineStyle } from "../index.style";
 import KDOfflineStoresProvider, {
   KDOfflineStoresContext,
@@ -156,6 +158,8 @@ function KeyDriverOfflineStore() {
   const { isFetchingStoresOfflineOnlineTotalSales } = useFetchStoresOfflineOnlineTotalSales();
   const { isFetchingStoresProductTotalSales } = useFetchStoresProductTotalSales();
   const { isFetchingStoresOfflineTotalSalesPotential } = useFetchStoresOfflineTotalSalesPotential();
+  const { isFetchingStoresCallLoyalty } = useFetchStoresCallLoyalty();
+  const { isFetchingStoresSmsLoyalty } = useFetchStoresSmsLoyalty();
   const { isFetchingStoresKDTargetDay, refetch: refetchTargetDay } = useFetchStoresKDTargetDay();
   const {
     data,
@@ -181,7 +185,7 @@ function KeyDriverOfflineStore() {
       department: string,
       className: string = "department-name--secondary",
     ): ColumnGroupType<any> | ColumnType<any> => {
-      const { ConvertionRate, ProductTotalSales, NewCustomersConversionRate } = KeyDriverField;
+      const { ProductTotalSales } = KeyDriverField;
       const asmNameUrl = asmName.toLocaleLowerCase();
       const storeNameUrl = nonAccentVietnameseKD(department).toLowerCase();
       return {
@@ -254,9 +258,7 @@ function KeyDriverOfflineStore() {
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text || text === 0
-                ? [ConvertionRate, NewCustomersConversionRate].includes(
-                    record.key as KeyDriverField,
-                  )
+                ? record.suffix === "%"
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -279,13 +281,7 @@ function KeyDriverOfflineStore() {
             dataIndex: `${departmentKey}_targetMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return text
-                ? [ConvertionRate, NewCustomersConversionRate].includes(
-                    record.key as KeyDriverField,
-                  )
-                  ? `${text}%`
-                  : formatCurrency(text)
-                : "-";
+              return text ? (record.suffix === "%" ? `${text}%` : formatCurrency(text)) : "-";
             },
           },
           {
@@ -336,9 +332,7 @@ function KeyDriverOfflineStore() {
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text || text === 0
-                ? [ConvertionRate, NewCustomersConversionRate].includes(
-                    record.key as KeyDriverField,
-                  )
+                ? record.suffix === "%"
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -401,7 +395,9 @@ function KeyDriverOfflineStore() {
       isFetchingStoresOfflineOnlineTotalSales === false &&
       isFetchingStoresProductTotalSales === false &&
       isFetchingStoresOfflineTotalSalesPotential === false &&
-      isFetchingStoresKDTargetDay === false
+      isFetchingStoresCallLoyalty === false &&
+      isFetchingStoresKDTargetDay === false &&
+      isFetchingStoresSmsLoyalty === false
     ) {
       setData((prev: any) => {
         prev.forEach((item: any, index: number) => {
@@ -438,6 +434,8 @@ function KeyDriverOfflineStore() {
     isFetchingStoresOfflineTotalSalesPotential,
     isFetchingStoresKDTargetDay,
     selectedDate,
+    isFetchingStoresCallLoyalty,
+    isFetchingStoresSmsLoyalty,
   ]);
 
   useEffect(() => {

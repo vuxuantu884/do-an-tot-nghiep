@@ -117,8 +117,8 @@ function useFetchOfflineTotalSalesPotential() {
         }
         const companyDayData = calculateCompanyKeyDriver(resDay);
 
-        if (!resMonth) {
-          if (resMonth !== 0) {
+        if (!resMonth?.length) {
+          if (!resMonth && resMonth !== 0) {
             showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế khách hàng tiềm năng");
           }
           setData((prev: any) => {

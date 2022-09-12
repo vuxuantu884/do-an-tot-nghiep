@@ -314,12 +314,30 @@ const calculateDepartmentDayTarget = (keyDriver: any, department: string, select
     const dayInMonth = moment(selectedDate, YYYYMMDD).daysInMonth();
     const selectedDateNumber = moment(selectedDate, YYYYMMDD).date();
     const dayNumber = selectedDateNumber - 1;
-    const { CustomersCount, AverageOrderValue, AverageCustomerSpent, NewCustomersConversionRate } =
-      KeyDriverField;
+    const {
+      CustomersCount,
+      AverageOrderValue,
+      AverageCustomerSpent,
+      NewCustomersConversionRate,
+      VipCallRate,
+      NearVipCallRate,
+      BirthdayCallConversions,
+      BirthdaySmsConversions,
+      CustomerSmsRate,
+      ShoperSmsRate,
+    } = KeyDriverField;
     if (
-      ![AverageOrderValue, AverageCustomerSpent, NewCustomersConversionRate].includes(
-        keyDriver["key"],
-      )
+      ![
+        AverageOrderValue,
+        AverageCustomerSpent,
+        NewCustomersConversionRate,
+        VipCallRate,
+        NearVipCallRate,
+        BirthdayCallConversions,
+        BirthdaySmsConversions,
+        CustomerSmsRate,
+        ShoperSmsRate,
+      ].includes(keyDriver["key"])
     ) {
       if (!keyDriver[`${department}_day`]) {
         const remainingValue = isPastDate
