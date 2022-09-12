@@ -178,6 +178,7 @@ function KeyDriverOfflineStore() {
   const [syncDataTime, setSyncDataTime] = useState<string>(
     moment().format(DATE_FORMAT.DD_MM_YY_HHmmss),
   );
+  const [stateExpand, setStateExpand] = useState<Array<any>>([]);
 
   const setObjectiveColumns = useCallback(
     (
@@ -281,7 +282,25 @@ function KeyDriverOfflineStore() {
             dataIndex: `${departmentKey}_targetMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return text ? (record.suffix === "%" ? `${text}%` : formatCurrency(text)) : "-";
+              return (
+                <div
+                  className={
+                    record[`${departmentKey}_month`] &&
+                    record[`${departmentKey}_targetMonth`] >= record[`${departmentKey}_month`]
+                      ? "text-success"
+                      : record[`${departmentKey}_targetMonth`] <
+                        (record[`${departmentKey}_month`] || 0) * 0.5
+                      ? "text-danger"
+                      : ""
+                  }
+                >
+                  {text || text === 0
+                    ? record.suffix === "%"
+                      ? `${text}%`
+                      : formatCurrency(text)
+                    : "-"}
+                </div>
+              );
             },
           },
           {
@@ -469,6 +488,12 @@ function KeyDriverOfflineStore() {
     history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}/${asmNameUrl}?date=${newDate}`);
   }, [asmName, form, history, setData]);
 
+  const onExpand = (expanded: any, { key }: { key: any }) => {
+    setStateExpand((prev) => {
+      return !expanded ? [...prev, key] : prev.filter((k) => k !== key);
+    });
+  };
+
   return (
     <ContentContainer
       title={`Báo cáo kết quả kinh doanh Offline ${selectedAsm}`}
@@ -554,13 +579,13 @@ function KeyDriverOfflineStore() {
             }}
             bordered
             pagination={false}
-            onRow={(record: any) => {
-              return {
-                onClick: () => {
-                  console.log(record);
-                },
-              };
+            rowClassName={(record: any, rowIndex: any) => {
+              if (stateExpand.includes(record.key) || !record.children) {
+                return "expand-parent";
+              }
+              return "";
             }}
+            onExpand={onExpand}
             expandable={{
               defaultExpandAllRows: true,
             }}
