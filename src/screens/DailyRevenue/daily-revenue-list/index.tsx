@@ -333,7 +333,8 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
         </Card>
         <DailyRevenueExport
           selectedItems={selectedRowKeys}
-          dataItem={data.items}
+          params={params}
+          totalSearchQuery={data.metadata.total}
           visible={visibleExport}
           setVisible={setvisibleExport}
         />

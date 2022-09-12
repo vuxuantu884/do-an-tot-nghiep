@@ -1,6 +1,6 @@
 import { Button, Modal, Radio, Space } from "antd";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { DailyRevenueTableModel, RevenueSearchQuery } from "model/revenue";
+import { RevenueSearchQuery } from "model/revenue";
 import moment from "moment";
 import React, { useCallback, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -10,7 +10,8 @@ import { StyledComponent } from "./style";
 
 type Props = {
   selectedItems?: number[];
-  dataItem?: DailyRevenueTableModel[];
+  totalSearchQuery?: number;
+  params?: RevenueSearchQuery;
   visible: boolean;
   setVisible: (v: boolean) => void;
 };
@@ -21,9 +22,10 @@ const EXPORT_TYPE = {
 };
 
 const DailyRevenueExport: React.FC<Props> = (props: Props) => {
-  const { selectedItems, dataItem, visible, setVisible } = props;
+  const { selectedItems, params, totalSearchQuery, visible, setVisible } = props;
   const dispatch = useDispatch();
   const [selectType, setSelectedType] = useState<number>();
+
   const EXPORT_LIST = useMemo(
     () => [
       {
@@ -33,11 +35,11 @@ const DailyRevenueExport: React.FC<Props> = (props: Props) => {
       },
       {
         id: EXPORT_TYPE.EXPORT_TOTAL,
-        name: `${dataItem?.length} phiếu phù hợp với tìm kiếm hiện tại`,
-        disable: dataItem && dataItem.length === 0 ? true : false,
+        name: `${totalSearchQuery} phiếu phù hợp với tìm kiếm hiện tại`,
+        disable: !totalSearchQuery ? true : false,
       },
     ],
-    [dataItem, selectedItems],
+    [totalSearchQuery, selectedItems],
   );
 
   const exportFile = useCallback(
@@ -83,11 +85,10 @@ const DailyRevenueExport: React.FC<Props> = (props: Props) => {
         exportFile(dataQuery);
         break;
       case EXPORT_TYPE.EXPORT_TOTAL:
-        const ids = dataItem?.map((p) => p.id);
         const dataQuerys: RevenueSearchQuery = {
+          ...params,
           limit: 2000,
           page: 0,
-          ids: ids,
           format: "xls",
         };
         exportFile(dataQuerys);
@@ -95,7 +96,7 @@ const DailyRevenueExport: React.FC<Props> = (props: Props) => {
       default:
         break;
     }
-  }, [selectType, dataItem, selectedItems, exportFile]);
+  }, [selectType, selectedItems, exportFile, params]);
 
   return (
     <StyledComponent>
