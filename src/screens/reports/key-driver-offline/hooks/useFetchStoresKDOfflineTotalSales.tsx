@@ -55,6 +55,47 @@ function useFetchStoresKDOfflineTotalSales(
     [dimension, selectedDate],
   );
 
+  const calculateDimKeyDriver = useCallback(
+    (response) => {
+      let dimData: any = {};
+      dimData = {
+        department_lv2: selectedAsm[0],
+        pos_location_name: selectedAsm[0],
+      };
+      if (dimension === KeyDriverDimension.Staff) {
+        dimData = {
+          ...dimData,
+          staff_name: selectedStores[0],
+          staff_code: nonAccentVietnameseKD(selectedStores[0]),
+        };
+      }
+      response.forEach((item: any) => {
+        Object.keys(item).forEach((key) => {
+          dimData[key] = dimData[key] || 0;
+          if (
+            ![
+              "department_lv2",
+              "month",
+              "average_order_value",
+              "average_customer_spent",
+              "pos_location_name",
+              "staff_name",
+              "staff_code",
+            ].includes(key)
+          ) {
+            dimData[key] += item[key] || 0;
+          }
+        });
+      });
+      dimData.average_order_value = dimData.offline_total_orders
+        ? Math.round(dimData.offline_total_sales / dimData.offline_total_orders)
+        : 0;
+
+      return dimData;
+    },
+    [dimension, selectedAsm, selectedStores],
+  );
+
   const refetchStoresKDOfflineTotalSales = useCallback(() => {
     const fetchStoresKDOfflineTotalSales = async () => {
       if (!selectedStores.length || !selectedAsm.length) {
@@ -109,6 +150,7 @@ function useFetchStoresKDOfflineTotalSales(
           setIsFetchingStoresKDOfflineTotalSales(false);
           return;
         }
+        const dimDayData = calculateDimKeyDriver(resDay);
 
         if (!resMonth?.length) {
           if (!resMonth && resMonth !== 0) {
@@ -116,7 +158,7 @@ function useFetchStoresKDOfflineTotalSales(
           }
           setData((prev: any) => {
             let dataPrev: any = prev[0];
-            resDay.forEach((item: any) => {
+            [dimDayData, ...resDay].forEach((item: any) => {
               findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
             });
             prev[0] = dataPrev;
@@ -125,13 +167,13 @@ function useFetchStoresKDOfflineTotalSales(
           setIsFetchingStoresKDOfflineTotalSales(false);
           return;
         }
-
+        const dimMonthData = calculateDimKeyDriver(resMonth);
         setData((prev: any) => {
           let dataPrev: any = prev[0];
-          resDay.forEach((item: any) => {
+          [dimDayData, ...resDay].forEach((item: any) => {
             findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
           });
-          resMonth.forEach((item: any) => {
+          [dimMonthData, ...resMonth].forEach((item: any) => {
             findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
           });
           prev[0] = dataPrev;
@@ -150,6 +192,7 @@ function useFetchStoresKDOfflineTotalSales(
     dimension,
     selectedStaffs,
     dispatch,
+    calculateDimKeyDriver,
     setData,
     findKeyDriverAndUpdateValue,
   ]);

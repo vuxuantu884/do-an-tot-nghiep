@@ -5,7 +5,7 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
     key: "total_sales",
     name: "Doanh thu",
     method:
-      "Doanh thu = Doanh thu bán lẻ + Doanh thu bán hàng facebook + Doanh thu bán hàng Zalo + Doanh thu đơn đồng phục",
+      "Doanh thu = Doanh thu bán lẻ + Doanh thu bán hàng Facebook + Doanh thu bán hàng Zalo + Doanh thu đơn đồng phục",
     children: [
       {
         key: "offline_total_sales",
@@ -14,11 +14,11 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
         children: [
           {
             key: "average_customer_spent",
-            name: "GTTB/KHÁCH MUA",
+            name: "GTTB / Khách mua",
           },
           {
             key: "average_order_value",
-            name: "GTTB/HOÁ ĐƠN",
+            name: "GTTB / Hoá đơn",
           },
           {
             key: "visitors",
@@ -35,17 +35,17 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
             children: [
               {
                 key: "vip_total_sales",
-                name: "Vip",
+                name: "VIP",
                 method: "(Khách hàng VIP S,G,R,D tích lũy > 10 triệu)",
                 children: [
                   {
                     key: "vip_calls",
-                    name: "SỐ CUỘC GỌI RA TỪ TỔNG ĐÀI",
+                    name: "Số cuộc gọi đi",
                     method: "",
                   },
                   {
                     key: KeyDriverField.VipCallRate,
-                    name: "TỶ LỆ CHUYỂN ĐỔI",
+                    name: "Tỷ lệ chuyển đổi",
                     method: "",
                     suffix: "%",
                   },
@@ -53,17 +53,17 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
               },
               {
                 key: "near_vip_total_sales",
-                name: "Cận Vip",
+                name: "Cận VIP",
                 method: "(Khách hàng từ 3 - <10 triệu)",
                 children: [
                   {
                     key: "near_vip_calls",
-                    name: "SỐ CUỘC GỌI RA TỪ TỔNG ĐÀI",
+                    name: "Số cuộc gọi đi",
                     method: "",
                   },
                   {
                     key: KeyDriverField.NearVipCallRate,
-                    name: "TỶ LỆ CHUYỂN ĐỔI",
+                    name: "Tỷ lệ chuyển đổi",
                     method: "",
                     suffix: "%",
                   },
@@ -71,22 +71,22 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
               },
               {
                 key: "birthday_total_sales",
-                name: "SINH NHẬT",
-                method: "(Là khách hàng có sinh nhật trong tháng ko bao gồm VIP và CẬN VIP)",
+                name: "Sinh nhật",
+                method: "(Là khách hàng có sinh nhật trong tháng ko bao gồm VIP và Cận VIP)",
                 children: [
                   {
                     key: KeyDriverField.BirthdayCallConversions,
-                    name: "SỐ LƯỢNG KHÁCH HÀNG MUA TỪ TỔNG ĐÀI",
-                    method: "SỐ LƯỢNG KHÁCH HÀNG MUA TỪ TỔNG ĐÀI",
+                    name: "Số lượng khách hàng mua từ tổng đài",
+                    method: "Số lượng khách hàng mua từ tổng đài",
                     children: [
                       {
                         key: "birthday_calls",
-                        name: "SỐ CUỘC GỌI RA TỪ TỔNG ĐÀI",
+                        name: "Số cuộc gọi đi",
                         method: "",
                       },
                       {
                         key: KeyDriverField.BirthdayCallRate,
-                        name: "TỶ LỆ CHUYỂN ĐỔI",
+                        name: "Tỷ lệ chuyển đổi",
                         method: "",
                         suffix: "%",
                       },
@@ -94,17 +94,17 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
                   },
                   {
                     key: KeyDriverField.BirthdaySmsConversions,
-                    name: "SỐ LƯỢNG KHÁCH HÀNG MUA TỪ TỔNG ĐÀI",
-                    method: "SỐ LƯỢNG KHÁCH HÀNG MUA TỪ TỔNG ĐÀI",
+                    name: "Số lượng khách hàng mua từ tổng đài",
+                    method: "Số lượng khách hàng mua từ tổng đài",
                     children: [
                       {
                         key: "birthday_smss",
-                        name: "SỐ CUỘC GỌI RA TỪ TỔNG ĐÀI",
+                        name: "Số tin nhắn SMS đi",
                         method: "",
                       },
                       {
                         key: KeyDriverField.BirthdaySmsRate,
-                        name: "TỶ LỆ CHUYỂN ĐỔI",
+                        name: "Tỷ lệ chuyển đổi",
                         method: "",
                         suffix: "%",
                       },
@@ -114,17 +114,17 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
               },
               {
                 key: "customer_gt90_days_total_sales",
-                name: "CUSTOMER",
+                name: "Customer",
                 method: "(KH mua 2 lần trở lên, > 90 ngày chưa mua, 3TR > tích lũy >= 200k)",
                 children: [
                   {
                     key: "customer_smss",
-                    name: "SỐ LƯỢNG SMS ĐI TIN",
+                    name: "Số tin nhắn SMS đi",
                     method: "",
                   },
                   {
                     key: KeyDriverField.CustomerSmsRate,
-                    name: "TỶ LỆ CHUYỂN ĐỔI",
+                    name: "Tỷ lệ chuyển đổi",
                     method: "",
                     suffix: "%",
                   },
@@ -132,17 +132,17 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
               },
               {
                 key: "shopper_gt90_days_total_sales",
-                name: "SHOPER",
+                name: "Shoper",
                 method: "(KH mua 1 lần, > 90 ngày chưa mua, 3TR > tích lũy >= 200k)",
                 children: [
                   {
                     key: "shoper_smss",
-                    name: "SỐ LƯỢNG SMS ĐI TIN",
+                    name: "Số tin nhắn SMS đi",
                     method: "",
                   },
                   {
                     key: KeyDriverField.ShoperSmsRate,
-                    name: "TỶ LỆ CHUYỂN ĐỔI",
+                    name: "Tỷ lệ chuyển đổi",
                     method: "",
                     suffix: "%",
                   },
@@ -150,17 +150,17 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
               },
               {
                 key: KeyDriverField.NewTotalSales,
-                name: "MỚI",
+                name: "Mới",
                 method: "(Là data mới toanh)",
                 children: [
                   {
                     key: KeyDriverField.PotentialCustomerCount,
-                    name: "DATA K/H TIỀM NĂNG",
+                    name: "Data KH tiềm năng",
                     method: "",
                   },
                   {
                     key: KeyDriverField.NewCustomersConversionRate,
-                    name: "TỶ LỆ CHUYỂN ĐỔI",
+                    name: "Tỷ lệ chuyển đổi",
                     method: "",
                     suffix: "%",
                   },
@@ -168,7 +168,7 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
               },
               {
                 key: KeyDriverField.OthersTotalSales,
-                name: "KH CÒN LẠI",
+                name: "KH còn lại",
                 method: "(là KH còn lại ko nằm trong các tệp trên)",
               },
             ],
@@ -177,11 +177,11 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
       },
       {
         key: "facebook_total_sales",
-        name: "Doanh thu bán hàng online facebook",
+        name: "Doanh thu online Facebook",
       },
       {
         key: "zalo_total_sales",
-        name: "Doanh thu bán hàng online Zalo",
+        name: "Doanh thu online Zalo",
       },
       {
         key: "uniform_total_sales",
@@ -189,14 +189,14 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
       },
       {
         key: KeyDriverField.FacebookFollows,
-        name: "LƯỢT FOLLOW FANPAGE",
+        name: "Lượt follow fanpage",
       },
       {
         key: KeyDriverField.UniformOnlineTotalSales,
-        name: "Doanh thu Đóng hàng Online",
+        name: "Doanh thu đóng hàng online",
       },
       {
-        name: "Doanh thu Giao hàng 4h",
+        name: "Doanh thu giao hàng 4h",
         method: "Tính năng đang phát triển",
       },
     ],

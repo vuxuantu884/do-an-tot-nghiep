@@ -79,7 +79,7 @@ const baseColumns: any = [
     render: (text: string, record: any) => {
       return (
         <Tooltip className="text-truncate-2 key-cell" title={record.method}>
-          {text?.toUpperCase()}
+          {text}
         </Tooltip>
       );
     },
@@ -304,7 +304,7 @@ function KeyDriverOffline() {
               );
             },
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_month`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -324,7 +324,7 @@ function KeyDriverOffline() {
           {
             title: "TT LUỸ KẾ",
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_accumulatedMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -338,7 +338,7 @@ function KeyDriverOffline() {
           {
             title: "TỶ LỆ",
             width: 80,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_rateMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -348,7 +348,7 @@ function KeyDriverOffline() {
           {
             title: "DỰ KIẾN ĐẠT",
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_targetMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -396,7 +396,7 @@ function KeyDriverOffline() {
               );
             },
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_day`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -416,7 +416,7 @@ function KeyDriverOffline() {
           {
             title: "THỰC ĐẠT",
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_actualDay`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -430,7 +430,7 @@ function KeyDriverOffline() {
           {
             title: "TỶ LỆ",
             width: 80,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_rateDay`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {

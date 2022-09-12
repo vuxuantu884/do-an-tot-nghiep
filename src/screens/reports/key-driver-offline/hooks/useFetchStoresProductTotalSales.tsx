@@ -136,6 +136,9 @@ function useFetchStoresProductTotalSales(dimension: KeyDriverDimension = KeyDriv
       }
       const { data: resDayData } = res[0].result;
       setData((prev: any) => {
+        const dimName = dimension === KeyDriverDimension.Staff ? selectedStores[0] : selectedAsm[0];
+        console.log("dimName", dimName);
+
         const storesProductTotalSales: any = prev[1];
         const childrenProduct: any[] = storesProductTotalSales.children;
         resDayData.forEach((item: any) => {
@@ -145,11 +148,15 @@ function useFetchStoresProductTotalSales(dimension: KeyDriverDimension = KeyDriv
             if (idx !== -1) {
               childrenProduct[idx].name = item[0];
               childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_actualDay`] = item[2];
+              childrenProduct[idx][`${nonAccentVietnameseKD(dimName)}_actualDay`] =
+                (childrenProduct[idx][`${nonAccentVietnameseKD(dimName)}_actualDay`] || 0) +
+                item[2];
             } else {
               childrenProduct.push({
                 key: itemKey,
                 name: item[0],
                 [`${nonAccentVietnameseKD(item[1])}_actualDay`]: item[2],
+                [`${nonAccentVietnameseKD(dimName)}_actualDay`]: item[2],
               });
             }
           }
@@ -166,12 +173,25 @@ function useFetchStoresProductTotalSales(dimension: KeyDriverDimension = KeyDriv
                   item[2];
                 childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_targetMonth`] =
                   calculateTargetMonth(item[2], selectedDate);
+                childrenProduct[idx][`${nonAccentVietnameseKD(dimName)}_accumulatedMonth`] =
+                  (childrenProduct[idx][`${nonAccentVietnameseKD(dimName)}_accumulatedMonth`] ||
+                    0) + item[2];
+                childrenProduct[idx][`${nonAccentVietnameseKD(dimName)}_targetMonth`] =
+                  calculateTargetMonth(
+                    childrenProduct[idx][`${nonAccentVietnameseKD(dimName)}_accumulatedMonth`],
+                    selectedDate,
+                  );
               } else {
                 childrenProduct.push({
                   key: itemKey,
                   name: item[0],
                   [`${nonAccentVietnameseKD(item[1])}_accumulatedMonth`]: item[2],
                   [`${nonAccentVietnameseKD(item[1])}_targetMonth`]: calculateTargetMonth(
+                    item[2],
+                    selectedDate,
+                  ),
+                  [`${nonAccentVietnameseKD(dimName)}_accumulatedMonth`]: item[2],
+                  [`${nonAccentVietnameseKD(dimName)}_targetMonth`]: calculateTargetMonth(
                     item[2],
                     selectedDate,
                   ),

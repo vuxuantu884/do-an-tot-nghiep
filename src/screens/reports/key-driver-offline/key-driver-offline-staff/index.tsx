@@ -75,7 +75,7 @@ const baseColumns: any = [
     render: (text: string, record: any) => {
       return (
         <Tooltip className="text-truncate-2 key-cell" title={record.method}>
-          {text?.toUpperCase()}
+          {text}
         </Tooltip>
       );
     },
@@ -220,7 +220,7 @@ function KeyDriverOfflineStaff() {
               );
             },
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_month`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -240,7 +240,7 @@ function KeyDriverOfflineStaff() {
           {
             title: "TT LUỸ KẾ",
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_accumulatedMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -254,7 +254,7 @@ function KeyDriverOfflineStaff() {
           {
             title: "TỶ LỆ",
             width: 80,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_rateMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -264,7 +264,7 @@ function KeyDriverOfflineStaff() {
           {
             title: "DỰ KIẾN ĐẠT",
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_targetMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -312,7 +312,7 @@ function KeyDriverOfflineStaff() {
               );
             },
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_day`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -332,7 +332,7 @@ function KeyDriverOfflineStaff() {
           {
             title: "THỰC ĐẠT",
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_actualDay`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -346,7 +346,7 @@ function KeyDriverOfflineStaff() {
           {
             title: "TỶ LỆ",
             width: 80,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_rateDay`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -361,43 +361,52 @@ function KeyDriverOfflineStaff() {
 
   const calculateMonthRate = useCallback(
     (keyDriver: any) => {
-      calculateMonthRateUtil(
-        keyDriver,
-        selectedStaffs.map((item) => JSON.parse(item).code),
-      );
+      calculateMonthRateUtil(keyDriver, [
+        selectedStores[0],
+        ...selectedStaffs.map((item) => JSON.parse(item).code),
+      ]);
     },
-    [selectedStaffs],
+    [selectedStaffs, selectedStores],
   );
 
   const calculateDayRate = useCallback(
     (keyDriver: any) => {
-      calculateDayRateUtil(
-        keyDriver,
-        selectedStaffs.map((item) => JSON.parse(item).code),
-      );
+      calculateDayRateUtil(keyDriver, [
+        selectedStores[0],
+        ...selectedStaffs.map((item) => JSON.parse(item).code),
+      ]);
     },
-    [selectedStaffs],
+    [selectedStaffs, selectedStores],
   );
 
   const calculateDayTarget = useCallback(
     (keyDriver: any) => {
       calculateDayTargetUtil(
         keyDriver,
-        selectedStaffs.map((item) => JSON.parse(item).code),
+        [selectedStores[0], ...selectedStaffs.map((item) => JSON.parse(item).code)],
         selectedDate,
       );
     },
-    [selectedDate, selectedStaffs],
+    [selectedDate, selectedStaffs, selectedStores],
   );
 
   useEffect(() => {
-    const temp = [...baseColumns];
-    selectedStaffs.forEach((item) => {
-      const staffCode = JSON.parse(item).code.toLocaleLowerCase();
-      const staffName = JSON.parse(item).full_name;
-      temp.push(setObjectiveColumns(nonAccentVietnameseKD(staffCode), staffName.toUpperCase()));
-    });
-    setFinalColumns(temp);
+    if (selectedStores.length && selectedStaffs.length) {
+      const temp = [...baseColumns];
+      temp.push(
+        setObjectiveColumns(
+          nonAccentVietnameseKD(selectedStores[0]),
+          selectedStores[0],
+          "department-name--primary",
+        ),
+      );
+      selectedStaffs.forEach((item) => {
+        const staffCode = JSON.parse(item).code.toLocaleLowerCase();
+        const staffName = JSON.parse(item).full_name;
+        temp.push(setObjectiveColumns(nonAccentVietnameseKD(staffCode), staffName.toUpperCase()));
+      });
+      setFinalColumns(temp);
+    }
   }, [selectedStaffs, selectedStores, setObjectiveColumns]);
 
   useEffect(() => {
@@ -416,8 +425,9 @@ function KeyDriverOfflineStaff() {
         prev.forEach((item: any, index: number) => {
           calculateDayTarget(item);
           if (index === 0) {
-            selectedStaffs.forEach((staffData) => {
-              const staffCode = JSON.parse(staffData).code.toLocaleLowerCase();
+            [selectedStores[0], ...selectedStaffs].forEach((staffData, index) => {
+              const staffCode =
+                index > 0 ? JSON.parse(staffData).code.toLocaleLowerCase() : staffData;
               const staffKey = nonAccentVietnameseKD(staffCode);
               calculateKDAverageCustomerSpent(item, staffKey);
               calculateKDConvertionRate(item, staffKey);

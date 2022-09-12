@@ -9,6 +9,7 @@ import { DATE_FORMAT } from "utils/DateUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { KDOfflineStoresContext } from "../provider/kd-offline-stores-provider";
 import { findKDAndUpdateCallSmsValue } from "../utils/CallSmsKDUtils";
+import { calculateDimSummary } from "../utils/DimSummaryUtils";
 
 function useFetchStoresCallLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
@@ -85,13 +86,14 @@ function useFetchStoresCallLoyalty(dimension: KeyDriverDimension = KeyDriverDime
           setIsFetchingStoresCallLoyalty(false);
           return;
         }
-
+        const dimName = dimension === KeyDriverDimension.Staff ? selectedStores[0] : "";
         if (!resMonth?.length) {
           if (!resMonth && resMonth !== 0) {
             showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Cuộc gọi theo hạng khách hàng");
           }
+
           if (resDay.length) {
-            const resDayStores = resDay[0].pos_locations;
+            const resDayStores = calculateDimSummary(resDay[0], dimension, dimName);
             if (resDayStores.length) {
               setData((prev: any) => {
                 let dataPrev: any = prev[0];
@@ -108,11 +110,11 @@ function useFetchStoresCallLoyalty(dimension: KeyDriverDimension = KeyDriverDime
         }
 
         if (resMonth.length) {
-          const resMonthStores = resMonth[0].pos_locations;
+          const resMonthStores = calculateDimSummary(resMonth[0], dimension, dimName);
           setData((prev: any) => {
             let dataPrev: any = prev[0];
             if (resDay.length) {
-              const resDayStores = resDay[0].pos_locations;
+              const resDayStores = calculateDimSummary(resDay[0], dimension, dimName);
               resDayStores.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
               });
