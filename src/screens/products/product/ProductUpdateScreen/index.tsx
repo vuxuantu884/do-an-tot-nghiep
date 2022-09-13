@@ -1558,8 +1558,8 @@ const ProductDetailScreen: React.FC = () => {
                                                   ]}
                                                   name={[name, "currency_code"]}
                                                 >
-                                                  <CustomSelect disabled placeholder="Đơn vị tiền tệ">
-                                                    {currencyList?.map((item) => (
+                                                  <CustomSelect placeholder="Đơn vị tiền tệ">
+                                                    {currencyList && currencyList[0] && [currencyList[0]]?.map((item) => (
                                                       <CustomSelect.Option
                                                         key={item.value}
                                                         value={item.value}
