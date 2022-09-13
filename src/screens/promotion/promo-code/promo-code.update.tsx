@@ -1,7 +1,7 @@
 import { Button, Col, Form, Row } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
-import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import { PromotionReleasePermission } from "config/permissions/promotion.permisssion";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   getVariantsAction,
@@ -366,7 +366,7 @@ const PromoCodeUpdate = () => {
           backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`)}
           rightComponent={
             <div>
-              <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
+              <AuthWrapper acceptPermissions={[PromotionReleasePermission.UPDATE]}>
                 <Button type="primary" htmlType="submit">
                   Lưu
                 </Button>

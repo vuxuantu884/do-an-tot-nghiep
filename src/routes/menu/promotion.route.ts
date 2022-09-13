@@ -1,4 +1,7 @@
-import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import {
+  PriceRulesPermission,
+  PromotionReleasePermission,
+} from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
@@ -99,7 +102,7 @@ const promotion: Array<RouteMenu> = [
     key: "submenu106",
     isShow: true,
     header: null,
-    permissions: [PromoPermistion.READ],
+    permissions: [PriceRulesPermission.READ],
     subMenu: [
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/create`,
@@ -111,7 +114,7 @@ const promotion: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        permissions: [PromoPermistion.CREATE],
+        permissions: [PriceRulesPermission.CREATE],
       },
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/:id`,
@@ -123,7 +126,7 @@ const promotion: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        permissions: [PromoPermistion.READ],
+        permissions: [PriceRulesPermission.READ],
       },
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/:id/update`,
@@ -135,7 +138,7 @@ const promotion: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        permissions: [PromoPermistion.UPDATE],
+        permissions: [PriceRulesPermission.UPDATE],
       },
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/:id/replicate`,
@@ -147,7 +150,7 @@ const promotion: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        permissions: [],
+        permissions: [PriceRulesPermission.CREATE],
       },
     ],
   },
@@ -160,7 +163,7 @@ const promotion: Array<RouteMenu> = [
   //   key: "submenu110",
   //   isShow: true,
   //   header: null,
-  //   permissions: [PromoPermistion.READ],
+  //   permissions: [PromotionReleasePermission.READ],
   //   subMenu: [
   //     {
   //       path: `${UrlConfig.PROMOTION}${UrlConfig.GIFT}/create`,
@@ -171,7 +174,7 @@ const promotion: Array<RouteMenu> = [
   //       key: "submenu110",
   //       isShow: true,
   //       header: null,
-  //       permissions: [PromoPermistion.READ],
+  //       permissions: [PromotionReleasePermission.READ],
   //       subMenu: [],
   //     },
   //   ],
@@ -185,43 +188,43 @@ const promotion: Array<RouteMenu> = [
     key: "submenu107",
     isShow: true,
     header: null,
-    permissions: [PromoPermistion.READ],
+    permissions: [PromotionReleasePermission.READ],
     subMenu: [
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`,
         exact: true,
-        title: "Tạo khuyến mãi",
+        title: "Tạo đợt phát hành khuyến mãi",
         icon: "icon-dot",
         component: CreatePromoCodePage,
         key: "submenu1071",
         isShow: true,
         header: null,
         subMenu: [],
-        permissions: [PromoPermistion.CREATE],
+        permissions: [PromotionReleasePermission.CREATE],
       },
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/:id/update`,
         exact: true,
-        title: "Sửa khuyến mãi",
+        title: "Sửa đợt phát hành khuyến mãi",
         icon: "icon-dot",
         component: PromoCodeUpdate,
         key: "submenu1074",
         isShow: true,
         header: null,
         subMenu: [],
-        permissions: [PromoPermistion.UPDATE],
+        permissions: [PromotionReleasePermission.UPDATE],
       },
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/:id`,
         exact: true,
-        title: "Chi tiết khuyến mãi",
+        title: "Chi tiết đợt phát hành khuyến mãi",
         icon: "icon-dot",
         component: promoCodeDetail,
         key: "submenu1072",
         isShow: true,
         header: null,
         subMenu: [],
-        permissions: [PromoPermistion.READ],
+        permissions: [PromotionReleasePermission.READ],
       },
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/:id`,
@@ -233,7 +236,7 @@ const promotion: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        permissions: [PromoPermistion.READ],
+        permissions: [PromotionReleasePermission.READ],
       },
     ],
   },

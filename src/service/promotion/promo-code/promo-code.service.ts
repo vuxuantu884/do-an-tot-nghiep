@@ -1,12 +1,46 @@
-import { generateQuery } from "./../../../utils/AppUtils";
-import BaseAxios from "../../../base/base.axios";
-import BaseResponse from "../../../base/base.response";
-import { BaseQuery } from "./../../../model/base/base.query";
-import { PageResponse } from "../../../model/base/base-metadata.response";
-import { ApiConfig } from "../../../config/api.config";
-import { DiscountCode, DiscountUsageDetailResponse } from "model/promotion/price-rules.model";
+import { generateQuery } from "utils/AppUtils";
+import BaseAxios from "base/base.axios";
+import BaseResponse from "base/base.response";
+import { BaseQuery } from "model/base/base.query";
+import { PageResponse } from "model/base/base-metadata.response";
+import { ApiConfig } from "config/api.config";
+import { DiscountCode, DiscountUsageDetailResponse, PriceRule } from "model/promotion/price-rules.model";
 
 const END_POINT = "/price-rules/";
+const PROMOTION_RELEASE_END_POINT = "/price-rule-discount-codes";
+
+/** create Promotion Release */
+export const createPromotionReleaseService = (body: Partial<PriceRule>): Promise<any> => {
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${PROMOTION_RELEASE_END_POINT}`, body);
+};
+
+/** update Promotion Release */
+export const updatePromotionReleaseService = (body: any): Promise<any> => {
+  return BaseAxios.put(`${ApiConfig.PROMOTION}${PROMOTION_RELEASE_END_POINT}/${body.id}`, body);
+};
+
+/** get Promotion Release list */
+export const getPromotionReleaseListService = (
+  query: BaseQuery,
+): Promise<BaseResponse<PageResponse<PriceRule>>> => {
+  let params = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.PROMOTION}${PROMOTION_RELEASE_END_POINT}?${params}`);
+};
+
+/** get Promotion Release Detail */
+export const getPromotionReleaseDetailService = (id: number): Promise<PriceRule> => {
+  return BaseAxios.get(`${ApiConfig.PROMOTION}${PROMOTION_RELEASE_END_POINT}/${id}`);
+};
+
+/** enable Promotion Release */
+export const enablePromotionReleaseService = (body: any): Promise<any> => {
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${PROMOTION_RELEASE_END_POINT}/bulk/active`, body);
+};
+
+/** disable Promotion Release */
+export const disablePromotionReleaseService = (body: any): Promise<any> => {
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${PROMOTION_RELEASE_END_POINT}/bulk/disable`, body);
+};
 
 export const checkPromoCode = (code: string): Promise<any> => {
   return BaseAxios.get(`${ApiConfig.PROMOTION}/discount-codes/lookup?code=${code}`);

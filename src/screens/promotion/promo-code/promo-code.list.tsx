@@ -10,16 +10,15 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import CustomFilter from "component/table/custom.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { PROMOTION_CDN } from "config/cdn/promotion.cdn";
-import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import { PromotionReleasePermission } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { getPriceRuleAction } from "domain/actions/promotion/discount/discount.action";
 import {
   deletePromoCodeById,
   disableBulkPromoCode,
   enableBulkPromoCode,
   getDiscountUsageDetailAction,
-  getListPromoCode,
+  getListPromoCode, getPromotionReleaseDetailAction,
   publishedBulkPromoCode,
   updatePromoCodeById,
 } from "domain/actions/promotion/promo-code/promo-code.action";
@@ -32,7 +31,7 @@ import {
 } from "model/promotion/price-rules.model";
 import { DiscountSearchQuery } from "model/query/discount.query";
 import moment from "moment";
-import React, { ReactNode, useCallback, useEffect, useState } from "react";
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
@@ -61,6 +60,7 @@ import eyeIcon from "assets/icon/eye.svg";
 import exportIcon from "assets/icon/export.svg";
 import { VscError } from "react-icons/vsc";
 import { RiUpload2Line } from "react-icons/ri";
+import { MenuAction } from "component/table/ActionButton";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -103,11 +103,11 @@ const ListCode = () => {
   const [uploadStatus, setUploadStatus] = useState<"error">();
 
   //phân quyền
-  const [allowCreatePromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.CREATE],
+  const [allowUpdatePromotionRelease] = useAuthorization({
+    acceptPermissions: [PromotionReleasePermission.UPDATE],
   });
-  const [allowUpdatePromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.UPDATE],
+  const [allowExportPromotionCode] = useAuthorization({
+    acceptPermissions: [PromotionReleasePermission.EXPORT],
   });
 
   // section handle call api GET DETAIL
@@ -485,7 +485,7 @@ const ListCode = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(getPriceRuleAction(id, onResult));
+    dispatch(getPromotionReleaseDetailAction(id, onResult));
   }, [dispatch, id, onResult]);
 
   // Call API get list
@@ -575,6 +575,21 @@ const ListCode = () => {
   }, [onExportFile, exportCode]);
   // end handle export file
 
+  const promotionCodeActions: Array<MenuAction> = useMemo(() => {
+    if (selectedRowKey.length < 1) {
+      return ACTIONS_PROMO_CODE.map((e) => {
+        e.disabled = true;
+        return e;
+      });
+    } else if (selectedRowKey.length > 0) {
+      return ACTIONS_PROMO_CODE.map((e) => {
+        e.disabled = false;
+        return e;
+      });
+    }
+    return ACTIONS_PROMO_CODE;
+  }, [selectedRowKey]);
+
   return (
     <ContentContainer
       title={`Mã giảm giá của đợt phát hành ${promoValue?.code ?? ""}`}
@@ -587,8 +602,8 @@ const ListCode = () => {
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
-          name: `${promoValue?.code}`,
-          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${promoValue?.id}`,
+          name: promoValue?.code || "Chi tiết đợt phát hành",
+          path: promoValue?.id ? `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${promoValue?.id}` : "",
         },
         {
           name: "Danh sách mã giảm giá",
@@ -597,16 +612,18 @@ const ListCode = () => {
       extra={
         <Row>
           <Space>
-            <Button
-              disabled={isLoading}
-              size="large"
-              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-              onClick={handleExportFile}
-            >
-              Xuất file
-            </Button>
+            {allowExportPromotionCode &&
+              <Button
+                disabled={isLoading}
+                size="large"
+                icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                onClick={handleExportFile}
+              >
+                Xuất file
+              </Button>
+            }
 
-            {allowCreatePromoCode ? (
+            {allowUpdatePromotionRelease &&
               <Button
                 className="ant-btn-outline ant-btn-primary"
                 size="large"
@@ -615,7 +632,7 @@ const ListCode = () => {
               >
                 Thêm mới mã giảm giá
               </Button>
-            ) : null}
+            }
           </Space>
         </Row>
       }
@@ -624,8 +641,8 @@ const ListCode = () => {
         <div className="discount-code__search">
           <CustomFilter
             onMenuClick={onMenuClick}
-            menu={ACTIONS_PROMO_CODE}
-            actionDisable={!allowUpdatePromoCode}
+            menu={promotionCodeActions}
+            actionDisable={!allowUpdatePromotionRelease}
           >
             <Form onFinish={onFilter} initialValues={params} layout="inline" form={form}>
               <Item name="code" className="search">
@@ -827,7 +844,7 @@ const ListCode = () => {
             type="primary"
             onClick={() => {
               setUploadStatus(undefined);
-              dispatch(getPriceRuleAction(id, onResult));
+              dispatch(getPromotionReleaseDetailAction(id, onResult));
               setShowImportFile(false);
             }}
             disabled={uploadStatus === "error"}

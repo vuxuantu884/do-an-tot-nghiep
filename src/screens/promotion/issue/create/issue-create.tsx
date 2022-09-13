@@ -2,10 +2,9 @@ import { Button, Col, Form, Row } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
-import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import { PromotionReleasePermission } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { addPriceRules } from "domain/actions/promotion/discount/discount.action";
 import { PriceRule, PriceRuleMethod } from "model/promotion/price-rules.model";
 import moment from "moment";
 import React, { ReactElement, useEffect } from "react";
@@ -18,6 +17,7 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import IssueForm from "../components/issue-form";
 import IssueProvider from "../components/issue-provider";
 import { IssueStyled } from "../issue-style";
+import { createPromotionReleaseAction } from "domain/actions/promotion/promo-code/promo-code.action";
 
 interface Props {}
 
@@ -44,10 +44,10 @@ function IssueCreate(props: Props): ReactElement {
       const body = transformData(values, PROMO_TYPE.MANUAL);
       body.activated = isActive;
       dispatch(
-        addPriceRules(body, (result: PriceRule) => {
+        createPromotionReleaseAction(body, (result: PriceRule) => {
+          dispatch(hideLoading());
           if (result) {
             showSuccess("Thêm thành công");
-            dispatch(hideLoading());
             history.push(UrlConfig.PROMOTION + UrlConfig.PROMO_CODE);
           }
         }),
@@ -73,7 +73,7 @@ function IssueCreate(props: Props): ReactElement {
 
   return (
     <ContentContainer
-      title="Tạo khuyến mãi"
+      title="Tạo đợt phát hành khuyến mại"
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -84,8 +84,7 @@ function IssueCreate(props: Props): ReactElement {
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
-          name: "Tạo khuyến mãi",
-          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`,
+          name: "Tạo đợt phát hành khuyến mại",
         },
       ]}
     >
@@ -111,7 +110,7 @@ function IssueCreate(props: Props): ReactElement {
           <BottomBarContainer
             back="Quay lại danh sách đợt phát hành"
             rightComponent={
-              <AuthWrapper acceptPermissions={[PromoPermistion.CREATE]}>
+              <AuthWrapper acceptPermissions={[PromotionReleasePermission.CREATE]}>
                 <Button
                   onClick={() => save()}
                   style={{

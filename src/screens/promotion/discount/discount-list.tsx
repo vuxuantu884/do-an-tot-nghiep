@@ -3,13 +3,13 @@ import { Button, Card, Col, Dropdown, Menu, Row } from "antd";
 import threeDot from "assets/icon/three-dot.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { MenuAction } from "component/table/ActionButton";
-import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import { PriceRule } from "model/promotion/price-rules.model";
 import React, { Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
-import { OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE } from "utils/Constants";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import ContentContainer from "../../../component/container/content.container";
 import CustomTable, { ICustomTableColumType } from "../../../component/table/CustomTable";
 import UrlConfig from "../../../config/url.config";
@@ -38,7 +38,7 @@ const DiscountPage = () => {
   const initQuery: DiscountSearchQuery = {
     limit: 30,
     page: 1,
-    type: PROMO_TYPE.AUTOMATIC,
+    type: "",
     request: "",
     created_date: [],
     from_created_date: "",
@@ -74,11 +74,8 @@ const DiscountPage = () => {
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   //phân quyền
-  const [allowCancelPromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.CANCEL],
-  });
   const [allowUpdateDiscount] = useAuthorization({
-    acceptPermissions: [PromoPermistion.UPDATE],
+    acceptPermissions: [PriceRulesPermission.UPDATE],
   });
 
   // handle get discount list
@@ -119,11 +116,6 @@ const DiscountPage = () => {
         e.disabled = true;
         return e;
       });
-    } else if (selectedRowKey.length > 0 && !allowCancelPromoCode) {
-      return ACTIONS_DISCOUNT.map((e) => {
-        e.disabled = false;
-        return e;
-      }).filter((e) => e.id !== 1 && e.id !== 2);
     } else if (selectedRowKey.length > 0) {
       return ACTIONS_DISCOUNT.map((e) => {
         e.disabled = false;
@@ -131,7 +123,7 @@ const DiscountPage = () => {
       });
     }
     return ACTIONS_DISCOUNT;
-  }, [allowCancelPromoCode, selectedRowKey]);
+  }, [selectedRowKey]);
 
   function onChangePriceRuleStatus(numberOfDisabled: number): void {
     if (numberOfDisabled) {
@@ -342,7 +334,7 @@ const DiscountPage = () => {
         },
       ]}
       extra={
-        <AuthWrapper acceptPermissions={[PromoPermistion.CREATE]}>
+        <AuthWrapper acceptPermissions={[PriceRulesPermission.CREATE]}>
           <Link to={`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/create`}>
             <Button
               className="ant-btn-outline ant-btn-primary"

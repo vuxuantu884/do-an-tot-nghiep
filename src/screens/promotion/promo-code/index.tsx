@@ -7,30 +7,29 @@ import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import TagStatus, { TagStatusType } from "component/tag/tag-status";
-import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import { PromotionReleasePermission } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { hideLoading } from "domain/actions/loading.action";
-import {
-  bulkDeletePriceRules,
-  bulkDisablePriceRulesAction,
-  bulkEnablePriceRulesAction,
-  getListDiscountAction,
-} from "domain/actions/promotion/discount/discount.action";
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PriceRule } from "model/promotion/price-rules.model";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
-import { OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE } from "utils/Constants";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
-import { ACTIONS_PROMO } from "../constants";
+import { PROMOTION_RELEASE_ACTIONS } from "../constants";
 import DatePromotionColumn from "../shared/date-column";
 import actionColumn from "./actions/action.column";
 import { generateQuery } from "utils/AppUtils";
 import queryString from "query-string";
 import "./promo-code.scss";
+import {
+  deactivatePromotionReleaseAction,
+  activatePromotionReleaseAction,
+  getPromotionReleaseListAction,
+} from "domain/actions/promotion/promo-code/promo-code.action";
 
 const PromotionCode = () => {
   const dispatch = useDispatch();
@@ -42,7 +41,7 @@ const PromotionCode = () => {
     () => ({
       page: 1,
       limit: 30,
-      type: PROMO_TYPE.MANUAL,
+      type: "",
       query: "",
       coupon: "",
       state: null,
@@ -65,14 +64,12 @@ const PromotionCode = () => {
   const [params, setParams] = useState<any>(initQuery);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
 
-  const [actionsPromo, setAcionsPromo] = useState<Array<MenuAction>>(ACTIONS_PROMO);
   //phân quyền
-
-  const [allowCreatePromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.CREATE],
+  const [allowCreatePromotionRelease] = useAuthorization({
+    acceptPermissions: [PromotionReleasePermission.CREATE],
   });
-  const [allowCancelPromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.CANCEL],
+  const [allowUpdatePromotionRelease] = useAuthorization({
+    acceptPermissions: [PromotionReleasePermission.UPDATE],
   });
 
   // handle get coupon release
@@ -91,7 +88,7 @@ const PromotionCode = () => {
     (params) => {
       window.scrollTo(0, 0);
       setTableLoading(true);
-      dispatch(getListDiscountAction(params, fetchData));
+      dispatch(getPromotionReleaseListAction(params, fetchData));
     },
     [dispatch, fetchData],
   );
@@ -116,12 +113,6 @@ const PromotionCode = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, location.search]);
   // end handle get coupon release
-
-  useEffect(() => {
-    setAcionsPromo([...ACTIONS_PROMO]);
-    if (!allowCancelPromoCode)
-      setAcionsPromo([...ACTIONS_PROMO.filter((e) => e.id !== 1 && e.id !== 2)]);
-  }, [allowCancelPromoCode]);
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -256,16 +247,35 @@ const PromotionCode = () => {
     actionColumn(),
   ];
 
+  /** handle promotion release actions */
+  const promotionReleaseAction: Array<MenuAction> = useMemo(() => {
+    if (selectedRowKey.length < 1) {
+      return PROMOTION_RELEASE_ACTIONS.map((action) => {
+        action.disabled = true;
+        return action;
+      });
+    } else if (selectedRowKey.length > 0) {
+      return PROMOTION_RELEASE_ACTIONS.map((action) => {
+        action.disabled = false;
+        return action;
+      });
+    }
+    return PROMOTION_RELEASE_ACTIONS;
+  }, [selectedRowKey]);
+
   const handleCallback = useCallback(
-    (response) => {
+    (response: any, type: string) => {
       if (response) {
         setTimeout(() => {
-          showSuccess("Thao tác thành công");
-          dispatch(getListDiscountAction(params, fetchData));
+          setTableLoading(false);
+          showSuccess(`Đã ${type} thành công ${response.count}/${selectedRowKey.length} đợt phát hành`);
+          dispatch(getPromotionReleaseListAction(params, fetchData));
         }, 1500);
+      } else {
+        setTableLoading(false);
       }
     },
-    [dispatch, params, fetchData],
+    [selectedRowKey.length, dispatch, params, fetchData],
   );
 
   const onMenuClick = useCallback(
@@ -274,22 +284,19 @@ const PromotionCode = () => {
       switch (index) {
         case 1:
           setTableLoading(true);
-          dispatch(bulkEnablePriceRulesAction(body, handleCallback));
+          dispatch(activatePromotionReleaseAction(body,
+            (response) => handleCallback(response, "kích hoạt")));
           break;
         case 2:
           setTableLoading(true);
-          dispatch(bulkDisablePriceRulesAction(body, handleCallback));
-          break;
-        case 3:
-          break;
-        case 4:
-          setTableLoading(true);
-          dispatch(bulkDeletePriceRules(body, handleCallback));
+          dispatch(deactivatePromotionReleaseAction(body,
+            (response) => handleCallback(response, "tạm ngừng")));
           break;
       }
     },
     [dispatch, handleCallback, selectedRowKey],
   );
+  /** end handle promotion release actions */
 
   const { Item } = Form;
   const { Option } = Select;
@@ -370,7 +377,7 @@ const PromotionCode = () => {
         },
       ]}
       extra={
-        allowCreatePromoCode && (
+        allowCreatePromotionRelease && (
           <ButtonCreate path={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`}>
             Thêm mới đợt phát hành
           </ButtonCreate>
@@ -379,7 +386,11 @@ const PromotionCode = () => {
     >
       <Card>
         <div className="promotion-code__search">
-          <CustomFilter onMenuClick={onMenuClick} menu={actionsPromo}>
+          <CustomFilter
+            onMenuClick={onMenuClick}
+            menu={promotionReleaseAction}
+            actionDisable={!allowUpdatePromotionRelease}
+          >
             <Form onFinish={onFilter} initialValues={params} layout="inline" form={form}>
               <Item name="query" className="search">
                 <Input

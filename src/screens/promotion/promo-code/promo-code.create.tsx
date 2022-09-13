@@ -1,7 +1,7 @@
 import { Button, Col, Form, Row } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
-import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import { PromotionReleasePermission } from "config/permissions/promotion.permisssion";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 import { addPriceRules } from "domain/actions/promotion/discount/discount.action";
@@ -274,7 +274,7 @@ const CreatePromotionCodePage = () => {
         <BottomBarContainer
           back="Quay lại danh sách đợt phát hành"
           rightComponent={
-            <AuthWrapper acceptPermissions={[PromoPermistion.CREATE]}>
+            <AuthWrapper acceptPermissions={[PromotionReleasePermission.CREATE]}>
               <Button
                 onClick={() => save()}
                 style={{

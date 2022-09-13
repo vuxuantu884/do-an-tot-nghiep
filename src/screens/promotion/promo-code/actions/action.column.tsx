@@ -2,15 +2,15 @@ import { Button, Dropdown, Menu } from "antd";
 import editIcon from "assets/icon/edit.svg";
 import threeDot from "assets/icon/three-dot.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
-import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import { PromotionReleasePermission } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import useAuthorization from "hook/useAuthorization";
 import { Link } from "react-router-dom";
 import { StyledDropDown, StyledMenu } from "./styles";
 
 const ActionColumnIssue = () => {
-  const [allowActiveActionBtn] = useAuthorization({
-    acceptPermissions: [PromoPermistion.UPDATE],
+  const [allowUpdatePromotionRelease] = useAuthorization({
+    acceptPermissions: [PromotionReleasePermission.UPDATE],
   });
   const _actionColumn = {
     title: "",
@@ -22,9 +22,9 @@ const ActionColumnIssue = () => {
       const menu = (
         <StyledMenu>
           <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-            <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
+            <AuthWrapper acceptPermissions={[PromotionReleasePermission.UPDATE]}>
               <Menu.Item key="0">
-                <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${id}`}>
+                <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${id}/update`}>
                   <Button
                     icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
                     type="text"
@@ -55,7 +55,7 @@ const ActionColumnIssue = () => {
               overlay={menu}
               trigger={["click"]}
               placement="bottomRight"
-              disabled={!allowActiveActionBtn}
+              disabled={!allowUpdatePromotionRelease}
             >
               <Button
                 type="text"

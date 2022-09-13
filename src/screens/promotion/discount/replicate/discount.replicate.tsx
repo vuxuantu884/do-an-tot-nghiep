@@ -23,7 +23,7 @@ import DiscountUpdateForm from "../components/discount-form";
 import DiscountProvider, { DiscountContext } from "../components/discount-provider";
 import { DiscountStyled } from "../discount-style";
 import AuthWrapper from "component/authorization/AuthWrapper";
-import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 const DiscountReplicate = () => {
   const dispatch = useDispatch();
@@ -215,7 +215,7 @@ const DiscountReplicate = () => {
           path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`,
         },
         {
-          name: "Nhân bản Chiết khấu",
+          name: "Nhân bản chiết khấu",
           path: `#`,
         },
       ]}
@@ -248,7 +248,7 @@ const DiscountReplicate = () => {
             back="Quay lại danh sách chiết khấu"
             backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`)}
             rightComponent={
-              <AuthWrapper acceptPermissions={[PromoPermistion.CREATE]}>
+              <AuthWrapper acceptPermissions={[PriceRulesPermission.CREATE]}>
                 <Button
                   onClick={() => save()}
                   style={{
