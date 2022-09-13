@@ -1,7 +1,7 @@
 import { Row, Col, Card, Tabs, Tooltip } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { modalActionType } from "model/modal/modal.model";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams, useHistory } from "react-router-dom";
 import NumberFormat from "react-number-format";
@@ -49,6 +49,7 @@ const viewCustomerDetailPermission = [
   ODERS_PERMISSIONS.CREATE,
 ];
 const updateCustomerPermission = [CustomerListPermission.customers_update];
+const recalculateMoneyPointPermission = [CustomerListPermission.customers_recalculate_money_point];
 
 const CustomerDetail = () => {
   const [allowViewCustomerDetail] = useAuthorization({
@@ -58,6 +59,11 @@ const CustomerDetail = () => {
 
   const [allowUpdateCustomer] = useAuthorization({
     acceptPermissions: updateCustomerPermission,
+    not: false,
+  });
+  
+  const [allowRecalculateMoneyPoint] = useAuthorization({
+    acceptPermissions: recalculateMoneyPointPermission,
     not: false,
   });
 
@@ -80,7 +86,7 @@ const CustomerDetail = () => {
   );
   const [customerSpendDetail, setCustomerSpendDetail] = React.useState<any>([]);
 
-  const actions: Array<MenuAction> = [
+  const defaultActions: Array<MenuAction> = [
     {
       id: 1,
       name: "Tặng điểm",
@@ -97,15 +103,26 @@ const CustomerDetail = () => {
       id: 4,
       name: "Trừ tiền tích lũy",
     },
-    // {
-    //   id: 5,
-    //   name: "Tính lại điểm tích lũy",
-    // },
-    // {
-    //   id: 6,
-    //   name: "Tính lại tiền tích lũy",
-    // },
   ];
+
+  const actions: Array<MenuAction> = useMemo(() => {
+    let _actions = defaultActions;
+      
+    if (allowRecalculateMoneyPoint) {
+      _actions.push(
+        {
+          id: 5,
+          name: "Tính lại điểm tích lũy",
+        },
+        {
+          id: 6,
+          name: "Tính lại tiền tích lũy",
+        },
+      )
+    }
+    
+    return _actions;
+  }, [allowRecalculateMoneyPoint, defaultActions]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -418,21 +435,27 @@ const CustomerDetail = () => {
   };
 
   const handleRecalculatePointCustomer = (data: any) => {
-    setLoyaltyPoint((prev: any) => {
-      return {
-        ...prev,
-        point: data?.point,
-      };
-    });
+    if (data) {
+      showSuccess("Cập nhập điểm tích lũy thành công");
+      setLoyaltyPoint((prev: any) => {
+        return {
+          ...prev,
+          point: data?.point,
+        };
+      });
+    }
   };
 
   const handleRecalculateMoneyCustomer = (data: any) => {
-    setLoyaltyPoint((prev: any) => {
-      return {
-        ...prev,
-        total_money_spend: data?.total_money_spend,
-      };
-    });
+    if (data) {
+      showSuccess("Cập nhập tiền tích lũy thành công");
+      setLoyaltyPoint((prev: any) => {
+        return {
+          ...prev,
+          total_money_spend: data?.total_money_spend,
+        };
+      });
+    }
   };
 
   const onMenuClick = React.useCallback(
@@ -463,7 +486,6 @@ const CustomerDetail = () => {
             dispatch(
               getRecalculatePointCustomerAction(customer.id, handleRecalculatePointCustomer),
             );
-            showSuccess("Cập nhập điểm tích lũy thành công");
           }
           break;
         case 6:
@@ -471,7 +493,6 @@ const CustomerDetail = () => {
             dispatch(
               getRecalculateMoneyCustomerAction(customer.id, handleRecalculateMoneyCustomer),
             );
-            showSuccess("Cập nhập tiền tích lũy thành công");
           }
           break;
       }
