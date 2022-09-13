@@ -170,4 +170,21 @@ export const KeyDriverOfflineStyle = styled.div`
   .text-danger {
     color: #e24343;
   }
+
+  .ant-table-thead th {
+    text-align: center !important;
+  }
+
+  .update-target-btn {
+    width: 100%;
+    height: auto;
+    line-height: 16px;
+    height: 24px;
+    padding: 0 7px;
+    font-size: 14px;
+    background: #f5f5f5;
+    &:hover {
+      background: #fff;
+    }
+  }
 `;

@@ -284,6 +284,7 @@ function KeyDriverOffline() {
                 <div>
                   <span>MỤC TIÊU THÁNG</span>
                   <Button
+                    className="update-target-btn"
                     ghost
                     size={"small"}
                     title="Cập nhật mục tiêu tháng"
@@ -322,7 +323,7 @@ function KeyDriverOffline() {
             },
           },
           {
-            title: "TT LUỸ KẾ",
+            title: "LUỸ KẾ",
             width: 140,
             align: "right",
             dataIndex: `${departmentKey}_accumulatedMonth`,
@@ -356,7 +357,10 @@ function KeyDriverOffline() {
                 <div
                   className={
                     record[`${departmentKey}_month`] &&
-                    record[`${departmentKey}_targetMonth`] >= record[`${departmentKey}_month`]
+                    (record.suffix === "%"
+                      ? record[`${departmentKey}_targetMonth`] >= record[`${departmentKey}_month`]
+                      : Math.round(record[`${departmentKey}_targetMonth`]) >=
+                        Math.round(record[`${departmentKey}_month`]))
                       ? "text-success"
                       : record[`${departmentKey}_targetMonth`] <
                         (record[`${departmentKey}_month`] || 0) * 0.5
@@ -379,6 +383,7 @@ function KeyDriverOffline() {
                 <div>
                   <span>MỤC TIÊU NGÀY</span>
                   <Button
+                    className="update-target-btn"
                     ghost
                     size={"small"}
                     title="Cập nhật mục tiêu ngày"
