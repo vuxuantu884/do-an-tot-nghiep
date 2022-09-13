@@ -626,6 +626,9 @@ function KeyDriverOnline() {
       newDate = moment(date, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.YYYYMMDD);
     } else {
       newDate = moment().format(DATE_FORMAT.YYYYMMDD);
+      setTimeout(() => {
+        form.setFieldsValue({ date: moment() });
+      }, 1000);
     }
     history.push(
       `${UrlConfig.KEY_DRIVER_ONLINE}?date=${newDate}&keyDriverGroupLv1=${DEFAULT_KEY_DRIVER_GROUP_LV_1}`,

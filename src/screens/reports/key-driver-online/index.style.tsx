@@ -140,10 +140,10 @@ export const KeyDriverOnlineStyle = styled.div`
     }
   }
   .background-red {
-    background-color: red;
+    color: red;
   }
   .background-green {
-    background-color: green;
+    color: green;
   }
   .columns-setting {
     right: 20px;
