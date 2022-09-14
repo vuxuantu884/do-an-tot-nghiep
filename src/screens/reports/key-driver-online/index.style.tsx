@@ -56,6 +56,10 @@ export const KeyDriverOnlineStyle = styled.div`
     padding: 0 1px !important;
   }
 
+  .non-input-cell {
+    padding: 0 13px !important;
+  }
+
   .input-number {
     border: none;
     width: 100%;
