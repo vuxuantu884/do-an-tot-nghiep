@@ -2,12 +2,19 @@ import { BaseObject } from "model/base/base.response";
 
 //enum
 /**
- * 3 phương thức chiết khấu
+ * 4 phương thức chiết khấu
  */
 export enum PriceRuleMethod {
   FIXED_PRICE = "FIXED_PRICE", // Đồng giá
   QUANTITY = "QUANTITY", // Chiết khấu theo từng sản phẩm
   ORDER_THRESHOLD = "ORDER_THRESHOLD", // Chiết khấu theo đơn hàng
+  BUY_X_GET_Y = "BUY_X_GET_Y", // Tặng quà
+}
+
+export enum DiscountValueType {
+  FIXED_AMOUNT = "FIXED_AMOUNT", // Giảm số tiền cố định
+  PERCENTAGE = "PERCENTAGE", // Giảm theo phần trăm
+  FIXED_PRICE = "FIXED_PRICE", // Đồng giá
 }
 
 export enum PriceRuleType {

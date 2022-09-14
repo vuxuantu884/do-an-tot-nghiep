@@ -27,12 +27,13 @@ import ContentContainer from "component/container/content.container";
 import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig from "config/url.config";
 import {
+  inventoryGetAdvertisingHistoryAction,
   inventoryGetDetailAction,
   inventoryGetHistoryAction,
 } from "domain/actions/inventory/inventory.action";
 import { productGetDetail, productUpdateAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { HistoryInventoryResponse, InventoryResponse } from "model/inventory";
+import { AdvertisingHistoryResponse, HistoryInventoryResponse, InventoryResponse } from "model/inventory";
 import { CollectionCreateRequest } from "model/product/collection.model";
 import { ProductResponse, VariantResponse } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -58,6 +59,7 @@ import _ from "lodash";
 import ProductSteps from "../component/ProductSteps";
 import { fullTextSearch } from "utils/StringUtils";
 import { SupplierResponse } from "model/core/supplier.model";
+import TabAdvertisingHistory from "../tab/TabAdvertisingHistory";
 export interface ProductParams {
   id: string;
   variantId: string;
@@ -66,6 +68,7 @@ export interface ProductParams {
 enum TabName {
   HISTORY = "history",
   INVENTORY = "inventory",
+  ADVERTISING_HISTORY = "advertising history",
 }
 const ProductDetailScreen: React.FC = () => {
   const { TabPane } = Tabs;
@@ -91,6 +94,7 @@ const ProductDetailScreen: React.FC = () => {
   const [data, setData] = useState<ProductResponse | null>(null);
   const [visibleDes, setVisibleDes] = useState<boolean>(false);
   const [loadingHis, setLoadingHis] = useState<boolean>(false);
+  const [loadingAdvertisingHistory, setLoadingAdvertisingHistory] = useState<boolean>(false);
   const [loadingInventories, setLoadingInventories] = useState<boolean>(false);
   const [dataInventory, setDataInventory] = useState<PageResponse<InventoryResponse>>({
     items: [],
@@ -101,6 +105,15 @@ const ProductDetailScreen: React.FC = () => {
     },
   });
   const [dataHistory, setDataHistory] = useState<PageResponse<HistoryInventoryResponse>>({
+    items: [],
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+  });
+
+  const [dataAdvertisingHistory, setDataAdvertisingHistory] = useState<PageResponse<AdvertisingHistoryResponse>>({
     items: [],
     metadata: {
       limit: 30,
@@ -212,12 +225,10 @@ const ProductDetailScreen: React.FC = () => {
 
   useEffect(() => {
     const newSelected = data?.care_labels ? data?.care_labels.split(";") : [];
-    console.log("newSelected", newSelected);
     let careLabels: any[] = [];
     newSelected.forEach((value: string) => {
       careInformation.washing.forEach((item: any) => {
         if (value === item.value) {
-          console.log(value);
           careLabels.push({
             ...item,
             active: true,
@@ -227,7 +238,6 @@ const ProductDetailScreen: React.FC = () => {
 
       careInformation.beleaching.forEach((item: any) => {
         if (value === item.value) {
-          console.log(value);
           careLabels.push({
             ...item,
             active: true,
@@ -236,7 +246,6 @@ const ProductDetailScreen: React.FC = () => {
       });
       careInformation.ironing.forEach((item: any) => {
         if (value === item.value) {
-          console.log(value);
           careLabels.push({
             ...item,
             active: true,
@@ -245,7 +254,6 @@ const ProductDetailScreen: React.FC = () => {
       });
       careInformation.drying.forEach((item: any) => {
         if (value === item.value) {
-          console.log(value);
           careLabels.push({
             ...item,
             active: true,
@@ -254,7 +262,6 @@ const ProductDetailScreen: React.FC = () => {
       });
       careInformation.professionalCare.forEach((item: any) => {
         if (value === item.value) {
-          console.log(value);
           careLabels.push({
             ...item,
             active: true,
@@ -327,7 +334,6 @@ const ProductDetailScreen: React.FC = () => {
           request,
         );
         setLoadingVariantUpdate(false);
-        console.log("res", res);
 
         if (!res) {
           setData(_.cloneDeep(data));
@@ -356,6 +362,13 @@ const ProductDetailScreen: React.FC = () => {
       setDataHistory(result);
       setDataHistoryOrg(result);
     }
+  }, []);
+
+  const onResultAdvertisingHistory = useCallback((result) => {
+    setLoadingAdvertisingHistory(false);
+    if (!result) return;
+
+    setDataAdvertisingHistory(result);
   }, []);
 
   const onChangeDataInventory = useCallback(
@@ -390,6 +403,22 @@ const ProductDetailScreen: React.FC = () => {
     [active, data, dispatch, onResultInventoryHistory],
   );
 
+  const onChangeDataAdvertisingHistory = useCallback(
+    (page) => {
+      if (data && data?.variants.length > 0) {
+        let variantSelect = data.variants[active].id;
+        setLoadingAdvertisingHistory(true);
+        dispatch(
+          inventoryGetAdvertisingHistoryAction(
+            { variant_id: variantSelect, product_id: data.id, type: 'AUTOMATIC', page, limit: 300, state: 'ACTIVE' },
+            onResultAdvertisingHistory,
+          ),
+        );
+      }
+    },
+    [active, data, dispatch, onResultAdvertisingHistory],
+  );
+
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
     return () => {};
@@ -400,6 +429,7 @@ const ProductDetailScreen: React.FC = () => {
       let variantSelect = data.variants[active].id;
       setLoadingHis(true);
       setLoadingInventories(true);
+      setLoadingAdvertisingHistory(true);
       dispatch(inventoryGetDetailAction({ variant_id: variantSelect, limit: 500 }, onResultDetail));
       dispatch(
         inventoryGetHistoryAction(
@@ -407,8 +437,16 @@ const ProductDetailScreen: React.FC = () => {
           onResultInventoryHistory,
         ),
       );
+      dispatch(
+        inventoryGetAdvertisingHistoryAction(
+          { variant_id: variantSelect, product_id: data.id, type: 'AUTOMATIC', limit: 300, state: 'ACTIVE' },
+          onResultAdvertisingHistory,
+        ),
+      );
     }
-  }, [active, data, dispatch, onResult, onResultDetail, onResultInventoryHistory]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, data]);
+
   useEffect(() => {
     if (variantId && data) {
       let index = data.variants.findIndex((item) => item.id.toString() === variantId);
@@ -425,6 +463,10 @@ const ProductDetailScreen: React.FC = () => {
 
     if (hash === TabName.HISTORY) {
       setActiveTab(TabName.HISTORY);
+    }
+
+    if (hash === TabName.ADVERTISING_HISTORY) {
+      setActiveTab(TabName.ADVERTISING_HISTORY);
     }
 
     if (tabRef.current && hash) {
@@ -607,7 +649,7 @@ const ProductDetailScreen: React.FC = () => {
                         <div className="row-detail-right data">
                           {careLabels.map((item: any) => (
                             <Popover key={item.value} content={item.name}>
-                              <span className={`care-label ydl-${item.value}`}></span>
+                              <span className={`care-label ydl-${item.value}`}/>
                             </Popover>
                           ))}
                         </div>
@@ -630,7 +672,7 @@ const ProductDetailScreen: React.FC = () => {
                               __html: data.description,
                             }}
                             className="data-content"
-                          ></div>
+                          />
                           <div
                             className="devvn_readmore_taxonomy_flatsome devvn_readmore_taxonomy_flatsome_show"
                             style={{ display: "block" }}
@@ -878,6 +920,14 @@ const ProductDetailScreen: React.FC = () => {
                           data={dataHistory}
                         />
                       </Tabs.TabPane>
+                      <Tabs.TabPane tab="Chương trình khuyến mãi" key={TabName.ADVERTISING_HISTORY}>
+                        <TabAdvertisingHistory
+                          loadingAdvertisingHistory={loadingAdvertisingHistory}
+                          onChange={onChangeDataAdvertisingHistory}
+                          data={dataAdvertisingHistory}
+                          dataVariant={data.variants[active]}
+                        />
+                      </Tabs.TabPane>
                     </Tabs>
                   </Card>
                 </div>
@@ -932,7 +982,7 @@ const ProductDetailScreen: React.FC = () => {
                           __html: data.advantages,
                         }}
                         className="data-content"
-                      ></div>
+                      />
                     )}
                   </TabPane>
                   <TabPane
@@ -950,7 +1000,7 @@ const ProductDetailScreen: React.FC = () => {
                           __html: data.defect,
                         }}
                         className="data-content"
-                      ></div>
+                      />
                     )}
                   </TabPane>
                 </Tabs>
