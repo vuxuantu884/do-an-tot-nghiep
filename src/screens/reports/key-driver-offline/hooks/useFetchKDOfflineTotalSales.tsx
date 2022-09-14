@@ -19,31 +19,29 @@ function useFetchKDOfflineTotalSales() {
   >();
 
   const findKeyDriverAndUpdateValue = useCallback(
-    (data: any, asmData: any, columnKey: string) => {
-      Object.keys(asmData).forEach((keyDriver) => {
-        const asmName = nonAccentVietnameseKD(asmData["department_lv2"]);
-        if (data.key === keyDriver && asmName) {
-          data[`${asmName}_${columnKey}`] = asmData[keyDriver];
-          if (
-            columnKey === "accumulatedMonth" &&
-            !["average_order_value", "average_customer_spent"].includes(keyDriver)
-          ) {
-            data[`${asmName}_targetMonth`] = calculateTargetMonth(
-              data[`${asmName}_accumulatedMonth`],
-              selectedDate,
-            );
-          }
-        } else {
-          if (
-            data.children?.length &&
-            [KeyDriverField.TotalSales, KeyDriverField.OfflineTotalSales].includes(data.key)
-          ) {
-            data.children.forEach((item: any) => {
-              findKeyDriverAndUpdateValue(item, asmData, columnKey);
-            });
-          }
+    (data: any, asmData: any, columnKey: string, keyDriver: any) => {
+      const asmName = nonAccentVietnameseKD(asmData["department_lv2"]);
+      if (data.key === keyDriver && asmName) {
+        data[`${asmName}_${columnKey}`] = asmData[keyDriver];
+        if (
+          columnKey === "accumulatedMonth" &&
+          !["average_order_value", "average_customer_spent"].includes(keyDriver)
+        ) {
+          data[`${asmName}_targetMonth`] = calculateTargetMonth(
+            data[`${asmName}_accumulatedMonth`],
+            selectedDate,
+          );
         }
-      });
+      } else {
+        if (
+          data.children?.length &&
+          [KeyDriverField.TotalSales, KeyDriverField.OfflineTotalSales].includes(data.key)
+        ) {
+          data.children.forEach((item: any) => {
+            findKeyDriverAndUpdateValue(item, asmData, columnKey, keyDriver);
+          });
+        }
+      }
     },
     [selectedDate],
   );
@@ -112,7 +110,9 @@ function useFetchKDOfflineTotalSales() {
           setData((prev: any) => {
             let dataPrev: any = prev[0];
             [companyDayData, ...resDay].forEach((item: any) => {
-              findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
+              Object.keys(item).forEach((keyDriver) => {
+                findKeyDriverAndUpdateValue(dataPrev, item, "actualDay", keyDriver);
+              });
             });
             prev[0] = dataPrev;
             return [...prev];
@@ -125,10 +125,14 @@ function useFetchKDOfflineTotalSales() {
         setData((prev: any) => {
           let dataPrev: any = prev[0];
           [companyDayData, ...resDay].forEach((item: any) => {
-            findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
+            Object.keys(item).forEach((keyDriver) => {
+              findKeyDriverAndUpdateValue(dataPrev, item, "actualDay", keyDriver);
+            });
           });
           [companyMonthData, ...resMonth].forEach((item: any) => {
-            findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
+            Object.keys(item).forEach((keyDriver) => {
+              findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth", keyDriver);
+            });
           });
           prev[0] = dataPrev;
           return [...prev];

@@ -20,21 +20,19 @@ function useFetchKeyDriverTarget() {
   const [isFetchingKeyDriverTarget, setIsFetchingKeyDriverTarget] = useState<boolean | undefined>();
 
   const findKeyDriverAndUpdateValue = useCallback(
-    (data: any, keyDriversTarget: any, asmName: string, targetTime: "month" | "day") => {
-      Object.keys(keyDriversTarget).forEach((keyDriver) => {
-        if (data.key === keyDriver) {
-          data[`${asmName}_${targetTime}`] = keyDriversTarget[keyDriver].value;
-          if (!data[`${asmName}_month`]) {
-            data[`${asmName}_day`] = "";
-          }
-        } else {
-          if (data.children?.length) {
-            data.children.forEach((item: any) => {
-              findKeyDriverAndUpdateValue(item, keyDriversTarget, asmName, targetTime);
-            });
-          }
+    (data: any, keyDriversTarget: any, asmName: string, keyDriver: any) => {
+      if (data.key === keyDriver) {
+        data[`${asmName}_month`] = keyDriversTarget[keyDriver].value;
+        if (!data[`${asmName}_month`]) {
+          data[`${asmName}_day`] = "";
         }
-      });
+      } else {
+        if (data.children?.length) {
+          data.children.forEach((item: any) => {
+            findKeyDriverAndUpdateValue(item, keyDriversTarget, asmName, keyDriver);
+          });
+        }
+      }
     },
     [],
   );
@@ -81,7 +79,9 @@ function useFetchKeyDriverTarget() {
             ["COMPANY", ...ASM_LIST].forEach((asm) => {
               const asmKey = nonAccentVietnameseKD(asm);
               if (department === asmKey) {
-                findKeyDriverAndUpdateValue(prev[0], kdTotalSalesTarget, asmKey, "month");
+                Object.keys(kdTotalSalesTarget).forEach((keyDriver) => {
+                  findKeyDriverAndUpdateValue(prev[0], kdTotalSalesTarget, asmKey, keyDriver);
+                });
                 findKDProductAndUpdateValue(prev[1], kdProductTarget, asmKey, "month");
               }
             });

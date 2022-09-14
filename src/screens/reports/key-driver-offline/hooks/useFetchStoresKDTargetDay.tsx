@@ -22,18 +22,16 @@ function useFetchStoresKDTargetDay(dimension: KeyDriverDimension = KeyDriverDime
   >();
 
   const findKeyDriverAndUpdateValue = useCallback(
-    (data: any, keyDriversTarget: any, asmName: string, targetTime: "month" | "day") => {
-      Object.keys(keyDriversTarget).forEach((keyDriver) => {
-        if (data.key === keyDriver) {
-          data[`${asmName}_${targetTime}`] = keyDriversTarget[keyDriver].value;
-        } else {
-          if (data.children?.length) {
-            data.children.forEach((item: any) => {
-              findKeyDriverAndUpdateValue(item, keyDriversTarget, asmName, targetTime);
-            });
-          }
+    (data: any, keyDriversTarget: any, asmName: string, keyDriver: any) => {
+      if (data.key === keyDriver) {
+        data[`${asmName}_day`] = keyDriversTarget[keyDriver].value;
+      } else {
+        if (data.children?.length) {
+          data.children.forEach((item: any) => {
+            findKeyDriverAndUpdateValue(item, keyDriversTarget, asmName, keyDriver);
+          });
         }
-      });
+      }
     },
     [],
   );
@@ -109,7 +107,9 @@ function useFetchStoresKDTargetDay(dimension: KeyDriverDimension = KeyDriverDime
           [...selectedData].forEach((asm) => {
             const asmKey = nonAccentVietnameseKD(asm);
             if (department === asmKey) {
-              findKeyDriverAndUpdateValue(prev[0], kdTotalSalesTarget, asmKey, "day");
+              Object.keys(kdTotalSalesTarget).forEach((keyDriver) => {
+                findKeyDriverAndUpdateValue(prev[0], kdTotalSalesTarget, asmKey, keyDriver);
+              });
               findKDProductAndUpdateValue(prev[1], kdProductTarget, asmKey, "day");
             }
           });

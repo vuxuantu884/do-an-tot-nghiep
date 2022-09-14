@@ -22,35 +22,33 @@ function useFetchStoresKDOfflineTotalSales(
   >();
 
   const findKeyDriverAndUpdateValue = useCallback(
-    (data: any, asmData: any, columnKey: string) => {
-      Object.keys(asmData).forEach((keyDriver: any) => {
-        const dimensionKey =
-          KeyDriverDimension.Store === dimension ? "pos_location_name" : "staff_code";
-        const dimensionName = nonAccentVietnameseKD(asmData[dimensionKey]);
-        if (data.key === keyDriver && dimensionName) {
-          data[`${dimensionName}_${columnKey}`] = asmData[keyDriver];
-          if (
-            columnKey === "accumulatedMonth" &&
-            ![KeyDriverField.AverageOrderValue, KeyDriverField.AverageCustomerSpent].includes(
-              keyDriver,
-            )
-          ) {
-            data[`${dimensionName}_targetMonth`] = calculateTargetMonth(
-              data[`${dimensionName}_accumulatedMonth`],
-              selectedDate,
-            );
-          }
-        } else {
-          if (
-            data.children?.length &&
-            [KeyDriverField.TotalSales, KeyDriverField.OfflineTotalSales].includes(data.key)
-          ) {
-            data.children.forEach((item: any) => {
-              findKeyDriverAndUpdateValue(item, asmData, columnKey);
-            });
-          }
+    (data: any, asmData: any, columnKey: string, keyDriver: any) => {
+      const dimensionKey =
+        KeyDriverDimension.Store === dimension ? "pos_location_name" : "staff_code";
+      const dimensionName = nonAccentVietnameseKD(asmData[dimensionKey]);
+      if (data.key === keyDriver && dimensionName) {
+        data[`${dimensionName}_${columnKey}`] = asmData[keyDriver];
+        if (
+          columnKey === "accumulatedMonth" &&
+          ![KeyDriverField.AverageOrderValue, KeyDriverField.AverageCustomerSpent].includes(
+            keyDriver,
+          )
+        ) {
+          data[`${dimensionName}_targetMonth`] = calculateTargetMonth(
+            data[`${dimensionName}_accumulatedMonth`],
+            selectedDate,
+          );
         }
-      });
+      } else {
+        if (
+          data.children?.length &&
+          [KeyDriverField.TotalSales, KeyDriverField.OfflineTotalSales].includes(data.key)
+        ) {
+          data.children.forEach((item: any) => {
+            findKeyDriverAndUpdateValue(item, asmData, columnKey, keyDriver);
+          });
+        }
+      }
     },
     [dimension, selectedDate],
   );
@@ -159,7 +157,9 @@ function useFetchStoresKDOfflineTotalSales(
           setData((prev: any) => {
             let dataPrev: any = prev[0];
             [dimDayData, ...resDay].forEach((item: any) => {
-              findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
+              Object.keys(item).forEach((keyDriver: any) => {
+                findKeyDriverAndUpdateValue(dataPrev, item, "actualDay", keyDriver);
+              });
             });
             prev[0] = dataPrev;
             return [...prev];
@@ -171,10 +171,14 @@ function useFetchStoresKDOfflineTotalSales(
         setData((prev: any) => {
           let dataPrev: any = prev[0];
           [dimDayData, ...resDay].forEach((item: any) => {
-            findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
+            Object.keys(item).forEach((keyDriver: any) => {
+              findKeyDriverAndUpdateValue(dataPrev, item, "actualDay", keyDriver);
+            });
           });
           [dimMonthData, ...resMonth].forEach((item: any) => {
-            findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
+            Object.keys(item).forEach((keyDriver: any) => {
+              findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth", keyDriver);
+            });
           });
           prev[0] = dataPrev;
           return [...prev];
