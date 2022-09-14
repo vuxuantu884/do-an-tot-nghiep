@@ -52,7 +52,7 @@ const baseColumns: any = [
     render: (text: string, record: any) => {
       return (
         <Tooltip className="text-truncate-2 key-cell padding-left-10" title={record.method}>
-          {text?.toUpperCase()}
+          {text}
         </Tooltip>
       );
     },
@@ -221,7 +221,7 @@ function KeyDriverOnline() {
               );
             },
             width: 130,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_monthly_target`,
             className: "input-cell",
             render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
@@ -337,13 +337,13 @@ function KeyDriverOnline() {
           {
             title: "LUỸ KẾ",
             width: 130,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_monthly_actual`,
-            className: "input-cell",
+            className: "non-input-cell",
             render: (text: any, record: KeyDriverOnlineDataSourceType) => {
               return (
                 <VerifyCell row={record} value={text}>
-                  {formatCurrency(text)}
+                  {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
                 </VerifyCell>
               );
             },
@@ -351,9 +351,9 @@ function KeyDriverOnline() {
           {
             title: "TỶ LỆ",
             width: 80,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_monthly_progress`,
-            className: "input-cell",
+            className: "non-input-cell",
             render: (text: any, record: KeyDriverOnlineDataSourceType) => {
               return (
                 <VerifyCell row={record} value={text}>
@@ -365,9 +365,9 @@ function KeyDriverOnline() {
           {
             title: "DỰ KIẾN ĐẠT",
             width: 130,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_monthly_forecasted`,
-            className: "input-cell",
+            className: "non-input-cell",
             render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
               return (
                 <div
@@ -389,7 +389,7 @@ function KeyDriverOnline() {
           {
             title: "MỤC TIÊU NGÀY",
             width: 120,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_daily_target`,
             className: "input-cell",
             render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
@@ -465,6 +465,7 @@ function KeyDriverOnline() {
                           input.blur();
                         }
                       }}
+                      suffix={record.unit === "percent" ? "%" : null}
                       {...inputTargetDefaultProps}
                     />
                     <div
@@ -510,13 +511,13 @@ function KeyDriverOnline() {
           {
             title: "THỰC ĐẠT",
             width: 120,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_daily_actual`,
-            className: "input-cell",
+            className: "non-input-cell",
             render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
               return (
                 <VerifyCell row={record} value={text}>
-                  {formatCurrency(text)}
+                  {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
                 </VerifyCell>
               );
             },
@@ -524,9 +525,9 @@ function KeyDriverOnline() {
           {
             title: "TỶ LỆ",
             width: 80,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_daily_progress`,
-            className: "input-cell",
+            className: "non-input-cell",
             render: (text: any, record: KeyDriverOnlineDataSourceType) => {
               return (
                 <VerifyCell row={record} value={text}>
@@ -626,6 +627,9 @@ function KeyDriverOnline() {
       newDate = moment(date, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.YYYYMMDD);
     } else {
       newDate = moment().format(DATE_FORMAT.YYYYMMDD);
+      setTimeout(() => {
+        form.setFieldsValue({ date: moment() });
+      }, 1000);
     }
     history.push(
       `${UrlConfig.KEY_DRIVER_ONLINE}?date=${newDate}&keyDriverGroupLv1=${DEFAULT_KEY_DRIVER_GROUP_LV_1}`,
@@ -694,6 +698,12 @@ function KeyDriverOnline() {
                 setExpandRowKeys(rowKeys);
                 localStorage.setItem("key-dirver-online-rowkeys-expanded", JSON.stringify(rowKeys));
               },
+            }}
+            rowClassName={(record: any, rowIndex: any) => {
+              if (!expandRowKeys.includes(record.key) || !record.children) {
+                return "expand-parent";
+              }
+              return "";
             }}
             columns={newFinalColumns}
             dataSource={data}

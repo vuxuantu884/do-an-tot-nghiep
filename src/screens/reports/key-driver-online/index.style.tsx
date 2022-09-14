@@ -53,7 +53,11 @@ export const KeyDriverOnlineStyle = styled.div`
   }
 
   .input-cell {
-    padding: 0 1px !important;
+    padding: 0px 1px !important;
+  }
+
+  .non-input-cell {
+    padding: -1px 13px !important;
   }
 
   .input-number {
@@ -98,27 +102,36 @@ export const KeyDriverOnlineStyle = styled.div`
     color: ${color.primary};
   }
 
-  .ant-table-row-level-1 {
-    td,
-    input {
-      background-color: #fff8e2 !important;
+  .ant-table-row-level {
+    &-0 {
+      td,
+      input {
+        background-color: #ffd978 !important;
+      }
+      .ant-input-affix-wrapper {
+        background-color: #ffd978 !important;
+      }
     }
-    .ant-input-affix-wrapper {
-      background-color: #fff8e2 !important;
+    &-1 {
+      td,
+      input {
+        background-color: #fff8e2 !important;
+      }
+      .ant-input-affix-wrapper {
+        background-color: #fff8e2 !important;
+      }
+    }
+    &-2 {
+      td,
+      input {
+        background-color: #fff !important;
+      }
+      .ant-input-affix-wrapper {
+        background-color: #fff !important;
+      }
     }
   }
-
-  .ant-table-row-level-0 {
-    td,
-    input {
-      background-color: #ffd978 !important;
-    }
-    .ant-input-affix-wrapper {
-      background-color: #ffd978 !important;
-    }
-  }
-
-  .ant-table-row-level-2 {
+  .expand-parent {
     td,
     input {
       background-color: #fff !important;
@@ -131,19 +144,12 @@ export const KeyDriverOnlineStyle = styled.div`
   .pb-2 {
     padding-bottom: 1rem;
   }
-  .disable-table-style {
-    .ant-table-row-level-0 {
-      td,
-      input {
-        background-color: #ffd978 !important;
-      }
-    }
-  }
+
   .background-red {
-    background-color: red;
+    color: red;
   }
   .background-green {
-    background-color: green;
+    color: green;
   }
   .columns-setting {
     right: 20px;
