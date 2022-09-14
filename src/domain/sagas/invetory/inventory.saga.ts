@@ -1,4 +1,4 @@
-import { InventoryResponse } from "./../../../model/inventory/index";
+import { AdvertisingHistoryResponse, InventoryResponse } from "../../../model/inventory";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
@@ -11,7 +11,7 @@ import {
   createInventoryConfigService,
   deleteInventoryConfigService,
   getInventoryByVariantsApi,
-  getInventoryConfigService,
+  getInventoryConfigService, inventoryGetAdvertisingHistoryApi,
   inventoryGetApi,
   inventoryGetDetailApi,
   inventoryGetDetailVariantIdsApi,
@@ -77,6 +77,31 @@ function* inventoryGetHistorySaga(action: YodyAction) {
   try {
     const response: BaseResponse<PageResponse<HistoryInventoryResponse>> = yield call(
       inventoryGetHistoryApi,
+      query,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        onResult(false);
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    // showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* inventoryGetAdvertisingHistorySaga(action: YodyAction) {
+  let { query, onResult } = action.payload;
+  try {
+    const response: BaseResponse<PageResponse<AdvertisingHistoryResponse>> = yield call(
+      inventoryGetAdvertisingHistoryApi,
       query,
     );
     switch (response.code) {
@@ -272,6 +297,7 @@ export function* inventorySaga() {
   yield takeLatest(InventoryType.GET, inventoryGetSaga);
   yield takeLatest(InventoryType.GET_DETAIL, inventoryGetDetailSaga);
   yield takeLatest(InventoryType.GET_HISTORY, inventoryGetHistorySaga);
+  yield takeLatest(InventoryType.GET_ADVERTISING_HISTORY, inventoryGetAdvertisingHistorySaga);
   yield takeLatest(InventoryType.GET_DETAIL_lIST_VARIANT, inventoryGetDetailVariantIdsSaga);
   yield takeLatest(InventoryType.GET_DETAIL_lIST_VARIANT_EXT, inventoryGetDetailVariantIdsExtSaga);
   yield takeLatest(InventoryType.GET_BY_VARIANTS, inventoryByVariantsSaga);
