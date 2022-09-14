@@ -1410,7 +1410,7 @@ const ProductCreateScreen: React.FC = () => {
                               name={[name, "currency"]}
                               fieldKey={[fieldKey, "currency"]}
                             >
-                              <CustomSelect placeholder="Đơn vị tiền tệ">
+                              <CustomSelect placeholder="Đơn vị tiền tệ" disabled>
                                 {currencyList?.map((item) => (
                                   <CustomSelect.Option key={item.value} value={item.value}>
                                     {item.name}

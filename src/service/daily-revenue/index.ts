@@ -10,7 +10,7 @@ export const getDailyRevenueService = (
   config?: AxiosRequestConfig,
 ): Promise<any> => {
   let newRequest = {
-    page: Number(request.page || 1) - 1,
+    page: Number((request.page || 1) - 1),
     size: request.limit || 30,
     "id.in": request.ids,
     "storeId.in": request.store_ids,

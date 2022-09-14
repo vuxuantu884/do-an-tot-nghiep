@@ -13,6 +13,7 @@ import {
 } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { KDOfflineStoresContext } from "../provider/kd-offline-stores-provider";
+import { calculateDimSummary } from "../utils/DimSummaryUtils";
 
 function useFetchStoresOfflineTotalSalesPotential(
   dimension: KeyDriverDimension = KeyDriverDimension.Store,
@@ -127,13 +128,17 @@ function useFetchStoresOfflineTotalSalesPotential(
           setIsFetchingStoresOfflineTotalSalesPotential(false);
           return;
         }
-
-        if (!resMonth) {
-          if (resMonth !== 0) {
+        const dimName = "";
+        const dimKeys = {
+          asmDim: "department_lv2_name",
+          storeDim: "store_name",
+        };
+        if (!resMonth?.length) {
+          if (!resMonth && resMonth !== 0) {
             showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế khách hàng tiềm năng");
           }
           if (resDay.length) {
-            const resDayStores = resDay[0].pos_locations;
+            const resDayStores = calculateDimSummary(resDay[0], dimension, dimName, dimKeys);
             if (resDayStores.length) {
               setData((prev: any) => {
                 let dataPrev: any = prev[0];
@@ -151,11 +156,11 @@ function useFetchStoresOfflineTotalSalesPotential(
         }
 
         if (resMonth.length) {
-          const resMonthStores = resMonth[0].pos_locations;
+          const resMonthStores = calculateDimSummary(resMonth[0], dimension, dimName, dimKeys);
           setData((prev: any) => {
             let dataPrev: any = prev[0];
             if (resDay.length) {
-              const resDayStores = resDay[0].pos_locations;
+              const resDayStores = calculateDimSummary(resDay[0], dimension, dimName, dimKeys);
               resDayStores.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
                 calculateConversionRate(dataPrev, item, "actualDay");

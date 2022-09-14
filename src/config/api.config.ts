@@ -28,6 +28,8 @@ const ServiceNames = {
   OFFLINE_TOTAL_SALES_POTENTIAL_SERVICE: "potential-customers/count-by-asm",
   HANDOVER_SERVICE: "handover-service",
   DAILY_PAYMENT_SERVICE: "api/daily-payments",
+  OFFLINE_CALL_LOYALTY_LEVEL_SERVICE: "key-drivers/offline-call-conversion-rate-by-loyalty-level",
+  OFFLINE_SMS_LOYALTY_LEVEL_SERVICE: "key-drivers/offline-sms-conversion-rate-by-loyalty-level",
 };
 
 const v1 = ``;
@@ -66,6 +68,8 @@ const ApiConfig = {
   OFFLINE_TOTAL_SALES_POTENTIAL: `${v1}/${ServiceNames.OFFLINE_TOTAL_SALES_POTENTIAL_SERVICE}`,
   HANDOVER: `${v1}/${ServiceNames.HANDOVER_SERVICE}`,
   DAILY_PAYMENT: `${v1}/${ServiceNames.DAILY_PAYMENT_SERVICE}`,
+  OFFLINE_CALL_LOYALTY_LEVEL: `${v1}/${ServiceNames.OFFLINE_CALL_LOYALTY_LEVEL_SERVICE}`,
+  OFFLINE_SMS_LOYALTY_LEVEL: `${v1}/${ServiceNames.OFFLINE_SMS_LOYALTY_LEVEL_SERVICE}`,
 };
 
 export { ApiConfig };

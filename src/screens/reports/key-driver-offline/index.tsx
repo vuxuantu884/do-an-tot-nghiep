@@ -34,6 +34,7 @@ import {
   keyDriverOfflineTemplateData,
   loadingMessage,
 } from "./constant/key-driver-offline-template-data";
+import useFetchCallLoyalty from "./hooks/useFetchCallLoyalty";
 import useFetchCustomerVisitors from "./hooks/useFetchCustomerVisitors";
 import useFetchKDOfflineTotalSales from "./hooks/useFetchKDOfflineTotalSales";
 import useFetchKeyDriverTarget from "./hooks/useFetchKeyDriverTarget";
@@ -42,6 +43,7 @@ import useFetchOfflineOnlineTotalSales from "./hooks/useFetchOfflineOnlineTotalS
 import useFetchOfflineTotalSalesLoyalty from "./hooks/useFetchOfflineTotalSalesLoyalty";
 import useFetchOfflineTotalSalesPotential from "./hooks/useFetchOfflineTotalSalesPotential";
 import useFetchProductTotalSales from "./hooks/useFetchProductTotalSales";
+import useFetchSmsLoyalty from "./hooks/useFetchSmsLoyalty";
 import { KeyDriverOfflineStyle } from "./index.style";
 import KeyDriverOfflineProvider, {
   KeyDriverOfflineContext,
@@ -77,7 +79,7 @@ const baseColumns: any = [
     render: (text: string, record: any) => {
       return (
         <Tooltip className="text-truncate-2 key-cell" title={record.method}>
-          {text?.toUpperCase()}
+          {text}
         </Tooltip>
       );
     },
@@ -156,6 +158,8 @@ function KeyDriverOffline() {
   const { isFetchingOfflineOnlineTotalSales } = useFetchOfflineOnlineTotalSales();
   const { isFetchingProductTotalSales } = useFetchProductTotalSales();
   const { isFetchingOfflineTotalSalesPotential } = useFetchOfflineTotalSalesPotential();
+  const { isFetchingCallLoyalty } = useFetchCallLoyalty();
+  const { isFetchingSmsLoyalty } = useFetchSmsLoyalty();
   const { isFetchingKeyDriverTargetDay, refetch: refetchTargetDay } = useFetchKeyDriverTargetDay();
   const { data, kdTarget, setData, setSelectedDate, selectedDate } =
     useContext(KeyDriverOfflineContext);
@@ -163,6 +167,8 @@ function KeyDriverOffline() {
   const [syncDataTime, setSyncDataTime] = useState<string>(
     moment().format(DATE_FORMAT.DD_MM_YY_HHmmss),
   );
+
+  const [stateExpand, setStateExpand] = useState<Array<any>>([]);
 
   const departmentsList = useMemo(() => {
     return ["COMPANY", ...ASM_LIST];
@@ -199,7 +205,9 @@ function KeyDriverOffline() {
       isFetchingOfflineOnlineTotalSales === false &&
       isFetchingProductTotalSales === false &&
       isFetchingOfflineTotalSalesPotential === false &&
-      isFetchingKeyDriverTargetDay === false
+      isFetchingCallLoyalty === false &&
+      isFetchingKeyDriverTargetDay === false &&
+      isFetchingSmsLoyalty === false
     ) {
       setData((prev: any[]) => {
         prev.forEach((item: any, index) => {
@@ -226,6 +234,7 @@ function KeyDriverOffline() {
     calculateDayTarget,
     calculateMonthRate,
     departmentsList,
+    isFetchingCallLoyalty,
     isFetchingCustomerVisitors,
     isFetchingKDOfflineTotalSales,
     isFetchingKeyDriverTarget,
@@ -234,6 +243,7 @@ function KeyDriverOffline() {
     isFetchingOfflineTotalSalesLoyalty,
     isFetchingOfflineTotalSalesPotential,
     isFetchingProductTotalSales,
+    isFetchingSmsLoyalty,
     selectedDate,
     setData,
   ]);
@@ -244,7 +254,7 @@ function KeyDriverOffline() {
       department: string,
       className: string = "department-name--secondary",
     ): ColumnGroupType<any> | ColumnType<any> => {
-      const { ConvertionRate, ProductTotalSales, NewCustomersConversionRate } = KeyDriverField;
+      const { ProductTotalSales } = KeyDriverField;
       return {
         title: department.toLowerCase().includes("tổng công ty") ? (
           department
@@ -294,7 +304,7 @@ function KeyDriverOffline() {
               );
             },
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_month`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -314,14 +324,12 @@ function KeyDriverOffline() {
           {
             title: "TT LUỸ KẾ",
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_accumulatedMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text || text === 0
-                ? [ConvertionRate, NewCustomersConversionRate].includes(
-                    record.key as KeyDriverField,
-                  )
+                ? record.suffix === "%"
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -330,7 +338,7 @@ function KeyDriverOffline() {
           {
             title: "TỶ LỆ",
             width: 80,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_rateMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -340,17 +348,29 @@ function KeyDriverOffline() {
           {
             title: "DỰ KIẾN ĐẠT",
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_targetMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return text || text === 0
-                ? [ConvertionRate, NewCustomersConversionRate].includes(
-                    record.key as KeyDriverField,
-                  )
-                  ? `${text}%`
-                  : formatCurrency(text)
-                : "-";
+              return (
+                <div
+                  className={
+                    record[`${departmentKey}_month`] &&
+                    record[`${departmentKey}_targetMonth`] >= record[`${departmentKey}_month`]
+                      ? "text-success"
+                      : record[`${departmentKey}_targetMonth`] <
+                        (record[`${departmentKey}_month`] || 0) * 0.5
+                      ? "text-danger"
+                      : ""
+                  }
+                >
+                  {text || text === 0
+                    ? record.suffix === "%"
+                      ? `${text}%`
+                      : formatCurrency(text)
+                    : "-"}
+                </div>
+              );
             },
           },
           {
@@ -376,7 +396,7 @@ function KeyDriverOffline() {
               );
             },
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_day`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -396,14 +416,12 @@ function KeyDriverOffline() {
           {
             title: "THỰC ĐẠT",
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_actualDay`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text || text === 0
-                ? [ConvertionRate, NewCustomersConversionRate].includes(
-                    record.key as KeyDriverField,
-                  )
+                ? record.suffix === "%"
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -412,7 +430,7 @@ function KeyDriverOffline() {
           {
             title: "TỶ LỆ",
             width: 80,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_rateDay`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -455,6 +473,12 @@ function KeyDriverOffline() {
     setData(() => JSON.parse(JSON.stringify(keyDriverOfflineTemplateData)));
     history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}?date=${newDate}`);
   }, [form, history, setData]);
+
+  const onExpand = (expanded: any, { key }: { key: any }) => {
+    setStateExpand((prev) => {
+      return !expanded ? [...prev, key] : prev.filter((k) => k !== key);
+    });
+  };
 
   return (
     <ContentContainer
@@ -517,13 +541,13 @@ function KeyDriverOffline() {
             }}
             bordered
             pagination={false}
-            onRow={(record: any) => {
-              return {
-                onClick: () => {
-                  console.log(record);
-                },
-              };
+            rowClassName={(record: any, rowIndex: any) => {
+              if (stateExpand.includes(record.key) || !record.children) {
+                return "expand-parent";
+              }
+              return "";
             }}
+            onExpand={onExpand}
             expandable={{
               defaultExpandAllRows: true,
             }}

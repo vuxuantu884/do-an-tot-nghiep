@@ -33,6 +33,7 @@ import {
   keyDriverOfflineTemplateData,
   loadingMessage,
 } from "../constant/key-driver-offline-template-data";
+import useFetchStoresCallLoyalty from "../hooks/useFetchStoresCallLoyalty";
 import useFetchStoresCustomerVisitors from "../hooks/useFetchStoresCustomerVisitors";
 import useFetchStoresKDOfflineTotalSales from "../hooks/useFetchStoresKDOfflineTotalSales";
 import useFetchStoresKDTargetDay from "../hooks/useFetchStoresKDTargetDay";
@@ -41,6 +42,7 @@ import useFetchStoresOfflineOnlineTotalSales from "../hooks/useFetchStoresOfflin
 import useFetchStoresOfflineTotalSalesLoyalty from "../hooks/useFetchStoresOfflineTotalSalesLoyalty";
 import useFetchStoresOfflineTotalSalesPotential from "../hooks/useFetchStoresOfflineTotalSalesPotential";
 import useFetchStoresProductTotalSales from "../hooks/useFetchStoresProductTotalSales";
+import useFetchStoresSmsLoyalty from "../hooks/useFetchStoresSmsLoyalty";
 import { KeyDriverOfflineStyle } from "../index.style";
 import KDOfflineStoresProvider, {
   KDOfflineStoresContext,
@@ -78,7 +80,7 @@ const baseColumns: any = [
     render: (text: string, record: any) => {
       return (
         <Tooltip className="text-truncate-2 key-cell" title={record.method}>
-          {text?.toUpperCase()}
+          {text}
         </Tooltip>
       );
     },
@@ -156,6 +158,8 @@ function KeyDriverOfflineStore() {
   const { isFetchingStoresOfflineOnlineTotalSales } = useFetchStoresOfflineOnlineTotalSales();
   const { isFetchingStoresProductTotalSales } = useFetchStoresProductTotalSales();
   const { isFetchingStoresOfflineTotalSalesPotential } = useFetchStoresOfflineTotalSalesPotential();
+  const { isFetchingStoresCallLoyalty } = useFetchStoresCallLoyalty();
+  const { isFetchingStoresSmsLoyalty } = useFetchStoresSmsLoyalty();
   const { isFetchingStoresKDTargetDay, refetch: refetchTargetDay } = useFetchStoresKDTargetDay();
   const {
     data,
@@ -174,6 +178,7 @@ function KeyDriverOfflineStore() {
   const [syncDataTime, setSyncDataTime] = useState<string>(
     moment().format(DATE_FORMAT.DD_MM_YY_HHmmss),
   );
+  const [stateExpand, setStateExpand] = useState<Array<any>>([]);
 
   const setObjectiveColumns = useCallback(
     (
@@ -181,7 +186,7 @@ function KeyDriverOfflineStore() {
       department: string,
       className: string = "department-name--secondary",
     ): ColumnGroupType<any> | ColumnType<any> => {
-      const { ConvertionRate, ProductTotalSales, NewCustomersConversionRate } = KeyDriverField;
+      const { ProductTotalSales } = KeyDriverField;
       const asmNameUrl = asmName.toLocaleLowerCase();
       const storeNameUrl = nonAccentVietnameseKD(department).toLowerCase();
       return {
@@ -229,7 +234,7 @@ function KeyDriverOfflineStore() {
               );
             },
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_month`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -249,14 +254,12 @@ function KeyDriverOfflineStore() {
           {
             title: "TT LUỸ KẾ",
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_accumulatedMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text || text === 0
-                ? [ConvertionRate, NewCustomersConversionRate].includes(
-                    record.key as KeyDriverField,
-                  )
+                ? record.suffix === "%"
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -265,7 +268,7 @@ function KeyDriverOfflineStore() {
           {
             title: "TỶ LỆ",
             width: 80,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_rateMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -275,17 +278,29 @@ function KeyDriverOfflineStore() {
           {
             title: "DỰ KIẾN ĐẠT",
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_targetMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return text
-                ? [ConvertionRate, NewCustomersConversionRate].includes(
-                    record.key as KeyDriverField,
-                  )
-                  ? `${text}%`
-                  : formatCurrency(text)
-                : "-";
+              return (
+                <div
+                  className={
+                    record[`${departmentKey}_month`] &&
+                    record[`${departmentKey}_targetMonth`] >= record[`${departmentKey}_month`]
+                      ? "text-success"
+                      : record[`${departmentKey}_targetMonth`] <
+                        (record[`${departmentKey}_month`] || 0) * 0.5
+                      ? "text-danger"
+                      : ""
+                  }
+                >
+                  {text || text === 0
+                    ? record.suffix === "%"
+                      ? `${text}%`
+                      : formatCurrency(text)
+                    : "-"}
+                </div>
+              );
             },
           },
           {
@@ -311,7 +326,7 @@ function KeyDriverOfflineStore() {
               );
             },
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_day`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -331,14 +346,12 @@ function KeyDriverOfflineStore() {
           {
             title: "THỰC ĐẠT",
             width: 140,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_actualDay`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text || text === 0
-                ? [ConvertionRate, NewCustomersConversionRate].includes(
-                    record.key as KeyDriverField,
-                  )
+                ? record.suffix === "%"
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -347,7 +360,7 @@ function KeyDriverOfflineStore() {
           {
             title: "TỶ LỆ",
             width: 80,
-            align: "center",
+            align: "right",
             dataIndex: `${departmentKey}_rateDay`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
@@ -362,34 +375,41 @@ function KeyDriverOfflineStore() {
 
   const calculateMonthRate = useCallback(
     (keyDriver: any) => {
-      calculateMonthRateUtil(keyDriver, selectedStores);
+      calculateMonthRateUtil(keyDriver, [...selectedStores, selectedAsm[0]]);
     },
-    [selectedStores],
+    [selectedAsm, selectedStores],
   );
 
   const calculateDayRate = useCallback(
     (keyDriver: any) => {
-      calculateDayRateUtil(keyDriver, selectedStores);
+      calculateDayRateUtil(keyDriver, [...selectedStores, selectedAsm[0]]);
     },
-    [selectedStores],
+    [selectedAsm, selectedStores],
   );
 
   const calculateDayTarget = useCallback(
     (keyDriver: any) => {
-      calculateDayTargetUtil(keyDriver, selectedStores, selectedDate);
+      calculateDayTargetUtil(keyDriver, [...selectedStores, selectedAsm[0]], selectedDate);
     },
-    [selectedDate, selectedStores],
+    [selectedAsm, selectedDate, selectedStores],
   );
 
   useEffect(() => {
-    if (selectedStores.length) {
+    if (selectedStores.length && selectedAsm.length) {
       const temp = [...baseColumns];
+      temp.push(
+        setObjectiveColumns(
+          nonAccentVietnameseKD(selectedAsm[0]),
+          selectedAsm[0],
+          "department-name--primary",
+        ),
+      );
       selectedStores.forEach((asm) => {
         temp.push(setObjectiveColumns(nonAccentVietnameseKD(asm), asm.toUpperCase()));
       });
       setFinalColumns(temp);
     }
-  }, [selectedStores, setObjectiveColumns]);
+  }, [selectedAsm, selectedStores, setObjectiveColumns]);
 
   useEffect(() => {
     setLoadingPage(true);
@@ -401,13 +421,15 @@ function KeyDriverOfflineStore() {
       isFetchingStoresOfflineOnlineTotalSales === false &&
       isFetchingStoresProductTotalSales === false &&
       isFetchingStoresOfflineTotalSalesPotential === false &&
-      isFetchingStoresKDTargetDay === false
+      isFetchingStoresCallLoyalty === false &&
+      isFetchingStoresKDTargetDay === false &&
+      isFetchingStoresSmsLoyalty === false
     ) {
       setData((prev: any) => {
         prev.forEach((item: any, index: number) => {
           calculateDayTarget(item);
           if (index === 0) {
-            selectedStores.forEach((asm) => {
+            [...selectedStores, selectedAsm[0]].forEach((asm) => {
               const asmKey = nonAccentVietnameseKD(asm);
               calculateKDAverageCustomerSpent(item, asmKey);
               calculateKDConvertionRate(item, asmKey);
@@ -438,6 +460,9 @@ function KeyDriverOfflineStore() {
     isFetchingStoresOfflineTotalSalesPotential,
     isFetchingStoresKDTargetDay,
     selectedDate,
+    isFetchingStoresCallLoyalty,
+    isFetchingStoresSmsLoyalty,
+    selectedAsm,
   ]);
 
   useEffect(() => {
@@ -470,6 +495,12 @@ function KeyDriverOfflineStore() {
     setData(() => JSON.parse(JSON.stringify(keyDriverOfflineTemplateData)));
     history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}/${asmNameUrl}?date=${newDate}`);
   }, [asmName, form, history, setData]);
+
+  const onExpand = (expanded: any, { key }: { key: any }) => {
+    setStateExpand((prev) => {
+      return !expanded ? [...prev, key] : prev.filter((k) => k !== key);
+    });
+  };
 
   return (
     <ContentContainer
@@ -556,13 +587,13 @@ function KeyDriverOfflineStore() {
             }}
             bordered
             pagination={false}
-            onRow={(record: any) => {
-              return {
-                onClick: () => {
-                  console.log(record);
-                },
-              };
+            rowClassName={(record: any, rowIndex: any) => {
+              if (stateExpand.includes(record.key) || !record.children) {
+                return "expand-parent";
+              }
+              return "";
             }}
+            onExpand={onExpand}
             expandable={{
               defaultExpandAllRows: true,
             }}

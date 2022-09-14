@@ -101,20 +101,20 @@ export const KeyDriverOnlineStyle = styled.div`
   .ant-table-row-level-1 {
     td,
     input {
-      background-color: aliceblue !important;
+      background-color: #fff8e2 !important;
     }
     .ant-input-affix-wrapper {
-      background-color: aliceblue !important;
+      background-color: #fff8e2 !important;
     }
   }
 
   .ant-table-row-level-0 {
     td,
     input {
-      background-color: antiquewhite !important;
+      background-color: #ffd978 !important;
     }
     .ant-input-affix-wrapper {
-      background-color: antiquewhite !important;
+      background-color: #ffd978 !important;
     }
   }
 
@@ -135,8 +135,22 @@ export const KeyDriverOnlineStyle = styled.div`
     .ant-table-row-level-0 {
       td,
       input {
-        background-color: antiquewhite !important;
+        background-color: #ffd978 !important;
       }
+    }
+  }
+  .background-red {
+    color: red;
+  }
+  .background-green {
+    color: green;
+  }
+  .columns-setting {
+    right: 20px;
+    top: 20px;
+    position: absolute;
+    .anticon {
+      vertical-align: 0.125em;
     }
   }
 `;

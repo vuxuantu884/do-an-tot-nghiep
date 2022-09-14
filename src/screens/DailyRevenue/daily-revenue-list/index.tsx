@@ -18,7 +18,7 @@ import { confirmPayMoneyDailyRevenueService, getDailyRevenueService } from "serv
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { AccountResponse } from "model/account/account.model";
 import { UploadOutlined } from "@ant-design/icons";
-import { showModalError, showModalSuccess, showModalWarning } from "utils/ToastUtils";
+import { showError, showModalError, showModalSuccess, showModalWarning } from "utils/ToastUtils";
 import { MenuAction } from "component/table/ActionButton";
 import { DAILY_REVENUE_IMPORT } from "utils/Constants";
 import queryString from "query-string";
@@ -236,8 +236,8 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
     let dataQuery: RevenueSearchQuery = {
       ...initQueryDefault,
       ...paramDefault,
-      limit: Number(paramDefault.limit),
-      page: Number(paramDefault.page),
+      limit: paramDefault?.limit ? Number(paramDefault.limit) : initQueryDefault.limit,
+      page: paramDefault?.page ? Number(paramDefault.page) : initQueryDefault.page,
     };
     setTableLoading(true);
     setPrams(dataQuery);
@@ -255,10 +255,14 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
             items: response.data,
           });
           setTableLoading(false);
+        } else {
+          showError(`Danh sách tổng kết ca: ${response?.data?.message}`);
         }
       })
       .catch()
-      .finally(() => {});
+      .finally(() => {
+        setTableLoading(false);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history, location.search]);
 
@@ -329,7 +333,8 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
         </Card>
         <DailyRevenueExport
           selectedItems={selectedRowKeys}
-          dataItem={data.items}
+          params={params}
+          totalSearchQuery={data.metadata.total}
           visible={visibleExport}
           setVisible={setvisibleExport}
         />

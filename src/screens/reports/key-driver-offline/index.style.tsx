@@ -2,6 +2,50 @@ import color from "assets/css/export-variable.module.scss";
 import styled from "styled-components";
 
 export const KeyDriverOfflineStyle = styled.div`
+  .ant-table-row-level {
+    &-0 {
+      td,
+      input {
+        background-color: #ffd978 !important;
+      }
+    }
+    &-1 {
+      td,
+      input {
+        background-color: #ffe5a4 !important;
+      }
+    }
+    &-2 {
+      td,
+      input {
+        background-color: #fff0c5 !important;
+      }
+    }
+    &-3 {
+      td,
+      input {
+        background-color: #fff8e2 !important;
+      }
+    }
+    &-4 {
+      td,
+      input {
+        background-color: #fffdf5 !important;
+      }
+    }
+    &-5 {
+      td,
+      input {
+        background-color: #ffffff !important;
+      }
+    }
+  }
+  .expand-parent {
+    td,
+    input {
+      background-color: #fff !important;
+    }
+  }
   .ant-table-thead > tr > th {
     border-bottom: unset;
     white-space: pre-line;
@@ -49,6 +93,7 @@ export const KeyDriverOfflineStyle = styled.div`
 
   .input-cell {
     padding: 0 4px !important;
+    white-space: nowrap;
   }
 
   .input-number {
@@ -80,6 +125,7 @@ export const KeyDriverOfflineStyle = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
+    min-height: 45px;
 
     .ant-table-row-expand-icon,
     .ant-table-row-expand-icon-expanded {
@@ -93,33 +139,6 @@ export const KeyDriverOfflineStyle = styled.div`
   .ant-table-row-expand-icon:after,
   .ant-table-row-expand-icon:before {
     color: ${color.primary};
-  }
-
-  .ant-table-row-level {
-    &-0 {
-      td,
-      input {
-        background-color: #ffd978 !important;
-      }
-    }
-    &-1 {
-      td,
-      input {
-        background-color: #ffe5a4 !important;
-      }
-    }
-    // &-2 {
-    //   td,
-    //   input {
-    //     background-color: #fff0c5 !important;
-    //   }
-    // }
-    // &-3 {
-    //   td,
-    //   input {
-    //     background-color: #fff8e2 !important;
-    //   }
-    // }
   }
 
   .pb-2 {
@@ -142,5 +161,13 @@ export const KeyDriverOfflineStyle = styled.div`
 
   .dimension-link {
     color: ${color.white};
+  }
+
+  .text-success {
+    color: #27ae60;
+  }
+
+  .text-danger {
+    color: #e24343;
   }
 `;
