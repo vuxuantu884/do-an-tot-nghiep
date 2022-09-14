@@ -699,6 +699,12 @@ function KeyDriverOnline() {
                 localStorage.setItem("key-dirver-online-rowkeys-expanded", JSON.stringify(rowKeys));
               },
             }}
+            rowClassName={(record: any, rowIndex: any) => {
+              if (!expandRowKeys.includes(record.key) || !record.children) {
+                return "expand-parent";
+              }
+              return "";
+            }}
             columns={newFinalColumns}
             dataSource={data}
             loading={loadingPage}
