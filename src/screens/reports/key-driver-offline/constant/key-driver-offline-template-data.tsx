@@ -76,8 +76,8 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
                 children: [
                   {
                     key: KeyDriverField.BirthdayCallConversions,
-                    name: "Số lượng khách hàng mua từ tổng đài",
-                    method: "Số lượng khách hàng mua từ tổng đài",
+                    name: "Số khách mua từ cuộc gọi",
+                    method: "Số khách mua từ cuộc gọi",
                     children: [
                       {
                         key: "birthday_calls",
@@ -94,8 +94,8 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
                   },
                   {
                     key: KeyDriverField.BirthdaySmsConversions,
-                    name: "Số lượng khách hàng mua từ tổng đài",
-                    method: "Số lượng khách hàng mua từ tổng đài",
+                    name: "Số khách mua từ SMS",
+                    method: "Số khách mua từ SMS",
                     children: [
                       {
                         key: "birthday_smss",

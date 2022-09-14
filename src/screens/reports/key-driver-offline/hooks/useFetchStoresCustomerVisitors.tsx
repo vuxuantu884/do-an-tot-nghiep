@@ -59,10 +59,8 @@ function useFetchStoresCustomerVisitors(dimension: KeyDriverDimension = KeyDrive
         };
       }
       response.forEach((item: any) => {
-        Object.keys(item).forEach((key) => {
-          dimData.value = dimData.value || 0;
-          dimData.value += +item.value || 0;
-        });
+        dimData.value = dimData.value || 0;
+        dimData.value += +item.value || 0;
       });
       return dimData;
     },
