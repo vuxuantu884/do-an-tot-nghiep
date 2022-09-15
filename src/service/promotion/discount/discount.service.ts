@@ -10,16 +10,17 @@ import { PriceRule, ProductEntitlements } from "model/promotion/price-rules.mode
 import { searchProductDiscountVariantQuery } from "model/discount/discount.model";
 
 const END_POINT = "/price-rules";
+const PRICE_RULE_ENTITLEMENTS = "/price-rule-entitlements";
 
 export const searchDiscountList = (
   query: BaseQuery,
 ): Promise<BaseResponse<PageResponse<PriceRule>>> => {
   let params = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/search?${params}`);
+  return BaseAxios.get(`${ApiConfig.PROMOTION}${PRICE_RULE_ENTITLEMENTS}?${params}`);
 };
 
 export const getPriceRuleById = (id: number): Promise<PriceRule> => {
-  return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/${id}`);
+  return BaseAxios.get(`${ApiConfig.PROMOTION}${PRICE_RULE_ENTITLEMENTS}/${id}`);
 };
 
 export const getVariantApi = (id: number): Promise<PriceRule> => {
@@ -38,7 +39,7 @@ export const deletePriceRuleById = (id: number): Promise<any> => {
 };
 
 export const createPriceRule = (discountForm: Partial<PriceRule>): Promise<any> => {
-  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}`, discountForm);
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${PRICE_RULE_ENTITLEMENTS}`, discountForm);
 };
 
 export const bulkDeletePriceRules = (body: any): Promise<any> => {
@@ -46,11 +47,11 @@ export const bulkDeletePriceRules = (body: any): Promise<any> => {
 };
 
 export const bulkEnablePriceRules = (body: any): Promise<any> => {
-  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/batch/active`, body);
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${PRICE_RULE_ENTITLEMENTS}/bulk/active`, body);
 };
 
 export const bulkDisablePriceRules = (body: any): Promise<BaseResponse<{ count: number }>> => {
-  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}/batch/disable`, body);
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${PRICE_RULE_ENTITLEMENTS}/bulk/disable`, body);
 };
 
 export const applyDiscount = (
@@ -96,7 +97,7 @@ export const applyDiscountService = (
 };
 
 export const updatePriceRuleById = (body: any): Promise<PriceRule> => {
-  return BaseAxios.put(`${ApiConfig.PROMOTION}${END_POINT}/${body.id}`, body);
+  return BaseAxios.put(`${ApiConfig.PROMOTION}${PRICE_RULE_ENTITLEMENTS}/${body.id}`, body);
 };
 
 export const exportDiscountCode = (priceRuleId: any): Promise<any> => {

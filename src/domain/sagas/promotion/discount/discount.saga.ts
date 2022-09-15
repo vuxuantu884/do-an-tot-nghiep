@@ -19,7 +19,7 @@ import { unauthorizedAction } from "../../../actions/auth/auth.action";
 import { showError } from "../../../../utils/ToastUtils";
 import { PageResponse } from "../../../../model/base/base-metadata.response";
 import { delay, takeEvery, takeLatest } from "typed-redux-saga";
-import { DiscountType, PriceRuleType } from "../../../types/promotion.type";
+import { DiscountType, PriceRuleType } from "domain/types/promotion.type";
 import { all } from "redux-saga/effects";
 import { PriceRule, ProductEntitlements } from "model/promotion/price-rules.model";
 import { isFetchApiSuccessful } from "utils/AppUtils";

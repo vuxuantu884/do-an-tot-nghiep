@@ -1,7 +1,7 @@
 import BaseAction from "base/base.action";
 import { BaseQuery } from "../../../../model/base/base.query";
 import { PageResponse } from "../../../../model/base/base-metadata.response";
-import { DiscountType, PriceRuleType } from "../../../types/promotion.type";
+import { DiscountType, PriceRuleType } from "domain/types/promotion.type";
 import { PriceRule, ProductEntitlements } from "model/promotion/price-rules.model";
 import { searchProductDiscountVariantQuery } from "model/discount/discount.model";
 

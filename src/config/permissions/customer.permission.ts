@@ -9,6 +9,7 @@ export const CustomerListPermission = {
   customers_create: "customers_create",
   customers_update: "customers_update",
   customers_export: "customers_export",
+  customers_recalculate_money_point: "customers_recalculate_money_point",
 };
 
 export const CustomerGroupPermission = {

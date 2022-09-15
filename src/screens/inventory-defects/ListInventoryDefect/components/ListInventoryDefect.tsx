@@ -416,17 +416,19 @@ const ListInventoryDefect: React.FC = () => {
   }, 300);
 
   useEffect(() => {
-    form.setFieldsValue({
-      [DefectFilterBasicEnum.condition]: params.condition?.toString()?.split(","),
-      [DefectFilterBasicEnum.store_ids]: params.store_ids
-        ? params.store_ids
-            ?.toString()
-            ?.split(",")
-            .map((x: string) => String(x))
-        : myStores.length > 1 || myStores.length === 0
-        ? []
-        : myStores[0].store_id.toString(),
-    });
+    if (myStores) {
+      form.setFieldsValue({
+        [DefectFilterBasicEnum.condition]: params.condition?.toString()?.split(","),
+        [DefectFilterBasicEnum.store_ids]: params.store_ids
+          ? params.store_ids
+              ?.toString()
+              ?.split(",")
+              .map((x: string) => String(x))
+          : myStores.length > 1 || myStores.length === 0
+          ? []
+          : myStores[0].store_id.toString(),
+      });
+    }
   }, [form, myStores, params]);
 
   useEffect(() => {

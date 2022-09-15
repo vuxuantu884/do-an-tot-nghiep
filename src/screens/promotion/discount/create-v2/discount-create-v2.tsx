@@ -2,7 +2,7 @@ import { Button, Col, Form, Row } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
-import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { createPriceRuleAction } from "domain/actions/promotion/discount/discount.action";
@@ -97,7 +97,7 @@ function DiscountCreateV2(): ReactElement {
           path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`,
         },
         {
-          name: "Tạo Chiết khấu",
+          name: "Tạo chiết khấu",
           path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/create`,
         },
       ]}
@@ -127,7 +127,7 @@ function DiscountCreateV2(): ReactElement {
         <BottomBarContainer
           back="Quay lại danh sách chiết khấu"
           rightComponent={
-            <AuthWrapper acceptPermissions={[PromoPermistion.CREATE]}>
+            <AuthWrapper acceptPermissions={[PriceRulesPermission.CREATE]}>
               <Button
                 onClick={() => save()}
                 style={{

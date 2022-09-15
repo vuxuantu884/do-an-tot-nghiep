@@ -2,6 +2,7 @@ import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import {
+  AdvertisingHistoryQuery,
   AllInventoryProductInStore,
   AllInventoryResponse,
   HistoryInventoryQuery,
@@ -38,6 +39,14 @@ const inventoryGetHistoryApi = (
 ): Promise<BaseResponse<HistoryInventoryResponse>> => {
   let params = generateQuery(query);
   let link = `${ApiConfig.INVENTORY}/histories?${params}`;
+  return BaseAxios.get(link);
+};
+
+const inventoryGetAdvertisingHistoryApi = (
+  query: AdvertisingHistoryQuery,
+): Promise<BaseResponse<HistoryInventoryResponse>> => {
+  let params = generateQuery(query);
+  let link = `${ApiConfig.PROMOTION}/price-rule-entitlements?${params}`;
   return BaseAxios.get(link);
 };
 
@@ -108,4 +117,5 @@ export {
   updateInventoryConfigService,
   getInventoryConfigService,
   deleteInventoryConfigService,
+  inventoryGetAdvertisingHistoryApi
 };

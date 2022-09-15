@@ -577,11 +577,11 @@ export const USAGE_STATUS = [
   },
 ];
 
-export const ACTIONS_PROMO: Array<MenuAction> = [
+export const PROMOTION_RELEASE_ACTIONS: Array<MenuAction> = [
   { id: 1, name: "Kích hoạt" },
   { id: 2, name: "Tạm ngừng" },
-  { id: 3, name: "Xuất Excel", disabled: true },
-  { id: 4, name: "Xoá", disabled: true },
+  // { id: 3, name: "Xuất Excel", disabled: true },
+  // { id: 4, name: "Xoá", disabled: true },
 ];
 
 export const ACTIONS_DISCOUNT: Array<MenuAction> = [

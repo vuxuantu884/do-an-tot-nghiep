@@ -9,21 +9,18 @@ import CloseIcon from "assets/icon/x-close-red.svg";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
 import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
 import VoucherIcon from "assets/img/voucher.svg";
-import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import { PROMOTION_CDN } from "config/cdn/promotion.cdn";
-import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import { PromotionReleasePermission } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
-  addPriceRules,
-  bulkDisablePriceRulesAction,
-  bulkEnablePriceRulesAction,
-  getPriceRuleAction,
-  getVariantsAction,
-} from "domain/actions/promotion/discount/discount.action";
-import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
+  activatePromotionReleaseAction, createPromotionReleaseAction,
+  deactivatePromotionReleaseAction,
+  getListPromoCode,
+  getPromotionReleaseDetailAction,
+} from "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
 import { PriceRule, PriceRuleMethod } from "model/promotion/price-rules.model";
 import React, { useCallback, useEffect, useState } from "react";
@@ -128,28 +125,14 @@ const PromotionDetailScreen: React.FC = () => {
   const [uploadStatus, setUploadStatus] = useState<
     "error" | "success" | "done" | "uploading" | "removed" | undefined
   >(undefined);
-  const [dataVariants, setDataVariants] = useState<any | null>(null);
-  const [, setEntitlements] = useState<Array<any>>([]);
-  const [, setMinOrderSubtotal] = useState(0);
-  const [, setApplyFor] = useState("Sản phẩm");
 
   //phân quyền
-  const [allowCancelPromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.CANCEL],
+  const [allowCreatePromotionRelease] = useAuthorization({
+    acceptPermissions: [PromotionReleasePermission.CREATE],
   });
-
-  const handleResponse = useCallback((result: any | false) => {
-    setLoading(false);
-    if (!result) {
-      setError(true);
-    } else {
-      setDataVariants(result);
-    }
-  }, []);
-
-  useEffect(() => {
-    dispatch(getVariantsAction(idNumber, handleResponse));
-  }, [dispatch, handleResponse, idNumber]);
+  const [allowUpdatePromotionRelease] = useAuthorization({
+    acceptPermissions: [PromotionReleasePermission.UPDATE],
+  });
 
   const checkIsHasPromo = useCallback((data: any) => {
     setCheckPromoCode(data.items.length > 0);
@@ -172,16 +155,6 @@ const PromotionDetailScreen: React.FC = () => {
     getDiscountCodeData();
   }, [getDiscountCodeData]);
 
-  const onActivate = () => {
-    dispatch(showLoading());
-    dispatch(bulkEnablePriceRulesAction({ ids: [idNumber] }, onActivateSuccess));
-  };
-
-  const onDeactivate = () => {
-    dispatch(showLoading());
-    dispatch(bulkDisablePriceRulesAction({ ids: [idNumber] }, onActivateSuccess));
-  };
-
   // section handle call api GET DETAIL
   const onResult = useCallback((result: PriceRule | false) => {
     setLoading(false);
@@ -192,51 +165,8 @@ const PromotionDetailScreen: React.FC = () => {
     }
   }, []);
 
-  const spreadData = (data: any) => {
-    let result: any[] = [];
-    if (data?.entitlements && data?.entitlements.length > 0) {
-      data?.entitlements.forEach((entitlement: any) => {
-        entitlement.entitled_variant_ids.forEach((vId: any) => {
-          result.push({
-            id: vId,
-            minimum: entitlement.prerequisite_quantity_ranges[0]["greater_than_or_equal_to"],
-          });
-        });
-      });
-    }
-    return result;
-  };
-
-  const mergeVariants = useCallback(
-    (sourceData: Array<any>) => {
-      return sourceData.map((s) => {
-        const variant = dataVariants.find((v: any) => v.variant_id === s.id);
-        if (variant) {
-          s.title = variant.variant_title;
-          s.sku = variant.sku;
-        }
-        return s;
-      });
-    },
-    [dataVariants],
-  );
-
-  useEffect(() => {
-    if (dataVariants && data && data.entitlements.length > 0) {
-      if (data.prerequisite_subtotal_range?.greater_than_or_equal_to)
-        setMinOrderSubtotal(data.prerequisite_subtotal_range?.greater_than_or_equal_to);
-      const flattenData: Array<any> = spreadData(data);
-      const listEntitlements: Array<any> = mergeVariants(flattenData);
-      if (!listEntitlements || listEntitlements.length === 0) {
-        setApplyFor("Tất cả sản phẩm");
-      }
-      setEntitlements(listEntitlements);
-    }
-  }, [data, dataVariants, mergeVariants]);
-
-  const onActivateSuccess = useCallback(() => {
-    dispatch(hideLoading());
-    dispatch(getPriceRuleAction(idNumber, onResult));
+  const getPromotionReleaseDetail = useCallback(() => {
+    dispatch(getPromotionReleaseDetailAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
   const onEdit = useCallback(() => {
@@ -249,8 +179,8 @@ const PromotionDetailScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    dispatch(getPriceRuleAction(idNumber, onResult));
-  }, [dispatch, idNumber, onResult]);
+    getPromotionReleaseDetail();
+  }, [getPromotionReleaseDetail]);
 
   const promoDetail: Array<any> | undefined = React.useMemo(() => {
     if (data) {
@@ -467,7 +397,7 @@ const PromotionDetailScreen: React.FC = () => {
         })`
       : `${data?.title?.trimRight()} (2)`;
     dispatch(
-      addPriceRules(
+      createPromotionReleaseAction(
         { ...data, discount_codes: [], title: clonedTitle } as PriceRule,
         (response) => {
           if (response) {
@@ -484,6 +414,24 @@ const PromotionDetailScreen: React.FC = () => {
   const renderStatus = (data: PriceRule) => {
     const status = promoStatuses.find((status) => status.code === data.state);
     return <span style={status?.style}>{status?.value}</span>;
+  };
+
+  const onActivate = () => {
+    dispatch(activatePromotionReleaseAction({ ids: [idNumber] }, (response) => {
+      if (response) {
+        showSuccess("Kích hoạt đợt phát hành thành công");
+        getPromotionReleaseDetail();
+      }
+    }));
+  };
+
+  const onDeactivate = () => {
+    dispatch(deactivatePromotionReleaseAction({ ids: [idNumber] },  (response) => {
+      if (response) {
+        showSuccess("Tạm ngừng đợt phát hành thành công");
+        getPromotionReleaseDetail();
+      }
+    }));
   };
 
   const renderActionButton = () => {
@@ -673,6 +621,7 @@ const PromotionDetailScreen: React.FC = () => {
                 </Row>
                 <hr />
               </Card>
+
               <Card
                 className="card"
                 title={
@@ -702,89 +651,68 @@ const PromotionDetailScreen: React.FC = () => {
                     >
                       <span>Đợt phát hành chưa có mã nào!</span>
                     </Col>
-                    <Col
-                      span="24"
-                      style={{
-                        display: "flex",
-                        gap: 15,
-                      }}
-                    >
-                      <div
-                        className="card-discount-code"
-                        onClick={() => setShowAddCodeManual(true)}
+                    {allowUpdatePromotionRelease &&
+                      <Col
+                        span="24"
+                        style={{
+                          display: "flex",
+                          gap: 15,
+                        }}
                       >
-                        <img
-                          style={{
-                            background: "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)",
-                          }}
-                          src={VoucherIcon}
-                          alt=""
-                        />
-                        <p style={{ fontWeight: 500 }}>Thêm mã thủ công</p>
-                        <p>
-                          Sử dụng khi bạn chỉ phát hành số lượng ít mã giảm giá hoặc áp dụng 1 mã
-                          nhiều lần
-                        </p>
-                      </div>
-                      <div
-                        className="card-discount-code"
-                        onClick={() => setShowAddCodeRandom(true)}
-                      >
-                        <img
-                          style={{
-                            background: "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)",
-                          }}
-                          src={AddListCouponIcon}
-                          alt=""
-                        />
-                        <p style={{ fontWeight: 500 }}>Thêm mã ngẫu nhiên</p>
-                        <p>
-                          Sử dụng khi bạn muốn tạo ra danh sách mã giảm giá ngẫu nhiên và phát cho
-                          mỗi khách hàng 1 mã
-                        </p>
-                      </div>
-                      <div className="card-discount-code" onClick={() => setShowImportFile(true)}>
-                        <img
-                          style={{
-                            background:
-                              "linear-gradient(66.01deg, #FFAE06 37.34%, #FFBE38 101.09%)",
-                          }}
-                          src={AddImportCouponIcon}
-                          alt=""
-                        />
-                        <p style={{ fontWeight: 500 }}>Nhập file Excel</p>
-                        <p>Sử dụng khi bạn có sẵn danh sách mã giảm giá để nhập lên phần mềm</p>
-                        <a href={PROMOTION_CDN.DISCOUNT_CODES_TEMPLATE_URL}>Tải file mẫu</a>
-                      </div>
-                    </Col>
+                        <div
+                          className="card-discount-code"
+                          onClick={() => setShowAddCodeManual(true)}
+                        >
+                          <img
+                            style={{
+                              background: "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)",
+                            }}
+                            src={VoucherIcon}
+                            alt=""
+                          />
+                          <p style={{ fontWeight: 500 }}>Thêm mã thủ công</p>
+                          <p>
+                            Sử dụng khi bạn chỉ phát hành số lượng ít mã giảm giá hoặc áp dụng 1 mã
+                            nhiều lần
+                          </p>
+                        </div>
+                        <div
+                          className="card-discount-code"
+                          onClick={() => setShowAddCodeRandom(true)}
+                        >
+                          <img
+                            style={{
+                              background: "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)",
+                            }}
+                            src={AddListCouponIcon}
+                            alt=""
+                          />
+                          <p style={{ fontWeight: 500 }}>Thêm mã ngẫu nhiên</p>
+                          <p>
+                            Sử dụng khi bạn muốn tạo ra danh sách mã giảm giá ngẫu nhiên và phát cho
+                            mỗi khách hàng 1 mã
+                          </p>
+                        </div>
+                        <div className="card-discount-code" onClick={() => setShowImportFile(true)}>
+                          <img
+                            style={{
+                              background:
+                                "linear-gradient(66.01deg, #FFAE06 37.34%, #FFBE38 101.09%)",
+                            }}
+                            src={AddImportCouponIcon}
+                            alt=""
+                          />
+                          <p style={{ fontWeight: 500 }}>Nhập file Excel</p>
+                          <p>Sử dụng khi bạn có sẵn danh sách mã giảm giá để nhập lên phần mềm</p>
+                          <a href={PROMOTION_CDN.DISCOUNT_CODES_TEMPLATE_URL}>Tải file mẫu</a>
+                        </div>
+                      </Col>
+                    }
                   </Row>
                 )}
               </Card>
               <Card title={"Điều kiện mua hàng"}>
                 <Space size={"large"} direction={"vertical"} style={{ width: "100%" }}>
-                  {/* <Row>
-                    <Col span={12}>
-                      <span style={{ fontWeight: 500 }}>
-                        Đơn hàng có giá trị từ: {formatCurrency(minOrderSubtotal)}₫
-                      </span>
-                    </Col>
-                    <Col span={12}>
-                      <span style={{ fontWeight: 500 }}>Áp dụng cho : {applyFor}</span>
-                    </Col>
-                  </Row>
-                  {entitlements.length > 0 ? (
-                    <CustomTable
-                      dataSource={entitlements}
-                      columns={
-                        entitlements.length > 1
-                          ? columns
-                          : columns.filter((column: any) => column.title !== "STT")
-                      }
-                      pagination={false}
-                    />
-                  ) : (
-                    ""
-                  )} */}
                   {data.entitled_method === PriceRuleMethod.ORDER_THRESHOLD && (
                     <>
                       <DiscountRuleInfo dataDiscount={data} />
@@ -805,17 +733,22 @@ const PromotionDetailScreen: React.FC = () => {
       )}
       <BottomBarContainer
         back="Quay lại danh sách đợt phát hành"
+        backAction={() => {
+          history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`);
+        }}
         rightComponent={
           <Space>
-            <Button onClick={handleClone} loading={loadingClone}>
-              Nhân bản
-            </Button>
-            {data?.state !== "CANCELLED" && (
-              <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
-                <Button onClick={onEdit}>Sửa</Button>
-              </AuthWrapper>
-            )}
-            {allowCancelPromoCode ? renderActionButton() : null}
+            {allowCreatePromotionRelease &&
+              <Button onClick={handleClone} loading={loadingClone}>
+                Nhân bản
+              </Button>
+            }
+
+            {allowUpdatePromotionRelease && data?.state !== "CANCELLED" &&
+              <Button onClick={onEdit}>Sửa</Button>
+            }
+
+            {allowUpdatePromotionRelease && renderActionButton()}
           </Space>
         }
       />

@@ -3,7 +3,7 @@ import { Steps } from "antd";
 import { DailyRevenueDetailModel } from "model/order/daily-revenue.model";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { dailyRevenueStatus } from "screens/DailyRevenue/helper-m";
+import { dailyRevenueStatus } from "screens/DailyRevenue/helper";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { getArrayFromObject } from "utils/OrderUtils";
 // import { FulFillmentStatus } from "utils/Constants";

@@ -3,6 +3,7 @@ import BaseResponse from "base/base.response";
 import { InventoryConfigType, InventoryType } from "domain/types/inventory.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
+  AdvertisingHistoryQuery, AdvertisingHistoryResponse,
   AllInventoryResponse,
   HistoryInventoryQuery,
   HistoryInventoryResponse,
@@ -11,7 +12,6 @@ import {
   InventoryVariantListQuery,
 } from "model/inventory";
 import { FilterConfig, FilterConfigRequest } from "model/other";
-import LoadingType from "../../types/loading.type";
 
 const inventoryGetListAction = (
   query: InventoryQuery,
@@ -38,6 +38,13 @@ const inventoryGetHistoryAction = (
   onResult: (data: PageResponse<HistoryInventoryResponse> | false) => void,
 ) => {
   return BaseAction(InventoryType.GET_HISTORY, { query, onResult });
+};
+
+const inventoryGetAdvertisingHistoryAction = (
+  query: AdvertisingHistoryQuery,
+  onResult: (data: PageResponse<AdvertisingHistoryResponse> | false) => void,
+) => {
+  return BaseAction(InventoryType.GET_ADVERTISING_HISTORY, { query, onResult });
 };
 
 const inventoryGetDetailVariantIdsSaga = (
@@ -118,4 +125,5 @@ export {
   updateConfigInventoryAction,
   deleteConfigInventoryAction,
   changeIsContinueCreateImport,
+  inventoryGetAdvertisingHistoryAction
 };

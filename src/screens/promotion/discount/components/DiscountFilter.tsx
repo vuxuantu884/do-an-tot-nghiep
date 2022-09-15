@@ -15,7 +15,7 @@ import {
   SearchVariantMapping,
 } from "../../../../model/promotion/promotion-mapping";
 import useAuthorization from "hook/useAuthorization";
-import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
 import BaseFilter from "component/filter/base.filter";
 import { FilterOutlined } from "@ant-design/icons";
 import TreeStore from "../../../products/inventory/filter/TreeStore";
@@ -515,7 +515,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
   }, []);
 
   const [allowUpdateDiscount] = useAuthorization({
-    acceptPermissions: [PromoPermistion.UPDATE],
+    acceptPermissions: [PriceRulesPermission.UPDATE],
   });
 
   // handle tag filter

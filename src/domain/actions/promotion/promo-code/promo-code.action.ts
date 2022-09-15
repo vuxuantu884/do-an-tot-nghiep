@@ -4,9 +4,43 @@ import {
   DiscountUsageDetailResponse,
   PriceRule,
 } from "model/promotion/price-rules.model";
-import { PageResponse } from "../../../../model/base/base-metadata.response";
-import { PromoCodeType } from "../../../types/promotion.type";
-import { BaseQuery } from "./../../../../model/base/base.query";
+import { PageResponse } from "model/base/base-metadata.response";
+import { PromoCodeType } from "domain/types/promotion.type";
+import { BaseQuery } from "model/base/base.query";
+
+
+export const createPromotionReleaseAction = (body: PriceRule, callback: (response: PriceRule) => void) => {
+  return BaseAction(PromoCodeType.CREATE_PROMOTION_RELEASE, { body, callback });
+};
+
+export const updatePromotionReleaseAction = (body: any, callback: (response: any) => void) => {
+  return BaseAction(PromoCodeType.UPDATE_PROMOTION_RELEASE, { body, callback });
+};
+
+export const getPromotionReleaseListAction = (
+  query: BaseQuery,
+  setData: (data: PageResponse<PriceRule>) => void,
+) => {
+  return BaseAction(PromoCodeType.GET_PROMOTION_RELEASE_LIST, { query, setData });
+};
+
+export const getPromotionReleaseDetailAction = (id: number, callback: (response: PriceRule) => void) => {
+  return BaseAction(PromoCodeType.GET_PROMOTION_RELEASE_DETAIL, { id, callback });
+};
+
+export const activatePromotionReleaseAction = (
+  body: any,
+  callback: (response: any) => void,
+) => {
+  return BaseAction(PromoCodeType.ENABLE_PROMOTION_RELEASE, { body, callback });
+};
+
+export const deactivatePromotionReleaseAction = (
+  body: any,
+  callback: (response: any) => void,
+) => {
+  return BaseAction(PromoCodeType.DISABLE_PROMOTION_RELEASE, { body, callback });
+};
 
 export const checkPromoCode = (
   code: string,

@@ -10,6 +10,11 @@ import {
   enableBulkPromoCode,
   disableBulkPromoCode,
   getDiscountUsageDetailApi,
+  getPromotionReleaseListService,
+  enablePromotionReleaseService,
+  disablePromotionReleaseService,
+  createPromotionReleaseService,
+  getPromotionReleaseDetailService, updatePromotionReleaseService,
 } from "../../../../service/promotion/promo-code/promo-code.service";
 import { YodyAction } from "../../../../base/base.action";
 import BaseResponse from "../../../../base/base.response";
@@ -18,11 +23,47 @@ import { HttpStatus } from "../../../../config/http-status.config";
 import { unauthorizedAction } from "../../../actions/auth/auth.action";
 import { showError } from "../../../../utils/ToastUtils";
 import { PageResponse } from "../../../../model/base/base-metadata.response";
-import { PromoCodeType } from "../../../types/promotion.type";
+import { PromoCodeType } from "domain/types/promotion.type";
 import { all } from "redux-saga/effects";
 import { DiscountCode, DiscountUsageDetailResponse } from "model/promotion/price-rules.model";
 import { callApiSaga } from "utils/ApiUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+
+/** create Promotion Release */
+function* createPromotionReleaseSaga(action: YodyAction) {
+  const { body, callback } = action.payload;
+  yield callApiSaga({ notifyAction: "SHOW_ALL" }, callback, createPromotionReleaseService, body);
+}
+
+/** update Promotion Release */
+function* updatePromotionReleaseSaga(action: YodyAction) {
+  const { body, callback } = action.payload;
+  yield callApiSaga({ notifyAction: "SHOW_ALL" }, callback, updatePromotionReleaseService, body);
+}
+
+/** get Promotion Release list */
+function* getPromotionReleaseListSaga(action: YodyAction) {
+  const { query, setData } = action.payload;
+  yield callApiSaga({ notifyAction: "SHOW_ALL" }, setData, getPromotionReleaseListService, query);
+}
+
+/** get Promotion Release Detail */
+function* getPromotionReleaseDetailSaga(action: YodyAction) {
+  const { id, callback } = action.payload;
+  yield callApiSaga({ notifyAction: "SHOW_ALL" }, callback, getPromotionReleaseDetailService, id);
+}
+
+/** enable Promotion Release */
+function* enablePromotionReleaseSaga(action: YodyAction) {
+  const { body, callback } = action.payload;
+  yield callApiSaga({ notifyAction: "SHOW_ALL" }, callback, enablePromotionReleaseService, body);
+}
+
+/** disable Promotion Release */
+function* disablePromotionReleaseSaga(action: YodyAction) {
+  const { body, callback } = action.payload;
+  yield callApiSaga({ notifyAction: "SHOW_ALL" }, callback, disablePromotionReleaseService, body);
+}
 
 function* checkPromoCodeAtc(action: YodyAction) {
   const { code, handleResponse } = action.payload;
@@ -280,6 +321,12 @@ function* disableBulkPromoCodeAct(action: YodyAction) {
 
 export function* promoCodeSaga() {
   yield all([
+    takeLatest(PromoCodeType.CREATE_PROMOTION_RELEASE, createPromotionReleaseSaga),
+    takeLatest(PromoCodeType.UPDATE_PROMOTION_RELEASE, updatePromotionReleaseSaga),
+    takeLatest(PromoCodeType.GET_PROMOTION_RELEASE_LIST, getPromotionReleaseListSaga),
+    takeLatest(PromoCodeType.GET_PROMOTION_RELEASE_DETAIL, getPromotionReleaseDetailSaga),
+    takeLatest(PromoCodeType.ENABLE_PROMOTION_RELEASE, enablePromotionReleaseSaga),
+    takeLatest(PromoCodeType.DISABLE_PROMOTION_RELEASE, disablePromotionReleaseSaga),
     takeLatest(PromoCodeType.CHECK_PROMO_CODE, checkPromoCodeAtc),
     takeLatest(PromoCodeType.GET_LIST_PROMO_CODE, getPromoCode),
     takeLatest(PromoCodeType.GET_PROMO_CODE_BY_ID, getPromoCodeByIdAct),

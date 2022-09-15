@@ -1,8 +1,7 @@
 import { AutoComplete, Button, Card, Col, Input, Modal, Progress, Row, Space } from "antd";
-import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import TextShowMore from "component/container/show-more/text-show-more";
-import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
@@ -42,7 +41,7 @@ import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
 import { generateQuery } from "utils/AppUtils";
 import _ from "lodash";
-import { ProductResponse, VariantResponse } from "model/product/product.model";
+import { ProductResponse } from "model/product/product.model";
 import ParentProductItem from "component/item-select/parent-product-item";
 import ProductItem from "./product-item";
 import { LoadingOutlined, SearchOutlined } from "@ant-design/icons";
@@ -86,8 +85,14 @@ const PromotionDetailScreen: React.FC = () => {
   const [keySearchVariantDiscount, setKeySearchVariantDiscount] = useState("");
 
   //phân quyền
-  const [allowUpdatePromoCode] = useAuthorization({
-    acceptPermissions: [PromoPermistion.UPDATE],
+  const [allowCreateDiscount] = useAuthorization({
+    acceptPermissions: [PriceRulesPermission.CREATE],
+  });
+  const [allowUpdateDiscount] = useAuthorization({
+    acceptPermissions: [PriceRulesPermission.UPDATE],
+  });
+  const [allowExportProduct] = useAuthorization({
+    acceptPermissions: [PriceRulesPermission.EXPORT],
   });
 
   const onResult = useCallback((result: PriceRule | false) => {
@@ -451,6 +456,7 @@ const PromotionDetailScreen: React.FC = () => {
         },
       ]}
       extra={
+        allowExportProduct &&
         <Button
           size="large"
           icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
@@ -631,19 +637,19 @@ const PromotionDetailScreen: React.FC = () => {
             backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`)}
             rightComponent={
               <Space>
-                {allowUpdatePromoCode && (
-                  <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
-                    <Link to={`${idNumber}/update`}>
-                      <Button>Sửa</Button>{" "}
-                    </Link>
-                  </AuthWrapper>
-                )}
+                {allowUpdateDiscount &&
+                  <Link to={`${idNumber}/update`}>
+                    <Button>Sửa</Button>
+                  </Link>
+                }
+                
+                {allowCreateDiscount &&
+                  <Link to={`${idNumber}/replicate`}>
+                    <Button>Nhân bản</Button>
+                  </Link>
+                }
 
-                <Link to={`${idNumber}/replicate`}>
-                  <Button>Nhân bản</Button>{" "}
-                </Link>
-
-                {allowUpdatePromoCode && RenderActionButton()}
+                {allowUpdateDiscount && RenderActionButton()}
               </Space>
             }
           />

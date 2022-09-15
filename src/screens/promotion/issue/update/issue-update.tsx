@@ -2,12 +2,8 @@ import { Button, Col, Form, Row } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
-import { PromoPermistion } from "config/permissions/promotion.permisssion";
+import { PromotionReleasePermission } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
-import {
-  getPriceRuleAction,
-  updatePriceRuleByIdAction,
-} from "domain/actions/promotion/discount/discount.action";
 import { PriceRule } from "model/promotion/price-rules.model";
 import moment from "moment";
 import React, { ReactElement, useCallback, useContext, useEffect, useState } from "react";
@@ -19,6 +15,10 @@ import { parseDurationToMoment, transformData } from "utils/PromotionUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import IssueForm from "../components/issue-form";
 import IssueProvider, { IssueContext } from "../components/issue-provider";
+import {
+  getPromotionReleaseDetailAction,
+  updatePromotionReleaseAction,
+} from "domain/actions/promotion/promo-code/promo-code.action";
 import { IssueStyled } from "../issue-style";
 
 interface Props {}
@@ -45,7 +45,7 @@ function IssueUpdate(props: Props): ReactElement {
       const body = transformData(values, PROMO_TYPE.MANUAL);
       body.id = priceRuleId;
       dispatch(
-        updatePriceRuleByIdAction(body, (result: PriceRule) => {
+        updatePromotionReleaseAction(body, (result: PriceRule) => {
           if (result) {
             showSuccess("Cập nhật thành công");
             history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${priceRuleId}`);
@@ -109,19 +109,23 @@ function IssueUpdate(props: Props): ReactElement {
    */
   const onResult = useCallback(
     (result: PriceRule) => {
+      setLoading(false);
       if (result) {
         parseDataToForm(result);
-        setLoading(false);
       }
     },
     [parseDataToForm],
   );
 
+  const getPromotionReleaseDetail = useCallback(() => {
+    dispatch(getPromotionReleaseDetailAction(priceRuleId, onResult));
+  }, [dispatch, priceRuleId, onResult]);
+
   // Action: Lấy thông tin khuyến mãi
   useEffect(() => {
     setLoading(true);
-    dispatch(getPriceRuleAction(priceRuleId, onResult));
-  }, [dispatch, priceRuleId, onResult]);
+    getPromotionReleaseDetail();
+  }, [getPromotionReleaseDetail]);
 
   return (
     <ContentContainer
@@ -166,7 +170,7 @@ function IssueUpdate(props: Props): ReactElement {
             backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`)}
             rightComponent={
               <div>
-                <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
+                <AuthWrapper acceptPermissions={[PromotionReleasePermission.UPDATE]}>
                   <Button type="primary" htmlType="submit" loading={isSubmitting}>
                     Lưu
                   </Button>
