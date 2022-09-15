@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory, useLocation, useParams } from "react-router-dom";
 import { Button, Card, Col, Form, Input, Modal, Row, Select, Space, Tooltip } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
@@ -8,7 +8,7 @@ import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { generateQuery } from "utils/AppUtils";
+import { convertItemToArray, generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 
 import {
@@ -21,7 +21,10 @@ import {
 } from "domain/actions/marketing/marketing.action";
 import { CampaignContactSearchQuery } from "model/marketing/marketing.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { CAMPAIGN_STATUS_LIST, MESSAGE_STATUS_LIST } from "screens/marketing/campaign/campaign-helper";
+import {
+  CAMPAIGN_STATUS_LIST,
+  MESSAGE_STATUS_LIST,
+} from "screens/marketing/campaign/campaign-helper";
 import {
   CampaignDetailStyled,
   CampaignListFilterStyled,
@@ -39,6 +42,8 @@ import { RiEditLine } from "react-icons/ri";
 import TagStatus from "component/tag/tag-status";
 import useAuthorization from "hook/useAuthorization";
 import { CAMPAIGN_PERMISSION } from "config/permissions/marketing.permission";
+import { getQueryParamsFromQueryString } from "utils/useQuery";
+import queryString from "query-string";
 
 const { Option } = Select;
 
@@ -47,11 +52,15 @@ const updateCampaignPermission = [CAMPAIGN_PERMISSION.marketings_campaigns_updat
 const viewContactPermission = [CAMPAIGN_PERMISSION.marketings_contacts_read];
 
 const CampaignDetail = () => {
-
   const dispatch = useDispatch();
   const params: any = useParams();
   const [form] = Form.useForm();
   const history = useHistory();
+  const location = useLocation();
+
+  const initQuery: CampaignContactSearchQuery = { page: 1, limit: 30, phone: null, statuses: [] };
+
+  const queryParamsParsed: any = queryString.parse(location.search);
 
   // campaign permission
   const [allowUpdateCampaign] = useAuthorization({
@@ -80,7 +89,9 @@ const CampaignDetail = () => {
       {
         name: "Thời gian tạo",
         value: campaignDetail?.created_date ? (
-          <span>{ConvertUtcToLocalDate(campaignDetail?.created_date, DATE_FORMAT.DDMMYY_HHmm)}</span>
+          <span>
+            {ConvertUtcToLocalDate(campaignDetail?.created_date, DATE_FORMAT.DDMMYY_HHmm)}
+          </span>
         ) : null,
       },
       {
@@ -98,7 +109,7 @@ const CampaignDetail = () => {
         value: campaignDetail?.channel || null,
       },
     ];
-  }, [campaignDetail])
+  }, [campaignDetail]);
 
   /** campaign analysis list */
   const campaignAnalysisList: Array<any> = useMemo(() => {
@@ -144,7 +155,7 @@ const CampaignDetail = () => {
         console.log(err?.message);
         showError(err?.message);
       });
-  }
+  };
   /** end campaign analysis list */
 
   /** lấy chi tiết chiến dịch */
@@ -153,23 +164,19 @@ const CampaignDetail = () => {
     if (params?.id) {
       dispatch(getCampaignDetailAction(params.id, setCampaignDetail));
       // fake campaign id = 5
-      dispatch(getCampaignRefIdAction(5, (response) => {
-        if (response) {
-          getCampaignAnalysis(response.ref_id);
-        }
-      }));
+      dispatch(
+        getCampaignRefIdAction(5, (response) => {
+          if (response) {
+            getCampaignAnalysis(response.ref_id);
+          }
+        }),
+      );
     }
   }, [dispatch, params?.id]);
 
   /** lấy danh sách KH cho chiến dịch */
-  const [queryContactSearch, setQueryContactSearch] = useState<CampaignContactSearchQuery>(
-      {
-        page: 1,
-        limit: 30,
-        phone: null,
-        statuses: null,
-      },
-    );
+  const [queryContactSearch, setQueryContactSearch] =
+    useState<CampaignContactSearchQuery>(initQuery);
   const [isLoading, setIsLoading] = useState(false);
   const [campaignCustomerData, setCampaignCustomerData] = useState<PageResponse<any>>({
     metadata: {
@@ -180,6 +187,14 @@ const CampaignDetail = () => {
     items: [],
   });
 
+  /** handle filter param */
+  const initialValues: any = useMemo(() => {
+    return {
+      ...queryContactSearch,
+      statuses: convertItemToArray(queryContactSearch.statuses),
+    };
+  }, [queryContactSearch]);
+
   const updateCampaignCustomerListData = useCallback((responseData: PageResponse<any> | false) => {
     setIsLoading(false);
     if (responseData) {
@@ -187,34 +202,48 @@ const CampaignDetail = () => {
     }
   }, []);
 
-  const getCampaignCustomerList = useCallback((query: any) => {
-    if (!allowViewContact) {
-      return;
-    } else {
-      const queryCustomer = {
-        ...queryContactSearch,
-        ...query,
-      };
-      setQueryContactSearch(queryCustomer);
-      setIsLoading(true);
-      dispatch(getCampaignContactListAction(Number(params?.id), queryCustomer, updateCampaignCustomerListData));
-    }
+  const getCampaignCustomerList = useCallback(
+    (query: any) => {
+      if (!allowViewContact) {
+        return;
+      } else {
+        const queryCustomer = {
+          ...queryContactSearch,
+          ...query,
+        };
+        setQueryContactSearch(queryCustomer);
+        setIsLoading(true);
+        dispatch(
+          getCampaignContactListAction(
+            Number(params?.id),
+            queryCustomer,
+            updateCampaignCustomerListData,
+          ),
+        );
+      }
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allowViewContact, dispatch, params?.id, updateCampaignCustomerListData]);
+    [allowViewContact, dispatch, params?.id, updateCampaignCustomerListData],
+  );
 
   const reloadPage = () => {
     window.location.reload();
   };
 
   /** column table */
-  const resendContactMessage = useCallback((item: any) => {
-    dispatch(resendContactMessageAction(item.id, (response) => {
-      if (response) {
-        getCampaignCustomerList({});
-        showSuccess("Gửi lại tin thành công.");
-      }
-    }));
-  }, [dispatch, getCampaignCustomerList]);
+  const resendContactMessage = useCallback(
+    (item: any) => {
+      dispatch(
+        resendContactMessageAction(item.id, (response) => {
+          if (response) {
+            getCampaignCustomerList({});
+            showSuccess("Gửi lại tin thành công.");
+          }
+        }),
+      );
+    },
+    [dispatch, getCampaignCustomerList],
+  );
 
   const handleUpdateContactMessage = (item: any) => {
     setContactMessage(item.customer_message);
@@ -238,46 +267,50 @@ const CampaignDetail = () => {
     const queryParams = {
       id: contactItemUpdate.id,
       customer_message: contactMessage,
-    }
+    };
     dispatch(updateContactMessageAction(queryParams, callbackUpdateContactMessage));
   };
-  
+
   const onCancelUpdateContactMessage = () => {
     setIsShowUpdateMessageModal(false);
     setContactMessage("");
   };
 
-  const ContactRowAction = useCallback((item: any) => {
-    return (
-      <div>
-        {(item.customer_message_status === "PENDING" || item.customer_message_status === "FAILED") &&
-          <Button
-            type="link"
-            icon={
-              <Tooltip title={"Chỉnh sửa"}>
-                <img src={editIcon} alt="editIcon" style={{ width: "24px" }} />
-              </Tooltip>
-            }
-            style={{ padding: 0, width: "30px", marginRight: "20px" }}
-            onClick={() => handleUpdateContactMessage(item)}
-          />
-        }
+  const ContactRowAction = useCallback(
+    (item: any) => {
+      return (
+        <div>
+          {(item.customer_message_status === "PENDING" ||
+            item.customer_message_status === "FAILED") && (
+            <Button
+              type="link"
+              icon={
+                <Tooltip title={"Chỉnh sửa"}>
+                  <img src={editIcon} alt="editIcon" style={{ width: "24px" }} />
+                </Tooltip>
+              }
+              style={{ padding: 0, width: "30px", marginRight: "20px" }}
+              onClick={() => handleUpdateContactMessage(item)}
+            />
+          )}
 
-        {item.customer_message_status === "FAILED" &&
-          <Button
-            type="link"
-            icon={
-              <Tooltip title={"Gửi lại"}>
-                <img src={reloadGrayIcon} alt="reloadGrayIcon" />
-              </Tooltip>
-            }
-            style={{ padding: 0, width: "30px" }}
-            onClick={() => resendContactMessage(item)}
-          />
-        }
-      </div>
-    );
-  }, [resendContactMessage]);
+          {item.customer_message_status === "FAILED" && (
+            <Button
+              type="link"
+              icon={
+                <Tooltip title={"Gửi lại"}>
+                  <img src={reloadGrayIcon} alt="reloadGrayIcon" />
+                </Tooltip>
+              }
+              style={{ padding: 0, width: "30px" }}
+              onClick={() => resendContactMessage(item)}
+            />
+          )}
+        </div>
+      );
+    },
+    [resendContactMessage],
+  );
 
   const columns: Array<ICustomTableColumType<any>> = useMemo(() => {
     return [
@@ -286,7 +319,9 @@ const CampaignDetail = () => {
         align: "center",
         render: (value: any, item: any, index: number) => (
           <div>
-            {(campaignCustomerData.metadata.page - 1) * campaignCustomerData.metadata.limit + index + 1}
+            {(campaignCustomerData.metadata.page - 1) * campaignCustomerData.metadata.limit +
+              index +
+              1}
           </div>
         ),
         width: "70px",
@@ -295,9 +330,7 @@ const CampaignDetail = () => {
         title: "Số điện thoại",
         width: "200px",
         render: (item: any) => {
-          return (
-            <span>{item.customer_phone_number}</span>
-          );
+          return <span>{item.customer_phone_number}</span>;
         },
       },
       {
@@ -306,7 +339,8 @@ const CampaignDetail = () => {
         width: "200px",
         render: (item: any) => {
           const campaignStatus: any = MESSAGE_STATUS_LIST.find(
-            (status) => status.value.toUpperCase() === item.customer_message_status?.toUpperCase());
+            (status) => status.value.toUpperCase() === item.customer_message_status?.toUpperCase(),
+          );
           return <div style={{ color: `${campaignStatus?.color}` }}>{campaignStatus?.name}</div>;
         },
       },
@@ -323,32 +357,48 @@ const CampaignDetail = () => {
       {
         title: "Nội dung tin nhắn",
         render: (item: any) => {
-          return (
-            <div>{item.customer_message}</div>
-          );
+          return <div>{item.customer_message}</div>;
         },
       },
       {
         title: "Thao tác",
         align: "center",
         width: "150px",
-        render: (item: any) => (
-          ContactRowAction(item)
-        ),
+        render: (item: any) => ContactRowAction(item),
       },
     ];
   }, [ContactRowAction, campaignCustomerData.metadata.limit, campaignCustomerData.metadata.page]);
 
-  const onPageChange = useCallback((page, limit) => {
-      getCampaignCustomerList({ page, limit });
-    }, [getCampaignCustomerList],
+  /** Handle campaign list filter */
+  const onFilter = useCallback(
+    (values: CampaignContactSearchQuery) => {
+      const newParams = { ...queryContactSearch, ...values, page: 1 };
+      const queryParam = generateQuery(newParams);
+      const currentParam = generateQuery(params);
+      if (currentParam === queryParam) {
+        getCampaignCustomerList(newParams);
+      } else {
+        history.push(`${location.pathname}?${queryParam}`);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [history, location.pathname, params],
+  );
+
+  const onPageChange = useCallback(
+    (page, limit) => {
+      const newParams = { ...queryContactSearch, page, limit };
+      const queryParam = generateQuery(newParams);
+      history.push(`${location.pathname}?${queryParam}`);
+    },
+    [history, location.pathname, queryContactSearch],
   );
 
   const onFinish = useCallback(
     (values) => {
-      getCampaignCustomerList(values);
+      onFilter && onFilter(values);
     },
-    [getCampaignCustomerList],
+    [onFilter],
   );
 
   useEffect(() => {
@@ -366,34 +416,37 @@ const CampaignDetail = () => {
     };
 
     setIsLoading(true);
-    dispatch(updateCampaignAction(campaignDetail?.id, { ...params }, (response) => {
-      setIsLoading(false);
-      showSuccess(`${status === "ACTIVE" ? "Kích hoạt" : "Tạm ngừng"} chiến dịch thành công.`);
-      setCampaignDetail(response);
-    }));
+    dispatch(
+      updateCampaignAction(campaignDetail?.id, { ...params }, (response) => {
+        setIsLoading(false);
+        showSuccess(`${status === "ACTIVE" ? "Kích hoạt" : "Tạm ngừng"} chiến dịch thành công.`);
+        setCampaignDetail(response);
+      }),
+    );
   };
 
-
   const renderCampaignStatus = useCallback(() => {
-    const campaignStatus =  CAMPAIGN_STATUS_LIST.find(item => item.value === campaignDetail?.status?.toUpperCase());
+    const campaignStatus = CAMPAIGN_STATUS_LIST.find(
+      (item) => item.value === campaignDetail?.status?.toUpperCase(),
+    );
     return (
       <>
         <span style={{ marginRight: "20px" }}>THÔNG TIN CHIẾN DỊCH</span>
-        {campaignStatus &&
-          <TagStatus type={campaignStatus.tagStatus}>
-            {campaignStatus.name}
-          </TagStatus>
-        }
+        {campaignStatus && (
+          <TagStatus type={campaignStatus.tagStatus}>{campaignStatus.name}</TagStatus>
+        )}
       </>
-    )
+    );
   }, [campaignDetail?.status]);
 
   const renderMessageStatus = useCallback(() => {
-    const campaignStatus =  MESSAGE_STATUS_LIST.find(item => item.value === campaignDetail?.message_status?.toUpperCase());
+    const campaignStatus = MESSAGE_STATUS_LIST.find(
+      (item) => item.value === campaignDetail?.message_status?.toUpperCase(),
+    );
     return (
-      <div style={{ display: "flex", alignItems: "center"}}>
+      <div style={{ display: "flex", alignItems: "center" }}>
         <span>THỐNG KÊ CHIẾN DỊCH</span>
-        {campaignStatus &&
+        {campaignStatus && (
           <span
             style={{
               marginLeft: "20px",
@@ -408,10 +461,25 @@ const CampaignDetail = () => {
           >
             {campaignStatus?.name}
           </span>
-        }
+        )}
       </div>
-    )
+    );
   }, [campaignDetail?.message_status]);
+
+  useEffect(() => {
+    const dataQuery: CampaignContactSearchQuery = {
+      ...initQuery,
+      ...getQueryParamsFromQueryString(queryParamsParsed),
+    };
+    setQueryContactSearch(dataQuery);
+    getCampaignCustomerList(dataQuery);
+
+    form.setFieldsValue({
+      phone: dataQuery.phone,
+      statuses: dataQuery.statuses,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, location.search]);
 
   return (
     <CampaignDetailStyled>
@@ -435,10 +503,7 @@ const CampaignDetail = () => {
         ]}
       >
         <div>
-          <Card
-            title={renderCampaignStatus()}
-            className="campaign-info"
-          >
+          <Card title={renderCampaignStatus()} className="campaign-info">
             <Row>
               <Col span={8}>
                 <div className="item-detail">
@@ -459,10 +524,7 @@ const CampaignDetail = () => {
             </Row>
           </Card>
 
-          <Card
-            title={"CHI TIẾT CHIẾN DỊCH"}
-            className="campaign-sms-detail"
-          >
+          <Card title={"CHI TIẾT CHIẾN DỊCH"} className="campaign-sms-detail">
             <Row>
               <Col span={16}>
                 <Row style={{ width: "100%", marginRight: "16px" }}>
@@ -486,10 +548,7 @@ const CampaignDetail = () => {
             </Row>
           </Card>
 
-          <Card
-            title={renderMessageStatus()}
-            className="campaign-analysis"
-          >
+          <Card title={renderMessageStatus()} className="campaign-analysis">
             <Row>
               {campaignAnalysisList?.map((info: any, index: number) => (
                 <Col key={index} span={6} className="item-info">
@@ -503,15 +562,13 @@ const CampaignDetail = () => {
             </Row>
           </Card>
 
-          {allowViewContact &&
-            <Card
-              title={"DANH SÁCH KHÁCH HÀNG"}
-              className="campaign-customer-list"
-            >
+          {allowViewContact && (
+            <Card title={"DANH SÁCH KHÁCH HÀNG"} className="campaign-customer-list">
               <CampaignListFilterStyled>
                 <Form
                   form={form}
                   onFinish={onFinish}
+                  initialValues={initialValues}
                   layout="inline"
                   className="inline-filter"
                 >
@@ -524,10 +581,7 @@ const CampaignDetail = () => {
                     />
                   </Form.Item>
 
-                  <Form.Item
-                    name="statuses"
-                    className="status"
-                  >
+                  <Form.Item name="statuses" className="status">
                     <Select
                       mode="multiple"
                       maxTagCount="responsive"
@@ -571,33 +625,39 @@ const CampaignDetail = () => {
                 rowKey={(item: any) => item.id}
               />
             </Card>
-          }
+          )}
 
           <BottomBarContainer
             back="Quay lại danh sách chiến dịch"
             backAction={() => history.push(`${UrlConfig.MARKETING}/campaigns`)}
             rightComponent={
-              allowUpdateCampaign &&
-              <Space>
-                <Button onClick={() => history.push(`${UrlConfig.MARKETING}/campaigns/${params?.id}/update`)}>
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <RiEditLine color="#757575" style={{ width: "15px", marginRight: "8px" }} />
-                    <span>Chỉnh sửa</span>
-                  </div>
-                </Button>
-
-                {(campaignDetail?.status?.toUpperCase() === "WAITING" || campaignDetail?.status?.toUpperCase() === "PAUSE") &&
-                  <Button onClick={() => updateCampaignStatus("ACTIVE")} type={"primary"}>
-                    Kích hoạt
+              allowUpdateCampaign && (
+                <Space>
+                  <Button
+                    onClick={() =>
+                      history.push(`${UrlConfig.MARKETING}/campaigns/${params?.id}/update`)
+                    }
+                  >
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <RiEditLine color="#757575" style={{ width: "15px", marginRight: "8px" }} />
+                      <span>Chỉnh sửa</span>
+                    </div>
                   </Button>
-                }
 
-                {(campaignDetail?.status?.toUpperCase() === "ACTIVE") &&
-                  <Button onClick={() => updateCampaignStatus("PAUSE")} type={"primary"}>
-                    Tạm ngừng
-                  </Button>
-                }
-              </Space>
+                  {(campaignDetail?.status?.toUpperCase() === "WAITING" ||
+                    campaignDetail?.status?.toUpperCase() === "PAUSE") && (
+                    <Button onClick={() => updateCampaignStatus("ACTIVE")} type={"primary"}>
+                      Kích hoạt
+                    </Button>
+                  )}
+
+                  {campaignDetail?.status?.toUpperCase() === "ACTIVE" && (
+                    <Button onClick={() => updateCampaignStatus("PAUSE")} type={"primary"}>
+                      Tạm ngừng
+                    </Button>
+                  )}
+                </Space>
+              )
             }
           />
         </div>
