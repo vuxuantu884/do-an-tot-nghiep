@@ -32,6 +32,29 @@
   }
 }
 
+.modal-image .ant-progress-inner {
+  display: none;
+}
+
+.note {
+  line-height: 30px;
+  font-style: italic;
+}
+
+.file-list {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.file-list:hover {
+  background: #f5f5f5;
+}
+
+.error-file {
+  color: #ff4d4f;
+}
+
 .modal-image .anticon-loading {
   display: none;
 }
