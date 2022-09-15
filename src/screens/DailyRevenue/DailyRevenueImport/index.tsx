@@ -1,30 +1,30 @@
 import { CloseOutlined, IssuesCloseOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Form, Input, Row, Space, Spin, Typography, Upload } from "antd";
-import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/url.config";
-import React, { useCallback, useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
-import { ConAcceptImport, DAILY_REVENUE_IMPORT } from "utils/Constants";
-import { StyleComponent } from "./style";
-import excelIcon from "assets/icon/icon-excel.svg";
-import { RcFile } from "antd/lib/upload";
 import { UploadFile } from "antd/es/upload/interface";
+import Text from "antd/lib/typography/Text";
+import { RcFile } from "antd/lib/upload";
+import fileOtherPayment from "assets/file/File_Nhap_thu_chi.xlsx";
+import fileConfirmPayment from "assets/file/File_Nhap_tien_thuc_nhan.xlsx";
+import excelIcon from "assets/icon/icon-excel.svg";
+import BottomBarContainer from "component/container/bottom-bar.container";
+import ContentContainer from "component/container/content.container";
+import { DAILY_REVENUE_PERMISSIONS } from "config/permissions/daily-revenue.permission";
+import UrlConfig from "config/url.config";
+import useAuthorization from "hook/useAuthorization";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { useSelector } from "react-redux";
 import { ImportFileModel } from "model/revenue";
+import React, { useCallback, useState } from "react";
+import { useSelector } from "react-redux";
+import { useHistory, useParams } from "react-router-dom";
+import NoPermission from "screens/no-permission.screen";
 import {
   importOtherPaymentDailyRevenueService,
   importPaymentConfirmDailyRevenueService,
 } from "service/daily-revenue";
+import { ConAcceptImport, DAILY_REVENUE_IMPORT } from "utils/Constants";
 import { showError, showModalSuccess } from "utils/ToastUtils";
-import { getBase64 } from "../Helper";
-import Text from "antd/lib/typography/Text";
-import BottomBarContainer from "component/container/bottom-bar.container";
-import fileOtherPayment from "assets/file/File_Nhap_thu_chi.xlsx";
-import fileConfirmPayment from "assets/file/File_Nhap_tien_thuc_nhan.xlsx";
-import useAuthorization from "hook/useAuthorization";
-import { DAILY_REVENUE_PERMISSIONS } from "config/permissions/daily-revenue.permission";
-import NoPermission from "screens/no-permission.screen";
+import { getBase64 } from "../helper";
+import { StyleComponent } from "./style";
 
 type DailyRevenueParam = {
   type: string;

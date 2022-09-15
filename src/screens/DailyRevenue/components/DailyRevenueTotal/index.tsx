@@ -8,7 +8,7 @@ import {
   DailyRevenueVisibleCardElementModel,
 } from "model/order/daily-revenue.model";
 import React, { useCallback, useState } from "react";
-import { dailyRevenuePaymentStatus, dailyRevenueStatus } from "screens/DailyRevenue/helper-m";
+import { dailyRevenueStatus } from "screens/DailyRevenue/helper";
 import { getArrayFromObject, renderFormatCurrency } from "utils/OrderUtils";
 import { showWarning } from "utils/ToastUtils";
 import costIcon from "./../../images/costIcon.svg";
@@ -71,7 +71,7 @@ function DailyRevenueTotal(props: PropTypes) {
   ];
 
   const dailyRevenuePaymentStatusArr: DailyRevenuePaymentStatusModel[] =
-    getArrayFromObject(dailyRevenuePaymentStatus);
+    getArrayFromObject(dailyRevenueStatus);
 
   const renderMinusOrPlus = (single: ElementType, index: number) => {
     if (index === 0 && single.type === MinusOrPlusType.plus) {

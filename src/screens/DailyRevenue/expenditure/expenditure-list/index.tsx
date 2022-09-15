@@ -11,7 +11,7 @@ import { ExpenditureSearchQuery, ExpenditureTableModel } from "model/revenue/exp
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { getDataTable } from "screens/DailyRevenue/Helper";
+import { getDataTable } from "screens/DailyRevenue/helper";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import ExpenditureFilter from "../component/expenditure-filter";

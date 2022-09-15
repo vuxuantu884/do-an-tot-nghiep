@@ -2,6 +2,25 @@ import { PagingParam, ResultPaging } from "model/paging";
 import { DailyRevenueTableModel } from "model/revenue";
 import { flatDataPaging } from "utils/Paging";
 
+export const dailyRevenueStatus = {
+  draft: {
+    title: "Mới",
+    value: "draft",
+  },
+  paying: {
+    title: "Chưa nộp tiền",
+    value: "paying",
+  },
+  paid: {
+    title: "Đã nộp tiền",
+    value: "paid",
+  },
+  finished: {
+    title: "Đã xác nhận",
+    value: "finished",
+  },
+};
+
 export const getDataTable = (pagingParam?: PagingParam): ResultPaging => {
   let fakeData: DailyRevenueTableModel[] = [];
   for (let index = 1; index <= 100; index++) {
