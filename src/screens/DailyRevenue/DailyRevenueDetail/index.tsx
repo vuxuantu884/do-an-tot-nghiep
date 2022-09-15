@@ -33,7 +33,7 @@ import DailyRevenueProgressBar from "../components/DailyRevenueProgressBar";
 import DailyRevenueTotal from "../components/DailyRevenueTotal";
 import RevenueNote from "../components/sidebar/RevenueNote";
 import RevenueStatus from "../components/sidebar/RevenueStatus";
-import { dailyRevenueStatus } from "../helper-m";
+import { dailyRevenueStatus } from "../helper";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {};
