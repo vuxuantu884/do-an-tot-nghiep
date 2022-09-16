@@ -215,12 +215,17 @@ const ProcurementCreateManualScreen: React.FC = () => {
   );
 
   const onQuantityChange = useCallback(
-    (quantity, index: number, prCode: string) => {
+    (quantity: number, sku: string, prCode: string) => {
       let procurements: Array<PurchaseProcument> = formMain.getFieldValue(POField.procurements);
       const prIndex = procurements.findIndex((item: PurchaseProcument) => item.code === prCode);
-      if (quantity !== undefined && index !== undefined && prIndex !== -1) {
-        procurements[prIndex].procurement_items[index].real_quantity = quantity * 1;
-        procurements[prIndex].procurement_items[index].line_item_id = index;
+      if (quantity !== undefined && sku && prIndex !== -1) {
+        const prItemIdx = procurements[prIndex].procurement_items.findIndex(
+          (el: PurchaseProcumentLineItem) =>
+            el.sku.toUpperCase().trim() === sku.toUpperCase().trim(),
+        );
+        if (prItemIdx !== -1) {
+          procurements[prIndex].procurement_items[prItemIdx].real_quantity = quantity;
+        }
       }
       formMain.setFieldsValue({ [POField.procurements]: [...procurements] });
     },

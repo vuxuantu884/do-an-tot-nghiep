@@ -1,6 +1,5 @@
 import { Card, Col, FormInstance, Image, Row, Tabs, Typography } from "antd";
 import CustomTable from "component/table/CustomTable";
-import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import React, { useEffect } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { Link } from "react-router-dom";
@@ -17,7 +16,7 @@ import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 
 interface LineItemsProps {
   formMain: FormInstance;
-  onQuantityChange: (quantity: any, index: number, code: string) => void;
+  onQuantityChange: (quantity: number, sku: string, code: string) => void;
   procurements: Array<PurchaseProcument>;
   poData: PurchaseOrder;
   setActivePR: (value: string) => void;
@@ -80,6 +79,9 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
         {!isEmpty(procurements) &&
           procurements.map((item: PurchaseProcument) => {
             const { procurement_items, code } = item;
+            const procurementItemFilter = procurement_items.filter(
+              (el: PurchaseProcumentLineItem) => el.planned_quantity > 0,
+            );
             return (
               <TabPane tab={renderTabTitle(item)} key={code}>
                 <Row gutter={50} style={{ marginTop: 15, marginBottom: 15 }}>
@@ -101,7 +103,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
                   <Col span={6}>
                     Tổng sản phẩm nhận:{" "}
                     <Typography.Text strong>
-                      {getTotalRealQuantity(procurement_items)}
+                      {getTotalRealQuantity(procurementItemFilter)}
                     </Typography.Text>
                   </Col>
                 </Row>
@@ -116,7 +118,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
                       title: "STT",
                       align: "center",
                       width: "40px",
-                      render: (value: string, record: PurchaseOrderLineItem, index: number) =>
+                      render: (value: string, row: PurchaseProcumentLineItem, index: number) =>
                         index + 1,
                     },
                     {
@@ -138,15 +140,15 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
                       className: "ant-col-info",
                       // align: "center",
                       dataIndex: "variant",
-                      render: (value: string, record: PurchaseOrderLineItem) => (
+                      render: (value: string, row: PurchaseProcumentLineItem) => (
                         <div>
                           <div>
                             <div className="product-item-sku">
                               <Link
                                 target="_blank"
-                                to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
+                                to={`${UrlConfig.PRODUCT}/${row.product_id}/variants/${row.variant_id}`}
                               >
-                                {record.sku}
+                                {row.sku}
                               </Link>
                             </div>
                             <div className="product-item-name">
@@ -161,8 +163,8 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
                         <div>
                           <div>
                             SL đặt hàng (
-                            <span style={{ color: "#2A2A86" }} className="text-center">
-                              {getTotalPlannedQuantity(procurement_items)}
+                            <span style={{ color: "#2A2A86" }}>
+                              {getTotalPlannedQuantity(procurementItemFilter)}
                             </span>
                             )
                           </div>
@@ -178,8 +180,8 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
                         <div>
                           <div>
                             SL được duyệt (
-                            <span style={{ color: "#2A2A86" }} className="text-center">
-                              {getTotalAcceptedQuantity(procurement_items)}
+                            <span style={{ color: "#2A2A86" }}>
+                              {getTotalAcceptedQuantity(procurementItemFilter)}
                             </span>
                             )
                           </div>
@@ -195,8 +197,8 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
                         <div>
                           <div>
                             SL thực nhận (
-                            <span style={{ color: "#2A2A86" }} className="text-center">
-                              {getTotalRealQuantity(procurement_items)}
+                            <span style={{ color: "#2A2A86" }}>
+                              {getTotalRealQuantity(procurementItemFilter)}
                             </span>
                             )
                           </div>
@@ -205,7 +207,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
                       width: 100,
                       align: "center",
                       dataIndex: "real_quantity",
-                      render: (value, item, index) => (
+                      render: (value, row: PurchaseProcumentLineItem, index) => (
                         <NumberInput
                           isFloat={false}
                           value={value}
@@ -216,8 +218,8 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
                             if (quantity === null) {
                               quantity = 0;
                             }
-                            onQuantityChange(quantity, index, code);
-                            getTotalRealQuantity(procurement_items);
+                            onQuantityChange(quantity, row.sku, code);
+                            getTotalRealQuantity(procurementItemFilter);
                           }}
                           format={(value: string) => {
                             return formatCurrency(value);
@@ -227,11 +229,11 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
                       ),
                     },
                   ]}
-                  dataSource={procurement_items}
+                  dataSource={procurementItemFilter}
                   bordered={true}
                   sticky
                   footer={() =>
-                    procurement_items.length > 0 ? (
+                    procurementItemFilter.length > 0 ? (
                       <div style={{ background: "#f5f5f5" }} className="row-footer-custom">
                         <div
                           className="yody-foot-total-text"
@@ -252,7 +254,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
                             fontWeight: 700,
                           }}
                         >
-                          {getTotalPlannedQuantity(procurement_items)}
+                          {getTotalPlannedQuantity(procurementItemFilter)}
                         </div>
 
                         <div
@@ -263,7 +265,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
                             fontWeight: 700,
                           }}
                         >
-                          {getTotalAcceptedQuantity(procurement_items)}
+                          {getTotalAcceptedQuantity(procurementItemFilter)}
                         </div>
 
                         <div
@@ -275,7 +277,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
                             fontWeight: 700,
                           }}
                         >
-                          {getTotalRealQuantity(procurement_items)}
+                          {getTotalRealQuantity(procurementItemFilter)}
                         </div>
                       </div>
                     ) : (
