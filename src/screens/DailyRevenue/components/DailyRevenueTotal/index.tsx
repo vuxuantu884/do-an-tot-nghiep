@@ -53,7 +53,7 @@ function DailyRevenueTotal(props: PropTypes) {
     {
       title: "Tổng tiền mặt",
       iconUrl: revenueIcon,
-      value: dailyRevenueDetail?.total_revenue,
+      value: dailyRevenueDetail?.cash_payment,
       type: MinusOrPlusType.plus,
     },
     {
