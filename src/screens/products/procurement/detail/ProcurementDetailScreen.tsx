@@ -195,38 +195,6 @@ const ProcurementDetailScreen: React.FC = () => {
     );
   };
 
-  // const renderDate = () => {
-  //   let text = ""
-  //   let date = ""
-  //   if (!procurementData) {
-  //     return "";
-  //   }
-  //   switch (procurementData.status) {
-  //     case ProcurementStatus.draft:
-  //       text = "Ngày nhận hàng dự kiến"
-  //       date = procurementData.expect_receipt_date
-  //       break;
-  //     case ProcurementStatus.not_received:
-  //       text = "Ngày duyệt"
-  //       date = procurementData.activated_date ?? ""
-  //       break;
-  //     case ProcurementStatus.received:
-  //       text = "Ngày nhận hàng"
-  //       date = procurementData.stock_in_date ?? ""
-  //       break;
-  //     case ProcurementStatus.cancelled:
-  //       text = "Ngày hủy"
-  //       date = procurementData.cancelled_date ?? ""
-  //       break;
-  //   }
-  //   return (
-  //     <>
-  //       {text}: {" "}
-  //       <div><Text strong>{ConvertUtcToLocalDate(date)}</Text></div>
-  //     </>
-  //   )
-  // }
-
   const confirmDeletePhrase: string = useMemo(() => {
     if (!procurementData) return "";
     let prefix = "phiếu nháp";
@@ -299,16 +267,19 @@ const ProcurementDetailScreen: React.FC = () => {
     setIsImport(false);
   };
 
-  const handleChangeQuantityPrLineItem = (quantity: number, index: number) => {
+  const handleChangeQuantityPrLineItem = (quantity: number, sku: string) => {
     let procurementItems: Array<PurchaseProcumentLineItem> = formMain.getFieldValue(
       POProcumentField.procurement_items,
     );
-    if (index !== undefined && quantity !== undefined) {
-      procurementItems[index].real_quantity = quantity;
+    const prItemIdx = procurementItems.findIndex(
+      (el: PurchaseProcumentLineItem) => el.sku.toUpperCase().trim() === sku.toUpperCase().trim(),
+    );
+    if (prItemIdx !== -1 && quantity !== undefined) {
+      procurementItems[prItemIdx].real_quantity = quantity;
+      formMain.setFieldsValue({ [POProcumentField.procurement_items]: [...procurementItems] });
+      const total = POUtils.totalRealQuantityProcument(procurementItems);
+      setTotalRealQuantity(total);
     }
-    formMain.setFieldsValue({ [POProcumentField.procurement_items]: [...procurementItems] });
-    const total = POUtils.totalRealQuantityProcument(procurementItems);
-    setTotalRealQuantity(total);
   };
 
   const onFinish = async () => {
@@ -476,15 +447,20 @@ const ProcurementDetailScreen: React.FC = () => {
                 noStyle
               >
                 {({ getFieldValue }) => {
-                  let procurement_items = getFieldValue(POProcumentField.procurement_items) ?? [];
+                  let procurement_items: Array<PurchaseProcumentLineItem> =
+                    getFieldValue(POProcumentField.procurement_items) ?? [];
 
-                  if (poData && !isEmpty(procurement_items)) {
+                  if (poData && procurementData && !isEmpty(procurement_items)) {
+                    const prItemsData = procurement_items.filter(
+                      (el: PurchaseProcumentLineItem) =>
+                        el.planned_quantity > 0 || el.real_quantity > 0,
+                    );
                     return (
                       <>
                         <Table
                           className="product-table"
                           rowClassName="product-table-row"
-                          dataSource={procurement_items}
+                          dataSource={prItemsData}
                           tableLayout="fixed"
                           sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
                           pagination={false}
@@ -547,10 +523,7 @@ const ProcurementDetailScreen: React.FC = () => {
                                   <span>SL kế hoạch</span>
                                   <span style={{ color: "#2A2A86", marginLeft: 5 }}>
                                     <span>{`(${formatCurrency(
-                                      POUtils.totalPlannedQuantityProcurement(
-                                        procurementData?.procurement_items ?? [],
-                                      ),
-                                      ".",
+                                      POUtils.totalPlannedQuantityProcurement(prItemsData),
                                     )})`}</span>
                                   </span>
                                 </>
@@ -560,7 +533,7 @@ const ProcurementDetailScreen: React.FC = () => {
                               dataIndex: POProcumentLineItemField.planned_quantity,
                               render: (value, item, index) => (
                                 <div style={{ fontWeight: 700 }}>
-                                  {value ? formatCurrency(value, ".") : 0}
+                                  {value ? formatCurrency(value) : 0}
                                 </div>
                               ),
                             },
@@ -570,10 +543,7 @@ const ProcurementDetailScreen: React.FC = () => {
                                   <span>SL được duyệt</span>
                                   <span style={{ color: "#2A2A86", marginLeft: 5 }}>
                                     <span>{`(${formatCurrency(
-                                      POUtils.totalAccpectQuantityProcument(
-                                        procurementData?.procurement_items ?? [],
-                                      ),
-                                      ".",
+                                      POUtils.totalAccpectQuantityProcument(prItemsData),
                                     )})`}</span>
                                   </span>
                                 </>
@@ -583,7 +553,7 @@ const ProcurementDetailScreen: React.FC = () => {
                               dataIndex: POProcumentLineItemField.accepted_quantity,
                               render: (value, item, index) => (
                                 <div style={{ fontWeight: 700 }}>
-                                  {value ? formatCurrency(value, ".") : 0}
+                                  {value ? formatCurrency(value) : 0}
                                 </div>
                               ),
                             },
@@ -602,8 +572,8 @@ const ProcurementDetailScreen: React.FC = () => {
                                   : "center",
                               width: 100,
                               dataIndex: POProcumentLineItemField.real_quantity,
-                              render: (value, item, index) => {
-                                return procurementData?.status === ProcurementStatus.not_received ||
+                              render: (value, item: PurchaseProcumentLineItem, index) => {
+                                return procurementData.status === ProcurementStatus.not_received ||
                                   isEdit ? (
                                   <div style={{ marginRight: 15 }}>
                                     <NumberInput
@@ -616,7 +586,7 @@ const ProcurementDetailScreen: React.FC = () => {
                                         if (quantity === null) {
                                           quantity = 0;
                                         }
-                                        handleChangeQuantityPrLineItem(quantity || 0, index);
+                                        handleChangeQuantityPrLineItem(quantity || 0, item.sku);
                                       }}
                                       format={(value: string) => {
                                         return formatCurrency(value);
@@ -628,44 +598,12 @@ const ProcurementDetailScreen: React.FC = () => {
                                   <div
                                     style={{ paddingRight: 30, fontWeight: 700, color: "#27AE60" }}
                                   >
-                                    {value ? formatCurrency(value, ".") : 0}
+                                    {value ? formatCurrency(value) : 0}
                                   </div>
                                 );
                               },
                             },
                           ]}
-                          // summary={(data) => {
-                          //   let planned_quantity = 0;
-                          //   let accepted_quantity = 0;
-                          //   let real_quantity = 0;
-                          //   data.forEach((item) => {
-                          //     planned_quantity = planned_quantity + item.planned_quantity;
-                          //     accepted_quantity = accepted_quantity + item.accepted_quantity;
-                          //     real_quantity = real_quantity + item.real_quantity;
-                          //   });
-                          //   return (
-                          //     <Table.Summary>
-                          //       <Table.Summary.Row>
-                          //         <Table.Summary.Cell align="center" colSpan={3} index={0}>
-                          //           <div style={{ fontWeight: 700 }}>Tổng</div>
-                          //         </Table.Summary.Cell>
-                          //         <Table.Summary.Cell align="center" index={1}>
-                          //           <div style={{ fontWeight: 700 }}>
-                          //             {formatCurrency(planned_quantity, ".")}
-                          //           </div>
-                          //         </Table.Summary.Cell>
-                          //         <Table.Summary.Cell align="center" index={2}>
-                          //           <div style={{ fontWeight: 700 }}>{formatCurrency(accepted_quantity, ".")}</div>
-                          //         </Table.Summary.Cell>
-                          //         <Table.Summary.Cell align={procurementData?.status === ProcurementStatus.not_received ? "right" : "center"} index={3}>
-                          //           <div style={{ fontWeight: 700, paddingRight: 30, color: "#27AE60" }}>
-                          //             {formatCurrency(real_quantity, ".")}
-                          //           </div>
-                          //         </Table.Summary.Cell>
-                          //       </Table.Summary.Row>
-                          //     </Table.Summary>
-                          //   );
-                          // }}
                         />
                         <ImportProcurementExcel
                           onCancel={(preData: Array<PurchaseProcumentLineItem>) => {
