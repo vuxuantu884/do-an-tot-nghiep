@@ -158,8 +158,9 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
               : [],
           }}
           layout="inline"
+          style={{  }}
         >
-          <Form.Item name="info" className="input-search">
+          <Form.Item name="info" style={{ width: "500px" }}>
             <Input
               prefix={<img src={search} alt="" />}
               placeholder="Tên/ Mã cửa hàng/ Số điện thoại/ Hotline"
