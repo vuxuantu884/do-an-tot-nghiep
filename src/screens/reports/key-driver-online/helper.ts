@@ -145,7 +145,24 @@ export const convertDataToFlatTableKeyDriver = (
       data[data.length - 1] = newRow;
     }
   });
-  return buildSchemas(data);
+  const newData = data.filter(
+    (i) =>
+      i.key !== "ON.DT.QT.01" &&
+      i.key !== "ON.DT.QT.13" &&
+      i.key !== "ON.DT.QT.14" &&
+      i.key !== "ON.DT.QT.02" &&
+      i.key !== "ON.DT.QT.11" &&
+      i.key !== "ON.DT.QT.03" &&
+      i.key !== "ON.DT.QT.05" &&
+      i.key !== "ON.DT.QT.12" &&
+      i.key !== "ON.TC.QT.01" &&
+      i.key !== "ON.TC.QT.02" &&
+      i.key !== "ON.TC.QT.06" &&
+      i.key !== "ON.TC.QT.03" &&
+      i.key !== "ON.TC.QT.05" &&
+      i.key !== "ON.TC.QT.12",
+  );
+  return buildSchemas(newData);
 };
 
 const sliceGroups = (schema: any) => {
@@ -222,8 +239,10 @@ const buildSchemas = (_input: any) => {
       .filter((item) => item.parent_key_driver === key_driver)
       .map((child) => ({ ...child, children: treeData(arr, child.key_driver) }));
   // console.log("treeData", treeData(_schemas));
-
-  return removeChildrentEmpty(treeData(_schemas));
+  const finalData = removeChildrentEmpty(treeData(_schemas)).filter(
+    (i) => i.key !== "ON.LN.S1.01.L" && i.key !== "ON.HS.S1.01.L",
+  );
+  return finalData;
 };
 
 function removeChildrentEmpty(arrTreeLayers: any[]) {
