@@ -195,10 +195,10 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
         key: KeyDriverField.UniformOnlineTotalSales,
         name: "Doanh thu đóng hàng online",
       },
-      {
-        name: "Doanh thu giao hàng 4h",
-        method: "Tính năng đang phát triển",
-      },
+      // {
+      //   name: "Doanh thu giao hàng 4h",
+      //   method: "Tính năng đang phát triển",
+      // },
     ],
   },
   {

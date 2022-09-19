@@ -91,6 +91,7 @@ function CellInput(props: RowRender) {
     <NumberInput
       className="input-number"
       isFloat={true}
+      isChangeAfterBlur={false}
       value={value}
       format={(a: string) => formatCurrency(a)}
       replace={(a: string) => replaceFormatString(a)}

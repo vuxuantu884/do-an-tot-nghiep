@@ -51,9 +51,9 @@ function DailyRevenueTotal(props: PropTypes) {
 
   const elementArr: ElementType[] = [
     {
-      title: "Tổng doanh thu",
+      title: "Tổng tiền mặt",
       iconUrl: revenueIcon,
-      value: dailyRevenueDetail?.total_revenue,
+      value: dailyRevenueDetail?.cash_payment,
       type: MinusOrPlusType.plus,
     },
     {
