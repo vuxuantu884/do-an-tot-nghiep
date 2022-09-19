@@ -12,6 +12,7 @@ import UrlConfig, { REPORTS_URL } from "../url.config";
 import { MARKETING_REPORT_TEMPLATES } from "./marketing-report-template";
 import { OFFLINE_REPORT_TEMPLATES } from "./offline-report-templates";
 import { ONLINE_REPORT_TEMPLATES } from "./online-report-templates";
+import { SUB_STATUS_REPORT_TEMPLATES } from "./sub-status-report-templates";
 
 const TODAY = moment().format(DATE_FORMAT.YYYYMMDD);
 const START_OF_MONTH = moment().startOf("month").format(DATE_FORMAT.YYYYMMDD);
@@ -229,6 +230,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   },
   ...ONLINE_REPORT_TEMPLATES,
   ...MARKETING_REPORT_TEMPLATES,
+  ...SUB_STATUS_REPORT_TEMPLATES,
 ];
 
 //re-generate unique id

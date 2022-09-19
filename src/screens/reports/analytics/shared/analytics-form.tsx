@@ -499,9 +499,12 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
         <Card bodyStyle={{ paddingBottom: 8, paddingTop: 8 }} className="report-filter-wrapper">
           <div className="group-report-type">
             {dataQuery?.query.cube &&
-              [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(
-                dataQuery?.query.cube as AnalyticCube,
-              ) && (
+              [
+                AnalyticCube.OfflineSales,
+                AnalyticCube.Sales,
+                AnalyticCube.Costs,
+                AnalyticCube.SalesBySubStatus,
+              ].includes(dataQuery?.query.cube as AnalyticCube) && (
                 <Form.Item
                   label="Ghi nhận theo"
                   name={ReportifyFormFields.timeAtOption}
