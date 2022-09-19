@@ -1840,6 +1840,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                               setShippingFeeInformedToCustomer(0);
                             }
                           }}
+                          disabled={shipmentMethod === ShipmentMethodOption.PICK_AT_STORE}
                         />
                       </Form.Item>
                     }
