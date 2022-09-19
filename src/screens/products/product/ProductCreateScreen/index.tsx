@@ -72,7 +72,7 @@ import {
   capitalEachWords,
 } from "utils/AppUtils";
 import { ArrDefects, DEFAULT_COMPANY, VietNamId } from "utils/Constants";
-import { handleChangeMaterial } from "utils/ProductUtils";
+import { handleChangeMaterial, findPathTreeById } from "utils/ProductUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { careInformation } from "../component/CareInformation/care-value";
@@ -212,6 +212,7 @@ const ProductCreateScreen: React.FC = () => {
   const [collectionLoading, setCollectionLoading] = useState(false);
   const [sizeLoading, setSizeLoading] = useState(false);
   const [colorLoading, setColorLoading] = useState(false);
+  const [isProductCollectionRequired, setIsProductCollectionRequired] = useState(false);
   const [defects, setDefects] = useState<Array<Defect>>([]);
   const [careLabels, setCareLabels] = useState<any[]>([]);
   const [careLabelsString, setCareLabelsString] = useState("");
@@ -236,10 +237,31 @@ const ProductCreateScreen: React.FC = () => {
   }, []);
 
   const onCategoryChange = useCallback(
-    (value: number, b, c) => {
+    (value: number) => {
       const category = lstCategoryAll.find((item) => item.id === value);
 
       if (category && category.child_ids === null) {
+
+        let path: any;
+        listCategory.find((categoryItem) => path = findPathTreeById(categoryItem, category.id));
+
+        const parents = lstCategoryAll.filter((item) => {
+          return item.child_ids && item.child_ids.split(',')
+            .filter((childItem) => path
+              .filter((pathItem: any) => pathItem === Number(childItem))
+              .length > 0)
+            .length > 0
+        });
+
+        const rootParent = parents.filter((parent) => !parent.parent);
+        setIsProductCollectionRequired(rootParent?.length > 0 && rootParent[0].name === 'Thời trang')
+
+        if (rootParent.length > 0 && rootParent[0].name === 'Thời trang') {
+          form.resetFields([
+            "product_collections"
+          ]);
+        }
+
         form.setFieldsValue({
           code: category.code ?? "",
           name: capitalEachWords(category.name),
@@ -249,9 +271,14 @@ const ProductCreateScreen: React.FC = () => {
         form.setFieldsValue({
           category_id: null,
         });
+        form.resetFields([
+          "category_id",
+          "product_collections"
+        ]);
+        setIsProductCollectionRequired(false);
       }
     },
-    [form, lstCategoryAll],
+    [form, listCategory, lstCategoryAll],
   );
 
   const listVariantsFilter = useCallback(
@@ -446,7 +473,7 @@ const ProductCreateScreen: React.FC = () => {
   );
 
   const onColorSelected = useCallback(
-    async (value: number, objColor: any) => {
+    async (value: number) => {
       let colorCode: string = "";
       let colorName: string = "";
 
@@ -552,7 +579,7 @@ const ProductCreateScreen: React.FC = () => {
     [history],
   );
 
-  const onClickUpload = useCallback((item: VariantRequestView, index: number) => {
+  const onClickUpload = useCallback((item: VariantRequestView) => {
     setVariant({
       name: item.name,
       sku: item.sku,
@@ -609,7 +636,7 @@ const ProductCreateScreen: React.FC = () => {
         if (sizeSelected.length > 0 && colorSelected.length > 0) {
           form.submit();
         } else {
-          let notSelected = "";
+          let notSelected: string;
           if (sizeSelected.length === 0 && colorSelected.length > 0) {
             notSelected = "kích cỡ";
           } else if (colorSelected.length === 0 && sizeSelected.length > 0) {
@@ -693,7 +720,7 @@ const ProductCreateScreen: React.FC = () => {
 
     revertVariants.forEach((item, i) => {
       if (!isFind) {
-        item.variant_images.forEach((item, j) => {
+        item.variant_images.forEach((item) => {
           if (item.product_avatar) {
             isFind = true;
           } else {
@@ -879,7 +906,7 @@ const ProductCreateScreen: React.FC = () => {
                   </Space>
                 }
               >
-                <Row gutter={50}></Row>
+                <Row gutter={50}/>
                 <Row gutter={50}>
                   <Col span={24} md={12} sm={24}>
                     <Item
@@ -999,7 +1026,16 @@ const ProductCreateScreen: React.FC = () => {
                     </Item>
                   </Col>
                   <Col span={24} md={12} sm={24}>
-                    <Item label="Nhóm hàng" name="product_collections">
+                    <Item
+                      label="Nhóm hàng"
+                      name="product_collections"
+                      rules={isProductCollectionRequired ? [
+                        {
+                          required: true,
+                          message: "Vui lòng chọn nhóm hàng",
+                        },
+                      ] : []}
+                    >
                       <BaseSelectPaging
                         metadata={collections.metadata}
                         data={collections.items}
@@ -1020,7 +1056,7 @@ const ProductCreateScreen: React.FC = () => {
                 </Row>
                 <Row gutter={50}>
                   <Col span={24} md={12} sm={24}>
-                    <Item name="material" hidden={true}></Item>
+                    <Item name="material" hidden={true} />
                     <Item name="material_id" className="po-form" label="Chất liệu">
                       <Select
                         showSearch
@@ -1174,7 +1210,7 @@ const ProductCreateScreen: React.FC = () => {
                     <Item label="Thông tin bảo quản">
                       {careLabels.map((item: any) => (
                         <Popover content={item.name}>
-                          <span className={`care-label ydl-${item.value}`}></span>
+                          <span className={`care-label ydl-${item.value}`}/>
                         </Popover>
                       ))}
                       <Button
@@ -1211,7 +1247,7 @@ const ProductCreateScreen: React.FC = () => {
                               defaultChecked={true}
                               onClick={(e) => e.stopPropagation()}
                               onChange={(e) => {
-                                setIsChangeDescription(e.target.checked ? true : false);
+                                setIsChangeDescription(e.target.checked);
                               }}
                             >
                               Lấy thông tin mô tả từ chất liệu
@@ -1274,9 +1310,9 @@ const ProductCreateScreen: React.FC = () => {
             <Col span={24}>
               <Card className="card" title="Thông tin giá">
                 <List name="variant_prices">
-                  {(fields, { add, remove }) => (
+                  {(fields, { remove }) => (
                     <>
-                      {fields.map(({ key, name, fieldKey, ...restField }, index) => (
+                      {fields.map(({ key, name, fieldKey}) => (
                         <Row key={key} gutter={16}>
                           <Col md={3}>
                             <Item
@@ -1504,14 +1540,13 @@ const ProductCreateScreen: React.FC = () => {
                       render: (
                         images: Array<VariantImage>,
                         item: VariantRequestView,
-                        index: number,
                       ) => {
                         let image = Products.findAvatar(images);
                         return (
                           <ImageProduct
                             path={image !== null ? image.url : null}
                             onClick={() => {
-                              onClickUpload(item, index);
+                              onClickUpload(item);
                             }}
                           />
                         );
