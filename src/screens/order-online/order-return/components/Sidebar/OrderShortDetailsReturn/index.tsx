@@ -49,7 +49,7 @@ function OrderShortDetailsReturn(props: PropTypes) {
     },
     {
       title: "Lý do trả",
-      value: OrderDetail?.reason_name,
+      value: OrderDetail?.sub_reason_name,
     },
     {
       title: "Ngày trả",
