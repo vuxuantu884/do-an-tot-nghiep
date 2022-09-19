@@ -886,9 +886,6 @@ const UpdateTicket: FC = () => {
             onChange={(quantity) => {
               onQuantityChange(quantity, index);
             }}
-            // onBlur={() => {
-            //   checkError(index);
-            // }}
           />
         </React.Fragment>
       ),
