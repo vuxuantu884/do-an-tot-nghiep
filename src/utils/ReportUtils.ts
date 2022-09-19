@@ -1,6 +1,6 @@
 import { YodyAction } from "base/base.action";
 import { AppConfig } from "config/app.config";
-import { TIME_GROUP_BY } from "config/report";
+import { ORDER_SUB_STATUS_CODE, TIME_GROUP_BY } from "config/report";
 import { AccountStoreResponse } from "model/account/account.model";
 import {
   AnalyticConditions,
@@ -9,11 +9,13 @@ import {
   AnalyticGroupUrl,
   AnalyticMetadata,
   AnalyticQuery,
+  AnalyticResult,
 } from "model/report/analytics.model";
 import moment from "moment";
 import { Dispatch } from "react";
 import { executeAnalyticsQueryService } from "../service/report/analytics.service";
 import { callApiNative } from "./ApiUtils";
+import { formatCurrency } from "./AppUtils";
 import { DATE_FORMAT } from "./DateUtils";
 import { showError, showSuccess } from "./ToastUtils";
 
@@ -342,10 +344,11 @@ export const formatDataToSetUrl = (data: string, field: string) => {
 };
 
 export const setReportsCustomizeUrl = (cube: AnalyticCube) => {
-  const { Sales, Payments, Costs, OfflineSales } = AnalyticCube;
+  const { Sales, Payments, Costs, OfflineSales, SalesBySubStatus } = AnalyticCube;
   const url = "/analytics/";
   switch (cube) {
     case Sales:
+    case SalesBySubStatus:
       return `${url}${AnalyticGroupUrl.Sales}`;
     case Payments:
       return `${url}${AnalyticGroupUrl.Customers}`;
@@ -359,10 +362,12 @@ export const setReportsCustomizeUrl = (cube: AnalyticCube) => {
 };
 
 export const getPermissionViewCustomizeReport = (permissions: string[], group: AnalyticGroup) => {
-  const { Sales, Payments, Costs, OfflineSales, Customers, Marketing } = AnalyticGroup;
+  const { Sales, Payments, Costs, OfflineSales, Customers, Marketing, SalesBySubStatus } =
+    AnalyticGroup;
   let permission = "reports_report_";
   switch (group) {
     case Sales:
+    case SalesBySubStatus:
       permission = `${permission}sales`;
       break;
     case Payments:
@@ -419,4 +424,43 @@ export const getNoPermissionStores = (
     }
     return res;
   }, []);
+};
+
+export const formatSubStatusReportDataUtils = (result: AnalyticResult) => {
+  const { columns: reportColumns, data: reportData, summary } = result;
+  const idxs = reportColumns
+    .map((column, index) => {
+      return ORDER_SUB_STATUS_CODE.includes(column.field) ? index : "";
+    })
+    .filter((item) => item !== "");
+  result.data = reportData.map((itemData) => {
+    const itemSum = itemData.reduce((res, item, index) => {
+      if (idxs.includes(index)) {
+        return (res += +item);
+      }
+      return res;
+    }, 0);
+    itemData = itemData.map((item, index) => {
+      if (idxs.includes(index)) {
+        const rate = itemSum ? +((item / itemSum) * 100).toFixed(2) : "";
+        item = `${formatCurrency(item)} (${rate}%)`;
+      }
+      return item;
+    });
+    return itemData;
+  });
+  const summarySum = summary.reduce((res, item, index) => {
+    if (idxs.includes(index)) {
+      return (res += +item);
+    }
+    return res;
+  }, 0);
+  result.summary = summary.map((item, index) => {
+    if (idxs.includes(index)) {
+      const rate = item ? +((item / summarySum) * 100).toFixed(2) : "";
+      item = `${formatCurrency(item)} (${rate}%)`;
+    }
+    return item;
+  });
+  return result;
 };

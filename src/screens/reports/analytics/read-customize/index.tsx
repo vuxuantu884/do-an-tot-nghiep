@@ -37,6 +37,7 @@ import {
   checkArrayHasAnyValue,
   exportReportToExcel,
   formatReportTime,
+  formatSubStatusReportDataUtils,
   getChartQuery,
   getConditionsFormServerToForm,
   getNoPermissionStores,
@@ -287,12 +288,10 @@ function CreateAnalytics() {
       });
 
       formCloneReport.setFieldsValue({ name: `${report.name} nhân bản` });
-
-      const fullParams = [
-        AnalyticGroup.OfflineSales,
-        AnalyticGroup.Sales,
-        AnalyticGroup.Costs,
-      ].includes(report.group as AnalyticGroup)
+      const { OfflineSales, Sales, Costs, SalesBySubStatus } = AnalyticGroup;
+      const fullParams = [OfflineSales, Sales, Costs, SalesBySubStatus].includes(
+        report.group as AnalyticGroup,
+      )
         ? { q: report.query, options: report.options }
         : { q: report.query };
       const response = await callApiNative(
@@ -378,19 +377,22 @@ function CreateAnalytics() {
         const { net_payments, ...others } = response.aggregates;
         response.aggregates = others;
         setMetadata(response);
+        if (cube === AnalyticCube.SalesBySubStatus) {
+          response.result = formatSubStatusReportDataUtils(response.result);
+        }
+        setDataQuery(response);
+      } else {
         setDataQuery(response);
       }
-      setDataQuery(response);
     }
     // if (!havePermissionStore) {
     //     return;
     // }
     if (report?.chart_query) {
-      const fullChartParams = [
-        AnalyticGroup.OfflineSales,
-        AnalyticGroup.Sales,
-        AnalyticGroup.Costs,
-      ].includes(report.group as AnalyticGroup)
+      const { OfflineSales, Sales, Costs, SalesBySubStatus } = AnalyticGroup;
+      const fullChartParams = [OfflineSales, Sales, Costs, SalesBySubStatus].includes(
+        report.group as AnalyticGroup,
+      )
         ? { q: report.chart_query, options: report.options }
         : { q: report.chart_query };
       const chartResponse = await callApiNative(
@@ -457,11 +459,10 @@ function CreateAnalytics() {
       if (dataQuery && chartColumnSelected?.length) {
         setLoadingChart(() => true);
         const query = getChartQuery(dataQuery.query, chartColumnSelected);
-        const fullParams = [
-          AnalyticCube.OfflineSales,
-          AnalyticCube.Sales,
-          AnalyticCube.Costs,
-        ].includes(dataQuery.query.cube as AnalyticCube)
+        const { OfflineSales, Sales, Costs, SalesBySubStatus } = AnalyticCube;
+        const fullParams = [OfflineSales, Sales, Costs, SalesBySubStatus].includes(
+          dataQuery.query.cube as AnalyticCube,
+        )
           ? {
               q: query,
               options: form.getFieldValue(ReportifyFormFields.timeAtOption),

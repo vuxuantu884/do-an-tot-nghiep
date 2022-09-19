@@ -33,6 +33,7 @@ import {
   checkArrayHasAnyValue,
   exportReportToExcel,
   formatReportTime,
+  formatSubStatusReportDataUtils,
   getChartQuery,
   getTranslatePropertyKey,
 } from "utils/ReportUtils";
@@ -223,11 +224,10 @@ function UpdateAnalytics() {
    */
   useEffect(() => {
     const fetchTemplateQuery = async () => {
-      const fullParams = [
-        AnalyticCube.OfflineSales,
-        AnalyticCube.Sales,
-        AnalyticCube.Costs,
-      ].includes(CURRENT_REPORT_TEMPLATE.cube as AnalyticCube)
+      const { OfflineSales, Sales, Costs, SalesBySubStatus } = AnalyticCube;
+      const fullParams = [OfflineSales, Sales, Costs, SalesBySubStatus].includes(
+        CURRENT_REPORT_TEMPLATE.cube as AnalyticCube,
+      )
         ? {
             q: CURRENT_REPORT_TEMPLATE.query,
             options: CURRENT_REPORT_TEMPLATE.timeAtOption,
@@ -241,6 +241,9 @@ function UpdateAnalytics() {
       );
       if (response) {
         const { columns, rows, cube, conditions, from, to, order_by: orderBy } = response.query;
+        if (cube === AnalyticCube.SalesBySubStatus) {
+          response.result = formatSubStatusReportDataUtils(response.result);
+        }
         setDataQuery(response);
         setChartColumnSelected(CURRENT_REPORT_TEMPLATE.chartColumnSelected);
         //queryObject: data lấy từ api
@@ -348,11 +351,10 @@ function UpdateAnalytics() {
       if (dataQuery && chartColumnSelected?.length) {
         setLoadingChart(() => true);
         const query = getChartQuery(dataQuery.query, chartColumnSelected);
-        const fullParams = [
-          AnalyticCube.OfflineSales,
-          AnalyticCube.Sales,
-          AnalyticCube.Costs,
-        ].includes(dataQuery.query.cube as AnalyticCube)
+        const { OfflineSales, Sales, Costs, SalesBySubStatus } = AnalyticCube;
+        const fullParams = [OfflineSales, Sales, Costs, SalesBySubStatus].includes(
+          dataQuery.query.cube as AnalyticCube,
+        )
           ? {
               q: query,
               options: form.getFieldValue(ReportifyFormFields.timeAtOption),

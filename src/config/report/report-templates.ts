@@ -411,4 +411,29 @@ export const TIME_AT_OPTION = [
     value: TimeAtOptionValue.CancelledAt,
   },
 ];
+
+export const ORDER_SUB_STATUS_CODE = [
+  "shipped_gross_sales",
+  "first_call_attempt_gross_sales",
+  "second_call_attempt_gross_sales",
+  "coordinator_confirmed_gross_sales",
+  "require_warehouse_change",
+  "awaiting_shipper_gross_sales",
+  "returning_gross_sales",
+  "out_of_stock_gross_sales",
+  "delivery_service_cancelled_gross_sales",
+  "awaiting_saler_confirmation_gross_sales",
+  "third_call_gross_sales",
+  "merchandise_picking",
+  "shipping_gross_sales",
+  "confirm_returned_gross_sales",
+  "customer_cancelled_gross_sales",
+  "awaiting_coordinator_confirmation_gross_sales",
+  "coordinator_confirming_gross_sales",
+  "merchandise_packed_gross_sales",
+  "delivery_fail_gross_sales",
+  "compensate_gross_sales",
+  "system_cancelled_gross_sales",
+];
+
 export default REPORT_TEMPLATES;
