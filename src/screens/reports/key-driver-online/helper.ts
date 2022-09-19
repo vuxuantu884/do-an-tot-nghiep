@@ -147,6 +147,14 @@ export const convertDataToFlatTableKeyDriver = (
   });
   const newData = data.filter(
     (i) =>
+      i.key !== "ON.DT.QT.01" &&
+      i.key !== "ON.DT.QT.13" &&
+      i.key !== "ON.DT.QT.14" &&
+      i.key !== "ON.DT.QT.02" &&
+      i.key !== "ON.DT.QT.11" &&
+      i.key !== "ON.DT.QT.03" &&
+      i.key !== "ON.DT.QT.05" &&
+      i.key !== "ON.DT.QT.12" &&
       i.key !== "ON.TC.QT.01" &&
       i.key !== "ON.TC.QT.02" &&
       i.key !== "ON.TC.QT.06" &&

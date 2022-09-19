@@ -252,6 +252,7 @@ function KeyDriverOnline() {
                           const value = input.value
                             ? parseLocaleNumber(input.value)
                             : parseLocaleNumber(newValue);
+                          console.log("value, newValue", value, newValue);
 
                           if (!clickCancel && value != newValue) {
                             newValue = value;
@@ -262,7 +263,7 @@ function KeyDriverOnline() {
                               departmentKey,
                               inputId,
                               dispatch,
-                              parseLocaleNumber(text),
+                              parseLocaleNumber(newValue),
                               `day${day.toString().padStart(2, "0")}`,
                             );
                           } else {
