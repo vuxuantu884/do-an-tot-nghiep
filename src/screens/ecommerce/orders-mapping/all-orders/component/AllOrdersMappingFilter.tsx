@@ -1,5 +1,17 @@
 import { DownOutlined, FilterOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Form, Input, Menu, Select, Tag, Tooltip, TreeSelect } from "antd";
+import {
+  Button,
+  Col,
+  Dropdown,
+  Form,
+  Input,
+  Menu,
+  Row,
+  Select,
+  Tag,
+  Tooltip,
+  TreeSelect,
+} from "antd";
 import search from "assets/img/search.svg";
 import BaseFilter from "component/filter/base.filter";
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
@@ -870,22 +882,26 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
                 )}
               </Form.Item>
               <Form.Item label={<b>Mã vận đơn</b>} name="have_tracking_code">
-                <div style={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
-                  <Button
-                    className={`${valueTrackingCode === "no-tracking-code" ? "active-btn" : ""}`}
-                    onClick={() => handleFilterTrackingCode("no-tracking-code")}
-                    style={{ width: "47%" }}
-                  >
-                    Chưa có MVĐ
-                  </Button>
-                  <Button
-                    className={`${valueTrackingCode === "has-tracking-code" ? "active-btn" : ""}`}
-                    onClick={() => handleFilterTrackingCode("has-tracking-code")}
-                    style={{ width: "47%" }}
-                  >
-                    Đã có MVĐ
-                  </Button>
-                </div>
+                <Row gutter={20}>
+                  <Col span={12}>
+                    <Button
+                      className={`${valueTrackingCode === "no-tracking-code" ? "active-btn" : ""}`}
+                      onClick={() => handleFilterTrackingCode("no-tracking-code")}
+                      style={{ width: "100%" }}
+                    >
+                      Chưa có MVĐ
+                    </Button>
+                  </Col>
+                  <Col span={12}>
+                    <Button
+                      className={`${valueTrackingCode === "has-tracking-code" ? "active-btn" : ""}`}
+                      onClick={() => handleFilterTrackingCode("has-tracking-code")}
+                      style={{ width: "100%" }}
+                    >
+                      Đã có MVĐ
+                    </Button>
+                  </Col>
+                </Row>
               </Form.Item>
             </Form>
           </StyledEcommerceOrderBaseFilter>
