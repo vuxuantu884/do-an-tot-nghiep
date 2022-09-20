@@ -506,12 +506,13 @@ function* cancelShipmentInventoryTransferSaga(action: YodyAction) {
 }
 
 function* exportShipmentInventoryTransferSaga(action: YodyAction) {
-  let { transferId, onResult } = action.payload;
+  let { transferId, onResult, data } = action.payload;
 
   try {
     const response: BaseResponse<Array<[]>> = yield call(
       exportShipmentInventoryTransfer,
       transferId,
+      data,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:

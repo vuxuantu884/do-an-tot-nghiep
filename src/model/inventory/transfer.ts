@@ -281,6 +281,7 @@ export type DeleteTicketRequest = {
 
 export type DataExport = {
   transfers: Object[];
+  secret?: string;
 };
 
 export type DataMultipleCancel = {
