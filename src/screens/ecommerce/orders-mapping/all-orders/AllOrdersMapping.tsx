@@ -192,6 +192,16 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
         },
       },
       {
+        title: "Mã Vận đơn",
+        dataIndex: "tracking_code",
+        key: "tracking_code",
+        align: "center",
+        width: "180px",
+        render: (tracking_code: string) => {
+          return <div>{`${tracking_code ? tracking_code : "---"}`}</div>;
+        },
+      },
+      {
         title: "Liên kết",
         dataIndex: "connected_status",
         key: "connected_status",
