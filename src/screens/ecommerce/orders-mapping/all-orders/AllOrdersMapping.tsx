@@ -43,6 +43,7 @@ const initQuery: GetOrdersMappingQuery = {
   ecommerce_order_statuses: [],
   shop_ids: [],
   core_sub_status_code: [],
+  have_tracking_code: null,
 };
 
 type AllOrdersMappingProps = {

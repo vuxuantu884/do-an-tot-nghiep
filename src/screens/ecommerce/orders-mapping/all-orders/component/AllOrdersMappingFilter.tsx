@@ -74,6 +74,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   const [visibleBaseFilter, setVisibleBaseFilter] = useState(false);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [ecommerceIdSelected, setEcommerceIdSelected] = useState<any>(null);
+  const [valueTrackingCode, setValueTrackingCode] = useState<string | null>("");
 
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
@@ -332,17 +333,25 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       });
     }
 
+    if (initialValues.have_tracking_code) {
+      let value = null;
+
+      if (initialValues.have_tracking_code === "true") {
+        value = "Đã có MVĐ";
+      } else if (initialValues.have_tracking_code === "false") {
+        value = "Chưa có MVĐ";
+      }
+
+      list.push({
+        key: "have_tracking_code",
+        name: "Mã vận đơn",
+        value: value,
+      });
+    }
+
     return list;
   }, [
-    initialValues?.ecommerce_id,
-    initialValues.shop_ids,
-    initialValues.ecommerce_order_code,
-    initialValues.core_order_code,
-    initialValues.core_sub_status_code,
-    initialValues.connected_status,
-    initialValues.created_date_from,
-    initialValues.created_date_to,
-    initialValues.ecommerce_order_statuses,
+    initialValues,
     params.ecommerce_id,
     ecommerceShopList,
     listOrderProcessingStatus,
@@ -405,6 +414,11 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
         case "core_sub_status_code":
           onFilter && onFilter({ ...params, core_sub_status_code: [] });
           formFilter?.setFieldsValue({ core_sub_status_code: [] });
+          break;
+        case "have_tracking_code":
+          onFilter && onFilter({ ...params, have_tracking_code: null });
+          formFilter?.setFieldsValue({ have_tracking_code: null });
+          setValueTrackingCode("");
           break;
         default:
           break;
@@ -520,6 +534,31 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     formFilter?.setFieldsValue({ shop_ids: [] });
   };
 
+  const handleFilterTrackingCode = useCallback(
+    (value: string) => {
+      let tracking_code = null;
+      switch (value) {
+        case "has-tracking-code":
+          tracking_code = "has-tracking-code";
+          formFilter?.setFieldsValue({ have_tracking_code: true });
+          break;
+        case "no-tracking-code":
+          tracking_code = "no-tracking-code";
+          formFilter?.setFieldsValue({ have_tracking_code: false });
+          break;
+        default:
+          break;
+      }
+      if (valueTrackingCode === value) {
+        setValueTrackingCode("");
+        formFilter?.setFieldsValue({ have_tracking_code: null });
+      } else {
+        setValueTrackingCode(tracking_code);
+      }
+    },
+    [formFilter, valueTrackingCode],
+  );
+
   //handle query params filter
   const onCheckDateFilterParam = useCallback((date_from: any, date_to: any, setDate: any) => {
     const todayFrom = ConvertUtcToDate(ConvertDateToUtc(moment()));
@@ -575,6 +614,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       created_date_to: params.created_date_to,
       ecommerce_order_statuses: convertItemToArray(params.ecommerce_order_statuses),
       page: params.page,
+      have_tracking_code: params.have_tracking_code,
     });
 
     onCheckDateFilterParam(params.created_date_from, params.created_date_to, setCreatedDateClick);
@@ -589,6 +629,14 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     } else {
       setCreatedDateFrom(params.created_date_from);
       setCreatedDateTo(params.created_date_to);
+    }
+
+    const checkActiveTrackingCode = formFilter.getFieldValue("have_tracking_code");
+
+    if (checkActiveTrackingCode === "true") {
+      setValueTrackingCode("has-tracking-code");
+    } else if (checkActiveTrackingCode === "false") {
+      setValueTrackingCode("no-tracking-code");
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -820,6 +868,24 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
                     <Select showSearch disabled={true} placeholder="Chọn trạng thái đơn hàng sàn" />
                   </Tooltip>
                 )}
+              </Form.Item>
+              <Form.Item label={<b>Mã vận đơn</b>} name="have_tracking_code">
+                <div style={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
+                  <Button
+                    className={`${valueTrackingCode === "no-tracking-code" ? "active-btn" : ""}`}
+                    onClick={() => handleFilterTrackingCode("no-tracking-code")}
+                    style={{ width: "47%" }}
+                  >
+                    Chưa có MVĐ
+                  </Button>
+                  <Button
+                    className={`${valueTrackingCode === "has-tracking-code" ? "active-btn" : ""}`}
+                    onClick={() => handleFilterTrackingCode("has-tracking-code")}
+                    style={{ width: "47%" }}
+                  >
+                    Đã có MVĐ
+                  </Button>
+                </div>
               </Form.Item>
             </Form>
           </StyledEcommerceOrderBaseFilter>

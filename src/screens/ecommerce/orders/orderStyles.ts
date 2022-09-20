@@ -376,6 +376,12 @@ export const StyledEcommerceOrderBaseFilter = styled.div`
       pointer-events: none;
     }
   }
+
+  .active-btn {
+    color: #ffffff;
+    border-color: rgba(42, 42, 134, 0.1);
+    background-color: #2a2a86;
+  }
 `;
 
 export const StyledUpdateConnectionModal = styled.div`
