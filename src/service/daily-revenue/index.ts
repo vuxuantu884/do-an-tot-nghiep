@@ -26,6 +26,12 @@ export const getDailyRevenueService = (
     "closedBy.in": request.closed_bys,
     "remainingAmount.greaterThanOrEqual": request.remaining_amount_min,
     "remainingAmount.lessThanOrEqual": request.remaining_amount_max,
+    "otherCost.greaterThanOrEqual": request.other_cost_min,
+    "otherCost.lessThanOrEqual": request.other_cost_max,
+    "otherPayment.greaterThanOrEqual": request.other_payment_min,
+    "otherPayment.lessThanOrEqual": request.other_payment_max,
+    "totalPayment.greaterThanOrEqual": request.total_payment_min,
+    "totalPayment.lessThanOrEqual": request.total_payment_max,
     format: request.format,
   };
   let queryPath = generateQuery(newRequest);

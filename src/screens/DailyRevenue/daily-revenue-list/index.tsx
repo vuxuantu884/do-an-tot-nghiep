@@ -76,7 +76,7 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>([]);
 
-  const [visibleExport, setvisibleExport] = useState<boolean>(false);
+  const [visibleExport, setVisibleExport] = useState<boolean>(false);
 
   itemResult = data.items;
 
@@ -93,10 +93,6 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
   const [allowDailyPaymentsConfirm] = useAuthorization({
     acceptPermissions: [DAILY_REVENUE_PERMISSIONS.daily_payments_confirm],
   });
-
-  console.log("export", allowDailyPaymentsExport);
-  console.log("import payment", allowDailyPaymentsImportPayment);
-  console.log("import other payment", allowDailyPaymentsImportOtherPayment);
 
   const actions: MenuAction[] = useMemo(
     () => [
@@ -143,7 +139,6 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
       await Promise.all(
         selectedRowKeys.map(async (p, index) => {
           const result = await confirmPayMoneyDailyRevenueService(p);
-          console.log(result);
           if (result?.status && result?.status !== 200) {
             error.push(` Mã phiếu ${p}: ${result?.data?.detail}`);
           } else {
@@ -241,7 +236,6 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
     };
     setTableLoading(true);
     setPrams(dataQuery);
-    console.log("queryParamsParsed", queryParamsParsed);
     getDailyRevenueService(dataQuery)
       .then((response) => {
         if (response.status === 200) {
@@ -277,7 +271,7 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
               icon={<img src={exportIcon} alt="" style={{ marginRight: 8 }} />}
               size="large"
               hidden={!allowDailyPaymentsExport}
-              onClick={() => setvisibleExport(true)}
+              onClick={() => setVisibleExport(true)}
             >
               Xuất file
             </Button>
@@ -336,7 +330,7 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
           params={params}
           totalSearchQuery={data.metadata.total}
           visible={visibleExport}
-          setVisible={setvisibleExport}
+          setVisible={setVisibleExport}
         />
       </StyledComponent>
     </ContentContainer>
