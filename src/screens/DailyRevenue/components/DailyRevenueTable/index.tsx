@@ -4,7 +4,7 @@ import UrlConfig from "config/url.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { DailyRevenueTableModel, RevenueSearchQuery } from "model/revenue";
 import moment from "moment";
-import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
@@ -12,8 +12,8 @@ import CopyIcon from "../CopyIcon";
 import { StyledComponent } from "./style";
 import { COD, PaymentMethodCode, REVENUE_STATE } from "utils/Constants";
 
-import copyFileBtn from "assets/icon/copyfile_btn.svg";
-import iconWarranty from "assets/icon/icon-warranty-menu.svg";
+// import copyFileBtn from "assets/icon/copyfile_btn.svg";
+// import iconWarranty from "assets/icon/icon-warranty-menu.svg";
 import IconPaymentBank from "assets/icon/payment/chuyen-khoan.svg";
 import IconPaymentCod from "assets/icon/payment/cod.svg";
 import IconPaymentMOMO from "assets/icon/payment/momo.svg";
@@ -22,7 +22,7 @@ import IconPaymentSwipeCard from "assets/icon/payment/quet-the.svg";
 import IconPaymentReturn from "assets/icon/payment/tien-hoan.svg";
 import IconPaymentCash from "assets/icon/payment/tien-mat.svg";
 import IconPaymentVNPay from "assets/icon/payment/vnpay.svg";
-import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
+// import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
 import IconPaymentPointRefund from "assets/icon/payment/tien-doi.svg";
 import { StoreResponse } from "model/core/store.model";
 import EditNote from "screens/order-online/component/edit-note";
@@ -151,13 +151,11 @@ const DailyRevenueTableComponent: React.FC<Props> = (props: Props) => {
     (note, noteType, record: DailyRevenueTableModel) => {
       if (noteType === NOTE_TYPE.STORE_NOTE) {
         dailyRevenueService.editStoreNote(record.id, note).then((response) => {
-          console.log(response);
           onSuccessEditNote(note, NOTE_TYPE.STORE_NOTE, record.id);
         });
       }
       if (noteType === NOTE_TYPE.ACCOUNTANT_NOTE) {
         dailyRevenueService.editAccountantNote(record.id, note).then((response) => {
-          console.log(response);
           onSuccessEditNote(note, NOTE_TYPE.ACCOUNTANT_NOTE, record.id);
         });
       }
@@ -261,8 +259,8 @@ const DailyRevenueTableComponent: React.FC<Props> = (props: Props) => {
       },
       {
         title: "Chi phí",
-        dataIndex: "total_cost",
-        key: "total_cost",
+        dataIndex: "other_cost",
+        key: "other_cost",
         width: "120px",
         visible: true,
         align: "right",
@@ -394,7 +392,7 @@ const DailyRevenueTableComponent: React.FC<Props> = (props: Props) => {
       }
       setSelectedRowKeys(selectedRowKeysCopy);
     },
-    [selectedRowKeys],
+    [selectedRowKeys, setSelectedRowKeys],
   );
 
   const onPageChange = useCallback(

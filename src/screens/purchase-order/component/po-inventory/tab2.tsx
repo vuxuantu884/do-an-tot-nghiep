@@ -31,7 +31,15 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
           //       (item) => item.status === ProcumentStatus.RECEIVED
           //     )
           //     : [];
-          let items = procurements !== undefined && procurements !== null ? procurements : [];
+          const items = procurements !== undefined && procurements !== null ? procurements : [];
+          const dataSource = items.filter((item) => {
+            return (
+              Number(formatCurrency(POUtils.totalAcceptedQuantity(item.procurement_items))) ||
+              Number(
+                formatCurrency(POUtils.totalRealQuantityProcument(item.procurement_items), "."),
+              )
+            );
+          });
           return (
             <Table
               locale={{
@@ -40,7 +48,7 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
               className="product-table"
               rowKey={(record: PurchaseProcument) => (record.id ? record.id : new Date().getTime())}
               rowClassName="product-table-row"
-              dataSource={items}
+              dataSource={dataSource}
               tableLayout="fixed"
               scroll={{ x: 600 }}
               pagination={false}
@@ -61,42 +69,51 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
                 },
                 expandedRowRender: (record) => (
                   <div className="row-expand">
-                    {record.procurement_items.map((item, index) => (
-                      <div className="item">
-                        <div className="item-info-wrap">
-                          <div className="item-col item-col-index">{index + 1}</div>
-                          <div className="item-col item-col-img">
-                            <div className="product-item-image">
-                              <img
-                                src={item.variant_image === null ? imgDefIcon : item.variant_image}
-                                alt=""
-                                className=""
-                              />
+                    {record.procurement_items
+                      .filter(
+                        (procurement_item) =>
+                          procurement_item.planned_quantity ||
+                          procurement_item.real_quantity ||
+                          procurement_item.accepted_quantity,
+                      )
+                      .map((item, index) => (
+                        <div className="item">
+                          <div className="item-info-wrap">
+                            <div className="item-col item-col-index">{index + 1}</div>
+                            <div className="item-col item-col-img">
+                              <div className="product-item-image">
+                                <img
+                                  src={
+                                    item.variant_image === null ? imgDefIcon : item.variant_image
+                                  }
+                                  alt=""
+                                  className=""
+                                />
+                              </div>
+                            </div>
+                            <div className="item-col item-col-name">
+                              <div className="product-item-sku">{item.sku}</div>
+                              <div className="product-item-name text-truncate-1">
+                                <div className="product-item-name-detail">{item.variant}</div>
+                              </div>
                             </div>
                           </div>
-                          <div className="item-col item-col-name">
-                            <div className="product-item-sku">{item.sku}</div>
-                            <div className="product-item-name text-truncate-1">
-                              <div className="product-item-name-detail">{item.variant}</div>
-                            </div>
+                          <div className="item-col item-col-number">
+                            {item.accepted_quantity || 0}
                           </div>
+                          <div
+                            style={{
+                              color: "#27AE60",
+                              fontWeight: 700,
+                              width: "120px",
+                            }}
+                            className="item-col item-col-number"
+                          >
+                            {item.real_quantity || 0}
+                          </div>
+                          <div className="item-col item-col-empty" />
                         </div>
-                        <div className="item-col item-col-number">
-                          {item.accepted_quantity || 0}
-                        </div>
-                        <div
-                          style={{
-                            color: "#27AE60",
-                            fontWeight: 700,
-                            width: "120px",
-                          }}
-                          className="item-col item-col-number"
-                        >
-                          {item.real_quantity || 0}
-                        </div>
-                        <div className="item-col item-col-empty" />
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 ),
               }}
@@ -120,12 +137,8 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
                       props.poId && (
                         <div>
                           <Link
-                            to="#"
-                            onClick={() => {
-                              const url = `${BASE_NAME_ROUTER}${UrlConfig.PURCHASE_ORDERS}/${props.poId}/procurements/${item.id}`;
-                              const newWindow = window.open(url, "_blank", "noopener,noreferrer");
-                              if (newWindow) newWindow.opener = null;
-                            }}
+                            to={`${UrlConfig.PURCHASE_ORDERS}/${props.poId}/procurements/${item.id}`}
+                            target="_blank"
                           >
                             {value}
                           </Link>

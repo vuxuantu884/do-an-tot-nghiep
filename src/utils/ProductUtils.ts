@@ -32,6 +32,16 @@ export const handleChangeMaterial = (material: MaterialResponse | false, form: F
   }
 };
 
+export function findPathTreeById(object: any, targetId: number){
+  if(object.id === targetId) return [targetId];
+  if(!object.children) return false;
+  let path;
+  object.children.find((o: any) => path = findPathTreeById(o, targetId));
+  if (path) {
+    return [object.id].concat(path);
+  }
+}
+
 export const getFirstProductAvatarByVariantResponse = (variants: Array<VariantResponse>) => {
   let isFind = false;
   let variantAvatarIndex = 0;

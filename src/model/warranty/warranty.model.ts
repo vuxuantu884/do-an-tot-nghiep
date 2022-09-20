@@ -50,6 +50,11 @@ export enum WarrantyReasonStatusModel {
   INACTIVE = "INACTIVE",
 }
 
+export enum enumStoreStatus {
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+}
+
 export interface WarrantyPayment {
   id: number;
   code: string;

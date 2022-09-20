@@ -169,9 +169,12 @@ const ImportProcurementExcel: React.FC<ModalImportProps> = (props: ModalImportPr
                 continue;
               }
 
-              if (fi >= 0) {
+              if (fi >= 0 && data[fi].planned_quantity > 0) {
                 data[fi].real_quantity = element.quantity;
                 process.success += 1;
+              } else if (fi >= 0 && data[fi].planned_quantity <= 0) {
+                error.push(`${element.sku}: Sản phẩm không có kế hoạch trên đơn đặt hàng`);
+                process.error += 1;
               } else {
                 error.push(`${element.sku}: Sản phẩm không tồn tại trên đơn đặt hàng`);
                 process.error += 1;

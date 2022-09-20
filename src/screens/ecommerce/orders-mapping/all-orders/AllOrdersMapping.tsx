@@ -43,6 +43,7 @@ const initQuery: GetOrdersMappingQuery = {
   ecommerce_order_statuses: [],
   shop_ids: [],
   core_sub_status_code: [],
+  have_tracking_code: null,
 };
 
 type AllOrdersMappingProps = {
@@ -189,6 +190,16 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
             };
           }
           return <div className={`core-sub-status ${status?.code}`}>{status?.sub_status}</div>;
+        },
+      },
+      {
+        title: "Mã Vận đơn",
+        dataIndex: "tracking_code",
+        key: "tracking_code",
+        align: "center",
+        width: "180px",
+        render: (tracking_code: string) => {
+          return <div>{`${tracking_code ? tracking_code : "---"}`}</div>;
         },
       },
       {

@@ -45,7 +45,7 @@ import {
   ExportOutlined,
   CloseCircleOutlined,
 } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
 
 import { formatCurrency, generateQuery } from "utils/AppUtils";
@@ -72,6 +72,7 @@ import { ImportStatusWrapper } from "../../../ImportInventory/styles";
 import { HttpStatus } from "config/http-status.config";
 import { STATUS_IMPORT_EXPORT } from "utils/Constants";
 import CustomPagination from "../../../../../component/table/CustomPagination";
+import queryString from "query-string";
 const { TextArea } = Input;
 const { Text } = Typography;
 
@@ -139,6 +140,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     activeTab,
   } = props;
   const history = useHistory();
+  const location = useLocation();
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const query = useQuery();
 
@@ -738,9 +740,14 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
         id: i,
       };
     });
-    const data: DataExport = {
+    const queryParamsParsed: any = queryString.parse(location.search);
+
+    let data: DataExport = {
       transfers: ids,
     };
+    if (queryParamsParsed.secret) {
+      data.secret = queryParamsParsed.secret;
+    }
     dispatch(actionExportInventoryByIds(data, dataExportCallback));
   };
 

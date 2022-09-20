@@ -125,8 +125,8 @@ export const StyledComponent = styled.div`
       }
     }
     &__image {
-      max-width: 400px;
-      max-height: 500px;
+      max-width: 300px;
+      max-height: 400px;
     }
   }
   .sectionPayMoney {

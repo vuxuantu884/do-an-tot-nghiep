@@ -46,7 +46,7 @@ import {
   handleDelayActionWhenInsertTextInSearchInput,
   SumWeightInventory,
 } from "utils/AppUtils";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import InventoryStep from "./components/InventoryTransferStep";
 import { STATUS_INVENTORY_TRANSFER, STATUS_INVENTORY_TRANSFER_ARRAY } from "../constants";
@@ -85,6 +85,7 @@ import { HttpStatus } from "config/http-status.config";
 import ModalShowError from "../common/ModalShowError";
 import TagStatus from "component/tag/tag-status";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import queryString from "query-string";
 
 export interface InventoryParams {
   id: string;
@@ -123,6 +124,7 @@ const DetailTicket: FC = () => {
 
   const [isOpenModalErrors, setIsOpenModalErrors] = useState<boolean>(false);
   const [errorData, setErrorData] = useState([]);
+  const location = useLocation();
 
   const { id } = useParams<InventoryParams>();
   const idNumber = parseInt(id);
@@ -1592,6 +1594,7 @@ const DetailTicket: FC = () => {
                         loading={isLoadingBtn}
                         onClick={() => {
                           if (data) {
+                            dispatch(showLoading());
                             checkDuplicateRecord();
                           }
                         }}
@@ -1610,9 +1613,13 @@ const DetailTicket: FC = () => {
                         type="primary"
                         loading={isLoadingBtn}
                         onClick={() => {
-                          setLoadingBtn(true);
-                          dispatch(showLoading())
-                          if (data) dispatch(exportInventoryAction(data?.id, onReload));
+                          if (data) {
+                            const queryParamsParsed: any = queryString.parse(location.search);
+                            const secretData = {
+                              secret: queryParamsParsed.secret,
+                            };
+                            dispatch(exportInventoryAction(data?.id, secretData, onReload));
+                          }
                         }}
                       >
                         Xuất kho

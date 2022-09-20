@@ -65,12 +65,12 @@ const DepartmentSearchScreen: React.FC = () => {
     {
       title: "Tên phòng ban",
       dataIndex: "name",
-      width: 150,
+      width: 250,
     },
     {
       title: "Quản lý",
       dataIndex: "manager",
-      width: 130,
+      width: 200,
       render: (value: string, record: DepartmentView) =>
         value === null ? (
           ""
@@ -83,7 +83,7 @@ const DepartmentSearchScreen: React.FC = () => {
     {
       title: "Thông tin",
       dataIndex: "level",
-      width: 200,
+      width: 250,
       render: (level: number, record: DepartmentView) => {
         return (
           <div>
@@ -104,17 +104,17 @@ const DepartmentSearchScreen: React.FC = () => {
     {
       title: "Số điện thoại",
       dataIndex: "phone",
-      width: 110,
+      width: 130,
     },
     {
       title: "Địa chỉ",
       dataIndex: "address",
-      width: 140,
+      width: 230,
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
-      width: 140,
+      width: 130,
       render: (status: string) => {
         return status ? (
           status === "active" ? (
@@ -130,7 +130,7 @@ const DepartmentSearchScreen: React.FC = () => {
     {
       title: "Người tạo",
       dataIndex: "created_name",
-      width: 130,
+      width: 150,
       render: (value: string, record: DepartmentView) =>
         value === null ? (
           ""
@@ -276,7 +276,7 @@ const DepartmentSearchScreen: React.FC = () => {
               dataSource={data.items}
               isLoading={loading}
               pagination={false}
-              scroll={{ x: 1360 }}
+              scroll={{ x: 'max-content' }}
               sticky={{
                 offsetScroll: 5,
                 offsetHeader: OFFSET_HEADER_UNDER_NAVBAR,

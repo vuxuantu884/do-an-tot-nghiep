@@ -19,6 +19,12 @@ export interface RevenueSearchQuery {
   remaining_amount_min?: number | null;
   remaining_amount_max?: number | null;
   format?: string | "xls";
+  other_cost_min?: number | null;
+  other_cost_max?: number | null;
+  other_payment_min?: number | null;
+  other_payment_max?: number | null;
+  total_payment_min?: number | null;
+  total_payment_max?: number | null;
 }
 
 export interface DailyRevenueTableModel extends BaseObject {
