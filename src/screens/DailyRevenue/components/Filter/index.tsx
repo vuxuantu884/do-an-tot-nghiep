@@ -21,7 +21,7 @@ import { AccountResponse } from "model/account/account.model";
 import { formatDateTimeOrderFilter } from "utils/OrderUtils";
 import DiffNumberInputCustom from "../DiffNumberInputCustom";
 import { FilterOutlined } from "@ant-design/icons";
-import { formatCurrency } from "utils/AppUtils";
+import { filterNumberDiff } from "screens/DailyRevenue/helper";
 
 const dateFormat = DATE_FORMAT.DD_MM_YYYY;
 const dateTimeFormat = DATE_FORMAT.DD_MM_YY_HHmmss;
@@ -40,7 +40,7 @@ type Props = {
 type ListFilterTagTypes = {
   key: string;
   name: string;
-  value: JSX.Element | null;
+  value: JSX.Element | string | null;
   isExpand?: boolean;
 };
 
@@ -85,6 +85,15 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
         : undefined,
       remaining_amount_min: params?.remaining_amount_min || 0,
       remaining_amount_max: params?.remaining_amount_max || 0,
+
+      other_cost_min: params?.other_cost_min || 0,
+      other_cost_max: params?.other_cost_max || 0,
+
+      other_payment_min: params?.other_payment_min || 0,
+      other_payment_max: params?.other_payment_max || 0,
+
+      total_payment_min: params?.total_payment_min || 0,
+      total_payment_max: params?.total_payment_max || 0,
     };
   }, [params]);
 
@@ -236,39 +245,50 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
     }
 
     if (initialValues.remaining_amount_min || initialValues.remaining_amount_max) {
-      let textRemaining =
-        (initialValues.remaining_amount_min
-          ? formatCurrency(initialValues.remaining_amount_min)
-          : "??") +
-        " ~ " +
-        (initialValues.remaining_amount_max
-          ? formatCurrency(initialValues.remaining_amount_max)
-          : "??");
-      list.push({
-        key: "remaining_amount",
-        name: "Chênh lệch",
-        value: <React.Fragment>{textRemaining}</React.Fragment>,
-      });
+      let item = filterNumberDiff(
+        "Chênh lệch",
+        "remaining_amount",
+        "remaining_amount_min",
+        "remaining_amount_max",
+        initialValues,
+      );
+      list.push(item);
     }
 
+    if (initialValues.other_cost_min || initialValues.other_cost_max) {
+      let item = filterNumberDiff(
+        "Chi phí",
+        "other_cost",
+        "other_cost_min",
+        "other_cost_max",
+        initialValues,
+      );
+      list.push(item);
+    }
+
+    if (initialValues.other_payment_min || initialValues.other_payment_max) {
+      let item = filterNumberDiff(
+        "Phụ thu",
+        "other_payment",
+        "other_payment_min",
+        "other_payment_max",
+        initialValues,
+      );
+      list.push(item);
+    }
+
+    if (initialValues.total_payment_min || initialValues.total_payment_max) {
+      let item = filterNumberDiff(
+        "Doanh thu",
+        "total_payment",
+        "total_payment_min",
+        "total_payment_max",
+        initialValues,
+      );
+      list.push(item);
+    }
     return list;
-  }, [
-    accountData,
-    initialValues.closed_at_max,
-    initialValues.closed_at_min,
-    initialValues.closed_bys,
-    initialValues.created_at_max,
-    initialValues.created_at_min,
-    initialValues.ids,
-    initialValues.opened_at_max,
-    initialValues.opened_at_min,
-    initialValues.opened_bys,
-    initialValues.remaining_amount_max,
-    initialValues.remaining_amount_min,
-    initialValues.states,
-    initialValues?.store_ids,
-    stores,
-  ]);
+  }, [accountData, initialValues, stores]);
 
   const onCloseTag = useCallback(
     (e, tag) => {
@@ -309,6 +329,30 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
               remaining_amount_max: undefined,
             });
           break;
+        case "other_cost":
+          onFilter &&
+            onFilter({
+              ...params,
+              other_cost_min: undefined,
+              other_cost_max: undefined,
+            });
+          break;
+        case "other_payment":
+          onFilter &&
+            onFilter({
+              ...params,
+              other_payment_min: undefined,
+              other_payment_max: undefined,
+            });
+          break;
+        case "total_payment":
+          onFilter &&
+            onFilter({
+              ...params,
+              total_payment_min: undefined,
+              total_payment_max: undefined,
+            });
+          break;
         default:
           break;
       }
@@ -327,7 +371,13 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
         "closed_at_min",
         "closed_at_max",
         "remaining_amount_min",
-        "remaining_amount_max"
+        "remaining_amount_max",
+        "other_cost_min",
+        "other_cost_max",
+        "other_payment_min",
+        "other_payment_max",
+        "total_payment_min",
+        "total_payment_max",
       ])
       .forEach((field) => {
         if (field.errors.length) {
@@ -343,8 +393,7 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
     if (error) return;
     const formSearchValue = formSearchRef.current?.getFieldsValue();
     const formSearchExtendValue = formSearchExtendRef.current?.getFieldsValue();
-    console.log(formSearchValue);
-    console.log(formSearchExtendValue);
+
     if (formSearchExtendValue) {
       formSearchExtendValue.created_at_min = formSearchExtendValue.created_at_min
         ? moment(formSearchExtendValue.created_at_min, DATE_FORMAT.DD_MM_YYYY).format(
@@ -378,6 +427,15 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
         formSearchExtendValue?.remaining_amount_min || null;
       formSearchExtendValue.remaining_amount_max =
         formSearchExtendValue?.remaining_amount_max || null;
+
+      formSearchExtendValue.other_cost_min = formSearchExtendValue?.other_cost_min || null;
+      formSearchExtendValue.other_cost_max = formSearchExtendValue?.other_cost_max || null;
+
+      formSearchExtendValue.other_payment_min = formSearchExtendValue?.other_payment_min || null;
+      formSearchExtendValue.other_payment_max = formSearchExtendValue?.other_payment_max || null;
+
+      formSearchExtendValue.total_payment_min = formSearchExtendValue?.total_payment_min || null;
+      formSearchExtendValue.total_payment_max = formSearchExtendValue?.total_payment_max || null;
     }
 
     onFilter && onFilter({ ...formSearchValue, ...formSearchExtendValue });
@@ -544,6 +602,45 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
                     fieldNameFrom="remaining_amount_min"
                     fieldNameTo="remaining_amount_max"
                     formRef={formSearchExtendRef}
+                  />
+                </Col>
+              </Row>
+              <Row gutter={24} className="ant-form-item-custom">
+                <Col span={24}>
+                  <div className="ant-form-item-label">
+                    <label>Chi phí</label>
+                  </div>
+                  <DiffNumberInputCustom
+                    fieldNameFrom="other_cost_min"
+                    fieldNameTo="other_cost_max"
+                    formRef={formSearchExtendRef}
+                    min={0}
+                  />
+                </Col>
+              </Row>
+              <Row gutter={24} className="ant-form-item-custom">
+                <Col span={24}>
+                  <div className="ant-form-item-label">
+                    <label>Phụ thu</label>
+                  </div>
+                  <DiffNumberInputCustom
+                    fieldNameFrom="other_payment_min"
+                    fieldNameTo="other_payment_max"
+                    formRef={formSearchExtendRef}
+                    min={0}
+                  />
+                </Col>
+              </Row>
+              <Row gutter={24} className="ant-form-item-custom">
+                <Col span={24}>
+                  <div className="ant-form-item-label">
+                    <label>Doanh thu</label>
+                  </div>
+                  <DiffNumberInputCustom
+                    fieldNameFrom="total_payment_min"
+                    fieldNameTo="total_payment_max"
+                    formRef={formSearchExtendRef}
+                    min={0}
                   />
                 </Col>
               </Row>

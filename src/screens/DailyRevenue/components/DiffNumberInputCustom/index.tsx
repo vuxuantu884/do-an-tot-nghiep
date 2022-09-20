@@ -9,10 +9,12 @@ type Props = {
   fieldNameFrom: string;
   fieldNameTo: string;
   formRef?: React.RefObject<FormInstance<any>>;
+  min?: number;
+  max?: number;
 };
 
 const DiffNumberInputCustom: React.FC<Props> = (props: Props) => {
-  const { fieldNameFrom, fieldNameTo, formRef } = props;
+  const { fieldNameFrom, fieldNameTo, formRef, min, max } = props;
 
   const onChangeDiff = useCallback(() => {
     let value: any;
@@ -53,6 +55,8 @@ const DiffNumberInputCustom: React.FC<Props> = (props: Props) => {
             return formatCurrency(value || 0);
           }}
           parser={(value: string | undefined) => replaceFormat(value || "")}
+          min={min}
+          max={max}
         />
       </Form.Item>
       <div className="swap-right-icon">
@@ -66,6 +70,8 @@ const DiffNumberInputCustom: React.FC<Props> = (props: Props) => {
             return formatCurrency(value || 0);
           }}
           parser={(value: string | undefined) => replaceFormat(value || "")}
+          min={min}
+          max={max}
         />
       </Form.Item>
     </StyledComponent>
