@@ -199,9 +199,10 @@ const adjustmentInventoryAction = (
 
 const exportInventoryAction = (
   transferId: number,
+  data: any,
   onResult: (data: InventoryTransferDetailItem) => void,
 ) => {
-  return BaseAction(InventoryType.EXPORT_INVENTORY, { transferId, onResult });
+  return BaseAction(InventoryType.EXPORT_INVENTORY, { transferId, data, onResult });
 };
 
 const acceptInventoryAction = (

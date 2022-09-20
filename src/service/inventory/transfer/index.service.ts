@@ -183,10 +183,11 @@ const TransferService = {
   },
 
   //export shipment
-  exportShipmentInventoryTransfer: (transferId: number): Promise<BaseResponse<string>> => {
-    return BaseAxios.put(
+  exportShipmentInventoryTransfer: (transferId: number, data: any): Promise<BaseResponse<string>> => {
+    return data.secret ? BaseAxios.put(
       `${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/export`,
-    );
+      data,
+    ) : BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/export`);
   },
 
   acceptInventoryTransfer: (transferId: number): Promise<BaseResponse<string>> => {
