@@ -424,13 +424,13 @@ function DailyRevenueDetail(props: PropTypes) {
                 ...prev.shopCostCard,
                 show: true,
                 actionButton: false,
-                addButton: false,
+                addButton: true,
               },
               shopSurchargeCard: {
                 ...prev.shopSurchargeCard,
                 show: true,
                 actionButton: false,
-                addButton: false,
+                addButton: true,
               },
               totalRevenueCard: {
                 ...prev.totalRevenueCard,
