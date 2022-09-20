@@ -42,6 +42,8 @@ import ImageProduct from "screens/products/product/component/image-product.compo
 import { Image } from "antd";
 import { callApiNative } from "utils/ApiUtils";
 import { searchVariantsInventoriesApi } from "service/product/product.service";
+import { StoreResponse } from "model/core/store.model";
+import { enumStoreStatus } from "model/warranty/warranty.model";
 
 let varaintName = "";
 let varaintSku = "";
@@ -1192,7 +1194,9 @@ const AllTab: React.FC<any> = (props) => {
         params={params}
         actions={[]}
         onClearFilter={() => {}}
-        listStore={stores}
+        listStore={((stores || []) as StoreResponse[]).filter(
+          (store) => store.status === enumStoreStatus.ACTIVE,
+        )}
         onChangeKeySearch={(value: string, filters: any) => {
           onChangeKeySearch(value, filters);
         }}

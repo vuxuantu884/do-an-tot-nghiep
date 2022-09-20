@@ -21,6 +21,8 @@ import moment from "moment";
 import { callApiNative } from "utils/ApiUtils";
 import { inventoryGetHistoryApi } from "service/inventory";
 import FileSaver from "file-saver";
+import { StoreResponse } from "model/core/store.model";
+import { enumStoreStatus } from "model/warranty/warranty.model";
 
 enum DocumentType {
   PURCHASE_ORDER = "purchase_order",
@@ -412,7 +414,9 @@ const HistoryTab: React.FC<any> = (props) => {
         params={params}
         actions={[]}
         onClearFilter={() => {}}
-        listStore={stores}
+        listStore={((stores || []) as StoreResponse[]).filter(
+          (store) => store.status === enumStoreStatus.ACTIVE,
+        )}
       />
       <CustomTable
         bordered

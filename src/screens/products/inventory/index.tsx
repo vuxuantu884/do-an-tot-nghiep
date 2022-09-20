@@ -13,7 +13,7 @@ import HistoryTab from "./tab/history.tab";
 import exportIcon from "assets/icon/export.svg";
 import { Link } from "react-router-dom";
 import { callApiNative } from "utils/ApiUtils";
-import { getAllStore } from "service/core/store.service";
+import { getAllPublicSimpleStoreApi, getAllStore } from "service/core/store.service";
 
 const { TabPane } = Tabs;
 
@@ -58,7 +58,7 @@ const InventoryScreen: React.FC = () => {
   }, [history, path, conditionFilter, storeIds]);
 
   const getAllStores = async () => {
-    callApiNative({ isShowLoading: false }, dispatch, getAllStore).then((res) => {
+    callApiNative({ isShowLoading: false }, dispatch, getAllPublicSimpleStoreApi).then((res) => {
       setStores(res);
     });
   };
