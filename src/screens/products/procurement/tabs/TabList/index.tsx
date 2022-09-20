@@ -43,19 +43,11 @@ import TabListFilter from "../../filter/TabList.filter";
 import { PoDetailAction } from "domain/actions/po/po.action";
 import { StyledComponent } from "./styles";
 import { PurchaseOrder, PurchaseOrderPrint } from "model/purchase-order/purchase-order.model";
-// import CustomFilter from "component/table/custom.filter";
-// import { MenuAction } from "component/table/ActionButton";
 import { callApiNative } from "utils/ApiUtils";
-import {
-  searchProcurementApi,
-  updatePurchaseProcumentNoteService,
-} from "service/purchase-order/purchase-procument.service";
-// import { ProcurementListWarning } from "../../components/ProcumentListWarning";
+import { updatePurchaseProcumentNoteService } from "service/purchase-order/purchase-procument.service";
 import { cloneDeep } from "lodash";
 import ProcurementExport from "../components/ProcurementExport";
 import { TYPE_EXPORT } from "screens/products/constants";
-import * as XLSX from "xlsx";
-import { ProcurementExportLineItemField } from "model/procurement/field";
 import { PhoneOutlined, PrinterOutlined } from "@ant-design/icons";
 import EditNote from "screens/order-online/component/edit-note";
 import { primaryColor } from "utils/global-styles/variables";
@@ -73,19 +65,18 @@ import { Modal, Row } from "antd";
 import { printMultipleProcurementApi } from "service/purchase-order/purchase-order.service";
 import { useReactToPrint } from "react-to-print";
 import purify from "dompurify";
+import { exportFile, getFile } from "service/other/export.service";
+import { HttpStatus } from "config/http-status.config";
 
 const ProcumentConfirmModal = lazy(
   () => import("screens/purchase-order/modal/procument-confirm.modal"),
 );
-// const ModalConfirm = lazy(() => import("component/modal/ModalConfirm"))
-// const ProducmentInventoryMultiModal = lazy(() => import("screens/purchase-order/modal/procument-inventory-multi.modal"))
 const ProcumentInventoryModal = lazy(
   () => import("screens/purchase-order/modal/procument-inventory.modal"),
 );
 const ModalSettingColumn = lazy(() => import("component/table/ModalSettingColumn"));
 
 const ACTIONS_INDEX = {
-  // CONFIRM_MULTI: 1,
   PRINT_PROCUREMENTS: 1,
   CANCEL: 2,
 };
@@ -118,11 +109,10 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
   const [statusExport, setStatusExport] = useState<number>(0);
   const [showPrintConfirm, setShowPrintConfirm] = useState<boolean>(false);
   const [printContent, setPrintContent] = useState<string>("");
+  const [listExportFile, setListExportFile] = useState<Array<string>>([]);
+  const [exportError, setExportError] = useState<string>("");
+  const [isLoadingExport, setIsLoadingExport] = useState<boolean>(false);
   const pageBreak = "<div class='pageBreak'></div>";
-  // const [showConfirm, setShowConfirm] = useState<boolean>(false);
-  // const [contentWarning,setContentWarning] = useState<ReactNode>();
-  // const [listProcurement, setListProcurement] =
-  //   useState<Array<PurchaseProcument>>();
   const [data, setData] = useState<PageResponse<PurchaseProcument>>({
     metadata: {
       limit: 30,
@@ -132,7 +122,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     items: [],
   });
   const [purchaseOrderItem, setPurchaseOrderItem] = useState<PurchaseOrder>({} as PurchaseOrder);
-  const [totalItems, setTotalItems] = useState<number>(0);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const printElementRef = useRef(null);
 
@@ -156,81 +145,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
   });
-
-  // const actions: Array<MenuAction> = useMemo(()=>{
-  //   return [
-  //    {
-  //      id: ACTIONS_INDEX.CONFIRM_MULTI,
-  //      name: "Xác nhận nhanh",
-  //    },
-  //  ]
-  //  },[]);
-
-  // const checkConfirmProcurement = useCallback(() => {
-  //   let pass = true;
-  //   let listProcurementCode = "";
-
-  //   for (let index = 0; index < selected.length; index++) {
-  //     const element = selected[index];
-  //     if (element.status !== ProcumentStatus.NOT_RECEIVED) {
-  //       listProcurementCode += `${element.code},`;
-  //       pass = false;
-  //     }
-  //   }
-  //   if (!pass) {
-  //     setContentWarning(()=>ProcurementListWarning(listProcurementCode));
-  //     setShowWarConfirm(true);
-  //     return false;
-  //   }
-  //   for (let index = 0; index < selected.length; index++) {
-  //     const element = selected[index];
-  //     const firstElement = selected[0];
-  //     listProcurementCode = firstElement.code;
-  //     if (firstElement.purchase_order.supplier_id !== element.purchase_order.supplier_id
-  //         || ConvertUtcToLocalDate(firstElement.stock_in_date,DATE_FORMAT.DDMMYYY) !== ConvertUtcToLocalDate(element.stock_in_date,DATE_FORMAT.DDMMYYY)
-  //         || firstElement.store_id !== element.store_id) {
-  //           listProcurementCode +=`, ${element.code},`;
-  //        pass = false;
-  //     }
-  //   }
-  //   if (!pass) {
-  //     setContentWarning(()=>ProcurementListWarning(listProcurementCode));
-  //     setShowWarConfirm(true);
-  //     return false;
-  //   }
-  //   setListProcurement(selected);
-  //   setShowConfirm(true);
-  // },[selected]);
-
-  // const onMenuClick = useCallback((index: number) => {
-  //   switch (index) {
-  //     case ACTIONS_INDEX.CONFIRM_MULTI:
-  //       checkConfirmProcurement();
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // }, [checkConfirmProcurement]);
-
-  // const ActionComponent = useCallback(()=>{
-  //     let Compoment = () => <span>Mã phiếu nhập kho</span>;
-  //     if (selected?.length > 1) {
-  //       Compoment = () => (
-  //         <CustomFilter onMenuClick={onMenuClick} menu={actions}>
-  //           <Fragment />
-  //         </CustomFilter>
-  //       );
-  //     }
-  //     return <Compoment />;
-  // },[selected,actions, onMenuClick ])
-
-  // const getTotalProcurementItemsQuantity = (item: PurchaseProcument): number => {
-  //   let totalConfirmQuantity = 0;
-  //     item.procurement_items.forEach((item: PurchaseProcumentLineItem) => {
-  //       totalConfirmQuantity += item.quantity;
-  //     });
-  //     return totalConfirmQuantity;
-  // }
 
   const query = useQuery();
   let paramsrUrl: any = useMemo(() => {
@@ -260,7 +174,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         setLoading(false);
         if (result) {
           setData(result);
-          setTotalItems(result.metadata.total);
         }
       }),
     );
@@ -306,9 +219,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     (callback: (procurement: PurchaseProcument) => number): string => {
       let total: number[] = [];
       const procurementsData = cloneDeep(data.items);
-      // const procurementsData = procurementsClone.filter((item: PurchaseProcument) =>
-      //   item.status === ProcurementStatus.not_received || item.status === ProcurementStatus.received)
-
       procurementsData.forEach((element: PurchaseProcument) => {
         total.push(callback(element));
       });
@@ -449,7 +359,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           );
         },
         visible: true,
-        // width: 200,
       },
       {
         title: "Người thao tác",
@@ -545,7 +454,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           );
         },
         align: "center",
-        // width: 200,
       },
       {
         title: (
@@ -607,35 +515,12 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
                 color={primaryColor}
                 onOk={(newNote) => {
                   onUpdateReceivedProcurement(newNote, record);
-                  // editNote(newNote, "customer_note", record.id, record);
                 }}
-                // isDisable={record.status === OrderStatus.FINISHED}
               />
             </>
           );
         },
       },
-      // {
-      //   title: "Ngày duyệt",
-      //   dataIndex: "activated_date",
-      //   render: (value, record, index) => ConvertUtcToLocalDate(value),
-      // },
-      // {
-      //   title: "Người duyệt",
-      //   dataIndex: "activated_by",
-      //   visible: true,
-      //   render: (value, row) => {
-      //     return (
-      //       <Link
-      //         to={`${UrlConfig.ACCOUNTS}/${row.activated_by}`}
-      //         className="primary"
-      //         target="_blank"
-      //       >
-      //         {value}
-      //       </Link>
-      //     )
-      //   }
-      // },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getTotalProcurementItems, getTotalProcurementQuantity]);
@@ -768,19 +653,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     [onAddProcumentSuccess],
   );
 
-  // const onReciveMuiltiProcumentCallback = useCallback(
-  //   (value: boolean) => {
-  //     setLoadingConfirm(false);
-  //     if (value !== null) {
-  //       showSuccess("Xác nhận nhập kho thành công");
-  //       setShowConfirm(false);
-  //       setLoadingRecive(false);
-  //       onAddProcumentSuccess && onAddProcumentSuccess(false);
-  //     }
-  //   },
-  //   [onAddProcumentSuccess]
-  // );
-
   const onReciveProcument = useCallback(
     (value: PurchaseProcument) => {
       if (poId && value.id) {
@@ -790,22 +662,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     },
     [dispatch, poId, onReciveProcumentCallback],
   );
-
-  // const onReciveMultiProcument = useCallback(
-  //  async (value: Array<PurchaseProcumentLineItem>) => {
-  //     if (listProcurement) {
-  //       const PrucurementConfirm = {
-  //         procurement_items: value,
-  //         refer_ids: listProcurement.map(e=>e.id)
-  //       } as ProcurementConfirm;
-  //       const res  = await callApiNative({isShowLoading: false},dispatch, confirmProcumentsMerge,PrucurementConfirm);
-  //       if (res) {
-  //         onReciveMuiltiProcumentCallback(true);
-  //       }
-  //     }
-  //   },
-  //   [listProcurement,dispatch,onReciveMuiltiProcumentCallback]
-  // );
 
   const [showSettingColumn, setShowSettingColumn] = useState(false);
 
@@ -872,25 +728,20 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     dispatch(StoreGetListAction(setListStore));
   }, [dispatch]);
 
-  // const titleMultiConfirm = useMemo(() => {
-  //   return <>
-  //     Xác nhận nhập kho {listProcurement?.map((e, i) => {
-  //       return <>
-  //         <Link target="_blank" to={`${UrlConfig.PURCHASE_ORDERS}/${e.purchase_order.id}`}>
-  //           {e.code}
-  //         </Link>{i === (listProcurement.length - 1) ? "" : ", "}
-  //       </>
-  //     })}
-  //   </>
-  // }, [listProcurement]);
-
-  const getItemsByCondition = useCallback(
-    async (type: string) => {
-      let res: any;
-      let items: Array<PurchaseProcument> = [];
-      const limit = 50;
-      let times = 0;
-      const newParams = {
+  const actionExport = {
+    Ok: async (typeExport: string) => {
+      if (!typeExport) {
+        return;
+      }
+      setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
+      if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
+        setStatusExport(0);
+        showWarning("Bạn chưa chọn phiếu chuyển nào để xuất file");
+        return;
+      }
+      setExportProgress(0);
+      setIsLoadingExport(true);
+      let newParams = {
         ...paramsrUrl,
         expect_receipt_from:
           paramsrUrl.expect_receipt_from &&
@@ -898,182 +749,104 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         expect_receipt_to:
           paramsrUrl.expect_receipt_to && getEndOfDayCommon(paramsrUrl.expect_receipt_to)?.format(),
         stock_in_from:
-          paramsrUrl.stock_in_from && getStartOfDayCommon(paramsrUrl.stock_in_from)?.format(),
-        stock_in_to: paramsrUrl.stock_in_to && getEndOfDayCommon(paramsrUrl.stock_in_to)?.format(),
+          paramsrUrl.stock_in_from &&
+          formatDateTimeFilter(paramsrUrl.stock_in_from, DATE_FORMAT.DD_MM_YY_HHmm)?.format(),
+        stock_in_to:
+          paramsrUrl.stock_in_to &&
+          formatDateTimeFilter(paramsrUrl.stock_in_to, DATE_FORMAT.DD_MM_YY_HHmm)?.format(),
         active_from:
           paramsrUrl.active_from && getStartOfDayCommon(paramsrUrl.active_from)?.format(),
         active_to: paramsrUrl.active_to && getEndOfDayCommon(paramsrUrl.active_to)?.format(),
+        type: typeExport,
+        limit: paramsrUrl.limit ?? 30,
       };
-      setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
-      switch (type) {
+      switch (typeExport) {
         case TYPE_EXPORT.page:
-          res = await callApiNative({ isShowLoading: false }, dispatch, searchProcurementApi, {
-            ...newParams,
-            limit: paramsrUrl.limit ?? 50,
-          });
-          if (res) {
-            items = items.concat(res.items);
-          }
           break;
-
-        case TYPE_EXPORT.selected:
-          items = selected;
-          break;
-
         case TYPE_EXPORT.all:
-          const roundAll = Math.round(data.metadata.total / limit);
-          times = roundAll < data.metadata.total / limit ? roundAll + 1 : roundAll;
-
-          for (let index = 1; index <= times; index++) {
-            res = await callApiNative({ isShowLoading: false }, dispatch, searchProcurementApi, {
-              ...newParams,
-              page: index,
-              limit: limit,
-            });
-            if (res) {
-              items = items.concat(res.items);
-            }
-            const percent = Math.round(Number.parseFloat((index / times).toFixed(2)) * 100);
-            setExportProgress(percent);
-          }
+          delete newParams.page;
+          delete newParams.limit;
           break;
-
+        case TYPE_EXPORT.selected:
+          newParams.ids = selected.map((item: PurchaseProcument) => item.id);
+          break;
         case TYPE_EXPORT.allin:
-          if (!totalItems || totalItems === 0) {
-            break;
-          }
-          const roundAllin = Math.round(totalItems / limit);
-          times = roundAllin < totalItems / limit ? roundAllin + 1 : roundAllin;
-
-          for (let index = 1; index <= times; index++) {
-            res = await callApiNative({ isShowLoading: false }, dispatch, searchProcurementApi, {
-              ...newParams,
-              page: index,
-              limit: limit,
-            });
-            if (res) {
-              items = items.concat(res.items);
-            }
-            const percent = Math.round(Number.parseFloat((index / times).toFixed(2)) * 100);
-            setExportProgress(percent);
-          }
+          newParams = { type: TYPE_EXPORT.allin };
           break;
         default:
           break;
       }
-      setExportProgress(100);
-      return items;
-    },
-    [paramsrUrl, dispatch, selected, data, totalItems],
-  );
 
-  // const convertItemExport = (item: PurchaseProcument) => {
-
-  //   return {
-  //     [ProcurementExportLineItemField.code]: item.code,
-  //     [ProcurementExportLineItemField.purchase_order_code]: item.purchase_order.code,
-  //     [ProcurementExportLineItemField.purchase_order_reference]: item.purchase_order.reference,
-  //     [ProcurementExportLineItemField.status]: ProcurementStatusName[item.status],
-  //   };
-  // }
-
-  const convertTransferDetailExport = (
-    procurement: PurchaseProcument,
-    arrItem: Array<PurchaseProcumentLineItem>,
-  ) => {
-    let arr = [];
-    for (let i = 0; i < arrItem.length; i++) {
-      const item = arrItem[i];
-      arr.push({
-        [ProcurementExportLineItemField.code]: procurement.code,
-        [ProcurementExportLineItemField.purchase_order_code]: procurement.purchase_order.code,
-        [ProcurementExportLineItemField.purchase_order_reference]:
-          procurement.purchase_order.reference,
-        [ProcurementExportLineItemField.status]: ProcurementStatusName[procurement.status],
-        [ProcurementExportLineItemField.purchase_order_supplier_code]:
-          procurement.purchase_order.supplier_code,
-        [ProcurementExportLineItemField.supplier]: procurement.purchase_order.supplier,
-        [ProcurementExportLineItemField.store]: procurement.store,
-        [ProcurementExportLineItemField.product_code]: item.sku.substring(0, 7),
-        [ProcurementExportLineItemField.product_name]: item.product_name,
-        [ProcurementExportLineItemField.sku]: item.sku,
-        [ProcurementExportLineItemField.variant]: item.variant,
-        [ProcurementExportLineItemField.barcode]: item.barcode,
-        [ProcurementExportLineItemField.real_quantity]: item.real_quantity,
-        [ProcurementExportLineItemField.price]: item.price || 0,
-        [ProcurementExportLineItemField.amount]: item.amount || 0,
-        [ProcurementExportLineItemField.created_date]: ConvertUtcToLocalDate(
-          procurement.created_date,
-          DATE_FORMAT.DDMMYYY,
-        ),
-        [ProcurementExportLineItemField.stock_in_date]: ConvertUtcToLocalDate(
-          procurement.stock_in_date,
-          DATE_FORMAT.DDMMYYY,
-        ),
-        [ProcurementExportLineItemField.stock_in_by]: `${procurement.stock_in_by}`,
-        [ProcurementExportLineItemField.purchase_order_merchandiser]: `${procurement.purchase_order.merchandiser}`,
-        [ProcurementExportLineItemField.purchase_order_designer]: `${
-          procurement.purchase_order.designer ?? ""
-        }`,
-        [ProcurementExportLineItemField.note]: `${procurement.note ?? ""}`,
-      });
-    }
-    return arr;
-  };
-
-  const actionExport = {
-    Ok: async (typeExport: string) => {
-      if (!typeExport) {
-        setVExportDetailProcurement(false);
-        return;
-      }
-      // let dataExport: any = [];
-      setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
-      if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
-        setStatusExport(0);
-        showWarning("Bạn chưa chọn phiếu chuyển nào để xuất file");
-        setVExportDetailProcurement(false);
-        return;
-      }
-      const res = await getItemsByCondition(typeExport);
-      if (res && res.length === 0) {
-        showWarning("Không có phiếu nhập kho nào đủ điều kiện");
-        setStatusExport(0);
-        return;
-      }
-
-      const workbook = XLSX.utils.book_new();
-      let item: any = [];
-      for (let i = 0; i < res.length; i++) {
-        if (!res[i] || res[i].procurement_items?.length === 0) continue;
-
-        if (workbook.Sheets[`${res[i].code}`]) {
-          continue;
-        }
-        item = item.concat(convertTransferDetailExport(res[i], res[i].procurement_items));
-        // const e = res[i];
-        // const item = convertItemExport(e);
-        // dataExport.push(item);
-      }
-
-      let worksheet = XLSX.utils.json_to_sheet(item);
-      XLSX.utils.book_append_sheet(workbook, worksheet, "data");
-      setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
-      const today = moment(new Date(), "YYYY/MM/DD");
-      const month = today.format("M");
-      const day = today.format("D");
-      const year = today.format("YYYY");
-      XLSX.writeFile(workbook, `Unicorn_phiếu nhập kho ncc_${day}_${month}_${year}.xlsx`);
-      setVExportDetailProcurement(false);
-      setExportProgress(0);
-      setStatusExport(0);
+      const queryParams = generateQuery(newParams);
+      exportFile({
+        conditions: queryParams,
+        type: "TYPE_EXPORT_PROCUREMENTS",
+      })
+        .then((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+            showSuccess("Đã gửi yêu cầu xuất file");
+            setListExportFile([...listExportFile, response.data.code]);
+          }
+        })
+        .catch((error) => {
+          setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+        });
     },
     Cancel: () => {
       setVExportDetailProcurement(false);
+      setIsLoadingExport(false);
       setExportProgress(0);
       setStatusExport(0);
+      setListExportFile([]);
     },
   };
+
+  const checkExportFile = useCallback(() => {
+    let getFilePromises = listExportFile.map((code) => {
+      return getFile(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          setExportProgress(response.data.percent ?? 0);
+          if (response.data && response.data.status === "FINISH") {
+            const fileCode = response.data.code;
+            const newListExportFile = listExportFile.filter((item) => {
+              return item !== fileCode;
+            });
+            window.open(response.data.url, "_self");
+            setExportProgress(100);
+            setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
+            setListExportFile(newListExportFile);
+            setIsLoadingExport(false);
+          }
+          if (response.data && response.data.status === "ERROR") {
+            setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
+            setExportError(response.data.message);
+            setIsLoadingExport(false);
+          }
+        } else {
+          setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
+          setIsLoadingExport(false);
+        }
+      });
+    });
+  }, [listExportFile]);
+
+  useEffect(() => {
+    if (
+      listExportFile.length === 0 ||
+      statusExport === STATUS_IMPORT_EXPORT.JOB_FINISH ||
+      statusExport === STATUS_IMPORT_EXPORT.ERROR
+    )
+      return;
+    checkExportFile();
+
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFile, checkExportFile, statusExport]);
 
   const printContentCallback = useCallback(
     (printContent: Array<PurchaseOrderPrint>) => {
@@ -1285,6 +1058,8 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           visible={vExportDetailProcurement}
           exportProgress={exportProgress}
           statusExport={statusExport}
+          exportError={exportError}
+          isLoadingExport={isLoadingExport}
         />
       </div>
       <div style={{ display: "none" }}>
