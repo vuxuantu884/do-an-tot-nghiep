@@ -1612,17 +1612,6 @@ const DetailTicket: FC = () => {
                         loading={isLoadingBtn}
                         onClick={() => {
                           if (data) {
-                            let isValid: boolean = true;
-                            for (let i = 0; i < data.line_items.length; i++) {
-                              if (data.line_items[i].transfer_quantity > data.line_items[i].available) {
-                                isValid = false;
-                                break;
-                              }
-                            }
-                            if (!isValid) {
-                              showError("Không đủ tồn kho gửi.");
-                              return;
-                            }
                             dispatch(exportInventoryAction(data?.id, onReload));
                           }
                         }}
