@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import { Link, useHistory } from "react-router-dom";
 import TabCurrent from "./tabs/TabCurrent";
-// import TabSevenDays from "./tabs/TabSevenDays";
 import TabList from "./tabs/TabList/index";
 import TabProducts from "./tabs/TabProducts/index";
 import TabLogs from "./tabs/TabLogs";
@@ -88,13 +87,6 @@ const ProcurementScreen: React.FC<RouteComponentProps> = () => {
       >
         <Card className="card-tab">
           <Tabs style={{ overflow: "initial" }} activeKey={activeTab} renderTabBar={RenderTabBar}>
-            {/* Do cải tiến PO và Procurement nên tạm thời k sử dụng 2 tabs này */}
-            {/* <TabPane tab="Hàng về hôm nay" key={ProcurementTabUrl.TODAY}>
-            <TabCurrent />
-          </TabPane>
-          <TabPane tab="Hàng về 7 ngày" key={ProcurementTabUrl.SEVEN_DAYS}>
-            <TabSevenDays />
-          </TabPane> */}
             <TabPane
               tab={<Link to={ProcurementTabUrl.ALL}>Danh sách phiếu nhập kho</Link>}
               key={ProcurementTabUrl.ALL}

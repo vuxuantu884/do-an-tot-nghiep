@@ -1609,7 +1609,10 @@ export default function Order(props: PropTypes) {
                                 setShippingFeeInformedToCustomer(0);
                               }
                             }}
-                            disabled={levelOrder > 3}
+                            disabled={
+                              levelOrder > 3 ||
+                              shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
+                            }
                           />
                         </Form.Item>
                       </Space>

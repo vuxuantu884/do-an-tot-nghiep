@@ -1,5 +1,6 @@
 import { PagingParam, ResultPaging } from "model/paging";
 import { DailyRevenueTableModel } from "model/revenue";
+import { formatCurrency } from "utils/AppUtils";
 import { flatDataPaging } from "utils/Paging";
 
 export const dailyRevenueStatus = {
@@ -54,4 +55,24 @@ export const getBase64 = (file: any) => {
     };
     reader.onerror = (error) => reject(error);
   });
+};
+
+export const filterNumberDiff = (
+  title: string,
+  key: string,
+  minKey: string,
+  maxKey: string,
+  initialExt: any,
+) => {
+  let textRemaining =
+    (initialExt[minKey] ? formatCurrency(initialExt[minKey]) : "??") +
+    " ~ " +
+    (initialExt[maxKey] ? formatCurrency(initialExt[maxKey]) : "??");
+
+  let result: any = {
+    key: key,
+    name: title,
+    value: textRemaining,
+  };
+  return result;
 };

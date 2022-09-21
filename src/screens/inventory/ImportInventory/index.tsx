@@ -243,7 +243,7 @@ const UpdateTicket: FC = () => {
         title="Nhập file"
         breadcrumb={[
           {
-            name: "Tổng quan",
+            name: "Kho hàng",
             path: UrlConfig.HOME,
           },
           {

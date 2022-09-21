@@ -80,6 +80,7 @@ function ShopRevenueCard(props: PropTypes) {
       },
       visible: true,
       align: "right",
+      width: "25%",
     },
     {
       title: "QRPay",
@@ -90,6 +91,7 @@ function ShopRevenueCard(props: PropTypes) {
       },
       visible: true,
       align: "right",
+      width: "25%",
     },
     {
       title: "Chuyển khoản",
@@ -100,6 +102,7 @@ function ShopRevenueCard(props: PropTypes) {
       },
       visible: true,
       align: "right",
+      width: "25%",
     },
     {
       title: "VNPay",
@@ -108,7 +111,7 @@ function ShopRevenueCard(props: PropTypes) {
       render: (value: string) => {
         return <span className="noWrap">{formatCurrency(value)}</span>;
       },
-      visible: true,
+      visible: false,
       align: "right",
     },
     {
@@ -118,7 +121,7 @@ function ShopRevenueCard(props: PropTypes) {
       render: (value: string) => {
         return <span className="noWrap">{formatCurrency(value)}</span>;
       },
-      visible: true,
+      visible: false,
       align: "right",
     },
     {
@@ -130,6 +133,7 @@ function ShopRevenueCard(props: PropTypes) {
       },
       visible: true,
       align: "right",
+      width: "25%",
     },
     {
       title: "MPOS",
@@ -138,7 +142,7 @@ function ShopRevenueCard(props: PropTypes) {
       render: (value: string) => {
         return <span className="noWrap">{formatCurrency(value)}</span>;
       },
-      visible: true,
+      visible: false,
       align: "right",
     },
     {
@@ -148,7 +152,7 @@ function ShopRevenueCard(props: PropTypes) {
       render: (value: string) => {
         return <span className="noWrap">{formatCurrency(value)}</span>;
       },
-      visible: true,
+      visible: false,
       align: "right",
     },
   ];
@@ -170,7 +174,7 @@ function ShopRevenueCard(props: PropTypes) {
         <CustomTable
           showColumnSetting={false}
           dataSource={items}
-          columns={columnFinal}
+          columns={columnFinal.filter((column) => column.visible)}
           pagination={false}
           rowKey={(item: ShopRevenueModel) => item.card_payment}
         />

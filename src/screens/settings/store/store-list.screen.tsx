@@ -160,18 +160,19 @@ const StoreListScreen: React.FC = () => {
       dataIndex: "name",
       visible: true,
       fixed: "left",
+      width: 220,
     },
     {
       title: "Trực thuộc",
       dataIndex: "departmentParentName",
       visible: true,
-      width: 180,
+      width: 220,
     },
     {
       title: "Loại",
       dataIndex: "type_name",
       visible: true,
-      width: 120,
+      width: 150,
     },
     {
       title: "Số điện thoại",
@@ -183,13 +184,13 @@ const StoreListScreen: React.FC = () => {
       title: "Thành phố",
       dataIndex: "city_name",
       visible: true,
-      width: 120,
+      width: 150,
     },
     {
       title: "Địa chỉ",
       dataIndex: "address",
       visible: true,
-      width: 150,
+      width: 200,
     },
     {
       title: "Phân cấp",
@@ -468,7 +469,7 @@ const StoreListScreen: React.FC = () => {
               isRowSelection
               showColumnSetting={true}
               isLoading={loading}
-              scroll={{ x: 1480 }}
+              scroll={{ x: 'max-content' }}
               pagination={{
                 pageSize: data.metadata.limit,
                 total: data.metadata.total,

@@ -1351,6 +1351,7 @@ export default function Order() {
                                 setShippingFeeInformedToCustomer(0);
                               }
                             }}
+                            disabled={shipmentMethod === ShipmentMethodOption.PICK_AT_STORE}
                           />
                         </Form.Item>
                       }
