@@ -9,4 +9,5 @@ export enum LocalStorageKey {
   CustomerVisitorsStore = "customerVisitorsStore",
   CustomerPhoneSMSCountersStore = "customerPhoneSMSCountersStore",
   SatffAssigneeCode = "SatffAssigneeCode",
+  KeyDriverOfflineRowkeysExpanded = "key-driver-offline-rowkeys-expanded",
 }

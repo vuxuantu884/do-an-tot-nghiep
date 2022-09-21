@@ -123,6 +123,14 @@ export const getKDSmsLoyalty = (params: KDOfflineTotalSalesParams): Promise<Base
     params,
   });
 };
+
+export const getKDOfflineProfit = (
+  params: KDOfflineTotalSalesParams,
+): Promise<BaseResponse<any>> => {
+  return BaseAxiosApi.get(`${ApiConfig.OFFLINE_PROFIT}`, {
+    params,
+  });
+};
 /* keydriver offline api */
 
 /* keydriver online api */
