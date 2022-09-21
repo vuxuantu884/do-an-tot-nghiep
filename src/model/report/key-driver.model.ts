@@ -85,6 +85,11 @@ export enum KeyDriverField {
   BirthdaySmsConversions = "birthday_sms_conversions",
   CustomerSmsRate = "customer_sms_rate",
   ShoperSmsRate = "shoper_sms_rate",
+  // profit group
+  Profit = `profit_PROFIT`,
+  RevenueSuccess = "revenue_success_PROFIT",
+  Shipping = "shipping_PROFIT",
+  Cost = "cost_PROFIT",
 }
 
 export const ASM_LIST = ["ASM Dương Sơn Tùng", "ASM Nguyễn Văn Ánh", "ASM Đỗ Quang Hiếu"];
@@ -157,6 +162,7 @@ export interface CustomerPhoneSMSCountersParams {
 export enum KDGroup {
   TotalSales = "_TotalSales",
   SKU3 = "_SKU3",
+  PROFIT = "_PROFIT",
 }
 
 export enum PotentialImportingForm {

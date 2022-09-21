@@ -8,7 +8,7 @@ import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { debounce } from "lodash";
-import { KeyDriverDimension, KeyDriverField, KeyDriverTarget } from "model/report";
+import { KeyDriverDimension, KeyDriverField, KeyDriverTarget, LocalStorageKey } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -175,7 +175,11 @@ function KeyDriverOfflineStaff() {
   const [syncDataTime, setSyncDataTime] = useState<string>(
     moment().format(DATE_FORMAT.DD_MM_YY_HHmmss),
   );
-  const [stateExpand, setStateExpand] = useState<Array<any>>([]);
+
+  const expandedDefault = localStorage.getItem(LocalStorageKey.KeyDriverOfflineRowkeysExpanded);
+  const [expandRowKeys, setExpandRowKeys] = useState<string[]>(
+    expandedDefault ? JSON.parse(expandedDefault) : [],
+  );
 
   const setObjectiveColumns = useCallback(
     (
@@ -492,12 +496,6 @@ function KeyDriverOfflineStaff() {
     history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}/${asmNameUrl}/${storeNameUrl}?date=${newDate}`);
   }, [asmName, form, history, setData, storeName]);
 
-  const onExpand = (expanded: any, { key }: { key: any }) => {
-    setStateExpand((prev) => {
-      return !expanded ? [...prev, key] : prev.filter((k) => k !== key);
-    });
-  };
-
   return (
     <ContentContainer
       title={`Báo cáo kết quả kinh doanh Offline ${selectedStores}`}
@@ -569,14 +567,21 @@ function KeyDriverOfflineStaff() {
             bordered
             pagination={false}
             rowClassName={(record: any, rowIndex: any) => {
-              if (stateExpand.includes(record.key) || !record.children) {
+              if (!expandRowKeys.includes(record.key) || !record.children) {
                 return "expand-parent";
               }
               return "";
             }}
-            onExpand={onExpand}
+            expandedRowKeys={expandRowKeys}
             expandable={{
               defaultExpandAllRows: true,
+              onExpandedRowsChange: (rowKeys: any) => {
+                setExpandRowKeys(rowKeys);
+                localStorage.setItem(
+                  LocalStorageKey.KeyDriverOfflineRowkeysExpanded,
+                  JSON.stringify(rowKeys),
+                );
+              },
             }}
             columns={finalColumns}
             dataSource={data}

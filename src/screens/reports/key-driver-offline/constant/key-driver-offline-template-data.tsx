@@ -204,7 +204,30 @@ export const keyDriverOfflineTemplateData: readonly any[] = [
   {
     key: KeyDriverField.ProductTotalSales,
     name: "Doanh thu theo sản phẩm",
+    method: "Doanh thu theo sản phẩm",
     children: [],
+  },
+  {
+    key: KeyDriverField.Profit,
+    name: "Lợi nhuận",
+    method: "Lợi nhuận",
+    children: [
+      {
+        key: KeyDriverField.RevenueSuccess,
+        name: "Doanh thu thành công",
+        method: "Doanh thu thành công",
+      },
+      {
+        key: KeyDriverField.Cost,
+        name: "Giá vốn",
+        method: "Giá vốn",
+      },
+      {
+        key: KeyDriverField.Shipping,
+        name: "Phí thu báo khách của các đơn thành công",
+        method: "Phí thu báo khách của các đơn thành công",
+      },
+    ],
   },
 ];
 
