@@ -1,3 +1,5 @@
+import { ProductPermission } from "config/permissions/product.permission";
+
 export const StockInOutType = {
   stock_in: "stock_in",
   stock_out: "stock_out",
@@ -150,4 +152,9 @@ export const StockInOutAdvancedFilterMapping = {
   [StockInOutAdvancedFilter.partner_name]: "Đối tác",
   [StockInOutAdvancedFilter.stock_in_reasons]: "Lý do nhập",
   [StockInOutAdvancedFilter.stock_out_reasons]: "Lý do xuất",
+};
+
+export const PricePermissionMapping = {
+  [ProductPermission.read_cost]: "giá vốn",
+  [ProductPermission.read_import]: "giá nhập",
 };
