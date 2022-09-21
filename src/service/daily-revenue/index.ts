@@ -51,3 +51,7 @@ export const importPaymentConfirmDailyRevenueService = (request: ImportFileModel
 export const confirmPayMoneyDailyRevenueService = (id: number): Promise<any> => {
   return DailyRevenueIncludeHeaderInfoBaseAxios.post(`${ApiConfig.DAILY_PAYMENT}/${id}/confirm`);
 };
+
+export const refreshDailyRevenueService = (id: number): Promise<any> => {
+  return DailyRevenueIncludeHeaderInfoBaseAxios.post(`${ApiConfig.DAILY_PAYMENT}/${id}/refresh`);
+};
