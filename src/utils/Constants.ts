@@ -493,11 +493,11 @@ export const RECEIPT_TYPE = {
 export const REVENUE_STATE = [
   {
     code: "draft",
-    name: "Tạo mới",
+    name: "Mới",
   },
   {
     code: "paying",
-    name: "Đang giao dịch",
+    name: "Chưa nộp tiền",
   },
   {
     code: "paid",
@@ -505,7 +505,7 @@ export const REVENUE_STATE = [
   },
   {
     code: "finished",
-    name: "Hoàn thành",
+    name: "Đã xác nhận",
   },
 ];
 
