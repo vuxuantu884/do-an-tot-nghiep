@@ -342,10 +342,15 @@ const CreateInventoryAdjustment: FC = () => {
     if (!isLt2M) {
       showWarning("Cần chọn file nhỏ hơn 10mb");
     }
+    const fileListFiltered = fileList.filter((oldFile) => oldFile.name === file.name);
+    if (fileListFiltered.length > 0) {
+      showWarning("File tải lên bị trùng.");
+      return Upload.LIST_IGNORE;
+    }
     return isLt2M ? true : Upload.LIST_IGNORE;
-  }, []);
+  }, [fileList]);
 
-  const onCustomRequest = (options: UploadRequestOption<any>) => {
+  const onCustomRequest = (options: UploadRequestOption) => {
     const { file } = options;
     let files: Array<File> = [];
     if (file instanceof File) {
