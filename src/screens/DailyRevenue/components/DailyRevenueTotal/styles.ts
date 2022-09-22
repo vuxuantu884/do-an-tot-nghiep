@@ -174,9 +174,11 @@ export const StyledComponent = styled.div`
     }
   }
   .gallery {
-    display: flex;
     .single {
+      display: inline-block;
       margin-right: 15px;
+      vertical-align: top;
+      margin-bottom: 10px;
     }
     .ant-form-item {
       margin-bottom: 0;

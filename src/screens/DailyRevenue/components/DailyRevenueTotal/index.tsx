@@ -285,33 +285,36 @@ function DailyRevenueTotal(props: PropTypes) {
                       </div>
                     );
                   })}
-                  <Form.Item
-                    name="uploadFile33"
-                    rules={[
-                      () => ({
-                        validator(_, value) {
-                          console.log("value", value);
-                          if (value && value?.file && value?.fileList?.length > 0) {
-                            return Promise.resolve();
-                          }
-                          return Promise.reject(new Error(`Vui lòng chọn ảnh nếu cập nhật!`));
-                        },
-                      }),
-                    ]}
-                    hidden={dailyRevenueDetail?.state !== dailyRevenueStatus.paid.value}
-                  >
-                    <Upload
-                      maxCount={1}
-                      accept=".jpg,.jpeg,.png"
-                      beforeUpload={beforeUpload}
-                      listType="picture-card"
-                      // itemRender={(originNode, file, currFileList) => <Image src={file.url} />}
-                      onChange={handleChange}
-                      onPreview={handlePreview}
+                  <div className="single">
+                    <Form.Item
+                      name="uploadFile33"
+                      rules={[
+                        () => ({
+                          validator(_, value) {
+                            console.log("value", value);
+                            if (value && value?.file && value?.fileList?.length > 0) {
+                              return Promise.resolve();
+                            }
+                            return Promise.reject(new Error(`Vui lòng chọn ảnh nếu cập nhật!`));
+                          },
+                        }),
+                      ]}
+                      hidden={dailyRevenueDetail?.state !== dailyRevenueStatus.paid.value}
                     >
-                      {fileList.length >= 1 ? null : uploadButton}
-                    </Upload>
-                  </Form.Item>
+                      <Upload
+                        maxCount={1}
+                        accept=".jpg,.jpeg,.png"
+                        beforeUpload={beforeUpload}
+                        listType="picture-card"
+                        // itemRender={(originNode, file, currFileList) => <Image src={file.url} />}
+                        onChange={handleChange}
+                        onPreview={handlePreview}
+                        fileList={fileList}
+                      >
+                        {fileList.length >= 1 ? null : uploadButton}
+                      </Upload>
+                    </Form.Item>
+                  </div>
                 </div>
               </Col>
             </Row>
@@ -351,6 +354,7 @@ function DailyRevenueTotal(props: PropTypes) {
                       // itemRender={(originNode, file, currFileList) => <Image src={file.url} />}
                       onChange={handleChange}
                       onPreview={handlePreview}
+                      fileList={fileList}
                     >
                       {fileList.length >= 1 ? null : uploadButton}
                     </Upload>
