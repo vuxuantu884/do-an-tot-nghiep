@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 
 import arrowLeft from "assets/icon/arrow-back.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { StockInOutPolicyPriceField, StockInOutType } from "../constant";
 import StockInOutWareHouseForm from "../components/StockInOutWareHouseForm";
 import { callApiNative } from "utils/ApiUtils";
@@ -23,6 +23,9 @@ import ModalImport from "../components/ModalImport";
 import { ImportResponse } from "model/other/files/export-model";
 import StockInOutProductUtils from "../util/StockInOutProductUtils";
 import { isNullOrUndefined } from "utils/AppUtils";
+import StockInOutAlertPricePermission from "../components/StockInOutAlertPricePermission";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { ProductPermission } from "config/permissions/product.permission";
 
 const StockInOtherCreate: React.FC = () => {
   const [isRequireNote, setIsRequireNote] = useState<boolean>(false);
@@ -37,6 +40,12 @@ const StockInOtherCreate: React.FC = () => {
   const [fileId, setFileId] = useState<string | null>(null);
   const [fileUrl, setFileUrl] = useState<string>("");
   const [typePrice, setTypePrice] = useState<string>(StockInOutPolicyPriceField.import_price);
+  const currentPermissions: string[] = useSelector(
+    (state: RootReducerType) => state.permissionReducer.permissions,
+  );
+  const readPricePermissions: string[] = currentPermissions.filter(
+    (el: string) => el === ProductPermission.read_cost || el === ProductPermission.read_import,
+  );
 
   const history = useHistory();
   const dispatch = useDispatch();
@@ -184,6 +193,9 @@ const StockInOtherCreate: React.FC = () => {
               stockInOutType={StockInOutType.stock_in}
               setIsRequireNote={setIsRequireNote}
             />
+            {readPricePermissions.length < 2 && (
+              <StockInOutAlertPricePermission readPricePermissions={readPricePermissions} />
+            )}
             <StockInOutProductForm
               title="SẢN PHẨM NHẬP"
               formMain={formMain}
