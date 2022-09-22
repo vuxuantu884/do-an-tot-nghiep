@@ -19,7 +19,7 @@ interface POProgressModalProps {
 }
 
 const POProgressModal: React.FC<POProgressModalProps> = (props: POProgressModalProps) => {
-  const { dataProcess, visible, onOk, onCancel, loading } = props;
+  const { dataProcess, visible, onOk, onCancel, loading = false } = props;
   const { Text } = Typography;
   return (
     <Modal
