@@ -94,9 +94,9 @@ function useFetchStoresProfit(dimension: KeyDriverDimension = KeyDriverDimension
               prev[2] = dataPrev;
               return [...prev];
             });
-            setIsFetchingStoresProfit(false);
-            return;
           }
+          setIsFetchingStoresProfit(false);
+          return;
         }
         setData((prev: any) => {
           let dataPrev: any = prev[2];
