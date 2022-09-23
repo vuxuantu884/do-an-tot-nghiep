@@ -1851,6 +1851,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                             tracking_codes: e.target.value.trim(),
                           });
                         }}
+                        onPressEnter={(e) => {
+                          let element: any = document.getElementById("tracking_codes");
+                          element?.focus();
+                          element?.select();
+                        }}
                       />
                     </Item>
                   </Col>
