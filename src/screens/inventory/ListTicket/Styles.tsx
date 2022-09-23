@@ -19,6 +19,10 @@ export const ListTicketStylesWrapper = styled.div`
       color: #2a2a86 !important;
     }
   }
+  .dropdown .ant-btn, .dropdown .ant-btn:hover {
+    background-color: #FFFFFF;
+    border: 1px solid #dedede;
+  }
   .card-transfer {
     position: relative;
     .transferring-sender {

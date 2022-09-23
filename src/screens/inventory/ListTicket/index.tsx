@@ -1,4 +1,4 @@
-import { Button, Card, Row, Space, Tabs } from "antd";
+import { Button, Card, Dropdown, Menu, Row, Space, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
@@ -113,6 +113,58 @@ const InventoryListScreen: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, setDataAccounts]);
 
+  const menuItems = [
+    {
+      name: "Nhập file 1 kho nhận",
+      url: `${UrlConfig.INVENTORY_TRANSFERS}/import`
+    },
+    {
+      name: "Nhập nhiều file 1 kho nhận",
+      url: `${UrlConfig.INVENTORY_TRANSFERS}/import-multiple-file-one-store`
+    },
+    {
+      name: "Nhập file nhiều kho nhận",
+      url: `${UrlConfig.INVENTORY_TRANSFERS}/import-multiple`
+    },
+  ];
+
+  const menuExportItems = [
+    {
+      name: "Nhập file danh sách",
+      action: "EXPORT_LIST"
+    },
+    {
+      name: "Xuất file chi tiết",
+      action: "EXPORT_DETAIL"
+    },
+  ];
+
+  const menu = (
+    <Menu>
+      {menuItems.map((i, index) => (
+        <Menu.Item key={index}>
+          <div onClick={() => history.push(i.url)}>
+            <img className="mr-15" src={importIcon} style={{ marginRight: 8 }} alt="" />
+            {i.name}
+          </div>
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
+
+  const menuExport = (
+    <Menu>
+      {menuExportItems.map((i, index) => (
+        <Menu.Item key={index}>
+          <div onClick={() => i.action === "EXPORT_DETAIL" ? setVExportDetailTransfer(true) : setVExportTransfer(true)}>
+            <img className="mr-15" src={exportIcon} style={{ marginRight: 8 }} alt="" />
+            {i.name}
+          </div>
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
+
   const renderExtraContainer = () => {
     if (
       activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER ||
@@ -122,36 +174,21 @@ const InventoryListScreen: React.FC = () => {
       return (
         <Row>
           <Space>
-            <Button
-              className="light"
-              size="large"
-              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-              onClick={() => {
-                setVExportTransfer(true);
-              }}
+            <Dropdown.Button
+              className="dropdown"
+              onClick={() => setVExportDetailTransfer(true)}
+              overlay={menuExport}
             >
-              Xuất file danh sách
-            </Button>
-            <Button
-              className="light"
-              size="large"
-              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-              onClick={() => {
-                setVExportDetailTransfer(true);
-              }}
-            >
-              Xuất file chi tiết
-            </Button>
+              <img src={exportIcon} style={{ marginRight: 8 }} alt="" /> Xuất file
+            </Dropdown.Button>
             <AuthWrapper acceptPermissions={[InventoryTransferPermission.import]}>
-              <Button
-                className="light"
-                size="large"
-                icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+              <Dropdown.Button
+                className="dropdown"
                 onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}/import`)}
-                type="ghost"
+                overlay={menu}
               >
-                Nhập file
-              </Button>
+                <img src={importIcon} style={{ marginRight: 8 }} alt="" /> Nhập file
+              </Dropdown.Button>
             </AuthWrapper>
             <AuthWrapper acceptPermissions={[InventoryTransferPermission.request]}>
               <ButtonCreate children="Yêu cầu" path={`${UrlConfig.INVENTORY_TRANSFERS}/request`} />

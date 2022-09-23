@@ -17,7 +17,7 @@ import {
   Progress,
   Radio,
 } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PaperClipOutlined, UploadOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import arrowLeft from "assets/icon/arrow-back.svg";
@@ -30,12 +30,16 @@ import { useHistory, useParams } from "react-router";
 import { InventoryParams } from "../DetailTicket";
 import { ApiConfig } from "config/api.config";
 import BaseAxios from "base/base.axios";
-import { showError } from "utils/ToastUtils";
-import MyStoreSelect from "component/custom/select-search/my-store-select";
+import { showError, showWarning } from "utils/ToastUtils";
 import { strForSearch } from "utils/StringUtils";
-import { RootReducerType } from "../../../model/reducers/RootReducerType";
-import { ImportResponse } from "../../../model/other/files/export-model";
-import { InventoryType } from "../../../domain/types/inventory.type";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { ImportResponse } from "model/other/files/export-model";
+import { InventoryType } from "domain/types/inventory.type";
+import { UploadRequestOption } from "rc-upload/lib/interface";
+import { uploadFileApi } from "../../../service/core/import.service";
+import { HttpStatus } from "../../../config/http-status.config";
+import { UploadFile } from "antd/lib/upload/interface";
+import { AccountStoreResponse } from "model/account/account.model";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -43,6 +47,7 @@ const { Text } = Typography;
 const UpdateTicket: FC = () => {
   const [form] = Form.useForm();
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
+  const [myStoreActive, setMyStoreActive] = useState<any>([] as Array<Store>);
   const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { id } = useParams<InventoryParams>();
@@ -50,10 +55,32 @@ const UpdateTicket: FC = () => {
   const [dataProcess, setDataProcess] = useState<ImportResponse>();
   const [fileId, setFileId] = useState<string | null>(null);
   const [data, setData] = useState<any>(null);
+  const [dataError, setDataError] = useState<any>(null);
   const [createType, setCreateType] = useState<string>("CREATE");
   const [dataUploadError, setDataUploadError] = useState<any>(null);
+  const [url, setUrl] = useState<string>("");
+  const [file, setFile] = useState<UploadFile | null>(null);
   const dispatch = useDispatch();
   const history = useHistory();
+
+  const onChangeFile = useCallback((info) => {
+    setFile(info.file);
+  }, []);
+
+  const onRemoveFile = () => {
+    setFile(null);
+    setUrl("");
+  };
+
+  useEffect(() => {
+    if (stores.length === 0) return;
+    const newMyStore = myStores.length > 0 ? myStores.filter((myStore: any) => {
+      const storeFiltered = stores.filter((store) => Number(store.id) === Number(myStore.store_id))[0];
+      return !!storeFiltered
+    }) : [];
+    setMyStoreActive(newMyStore);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stores]);
 
   const onResult = useCallback(
     () => {},
@@ -135,15 +162,16 @@ const UpdateTicket: FC = () => {
 
   const onFinish = useCallback(
     (data: any) => {
-      if (!data.fileUpload || data.fileUpload.length === 0) {
+      if (!file) {
         setIsLoading(false);
+        showWarning("Vui lòng chọn ít nhất một file.");
         return;
       }
       setIsLoading(true);
       if (stores) {
         stores.forEach((store) => {
           if (store.id === Number(data.from_store_id)) {
-            data.storeTransfer = {
+            data.store_transfer = {
               store_id: store.id,
               hotline: store.hotline,
               address: store.address,
@@ -152,7 +180,7 @@ const UpdateTicket: FC = () => {
             };
           }
           if (store.id === Number(data.to_store_id)) {
-            data.storeReceive = {
+            data.store_receive = {
               store_id: store.id,
               hotline: store.hotline,
               address: store.address,
@@ -162,20 +190,18 @@ const UpdateTicket: FC = () => {
           }
         });
       }
-      data.fileUpload = data.fileUpload[0].originFileObj;
       delete data.from_store_id;
       delete data.to_store_id;
+      const newBody = {
+        ...data,
+        url,
+        can_write: false
+      }
 
-      const formData = new FormData();
-      formData.append("fileUpload", data.fileUpload);
-      formData.append("isTransferRequest", JSON.stringify(createType === "REQUEST"));
-      if (data.storeTransfer) formData.append("storeTransfer", JSON.stringify(data.storeTransfer));
-      formData.append("storeReceive", JSON.stringify(data.storeReceive));
-      formData.append("note", data.note ? data.note : "");
-
-      BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import`, formData)
+      BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import`, newBody)
         .then((res: any) => {
           if (res) {
+            setDataError(res);
             setFileId(res.data);
             setIsStatusModalVisible(true);
             setDataProcess(res.process);
@@ -191,7 +217,7 @@ const UpdateTicket: FC = () => {
           showError(err);
         });
     },
-    [createType, stores],
+    [file, stores, url],
   );
 
   const myStores: any = useSelector(
@@ -212,13 +238,6 @@ const UpdateTicket: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stores]);
 
-  const normFile = (e: any) => {
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e && e.fileList;
-  };
-
   const downloadErrorDetail = (dataUploadError: any) => {
     if (!dataUploadError) return;
     let newDataUploadError = "";
@@ -237,10 +256,41 @@ const UpdateTicket: FC = () => {
     document.body.removeChild(downloadableLink);
   };
 
+  const onCustomUpdateRequest = (options: UploadRequestOption) => {
+    const { file } = options;
+    let files: Array<File> = [];
+
+    if (file instanceof File) {
+      files.push(file);
+
+      uploadFileApi(files, "import-transfer").then((res: any) => {
+        if (res.code === HttpStatus.SUCCESS) {
+          setUrl(res.data[0]);
+        }
+      });
+    }
+  };
+
+  const beforeUploadFile = useCallback((file) => {
+    const isExcelFile =
+      file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+      file.type === "application/vnd.ms-excel";
+    if (!isExcelFile) {
+      showWarning("Vui lòng chọn đúng định dạng file excel .xlsx .xls");
+      return Upload.LIST_IGNORE;
+    } else {
+      const isLt5M = file.size / 1024 / 1024 < 5;
+      if (!isLt5M) {
+        showWarning("Cần chọn ảnh nhỏ hơn 5mb");
+      }
+      return isExcelFile && isLt5M;
+    }
+  }, []);
+
   return (
     <StyledWrapper>
       <ContentContainer
-        title="Nhập file"
+        title="Nhập file chuyển hàng 1 kho nhận"
         breadcrumb={[
           {
             name: "Kho hàng",
@@ -251,7 +301,7 @@ const UpdateTicket: FC = () => {
             path: `${UrlConfig.INVENTORY_TRANSFERS}`,
           },
           {
-            name: `Nhập file`,
+            name: `Nhập file 1 kho nhận`,
           },
         ]}
       >
@@ -309,31 +359,33 @@ const UpdateTicket: FC = () => {
                       }
                       labelCol={{ span: 24, offset: 0 }}
                     >
-                      {myStores.length > 0 && createType === "CREATE" ? (
-                        <MyStoreSelect placeholder="Chọn kho gửi" optionFilterProp="children" />
-                      ) : (
-                        <Select
-                          placeholder="Chọn kho gửi"
-                          showArrow
-                          showSearch
-                          optionFilterProp="children"
-                          filterOption={(input: String, option: any) => {
-                            if (option.props.value) {
-                              return strForSearch(option.props.children).includes(
-                                strForSearch(input),
-                              );
-                            }
+                      <Select
+                        placeholder="Chọn kho nhận"
+                        showArrow
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input: String, option: any) => {
+                          if (option.props.value) {
+                            return strForSearch(option.props.children).includes(
+                              strForSearch(input),
+                            );
+                          }
 
-                            return false;
-                          }}
-                        >
-                          {stores.map((item, index) => (
-                            <Option key={"store_id" + index} value={item.id.toString()}>
-                              {item.name}
-                            </Option>
-                          ))}
-                        </Select>
-                      )}
+                          return false;
+                        }}
+                      >
+                        {myStoreActive.length > 0 ? myStores?.map((store: AccountStoreResponse) =>
+                          store?.store_id ? (
+                            <Select.Option value={store.store_id} key={"store_id" + store.store_id}>
+                              {store.store}
+                            </Select.Option>
+                          ) : null,
+                        ) : stores.map((item, index) => (
+                          <Option key={"store_id" + index} value={item.id.toString()}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
                     </Form.Item>
                   </Col>
                   <Col span={12}>
@@ -351,47 +403,59 @@ const UpdateTicket: FC = () => {
                       ]}
                       labelCol={{ span: 24, offset: 0 }}
                     >
-                      {myStores.length > 0 && createType === "REQUEST" ? (
-                        <MyStoreSelect placeholder="Chọn kho nhận" optionFilterProp="children" />
-                      ) : (
-                        <Select
-                          placeholder="Chọn kho nhận"
-                          showArrow
-                          showSearch
-                          optionFilterProp="children"
-                          filterOption={(input: String, option: any) => {
-                            if (option.props.value) {
-                              return strForSearch(option.props.children).includes(
-                                strForSearch(input),
-                              );
-                            }
+                      <Select
+                        placeholder="Chọn kho nhận"
+                        showArrow
+                        showSearch
+                        optionFilterProp="children"
+                        filterOption={(input: String, option: any) => {
+                          if (option.props.value) {
+                            return strForSearch(option.props.children).includes(
+                              strForSearch(input),
+                            );
+                          }
 
-                            return false;
-                          }}
-                        >
-                          {stores.map((item, index) => (
-                            <Option key={"store_id" + index} value={item.id.toString()}>
-                              {item.name}
-                            </Option>
-                          ))}
-                        </Select>
-                      )}
+                          return false;
+                        }}
+                      >
+                        {myStoreActive.length > 0 ? myStores?.map((store: AccountStoreResponse) =>
+                          store?.store_id ? (
+                            <Select.Option value={store.store_id} key={"store_id" + store.store_id}>
+                              {store.store}
+                            </Select.Option>
+                          ) : null,
+                        ) : stores.map((item, index) => (
+                          <Option key={"store_id" + index} value={item.id.toString()}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
                     </Form.Item>
                   </Col>
                 </Row>
                 <Row>
-                  <Form.Item
-                    labelCol={{ span: 24, offset: 0 }}
-                    label={<b>File excel:</b>}
-                    colon={false}
-                    name="fileUpload"
-                    getValueFromEvent={normFile}
+                  <Upload
+                    onChange={onChangeFile}
+                    multiple={false}
+                    showUploadList={false}
+                    beforeUpload={beforeUploadFile}
+                    customRequest={onCustomUpdateRequest}
+                    accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
                   >
-                    <Upload beforeUpload={() => false}>
-                      <Button icon={<UploadOutlined />}>Chọn file</Button>
-                    </Upload>
-                  </Form.Item>
+                    <Button icon={<UploadOutlined />}>Chọn file</Button>
+                  </Upload>
                 </Row>
+                {file && (
+                  <div className="mt-10">
+                    <span className="margin-right-10">
+                      <PaperClipOutlined />
+                    </span>
+                    <span title={url} className="margin-right-10 file-name">
+                        {file?.name}
+                      </span>
+                    <span onClick={() => onRemoveFile()}><DeleteOutlined /></span>
+                  </div>
+                )}
               </Card>
             </Col>
             <Col span={6}>
@@ -576,12 +640,29 @@ const UpdateTicket: FC = () => {
                       <Text type="danger">Nhập file thất bại</Text>
                     </li>
                   ) : (
-                    <li>
-                      <span className="success">&#8226;</span>
-                      <Text type="success">
-                        {data?.status === "FINISH" ? "Thành công" : "Đang xử lý..."}
-                      </Text>
-                    </li>
+                    <>
+                      {!data ? (
+                        <>
+                          {dataError.errors && dataError.errors.length > 0 && dataError.errors.map((i: any) => (
+                            (
+                              <li>
+                                <span className="danger">&#8226;</span>
+                                <Text type="danger">
+                                  {i}
+                                </Text>
+                              </li>
+                            )
+                          ))}
+                        </>
+                      ) : (
+                        <li>
+                          <span className="success">&#8226;</span>
+                          <Text type="success">
+                            {data?.status === "FINISH" ? "Thành công" : "Đang xử lý..."}
+                          </Text>
+                        </li>
+                      )}
+                    </>
                   )}
                 </ul>
               </div>
