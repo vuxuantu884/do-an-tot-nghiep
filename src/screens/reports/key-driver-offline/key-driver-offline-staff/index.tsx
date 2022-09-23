@@ -567,9 +567,80 @@ function KeyDriverOfflineStaff() {
             bordered
             pagination={false}
             rowClassName={(record: any, rowIndex: any) => {
+              const {
+                VipCalls,
+                VipCallRate,
+                NearVipCalls,
+                NearVipCallRate,
+                BirthdayCallConversions,
+                BirthdayCalls,
+                BirthdayCallRate,
+                BirthdaySmsConversions,
+                BirthdaySmss,
+                BirthdaySmsRate,
+                CustomerSmss,
+                CustomerSmsRate,
+                ShoperSmss,
+                ShoperSmsRate,
+                PotentialCustomerCount,
+                NewCustomersConversionRate,
+                FollowFanpage,
+                Profit,
+                RevenueSuccess,
+                Cost,
+                Shipping,
+                VipTotalSales,
+                NearVipTotalSales,
+                BirthdayTotalSales,
+                CustomerGt90DaysTotalSales,
+                ShopperGt90DaysTotalSales,
+                NewTotalSales,
+                OthersTotalSales,
+              } = KeyDriverField;
+              if (
+                [
+                  VipCalls,
+                  VipCallRate,
+                  NearVipCalls,
+                  NearVipCallRate,
+                  BirthdayCallConversions,
+                  BirthdayCalls,
+                  BirthdayCallRate,
+                  BirthdaySmsConversions,
+                  BirthdaySmss,
+                  BirthdaySmsRate,
+                  CustomerSmss,
+                  CustomerSmsRate,
+                  ShoperSmss,
+                  ShoperSmsRate,
+                  PotentialCustomerCount,
+                  NewCustomersConversionRate,
+                  FollowFanpage,
+                  Profit,
+                  RevenueSuccess,
+                  Cost,
+                  Shipping,
+                ].includes(record.key)
+              ) {
+                return "hidden-row";
+              }
+              if (
+                [
+                  VipTotalSales,
+                  NearVipTotalSales,
+                  BirthdayTotalSales,
+                  CustomerGt90DaysTotalSales,
+                  ShopperGt90DaysTotalSales,
+                  NewTotalSales,
+                  OthersTotalSales,
+                ].includes(record.key)
+              ) {
+                return "hidden-button";
+              }
               if (!expandRowKeys.includes(record.key) || !record.children) {
                 return "expand-parent";
               }
+
               return "";
             }}
             expandedRowKeys={expandRowKeys}
