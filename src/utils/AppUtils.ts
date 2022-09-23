@@ -1450,7 +1450,7 @@ export const convertActionLogDetailToText = (
   let result = "";
   if (data) {
     let dataJson = JSON.parse(data);
-    // console.log('dataJson', dataJson)
+    // console.log("dataJson", dataJson);
     result = `
 		<span style="color:red">Thông tin đơn hàng: </span><br/> 
 		- Nhân viên: ${dataJson?.created_name || "-"}<br/>
@@ -1466,6 +1466,7 @@ export const convertActionLogDetailToText = (
 		<br/>
 		<span style="color:red">Sản phẩm: </span><br/> 
 		${dataJson?.items
+      .filter((singleItem: any) => !singleItem?.deleted)
       .map((singleItem: any, index: any) => {
         return `
 		- Sản phẩm ${index + 1}: ${singleItem?.variant} <br/>
