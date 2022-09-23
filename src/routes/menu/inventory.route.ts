@@ -19,6 +19,8 @@ const CreateTicketFromExcel = React.lazy(() => import("screens/inventory/UpdateT
 const CreateTicket = React.lazy(() => import("screens/inventory/CreateTicket/index"));
 const RequestTicket = React.lazy(() => import("screens/inventory/RequestTicket/index"));
 const ImportInventoryScreen = React.lazy(() => import("screens/inventory/ImportInventory/index"));
+const ImportMultipleInventoryScreen = React.lazy(() => import("screens/inventory/ImportInventory/ImportMultipleInventory"));
+const ImportOneStoreMultipleInventory = React.lazy(() => import("screens/inventory/ImportInventory/ImportOneStoreMultipleInventory"));
 
 //STOCK IN OUT
 const StockInOutOtherScreen = React.lazy(() => import("screens/stock-in-out-products"));
@@ -232,6 +234,30 @@ export const inventory: Array<RouteMenu> = [
         title: "Chuyển hàng",
         icon: "icon-dot",
         component: ImportInventoryScreen,
+        key: "submenu31_12",
+        isShow: true,
+        header: null,
+        permissions: [InventoryTransferPermission.import, InventoryTransferPermission.create],
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/import-multiple`,
+        exact: true,
+        title: "Chuyển hàng",
+        icon: "icon-dot",
+        component: ImportMultipleInventoryScreen,
+        key: "submenu31_12",
+        isShow: true,
+        header: null,
+        permissions: [InventoryTransferPermission.import, InventoryTransferPermission.create],
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/import-multiple-file-one-store`,
+        exact: true,
+        title: "Chuyển hàng",
+        icon: "icon-dot",
+        component: ImportOneStoreMultipleInventory,
         key: "submenu31_12",
         isShow: true,
         header: null,
