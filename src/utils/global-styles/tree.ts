@@ -16,6 +16,20 @@ export const globalCssCustomCheckbox = css`
   }
 
   .ant-tree-select-dropdown .ant-select-tree-list-holder-inner .ant-select-tree-treenode:hover {
-    background-color: #f5f5f5;
+    background-color: #ccc;
+  }
+
+  .ant-tree-select-dropdown .ant-select-tree-list-holder-inner {
+    .ant-select-tree-checkbox {
+      top: 0px;
+    }
+    .ant-select-tree-treenode {
+      padding: 7px 0px;
+    }
+    .ant-select-tree-node-content-wrapper {
+      position: relative;
+      top: 1px;
+      background: none;
+    }
   }
 `;
