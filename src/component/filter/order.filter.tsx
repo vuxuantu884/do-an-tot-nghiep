@@ -50,6 +50,7 @@ import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
 import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
 import { ORDER_TYPES } from "utils/Order.constants";
 import { formatDateTimeOrderFilter, getTimeFormatOrderFilterTag } from "utils/OrderUtils";
+import { fullTextSearch } from "utils/StringUtils";
 import TreeSource from "../treeSource";
 import BaseFilter from "./base.filter";
 import UserCustomFilterTag from "./UserCustomFilterTag";
@@ -1830,6 +1831,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                           return formSearchRef.current?.getFieldValue("sub_status_code");
                         }}
                         allValues={subStatus}
+                        autoClearSearchValue={false}
                       >
                         {subStatus?.map((item: any) => (
                           <CustomSelect.Option key={item.id} value={item.code.toString()}>
@@ -1916,6 +1918,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       placeholder="Cửa hàng"
                       listStore={listStore}
                       style={{ width: "100%" }}
+                      autoClearSearchValue={false}
                     />
                   </Item>
                 </Col>
@@ -1925,6 +1928,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       placeholder="Nguồn đơn hàng"
                       name="source_ids"
                       listSource={listSource}
+                      autoClearSearchValue={false}
                     />
                   </Item>
                 </Col>
@@ -1955,6 +1959,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       optionFilterProp="children"
                       getPopupContainer={(trigger) => trigger.parentNode}
                       maxTagCount="responsive"
+                      autoClearSearchValue={false}
                     >
                       {paymentStatus.map((item, index) => (
                         <CustomSelect.Option
@@ -1981,6 +1986,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       optionFilterProp="children"
                       getPopupContainer={(trigger) => trigger.parentNode}
                       maxTagCount="responsive"
+                      autoClearSearchValue={false}
                     >
                       <CustomSelect.Option style={{ width: "100%" }} key="1" value="returned">
                         Có đổi trả hàng
@@ -2020,6 +2026,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       style={{ width: "100%" }}
                       getPopupContainer={(trigger) => trigger.parentNode}
                       maxTagCount="responsive"
+                      autoClearSearchValue={false}
                     >
                       {listPaymentMethod.map((item, index) => (
                         <CustomSelect.Option
@@ -2043,6 +2050,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       mode="multiple"
                       getPopupContainer={(trigger: any) => trigger.parentNode}
                       maxTagCount="responsive"
+                      autoClearSearchValue={false}
                     />
                   </Item>
                 </Col>
@@ -2073,6 +2081,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                         mode="multiple"
                         getPopupContainer={(trigger: any) => trigger.parentNode}
                         maxTagCount="responsive"
+                        autoClearSearchValue={false}
                       />
                     </Item>
                   </Col>
@@ -2087,6 +2096,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       mode="multiple"
                       getPopupContainer={(trigger: any) => trigger.parentNode}
                       maxTagCount="responsive"
+                      autoClearSearchValue={false}
                     />
                   </Item>
                 </Col>
@@ -2120,6 +2130,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                         style={{ width: "100%" }}
                         getPopupContainer={(trigger) => trigger.parentNode}
                         maxTagCount="responsive"
+                        autoClearSearchValue={false}
                       >
                         {/* <Option value="">Hình thức vận chuyển</Option> */}
                         {serviceType?.map((item) => (
@@ -2142,6 +2153,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                         mode="multiple"
                         getPopupContainer={(trigger: any) => trigger.parentNode}
                         maxTagCount="responsive"
+                        autoClearSearchValue={false}
                       />
                     </Item>
                   </Col>
@@ -2240,6 +2252,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                         optionFilterProp="children"
                         getPopupContainer={(trigger) => trigger.parentNode}
                         maxTagCount="responsive"
+                        autoClearSearchValue={false}
                       >
                         {fulfillmentStatus.map((item, index) => (
                           <CustomSelect.Option
@@ -2268,6 +2281,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                         optionFilterProp="children"
                         getPopupContainer={(trigger) => trigger.parentNode}
                         maxTagCount="responsive"
+                        autoClearSearchValue={false}
                       >
                         {deliveryService?.map((item) => (
                           <CustomSelect.Option key={item.id} value={item.id.toString()}>
@@ -2305,6 +2319,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                         optionFilterProp="children"
                         getPopupContainer={(trigger) => trigger.parentNode}
                         maxTagCount="responsive"
+                        autoClearSearchValue={false}
                       >
                         {shippers &&
                           shippers.map((shipper) => (
@@ -2389,6 +2404,10 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                         optionFilterProp="children"
                         getPopupContainer={(trigger) => trigger.parentNode}
                         maxTagCount="responsive"
+                        autoClearSearchValue={false}
+                        filterOption={(input, option) => {
+                          return fullTextSearch(input, option?.children.join(""));
+                        }}
                       >
                         {listChannel &&
                           listChannel.map((channel) => (
