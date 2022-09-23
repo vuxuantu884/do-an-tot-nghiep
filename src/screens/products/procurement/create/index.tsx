@@ -52,7 +52,7 @@ const ProcurementCreateScreen: React.FC = () => {
   const [jobImportStatus, setJobImportStatus] = useState<EnumJobStatus>();
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
   const [lstJob, setLstJob] = useState<Array<string>>([]);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<Array<string>>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [fileList, setFileList] = useState<Array<UploadFile>>([]);
   const [procurementsResult, setProcurementsResult] = useState<Array<PurchaseProcument>>([]);
@@ -119,7 +119,7 @@ const ProcurementCreateScreen: React.FC = () => {
           setProcurementsResult(procurements);
         } else {
           setUploadStatus(EnumJobStatus.error);
-          setErrorMessage("Không tìm thấy đơn nào");
+          setErrorMessage(["Không tìm thấy đơn nào"]);
         }
       }
     },
@@ -144,17 +144,17 @@ const ProcurementCreateScreen: React.FC = () => {
               setUploadStatus(EnumJobStatus.success);
             } else if (!response.data.message[0].total_pr) {
               setUploadStatus(EnumJobStatus.error);
-              setErrorMessage("Không tìm thấy phiếu nhập kho nào");
+              setErrorMessage(["Không tìm thấy phiếu nhập kho nào"]);
             } else {
               setUploadStatus(EnumJobStatus.error);
-              setErrorMessage("Không tìm thấy đơn nào");
+              setErrorMessage(["Không tìm thấy đơn nào"]);
             }
             if (response.data.error > 0) {
               var downLoad = document.createElement("a");
               downLoad.href = response.data.url;
               downLoad.download = "download";
               downLoad.click();
-              setErrorMessage("Sản phẩm lỗi được hiển thị trong file tải về");
+              setErrorMessage(["Sản phẩm lỗi được hiển thị trong file tải về"]);
             }
             setJobImportStatus(EnumJobStatus.finish);
             setStatusImport(CON_STATUS_IMPORT.JOB_FINISH);
@@ -169,6 +169,7 @@ const ProcurementCreateScreen: React.FC = () => {
             setJobImportStatus(EnumJobStatus.error);
             setUploadStatus(EnumJobStatus.error);
             setStatusImport(CON_STATUS_IMPORT.JOB_FINISH);
+            setErrorMessage(response.data.message);
             const fileCode = response.data.code;
             const newListExportFile = lstJob.filter((item) => {
               return item !== fileCode;
@@ -231,7 +232,7 @@ const ProcurementCreateScreen: React.FC = () => {
     setJobImportStatus(undefined);
     setUploadStatus(undefined);
     setLstJob([]);
-    setErrorMessage("");
+    setErrorMessage([]);
     setIsResetModalWarning(false);
     setFileList([]);
   }, [formMain]);

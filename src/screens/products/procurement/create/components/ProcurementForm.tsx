@@ -51,8 +51,8 @@ interface ProcurementFormProps {
   statusImport: number;
   uploadStatus?: UploadStatus;
   setUploadStatus: (status: UploadStatus) => void;
-  setErrorMessage: (err: string) => void;
-  errorMessage?: string;
+  setErrorMessage: (errs: string[]) => void;
+  errorMessage: string[];
   showModal: boolean;
   setShowModal: (modal: boolean) => void;
   setFileList: (file: any) => void;
@@ -253,7 +253,12 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
                           </Form.Item>
                           <Row>
                             <div>
-                              <PhoneOutlined /> <Text strong>{phone.indexOf("{") !== -1 ? `+${JSON.parse(phone).code}${JSON.parse(phone).phone}` : phone}</Text>
+                              <PhoneOutlined />{" "}
+                              <Text strong>
+                                {phone.indexOf("{") !== -1
+                                  ? `+${JSON.parse(phone).code}${JSON.parse(phone).phone}`
+                                  : phone}
+                              </Text>
                             </div>
                           </Row>
                         </>
@@ -396,7 +401,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
           setUploadStatus(undefined);
           setStatusImport(CON_STATUS_IMPORT.CHANGE_FILE);
           setShowModal(false);
-          setErrorMessage("");
+          setErrorMessage([]);
         }}
         footer={[
           <>
@@ -432,7 +437,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
                   setUploadStatus(undefined);
                   setStatusImport(CON_STATUS_IMPORT.CHANGE_FILE);
                   setShowModal(false);
-                  setErrorMessage("");
+                  setErrorMessage([]);
                 }}
               >
                 Ok
@@ -465,9 +470,13 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
                   <VscError style={{ fontSize: "78px", color: "#E24343" }} />
                 </Row>
                 <Row justify={"center"}>
-                  <h2 style={{ padding: "10px 30px" }}>
-                    <li>{errorMessage ?? "Máy chủ đang bận"}</li>
-                  </h2>
+                  <ul style={{ marginTop: 10, marginBottom: 0, color: "#E24343" }}>
+                    {errorMessage.length === 0 ? (
+                      <li>Máy chủ đang bận</li>
+                    ) : (
+                      errorMessage.map((el: string) => <li>{el}</li>)
+                    )}
+                  </ul>
                 </Row>
               </Col>
             ) : (
@@ -486,7 +495,12 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
                       <h2 style={{ padding: "10px 30px" }}>
                         Xử lý nhập hoàn tất: <strong style={{ color: "#2A2A86" }} />{" "}
                       </h2>
-                      <h4>{errorMessage ?? ""}</h4>
+                      <h4>
+                        <ul>
+                          {errorMessage.length > 0 &&
+                            errorMessage.map((el: string) => <li>{el}</li>)}
+                        </ul>
+                      </h4>
                     </Row>
                   </>
                 )}
