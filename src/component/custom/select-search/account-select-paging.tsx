@@ -63,7 +63,7 @@ function SelectSearch(contentProps: SelectContentProps) {
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const handleSearch = (queryParams: AccountPublicSearchQueryModel) => {
     setIsSearching(true);
-    const query = { ...fixedQuery, ...queryParams };
+    const query = { status: "active", ...fixedQuery, ...queryParams };
     dispatch(
       searchAccountPublicAction(query, (response: PageResponse<AccountResponse>) => {
         if (response) {
@@ -94,7 +94,7 @@ function SelectSearch(contentProps: SelectContentProps) {
         { isShowError: true },
         dispatch,
         searchAccountPublicApi,
-        { ...fixedQuery, page: 1, limit: 30 },
+        { ...fixedQuery, page: 1, limit: 30, status: "active" },
       );
       const currentUser = {
         id: userReducer.account?.id,
