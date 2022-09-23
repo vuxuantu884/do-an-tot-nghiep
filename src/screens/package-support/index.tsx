@@ -83,7 +83,7 @@ const PackageSupport: React.FC = () => {
 
   useEffect(() => {
     let newData: Array<StoreResponse> = [];
-    if (listStores && listStores.length) {
+    if (listStores && listStores.length !== 0) {
       if (userReducer.account?.account_stores && userReducer.account?.account_stores.length > 0) {
         newData = listStores.filter((store) =>
           haveAccess(store.id, userReducer.account ? userReducer.account.account_stores : []),
@@ -99,43 +99,47 @@ const PackageSupport: React.FC = () => {
   useEffect(() => {
     let packInfo: string | null = getPackInfo();
     if (packInfo) {
-      dispatch(showLoading());
       let packInfoConvertJson: any = JSON.parse(packInfo);
       let packData: PackModel = {
         ...new PackModelDefaultValue(),
         ...packInfoConvertJson,
       };
-      let queryCode = packData.fulfillments.map((p) => p.order_code);
-      let queryParam: any = { code: queryCode };
-      getListOrderApi(queryParam)
-        .then((response) => {
-          if (isFetchApiSuccessful(response)) {
-            let fulfillments = packData.fulfillments.filter((p) =>
-              response.data.items.some(
-                (p1) =>
-                  p1.code === p.order_code &&
-                  getFulfillmentActive(p1.fulfillments)?.status === FulFillmentStatus.PACKED,
-                //&&(!p1.goods_receipts || (p1.goods_receipts && p1.goods_receipts?.length <= 0)),
-              ),
-            );
-            setSinglePack({
-              ...packData,
-              store_id: packData.store_id,
-              fulfillments: fulfillments,
-            });
-            setPackInfo({
-              ...packData,
-              store_id: packData.store_id,
-              fulfillments: fulfillments,
-            });
-          } else handleFetchApiError(response, "Danh sách fulfillment", dispatch);
-        })
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => {
-          dispatch(hideLoading());
-        });
+      if (packData.fulfillments && packData.fulfillments.length !== 0) {
+        dispatch(showLoading());
+        let queryCode = packData.fulfillments.map((p) => p.order_code);
+        let queryParam: any = { code: queryCode };
+        getListOrderApi(queryParam)
+          .then((response) => {
+            if (isFetchApiSuccessful(response)) {
+              let fulfillments = packData.fulfillments.filter((p) =>
+                response.data.items.some(
+                  (p1) =>
+                    p1.code === p.order_code &&
+                    getFulfillmentActive(p1.fulfillments)?.status === FulFillmentStatus.PACKED,
+                  //&&(!p1.goods_receipts || (p1.goods_receipts && p1.goods_receipts?.length <= 0)),
+                ),
+              );
+              setSinglePack({
+                ...packData,
+                store_id: packData.store_id,
+                fulfillments: fulfillments,
+              });
+              setPackInfo({
+                ...packData,
+                store_id: packData.store_id,
+                fulfillments: fulfillments,
+              });
+            } else handleFetchApiError(response, "Danh sách fulfillment", dispatch);
+          })
+          .catch((err) => {
+            console.log(err);
+          })
+          .finally(() => {
+            dispatch(hideLoading());
+          });
+      } else {
+        setSinglePack(packData);
+      }
     }
   }, [dispatch]);
 

@@ -1,20 +1,16 @@
 import { Modal, Form, Select, FormInstance, Row, Col } from "antd";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { Input } from "antd";
-import { useCallback, useContext, useMemo } from "react";
-import { DeliveryServiceResponse } from "model/response/order/order.response";
+import { useCallback, useContext } from "react";
 import { fullTextSearch } from "utils/StringUtils";
 import { useDispatch } from "react-redux";
-import { createHandoverService, searchHandoverService } from "service/handover/handover.service";
+import { createHandoverService } from "service/handover/handover.service";
 import { HandoverRequest } from "model/handover/handover.request";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import BaseResponse from "base/base.response";
 import { HandoverResponse } from "model/handover/handover.response";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { HandoverSearchRequest } from "model/handover/handover.search";
-import moment from "moment";
-import { DATE_FORMAT } from "utils/DateUtils";
 import { HandoverTransfer, HandoverType } from "screens/order-online/handover/handover.config";
 const { TextArea } = Input;
 
@@ -39,21 +35,6 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
   const listStoresDataCanAccess = orderPackContextData?.listStoresDataCanAccess;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
   const listChannels = orderPackContextData.listChannels;
-  //const data=orderPackContextData.data;
-
-  // const deliveryServiceProvider = useMemo(() => {
-  //   let dataAccess: DeliveryServiceResponse[] = [];
-  //   listThirdPartyLogistics.forEach((item, index) => {
-  //     if (
-  //       dataAccess.findIndex(
-  //         (p) =>
-  //           p.name.toLocaleLowerCase().trim().indexOf(item.name.toLocaleLowerCase().trim()) !== -1,
-  //       ) === -1
-  //     )
-  //       dataAccess.push({ ...item });
-  //   });
-  //   return dataAccess;
-  // }, [listThirdPartyLogistics]);
 
   const handleCreateHandOver = useCallback(
     (param) => {

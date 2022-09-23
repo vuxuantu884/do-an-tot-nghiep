@@ -26,9 +26,7 @@ import { HandoverOrderRequest, HandoverRequest } from "model/handover/handover.r
 import BaseResponse from "base/base.response";
 import { fulfillmentListService } from "service/handover/ffm.service";
 import { FulfillmentDto } from "model/handover/fulfillment.dto";
-import useFetchHanOverDataAccess from "hook/useFetchHanOverDataAccess";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-// import { useHistory } from "react-router-dom";
 
 type Props = {
   setOrderPushFalseDelivery: (data: FulfillmentDto[]) => void;
@@ -40,7 +38,7 @@ const dateFormat = DATE_FORMAT.DD_MM_YYYY;
 const fromDate = moment().startOf("day").subtract(3, "days").format(dateFormat);
 const toDate = moment().endOf("day").format(dateFormat);
 
-const handOverRequest: HandoverSearchRequest = {
+const handOverRequestDefault: HandoverSearchRequest = {
   from_created_date: fromDate,
   to_created_date: toDate,
   types: [HandoverTransfer],
@@ -70,12 +68,18 @@ const AddReportHandOverComponent: React.FC<Props> = (props: Props) => {
   const singlePack = orderPackContextData?.singlePack;
   const isFulFillmentPack = orderPackContextData?.isFulFillmentPack;
   const setIsFulFillmentPack = orderPackContextData?.setIsFulFillmentPack;
+  const listStoresDataCanAccess = orderPackContextData?.listStoresDataCanAccess;
+
+  const handOverRequest = useMemo(() => {
+    return {
+      ...handOverRequestDefault,
+      store_ids: listStoresDataCanAccess?.map((p) => p.id),
+    };
+  }, [listStoresDataCanAccess]);
 
   const orderPackSuccess: PackFulFillmentResponse[] = useMemo(() => {
     return !singlePack ? [] : !singlePack?.fulfillments ? [] : singlePack.fulfillments;
   }, [singlePack]);
-
-  const handOverDataAccess = useFetchHanOverDataAccess();
 
   const handleCancel = () => {
     setVisibleModal(false);
@@ -103,7 +107,6 @@ const AddReportHandOverComponent: React.FC<Props> = (props: Props) => {
       );
       const fulfillmentIsNotPack = fulfillments.filter((item) => !isFulfillmentPacked(item));
 
-      console.log("fulfillmentIsNotPack", fulfillmentIsNotPack);
       if (findDuplicated && findDuplicated.length > 0) {
         showModalError(
           <React.Fragment>
@@ -301,12 +304,6 @@ const AddReportHandOverComponent: React.FC<Props> = (props: Props) => {
     handOrderPushHandOver({ ...handOver }, fulfillmentsRequest);
   }, [handOrderPushHandOver, handOver, isFulFillmentPack, orderPackSuccess]);
 
-  useEffect(() => {
-    if (handOverDataAccess) {
-      setListHandOvers(handOverDataAccess);
-    }
-  }, [handOverDataAccess]);
-
   const selectGoodsReceipts = useCallback(
     (value: number) => {
       let indexGoods = listHandOvers.findIndex((data: HandoverResponse) => data.id === value);
@@ -327,7 +324,7 @@ const AddReportHandOverComponent: React.FC<Props> = (props: Props) => {
   );
 
   const handleReloadHandOver = useCallback(
-    (handOverId: number) => {
+    (handOverId?: number) => {
       dispatch(showLoading());
       searchHandoverService(handOverRequest)
         .then((response) => {
@@ -336,30 +333,51 @@ const AddReportHandOverComponent: React.FC<Props> = (props: Props) => {
           }
         })
         .then(() => {
-          getHandoverService(handOverId)
-            .then((response) => {
-              if (isFetchApiSuccessful(response)) {
-                setHandOver(response.data);
-              }
-            })
-            .catch((e) => {
-              console.log(e);
-            });
+          if (handOverId) {
+            getHandoverService(handOverId)
+              .then((response) => {
+                if (isFetchApiSuccessful(response)) {
+                  setHandOver(response.data);
+                }
+              })
+              .catch((e) => {
+                console.log(e);
+              });
+          }
         })
         .catch()
         .finally(() => {
           dispatch(hideLoading());
         });
     },
-    [dispatch],
+    [dispatch, handOverRequest],
   );
 
   useEffect(() => {
+    const isStore = listStoresDataCanAccess?.some((p) => p.id === singlePack?.store_id);
     formRef.current?.setFieldsValue({
-      store_id: singlePack?.store_id,
+      store_id: isStore ? singlePack?.store_id : undefined,
       //delivery_service_id:singlePack?.delivery_service_provider_id
     });
-  }, [formRef, singlePack?.store_id]);
+  }, [formRef, singlePack?.store_id, listStoresDataCanAccess]);
+
+  useEffect(() => {
+    if (listStoresDataCanAccess && listStoresDataCanAccess.length !== 0) {
+      searchHandoverService({
+        ...handOverRequestDefault,
+        store_ids: listStoresDataCanAccess?.map((p) => p.id),
+      })
+        .then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            setListHandOvers(response.data.items);
+          } else {
+            handleFetchApiError(response, "Danh sách biên bản", dispatch);
+          }
+        })
+        .catch()
+        .finally(() => {});
+    }
+  }, [dispatch, listStoresDataCanAccess]);
 
   return (
     <Card title="Cho vào biên bản bàn giao" bordered={false} className="pack-give-card">

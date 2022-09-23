@@ -478,11 +478,12 @@ const PackInfoComponent: React.FC = () => {
   //useEffect
 
   useEffect(() => {
+    const isStore = listStoresDataCanAccess?.some((p) => p.id === singlePack?.store_id);
     formRef.current?.setFieldsValue({
-      store_request: singlePack?.store_id,
+      store_request: isStore ? singlePack?.store_id : undefined,
       delivery_service_provider_id: singlePack?.delivery_service_provider_id,
     });
-  }, [formRef, singlePack]);
+  }, [formRef, singlePack, listStoresDataCanAccess]);
 
   useEffect(() => {
     if (packFulFillmentResponse) {
@@ -508,42 +509,6 @@ const PackInfoComponent: React.FC = () => {
       setItemProductList(item);
     }
   }, [packFulFillmentResponse, variantResponse]);
-
-  // useEffect(() => {
-  //   if (
-  //     itemProductList &&
-  //     packFulFillmentResponse &&
-  //     itemProductList.length !== 0
-  //   ) {
-  //     let indexPack = itemProductList.filter(
-  //       (p: OrderLineItemResponseExt) => Number(p.quantity) !== Number(p.pick)
-  //     );
-
-  //     if (indexPack === undefined || indexPack.length === 0) {
-  //       let request = {
-  //         id: packFulFillmentResponse.id,
-  //         code: packFulFillmentResponse.code,
-  //         items: packFulFillmentResponse.items,
-  //       };
-
-  //       let packData: PackModel = { ...new PackModelDefaultValue(), ...singlePack };
-  //       // console.log("PackModel", packData);
-
-  //       dispatch(
-  //         getFulfillmentsPack(request, (data: any) => {
-  //           if (data) {
-  //             btnClearPackElement?.click();
-  //             packData.fulfillments.unshift({...packFulFillmentResponse});
-  //             setSinglePack(packData);
-  //             setPackInfo(packData);
-  //             orderRequestElement?.focus();
-  //             showSuccess("Đóng gói đơn hàng thành công");
-  //           }
-  //         })
-  //       );
-  //     }
-  //   }
-  // }, [dispatch, itemProductList, packFulFillmentResponse, btnClearPackElement, singlePack, setSinglePack, history, orderRequestElement]);
 
   useEffect(() => {
     if (disableOrder) {
