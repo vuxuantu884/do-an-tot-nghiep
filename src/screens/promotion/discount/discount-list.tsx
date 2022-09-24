@@ -10,48 +10,51 @@ import React, { Fragment, ReactNode, useCallback, useEffect, useMemo, useState }
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
-import ContentContainer from "../../../component/container/content.container";
-import CustomTable, { ICustomTableColumType } from "../../../component/table/CustomTable";
-import UrlConfig from "../../../config/url.config";
+import ContentContainer from "component/container/content.container";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import UrlConfig from "config/url.config";
 import {
   bulkDisablePriceRulesAction,
   bulkEnablePriceRulesAction,
   getListDiscountAction,
-} from "../../../domain/actions/promotion/discount/discount.action";
-import { PageResponse } from "../../../model/base/base-metadata.response";
-import { DiscountSearchQuery } from "../../../model/query/discount.query";
-import { showError, showSuccess } from "../../../utils/ToastUtils";
+} from "domain/actions/promotion/discount/discount.action";
+import { PageResponse } from "model/base/base-metadata.response";
+import { DiscountSearchQuery } from "model/query/discount.query";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import { ACTIONS_DISCOUNT, DISCOUNT_STATUS } from "../constants";
-import DatePromotionColumn from "../shared/date-column";
-import DiscountFilter from "./components/DiscountFilter";
-import { DiscountStyled } from "./discount-style";
-import "./discount-style.ts";
+import DatePromotionColumn from "screens/promotion/shared/date-column";
+import DiscountFilter from "screens/promotion/discount/components/DiscountFilter";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { generateQuery } from "../../../utils/AppUtils";
+import { generateQuery } from "utils/AppUtils";
 import queryString from "query-string";
 import { FiCheckCircle } from "react-icons/fi";
 import { RiDeleteBin2Fill } from "react-icons/ri";
+import { SourceResponse } from "model/response/order/source.response";
+import { getListAllSourceRequest } from "domain/actions/product/source.action";
+import { ChannelResponse } from "model/response/product/channel.response";
+import { getListChannelRequest } from "domain/actions/order/order.action";
+import { DiscountStyled } from "screens/promotion/discount/discount-style";
 
 const DiscountPage = () => {
   const initQuery: DiscountSearchQuery = {
     limit: 30,
     page: 1,
-    type: "",
-    request: "",
-    created_date: [],
-    from_created_date: "",
-    to_created_date: "",
-    state: null,
     query: "",
     variant_id: null,
     product_id: null,
-    applied_shop: [],
-    applied_source: [],
-    customer_category: [],
-    discount_method: [],
-    status: [],
+    states: [],
+    priorities: [],
+    entitled_methods: [],
+    creators: [],
+    store_ids: [],
+    channels: [],
+    source_ids: [],
+    starts_date_min: "",
+    starts_date_max: "",
+    ends_date_min: "",
+    ends_date_max: "",
   };
 
   const dispatch = useDispatch();
@@ -72,7 +75,10 @@ const DiscountPage = () => {
 
   const [params, setParams] = useState<DiscountSearchQuery>(initQuery);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
-  const [listStore, setStore] = useState<Array<StoreResponse>>();
+  const [listStore, setStore] = useState<Array<StoreResponse>>([]);
+  const [channelList, setChannelList] = useState<Array<ChannelResponse>>([]);
+  const [sourceList, setSourceList] = useState<Array<SourceResponse>>([]);
+
   //phân quyền
   const [allowUpdateDiscount] = useAuthorization({
     acceptPermissions: [PriceRulesPermission.UPDATE],
@@ -108,6 +114,8 @@ const DiscountPage = () => {
 
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
+    dispatch(getListChannelRequest(setChannelList));
+    dispatch(getListAllSourceRequest(setSourceList));
   }, [dispatch]);
 
   const actionFilter: Array<MenuAction> = useMemo(() => {
@@ -287,7 +295,7 @@ const DiscountPage = () => {
     switch (index) {
       case 1:
         dispatch(
-          bulkEnablePriceRulesAction(body, (numberOfActived: number) => {
+          bulkEnablePriceRulesAction(body, (numberOfActived: any) => {
             if (typeof numberOfActived === "number") {
               showSuccess(
                 `Đã kích hoạt thành công ${numberOfActived}/${selectedRowKey.length} chương trình`,
@@ -300,7 +308,7 @@ const DiscountPage = () => {
         break;
       case 2:
         dispatch(
-          bulkDisablePriceRulesAction(body, (numberOfActived: number) => {
+          bulkDisablePriceRulesAction(body, (numberOfActived: any) => {
             if (typeof numberOfActived === "number") {
               showSuccess(
                 `Đã tạm ngưng thành công ${numberOfActived}/${selectedRowKey.length} chương trình`,
@@ -356,6 +364,8 @@ const DiscountPage = () => {
             actions={actionFilter}
             onFilter={onFilter}
             listStore={listStore}
+            channelList={channelList}
+            sourceList={sourceList}
           />
           <CustomTable
             selectedRowKey={selectedRowKey}
