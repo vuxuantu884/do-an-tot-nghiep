@@ -55,6 +55,7 @@ function useFetchKeyDriverTargetDay() {
       }
 
       setData((prev: any) => {
+        const { SKU3, PROFIT } = KDGroup;
         res
           .filter((item: any) =>
             ["COMPANY", ...ASM_LIST.map((asmItem) => nonAccentVietnameseKD(asmItem))].includes(
@@ -63,18 +64,18 @@ function useFetchKeyDriverTargetDay() {
           )
           .forEach((item: any) => {
             const { department } = item;
-            const kdTotalSalesTarget = Object.keys(item.data).reduce((res0, key: string) => {
-              if (!key.includes(KDGroup.SKU3)) {
-                res0 = { ...res0, [key]: item.data[key] };
+            let kdTotalSalesTarget: any[] = [];
+            let kdProductTarget: any[] = [];
+            let kdProfitTarget: any[] = [];
+            Object.keys(item.data).forEach((key: string) => {
+              if (key.includes(SKU3)) {
+                kdProductTarget = { ...kdProductTarget, [key]: item.data[key] };
+              } else if (key.includes(PROFIT)) {
+                kdProfitTarget = { ...kdProfitTarget, [key]: item.data[key] };
+              } else {
+                kdTotalSalesTarget = { ...kdTotalSalesTarget, [key]: item.data[key] };
               }
-              return res0;
-            }, {});
-            const kdProductTarget = Object.keys(item.data).reduce((res1, key: string) => {
-              if (key.includes(KDGroup.SKU3)) {
-                res1 = { ...res1, [key]: item.data[key] };
-              }
-              return res1;
-            }, {});
+            });
 
             ["COMPANY", ...ASM_LIST].forEach((asm) => {
               const asmKey = nonAccentVietnameseKD(asm);
@@ -83,6 +84,9 @@ function useFetchKeyDriverTargetDay() {
                   findKeyDriverAndUpdateValue(prev[0], kdTotalSalesTarget, asmKey, keyDriver);
                 });
                 findKDProductAndUpdateValue(prev[1], kdProductTarget, asmKey, "day");
+                Object.keys(kdProfitTarget).forEach((keyDriver) => {
+                  findKeyDriverAndUpdateValue(prev[2], kdProfitTarget, asmKey, keyDriver);
+                });
               }
             });
           });

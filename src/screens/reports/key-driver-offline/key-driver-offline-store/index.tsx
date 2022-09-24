@@ -8,7 +8,7 @@ import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { debounce } from "lodash";
-import { KeyDriverField, KeyDriverFilter, KeyDriverTarget } from "model/report";
+import { KeyDriverField, KeyDriverFilter, KeyDriverTarget, LocalStorageKey } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -33,6 +33,7 @@ import {
   keyDriverOfflineTemplateData,
   loadingMessage,
 } from "../constant/key-driver-offline-template-data";
+import useFetchStoresProfit from "../hooks/profit/useFetchStoresProfit";
 import useFetchStoresCallLoyalty from "../hooks/useFetchStoresCallLoyalty";
 import useFetchStoresCustomerVisitors from "../hooks/useFetchStoresCustomerVisitors";
 import useFetchStoresKDOfflineTotalSales from "../hooks/useFetchStoresKDOfflineTotalSales";
@@ -161,6 +162,7 @@ function KeyDriverOfflineStore() {
   const { isFetchingStoresOfflineTotalSalesPotential } = useFetchStoresOfflineTotalSalesPotential();
   const { isFetchingStoresCallLoyalty } = useFetchStoresCallLoyalty();
   const { isFetchingStoresSmsLoyalty } = useFetchStoresSmsLoyalty();
+  const { isFetchingStoresProfit } = useFetchStoresProfit();
   const { isFetchingStoresKDTargetDay, refetch: refetchTargetDay } = useFetchStoresKDTargetDay();
   const {
     data,
@@ -179,7 +181,11 @@ function KeyDriverOfflineStore() {
   const [syncDataTime, setSyncDataTime] = useState<string>(
     moment().format(DATE_FORMAT.DD_MM_YY_HHmmss),
   );
-  const [stateExpand, setStateExpand] = useState<Array<any>>([]);
+
+  const expandedDefault = localStorage.getItem(LocalStorageKey.KeyDriverOfflineRowkeysExpanded);
+  const [expandRowKeys, setExpandRowKeys] = useState<string[]>(
+    expandedDefault ? JSON.parse(expandedDefault) : [],
+  );
 
   const setObjectiveColumns = useCallback(
     (
@@ -187,11 +193,13 @@ function KeyDriverOfflineStore() {
       department: string,
       className: string = "department-name--secondary",
     ): ColumnGroupType<any> | ColumnType<any> => {
-      const { ProductTotalSales } = KeyDriverField;
+      const { ProductTotalSales, Cost, Shipping } = KeyDriverField;
       const asmNameUrl = asmName.toLocaleLowerCase();
       const storeNameUrl = nonAccentVietnameseKD(department).toLowerCase();
       return {
-        title: (
+        title: department.toLowerCase().includes(selectedAsm[0].toLocaleLowerCase()) ? (
+          department
+        ) : (
           <Link
             className={"dimension-link"}
             to={`${UrlConfig.KEY_DRIVER_OFFLINE}/${asmNameUrl}/${storeNameUrl}`}
@@ -240,7 +248,7 @@ function KeyDriverOfflineStore() {
             dataIndex: `${departmentKey}_month`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return ![ProductTotalSales].includes(record.key as KeyDriverField) ? (
+              return ![ProductTotalSales, Cost, Shipping].includes(record.key as KeyDriverField) ? (
                 <CellInput
                   value={text}
                   record={record}
@@ -336,7 +344,7 @@ function KeyDriverOfflineStore() {
             dataIndex: `${departmentKey}_day`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return record.key !== KeyDriverField.ProductTotalSales ? (
+              return ![ProductTotalSales, Cost, Shipping].includes(record.key as KeyDriverField) ? (
                 <CellInput
                   value={text}
                   record={record}
@@ -376,7 +384,7 @@ function KeyDriverOfflineStore() {
         ],
       };
     },
-    [asmName, dispatch, kdTarget, refetch, refetchTargetDay, selectedDate],
+    [asmName, dispatch, kdTarget, refetch, refetchTargetDay, selectedAsm, selectedDate],
   );
 
   const calculateMonthRate = useCallback(
@@ -429,7 +437,8 @@ function KeyDriverOfflineStore() {
       isFetchingStoresOfflineTotalSalesPotential === false &&
       isFetchingStoresCallLoyalty === false &&
       isFetchingStoresKDTargetDay === false &&
-      isFetchingStoresSmsLoyalty === false
+      isFetchingStoresSmsLoyalty === false &&
+      isFetchingStoresProfit === false
     ) {
       setData((prev: any) => {
         prev.forEach((item: any, index: number) => {
@@ -469,6 +478,7 @@ function KeyDriverOfflineStore() {
     isFetchingStoresCallLoyalty,
     isFetchingStoresSmsLoyalty,
     selectedAsm,
+    isFetchingStoresProfit,
   ]);
 
   useEffect(() => {
@@ -501,12 +511,6 @@ function KeyDriverOfflineStore() {
     setData(() => JSON.parse(JSON.stringify(keyDriverOfflineTemplateData)));
     history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}/${asmNameUrl}?date=${newDate}`);
   }, [asmName, form, history, setData]);
-
-  const onExpand = (expanded: any, { key }: { key: any }) => {
-    setStateExpand((prev) => {
-      return !expanded ? [...prev, key] : prev.filter((k) => k !== key);
-    });
-  };
 
   return (
     <ContentContainer
@@ -594,14 +598,21 @@ function KeyDriverOfflineStore() {
             bordered
             pagination={false}
             rowClassName={(record: any, rowIndex: any) => {
-              if (stateExpand.includes(record.key) || !record.children) {
+              if (!expandRowKeys.includes(record.key) || !record.children) {
                 return "expand-parent";
               }
               return "";
             }}
-            onExpand={onExpand}
+            expandedRowKeys={expandRowKeys}
             expandable={{
               defaultExpandAllRows: true,
+              onExpandedRowsChange: (rowKeys: any) => {
+                setExpandRowKeys(rowKeys);
+                localStorage.setItem(
+                  LocalStorageKey.KeyDriverOfflineRowkeysExpanded,
+                  JSON.stringify(rowKeys),
+                );
+              },
             }}
             columns={finalColumns}
             dataSource={data}

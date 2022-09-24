@@ -64,6 +64,7 @@ function useFetchStoresKDTargetDay(dimension: KeyDriverDimension = KeyDriverDime
       }
 
       setData((prev: any) => {
+        const { SKU3, PROFIT } = KDGroup;
         let resMapper = [];
         if (dimension === KeyDriverDimension.Store) {
           resMapper = res.filter((item: any) =>
@@ -82,18 +83,18 @@ function useFetchStoresKDTargetDay(dimension: KeyDriverDimension = KeyDriverDime
 
         resMapper.forEach((item: any) => {
           const { department } = item;
-          const kdTotalSalesTarget = Object.keys(item.data).reduce((res0, key: string) => {
-            if (!key.includes(KDGroup.SKU3)) {
-              res0 = { ...res0, [key]: item.data[key] };
+          let kdTotalSalesTarget: any[] = [];
+          let kdProductTarget: any[] = [];
+          let kdProfitTarget: any[] = [];
+          Object.keys(item.data).forEach((key: string) => {
+            if (key.includes(SKU3)) {
+              kdProductTarget = { ...kdProductTarget, [key]: item.data[key] };
+            } else if (key.includes(PROFIT)) {
+              kdProfitTarget = { ...kdProfitTarget, [key]: item.data[key] };
+            } else {
+              kdTotalSalesTarget = { ...kdTotalSalesTarget, [key]: item.data[key] };
             }
-            return res0;
-          }, {});
-          const kdProductTarget = Object.keys(item.data).reduce((res1, key: string) => {
-            if (key.includes(KDGroup.SKU3)) {
-              res1 = { ...res1, [key]: item.data[key] };
-            }
-            return res1;
-          }, {});
+          });
 
           let selectedData: any[] = [];
           if (dimension === KeyDriverDimension.Staff) {
@@ -111,6 +112,9 @@ function useFetchStoresKDTargetDay(dimension: KeyDriverDimension = KeyDriverDime
                 findKeyDriverAndUpdateValue(prev[0], kdTotalSalesTarget, asmKey, keyDriver);
               });
               findKDProductAndUpdateValue(prev[1], kdProductTarget, asmKey, "day");
+              Object.keys(kdProfitTarget).forEach((keyDriver) => {
+                findKeyDriverAndUpdateValue(prev[2], kdProfitTarget, asmKey, keyDriver);
+              });
             }
           });
         });

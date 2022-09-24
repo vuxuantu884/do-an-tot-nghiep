@@ -1,21 +1,21 @@
 import { Card, Col, Row, Skeleton } from "antd";
 import { BUSINESS_RESULT_CART_NAME } from "config/dashboard";
-import { useContext } from "react";
-import TotalSaleByMonthChartArea from "../chart/total-sale-by-month-chart-area";
+// import { useContext } from "react";
+// import TotalSaleByMonthChartArea from "../chart/total-sale-by-month-chart-area";
 import useFetchBRAverageOrder from "../hooks/useFetchAverageOrder";
 import useFetchConversionRate from "../hooks/useFetchConversionRate";
 import useFetchSuccessRate from "../hooks/useFetchSuccessRate";
 import useFetchTotalSaleCanceled from "../hooks/useFetchTotalSaleCanceled";
-import useFetchChartBusinessResult from "../hooks/useFetchTotalSaleChart";
+// import useFetchChartBusinessResult from "../hooks/useFetchTotalSaleChart";
 import useFetchBusinessResultComplete from "../hooks/useFetchTotalSaleCompleted";
-import { DashboardContext } from "../provider/dashboard-provider";
+// import { DashboardContext } from "../provider/dashboard-provider";
 import BusinessCard from "./business-card";
 type Props = {};
 
 function BusinessResult(props: Props) {
-  const { totalSalesToday, dataSrcChartBusinessResult } = useContext(DashboardContext);
+  // const { totalSalesToday, dataSrcChartBusinessResult } = useContext(DashboardContext);
   const { isFetchingBusinessResultComplete } = useFetchBusinessResultComplete();
-  const { isFetchingChartData } = useFetchChartBusinessResult();
+  // const { isFetchingChartData } = useFetchChartBusinessResult();
   const { isFetchingAverageOrder } = useFetchBRAverageOrder();
   const { isFetchingConversionRate } = useFetchConversionRate();
   const { isFetchingSuccessRate } = useFetchSuccessRate();
@@ -75,14 +75,15 @@ function BusinessResult(props: Props) {
           </Row>
           <Row>
             <div className="chart-monthly-container">
-              {isFetchingChartData ? (
+            <Skeleton /> 
+              {/* {isFetchingChartData ? (
                 <Skeleton active />
               ) : (
                 <TotalSaleByMonthChartArea
                   monthTotalSalesOverDay={dataSrcChartBusinessResult}
                   totalSalesToday={totalSalesToday}
                 />
-              )}
+              )} */}
             </div>
           </Row>
         </Col>

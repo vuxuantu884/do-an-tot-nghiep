@@ -183,9 +183,15 @@ function Analytics() {
                 })}
                 title="Báo cáo đơn hàng"
               ></ListAnalyticsBlock>
-              {/* <ListAnalyticsBlock matchPath={matchPath} data={REPORT_TEMPLATES.filter(item => {
-                                    return item.alias.includes(matchPath) && item.cube === 'payments'
-                                })} title="Báo cáo thanh toán"></ListAnalyticsBlock> */}
+              <ListAnalyticsBlock
+                matchPath={matchPath}
+                data={REPORT_TEMPLATES.filter((item) => {
+                  return (
+                    item.alias.includes(matchPath) && item.cube === AnalyticCube.SalesBySubStatus
+                  );
+                })}
+                title="Báo cáo vận đơn"
+              ></ListAnalyticsBlock>
             </div>
           )}
 

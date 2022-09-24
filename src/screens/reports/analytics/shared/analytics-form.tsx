@@ -2,7 +2,12 @@ import { Card, Form, FormInstance, Select, Table, Tooltip } from "antd";
 import { TablePaginationConfig } from "antd/es/table/interface";
 import { AppConfig } from "config/app.config";
 import { chartTypes } from "config/report/chart-types";
-import { DETAIL_LINKS, TIME_AT_OPTION, TIME_GROUP_BY } from "config/report/report-templates";
+import {
+  DETAIL_LINKS,
+  ORDER_SUB_STATUS_CODE,
+  TIME_AT_OPTION,
+  TIME_GROUP_BY,
+} from "config/report/report-templates";
 import _ from "lodash";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -29,6 +34,7 @@ import { DATE_FORMAT } from "utils/DateUtils";
 import {
   formatDataToSetUrl,
   formatReportTime,
+  formatSubStatusReportDataUtils,
   generateRQuery,
   getNoPermissionStores,
   getTranslatePropertyKey,
@@ -203,6 +209,9 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
         fullParams,
       );
       if (response) {
+        if (dataQuery?.query.cube === AnalyticCube.SalesBySubStatus) {
+          response.result = formatSubStatusReportDataUtils(response.result);
+        }
         setDataQuery(response);
       }
       setLoadingTable(false);
@@ -499,9 +508,12 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
         <Card bodyStyle={{ paddingBottom: 8, paddingTop: 8 }} className="report-filter-wrapper">
           <div className="group-report-type">
             {dataQuery?.query.cube &&
-              [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(
-                dataQuery?.query.cube as AnalyticCube,
-              ) && (
+              [
+                AnalyticCube.OfflineSales,
+                AnalyticCube.Sales,
+                AnalyticCube.Costs,
+                AnalyticCube.SalesBySubStatus,
+              ].includes(dataQuery?.query.cube as AnalyticCube) && (
                 <Form.Item
                   label="Ghi nhận theo"
                   name={ReportifyFormFields.timeAtOption}
@@ -849,7 +861,11 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                       {dataQuery.result.columns.map(
                         ({ format, type, field }: any, index: number) => {
                           let value: any = "-";
-                          if (format === FIELD_FORMAT.NumberFormat && type !== ColumnType.Measure) {
+                          if (
+                            (format === FIELD_FORMAT.NumberFormat && type !== ColumnType.Measure) ||
+                            (dataQuery.query.cube === AnalyticCube.SalesBySubStatus &&
+                              ORDER_SUB_STATUS_CODE.includes(field))
+                          ) {
                             value = dataQuery?.result?.summary[index];
                           } else if (
                             format === FIELD_FORMAT.Price ||
@@ -917,16 +933,21 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                         if (!data && typeof data !== FIELD_FORMAT.NumberFormat) {
                           return "-";
                         }
-                        switch (format) {
-                          case FIELD_FORMAT.Price:
-                            data = formatCurrency(data);
-                            break;
-                          case FIELD_FORMAT.NumberFormat:
-                            data = type === ColumnType.Measure ? formatCurrency(data) : data;
-                            break;
-                          case FIELD_FORMAT.Timestamp:
-                            data = formatReportTime(data, field);
-                            break;
+                        if (
+                          dataQuery.query.cube !== AnalyticCube.SalesBySubStatus ||
+                          !ORDER_SUB_STATUS_CODE.includes(field)
+                        ) {
+                          switch (format) {
+                            case FIELD_FORMAT.Price:
+                              data = formatCurrency(data);
+                              break;
+                            case FIELD_FORMAT.NumberFormat:
+                              data = type === ColumnType.Measure ? formatCurrency(data) : data;
+                              break;
+                            case FIELD_FORMAT.Timestamp:
+                              data = formatReportTime(data, field);
+                              break;
+                          }
                         }
                         const existedFilter = activeFilters.get(field);
                         const detailLink = DETAIL_LINKS.find(

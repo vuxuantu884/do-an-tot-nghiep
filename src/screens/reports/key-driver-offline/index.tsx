@@ -9,7 +9,7 @@ import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { debounce } from "lodash";
-import { KeyDriverField, KeyDriverTarget } from "model/report";
+import { KeyDriverField, KeyDriverTarget, LocalStorageKey } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -34,6 +34,7 @@ import {
   keyDriverOfflineTemplateData,
   loadingMessage,
 } from "./constant/key-driver-offline-template-data";
+import useFetchProfit from "./hooks/profit/useFetchProfit";
 import useFetchCallLoyalty from "./hooks/useFetchCallLoyalty";
 import useFetchCustomerVisitors from "./hooks/useFetchCustomerVisitors";
 import useFetchKDOfflineTotalSales from "./hooks/useFetchKDOfflineTotalSales";
@@ -161,6 +162,7 @@ function KeyDriverOffline() {
   const { isFetchingOfflineTotalSalesPotential } = useFetchOfflineTotalSalesPotential();
   const { isFetchingCallLoyalty } = useFetchCallLoyalty();
   const { isFetchingSmsLoyalty } = useFetchSmsLoyalty();
+  const { isFetchingProfit } = useFetchProfit();
   const { isFetchingKeyDriverTargetDay, refetch: refetchTargetDay } = useFetchKeyDriverTargetDay();
   const { data, kdTarget, setData, setSelectedDate, selectedDate } =
     useContext(KeyDriverOfflineContext);
@@ -169,7 +171,10 @@ function KeyDriverOffline() {
     moment().format(DATE_FORMAT.DD_MM_YY_HHmmss),
   );
 
-  const [stateExpand, setStateExpand] = useState<Array<any>>([]);
+  const expandedDefault = localStorage.getItem(LocalStorageKey.KeyDriverOfflineRowkeysExpanded);
+  const [expandRowKeys, setExpandRowKeys] = useState<string[]>(
+    expandedDefault ? JSON.parse(expandedDefault) : [],
+  );
 
   const departmentsList = useMemo(() => {
     return ["COMPANY", ...ASM_LIST];
@@ -208,7 +213,8 @@ function KeyDriverOffline() {
       isFetchingOfflineTotalSalesPotential === false &&
       isFetchingCallLoyalty === false &&
       isFetchingKeyDriverTargetDay === false &&
-      isFetchingSmsLoyalty === false
+      isFetchingSmsLoyalty === false &&
+      isFetchingProfit === false
     ) {
       setData((prev: any[]) => {
         prev.forEach((item: any, index) => {
@@ -244,6 +250,7 @@ function KeyDriverOffline() {
     isFetchingOfflineTotalSalesLoyalty,
     isFetchingOfflineTotalSalesPotential,
     isFetchingProductTotalSales,
+    isFetchingProfit,
     isFetchingSmsLoyalty,
     selectedDate,
     setData,
@@ -255,7 +262,7 @@ function KeyDriverOffline() {
       department: string,
       className: string = "department-name--secondary",
     ): ColumnGroupType<any> | ColumnType<any> => {
-      const { ProductTotalSales } = KeyDriverField;
+      const { ProductTotalSales, Cost, Shipping } = KeyDriverField;
       return {
         title: department.toLowerCase().includes("tổng công ty") ? (
           department
@@ -310,7 +317,7 @@ function KeyDriverOffline() {
             dataIndex: `${departmentKey}_month`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return ![ProductTotalSales].includes(record.key as KeyDriverField) ? (
+              return ![ProductTotalSales, Cost, Shipping].includes(record.key as KeyDriverField) ? (
                 <CellInput
                   value={text}
                   record={record}
@@ -406,7 +413,7 @@ function KeyDriverOffline() {
             dataIndex: `${departmentKey}_day`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return record.key !== KeyDriverField.ProductTotalSales ? (
+              return ![ProductTotalSales, Cost, Shipping].includes(record.key as KeyDriverField) ? (
                 <CellInput
                   value={text}
                   record={record}
@@ -480,12 +487,6 @@ function KeyDriverOffline() {
     history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}?date=${newDate}`);
   }, [form, history, setData]);
 
-  const onExpand = (expanded: any, { key }: { key: any }) => {
-    setStateExpand((prev) => {
-      return !expanded ? [...prev, key] : prev.filter((k) => k !== key);
-    });
-  };
-
   return (
     <ContentContainer
       title={"Báo cáo kết quả kinh doanh Offline"}
@@ -548,14 +549,21 @@ function KeyDriverOffline() {
             bordered
             pagination={false}
             rowClassName={(record: any, rowIndex: any) => {
-              if (stateExpand.includes(record.key) || !record.children) {
+              if (!expandRowKeys.includes(record.key) || !record.children) {
                 return "expand-parent";
               }
               return "";
             }}
-            onExpand={onExpand}
+            expandedRowKeys={expandRowKeys}
             expandable={{
               defaultExpandAllRows: true,
+              onExpandedRowsChange: (rowKeys: any) => {
+                setExpandRowKeys(rowKeys);
+                localStorage.setItem(
+                  LocalStorageKey.KeyDriverOfflineRowkeysExpanded,
+                  JSON.stringify(rowKeys),
+                );
+              },
             }}
             columns={finalColumns}
             dataSource={data}

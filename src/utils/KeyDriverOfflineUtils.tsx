@@ -330,6 +330,8 @@ const calculateDepartmentDayTarget = (keyDriver: any, department: string, select
       CustomerSmsRate,
       ShoperSmsRate,
       ConvertionRate,
+      Cost,
+      Shipping,
     } = KeyDriverField;
     if (
       ![
@@ -343,6 +345,8 @@ const calculateDepartmentDayTarget = (keyDriver: any, department: string, select
         CustomerSmsRate,
         ShoperSmsRate,
         ConvertionRate,
+        Cost,
+        Shipping,
       ].includes(keyDriver["key"])
     ) {
       if (!keyDriver[`${department}_day`]) {
