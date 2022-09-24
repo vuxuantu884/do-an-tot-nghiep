@@ -35,7 +35,7 @@ function CardReturnReceiveProducts(props: PropTypes) {
 
   let initStoreName =
     currentStores?.length === 1
-      ? currentStores[0].store_id
+      ? currentStores[0].store
       : currentStores && currentStores?.length > 1 && OrderDetail?.store_id
       ? currentStores?.find((single) => single.store_id === OrderDetail?.store_id)?.store || ""
       : "";
