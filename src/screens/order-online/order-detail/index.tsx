@@ -592,6 +592,15 @@ const OrderDetail = (props: PropTypes) => {
         case "cancelFulfillmentAndUpdate":
           cancelFulfillmentAndUpdateFromRef();
           break;
+        case "return_order_shipping":
+          history.push(`${UrlConfig.ORDERS_RETURN}/create?orderID=${id}&type=online`);
+          break;
+        case "return_order_offline":
+          history.push(`${UrlConfig.ORDERS_RETURN}/create?orderID=${id}&type=offline`);
+          break;
+        case "return_order_change":
+          history.push(`${UrlConfig.ORDERS_RETURN}/create?orderID=${id}&type=offline`);
+          break;
         default:
           break;
       }
