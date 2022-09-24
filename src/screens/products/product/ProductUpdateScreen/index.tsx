@@ -826,6 +826,7 @@ const ProductDetailScreen: React.FC = () => {
           e.suppliers = e.supplier_ids;
         }
       });
+      request.collections = values.product_collections;
       request.care_labels = careLabelsString;
       const res = await callApiNative(
         { isShowLoading: false },
