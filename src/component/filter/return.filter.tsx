@@ -851,7 +851,11 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
                       </CustomSelect.Option>
                     ))}
                   </CustomSelect> */}
-                    <TreeStore listStore={listStore} placeholder="Cửa hàng" />
+                    <TreeStore
+                      listStore={listStore}
+                      placeholder="Cửa hàng"
+                      autoClearSearchValue={false}
+                    />
                   </Item>
                   <p>Lý do trả hàng</p>
                   <Item name="reason_ids">
