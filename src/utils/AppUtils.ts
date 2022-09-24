@@ -1372,7 +1372,10 @@ export const isNullOrUndefined = (value: any) => {
   return value === null || value === undefined;
 };
 
-export const convertItemToArray = (item: any) => {
+export const convertItemToArray = (item: any, type?: string) => {
+  if (type?.toLowerCase() === "number") {
+    return Array.isArray(item) ? item.map((item: any) => Number(item)) : [Number(item)];
+  }
   return Array.isArray(item) ? item : [item];
 };
 
