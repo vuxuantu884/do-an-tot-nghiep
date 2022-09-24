@@ -343,7 +343,7 @@ export interface ProductRequest {
   material_id: number | null;
   suppliers: Array<number> | null;
   material: string | null;
-  collections: Array<string>;
+  collections?: Array<string>;
   product_collections?: Array<string>;
   type?: number;
   component: string | null;
