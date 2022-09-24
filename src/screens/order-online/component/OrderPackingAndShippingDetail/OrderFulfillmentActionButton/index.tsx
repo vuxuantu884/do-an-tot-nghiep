@@ -82,6 +82,7 @@ function OrderFulfillmentActionButton(props: PropTypes) {
   //   checkIfOrderFinished(OrderDetailAllFulfillment),
   // );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const renderOrderReturnButtons = () => {
     return (
       <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
@@ -138,7 +139,8 @@ function OrderFulfillmentActionButton(props: PropTypes) {
 
   const renderIfOrderFinished = () => {
     if (!checkIfOrderHasReturnedAll(OrderDetailAllFulfillment)) {
-      return renderOrderReturnButtons();
+      //return renderOrderReturnButtons();
+      return undefined;
     } else {
       return (
         <Button
