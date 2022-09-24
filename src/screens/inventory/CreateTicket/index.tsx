@@ -2,7 +2,19 @@ import React, { createRef, FC, useCallback, useEffect, useMemo, useState } from 
 import "./index.scss";
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
-import { AutoComplete, Button, Card, Col, Form, Input, Row, Select, Space, Table, Upload } from "antd";
+import {
+  AutoComplete,
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  Row,
+  Select,
+  Space,
+  Table,
+  Upload,
+} from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
@@ -21,7 +33,12 @@ import {
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import { InventoryTransferDetailItem, LineItem, StockTransferSubmit, Store } from "model/inventory/transfer";
+import {
+  InventoryTransferDetailItem,
+  LineItem,
+  StockTransferSubmit,
+  Store,
+} from "model/inventory/transfer";
 import _ from "lodash";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 
@@ -100,7 +117,7 @@ const CreateTicket: FC = () => {
     return total;
   }
 
-  function onDeleteItem(variantId: number) {
+  function onDeleteItem(variantId: number, index: number) {
     // delete row
     const temps = [...dataTable];
     temps.forEach((row, index, array) => {
@@ -118,6 +135,10 @@ const CreateTicket: FC = () => {
     });
     //delete state manage input value
     delete quantityInput[variantId];
+
+    const collection: any = document.getElementsByClassName("product-item-delete");
+    console.log(collection);
+    collection[index]?.blur();
   }
 
   const dispatch = useDispatch();
@@ -690,9 +711,9 @@ const CreateTicket: FC = () => {
       title: "",
       fixed: dataTable.length !== 0 && "right",
       width: 50,
-      render: (_: string, row) => (
+      render: (_: string, row, i) => (
         <Button
-          onClick={() => onDeleteItem(row.id)}
+          onClick={() => onDeleteItem(row.id, i)}
           className="product-item-delete"
           icon={<AiOutlineClose />}
         />
@@ -982,7 +1003,9 @@ const CreateTicket: FC = () => {
             loading={isLoading}
             errorData={errorData}
             onOk={() => continueData && continuesCreateData(continueData)}
-            title={"Có một số phiếu chuyển tương tự được tạo trong 1 tháng trở lại đây. Tiếp tục thực hiện?"}
+            title={
+              "Có một số phiếu chuyển tương tự được tạo trong 1 tháng trở lại đây. Tiếp tục thực hiện?"
+            }
             visible={isOpenModalErrors}
           />
         )}
