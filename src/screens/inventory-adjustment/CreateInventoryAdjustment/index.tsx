@@ -847,6 +847,7 @@ const CreateInventoryAdjustment: FC = () => {
                     labelCol={{ span: 24, offset: 0 }}
                   >
                     <CustomSelect
+                      notFoundContent="Không tìm thấy kết quả tìm kiếm"
                       placeholder="Chọn kho kiểm"
                       showArrow
                       optionFilterProp="children"
