@@ -9,7 +9,6 @@ import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
 
 const TODAY = moment().format(DATE_FORMAT.YYYYMMDD);
-const START_OF_MONTH = moment().startOf("month").format(DATE_FORMAT.YYYYMMDD);
 
 export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
   {
@@ -18,12 +17,12 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     query: `SHOW orders, return_count, net_quantity, gross_sales, discounts, ordered_point_payments, returns, total_sales  
     OVER day 
     FROM offline_sales 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY}
+    SINCE ${TODAY} UNTIL ${TODAY}
     `,
     chart_query: `SHOW customers, total_sales 
     OVER day 
     FROM offline_sales 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY}
+    SINCE ${TODAY} UNTIL ${TODAY}
     `,
     cube: AnalyticCube.OfflineSales,
     alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
@@ -95,12 +94,12 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     query: `SHOW ordered_item_quantity, returned_item_quantity, gross_sales, discounts, ordered_point_payments, returns, total_sales 
     BY variant_sku3 
     FROM offline_sales 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
+    SINCE ${TODAY} UNTIL ${TODAY} 
     ORDER BY total_sales DESC `,
     chart_query: `SHOW total_sales, net_quantity 
     BY variant_sku3 
     FROM offline_sales 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
+    SINCE ${TODAY} UNTIL ${TODAY} 
     ORDER BY total_sales DESC `,
     cube: AnalyticCube.OfflineSales,
     alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
@@ -117,7 +116,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
   //   BY staff_name
   //   FROM offline_sales
   //   WHERE sale_kind IN ('Trả hàng')
-  //   SINCE ${START_OF_MONTH} UNTIL ${TODAY}
+  //   SINCE ${TODAY} UNTIL ${TODAY}
   //   ORDER BY returns DESC`,
   //   cube: AnalyticCube.OfflineSales,
   //   alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
@@ -132,12 +131,12 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     query: `SHOW ordered_item_quantity, returned_item_quantity, gross_sales, discounts, ordered_point_payments, returns, total_sales 
     BY variant_sku7 
     FROM offline_sales 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
+    SINCE ${TODAY} UNTIL ${TODAY} 
     ORDER BY total_sales DESC`,
     chart_query: `SHOW total_sales, net_quantity  
     BY variant_sku7 
     FROM offline_sales 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
+    SINCE ${TODAY} UNTIL ${TODAY} 
     ORDER BY total_sales DESC`,
     cube: AnalyticCube.OfflineSales,
     alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
@@ -153,7 +152,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     query: `SHOW ordered_item_quantity, returned_item_quantity, gross_sales, discounts, ordered_point_payments, returns, total_sales 
     BY customer_name, customer_phone_number 
     FROM offline_sales 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
+    SINCE ${TODAY} UNTIL ${TODAY} 
     ORDER BY total_sales DESC `,
     cube: AnalyticCube.OfflineSales,
     alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
