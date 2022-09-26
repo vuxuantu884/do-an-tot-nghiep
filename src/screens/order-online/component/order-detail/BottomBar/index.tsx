@@ -10,7 +10,7 @@ import { OrderResponse } from "model/response/order/order.response";
 import React, { Fragment, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { EcommerceChannelId } from "screens/ecommerce/common/commonAction";
-import { isOrderFromPOS, sortFulfillments, checkIfOrderHasReturnedAll } from "utils/AppUtils";
+import { isOrderFromPOS, sortFulfillments } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import {
@@ -248,54 +248,6 @@ function OrderDetailBottomBar(props: PropTypes) {
       if (isVisibleActionsButtons) {
         result = (
           <Col md={12} className="bottomBar__right">
-            {!checkIfOrderHasReturnedAll(orderDetail || null) ? (
-              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
-                {(isPassed: boolean) => {
-                  return !isOrderFromPOS(orderDetail) ? (
-                    <React.Fragment>
-                      <Button
-                        type="primary"
-                        onClick={() =>
-                          orderActionsClick && orderActionsClick("return_order_shipping")
-                        }
-                        className="bottomBarRight__button ant-btn-return"
-                        disabled={disabledBottomActions || !isPassed || isLoadingDiscount}
-                      >
-                        Trả lại chuyển hàng
-                      </Button>
-                      <Button
-                        type="primary"
-                        onClick={() =>
-                          orderActionsClick && orderActionsClick("return_order_offline")
-                        }
-                        className="bottomBarRight__button ant-btn-return"
-                        disabled={disabledBottomActions || !isPassed || isLoadingDiscount}
-                      >
-                        Trả lại tại quầy
-                      </Button>
-                    </React.Fragment>
-                  ) : (
-                    <React.Fragment>
-                      <Button
-                        type="primary"
-                        onClick={() =>
-                          orderActionsClick && orderActionsClick("return_order_change")
-                        }
-                        className="bottomBarRight__button"
-                        disabled={disabledBottomActions || !isPassed || isLoadingDiscount}
-                      >
-                        Đổi trả hàng
-                      </Button>
-                    </React.Fragment>
-                  );
-                }}
-              </AuthWrapper>
-            ) : (
-              <Button type="primary" className="bottomBarRight__button" disabled>
-                Đổi trả hàng
-              </Button>
-            )}
-
             <Dropdown
               getPopupContainer={(trigger) => trigger}
               disabled={disabledBottomActions}
