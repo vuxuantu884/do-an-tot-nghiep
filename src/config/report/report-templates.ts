@@ -15,7 +15,6 @@ import { ONLINE_REPORT_TEMPLATES } from "./online-report-templates";
 import { SUB_STATUS_REPORT_TEMPLATES } from "./sub-status-report-templates";
 
 const TODAY = moment().format(DATE_FORMAT.YYYYMMDD);
-const START_OF_MONTH = moment().startOf("month").format(DATE_FORMAT.YYYYMMDD);
 
 export const REPORT_CUBES = {
   [UrlConfig.ANALYTIC_SALES_OFFLINE]: ["sales", "payments"],
@@ -39,10 +38,10 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     type: "Báo cáo lợi nhuận",
     name: "theo nhân viên",
     query: `SHOW orders, net_quantity, return_count, average_order_value, total_sales, gross_profit BY staff_name FROM costs 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
+    SINCE ${TODAY} UNTIL ${TODAY} 
     ORDER BY gross_profit DESC`,
     chart_query: `SHOW gross_profit BY staff_name FROM costs 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
+    SINCE ${TODAY} UNTIL ${TODAY} 
     ORDER BY gross_profit DESC`,
     alias: [UrlConfig.ANALYTIC_FINACE],
     cube: AnalyticCube.Costs,
@@ -55,9 +54,9 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     type: "Báo cáo lợi nhuận",
     name: "theo cửa hàng",
     query: `SHOW orders, return_count, net_quantity, average_order_value, total_sales, gross_profit BY pos_location_name FROM costs WHERE channel_provider_name IN ('Bán lẻ') 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY}    ORDER BY gross_profit DESC`,
+    SINCE ${TODAY} UNTIL ${TODAY}    ORDER BY gross_profit DESC`,
     chart_query: `SHOW gross_margin BY pos_location_name FROM costs WHERE channel_provider_name IN ('Bán lẻ') 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY}    ORDER BY gross_profit DESC`,
+    SINCE ${TODAY} UNTIL ${TODAY}    ORDER BY gross_profit DESC`,
     alias: [UrlConfig.ANALYTIC_FINACE],
     cube: AnalyticCube.Costs,
     iconImg: "cua-hang.svg",
@@ -70,10 +69,10 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     type: "Báo cáo lợi nhuận",
     name: "theo nguồn bán hàng",
     query: `SHOW pre_orders, orders, return_count, pre_total_sales, total_sales, gross_profit BY channel_provider_name,source_name FROM costs WHERE sale_area IN ('Khối KD Online') 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
+    SINCE ${TODAY} UNTIL ${TODAY} 
     ORDER BY gross_profit DESC `,
     chart_query: `SHOW gross_margin BY channel_provider_name,source_name FROM costs WHERE sale_area IN ('Khối KD Online') 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
+    SINCE ${TODAY} UNTIL ${TODAY} 
     ORDER BY gross_profit DESC `,
     cube: AnalyticCube.Costs,
     alias: [UrlConfig.ANALYTIC_FINACE],
@@ -87,10 +86,10 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     type: "Báo cáo lợi nhuận",
     name: "theo sản phẩm",
     query: `SHOW ordered_item_quantity, returned_item_quantity, net_quantity, total_sales, gross_profit, gross_margin BY variant_sku3 FROM costs 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
+    SINCE ${TODAY} UNTIL ${TODAY} 
     ORDER BY gross_profit DESC `,
     chart_query: `SHOW gross_profit BY variant_sku3 FROM costs 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
+    SINCE ${TODAY} UNTIL ${TODAY} 
     ORDER BY gross_profit DESC `,
     cube: AnalyticCube.Costs,
     alias: [UrlConfig.ANALYTIC_FINACE],
@@ -104,10 +103,10 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     type: "Báo cáo lợi nhuận",
     name: "theo thời gian",
     query: `SHOW orders, return_count, net_quantity, average_order_value, total_sales, gross_profit OVER day FROM costs 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY}
+    SINCE ${TODAY} UNTIL ${TODAY}
     `,
     chart_query: `SHOW gross_profit OVER day FROM costs 
-    SINCE ${START_OF_MONTH} UNTIL ${TODAY}
+    SINCE ${TODAY} UNTIL ${TODAY}
     `,
     cube: AnalyticCube.Costs,
     alias: [UrlConfig.ANALYTIC_FINACE],
@@ -137,12 +136,12 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     query: `SHOW payments, cash_payments, transfer_payments, cod_payments, point_payments, card_payments, qr_pay_payments, unknown_payments 
     BY customer_group
     FROM payments 
-    SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
+    SINCE ${TODAY}  UNTIL ${TODAY} 
     ORDER BY payments desc `,
     chart_query: `SHOW payments 
     BY customer_group
     FROM payments 
-    SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
+    SINCE ${TODAY}  UNTIL ${TODAY} 
     ORDER BY payments desc `,
     cube: "payments",
     iconImg: "thanh-toan-nhom kh.png",
@@ -158,12 +157,12 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     query: `SHOW  orders,gross_sales, returns, net_sales,shipping,total_sales, average_order_value  
     BY customer_group 
     FROM sales 
-    SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
+    SINCE ${TODAY}  UNTIL ${TODAY} 
     ORDER BY net_sales desc `,
     chart_query: `SHOW net_sales,shipping, average_order_value  
     BY customer_group 
     FROM sales 
-    SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
+    SINCE ${TODAY}  UNTIL ${TODAY} 
     ORDER BY net_sales desc `,
     cube: "sales",
     iconImg: "ban-hang-nhom kh.png",
@@ -177,10 +176,10 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     type: "Báo cáo lợi nhuận",
     name: "theo nhóm khách hàng",
     query: `SHOW orders, return_count, net_quantity, total_sales, average_order_value, gross_profit BY customer_group FROM costs 
-    SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
+    SINCE ${TODAY}  UNTIL ${TODAY} 
     ORDER BY gross_profit desc `,
     chart_query: `SHOW gross_profit BY customer_group FROM costs 
-    SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
+    SINCE ${TODAY}  UNTIL ${TODAY} 
     ORDER BY gross_profit desc `,
     cube: AnalyticCube.Costs,
     iconImg: "ban-hang-nhom kh.png",
@@ -196,12 +195,12 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     query: `SHOW  customers, orders, ordered_item_quantity, returned_item_quantity, returns, net_sales, average_order_value   
       BY shipping_city  
       FROM sales 
-      SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
+      SINCE ${TODAY}  UNTIL ${TODAY} 
       `,
     chart_query: `SHOW  customers, net_sales   
       BY shipping_city  
       FROM sales 
-      SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
+      SINCE ${TODAY}  UNTIL ${TODAY} 
       `,
     cube: "sales",
     iconImg: "dia-chi-kh.png",
@@ -215,10 +214,10 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     type: "Báo cáo lợi nhuận",
     name: "theo địa chỉ giao hàng",
     query: `SHOW orders, return_count, net_quantity, customers, average_order_value, total_sales, gross_profit, gross_margin BY shipping_city FROM costs WHERE sale_area IN ('Khối KD Online') 
-      SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
+      SINCE ${TODAY}  UNTIL ${TODAY} 
       ORDER BY gross_profit desc `,
     chart_query: `SHOW gross_profit, gross_margin BY shipping_city FROM costs WHERE sale_area IN ('Khối KD Online') 
-      SINCE ${START_OF_MONTH}  UNTIL ${TODAY} 
+      SINCE ${TODAY}  UNTIL ${TODAY} 
       ORDER BY gross_profit desc `,
     cube: AnalyticCube.Costs,
     iconImg: "dia-chi-kh.png",
@@ -231,7 +230,13 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   ...ONLINE_REPORT_TEMPLATES,
   ...MARKETING_REPORT_TEMPLATES,
   ...SUB_STATUS_REPORT_TEMPLATES,
-];
+].map((item) => {
+  if (item.chart_query) {
+    item.chart_query = "";
+  }
+  item.chartColumnSelected = [];
+  return item;
+});
 
 //re-generate unique id
 const REPORT_TEMPLATES = REPORT_TEMPLATES_LIST_NO_ID.map((item, index: number) => ({
