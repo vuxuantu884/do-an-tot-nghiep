@@ -67,6 +67,7 @@ export interface ReturnSearchQuery {
   marketer_codes: [];
   coordinator_codes?: [];
   searched_product?: string | null;
+  returned_store_ids?: number[] | null;
 }
 
 export interface ReasonReturn {
