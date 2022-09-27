@@ -67,6 +67,9 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
       created_at_min: params?.created_at_min ? moment(params?.created_at_min) : undefined,
       created_at_max: params?.created_at_max ? moment(params?.created_at_max) : undefined,
 
+      update_at_min: formatDateFilter(params?.update_at_min || undefined),
+      update_at_max: formatDateFilter(params?.update_at_max || undefined),
+
       opened_at_min: formatDateFilter(params?.opened_at_min || undefined),
       opened_at_max: formatDateFilter(params?.opened_at_max || undefined),
 
@@ -166,14 +169,30 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
       });
     }
 
+    if (initialValues.update_at_min || initialValues.update_at_max) {
+      let textDate =
+        (initialValues.update_at_min
+          ? moment(initialValues.update_at_min).format(dateTimeFormat)
+          : "??") +
+        " ~ " +
+        (initialValues.update_at_max
+          ? moment(initialValues.update_at_max).format(dateTimeFormat)
+          : "??");
+      list.push({
+        key: "update_at",
+        name: "Ngày cập nhật",
+        value: <React.Fragment>{textDate}</React.Fragment>,
+      });
+    }
+
     if (initialValues.opened_at_min || initialValues.opened_at_max) {
       let textDate =
         (initialValues.opened_at_min
-          ? moment(initialValues.opened_at_min).format(dateFormat)
+          ? moment(initialValues.opened_at_min).format(dateTimeFormat)
           : "??") +
         " ~ " +
         (initialValues.opened_at_max
-          ? moment(initialValues.opened_at_max).format(dateFormat)
+          ? moment(initialValues.opened_at_max).format(dateTimeFormat)
           : "??");
       list.push({
         key: "opened_at",
@@ -185,11 +204,11 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
     if (initialValues.closed_at_min || initialValues.closed_at_max) {
       let textDate =
         (initialValues.closed_at_min
-          ? moment(initialValues.closed_at_min).format(dateFormat)
+          ? moment(initialValues.closed_at_min).format(dateTimeFormat)
           : "??") +
         " ~ " +
         (initialValues.closed_at_max
-          ? moment(initialValues.closed_at_max).format(dateFormat)
+          ? moment(initialValues.closed_at_max).format(dateTimeFormat)
           : "??");
       list.push({
         key: "closed_at",
@@ -309,6 +328,9 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
         case "created_at":
           onFilter && onFilter({ ...params, created_at_min: undefined, created_at_max: undefined });
           break;
+        case "update_at":
+          onFilter && onFilter({ ...params, update_at_min: undefined, update_at_max: undefined });
+          break;
         case "opened_at":
           onFilter && onFilter({ ...params, opened_at_min: undefined, opened_at_max: undefined });
           break;
@@ -378,6 +400,8 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
         "other_payment_max",
         "total_payment_min",
         "total_payment_max",
+        "update_at_min",
+        "update_at_max",
       ])
       .forEach((field) => {
         if (field.errors.length) {
@@ -405,6 +429,15 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
             DATE_FORMAT.YYYY_MM_DD,
           )
         : undefined;
+
+      formSearchExtendValue.update_at_min = formatDateTimeOrderFilter(
+        formSearchExtendValue.update_at_min,
+        dateTimeFormat,
+      );
+      formSearchExtendValue.update_at_max = formatDateTimeOrderFilter(
+        formSearchExtendValue.update_at_max,
+        dateTimeFormat,
+      );
 
       formSearchExtendValue.opened_at_min = formatDateTimeOrderFilter(
         formSearchExtendValue.opened_at_min,
@@ -539,12 +572,12 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           className="revenue-filter-drawer"
-          width={400}
+          width={1000}
         >
           <StyledComponent>
             <Form onFinish={onFinish} layout="vertical" ref={formSearchExtendRef}>
               <Row gutter={12} className="ant-form-item-custom">
-                <Col span={24}>
+                <Col span={12}>
                   <div className="ant-form-item-label">
                     <label>Ngày tạo phiếu</label>
                   </div>
@@ -557,10 +590,24 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
                     formRef={formSearchExtendRef}
                   />
                 </Col>
+                <Col span={12}>
+                  <div className="ant-form-item-label">
+                    <label>Ngày cập nhật</label>
+                  </div>
+                  <CustomFilterDatePicker
+                    fieldNameFrom="update_at_min"
+                    fieldNameTo="update_at_max"
+                    activeButton={""}
+                    setActiveButton={() => {}}
+                    format={dateTimeFormat}
+                    formRef={formSearchExtendRef}
+                    showTime={{ format: timeFormat }}
+                  />
+                </Col>
               </Row>
 
               <Row gutter={12} className="ant-form-item-custom">
-                <Col span={24}>
+                <Col span={12}>
                   <div className="ant-form-item-label">
                     <label>Ngày nộp tiền</label>
                   </div>
@@ -574,10 +621,7 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
                     showTime={{ format: timeFormat }}
                   />
                 </Col>
-              </Row>
-
-              <Row gutter={12} className="ant-form-item-custom">
-                <Col span={24}>
+                <Col span={12}>
                   <div className="ant-form-item-label">
                     <label>Ngày xác nhận</label>
                   </div>
@@ -593,8 +637,8 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
                 </Col>
               </Row>
 
-              <Row gutter={24} className="ant-form-item-custom">
-                <Col span={24}>
+              <Row gutter={12} className="ant-form-item-custom">
+                <Col span={12}>
                   <div className="ant-form-item-label">
                     <label>Chênh lệch</label>
                   </div>
@@ -604,9 +648,7 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
                     formRef={formSearchExtendRef}
                   />
                 </Col>
-              </Row>
-              <Row gutter={24} className="ant-form-item-custom">
-                <Col span={24}>
+                <Col span={12}>
                   <div className="ant-form-item-label">
                     <label>Chi phí</label>
                   </div>
@@ -618,8 +660,8 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
                   />
                 </Col>
               </Row>
-              <Row gutter={24} className="ant-form-item-custom">
-                <Col span={24}>
+              <Row gutter={12} className="ant-form-item-custom">
+                <Col span={12}>
                   <div className="ant-form-item-label">
                     <label>Phụ thu</label>
                   </div>
@@ -630,9 +672,7 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
                     min={0}
                   />
                 </Col>
-              </Row>
-              <Row gutter={24} className="ant-form-item-custom">
-                <Col span={24}>
+                <Col span={12}>
                   <div className="ant-form-item-label">
                     <label>Doanh thu</label>
                   </div>
@@ -644,8 +684,8 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
                   />
                 </Col>
               </Row>
-              <Row gutter={24}>
-                <Col span={24}>
+              <Row gutter={12}>
+                <Col span={12}>
                   <Form.Item name="opened_bys" label="Nhân viên tạo đơn">
                     <AccountCustomSearchSelect
                       placeholder="Tìm theo họ tên hoặc mã nhân viên"
@@ -658,9 +698,7 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
                     />
                   </Form.Item>
                 </Col>
-              </Row>
-              <Row gutter={24}>
-                <Col span={24}>
+                <Col span={12}>
                   <Form.Item name="closed_bys" label="Kế toán xác nhận">
                     <AccountCustomSearchSelect
                       placeholder="Tìm theo họ tên hoặc mã nhân viên"

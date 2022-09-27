@@ -19,6 +19,7 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import SearchProductComponent from "component/search-product";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
+import TreeStore from "component/TreeStore";
 import UrlConfig from "config/url.config";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 import useHandleFilterConfigs from "hook/useHandleFilterConfigs";
@@ -43,7 +44,6 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { formatCurrency, replaceFormat } from "utils/AppUtils";
 import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
@@ -1852,6 +1852,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                           formSearchRef?.current?.setFieldsValue({
                             tracking_codes: e.target.value.trim(),
                           });
+                        }}
+                        onPressEnter={(e) => {
+                          let element: any = document.getElementById("tracking_codes");
+                          element?.focus();
+                          element?.select();
                         }}
                       />
                     </Item>

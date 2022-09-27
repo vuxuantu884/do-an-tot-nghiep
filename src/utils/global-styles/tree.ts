@@ -21,15 +21,19 @@ export const globalCssCustomCheckbox = css`
 
   .ant-tree-select-dropdown .ant-select-tree-list-holder-inner {
     .ant-select-tree-checkbox {
-      top: 0px;
+      top: 6px;
     }
     .ant-select-tree-treenode {
-      padding: 7px 0px;
+      padding: 0;
     }
     .ant-select-tree-node-content-wrapper {
+      padding: 7px 0px;
       position: relative;
       top: 1px;
       background: none;
     }
+  }
+  .ant-select-tree-switcher .ant-select-tree-switcher-icon {
+    line-height: 38px;
   }
 `;

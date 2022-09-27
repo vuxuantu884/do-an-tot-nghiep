@@ -39,6 +39,8 @@ type Props = {
   stores: StoreResponse[];
   setSelectedRowKeys: (v: number[]) => void;
   selectedRowKeys: number[];
+  setSelectedRow: (v: DailyRevenueTableModel[]) => void;
+  selectedRow: DailyRevenueTableModel[];
 };
 
 const copyIconSize = 18;
@@ -108,6 +110,8 @@ const DailyRevenueTableComponent: React.FC<Props> = (props: Props) => {
     setData,
     setSelectedRowKeys,
     selectedRowKeys,
+    setSelectedRow,
+    selectedRow,
   } = props;
   const history = useHistory();
   const [columns, setColumns] = useState<Array<ICustomTableColumType<DailyRevenueTableModel>>>([]);
@@ -374,11 +378,13 @@ const DailyRevenueTableComponent: React.FC<Props> = (props: Props) => {
   const onSelectedChange = useCallback(
     (_: any[], selected?: boolean, changeRow?: any[]) => {
       let selectedRowKeysCopy: number[] = [...selectedRowKeys];
+      let selectedRowCopy: DailyRevenueTableModel[] = [...selectedRow];
       if (selected === true) {
         changeRow?.forEach((row, index) => {
           let indexItem = selectedRowKeys.findIndex((p) => p === row.id);
           if (indexItem === -1) {
             selectedRowKeysCopy.push(row.id);
+            selectedRowCopy.push(row);
           }
         });
       } else {
@@ -387,12 +393,14 @@ const DailyRevenueTableComponent: React.FC<Props> = (props: Props) => {
           if (indexItemKey !== -1) {
             let i = selectedRowKeysCopy.findIndex((p) => p === row);
             selectedRowKeysCopy.splice(i, 1);
+            selectedRowCopy.splice(i, 1);
           }
         });
       }
       setSelectedRowKeys(selectedRowKeysCopy);
+      setSelectedRow(selectedRowCopy);
     },
-    [selectedRowKeys, setSelectedRowKeys],
+    [selectedRowKeys, selectedRow, setSelectedRow, setSelectedRowKeys],
   );
 
   const onPageChange = useCallback(

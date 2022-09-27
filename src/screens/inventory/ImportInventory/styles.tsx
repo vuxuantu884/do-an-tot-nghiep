@@ -1,6 +1,29 @@
 import styled from "styled-components";
 
-export const StyledWrapper = styled.div``;
+export const StyledWrapper = styled.div`
+  .guide {
+    line-height: 30px;
+  }
+
+  .ant-form-item-label>label:after {
+    content: none;
+  }
+  
+  .ant-upload-drag-icon svg {
+    color: #2A2A86;
+  }
+  
+  .search-link {
+    text-decoration: underline;
+    margin-left: 20px;
+  }
+  
+  .import-info {
+    ul {
+      color: #FF0000; 
+    }
+  }
+`;
 
 export const ImportStatusWrapper = styled.div`
   .status {
@@ -9,6 +32,10 @@ export const ImportStatusWrapper = styled.div`
     .ant-col.ant-col-6 {
       text-align: center;
     }
+  }
+  
+  .ant-upload-text {
+    color: rgba(0, 0, 0, 0.85);
   }
 
   .import-info {

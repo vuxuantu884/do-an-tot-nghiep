@@ -1,5 +1,11 @@
 import { css } from "styled-components";
-import { borderColor, borderRadius, focusBorderColor, textBodyColor } from "./variables";
+import {
+  borderColor,
+  borderRadius,
+  focusBorderColor,
+  primaryColor,
+  textBodyColor,
+} from "./variables";
 
 export const globalCssCustomInput = css`
   .ant {
@@ -48,6 +54,14 @@ export const globalCssCustomInput = css`
         }
         & > .ant-input-prefix + input.ant-input {
           padding-left: 5px;
+        }
+      }
+      &-number {
+        box-shadow: none;
+        &.ant-input-number-focused,
+        &:hover,
+        &:focus {
+          border-color: ${primaryColor};
         }
       }
     }

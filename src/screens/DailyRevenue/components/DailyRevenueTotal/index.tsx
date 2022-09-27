@@ -1,13 +1,14 @@
-import { UploadOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Form, Image, Row, Tag, Upload } from "antd";
-import { RcFile } from "antd/lib/upload";
+import { UploadFile } from "antd/es/upload/interface";
+import { RcFile, UploadProps } from "antd/lib/upload";
 import {
   DailyRevenueDetailModel,
   DailyRevenuePaymentStatusModel,
   DaiLyRevenuePermissionModel,
   DailyRevenueVisibleCardElementModel,
 } from "model/order/daily-revenue.model";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { dailyRevenueStatus } from "screens/DailyRevenue/helper";
 import { getArrayFromObject, renderFormatCurrency } from "utils/OrderUtils";
 import { showWarning } from "utils/ToastUtils";
@@ -20,7 +21,7 @@ type PropTypes = {
   title: string;
   dailyRevenueDetail?: DailyRevenueDetailModel;
   visibleCardElement: DailyRevenueVisibleCardElementModel;
-  handleClickPayMoney: (file: File | undefined) => void;
+  handleClickPayMoney: (fileList: UploadFile<any>[]) => void;
   handleClickConfirmPayMoney: () => void;
   permissions: DaiLyRevenuePermissionModel;
 };
@@ -37,6 +38,14 @@ type ElementType = {
   type: MinusOrPlusType;
 };
 
+const getBase64 = (file: RcFile): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+
 function DailyRevenueTotal(props: PropTypes) {
   const {
     title,
@@ -47,7 +56,17 @@ function DailyRevenueTotal(props: PropTypes) {
     permissions,
   } = props;
 
-  const [file, setFile] = useState<File>();
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
+
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
+  console.log("fileList", fileList);
+
+  const separator = ";";
+
+  const initFileList = dailyRevenueDetail?.image_url
+    ? dailyRevenueDetail?.image_url.split(separator)
+    : [];
 
   const elementArr: ElementType[] = [
     {
@@ -128,13 +147,20 @@ function DailyRevenueTotal(props: PropTypes) {
         <div className="sectionPayMoney__buttons">
           {visibleCardElement.totalRevenueCard.payMoneyButton &&
             permissions.allowDailyPaymentsSubmit && (
-              <Button type="primary" onClick={() => handleClickPayMoney(file)}>
-                Nộp tiền
+              <Button type="primary" onClick={() => handleClickPayMoney(fileList)}>
+                {dailyRevenueDetail?.state === dailyRevenueStatus.paid.value
+                  ? "Cập nhật"
+                  : "Nộp tiền"}
               </Button>
             )}
           {visibleCardElement.totalRevenueCard.confirmMoneyButton &&
             permissions.allowDailyPaymentsConfirm && (
-              <Button type="primary" onClick={() => handleClickConfirmPayMoney()}>
+              <Button
+                type="primary"
+                onClick={() => {
+                  handleClickConfirmPayMoney();
+                }}
+              >
                 Xác nhận nộp tiền
               </Button>
             )}
@@ -154,9 +180,37 @@ function DailyRevenueTotal(props: PropTypes) {
       showWarning("Cần chọn ảnh nhỏ hơn 5mb");
       return Upload.LIST_IGNORE;
     }
-    setFile(file);
     return false;
   }, []);
+
+  const uploadButton = (
+    <div>
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
+
+  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
+    newFileList.forEach(async (file) => {
+      if (!file.url) {
+        file.url = await getBase64(file.originFileObj as RcFile);
+      }
+    });
+    setFileList(newFileList);
+  };
+
+  const handlePreview = async (file: UploadFile) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj as RcFile);
+    }
+
+    setPreviewImage(file.url || (file.preview as string));
+    setPreviewOpen(true);
+  };
+
+  useEffect(() => {
+    setFileList([]);
+  }, [dailyRevenueDetail]);
 
   return (
     <StyledComponent>
@@ -221,14 +275,47 @@ function DailyRevenueTotal(props: PropTypes) {
                 </div>
               </Col>
               <Col span={12}>
-                {dailyRevenueDetail?.image_url && (
-                  <div className="sectionPayResult__right">
-                    <Image
-                      src={dailyRevenueDetail?.image_url}
-                      className="sectionPayResult__image"
-                    />
+                <div className="gallery">
+                  {initFileList.map((file) => {
+                    return (
+                      <div className="single ">
+                        <div className="inner">
+                          <Image src={file} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <div className="single">
+                    <Form.Item
+                      name="uploadFile33"
+                      rules={[
+                        () => ({
+                          validator(_, value) {
+                            console.log("value", value);
+                            if (value && value?.file && value?.fileList?.length > 0) {
+                              return Promise.resolve();
+                            }
+                            return Promise.reject(new Error(`Vui lòng chọn ảnh nếu cập nhật!`));
+                          },
+                        }),
+                      ]}
+                      hidden={dailyRevenueDetail?.state !== dailyRevenueStatus.paid.value}
+                    >
+                      <Upload
+                        maxCount={1}
+                        accept=".jpg,.jpeg,.png"
+                        beforeUpload={beforeUpload}
+                        listType="picture-card"
+                        // itemRender={(originNode, file, currFileList) => <Image src={file.url} />}
+                        onChange={handleChange}
+                        onPreview={handlePreview}
+                        fileList={fileList}
+                      >
+                        {fileList.length >= 1 ? null : uploadButton}
+                      </Upload>
+                    </Form.Item>
                   </div>
-                )}
+                </div>
               </Col>
             </Row>
           </div>
@@ -250,6 +337,7 @@ function DailyRevenueTotal(props: PropTypes) {
                     rules={[
                       () => ({
                         validator(_, value) {
+                          console.log("value", value);
                           if (value && value?.file && value?.fileList?.length > 0) {
                             return Promise.resolve();
                           }
@@ -258,8 +346,17 @@ function DailyRevenueTotal(props: PropTypes) {
                       }),
                     ]}
                   >
-                    <Upload maxCount={1} accept=".jpg,.jpeg,.png" beforeUpload={beforeUpload}>
-                      <Button icon={<UploadOutlined />}>Tải ảnh lên</Button>
+                    <Upload
+                      maxCount={1}
+                      accept=".jpg,.jpeg,.png"
+                      beforeUpload={beforeUpload}
+                      listType="picture-card"
+                      // itemRender={(originNode, file, currFileList) => <Image src={file.url} />}
+                      onChange={handleChange}
+                      onPreview={handlePreview}
+                      fileList={fileList}
+                    >
+                      {fileList.length >= 1 ? null : uploadButton}
                     </Upload>
                   </Form.Item>
                 </div>
@@ -268,6 +365,17 @@ function DailyRevenueTotal(props: PropTypes) {
           </div>
         )}
         {renderSectionPayMoney()}
+        <Image
+          src={previewImage}
+          hidden
+          preview={{
+            visible: previewOpen,
+            src: previewImage,
+            onVisibleChange: (value) => {
+              setPreviewOpen(value);
+            },
+          }}
+        />
       </Card>
     </StyledComponent>
   );

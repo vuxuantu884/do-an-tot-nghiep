@@ -1,16 +1,16 @@
 import { Alert, Button, Form, FormInstance, Select } from "antd";
 import CustomSelect from "component/custom/select.custom";
 import ModalConfirm from "component/modal/ModalConfirm";
-import { AccountStoreResponse } from "model/account/account.model";
+import { StoreResponse } from "model/core/store.model";
 import { FulFillmentResponse } from "model/response/order/order.response";
-import React, { useState } from "react";
+import { useState } from "react";
 import { FulFillmentStatus } from "utils/Constants";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
   fulfillment: FulFillmentResponse;
   goodsReturnCallback: (id: number | null) => void;
-  currentStores?: AccountStoreResponse[];
+  currentStores?: StoreResponse[];
   isShowReceiveProductConfirmModal: boolean;
   setIsShowReceiveProductConfirmModal: (value: boolean) => void;
   form: FormInstance<any>;
@@ -26,7 +26,7 @@ function OrderFulfillmentReceiveGoods(props: PropTypes) {
     form,
   } = props;
 
-  let initStoreName = currentStores?.length === 1 ? currentStores[0].store : "";
+  let initStoreName = currentStores?.length === 1 ? currentStores[0].name : "";
 
   const [storeName, setStoreName] = useState(initStoreName);
 
@@ -63,8 +63,8 @@ function OrderFulfillmentReceiveGoods(props: PropTypes) {
               }}
             >
               {(currentStores || []).map((item, index) => (
-                <Select.Option key={index} value={item.store_id || 0}>
-                  {item.store}
+                <Select.Option key={index} value={item.id || 0}>
+                  {item.name}
                 </Select.Option>
               ))}
             </CustomSelect>

@@ -1,7 +1,7 @@
 import { Button, Card, Checkbox, Form, FormInstance, Select, Tag } from "antd";
 import CustomSelect from "component/custom/select.custom";
 import ModalConfirm from "component/modal/ModalConfirm";
-import { AccountStoreResponse } from "model/account/account.model";
+import { StoreResponse } from "model/core/store.model";
 import { OrderResponse } from "model/response/order/order.response";
 import React, { useState } from "react";
 import { isOrderFromPOS } from "utils/AppUtils";
@@ -11,7 +11,7 @@ type PropTypes = {
   isDetailPage?: boolean;
   isReceivedReturnProducts: boolean;
   handleReceivedReturnProductsToStore: () => void;
-  currentStores: AccountStoreResponse[] | undefined;
+  currentStores: StoreResponse[] | undefined;
   isShowReceiveProductConfirmModal: boolean;
   setIsReceivedReturnProducts?: (value: boolean) => void;
   setIsShowReceiveProductConfirmModal: (value: boolean) => void;
@@ -35,9 +35,9 @@ function CardReturnReceiveProducts(props: PropTypes) {
 
   let initStoreName =
     currentStores?.length === 1
-      ? currentStores[0].store
+      ? currentStores[0].name
       : currentStores && currentStores?.length > 1 && OrderDetail?.store_id
-      ? currentStores?.find((single) => single.store_id === OrderDetail?.store_id)?.store || ""
+      ? currentStores?.find((single) => single.id === OrderDetail?.store_id)?.name || ""
       : "";
 
   const [storeName, setStoreName] = useState(initStoreName);
@@ -121,8 +121,8 @@ function CardReturnReceiveProducts(props: PropTypes) {
                       }}
                     >
                       {(currentStores || []).map((item, index) => (
-                        <Select.Option key={index} value={item.store_id || 0}>
-                          {item.store}
+                        <Select.Option key={index} value={item.id || 0}>
+                          {item.name}
                         </Select.Option>
                       ))}
                     </CustomSelect>

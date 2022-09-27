@@ -119,7 +119,9 @@ function OrderFulfillmentDetail(props: PropTypes) {
                   <p className="text-field">{single.title}:</p>
                 </Col>
                 <Col span={14}>
-                  <b>{single.value}</b>
+                  <p>
+                    <b className="text-field">{single.value}</b>
+                  </p>
                 </Col>
               </Row>
             </Col>
@@ -143,10 +145,57 @@ function OrderFulfillmentDetail(props: PropTypes) {
         title: "Địa chỉ",
         value: orderDetail?.store_full_address,
       },
+      {
+        title: "Phí ship báo khách",
+        value: formatCurrency(orderDetail?.shipping_fee_informed_to_customer || 0),
+      },
+      {
+        title: "Loại đơn giao hàng",
+        value:
+          fulfillment.shipment?.service === SHIPPING_TYPE.DELIVERY_4H ? (
+            <span className="fourHourDelivery">Đơn giao 4H</span>
+          ) : (
+            "Đơn giao bình thường"
+          ),
+      },
+      {
+        title: "Trạng thái",
+        value: getPushingStatus(fulfillment),
+      },
+      {
+        title: "Trọng lượng",
+        value:
+          orderDetail?.fulfillments && orderDetail?.fulfillments.length > 0 && orderDetail.items
+            ? `${calculateSumWeightResponse(orderDetail.items)} g`
+            : null,
+      },
+      {
+        title: !checkIfFulfillmentCancelled(fulfillment) ? "Ngày tạo" : "Ngày hủy",
+        value: !checkIfFulfillmentCancelled(fulfillment)
+          ? ConvertUtcToLocalDate(fulfillment.shipment?.created_date, dateFormat)
+          : ConvertUtcToLocalDate(fulfillment?.cancel_date, dateFormat),
+      },
+      {
+        title: "Lý do hủy",
+        value: fulfillment?.reason_name ? (
+          <React.Fragment>
+            {fulfillment?.reason_name}
+            {fulfillment?.sub_reason_name && <span> - {fulfillment?.sub_reason_name}</span>}
+          </React.Fragment>
+        ) : null,
+      },
+      {
+        title: "Yêu cầu",
+        value: requirementNameView ? requirementNameView : null,
+      },
+      {
+        title: "Hàng hoàn về kho",
+        value: returnStoreDetail?.name,
+      },
     ];
     return (
       <React.Fragment>
-        <Row gutter={24}>
+        <Row gutter={24} className="atStoreTitle">
           <Col md={24}>
             <b>
               <img style={{ marginRight: 12 }} src={storeBlueIcon} alt="" />

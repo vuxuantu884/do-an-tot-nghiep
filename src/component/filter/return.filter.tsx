@@ -1,4 +1,4 @@
-import { Button, Col, Form, FormInstance, Input, Row, Tag } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Select, Tag } from "antd";
 import React from "react";
 
 import { FilterOutlined, SettingOutlined } from "@ant-design/icons";
@@ -11,7 +11,7 @@ import FilterConfigModal from "component/modal/FilterConfigModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
-import TreeStore from "component/tree-node/tree-store";
+import TreeStore from "screens/products/inventory/filter/TreeStore";
 import TreeSource from "component/treeSource";
 import UrlConfig from "config/url.config";
 import { getListChannelRequest } from "domain/actions/order/order.action";
@@ -161,6 +161,9 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
         case "coordinator_codes":
           onFilter && onFilter({ ...params, coordinator_codes: [] });
           break;
+        case "returned_store_ids":
+          onFilter && onFilter({ ...params, returned_store_ids: [] });
+          break;
 
         default:
           break;
@@ -207,6 +210,10 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
       created_on_max: formatDateFilter(params.created_on_max || undefined),
       received_on_min: formatDateFilter(params.received_on_min || undefined),
       received_on_max: formatDateFilter(params.received_on_max || undefined),
+
+      returned_store_ids: Array.isArray(params.returned_store_ids)
+        ? params.returned_store_ids.map((i) => Number(i))
+        : [Number(params.returned_store_ids)],
     };
   }, [params]);
 
@@ -643,6 +650,20 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
       });
     }
 
+    if (initialValues.returned_store_ids && initialValues.returned_store_ids.length !== 0) {
+      let mappedStores = listStore?.filter((store) =>
+        initialValues.returned_store_ids?.some(
+          (single) => single.toString() === store.id.toString(),
+        ),
+      );
+      let text = getFilterString(mappedStores, "name", UrlConfig.STORE, "id");
+      list.push({
+        key: "returned_store_ids",
+        name: "Kho nhận",
+        value: text,
+      });
+    }
+
     return list;
   }, [
     initialValues.store_ids,
@@ -660,6 +681,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
     initialValues.account_codes.length,
     initialValues?.searched_product,
     initialValues.coordinator_codes,
+    initialValues?.returned_store_ids,
     listStore,
     reasons,
     dateFormat,
@@ -852,8 +874,10 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
                     ))}
                   </CustomSelect> */}
                     <TreeStore
-                      listStore={listStore}
+                      name="store_ids"
                       placeholder="Cửa hàng"
+                      listStore={listStore}
+                      style={{ width: "100%" }}
                       autoClearSearchValue={false}
                     />
                   </Item>
@@ -1031,6 +1055,31 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
                         getPopupContainer={(trigger: any) => trigger.parentNode}
                         maxTagCount="responsive"
                       />
+                    </Item>
+                  </Col>
+                )}
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <Item name="returned_store_ids" label="Kho nhận">
+                      <CustomSelect
+                        mode="multiple"
+                        showSearch
+                        allowClear
+                        showArrow
+                        placeholder="Chọn kho nhận"
+                        notFoundContent="Không tìm thấy kết quả"
+                        style={{ width: "100%" }}
+                        optionFilterProp="children"
+                        getPopupContainer={(trigger) => trigger.parentNode}
+                        maxTagCount="responsive"
+                      >
+                        {listStore &&
+                          listStore.map((store) => (
+                            <CustomSelect.Option key={store.id} value={store.id}>
+                              {store.name}
+                            </CustomSelect.Option>
+                          ))}
+                      </CustomSelect>
                     </Item>
                   </Col>
                 )}

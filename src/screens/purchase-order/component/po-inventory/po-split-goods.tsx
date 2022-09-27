@@ -315,6 +315,14 @@ export const PoSplitGoods = (props: IProps) => {
     dataStore[indexStore]["percent"] = valueResult;
     if (indexProcurements >= 0) {
       procurements[indexProcurements]["percent"] = valueResult;
+      procurements[indexProcurements].procurement_items = procurements[
+        indexProcurements
+      ].procurement_items.map((procurementItem) => {
+        return {
+          ...procurementItem,
+          percent: valueResult,
+        };
+      });
       const totalPercent = dataStore.reduce((acc, ele) => acc + (ele.percent || 0), 0);
       const dataSourceResult = dataSource.map((dataSourceItem) => {
         const indexProcurementsItem = procurements[indexProcurements].procurement_items.findIndex(

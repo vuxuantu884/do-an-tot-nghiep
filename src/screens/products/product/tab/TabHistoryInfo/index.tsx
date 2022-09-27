@@ -17,6 +17,8 @@ import { ConvertUtcToLocalDate, getEndOfDay, getStartOfDay } from "utils/DateUti
 import { getQueryParams, useQuery } from "utils/useQuery";
 import HistoryProductFilter from "../../filter/HistoryProductFilter";
 import { StyledComponent } from "../style";
+import { EyeOutlined } from "@ant-design/icons";
+import { Col, Modal, Row } from "antd";
 const initQuery: ProductHistoryQuery = {};
 
 const IS_PRODUCT_TYPE = [
@@ -31,6 +33,8 @@ const TabHistoryInfo: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+  const [isOpenModalLog, setOpenModalLog] = useState(false);
+  const [dataLogSelected, setDataLogSelected] = useState<ProductHistoryResponse | null>(null);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [data, setData] = useState<PageResponse<ProductHistoryResponse>>({
     metadata: {
@@ -62,6 +66,31 @@ const TabHistoryInfo: React.FC = () => {
     },
     [history, params],
   );
+
+  const openModalLog = (data: ProductHistoryResponse) => {
+    setOpenModalLog(true);
+    let newOldData: any = {};
+    let newCurrentData: any = {};
+
+    if (data?.data_old) {
+      for (let property in JSON.parse(data?.data_old)) {
+        const dataOldProperty = JSON.stringify(JSON.parse(data.data_old)[property]);
+        const dataCurrentProperty = JSON.stringify(JSON.parse(data.data_current)[property]);
+        if (dataOldProperty !== dataCurrentProperty) {
+          newOldData[property] = JSON.parse(data.data_old)[property];
+          newCurrentData[property] = JSON.parse(data.data_current)[property];
+        }
+      }
+    }
+
+    const newData = {
+      ...data,
+      data_old: JSON.stringify(newOldData),
+      data_current: JSON.stringify(newCurrentData),
+    }
+
+    setDataLogSelected(newData);
+  };
 
   const defaultColumn: Array<ICustomTableColumType<ProductHistoryResponse>> = useMemo(() => {
     return [
@@ -124,6 +153,25 @@ const TabHistoryInfo: React.FC = () => {
         key: "history_type_name",
         visible: true,
         align: "left",
+      },
+      {
+        title: "Chi tiết",
+        dataIndex: "history_type",
+        key: "history_type",
+        visible: true,
+        align: "center",
+        width: 100,
+        render: (value, record) => {
+          return (
+            <div style={{ textAlign: "center" }}>
+              {(value === "UPDATE_VARIANT" || value === "UPDATE_PRODUCT") && (
+                <div>
+                  <EyeOutlined onClick={() => openModalLog(record)} />
+                </div>
+              )}
+            </div>
+          );
+        },
       },
       {
         title: "Thời gian",
@@ -208,6 +256,31 @@ const TabHistoryInfo: React.FC = () => {
         }}
         data={defaultColumn}
       />
+
+      {isOpenModalLog && (
+        <Modal
+          width={1000}
+          visible={isOpenModalLog}
+          onCancel={() => setOpenModalLog(false)}
+          footer={null}
+          title={<div className="font-weight-500">Chi tiết logs</div>}
+        >
+          <Row gutter={24}>
+            <Col span={12} style={{ borderRight: "1px solid #d9d9d9" }}>
+              <div style={{ textAlign: "center" }} className="font-weight-500 mb-20">Trước</div>
+              <pre>
+                {dataLogSelected && dataLogSelected.data_old && JSON.stringify(JSON.parse(dataLogSelected.data_old), null, 2)}
+              </pre>
+            </Col>
+            <Col span={12}>
+              <div style={{ textAlign: "center" }} className="font-weight-500 mb-20">Sau</div>
+              <pre>
+                {dataLogSelected && dataLogSelected.data_current && JSON.stringify(JSON.parse(dataLogSelected.data_current), null, 2)}
+              </pre>
+            </Col>
+          </Row>
+        </Modal>
+      )}
     </StyledComponent>
   );
 };

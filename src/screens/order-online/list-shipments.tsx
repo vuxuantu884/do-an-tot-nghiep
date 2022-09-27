@@ -735,8 +735,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
         title="Danh sách đơn giao hàng"
         breadcrumb={[
           {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
+            name: "Vận chuyển",
           },
           {
             name: "Danh sách đơn giao hàng",

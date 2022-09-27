@@ -1729,6 +1729,7 @@ const EcommerceOrders: React.FC = () => {
 
           const orderRequest = {
             order_sn: orderMatched.reference_code,
+            core_order_id: orderMatched.id,
             tracking_number: orderMatched.fulfillments.find(
               (item: any) => item.status !== FulFillmentStatus.CANCELLED,
             )?.shipment?.tracking_code,

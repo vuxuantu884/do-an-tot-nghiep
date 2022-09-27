@@ -518,7 +518,11 @@ const HandoverScreen: React.FC = () => {
       dispatch(hideLoading());
       setLoadingFilter(true);
       setLoadingMaster(false);
-      searchHandoverService(params)
+      const query =
+        !params?.store_ids || (params.store_ids && params.store_ids.length === 0)
+          ? { ...params, store_ids: storeAccess.map((p) => p.id) }
+          : { ...params };
+      searchHandoverService(query)
         .then((response) => {
           if (isFetchApiSuccessful(response)) {
             setData(response.data);
@@ -530,15 +534,13 @@ const HandoverScreen: React.FC = () => {
         .catch()
         .finally(() => {});
     }
-  }, [dispatch, history, isLoadedMasterData, params]);
+  }, [dispatch, history, isLoadedMasterData, params, storeAccess]);
 
   useEffect(() => {
     if (isLoadedMasterData) {
       setLoadingMaster(false);
     }
   }, [isLoadedMasterData]);
-
-  console.log("selected", selected);
 
   return (
     <ContentContainer

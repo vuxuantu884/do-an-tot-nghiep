@@ -32,6 +32,8 @@ export const getDailyRevenueService = (
     "otherPayment.lessThanOrEqual": request.other_payment_max,
     "totalPayment.greaterThanOrEqual": request.total_payment_min,
     "totalPayment.lessThanOrEqual": request.total_payment_max,
+    "updatedAt.greaterThanOrEqual": request.update_at_min,
+    "updatedAt.lessThanOrEqual": request.update_at_max,
     format: request.format,
   };
   let queryPath = generateQuery(newRequest);
@@ -50,4 +52,8 @@ export const importPaymentConfirmDailyRevenueService = (request: ImportFileModel
 };
 export const confirmPayMoneyDailyRevenueService = (id: number): Promise<any> => {
   return DailyRevenueIncludeHeaderInfoBaseAxios.post(`${ApiConfig.DAILY_PAYMENT}/${id}/confirm`);
+};
+
+export const refreshDailyRevenueService = (id: number): Promise<any> => {
+  return DailyRevenueIncludeHeaderInfoBaseAxios.post(`${ApiConfig.DAILY_PAYMENT}/${id}/refresh`);
 };

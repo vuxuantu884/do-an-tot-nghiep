@@ -1,7 +1,7 @@
 import { Button, Card, Col, Form, FormInstance, Row } from "antd";
+import { UploadFile } from "antd/lib/upload/interface";
 import ContentContainer from "component/container/content.container";
 import { DAILY_REVENUE_PERMISSIONS } from "config/permissions/daily-revenue.permission";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import useAuthorization from "hook/useAuthorization";
@@ -237,22 +237,33 @@ function DailyRevenueDetail(props: PropTypes) {
       });
   };
 
-  const handleUploadFile = (file: File) => {
-    return dailyRevenueService.uploadPaymentImage(file);
+  const handleUploadFile = (files: Array<File>) => {
+    return dailyRevenueService.uploadPaymentImages(files);
   };
 
-  const handleClickPayMoney = (file: File | undefined) => {
-    // paymentForm.submit();
+  const handleClickPayMoney = (fileList: UploadFile<any>[] | undefined) => {
+    console.log("fileList", fileList);
+    const uploadFiles = fileList?.map((single) => single.originFileObj) as File[] | undefined;
+    if (!uploadFiles) {
+      return;
+    }
+    console.log("uploadFiles", uploadFiles);
+    // return;
     paymentForm
       .validateFields()
       .then(() => {
-        if (file) {
+        if (fileList) {
           dispatch(showLoading());
-          handleUploadFile(file)
+          handleUploadFile(uploadFiles)
             .then((response) => {
               if (isFetchApiSuccessful(response)) {
-                let path = response.data[0]?.path;
-                if (path) {
+                let paths = response.data.map((single) => single.path);
+                if (paths) {
+                  const initFileList = dailyRevenueDetail?.image_url
+                    ? dailyRevenueDetail?.image_url.split(";")
+                    : [];
+                  let allPaths = [...initFileList, ...paths];
+                  let path = allPaths.join(";");
                   dailyRevenueService
                     .submitPayMoney(+id, path)
                     .then(() => {
@@ -423,20 +434,20 @@ function DailyRevenueDetail(props: PropTypes) {
               shopCostCard: {
                 ...prev.shopCostCard,
                 show: true,
-                actionButton: false,
+                actionButton: true,
                 addButton: true,
               },
               shopSurchargeCard: {
                 ...prev.shopSurchargeCard,
                 show: true,
-                actionButton: false,
+                actionButton: true,
                 addButton: true,
               },
               totalRevenueCard: {
                 ...prev.totalRevenueCard,
                 result: true,
                 uploadPayment: false,
-                payMoneyButton: false,
+                payMoneyButton: true,
                 confirmMoneyButton: true,
               },
             };

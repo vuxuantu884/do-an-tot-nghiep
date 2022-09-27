@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const StyledComponent = styled.div`
+export const DiscountFilterStyled = styled.div`
   .discount-filter {
     .page-filter {
       padding: 0;
@@ -11,11 +11,20 @@ export const StyledComponent = styled.div`
           width: 100%;
           &-item {
             width: 100%;
-            .ant-form {
+            .ant-form-inline {
               display: flex;
+              flex-wrap: nowrap;
               width: 100%;
               .search {
-                flex: 1;
+                flex-grow: 1;
+              }
+              .search-variant {
+                min-width: 200px;
+                width: 25%;
+              }
+              .select-state {
+                min-width: 150px;
+                width: 20%;
               }
             }
           }
@@ -24,11 +33,6 @@ export const StyledComponent = styled.div`
     }
     .ant-form-item:last-child {
       margin: 0 0px;
-    }
-
-    .search-variant {
-      min-width: 200px;
-      width: 25%;
     }
   }
 
@@ -43,6 +47,7 @@ export const StyledComponent = styled.div`
     margin-top: 20px;
     .ant-tag {
       margin-top: 0;
+      margin-bottom: 8px;
     }
     .tag {
       padding: 10px 20px;

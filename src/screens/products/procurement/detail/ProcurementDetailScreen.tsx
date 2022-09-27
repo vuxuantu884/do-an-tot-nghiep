@@ -296,10 +296,10 @@ const ProcurementDetailScreen: React.FC = () => {
     );
     if (response) {
       showSuccess("Thành công");
-      setLoadingBtn(false);
       setIsEdit(false);
       getPODetail();
     }
+    setLoadingBtn(false);
   };
 
   const checkAllowEditPr = () => {
