@@ -28,7 +28,7 @@ export default function DataDog() {
       allowedTracingOrigins,
     });
 
-    datadogRum.startSessionReplayRecording();
+    // datadogRum.startSessionReplayRecording();
 
     datadogRum.setUser({
       id: account.code,
