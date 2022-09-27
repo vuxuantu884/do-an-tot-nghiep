@@ -60,7 +60,7 @@ function useFetchBusinessResultComplete() {
           accumulateSalesOnline += Number(value[2]);
 
           // Doanh thu online hôm nay
-          if (moment(value[0]).format(DATE_FORMAT.YYYYMMDD) === today) {
+          if (moment.parseZone(value[0]).utc(true).format(DATE_FORMAT.YYYYMMDD) === today) {
             salesOnlineToday += Number(value[2]);
           }
         }
@@ -69,7 +69,7 @@ function useFetchBusinessResultComplete() {
         if (value[1] === ReportDatavalue.KD_OFFLINE) {
           // Luỹ kế tháng
           accumulateSalesOffline += Number(value[2]);
-          if (moment(value[0]).format(DATE_FORMAT.YYYYMMDD) === today) {
+          if (moment.parseZone(value[0]).utc(true).format(DATE_FORMAT.YYYYMMDD) === today) {
             salesOfflineToday += Number(value[2]);
           }
         }
@@ -80,7 +80,7 @@ function useFetchBusinessResultComplete() {
 
       let returnToday = 0;
       response.result.data.forEach((value: ArrayAny) => {
-        if (moment(value[0]).format(DATE_FORMAT.YYYYMMDD) === today) {
+        if (moment.parseZone(value[0]).utc(true).format(DATE_FORMAT.YYYYMMDD) === today) {
           returnToday += Number(value[3]);
         }
       });

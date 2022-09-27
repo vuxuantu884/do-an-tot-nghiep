@@ -150,7 +150,8 @@ export const getTranslatePropertyKey = (metadata: AnalyticMetadata, key: string)
   return name;
 };
 
-export const formatReportTime = (date: string, timeType: string) => {
+export const formatReportTime = (dateUtc: string, timeType: string) => {
+  const date = moment.parseZone(dateUtc).utc(true);
   if (timeType === "year") {
     return moment(date).format("YYYY");
   }
