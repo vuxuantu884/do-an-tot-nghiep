@@ -31,6 +31,7 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
 import { CustomerListPermission } from "config/permissions/customer.permission";
+import { LOYALTY_ADJUSTMENT_PERMISSIONS } from "config/permissions/loyalty.permission";
 import useAuthorization from "hook/useAuthorization";
 
 import warningCircleIcon from "assets/icon/warning-circle.svg";
@@ -71,6 +72,7 @@ const viewCustomerDetailPermission = [
 ];
 const updateCustomerPermission = [CustomerListPermission.customers_update];
 const recalculateMoneyPointPermission = [CustomerListPermission.customers_recalculate_money_point];
+const createLoyaltyAdjustmentPermission = [LOYALTY_ADJUSTMENT_PERMISSIONS.CREATE];
 
 const CustomerDetail = () => {
   const [allowViewCustomerDetail] = useAuthorization({
@@ -85,6 +87,11 @@ const CustomerDetail = () => {
   
   const [allowRecalculateMoneyPoint] = useAuthorization({
     acceptPermissions: recalculateMoneyPointPermission,
+    not: false,
+  });
+
+  const [allowCreateLoyaltyAdjustment] = useAuthorization({
+    acceptPermissions: createLoyaltyAdjustmentPermission,
     not: false,
   });
 
@@ -108,7 +115,7 @@ const CustomerDetail = () => {
   const [customerSpendDetail, setCustomerSpendDetail] = React.useState<any>([]);
 
   const actions: Array<MenuAction> = useMemo(() => {
-    let _actions = cloneDeep(defaultActions);
+    let _actions = allowCreateLoyaltyAdjustment ? cloneDeep(defaultActions) : [];
       
     if (allowRecalculateMoneyPoint) {
       _actions.push(
@@ -124,7 +131,8 @@ const CustomerDetail = () => {
     }
     
     return _actions;
-  }, [allowRecalculateMoneyPoint]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allowCreateLoyaltyAdjustment, allowRecalculateMoneyPoint]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -499,10 +507,8 @@ const CustomerDetail = () => {
       {customer ?
         <ContentContainer
           title="Thông tin chi tiết"
-          extra={
-            allowViewCustomerDetail && (
-              <ActionButton type="default" menu={actions} onMenuClick={onMenuClick} />
-            )
+          extra={actions?.length > 0 &&
+            <ActionButton type="default" menu={actions} onMenuClick={onMenuClick} />
           }
         >
           <AuthWrapper acceptPermissions={viewCustomerDetailPermission} passThrough>

@@ -54,6 +54,8 @@ import UserCustomFilterTag from "component/filter/UserCustomFilterTag";
 import FilterConfigModal from "component/modal/FilterConfigModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import useHandleFilterConfigs from "./useHandleFilterConfigs";
+import { LOYALTY_ADJUSTMENT_PERMISSIONS } from "config/permissions/loyalty.permission";
+import useAuthorization from "hook/useAuthorization";
 import { cloneDeep } from "lodash";
 import { CHARACTERISTICS_LIST } from "screens/customer/helper";
 
@@ -90,6 +92,8 @@ let wardListSelected: any[] = [];
 let districtListSelected: any[] = [];
 let provinceListSelected: any[] = [];
 
+const createLoyaltyAdjustmentPermission = [LOYALTY_ADJUSTMENT_PERMISSIONS.CREATE];
+
 const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerListFilterProps) => {
   const {
     isLoading,
@@ -109,6 +113,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
   const dispatch = useDispatch();
   const [formCustomerFilter] = Form.useForm();
   const listGenderEnum = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.gender);
+
+  const [allowCreateLoyaltyAdjustment] = useAuthorization({
+    acceptPermissions: createLoyaltyAdjustmentPermission,
+    not: false,
+  });
 
   const [formSearchValuesToSave, setFormSearchValuesToSave] = useState({});
   const [tagActive, setTagActive] = useState<number | null>();
@@ -2096,12 +2105,14 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
         layout="inline"
         className="inline-filter"
       >
-        <Dropdown overlay={dropdownMenuList} trigger={["click"]} disabled={isLoading}>
-          <Button style={{ marginRight: 15 }}>
-            <span style={{ marginRight: 10 }}>Thao tác</span>
-            <DownOutlined />
-          </Button>
-        </Dropdown>
+        {allowCreateLoyaltyAdjustment &&
+          <Dropdown overlay={dropdownMenuList} trigger={["click"]} disabled={isLoading}>
+            <Button style={{ marginRight: 15 }}>
+              <span style={{ marginRight: 10 }}>Thao tác</span>
+              <DownOutlined />
+            </Button>
+          </Dropdown>
+        }
 
         <Form.Item name="request" className="input-search">
           <Input

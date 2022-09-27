@@ -36,7 +36,7 @@ import { CustomerSearchQuery } from "model/query/customer.query";
 import ContentContainer from "component/container/content.container";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
-import { LoyaltyPermission } from "config/permissions/loyalty.permission";
+import { LOYALTY_ADJUSTMENT_PERMISSIONS } from "config/permissions/loyalty.permission";
 
 import closeIcon from "assets/icon/X_close.svg";
 import arrowBack from "assets/icon/arrow-back.svg";
@@ -73,7 +73,7 @@ const POINT_SUBTRACT_REASON = ["Trừ điểm bù", "Khác"];
 const MONEY_ADD_REASON = ["Tặng tiền tích lũy", "Tặng tiền duy trì hạng VIP", "Khác"];
 const MONEY_SUBTRACT_REASON = ["Trừ tiền tích lũy", "Khác"];
 
-const createPointAdjustmentPermission = [LoyaltyPermission.points_update];
+const createLoyaltyAdjustmentPermission = [LOYALTY_ADJUSTMENT_PERMISSIONS.CREATE];
 
 const CreatePointAdjustment = () => {
   const history = useHistory();
@@ -456,7 +456,7 @@ const CreatePointAdjustment = () => {
         ]}
         extra={<></>}
       >
-        <AuthWrapper acceptPermissions={createPointAdjustmentPermission} passThrough>
+        <AuthWrapper acceptPermissions={createLoyaltyAdjustmentPermission} passThrough>
           {(allowed: boolean) =>
             allowed ? (
               <Card title="THÔNG TIN ĐIỀU CHỈNH">
