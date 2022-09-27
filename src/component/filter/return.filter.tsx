@@ -11,7 +11,7 @@ import FilterConfigModal from "component/modal/FilterConfigModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
-import TreeStore from "component/tree-node/tree-store";
+import TreeStore from "screens/products/inventory/filter/TreeStore";
 import TreeSource from "component/treeSource";
 import UrlConfig from "config/url.config";
 import { getListChannelRequest } from "domain/actions/order/order.action";
@@ -852,8 +852,10 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
                     ))}
                   </CustomSelect> */}
                     <TreeStore
-                      listStore={listStore}
+                      name="store_ids"
                       placeholder="Cửa hàng"
+                      listStore={listStore}
+                      style={{ width: "100%" }}
                       autoClearSearchValue={false}
                     />
                   </Item>
