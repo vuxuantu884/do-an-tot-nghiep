@@ -1242,6 +1242,18 @@
   .ant-table {
   margin: -4px -4px -4px 30px;
 }
+
+@media (min-width: 1561px) {
+  .custom-table
+  .small-padding
+  .ant-table.ant-table-middle
+  .ant-table-tbody
+  .ant-table-wrapper:only-child
+  .ant-table {
+    margin: -4px -4px -4px 2.5%;
+  }
+}
+
 .image-product .ant-image-mask-info {
   font-size: 10px;
   text-align: center;
