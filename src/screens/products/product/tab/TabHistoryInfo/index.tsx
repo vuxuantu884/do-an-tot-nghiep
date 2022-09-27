@@ -69,7 +69,27 @@ const TabHistoryInfo: React.FC = () => {
 
   const openModalLog = (data: ProductHistoryResponse) => {
     setOpenModalLog(true);
-    setDataLogSelected(data);
+    let newOldData: any = {};
+    let newCurrentData: any = {};
+
+    if (data?.data_old) {
+      for (let property in JSON.parse(data?.data_old)) {
+        const dataOldProperty = JSON.stringify(JSON.parse(data.data_old)[property]);
+        const dataCurrentProperty = JSON.stringify(JSON.parse(data.data_current)[property]);
+        if (dataOldProperty !== dataCurrentProperty) {
+          newOldData[property] = JSON.parse(data.data_old)[property];
+          newCurrentData[property] = JSON.parse(data.data_current)[property];
+        }
+      }
+    }
+
+    const newData = {
+      ...data,
+      data_old: JSON.stringify(newOldData),
+      data_current: JSON.stringify(newCurrentData),
+    }
+
+    setDataLogSelected(newData);
   };
 
   const defaultColumn: Array<ICustomTableColumType<ProductHistoryResponse>> = useMemo(() => {
