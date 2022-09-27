@@ -30,6 +30,7 @@ import {
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import useCheckIfCanCreateMoneyRefund from "hook/order/useCheckIfCanCreateMoneyRefund";
+import useFetchStores from "hook/useFetchStores";
 import { HandoverResponse } from "model/handover/handover.response";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -203,9 +204,7 @@ const OrderDetail = (props: PropTypes) => {
     OrderDetail,
   );
 
-  const currentStores = useSelector(
-    (state: RootReducerType) => state.userReducer.account?.account_stores,
-  );
+  const currentStores = useFetchStores();
 
   const [isShowReceiveProductConfirmModal, setIsShowReceiveProductConfirmModal] = useState(false);
 
@@ -908,8 +907,7 @@ const OrderDetail = (props: PropTypes) => {
       currentStores,
       OrderDetail,
     ),
-    ffm_receive_return_store_id:
-      currentStores?.length === 1 ? currentStores[0].store_id : undefined,
+    ffm_receive_return_store_id: currentStores?.length === 1 ? currentStores[0].id : undefined,
   };
 
   const onSelectShipment = (value: number) => {

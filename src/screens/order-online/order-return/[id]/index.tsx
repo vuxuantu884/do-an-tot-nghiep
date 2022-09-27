@@ -16,6 +16,7 @@ import {
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import useCheckIfCanCreateMoneyRefund from "hook/order/useCheckIfCanCreateMoneyRefund";
 import useAuthorization from "hook/useAuthorization";
+import useFetchStores from "hook/useFetchStores";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
@@ -86,9 +87,9 @@ const ScreenReturnDetail = (props: PropTypes) => {
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [loyaltyUsageRules, setLoyaltyUsageRules] = useState<Array<LoyaltyUsageResponse>>([]);
 
-  const currentStores = useSelector(
-    (state: RootReducerType) => state.userReducer.account?.account_stores,
-  );
+  const currentStores = useFetchStores();
+
+  console.log("currentStores", currentStores);
 
   const [isShowReceiveProductConfirmModal, setIsShowReceiveProductConfirmModal] = useState(false);
 
@@ -123,7 +124,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
       return;
     }
 
-    const storeIds = currentStores.map((p) => p.store_id);
+    const storeIds = currentStores.map((p) => p.id);
     if (storeIds.indexOf(OrderDetail.store_id || 0) === -1) {
       renderModalNotificationReturn("Tài khoản không thuộc cửa hàng được phân bổ");
       return;
