@@ -1318,8 +1318,9 @@ const AllTab: React.FC<any> = (props) => {
             dataIndex: "store_id",
             align: "left",
             fixed: true,
+            width: 250,
             render(value: any) {
-              return <div style={{ width: 300 }}>
+              return <div>
                 {storeRef.current.get(value)}
               </div>;
             },
