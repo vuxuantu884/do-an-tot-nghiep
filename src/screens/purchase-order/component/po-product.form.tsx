@@ -20,8 +20,9 @@ import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
-import { debounce } from "lodash";
+import { debounce, groupBy } from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
+import { ProcurementLineItemField } from "model/procurement/field";
 import { VariantResponse } from "model/product/product.model";
 import { POField } from "model/purchase-order/po-field";
 import {
@@ -69,8 +70,14 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const [isSortSku, setIsSortSku] = useState(false);
 
   //context
-  const { setProcurementTableData, procurementTableData, expectedDate, handleChangeProcument } =
-    useContext(PurchaseOrderCreateContext);
+  const {
+    setProcurementTableData,
+    procurementTableData,
+    expectedDate,
+    handleChangeProcument,
+    procurementTable,
+    setProcurementTable,
+  } = useContext(PurchaseOrderCreateContext);
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
@@ -159,6 +166,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const handleDeleteLineItem = (lineItemDelete: PurchaseOrderLineItem) => {
     let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
     const index = lineItems.findIndex((item) => item.variant_id === lineItemDelete.variant_id);
+    const indexProcurementTable = procurementTable.findIndex(
+      (item) => item.variant_id === lineItemDelete.variant_id,
+    );
+    if (indexProcurementTable >= 0) {
+      procurementTable.splice(indexProcurementTable, 1);
+      setProcurementTable([...procurementTable]);
+    }
     const lineItem = lineItems[index];
     lineItems.splice(index, 1);
     procurementTableData.splice(index, 1);
@@ -262,7 +276,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     if (lineItems[indexOfItem]) {
       lineItems[indexOfItem] = POUtils.updateLineItemByQuantity(lineItems[indexOfItem], quantity);
       updateOldLineItem(lineItems[indexOfItem]);
-      procurementTableData[indexOfItem].quantity = quantity;
+      if (procurementTableData[indexOfItem]) {
+        procurementTableData[indexOfItem]["quantity"] = quantity || 0;
+      }
       formMain.setFieldsValue({
         line_items: [...lineItems],
       });
