@@ -138,7 +138,9 @@ export const PoWareHouse = (props: IProps) => {
     procurements.forEach((procurement, index) => {
       procurementItemsResult.forEach((procurementItemIndex, indexProcurementItemsIndex) => {
         const indexProcurementItem = procurement.procurement_items.findIndex(
-          (item) => item.id === procurementItemIndex.id,
+          (item) =>
+            item.id === procurementItemIndex.id &&
+            procurement.percent === procurementItemIndex.percent,
         );
         if (indexProcurementItem >= 0) {
           procurements[index].procurement_items.splice(

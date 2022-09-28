@@ -5,4 +5,7 @@ export const StyledComponent = styled.div`
     width: 112px;
     height: 25px;
   }
+  .atStoreTitle {
+    margin-bottom: 25px;
+  }
 `;

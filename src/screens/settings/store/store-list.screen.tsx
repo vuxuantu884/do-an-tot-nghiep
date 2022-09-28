@@ -156,6 +156,13 @@ const StoreListScreen: React.FC = () => {
       },
     },
     {
+      title: "ID cửa hàng",
+      dataIndex: "id",
+      visible: true,
+      fixed: "left",
+      width: 100,
+    },
+    {
       title: "Tên cửa hàng",
       dataIndex: "name",
       visible: true,

@@ -799,8 +799,9 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
   }, [history]);
 
   const onSelectedChange = useCallback((selectedRow) => {
-    const selectedRowKeys = selectedRow.map((row: any) => row && row.id);
-    setSelectedRowData(selectedRow);
+    const newSelectedRowKeys = selectedRow.filter((i: any) => i);
+    const selectedRowKeys = newSelectedRowKeys.map((row: any) => row && row.id);
+    setSelectedRowData(newSelectedRowKeys);
     setSelectedRowKeys(selectedRowKeys);
   }, []);
 

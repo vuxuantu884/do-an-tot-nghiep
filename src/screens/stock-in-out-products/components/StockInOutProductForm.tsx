@@ -718,7 +718,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                       <Button
                         onClick={() => handleDeleteLineItem(index)}
                         className="product-item-delete"
-                        style={{ textAlign: "right", width: "100%" }}
+                        style={{ marginLeft: 10 }}
                         icon={<AiOutlineClose />}
                       />
                     );

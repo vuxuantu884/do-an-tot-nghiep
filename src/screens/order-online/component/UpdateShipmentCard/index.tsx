@@ -13,7 +13,6 @@ import {
   UpdateShipmentAction,
 } from "domain/actions/order/order.action";
 import useAuthorization from "hook/useAuthorization";
-import { AccountStoreResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -100,7 +99,7 @@ type PropTypes = {
   ref: React.MutableRefObject<any>;
   form: FormInstance<any>;
   orderPageType: OrderPageTypeModel;
-  currentStores?: AccountStoreResponse[];
+  currentStores?: StoreResponse[];
   isShowReceiveProductConfirmModal: boolean;
   setIsShowReceiveProductConfirmModal: (value: boolean) => void;
 };

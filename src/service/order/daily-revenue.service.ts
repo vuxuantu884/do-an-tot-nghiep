@@ -88,13 +88,15 @@ export const dailyRevenueService = {
     return DailyRevenueBaseAxios.get(`${ApiConfig.DAILY_PAYMENT}/type`);
   },
 
-  uploadPaymentImage: (
-    file: File,
+  uploadPaymentImages: (
+    files: Array<File>,
     folder: string = "variant",
   ): Promise<BaseResponse<Array<ProductUploadModel>>> => {
     let body = new FormData();
     body.append("folder", folder);
-    body.append("file_upload", file);
+    files.forEach((item) => {
+      body.append("file_upload", item);
+    });
     return BaseAxios.post(`${ApiConfig.PRODUCT}/products/upload`, body, {
       headers: { "content-type": "multipart/form-data" },
     });

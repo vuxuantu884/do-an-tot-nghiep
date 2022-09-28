@@ -225,9 +225,9 @@ const AllTab: React.FC<any> = (props) => {
       window.screen.width >= 1920
         ? splitEllipsis(strName, 100, 30)
         : window.screen.width >= 1600
-        ? (strName = splitEllipsis(strName, 60, 30))
+        ? (splitEllipsis(strName, 60, 30))
         : window.screen.width >= 1366
-        ? (strName = splitEllipsis(strName, 47, 30))
+        ? (splitEllipsis(strName, 47, 30))
         : strName;
     return strName;
   };
@@ -240,8 +240,9 @@ const AllTab: React.FC<any> = (props) => {
         dataIndex: "sku",
         align: "left",
         fixed: "left",
+        width: 250,
         className: "column-product",
-        render: (value, record, index) => {
+        render: (value, record) => {
           let strName = ellipName(record.name);
           let image = Products.findAvatar(record.variant_images);
           return (
@@ -281,7 +282,7 @@ const AllTab: React.FC<any> = (props) => {
       {
         title: "Danh mục",
         titleCustom: "Danh mục",
-        visible: false,
+        visible: true,
         dataIndex: "category",
         align: "left",
         width: 100,
@@ -575,17 +576,14 @@ const AllTab: React.FC<any> = (props) => {
   const defaultColumnsDrill: Array<ICustomTableColumType<InventoryResponse>> = useMemo(() => {
     return [
       {
-        title: "",
-        fixed: true,
-        width: 50,
-        max: 50,
-      },
-      {
         title: "Kho hàng",
         dataIndex: "store_id",
         fixed: true,
+        width: 250,
         render(value) {
-          return storeRef.current.get(value);
+          return <div>
+            {storeRef.current.get(value)}
+          </div>;
         },
       },
       {
@@ -593,7 +591,12 @@ const AllTab: React.FC<any> = (props) => {
         align: "center",
         width: 110,
         fixed: true,
-        render: (value) => {
+      },
+      {
+        dataIndex: "category",
+        align: "left",
+        width: 100,
+        render: () => {
           return <></>;
         },
       },
@@ -933,30 +936,40 @@ const AllTab: React.FC<any> = (props) => {
                   const userConfigColumn = res.data.filter(
                     (e) => e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY,
                   );
+                  if (userConfigColumn.length === 0) return;
                   const userConfig = userConfigColumn.reduce((p, c) => (p.id > c.id ? p : c));
                   if (userConfig) {
                     let cf = JSON.parse(userConfig.json_content) as ConfigColumnInventory;
 
-                    cf.Columns.forEach((e) => {
-                      const column = defaultColumns.find((p) => p.dataIndex === e.dataIndex);
-                      if (column) {
-                        e.render = column.render;
-                        e.title = column.title;
-                        e.titleCustom = column.titleCustom;
+                    let isValidColumns = true;
+                    for (let i = 0; i < cf.Columns.length; i++) {
+                      if (typeof cf.Columns[i] === "object") {
+                        isValidColumns = false;
+                        break;
                       }
-                    });
-                    cf.ColumnDrill.forEach((e) => {
-                      const columnDrill = defaultColumnsDrill.find(
-                        (p) => p.dataIndex === e.dataIndex,
-                      );
-                      if (columnDrill) {
-                        e.render = columnDrill.render;
-                        e.title = columnDrill.title;
-                        e.titleCustom = columnDrill.titleCustom;
+                    }
+
+                    let isValidColumnsDrill = true;
+                    for (let i = 0; i < cf.ColumnDrill.length; i++) {
+                      if (typeof cf.ColumnDrill[i] === "object") {
+                        isValidColumnsDrill = false;
+                        break;
                       }
+                    }
+
+                    const newColumns: any = defaultColumns.map((i) => {
+                      return {
+                        ...i,
+                        visible: cf.Columns.filter((j) => i.dataIndex === j).length > 0
+                      };
                     });
-                    setColumns(cf.Columns);
-                    setColumnsDrill(cf.ColumnDrill);
+
+                    let newColumnsDrill: any = cf.ColumnDrill.map((i) => {
+                      return defaultColumnsDrill.filter((j) => i === j.dataIndex)[0]
+                    });
+
+                    setColumns(isValidColumns ? newColumns : defaultColumns);
+                    setColumnsDrill(isValidColumnsDrill ? newColumnsDrill : defaultColumnsDrill);
                   }
                 }
               }
@@ -988,9 +1001,13 @@ const AllTab: React.FC<any> = (props) => {
       ) as FilterConfigRequest;
       if (!config) config = {} as FilterConfigRequest;
 
+      const newData = data.map((i) => {
+        return i.visible ? i.dataIndex : null
+      });
+
       const configRequest = {
-        Columns: data,
-        ColumnDrill: dataDrill,
+        Columns: newData.filter((i) => i),
+        ColumnDrill: dataDrill.map((i: any) => i.dataIndex).filter((i) => i),
       } as ConfigColumnInventory;
 
       const json_content = JSON.stringify(configRequest);
@@ -1241,10 +1258,11 @@ const AllTab: React.FC<any> = (props) => {
             fetchInventoryByVariant([record.id], store_ids);
           },
 
-          expandedRowRender: (record: VariantResponse, index, indent, expanded) => {
+          expandedRowRender: (record: VariantResponse) => {
             return (
               <CustomTable
                 bordered
+                scroll={{ x: "max-content" }}
                 showHeader={false}
                 dataSource={inventiryVariant.get(record.id) || []}
                 pagination={false}
@@ -1274,8 +1292,8 @@ const AllTab: React.FC<any> = (props) => {
         onOk={(data) => {
           setShowSettingColumn(false);
           setColumns(data);
-          let columnsInRow = data
-            .filter((e) => e.visible === true && e.dataIndex !== "sku")
+          let columnsInRow: any = data
+            .filter((e) => e.visible === true && e.dataIndex !== "sku" && e.dataIndex !== "code" && e.dataIndex !== "variant_prices")
             .map((item: ICustomTableColumType<InventoryResponse>) => {
               return {
                 title: item.title,
@@ -1287,26 +1305,30 @@ const AllTab: React.FC<any> = (props) => {
               };
             });
           columnsInRow.unshift({
+            dataIndex: "variant_prices",
+            align: "center",
+            width: 110,
+            fixed: true,
+            render: () => {
+              return <></>;
+            }
+          });
+          columnsInRow.unshift({
             title: "Kho hàng",
             dataIndex: "store_id",
             align: "left",
             fixed: true,
-            width: "auto",
-            render(value) {
-              return storeRef.current.get(value);
+            width: 250,
+            render(value: any) {
+              return <div>
+                {storeRef.current.get(value)}
+              </div>;
             },
           });
-          columnsInRow.forEach((e) => {
-            if (e.dataIndex === "variant_prices" || e.dataIndex === "category") {
-              e.render = undefined;
-              e.title = "";
-            }
-          });
           setColumnsDrill(columnsInRow);
-
           onSaveConfigColumn(data, columnsInRow);
         }}
-        data={defaultColumns}
+        data={columns}
       />
       <InventoryExport
         onCancel={actionExport.Cancel}

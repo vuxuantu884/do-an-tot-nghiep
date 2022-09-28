@@ -1,5 +1,5 @@
 import exportIcon from "assets/icon/export.svg";
-import { Button, Card, Space } from "antd";
+import { Button, Card, Modal, Space, Spin } from "antd";
 import ContentContainer from "component/container/content.container";
 import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { StyledComponent } from "./style";
@@ -14,10 +14,20 @@ import { generateQuery } from "utils/AppUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import { PageResponse } from "model/base/base-metadata.response";
 import DailyRevenueTableComponent from "../components/DailyRevenueTable";
-import { confirmPayMoneyDailyRevenueService, getDailyRevenueService } from "service/daily-revenue";
+import {
+  confirmPayMoneyDailyRevenueService,
+  getDailyRevenueService,
+  refreshDailyRevenueService,
+} from "service/daily-revenue";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { AccountResponse } from "model/account/account.model";
-import { UploadOutlined } from "@ant-design/icons";
+import {
+  CheckCircleOutlined,
+  ExclamationCircleOutlined,
+  LoadingOutlined,
+  UploadOutlined,
+  WarningOutlined,
+} from "@ant-design/icons";
 import { showError, showModalError, showModalSuccess, showModalWarning } from "utils/ToastUtils";
 import { MenuAction } from "component/table/ActionButton";
 import { DAILY_REVENUE_IMPORT } from "utils/Constants";
@@ -25,11 +35,14 @@ import queryString from "query-string";
 import useAuthorization from "hook/useAuthorization";
 import { DAILY_REVENUE_PERMISSIONS } from "config/permissions/daily-revenue.permission";
 import DailyRevenueExport from "../components/DailyRevenueExport";
+import { dailyRevenueService } from "service/order/daily-revenue.service";
+import { dailyRevenueStatus } from "../helper";
 
 type Props = { location: any };
 
 const ACTION_ID = {
   PAYMENT_CONFIRM: 1,
+  REVENUE_UPDATE: 2,
 };
 
 let itemResult: DailyRevenueTableModel[] = [];
@@ -75,6 +88,7 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
   });
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>([]);
+  const [selectedRow, setSelectedRow] = useState<DailyRevenueTableModel[]>([]);
 
   const [visibleExport, setVisibleExport] = useState<boolean>(false);
 
@@ -101,9 +115,19 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
         name: "Xác nhận nộp tiền",
         disabled: selectedRowKeys.length === 0 || !allowDailyPaymentsConfirm ? true : false,
       },
+      {
+        id: ACTION_ID.REVENUE_UPDATE,
+        name: "Cập nhật doanh thu",
+        disabled: selectedRowKeys.length === 0,
+      },
     ],
     [selectedRowKeys, allowDailyPaymentsConfirm],
   );
+
+  const clearSelectRow = () => {
+    setSelectedRowKeys([]);
+    setSelectedRow([]);
+  };
 
   const onFilter = useCallback(
     (values: any) => {
@@ -113,6 +137,7 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
       if (currentParam !== queryParam) {
         history.replace(`${UrlConfig.DAILY_REVENUE}?${queryParam}`);
         setPrams({ ...newPrams });
+        clearSelectRow();
       }
     },
     [history, params],
@@ -123,6 +148,32 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
     let queryParam = generateQuery(initQueryDefault);
     history.replace(`${UrlConfig.DAILY_REVENUE}?${queryParam}`);
   }, [history]);
+
+  const fetchData = useCallback((dataQuery: RevenueSearchQuery) => {
+    setTableLoading(true);
+    setPrams(dataQuery);
+    getDailyRevenueService(dataQuery)
+      .then((response) => {
+        if (response.status === 200) {
+          const totalData = Number(response.headers["x-total-count"]);
+          setData({
+            metadata: {
+              limit: dataQuery.limit || 30,
+              page: dataQuery.page || 1,
+              total: totalData,
+            },
+            items: response.data,
+          });
+          setTableLoading(false);
+        } else {
+          showError(`Danh sách tổng kết ca: ${response?.data?.message}`);
+        }
+      })
+      .catch()
+      .finally(() => {
+        setTableLoading(false);
+      });
+  }, []);
 
   const setDataAccounts = (data: PageResponse<AccountResponse> | false) => {
     if (!data) {
@@ -177,6 +228,92 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
     })();
   }, [data, selectedRowKeys]);
 
+  const setModalMessage = (
+    modal: any,
+    type: "success" | "warning",
+    content: JSX.Element,
+    okDisabled?: boolean,
+  ) => {
+    modal.update({
+      title: type === "success" ? "Thông báo" : type === "warning" ? "Cảnh báo" : null,
+      icon:
+        type === "success" ? (
+          <CheckCircleOutlined />
+        ) : type === "warning" ? (
+          <WarningOutlined />
+        ) : null,
+      type: type,
+      content: content,
+      okButtonProps: {
+        disabled: okDisabled,
+      },
+    });
+  };
+
+  const handleRevenueUpdate = useCallback(() => {
+    (() => {
+      let success = 0;
+      let error: string[] = [];
+      setTableLoading(true);
+      const draffData = selectedRowKeys.filter((p) =>
+        selectedRow.some((p1) => p1.id === p && p1.state === dailyRevenueStatus.draft.value),
+      );
+      const modal = Modal.success({});
+
+      const handleCallRefresh = (i: number) => {
+        const v = draffData[i];
+        refreshDailyRevenueService(v)
+          .then((response) => {
+            if (response?.status && response?.status !== 200) {
+              error.push(` Mã phiếu ${v}: cập nhật doanh thu thất bại`);
+            } else {
+              success += 1;
+            }
+
+            if (error.length === 0) {
+              setModalMessage(
+                modal,
+                "success",
+                <>
+                  Cập nhật doanh thu thành công {success}/{draffData.length}
+                </>,
+                draffData.length - 1 > i,
+              );
+            } else {
+              setModalMessage(
+                modal,
+                "warning",
+                <div className="yody-modal">
+                  <p>
+                    Cập nhật doanh thu thành công{" "}
+                    <b>
+                      {success}/{draffData.length}
+                    </b>
+                  </p>
+                  <div className="notification-detail">
+                    {error.map((p: any) => (
+                      <p>{p}</p>
+                    ))}
+                  </div>
+                </div>,
+                draffData.length - 1 > i,
+              );
+            }
+
+            if (draffData.length - 1 > i) {
+              handleCallRefresh(i + 1);
+            } else {
+              setTableLoading(false);
+              fetchData({ ...params });
+            }
+          })
+          .catch(() => {});
+      };
+
+      handleCallRefresh(0);
+    })();
+  }, [selectedRowKeys, selectedRow, fetchData, params]);
+
   const menuActionClick = useCallback(
     (id: number) => {
       if (selectedRowKeys.length === 0) {
@@ -194,11 +331,52 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
           }
           handlePaymentConfirm();
           break;
+        case ACTION_ID.REVENUE_UPDATE:
+          const notDraffData = selectedRow.filter(
+            (p) => p.state !== dailyRevenueStatus.draft.value,
+          );
+          if (notDraffData.length !== 0) {
+            Modal.confirm({
+              title: "Cảnh báo",
+              icon: <ExclamationCircleOutlined />,
+              content: (
+                <div className="yody-modal">
+                  <p>
+                    Không thể cập nhật doanh thu cho phiếu không ở trạng thái <b>MỚI</b>
+                  </p>
+                  <p>
+                    Không hợp lệ ({notDraffData.length}/{selectedRow.length})
+                  </p>
+                </div>
+              ),
+              okText: "Tiếp tục",
+              okType: "primary",
+              cancelText: "Đóng",
+              okButtonProps: {
+                disabled: notDraffData.length === selectedRowKeys.length,
+              },
+              onOk() {
+                handleRevenueUpdate();
+              },
+              onCancel() {
+                console.log("Cancel");
+              },
+            });
+            return;
+          }
+          handleRevenueUpdate();
+          break;
         default:
           break;
       }
     },
-    [handlePaymentConfirm, selectedRowKeys.length, allowDailyPaymentsConfirm],
+    [
+      handlePaymentConfirm,
+      handleRevenueUpdate,
+      selectedRowKeys.length,
+      allowDailyPaymentsConfirm,
+      selectedRow,
+    ],
   );
 
   useEffect(() => {
@@ -234,31 +412,9 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
       limit: paramDefault?.limit ? Number(paramDefault.limit) : initQueryDefault.limit,
       page: paramDefault?.page ? Number(paramDefault.page) : initQueryDefault.page,
     };
-    setTableLoading(true);
-    setPrams(dataQuery);
-    getDailyRevenueService(dataQuery)
-      .then((response) => {
-        if (response.status === 200) {
-          const totalData = Number(response.headers["x-total-count"]);
-          setData({
-            metadata: {
-              limit: dataQuery.limit || 30,
-              page: dataQuery.page || 1,
-              total: totalData,
-            },
-            items: response.data,
-          });
-          setTableLoading(false);
-        } else {
-          showError(`Danh sách tổng kết ca: ${response?.data?.message}`);
-        }
-      })
-      .catch()
-      .finally(() => {
-        setTableLoading(false);
-      });
+    fetchData(dataQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [history, location.search]);
+  }, [history, location.search, fetchData]);
 
   return (
     <ContentContainer
@@ -323,6 +479,8 @@ const DailyRevenueListScreen: React.FC<Props> = (props: Props) => {
             stores={stores}
             selectedRowKeys={selectedRowKeys}
             setSelectedRowKeys={setSelectedRowKeys}
+            setSelectedRow={setSelectedRow}
+            selectedRow={selectedRow}
           />
         </Card>
         <DailyRevenueExport

@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import {
   borderColor,
+  borderRadius,
   dangerColor,
   primaryColor,
   successColor,
@@ -135,7 +136,7 @@ export const StyledComponent = styled.div`
       text-align: right;
       button {
         &:not(:last-child) {
-          margin-right: 15px;
+          margin-right: 10px;
         }
       }
     }
@@ -154,6 +155,33 @@ export const StyledComponent = styled.div`
     color: ${dangerColor};
     path {
       fill: ${dangerColor};
+    }
+  }
+
+  .ant-upload-list-picture-card-container {
+    margin: 0 12px 12px 0;
+  }
+  .ant-image {
+    padding: 5px;
+    border-radius: ${borderRadius};
+    border: 1px solid ${borderColor};
+    width: 104px;
+    height: 104px;
+    .ant-image-img {
+      width: 94px;
+      height: 94px;
+      object-fit: cover;
+    }
+  }
+  .gallery {
+    .single {
+      display: inline-block;
+      margin-right: 15px;
+      vertical-align: top;
+      margin-bottom: 10px;
+    }
+    .ant-form-item {
+      margin-bottom: 0;
     }
   }
 `;

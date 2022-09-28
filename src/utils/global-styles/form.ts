@@ -1,5 +1,5 @@
 import { css } from "styled-components";
-import { dangerColor } from "./variables";
+import { dangerColor, primaryColor } from "./variables";
 
 export const globalCssCustomForm = css`
   .ant-form label {
@@ -20,5 +20,8 @@ export const globalCssCustomForm = css`
     right: -10px;
     top: -4px;
     content: "*";
+  }
+  .ant-form-item-label label .ant-form-item-tooltip {
+    color: ${primaryColor};
   }
 `;

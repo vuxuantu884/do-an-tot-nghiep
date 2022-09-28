@@ -275,9 +275,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     OrderDetail,
   );
 
-  const currentStores = useSelector(
-    (state: RootReducerType) => state.userReducer.account?.account_stores,
-  );
+  const currentStores = useFetchStores();
 
   const [isShowReceiveProductConfirmModal, setIsShowReceiveProductConfirmModal] = useState(false);
 

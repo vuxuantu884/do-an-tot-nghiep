@@ -233,6 +233,7 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
           variant_id: lineItem.variant_id,
           variant_image: lineItem.variant_image,
           id: uuidv4() + index.toString(),
+          percent: procurement.percent,
         };
       });
       if (procurement.status !== ProcurementStatus.draft) {

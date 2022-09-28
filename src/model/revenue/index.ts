@@ -25,6 +25,8 @@ export interface RevenueSearchQuery {
   other_payment_max?: number | null;
   total_payment_min?: number | null;
   total_payment_max?: number | null;
+  update_at_min?: string | Moment | null;
+  update_at_max?: string | Moment | null;
 }
 
 export interface DailyRevenueTableModel extends BaseObject {

@@ -41,7 +41,7 @@ function useFetchTotalSaleCanceled() {
         accumulateSalesCanceled += Number(value[1] || 0);
 
         // Doanh thu online hôm nay
-        if (moment(value[0]).format(DATE_FORMAT.YYYYMMDD) === today) {
+        if (moment.parseZone(value[0]).utc(true).format(DATE_FORMAT.YYYYMMDD) === today) {
           salesCanceledToday += Number(value[1]);
         }
       });

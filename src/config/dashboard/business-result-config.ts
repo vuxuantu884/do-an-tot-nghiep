@@ -144,8 +144,8 @@ export const BUSINESS_RESULT_SUCCESS_RATE_MONTH_QUERY: AnalyticSampleQuery = {
     conditions: [["sale_area", "==", ReportDatavalue.KD_ONLINE]],
     from:
       moment().subtract(4, "days").date() >= 26
-        ? `${moment().year()}-${moment().month()}-26`
-        : `${moment().year()}-${moment().month() - 1}-26`,
+        ? `${moment().year()}-${moment().month() + 1}-26`
+        : `${moment().year()}-${moment().month()}-26`,
     to: moment().subtract(4, "days").format(DATE_FORMAT.YYYYMMDD),
   },
   options: `time:"created_at"`,
