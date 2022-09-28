@@ -59,11 +59,10 @@ function* configSmsMessageSaga(action: YodyAction) {
     if (isFetchApiSuccessful(response)) {
       handleData(response.data);
     } else {
-      yield put(fetchApiErrorAction(response, "Cấu hình SMS phát sinh hóa đơn bán lẻ"));
+      yield put(fetchApiErrorAction(response, "Cấu hình gửi tin sms"));
     }
   } catch (error) {
     console.log("error", error);
-    showError("Có lỗi api Cấu hình SMS phát sinh hóa đơn bán lẻ!");
   } finally {
     yield put(hideLoading());
   }

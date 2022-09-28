@@ -10,10 +10,11 @@ import OrderThresholdIssueTypeForm from "./issue-type-order-threshold-form";
 const { Option } = Select;
 interface Props {
   form: FormInstance;
+  isSetFormValues?: boolean;
 }
 
 function IssueForm(props: Props): ReactElement {
-  const { form } = props;
+  const { form, isSetFormValues } = props;
   const { priceRuleData } = useContext(IssueContext);
   return (
     <div>
@@ -80,7 +81,7 @@ function IssueForm(props: Props): ReactElement {
             </Form.Item>
           </Col>
           <Col span={24}>
-            <OrderThresholdIssueTypeForm form={form} />
+            <OrderThresholdIssueTypeForm form={form} isSetFormValues={isSetFormValues} />
           </Col>
           <Col span={24}></Col>
         </Row>

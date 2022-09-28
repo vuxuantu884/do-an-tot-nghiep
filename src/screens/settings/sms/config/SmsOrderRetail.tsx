@@ -102,7 +102,7 @@ const SmsOrderRetail: React.FC = () => {
   const handleSmsConfigData = useCallback(
     (data: any) => {
       if (data) {
-        const messages = JSON.parse(data.messages);
+        const messages = data.messages?.find((item: any) => item.type === "OFFLINE");
         setMessageStatus(data.retail_offline_msg_status === "ACTIVE");
 
         const unsentStoreList = data.unsent_sms_store_ids?.split(",");
@@ -115,7 +115,7 @@ const SmsOrderRetail: React.FC = () => {
 
         const initFormValue = {
           sent_sms_store_ids: sentStoreList,
-          retail_offline_message: messages?.retail_offline_message,
+          retail_offline_message: messages?.content,
           retail_offline_msg_status: data.retail_offline_msg_status,
         };
         setInitValue(initFormValue);
@@ -209,11 +209,11 @@ const SmsOrderRetail: React.FC = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Cài đặt gửi tin",
-          path: UrlConfig.SMS_SETTINGS,
+          name: "Cài đặt",
         },
         {
-          name: "Notifications",
+          name: "Cài đặt gửi tin",
+          path: UrlConfig.SMS_SETTINGS,
         },
         {
           name: "Phát sinh hóa đơn bán lẻ",
@@ -230,7 +230,6 @@ const SmsOrderRetail: React.FC = () => {
           >
             <Card title="SMS">
               <Form.Item
-                name="retail_offline_msg_status"
                 label={<b>Trạng thái:</b>}
                 className={"action-status"}
               >
