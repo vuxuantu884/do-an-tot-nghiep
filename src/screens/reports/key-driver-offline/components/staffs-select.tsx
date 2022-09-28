@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { strForSearch } from "utils/StringUtils";
 import { keyDriverOfflineTemplateData } from "../constant/key-driver-offline-template-data";
-import { KDOfflineStoresContext } from "../provider/kd-offline-stores-provider";
+import { KDOfflineContext } from "../provider/kd-offline-provider";
 interface Props extends SelectProps<number> {
   asmName: string;
   storeName: string;
@@ -22,7 +22,7 @@ function StaffsSelect(props: Props): ReactElement {
   const { asmName, storeName } = props;
   const dispatch = useDispatch();
   const { setSelectedAsm, setSelectedStores, setSelectedStaffs, setData } =
-    useContext(KDOfflineStoresContext);
+    useContext(KDOfflineContext);
   const [listStores, setStores] = useState<Array<StoreResponse>>([]);
   const [staffs, setStaffs] = useState<AccountResponse[]>([]);
 

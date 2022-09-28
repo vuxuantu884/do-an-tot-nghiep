@@ -187,4 +187,14 @@ export const KeyDriverOfflineStyle = styled.div`
       background: #fff;
     }
   }
+
+  .hidden-row {
+    display: none;
+  }
+
+  .hidden-button {
+    .ant-table-row-expand-icon {
+      visibility: hidden;
+    }
+  }
 `;

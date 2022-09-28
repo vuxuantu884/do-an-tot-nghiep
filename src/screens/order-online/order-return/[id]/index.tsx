@@ -636,10 +636,9 @@ const ScreenReturnDetail = (props: PropTypes) => {
               />
               <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} editNote={editNote} />
             </Col>
-            <ReturnDetailBottom
-              onOk={onDeleteReturn}
-              hiddenButtonRemove={allowDeleteOrderReturn}
-            ></ReturnDetailBottom>
+            {allowDeleteOrderReturn && (
+              <ReturnDetailBottom onOk={onDeleteReturn}></ReturnDetailBottom>
+            )}
           </Row>
         </div>
       </ContentContainer>

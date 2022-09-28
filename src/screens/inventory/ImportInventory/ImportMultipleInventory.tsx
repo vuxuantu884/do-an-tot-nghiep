@@ -51,6 +51,7 @@ import { Link } from "react-router-dom";
 import Dragger from "antd/es/upload/Dragger";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import * as XLSX from "xlsx";
+import { AccountStoreResponse } from "../../../model/account/account.model";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -712,7 +713,13 @@ const ImportMultipleInventory: FC = () => {
                         return false;
                       }}
                     >
-                      {stores.map((item, index) => (
+                      {myStores.length > 0 ? myStores?.map((store: AccountStoreResponse) =>
+                        store?.store_id ? (
+                          <Select.Option value={store.store_id} key={"store_id" + store.store_id}>
+                            {store.store}
+                          </Select.Option>
+                        ) : null,
+                      ) : stores.map((item, index) => (
                         <Option key={"store_id" + index} value={item.id.toString()}>
                           {item.name}
                         </Option>
