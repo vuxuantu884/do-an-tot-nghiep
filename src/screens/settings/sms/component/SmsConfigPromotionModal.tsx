@@ -140,6 +140,16 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
         }
       );
     }
+
+    if (smsType === "ONLINE_ORDER") {
+      _keywordList.splice(0, 0,
+        {
+          name: "Nguồn",
+          key: "sources",
+          value: "{sources}",
+        }
+      );
+    }
     return _keywordList;
   }, [smsType]);
 

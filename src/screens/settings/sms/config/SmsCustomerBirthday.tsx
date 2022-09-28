@@ -156,7 +156,7 @@ const SmsCustomerBirthday: React.FC = () => {
   const [customerRankList, setCustomerRankList] = useState<Array<LoyaltyUsageResponse>>([]);
   const [customerGroupList, setCustomerGroupList] = useState<Array<any>>([]);
   const [storeList, setStoreList] = useState<Array<StoreResponse>>([]);
-  
+
   useEffect(() => {
     dispatch(getLoyaltyUsage(setCustomerRankList));
     dispatch(CustomerGroups(setCustomerGroupList));
@@ -423,7 +423,6 @@ const SmsCustomerBirthday: React.FC = () => {
           >
             <Card>
               <Form.Item
-                name="birthday_msg_status"
                 label={<b>Trạng thái:</b>}
                 className={"action-status"}
               >
