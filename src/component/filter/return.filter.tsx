@@ -1059,7 +1059,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
                   </Col>
                 )}
                 {orderType === ORDER_TYPES.online && (
-                  <Col span={8} xxl={8}>
+                  <Col span={8} xxl={8} hidden>
                     <Item name="returned_store_ids" label="Kho nhận">
                       <CustomSelect
                         mode="multiple"

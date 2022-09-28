@@ -1,7 +1,6 @@
 import { Button, Card, Row, Select, Spin } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 import { StoreResponse } from "model/core/store.model";
@@ -13,7 +12,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { getListStore } from "service/core/store.service";
 import { getDailyRevenueService } from "service/daily-revenue";
-import { DATE_FORMAT } from "utils/DateUtils";
 import { StyledComponent } from "./style";
 
 let initQueryDefault: RevenueSearchQuery = {
@@ -117,7 +115,7 @@ const DailyRevenueToday: React.FC = () => {
                   }
                   onChange={(value) => {
                     console.log(value);
-                    setStoreId(Number(value));
+                    setStoreId(value ? Number(value) : undefined);
                   }}
                 >
                   {listStores && listStores.length !== 0
