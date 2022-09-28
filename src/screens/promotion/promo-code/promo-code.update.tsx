@@ -251,7 +251,7 @@ const PromoCodeUpdate = () => {
       setIsAllChannel(result.prerequisite_sales_channel_names?.length === 0);
       setIsAllSource(result.prerequisite_order_source_ids?.length === 0);
 
-      setIsAllCustomer(result.customer_selection.toLocaleUpperCase() === "ALL");
+      setIsAllCustomer(result.customer_selection?.toLocaleUpperCase() === "ALL");
 
       form.setFieldsValue(formValue);
     },

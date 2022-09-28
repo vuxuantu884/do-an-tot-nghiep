@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { dangerColor, primaryColor } from "utils/global-styles/variables";
 
 export const StyledSmsSetting = styled.div`
   .sms-settings {
@@ -23,6 +24,19 @@ export const StyledSmsSetting = styled.div`
       }
     }
   }
+  
+  .sms-action-setting {
+    .message-content {
+      padding: 0 !important;
+      div {
+        padding: 12px;
+      }
+      div:not(:last-child) {
+        border-bottom: 1px solid #ddd;
+      }
+    }
+  }
+  
 `;
 
 export const StyledSmsConfigMessage = styled.div`
@@ -42,9 +56,40 @@ export const StyledSmsConfigMessage = styled.div`
           margin: 0 10px;
         }
       }
+
+      .sms-content {
+        margin: 20px 0;
+        .warning-border {
+          border: 1px solid red;
+        }
+      }
+
+      .sms-form-footer {
+        display: flex;
+        justify-content: space-between;
+        .add-button {
+          border: 1px solid ${primaryColor};
+          color: ${primaryColor};
+          &:hover {
+            font-weight: bold;
+            background: #F3F3FF;
+          }
+        }
+        .delete-button {
+          border: 1px solid ${dangerColor};
+          color: ${dangerColor};
+          &:hover {
+            font-weight: bold;
+            background: rgba(226, 67, 67, 0.1);
+          }
+        }
+      }
     }
     .key-word-list {
       flex-grow: 1;
+      position: sticky;
+      top: 75px;
+      height: fit-content;
       .key-word-item {
         display: flex;
         justify-content: space-between;
@@ -54,6 +99,32 @@ export const StyledSmsConfigMessage = styled.div`
           line-height: 32px;
         }
       }
+    }
+  }
+`;
+
+export const StyledPromotionModal = styled.div`
+  .promotion-modal-body {
+    height: 580px;
+    overflow: auto;
+    padding: 12px;
+  }
+
+  .key-word {
+    button {
+      background: #F3F3FF;
+      border: 1px solid ${primaryColor};
+      border-radius: 2px;
+      color: ${primaryColor};
+      &:hover {
+        font-weight: bold;
+      }
+    }
+  }
+  
+  .promotion-form-item {
+    .ant-row {
+      display: block;
     }
   }
 `;

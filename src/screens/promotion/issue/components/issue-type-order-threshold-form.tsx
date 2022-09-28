@@ -1,6 +1,6 @@
 import { Checkbox, Col, Form, Input, InputNumber, Row, Select } from "antd";
 import { FormInstance } from "antd/es/form/Form";
-import React, { ReactElement, useContext } from "react";
+import React, { ReactElement, useContext, useEffect, useState } from "react";
 import {
   DiscountUnitType,
   MAX_FIXED_DISCOUNT_VALUE,
@@ -12,19 +12,26 @@ import { IssueContext } from "./issue-provider";
 
 interface Props {
   form: FormInstance;
+  isSetFormValues?: boolean;
 }
 
 function OrderThresholdIssueTypeForm(props: Props): ReactElement {
-  const { form } = props;
+  const { form, isSetFormValues } = props;
   const { isLimitUsage, isLimitUsagePerCustomer, setIsLimitUsage, setIsLimitUsagePerCustomer } =
     useContext(IssueContext);
 
-  const checkIsPercentUnit = () => {
-    return (
-      form.getFieldValue([PRICE_RULE_FIELDS.rule, PRICE_RULE_FIELDS.value_type]) ===
-      DiscountUnitType.PERCENTAGE.value
-    );
-  };
+  const [isPercentUnit, setIsPercentUnit] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (isSetFormValues) {
+      const priceRuleValueType = form.getFieldValue([PRICE_RULE_FIELDS.rule, PRICE_RULE_FIELDS.value_type]);
+      if (priceRuleValueType === DiscountUnitType.PERCENTAGE.value) {
+        setIsPercentUnit(true);
+      } else {
+        setIsPercentUnit(false);
+      }
+    }
+  }, [form, isSetFormValues]);
 
   return (
     <div>
@@ -47,7 +54,7 @@ function OrderThresholdIssueTypeForm(props: Props): ReactElement {
                   },
                   () => ({
                     validator(_, value) {
-                      if (checkIsPercentUnit()) {
+                      if (isPercentUnit) {
                         if (typeof value === "number" && value <= 0) {
                           return Promise.reject("Giá trị khuyến mại phải lớn hơn 0");
                         } else if (value > 100) {
@@ -71,11 +78,12 @@ function OrderThresholdIssueTypeForm(props: Props): ReactElement {
                 noStyle
               >
                 <NumberInput
+                  id={[PRICE_RULE_FIELDS.rule, PRICE_RULE_FIELDS.value].join("")}
                   style={{ width: "calc(100% - 70px)", textAlign: "left" }}
                   format={(a: string) => formatCurrency(a)}
                   replace={(a: string) => replaceFormatString(a)}
                   placeholder="Nhập giá trị khuyến mại"
-                  maxLength={checkIsPercentUnit() ? 3 : 11}
+                  maxLength={isPercentUnit ? 3 : 11}
                   minLength={0}
                 />
               </Form.Item>
@@ -86,8 +94,10 @@ function OrderThresholdIssueTypeForm(props: Props): ReactElement {
                     form.setFieldsValue({
                       [PRICE_RULE_FIELDS.rule]: {
                         value: 0,
+                        value_type: value
                       },
                     });
+                    setIsPercentUnit(value === DiscountUnitType.PERCENTAGE.value);
                   }}
                 >
                   <Select.Option

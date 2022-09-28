@@ -35,6 +35,8 @@ function IssueUpdate(props: Props): ReactElement {
   const [isAllSource, setIsAllSource] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [isSetFormValues, setIsSetFormValues] = useState<boolean>(false);
+
   const [loading, setLoading] = useState(true);
   const { setPriceRuleData, setIsLimitUsage, setIsLimitUsagePerCustomer } =
     useContext(IssueContext);
@@ -97,8 +99,10 @@ function IssueUpdate(props: Props): ReactElement {
       setIsAllChannel(result.prerequisite_sales_channel_names?.length === 0);
       setIsAllSource(result.prerequisite_order_source_ids?.length === 0);
 
-      setIsAllCustomer(result.customer_selection.toLocaleUpperCase() === "ALL");
+      setIsAllCustomer(result.customer_selection?.toLocaleUpperCase() === "ALL");
       setPriceRuleData(formValue);
+
+      setIsSetFormValues(true);
       form.setFieldsValue(formValue);
     },
     [form, setPriceRuleData, setIsLimitUsage, setIsLimitUsagePerCustomer],
@@ -153,7 +157,7 @@ function IssueUpdate(props: Props): ReactElement {
         <Form form={form} name="discount_add" onFinish={onFinish} layout="vertical">
           <Row gutter={24}>
             <Col span={18}>
-              <IssueForm form={form} />
+              <IssueForm form={form} isSetFormValues={isSetFormValues} />
             </Col>
             <Col span={6}>
               <GeneralConditionForm

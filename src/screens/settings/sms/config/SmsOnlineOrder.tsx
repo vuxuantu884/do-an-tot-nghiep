@@ -74,11 +74,11 @@ const SmsOnlineOrder: React.FC = () => {
   const handleSmsConfigData = useCallback(
     (data: any) => {
       if (data) {
-        const messages = JSON.parse(data.messages);
+        const messages = data.messages?.find((item: any) => item.type === "ONLINE");
         setMessageStatus(data.online_order_msg_status === "ACTIVE");
         const channelIds = data.sent_channel_ids?.split(",")?.map((item: any) => Number(item));
         const initFormValue = {
-          online_order_message: messages?.online_order_message,
+          online_order_message: messages?.content,
           online_order_msg_status: data.online_order_msg_status,
           sent_channel_ids: channelIds,
         };
@@ -135,7 +135,6 @@ const SmsOnlineOrder: React.FC = () => {
 
   // handle submit form
   const handleSubmitForm = (value: any) => {
-    debugger
     const requestParams = {
       sent_channel_ids: value.sent_channel_ids.toString(),
       messages: {
@@ -191,7 +190,6 @@ const SmsOnlineOrder: React.FC = () => {
           >
             <Card title="SMS">
               <Form.Item
-                name="online_order_msg_status"
                 label={<b>Trạng thái:</b>}
                 className={"action-status"}
               >
