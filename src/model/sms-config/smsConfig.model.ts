@@ -27,3 +27,7 @@ export interface smsFormBirthDay {
   discount_code_prefix: string | null;
   discount_code_suffix: string | null;
 }
+
+export interface smsFormOrderOnline extends smsFormBirthDay {
+  source_ids: Array<number>;
+}
