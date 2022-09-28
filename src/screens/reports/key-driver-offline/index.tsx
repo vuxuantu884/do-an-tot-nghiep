@@ -9,7 +9,7 @@ import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { debounce } from "lodash";
-import { KeyDriverField, KeyDriverTarget, LocalStorageKey } from "model/report";
+import { KeyDriverDimension, KeyDriverField, KeyDriverTarget, LocalStorageKey } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -37,18 +37,17 @@ import {
 import useFetchProfit from "./hooks/profit/useFetchProfit";
 import useFetchCallLoyalty from "./hooks/useFetchCallLoyalty";
 import useFetchCustomerVisitors from "./hooks/useFetchCustomerVisitors";
+import useFetchFollowFanpage from "./hooks/useFetchFollowFanpage";
 import useFetchKDOfflineTotalSales from "./hooks/useFetchKDOfflineTotalSales";
+import useFetchKDTargetDay from "./hooks/useFetchKDTargetDay";
 import useFetchKeyDriverTarget from "./hooks/useFetchKeyDriverTarget";
-import useFetchKeyDriverTargetDay from "./hooks/useFetchKeyDriverTargetDay";
 import useFetchOfflineOnlineTotalSales from "./hooks/useFetchOfflineOnlineTotalSales";
 import useFetchOfflineTotalSalesLoyalty from "./hooks/useFetchOfflineTotalSalesLoyalty";
 import useFetchOfflineTotalSalesPotential from "./hooks/useFetchOfflineTotalSalesPotential";
 import useFetchProductTotalSales from "./hooks/useFetchProductTotalSales";
 import useFetchSmsLoyalty from "./hooks/useFetchSmsLoyalty";
 import { KeyDriverOfflineStyle } from "./index.style";
-import KeyDriverOfflineProvider, {
-  KeyDriverOfflineContext,
-} from "./provider/key-driver-offline-provider";
+import KDOfflineProvider, { KDOfflineContext } from "./provider/kd-offline-provider";
 
 type RowData = {
   name: string;
@@ -88,7 +87,7 @@ const baseColumns: any = [
 ];
 
 function CellInput(props: RowRender) {
-  const { setKDTarget } = useContext(KeyDriverOfflineContext);
+  const { setKDTarget } = useContext(KDOfflineContext);
   const { onChange, record, value, type, time, suffix } = props;
   const { key } = record;
 
@@ -150,22 +149,23 @@ function KeyDriverOffline() {
   const day = date
     ? moment(date).format(DATE_FORMAT.DDMMYYY)
     : moment().format(DATE_FORMAT.DDMMYYY);
+  const { Asm } = KeyDriverDimension;
   const { path: matchPath } = useRouteMatch();
   const [finalColumns, setFinalColumns] = useState<ColumnsType<any>>([]);
   const [loadingPage, setLoadingPage] = useState<boolean | undefined>();
-  const { isFetchingKeyDriverTarget, refetch } = useFetchKeyDriverTarget();
-  const { isFetchingKDOfflineTotalSales } = useFetchKDOfflineTotalSales();
-  const { isFetchingOfflineTotalSalesLoyalty } = useFetchOfflineTotalSalesLoyalty();
-  const { isFetchingCustomerVisitors } = useFetchCustomerVisitors();
-  const { isFetchingOfflineOnlineTotalSales } = useFetchOfflineOnlineTotalSales();
+  const { isFetchingKeyDriverTarget, refetch } = useFetchKeyDriverTarget(Asm);
+  const { isFetchingKDOfflineTotalSales } = useFetchKDOfflineTotalSales(Asm);
+  const { isFetchingOfflineTotalSalesLoyalty } = useFetchOfflineTotalSalesLoyalty(Asm);
+  const { isFetchingCustomerVisitors } = useFetchCustomerVisitors(Asm);
+  const { isFetchingOfflineOnlineTotalSales } = useFetchOfflineOnlineTotalSales(Asm);
   const { isFetchingProductTotalSales } = useFetchProductTotalSales();
-  const { isFetchingOfflineTotalSalesPotential } = useFetchOfflineTotalSalesPotential();
-  const { isFetchingCallLoyalty } = useFetchCallLoyalty();
-  const { isFetchingSmsLoyalty } = useFetchSmsLoyalty();
-  const { isFetchingProfit } = useFetchProfit();
-  const { isFetchingKeyDriverTargetDay, refetch: refetchTargetDay } = useFetchKeyDriverTargetDay();
-  const { data, kdTarget, setData, setSelectedDate, selectedDate } =
-    useContext(KeyDriverOfflineContext);
+  const { isFetchingOfflineTotalSalesPotential } = useFetchOfflineTotalSalesPotential(Asm);
+  const { isFetchingCallLoyalty } = useFetchCallLoyalty(Asm);
+  const { isFetchingSmsLoyalty } = useFetchSmsLoyalty(Asm);
+  const { isFetchingProfit } = useFetchProfit(Asm);
+  const { isFetchingKDTargetDay, refetch: refetchTargetDay } = useFetchKDTargetDay(Asm);
+  const { isFetchingFollowFanpage } = useFetchFollowFanpage(Asm);
+  const { data, kdTarget, setData, setSelectedDate, selectedDate } = useContext(KDOfflineContext);
   const dispatch = useDispatch();
   const [syncDataTime, setSyncDataTime] = useState<string>(
     moment().format(DATE_FORMAT.DD_MM_YY_HHmmss),
@@ -212,9 +212,10 @@ function KeyDriverOffline() {
       isFetchingProductTotalSales === false &&
       isFetchingOfflineTotalSalesPotential === false &&
       isFetchingCallLoyalty === false &&
-      isFetchingKeyDriverTargetDay === false &&
+      isFetchingKDTargetDay === false &&
       isFetchingSmsLoyalty === false &&
-      isFetchingProfit === false
+      isFetchingProfit === false &&
+      isFetchingFollowFanpage === false
     ) {
       setData((prev: any[]) => {
         prev.forEach((item: any, index) => {
@@ -245,7 +246,7 @@ function KeyDriverOffline() {
     isFetchingCustomerVisitors,
     isFetchingKDOfflineTotalSales,
     isFetchingKeyDriverTarget,
-    isFetchingKeyDriverTargetDay,
+    isFetchingKDTargetDay,
     isFetchingOfflineOnlineTotalSales,
     isFetchingOfflineTotalSalesLoyalty,
     isFetchingOfflineTotalSalesPotential,
@@ -254,6 +255,7 @@ function KeyDriverOffline() {
     isFetchingSmsLoyalty,
     selectedDate,
     setData,
+    isFetchingFollowFanpage,
   ]);
 
   const setObjectiveColumns = useCallback(
@@ -262,7 +264,7 @@ function KeyDriverOffline() {
       department: string,
       className: string = "department-name--secondary",
     ): ColumnGroupType<any> | ColumnType<any> => {
-      const { ProductTotalSales, Cost, Shipping } = KeyDriverField;
+      const { ProductTotalSales, Cost, Shipping, FollowFanpage } = KeyDriverField;
       return {
         title: department.toLowerCase().includes("tổng công ty") ? (
           department
@@ -413,7 +415,9 @@ function KeyDriverOffline() {
             dataIndex: `${departmentKey}_day`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return ![ProductTotalSales, Cost, Shipping].includes(record.key as KeyDriverField) ? (
+              return ![ProductTotalSales, Cost, Shipping, FollowFanpage].includes(
+                record.key as KeyDriverField,
+              ) ? (
                 <CellInput
                   value={text}
                   record={record}
@@ -585,9 +589,9 @@ function KeyDriverOffline() {
 
 const KeyDriverOfflineWithProvider = (props: any) => {
   return (
-    <KeyDriverOfflineProvider>
+    <KDOfflineProvider>
       <KeyDriverOffline {...props} />
-    </KeyDriverOfflineProvider>
+    </KDOfflineProvider>
   );
 };
 

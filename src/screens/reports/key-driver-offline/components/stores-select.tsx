@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { strForSearch } from "utils/StringUtils";
 import { keyDriverOfflineTemplateData } from "../constant/key-driver-offline-template-data";
-import { KDOfflineStoresContext } from "../provider/kd-offline-stores-provider";
+import { KDOfflineContext } from "../provider/kd-offline-provider";
 interface Props extends SelectProps<number> {
   asmName: string;
 }
@@ -18,7 +18,7 @@ function StoresSelect(props: Props): ReactElement {
   const { asmName } = props;
   const dispatch = useDispatch();
   const { setSelectedAsm, setSelectedStores, setData, selectedStoreRank, setSelectedAllStores } =
-    useContext(KDOfflineStoresContext);
+    useContext(KDOfflineContext);
   const [listStore, setStore] = useState<Array<StoreResponse>>([]);
 
   const handleOnChange = (stores: string[]) => {

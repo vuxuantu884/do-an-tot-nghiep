@@ -1,3 +1,5 @@
+import { TODAY } from "config/dashboard";
+import { ASM_LIST, KDOfflineTotalSalesParams, KeyDriverDimension } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -5,28 +7,37 @@ import { getKDOfflineProfit } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { showErrorReport } from "utils/ReportUtils";
-import { ASM_LIST } from "../../constant/key-driver-offline-template-data";
-import { KeyDriverOfflineContext } from "../../provider/key-driver-offline-provider";
+import { KDOfflineContext } from "../../provider/kd-offline-provider";
+import { calculateDimSummary } from "../../utils/DimSummaryUtils";
 import { findKDAndUpdateProfitKD } from "../../utils/ProfitKDUtils";
 
-function useFetchProfit() {
+function useFetchProfit(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedDate } = useContext(KeyDriverOfflineContext);
+  const { setData, selectedDate, selectedStores, selectedAsm } = useContext(KDOfflineContext);
 
   const [isFetchingProfit, setIsFetchingProfit] = useState<boolean | undefined>();
 
   const findKeyDriverAndUpdateValue = useCallback(
     (data: any, dimData: any, columnKey: string, keyDriver: string) => {
+      const { Asm, Store } = KeyDriverDimension;
+      let dimKey: "department_lv2" | "pos_location_name" | undefined;
+      if (dimension === Asm) {
+        dimKey = "department_lv2";
+      } else if (dimension === Store) {
+        dimKey = "pos_location_name";
+      } else {
+        dimKey = undefined;
+      }
       findKDAndUpdateProfitKD({
         data,
         dimData,
         columnKey,
         selectedDate,
-        dimKey: "department_lv2",
+        dimKey,
         keyDriver,
       });
     },
-    [selectedDate],
+    [dimension, selectedDate],
   );
 
   const calculateCompanyKeyDriver = useCallback((response) => {
@@ -45,11 +56,24 @@ function useFetchProfit() {
   const refetchProfit = useCallback(() => {
     const fetchProfit = async () => {
       setIsFetchingProfit(true);
+      const { Asm, Store, Staff } = KeyDriverDimension;
+      if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
+        return;
+      }
+      if (dimension === Staff) {
+        setIsFetchingProfit(false);
+        return;
+      }
+      const params: KDOfflineTotalSalesParams = {
+        from: TODAY,
+        to: TODAY,
+        posLocationNames: dimension === Asm ? [] : selectedStores,
+        departmentLv2s: dimension === Asm ? ASM_LIST : selectedAsm,
+      };
       const dayApi = callApiNative({ isShowError: true }, dispatch, getKDOfflineProfit, {
+        ...params,
         from: selectedDate,
         to: selectedDate,
-        posLocationNames: [],
-        departmentLv2s: ASM_LIST,
       });
       const { YYYYMMDD } = DATE_FORMAT;
       let monthApi: Promise<any>;
@@ -57,18 +81,16 @@ function useFetchProfit() {
         monthApi =
           moment(selectedDate, YYYYMMDD).date() > 1
             ? callApiNative({ isShowError: true }, dispatch, getKDOfflineProfit, {
+                ...params,
                 from: moment(selectedDate, YYYYMMDD).startOf("month").format(YYYYMMDD),
                 to: moment(selectedDate, YYYYMMDD).subtract(1, "days").format(YYYYMMDD),
-                posLocationNames: [],
-                departmentLv2s: ASM_LIST,
               })
             : Promise.resolve(0);
       } else {
         monthApi = callApiNative({ isShowError: true }, dispatch, getKDOfflineProfit, {
+          ...params,
           from: moment(selectedDate, YYYYMMDD).startOf("month").format(YYYYMMDD),
           to: moment(selectedDate, YYYYMMDD).format(YYYYMMDD),
-          posLocationNames: [],
-          departmentLv2s: ASM_LIST,
         });
       }
 
@@ -78,35 +100,52 @@ function useFetchProfit() {
           setIsFetchingProfit(false);
           return;
         }
-        const companyDayData = calculateCompanyKeyDriver(resDay);
-
+        let resDayDim: any[] = [];
+        const dimName = "";
+        if (resDay.length) {
+          if (dimension === Asm) {
+            const companyDayData = calculateCompanyKeyDriver(resDay);
+            resDayDim = [companyDayData, ...resDay];
+          } else {
+            resDayDim = calculateDimSummary(resDay[0], dimension, dimName);
+          }
+        }
         if (!resMonth?.length) {
           if (!resMonth && resMonth !== 0) {
             showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Cuộc gọi theo hạng khách hàng");
           }
-          setData((prev: any) => {
-            let dataPrev: any = prev[2];
-            [companyDayData, ...resDay].forEach((item: any) => {
+          if (resDay.length) {
+            setData((prev: any) => {
+              let dataPrev: any = prev[2];
+              resDayDim.forEach((item: any) => {
+                Object.keys(item).forEach((keyDriver) => {
+                  findKeyDriverAndUpdateValue(dataPrev, item, "actualDay", keyDriver);
+                });
+              });
+              prev[2] = dataPrev;
+              return [...prev];
+            });
+          }
+          setIsFetchingProfit(false);
+          return;
+        }
+        setData((prev: any) => {
+          let dataPrev: any = prev[2];
+          if (resDay.length) {
+            resDayDim.forEach((item: any) => {
               Object.keys(item).forEach((keyDriver) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay", keyDriver);
               });
             });
-            prev[2] = dataPrev;
-            return [...prev];
-          });
-          setIsFetchingProfit(false);
-          return;
-        }
-        const companyMonthData = calculateCompanyKeyDriver(resMonth);
-
-        setData((prev: any) => {
-          let dataPrev: any = prev[2];
-          [companyDayData, ...resDay].forEach((item: any) => {
-            Object.keys(item).forEach((keyDriver) => {
-              findKeyDriverAndUpdateValue(dataPrev, item, "actualDay", keyDriver);
-            });
-          });
-          [companyMonthData, ...resMonth].forEach((item: any) => {
+          }
+          let resMonthDim: any[] = [];
+          if (dimension === Asm) {
+            const companyMonthData = calculateCompanyKeyDriver(resMonth);
+            resMonthDim = [companyMonthData, ...resMonth];
+          } else {
+            resMonthDim = calculateDimSummary(resMonth[0], dimension, dimName);
+          }
+          resMonthDim.forEach((item: any) => {
             Object.keys(item).forEach((keyDriver) => {
               findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth", keyDriver);
             });
@@ -121,7 +160,16 @@ function useFetchProfit() {
     if (selectedDate) {
       fetchProfit();
     }
-  }, [calculateCompanyKeyDriver, dispatch, findKeyDriverAndUpdateValue, selectedDate, setData]);
+  }, [
+    calculateCompanyKeyDriver,
+    dimension,
+    dispatch,
+    findKeyDriverAndUpdateValue,
+    selectedAsm,
+    selectedDate,
+    selectedStores,
+    setData,
+  ]);
 
   useEffect(() => {
     refetchProfit();

@@ -131,6 +131,15 @@ export const getKDOfflineProfit = (
     params,
   });
 };
+
+export const getKDFollowFanpage = (
+  params: KDOfflineTotalSalesParams,
+): Promise<BaseResponse<any>> => {
+  return BaseAxiosApi.get(`${ApiConfig.OFFLINE_FOLLOW_FANPAGE}`, {
+    params,
+  });
+};
+
 /* keydriver offline api */
 
 /* keydriver online api */

@@ -2,7 +2,7 @@ import { KeyDriverTarget } from "model/report";
 import React from "react";
 import { keyDriverOfflineTemplateData } from "../constant/key-driver-offline-template-data";
 
-type KDOfflineStoresProviderValue = {
+type KDOfflineProviderValue = {
   data: any;
   setData: React.Dispatch<React.SetStateAction<any>>;
   kdTarget: KeyDriverTarget[];
@@ -21,11 +21,11 @@ type KDOfflineStoresProviderValue = {
   setSelectedAllStores: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export const KDOfflineStoresContext = React.createContext<KDOfflineStoresProviderValue>(
-  {} as KDOfflineStoresProviderValue,
+export const KDOfflineContext = React.createContext<KDOfflineProviderValue>(
+  {} as KDOfflineProviderValue,
 );
 
-function KDOfflineStoresProvider(props: { children: React.ReactNode }) {
+function KDOfflineProvider(props: { children: React.ReactNode }) {
   const [data, setData] = React.useState<any>(
     JSON.parse(JSON.stringify(keyDriverOfflineTemplateData)),
   );
@@ -38,7 +38,7 @@ function KDOfflineStoresProvider(props: { children: React.ReactNode }) {
   const [selectedAllStores, setSelectedAllStores] = React.useState<boolean>(true);
 
   return (
-    <KDOfflineStoresContext.Provider
+    <KDOfflineContext.Provider
       {...props}
       value={{
         data,
@@ -62,4 +62,4 @@ function KDOfflineStoresProvider(props: { children: React.ReactNode }) {
   );
 }
 
-export default KDOfflineStoresProvider;
+export default KDOfflineProvider;

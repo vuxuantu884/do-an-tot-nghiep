@@ -15,12 +15,12 @@ import {
   STORES_PRODUCT_TOTAL_SALES_DAY_QUERY,
   STORES_PRODUCT_TOTAL_SALES_MONTH_QUERY,
 } from "../config/key-driver-offline-asm-config";
-import { KDOfflineStoresContext } from "../provider/kd-offline-stores-provider";
+import { KDOfflineContext } from "../provider/kd-offline-provider";
 
 function useFetchStoresProductTotalSales(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
   const { setData, selectedStores, selectedAsm, selectedStaffs, selectedDate, selectedAllStores } =
-    useContext(KDOfflineStoresContext);
+    useContext(KDOfflineContext);
 
   const [isFetchingStoresProductTotalSales, setIsFetchingStoresProductTotalSales] = useState<
     boolean | undefined
