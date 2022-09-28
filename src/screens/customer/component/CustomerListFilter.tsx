@@ -30,6 +30,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { StyledCustomerBaseFilter, StyledCustomerFilter } from "screens/customer/customerStyled";
 // import { getSourcesWithParamsService } from "service/order/order.service";
 import {
+  convertItemToArray,
   formatCurrency,
   formatCurrencyNotDefaultValue,
   generateQuery,
@@ -284,45 +285,21 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
       // district_ids: districtIds,
       // ward_ids: wardIds,
 
-      city_ids: Array.isArray(params.city_ids)
-        ? params.city_ids.map((item: any) => Number(item))
-        : [Number(params.city_ids)],
-      district_ids: Array.isArray(params.district_ids)
-        ? params.district_ids.map((item: any) => Number(item))
-        : [Number(params.district_ids)],
-      ward_ids: Array.isArray(params.ward_ids)
-        ? params.ward_ids.map((item: any) => Number(item))
-        : [Number(params.ward_ids)],
+      city_ids: convertItemToArray(params.city_ids, "number"),
+      district_ids: convertItemToArray(params.district_ids, "number"),
+      ward_ids: convertItemToArray(params.ward_ids, "number"),
 
-      customer_group_ids: Array.isArray(params.customer_group_ids)
-        ? params.customer_group_ids
-        : [params.customer_group_ids],
-      customer_level_ids: Array.isArray(params.customer_level_ids)
-        ? params.customer_level_ids
-        : [params.customer_level_ids],
-      customer_type_ids: Array.isArray(params.customer_type_ids)
-        ? params.customer_type_ids
-        : [params.customer_type_ids],
-      assign_store_ids: Array.isArray(params.assign_store_ids)
-        ? params.assign_store_ids.map((item: any) => Number(item))
-        : [Number(params.assign_store_ids)],
-      channel_ids: Array.isArray(params.channel_ids) ? params.channel_ids : [params.channel_ids],
-      source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
-      source_of_first_order_online_ids: Array.isArray(params.source_of_first_order_online_ids)
-        ? params.source_of_first_order_online_ids.map((i: any) => Number(i))
-        : [Number(params.source_of_first_order_online_ids)],
-      source_of_last_order_online_ids: Array.isArray(params.source_of_last_order_online_ids)
-        ? params.source_of_last_order_online_ids.map((i: any) => Number(i))
-        : [Number(params.source_of_last_order_online_ids)],
-      store_ids: Array.isArray(params.store_ids)
-        ? params.store_ids.map((item: any) => Number(item))
-        : [Number(params.store_ids)],
-      store_of_first_order_offline_ids: Array.isArray(params.store_of_first_order_offline_ids)
-        ? params.store_of_first_order_offline_ids.map((item: any) => Number(item))
-        : [Number(params.store_of_first_order_offline_ids)],
-      store_of_last_order_offline_ids: Array.isArray(params.store_of_last_order_offline_ids)
-        ? params.store_of_last_order_offline_ids.map((item: any) => Number(item))
-        : [Number(params.store_of_last_order_offline_ids)],
+      customer_group_ids: convertItemToArray(params.customer_group_ids),
+      customer_level_ids: convertItemToArray(params.customer_level_ids),
+      customer_type_ids: convertItemToArray(params.customer_type_ids),
+      assign_store_ids: convertItemToArray(params.assign_store_ids, "number"),
+      channel_ids: convertItemToArray(params.channel_ids),
+      source_ids: convertItemToArray(params.source_ids, "number"),
+      source_of_first_order_online_ids: convertItemToArray(params.source_of_first_order_online_ids, "number"),
+      source_of_last_order_online_ids: convertItemToArray(params.source_of_last_order_online_ids, "number"),
+      store_ids: convertItemToArray(params.store_ids, "number"),
+      store_of_first_order_offline_ids: convertItemToArray(params.store_of_first_order_offline_ids, "number"),
+      store_of_last_order_offline_ids: convertItemToArray(params.store_of_last_order_offline_ids, "number"),
     };
   }, [params]);
 
@@ -2383,7 +2360,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                   label={<b>Nguồn mua hàng</b>}
                   className="center-filter"
                 >
-                  <TreeSource placeholder="Chọn nguồn" name="source_ids" listSource={listSource} />
+                  <TreeSource
+                    placeholder="Chọn nguồn"
+                    name="source_ids"
+                    listSource={listSource}
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
+                  />
                 </Form.Item>
 
                 <div className="right-filter">
@@ -3144,9 +3126,10 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                   className="left-filter"
                 >
                   <TreeSource
-                    placeholder="Chọn cửa hàng"
+                    placeholder="Chọn nguồn"
                     name="source_of_first_order_online_ids"
                     listSource={listSource}
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
                   />
                 </Form.Item>
 
@@ -3160,9 +3143,10 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                   className="center-filter"
                 >
                   <TreeSource
-                    placeholder="Chọn cửa hàng"
+                    placeholder="Chọn nguồn"
                     name="source_of_last_order_online_ids"
                     listSource={listSource}
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
                   />
                 </Form.Item>
 
