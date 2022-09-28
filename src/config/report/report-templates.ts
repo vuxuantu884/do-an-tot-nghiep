@@ -439,6 +439,8 @@ export const ORDER_SUB_STATUS_CODE = [
   "delivery_fail_gross_sales",
   "compensate_gross_sales",
   "system_cancelled_gross_sales",
+  "awaiting_customer_confirmation_gross_sales",
+  "returned_gross_sales",
 ];
 
 export default REPORT_TEMPLATES;
