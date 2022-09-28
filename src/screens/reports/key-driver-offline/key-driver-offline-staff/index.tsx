@@ -32,18 +32,16 @@ import {
   keyDriverOfflineTemplateData,
   loadingMessage,
 } from "../constant/key-driver-offline-template-data";
-import useFetchStoresCustomerVisitors from "../hooks/useFetchStoresCustomerVisitors";
-import useFetchStoresKDOfflineTotalSales from "../hooks/useFetchStoresKDOfflineTotalSales";
-import useFetchStoresKDTargetDay from "../hooks/useFetchStoresKDTargetDay";
-import useFetchStoresKeyDriverTarget from "../hooks/useFetchStoresKeyDriverTarget";
-import useFetchStoresOfflineOnlineTotalSales from "../hooks/useFetchStoresOfflineOnlineTotalSales";
-import useFetchStoresOfflineTotalSalesLoyalty from "../hooks/useFetchStoresOfflineTotalSalesLoyalty";
-import useFetchStoresOfflineTotalSalesPotential from "../hooks/useFetchStoresOfflineTotalSalesPotential";
+import useFetchCustomerVisitors from "../hooks/useFetchCustomerVisitors";
+import useFetchKDOfflineTotalSales from "../hooks/useFetchKDOfflineTotalSales";
+import useFetchStoresKDTargetDay from "../hooks/useFetchKDTargetDay";
+import useFetchKeyDriverTarget from "../hooks/useFetchKeyDriverTarget";
+import useFetchOfflineOnlineTotalSales from "../hooks/useFetchOfflineOnlineTotalSales";
+import useFetchOfflineTotalSalesLoyalty from "../hooks/useFetchOfflineTotalSalesLoyalty";
+import useFetchOfflineTotalSalesPotential from "../hooks/useFetchOfflineTotalSalesPotential";
 import useFetchStoresProductTotalSales from "../hooks/useFetchStoresProductTotalSales";
 import { KeyDriverOfflineStyle } from "../index.style";
-import KDOfflineStoresProvider, {
-  KDOfflineStoresContext,
-} from "../provider/kd-offline-stores-provider";
+import KDOfflineStoresProvider, { KDOfflineContext } from "../provider/kd-offline-provider";
 
 type RowData = {
   name: string;
@@ -83,7 +81,7 @@ const baseColumns: any = [
 ];
 
 function CellInput(props: RowRender) {
-  const { setKDTarget } = useContext(KDOfflineStoresContext);
+  const { setKDTarget } = useContext(KDOfflineContext);
   const { onChange, record, value, type, time, suffix } = props;
   const { key } = record;
 
@@ -148,17 +146,14 @@ function KeyDriverOfflineStaff() {
   const [finalColumns, setFinalColumns] = useState<ColumnsType<any>>([]);
   const [loadingPage, setLoadingPage] = useState<boolean | undefined>();
   const { Staff } = KeyDriverDimension;
-  const { isFetchingStoresKeyDriverTarget, refetch } = useFetchStoresKeyDriverTarget(Staff);
-  const { isFetchingStoresKDOfflineTotalSales } = useFetchStoresKDOfflineTotalSales(Staff);
-  const { isFetchingStoresOfflineTotalSalesLoyalty } =
-    useFetchStoresOfflineTotalSalesLoyalty(Staff);
-  const { isFetchingStoresCustomerVisitors } = useFetchStoresCustomerVisitors(Staff);
-  const { isFetchingStoresOfflineOnlineTotalSales } = useFetchStoresOfflineOnlineTotalSales(Staff);
+  const { isFetchingKeyDriverTarget, refetch } = useFetchKeyDriverTarget(Staff);
+  const { isFetchingKDOfflineTotalSales } = useFetchKDOfflineTotalSales(Staff);
+  const { isFetchingOfflineTotalSalesLoyalty } = useFetchOfflineTotalSalesLoyalty(Staff);
+  const { isFetchingCustomerVisitors } = useFetchCustomerVisitors(Staff);
+  const { isFetchingOfflineOnlineTotalSales } = useFetchOfflineOnlineTotalSales(Staff);
   const { isFetchingStoresProductTotalSales } = useFetchStoresProductTotalSales(Staff);
-  const { isFetchingStoresOfflineTotalSalesPotential } =
-    useFetchStoresOfflineTotalSalesPotential(Staff);
-  const { isFetchingStoresKDTargetDay, refetch: refetchTargetDay } =
-    useFetchStoresKDTargetDay(Staff);
+  const { isFetchingOfflineTotalSalesPotential } = useFetchOfflineTotalSalesPotential(Staff);
+  const { isFetchingKDTargetDay, refetch: refetchTargetDay } = useFetchStoresKDTargetDay(Staff);
   const {
     data,
     kdTarget,
@@ -168,7 +163,7 @@ function KeyDriverOfflineStaff() {
     selectedStaffs,
     setSelectedDate,
     selectedDate,
-  } = useContext(KDOfflineStoresContext);
+  } = useContext(KDOfflineContext);
   const dispatch = useDispatch();
   const asmName = useParams<{ asmName: string }>().asmName.toUpperCase();
   const storeName = useParams<{ storeName: string }>().storeName.toUpperCase();
@@ -422,14 +417,14 @@ function KeyDriverOfflineStaff() {
   useEffect(() => {
     setLoadingPage(true);
     if (
-      isFetchingStoresKDOfflineTotalSales === false &&
-      isFetchingStoresKeyDriverTarget === false &&
-      isFetchingStoresOfflineTotalSalesLoyalty === false &&
-      isFetchingStoresCustomerVisitors === false &&
-      isFetchingStoresOfflineOnlineTotalSales === false &&
+      isFetchingKDOfflineTotalSales === false &&
+      isFetchingKeyDriverTarget === false &&
+      isFetchingOfflineTotalSalesLoyalty === false &&
+      isFetchingCustomerVisitors === false &&
+      isFetchingOfflineOnlineTotalSales === false &&
       isFetchingStoresProductTotalSales === false &&
-      isFetchingStoresOfflineTotalSalesPotential === false &&
-      isFetchingStoresKDTargetDay === false
+      isFetchingOfflineTotalSalesPotential === false &&
+      isFetchingKDTargetDay === false
     ) {
       setData((prev: any) => {
         prev.forEach((item: any, index: number) => {
@@ -456,17 +451,17 @@ function KeyDriverOfflineStaff() {
     calculateDayRate,
     calculateDayTarget,
     calculateMonthRate,
-    isFetchingStoresCustomerVisitors,
-    isFetchingStoresKDOfflineTotalSales,
-    isFetchingStoresKeyDriverTarget,
-    isFetchingStoresOfflineTotalSalesLoyalty,
-    isFetchingStoresOfflineOnlineTotalSales,
+    isFetchingCustomerVisitors,
+    isFetchingKDOfflineTotalSales,
+    isFetchingKeyDriverTarget,
+    isFetchingOfflineTotalSalesLoyalty,
+    isFetchingOfflineOnlineTotalSales,
     setData,
     selectedStores,
     isFetchingStoresProductTotalSales,
-    isFetchingStoresOfflineTotalSalesPotential,
+    isFetchingOfflineTotalSalesPotential,
     selectedStaffs,
-    isFetchingStoresKDTargetDay,
+    isFetchingKDTargetDay,
     selectedDate,
   ]);
 
@@ -567,9 +562,80 @@ function KeyDriverOfflineStaff() {
             bordered
             pagination={false}
             rowClassName={(record: any, rowIndex: any) => {
+              const {
+                VipCalls,
+                VipCallRate,
+                NearVipCalls,
+                NearVipCallRate,
+                BirthdayCallConversions,
+                BirthdayCalls,
+                BirthdayCallRate,
+                BirthdaySmsConversions,
+                BirthdaySmss,
+                BirthdaySmsRate,
+                CustomerSmss,
+                CustomerSmsRate,
+                ShoperSmss,
+                ShoperSmsRate,
+                PotentialCustomerCount,
+                NewCustomersConversionRate,
+                FollowFanpage,
+                Profit,
+                RevenueSuccess,
+                Cost,
+                Shipping,
+                VipTotalSales,
+                NearVipTotalSales,
+                BirthdayTotalSales,
+                CustomerGt90DaysTotalSales,
+                ShopperGt90DaysTotalSales,
+                NewTotalSales,
+                OthersTotalSales,
+              } = KeyDriverField;
+              if (
+                [
+                  VipCalls,
+                  VipCallRate,
+                  NearVipCalls,
+                  NearVipCallRate,
+                  BirthdayCallConversions,
+                  BirthdayCalls,
+                  BirthdayCallRate,
+                  BirthdaySmsConversions,
+                  BirthdaySmss,
+                  BirthdaySmsRate,
+                  CustomerSmss,
+                  CustomerSmsRate,
+                  ShoperSmss,
+                  ShoperSmsRate,
+                  PotentialCustomerCount,
+                  NewCustomersConversionRate,
+                  FollowFanpage,
+                  Profit,
+                  RevenueSuccess,
+                  Cost,
+                  Shipping,
+                ].includes(record.key)
+              ) {
+                return "hidden-row";
+              }
+              if (
+                [
+                  VipTotalSales,
+                  NearVipTotalSales,
+                  BirthdayTotalSales,
+                  CustomerGt90DaysTotalSales,
+                  ShopperGt90DaysTotalSales,
+                  NewTotalSales,
+                  OthersTotalSales,
+                ].includes(record.key)
+              ) {
+                return "hidden-button";
+              }
               if (!expandRowKeys.includes(record.key) || !record.children) {
                 return "expand-parent";
               }
+
               return "";
             }}
             expandedRowKeys={expandRowKeys}

@@ -13,11 +13,11 @@ import {
   PRODUCT_TOTAL_SALES_DAY_QUERY,
   PRODUCT_TOTAL_SALES_MONTH_QUERY,
 } from "../config/key-driver-offline-asm-config";
-import { KeyDriverOfflineContext } from "../provider/key-driver-offline-provider";
+import { KDOfflineContext } from "../provider/kd-offline-provider";
 
 function useFetchProductTotalSales() {
   const dispatch = useDispatch();
-  const { setData, selectedDate } = useContext(KeyDriverOfflineContext);
+  const { setData, selectedDate } = useContext(KDOfflineContext);
 
   const [isFetchingProductTotalSales, setIsFetchingProductTotalSales] = useState<
     boolean | undefined

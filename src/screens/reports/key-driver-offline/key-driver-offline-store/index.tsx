@@ -33,21 +33,20 @@ import {
   keyDriverOfflineTemplateData,
   loadingMessage,
 } from "../constant/key-driver-offline-template-data";
-import useFetchStoresProfit from "../hooks/profit/useFetchStoresProfit";
-import useFetchStoresCallLoyalty from "../hooks/useFetchStoresCallLoyalty";
-import useFetchStoresCustomerVisitors from "../hooks/useFetchStoresCustomerVisitors";
-import useFetchStoresKDOfflineTotalSales from "../hooks/useFetchStoresKDOfflineTotalSales";
-import useFetchStoresKDTargetDay from "../hooks/useFetchStoresKDTargetDay";
-import useFetchStoresKeyDriverTarget from "../hooks/useFetchStoresKeyDriverTarget";
-import useFetchStoresOfflineOnlineTotalSales from "../hooks/useFetchStoresOfflineOnlineTotalSales";
-import useFetchStoresOfflineTotalSalesLoyalty from "../hooks/useFetchStoresOfflineTotalSalesLoyalty";
-import useFetchStoresOfflineTotalSalesPotential from "../hooks/useFetchStoresOfflineTotalSalesPotential";
+import useFetchProfit from "../hooks/profit/useFetchProfit";
+import useFetchCallLoyalty from "../hooks/useFetchCallLoyalty";
+import useFetchCustomerVisitors from "../hooks/useFetchCustomerVisitors";
+import useFetchFollowFanpage from "../hooks/useFetchFollowFanpage";
+import useFetchStoresKDOfflineTotalSales from "../hooks/useFetchKDOfflineTotalSales";
+import useFetchStoresKDTargetDay from "../hooks/useFetchKDTargetDay";
+import useFetchKeyDriverTarget from "../hooks/useFetchKeyDriverTarget";
+import useFetchOfflineOnlineTotalSales from "../hooks/useFetchOfflineOnlineTotalSales";
+import useFetchOfflineTotalSalesLoyalty from "../hooks/useFetchOfflineTotalSalesLoyalty";
+import useFetchOfflineTotalSalesPotential from "../hooks/useFetchOfflineTotalSalesPotential";
+import useFetchSmsLoyalty from "../hooks/useFetchSmsLoyalty";
 import useFetchStoresProductTotalSales from "../hooks/useFetchStoresProductTotalSales";
-import useFetchStoresSmsLoyalty from "../hooks/useFetchStoresSmsLoyalty";
 import { KeyDriverOfflineStyle } from "../index.style";
-import KDOfflineStoresProvider, {
-  KDOfflineStoresContext,
-} from "../provider/kd-offline-stores-provider";
+import KDOfflineStoresProvider, { KDOfflineContext } from "../provider/kd-offline-provider";
 
 // const { Option } = Select;
 
@@ -89,7 +88,7 @@ const baseColumns: any = [
 ];
 
 function CellInput(props: RowRender) {
-  const { setKDTarget } = useContext(KDOfflineStoresContext);
+  const { setKDTarget } = useContext(KDOfflineContext);
   const { onChange, record, value, type, time, suffix } = props;
   const { key } = record;
 
@@ -153,17 +152,18 @@ function KeyDriverOfflineStore() {
     : moment().format(DATE_FORMAT.DDMMYYY);
   const [finalColumns, setFinalColumns] = useState<ColumnsType<any>>([]);
   const [loadingPage, setLoadingPage] = useState<boolean | undefined>();
-  const { isFetchingStoresKeyDriverTarget, refetch } = useFetchStoresKeyDriverTarget();
-  const { isFetchingStoresKDOfflineTotalSales } = useFetchStoresKDOfflineTotalSales();
-  const { isFetchingStoresOfflineTotalSalesLoyalty } = useFetchStoresOfflineTotalSalesLoyalty();
-  const { isFetchingStoresCustomerVisitors } = useFetchStoresCustomerVisitors();
-  const { isFetchingStoresOfflineOnlineTotalSales } = useFetchStoresOfflineOnlineTotalSales();
+  const { isFetchingKeyDriverTarget, refetch } = useFetchKeyDriverTarget();
+  const { isFetchingKDOfflineTotalSales } = useFetchStoresKDOfflineTotalSales();
+  const { isFetchingOfflineTotalSalesLoyalty } = useFetchOfflineTotalSalesLoyalty();
+  const { isFetchingCustomerVisitors } = useFetchCustomerVisitors();
+  const { isFetchingOfflineOnlineTotalSales } = useFetchOfflineOnlineTotalSales();
   const { isFetchingStoresProductTotalSales } = useFetchStoresProductTotalSales();
-  const { isFetchingStoresOfflineTotalSalesPotential } = useFetchStoresOfflineTotalSalesPotential();
-  const { isFetchingStoresCallLoyalty } = useFetchStoresCallLoyalty();
-  const { isFetchingStoresSmsLoyalty } = useFetchStoresSmsLoyalty();
-  const { isFetchingStoresProfit } = useFetchStoresProfit();
-  const { isFetchingStoresKDTargetDay, refetch: refetchTargetDay } = useFetchStoresKDTargetDay();
+  const { isFetchingOfflineTotalSalesPotential } = useFetchOfflineTotalSalesPotential();
+  const { isFetchingCallLoyalty } = useFetchCallLoyalty();
+  const { isFetchingSmsLoyalty } = useFetchSmsLoyalty();
+  const { isFetchingProfit } = useFetchProfit();
+  const { isFetchingKDTargetDay, refetch: refetchTargetDay } = useFetchStoresKDTargetDay();
+  const { isFetchingFollowFanpage } = useFetchFollowFanpage();
   const {
     data,
     kdTarget,
@@ -173,7 +173,7 @@ function KeyDriverOfflineStore() {
     setSelectedDate,
     selectedDate,
     // setSelectedStoreRank,
-  } = useContext(KDOfflineStoresContext);
+  } = useContext(KDOfflineContext);
   const dispatch = useDispatch();
   const asmName = useParams<{ asmName: string }>().asmName.toUpperCase();
   // const isFirstLoad = useRef(true);
@@ -193,7 +193,7 @@ function KeyDriverOfflineStore() {
       department: string,
       className: string = "department-name--secondary",
     ): ColumnGroupType<any> | ColumnType<any> => {
-      const { ProductTotalSales, Cost, Shipping } = KeyDriverField;
+      const { ProductTotalSales, Cost, Shipping, FollowFanpage } = KeyDriverField;
       const asmNameUrl = asmName.toLocaleLowerCase();
       const storeNameUrl = nonAccentVietnameseKD(department).toLowerCase();
       return {
@@ -344,7 +344,9 @@ function KeyDriverOfflineStore() {
             dataIndex: `${departmentKey}_day`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return ![ProductTotalSales, Cost, Shipping].includes(record.key as KeyDriverField) ? (
+              return ![ProductTotalSales, Cost, Shipping, FollowFanpage].includes(
+                record.key as KeyDriverField,
+              ) ? (
                 <CellInput
                   value={text}
                   record={record}
@@ -428,17 +430,18 @@ function KeyDriverOfflineStore() {
   useEffect(() => {
     setLoadingPage(true);
     if (
-      isFetchingStoresKDOfflineTotalSales === false &&
-      isFetchingStoresKeyDriverTarget === false &&
-      isFetchingStoresOfflineTotalSalesLoyalty === false &&
-      isFetchingStoresCustomerVisitors === false &&
-      isFetchingStoresOfflineOnlineTotalSales === false &&
+      isFetchingKDOfflineTotalSales === false &&
+      isFetchingKeyDriverTarget === false &&
+      isFetchingOfflineTotalSalesLoyalty === false &&
+      isFetchingCustomerVisitors === false &&
+      isFetchingOfflineOnlineTotalSales === false &&
       isFetchingStoresProductTotalSales === false &&
-      isFetchingStoresOfflineTotalSalesPotential === false &&
-      isFetchingStoresCallLoyalty === false &&
-      isFetchingStoresKDTargetDay === false &&
-      isFetchingStoresSmsLoyalty === false &&
-      isFetchingStoresProfit === false
+      isFetchingOfflineTotalSalesPotential === false &&
+      isFetchingCallLoyalty === false &&
+      isFetchingKDTargetDay === false &&
+      isFetchingSmsLoyalty === false &&
+      isFetchingProfit === false &&
+      isFetchingFollowFanpage === false
     ) {
       setData((prev: any) => {
         prev.forEach((item: any, index: number) => {
@@ -464,21 +467,22 @@ function KeyDriverOfflineStore() {
     calculateDayRate,
     calculateDayTarget,
     calculateMonthRate,
-    isFetchingStoresCustomerVisitors,
-    isFetchingStoresKDOfflineTotalSales,
-    isFetchingStoresKeyDriverTarget,
-    isFetchingStoresOfflineTotalSalesLoyalty,
-    isFetchingStoresOfflineOnlineTotalSales,
+    isFetchingCustomerVisitors,
+    isFetchingKDOfflineTotalSales,
+    isFetchingKeyDriverTarget,
+    isFetchingOfflineTotalSalesLoyalty,
+    isFetchingOfflineOnlineTotalSales,
     setData,
     selectedStores,
     isFetchingStoresProductTotalSales,
-    isFetchingStoresOfflineTotalSalesPotential,
-    isFetchingStoresKDTargetDay,
+    isFetchingOfflineTotalSalesPotential,
+    isFetchingKDTargetDay,
     selectedDate,
-    isFetchingStoresCallLoyalty,
-    isFetchingStoresSmsLoyalty,
+    isFetchingCallLoyalty,
+    isFetchingSmsLoyalty,
     selectedAsm,
-    isFetchingStoresProfit,
+    isFetchingProfit,
+    isFetchingFollowFanpage,
   ]);
 
   useEffect(() => {
