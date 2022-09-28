@@ -2,8 +2,8 @@ import { FilterOutlined } from "@ant-design/icons";
 import { Button, FormInstance, Select } from "antd";
 import { fieldsTypeNumber } from "config/report";
 import _, { isEmpty } from "lodash";
-import { AnalyticDataQuery, AnalyticProperties } from "model/report/analytics.model";
-import React, { useCallback, useContext, useMemo, useState } from "react";
+import { AnalyticCube, AnalyticDataQuery, AnalyticProperties } from "model/report/analytics.model";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { executeAnalyticsQueryService } from "service/report/analytics.service";
 import { callApiNative } from "utils/ApiUtils";
@@ -15,6 +15,9 @@ import FilterAdvancedList from "../../../../component/filter/filter-advanced-lis
 import { FilterResultStyle } from "../index.style";
 import { ReportifyFormFields } from "./analytics-form";
 import { AnalyticsContext } from "./analytics-provider";
+import TreeSource from "component/treeSource";
+import { SourceResponse } from "model/response/order/source.response";
+import { getListAllSourceRequest } from "domain/actions/product/source.action";
 
 type FilterData = {
   groupName: string;
@@ -37,6 +40,11 @@ function FilterResults({ properties, form }: Props) {
 
   const ALL_OPTION = { label: `Tất cả`, value: "" };
 
+  const [sourceList, setSourceList] = useState<Array<SourceResponse>>([]);
+  useEffect(() => {
+    dispatch(getListAllSourceRequest(setSourceList));
+  }, [dispatch]);
+  
   const shouldAddOption = useCallback((keySearch: string, listOption: any[]) => {
     return listOption.every((item) => item.value !== keySearch);
   }, []);
@@ -131,6 +139,10 @@ function FilterResults({ properties, form }: Props) {
 
   const handleClearFilter = () => {
     form.setFieldsValue({ [ReportifyFormFields.where]: undefined });
+    setActiveFilters(() => new Map(undefined));
+    form.submit();
+    handleCancel();
+    // window.location.reload();
   };
 
   const addAdditionalOptions = (propertyField: string, keySearch: string) => {
@@ -149,7 +161,7 @@ function FilterResults({ properties, form }: Props) {
 
   const handleSubmit = () => {
     const fieldWhereValue = form.getFieldValue(ReportifyFormFields.where);
-    if (Object.keys(fieldWhereValue).length) {
+    if (fieldWhereValue && Object.keys(fieldWhereValue).length) {
       Object.keys(fieldWhereValue).forEach((key: string) => {
         const value = fieldWhereValue[key];
         if (value && Array.isArray(value) && value.length) {
@@ -210,28 +222,40 @@ function FilterResults({ properties, form }: Props) {
       name={[ReportifyFormFields.where, item.key]}
       label={item.label}
     >
-      <Select
-        className="filter-results__input"
-        showSearch
-        allowClear
-        mode="multiple"
-        maxTagCount={"responsive"}
-        placeholder={"Tìm " + item.label.toLowerCase()}
-        onFocus={(e) => {
-          getOptionData(index, item.key);
-        }}
-        onChange={(value: string) => {
-          handleSelectAllOptions(item.key, value);
-        }}
-        onSearch={(value) => addAdditionalOptions(item.key, value)}
-        filterOption={(input, option) => {
-          return option?.label && input
-            ? searchNumberString(input, option?.label as string)
-            : false;
-        }}
-        options={finalOptions}
-        loading={loadingInputs.includes(index)}
-      />
+      {(dataQuery?.query?.cube === AnalyticCube.SalesBySubStatus && item.key === "source_name")
+        ?
+        <TreeSource
+          placeholder="Tìm tên nguồn đơn hàng"
+          name={[ReportifyFormFields.where, item.key]}
+          listSource={sourceList}
+          getPopupContainer={(trigger: any) => trigger.parentElement}
+          isNameValue={true}
+        />
+        :
+        <Select
+          className="filter-results__input"
+          showSearch
+          allowClear
+          mode="multiple"
+          maxTagCount={"responsive"}
+          placeholder={"Tìm " + item.label.toLowerCase()}
+          onFocus={(e) => {
+            getOptionData(index, item.key);
+          }}
+          onChange={(value: string) => {
+            handleSelectAllOptions(item.key, value);
+          }}
+          onSearch={(value) => addAdditionalOptions(item.key, value)}
+          filterOption={(input, option) => {
+            return option?.label && input
+              ? searchNumberString(input, option?.label as string)
+              : false;
+          }}
+          options={finalOptions}
+          loading={loadingInputs.includes(index)}
+          getPopupContainer={(trigger: any) => trigger.parentElement}
+        />
+      }
     </FilterAdvancedItem>
   );
 

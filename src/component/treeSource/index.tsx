@@ -7,13 +7,14 @@ import { SourceResponse } from "../../model/response/order/source.response";
 
 interface Props extends TreeSelectProps<string> {
   form?: FormInstance;
-  name: string;
+  isNameValue?: boolean | false;
+  name: any;
   placeholder?: string;
   listSource: Array<SourceResponse> | undefined;
 }
 
 const TreeSource = (props: Props) => {
-  const { form, name, placeholder, listSource, ...restProps } = props;
+  const { form, isNameValue, name, placeholder, listSource, ...restProps } = props;
   const [source, setSource] = useState<Array<SourceResponse>>();
   const [noDepartmentStores, setNoDepartmentStores] = useState<Array<SourceResponse>>();
   const KEY_MAP_STORE_LEVEL_3 = "department_h3";
@@ -107,7 +108,7 @@ const TreeSource = (props: Props) => {
                 return storeItem[1][0].name === storeItem[0] ? (
                   <TreeSelect.TreeNode
                     key={storeItem[1][0].code}
-                    value={storeItem[1][0].id}
+                    value={isNameValue ? storeItem[1][0].name : storeItem[1][0].id}
                     title={storeItem[1][0].name}
                   />
                 ) : (
@@ -120,7 +121,7 @@ const TreeSource = (props: Props) => {
                       return (
                         <TreeSelect.TreeNode
                           key={storeItemLevel4.code}
-                          value={storeItemLevel4.id}
+                          value={isNameValue ? storeItemLevel4.name : storeItemLevel4.id}
                           title={storeItemLevel4.name}
                         />
                       );
@@ -133,7 +134,7 @@ const TreeSource = (props: Props) => {
         );
       })}
       {noDepartmentStores?.map((sourceItem: SourceResponse) => (
-        <TreeSelect.TreeNode key={sourceItem.code} value={sourceItem.id} title={sourceItem.name} />
+        <TreeSelect.TreeNode key={sourceItem.code} value={isNameValue ? sourceItem.name : sourceItem.id} title={sourceItem.name} />
       ))}
     </TreeSelect>
   );
