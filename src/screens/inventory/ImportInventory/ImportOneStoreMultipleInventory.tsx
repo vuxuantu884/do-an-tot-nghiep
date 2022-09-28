@@ -659,13 +659,7 @@ const ImportOneStoreMultipleInventory: FC = () => {
                           return false;
                         }}
                       >
-                        {myStoreActive.length > 0 ? myStores?.map((store: AccountStoreResponse) =>
-                          store?.store_id ? (
-                            <Select.Option value={store.store_id} key={"store_id" + store.store_id}>
-                              {store.store}
-                            </Select.Option>
-                          ) : null,
-                        ) : stores.map((item, index) => (
+                        {stores.map((item, index) => (
                           <Option key={"store_id" + index} value={item.id.toString()}>
                             {item.name}
                           </Option>
