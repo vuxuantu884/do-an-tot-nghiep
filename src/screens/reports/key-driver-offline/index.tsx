@@ -1,4 +1,4 @@
-import { CheckSquareOutlined } from "@ant-design/icons";
+import { CheckSquareOutlined, SettingOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Form, Spin, Table, Tooltip } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
@@ -6,6 +6,7 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
+import ModalSettingColumnData from "component/table/ModalSettingColumnData";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { debounce } from "lodash";
@@ -165,7 +166,15 @@ function KeyDriverOffline() {
   const { isFetchingProfit } = useFetchProfit(Asm);
   const { isFetchingKDTargetDay, refetch: refetchTargetDay } = useFetchKDTargetDay(Asm);
   const { isFetchingFollowFanpage } = useFetchFollowFanpage(Asm);
-  const { data, kdTarget, setData, setSelectedDate, selectedDate } = useContext(KDOfflineContext);
+  const {
+    data,
+    kdTarget,
+    setData,
+    setSelectedDate,
+    selectedDate,
+    displayColumns,
+    setDisplayColumns,
+  } = useContext(KDOfflineContext);
   const dispatch = useDispatch();
   const [syncDataTime, setSyncDataTime] = useState<string>(
     moment().format(DATE_FORMAT.DD_MM_YY_HHmmss),
@@ -175,6 +184,7 @@ function KeyDriverOffline() {
   const [expandRowKeys, setExpandRowKeys] = useState<string[]>(
     expandedDefault ? JSON.parse(expandedDefault) : [],
   );
+  const [showSettingColumn, setShowSettingColumn] = useState(false);
 
   const departmentsList = useMemo(() => {
     return ["COMPANY", ...ASM_LIST];
@@ -491,38 +501,56 @@ function KeyDriverOffline() {
     history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}?date=${newDate}`);
   }, [form, history, setData]);
 
+  const newFinalColumns = useMemo(() => {
+    return finalColumns.map((columnDetails: any) => {
+      return {
+        ...columnDetails,
+        children: columnDetails.children
+          ? columnDetails.children.filter((children: any, index: number) =>
+              displayColumns.some((i) => i.visible && i.index === index),
+            )
+          : undefined,
+      };
+    });
+  }, [displayColumns, finalColumns]);
+
   return (
     <ContentContainer
       title={"Báo cáo kết quả kinh doanh Offline"}
       breadcrumb={[{ name: "Báo cáo" }, { name: "Báo cáo kết quả kinh doanh Offline" }]}
     >
-      <Card>
-        <Form
-          onFinish={onFinish}
-          onFinishFailed={() => {}}
-          form={form}
-          name="report-form-base"
-          layout="inline"
-          initialValues={{
-            date: date
-              ? moment(date).format(DATE_FORMAT.DDMMYYY)
-              : moment().format(DATE_FORMAT.DDMMYYY),
-          }}
-        >
-          <Col xs={24} md={8}>
-            <Form.Item name="date">
-              <CustomDatePicker
-                format={DATE_FORMAT.DDMMYYY}
-                placeholder="Chọn ngày"
-                style={{ width: "100%" }}
-                onChange={() => onFinish()}
-                showToday={false}
-              />
-            </Form.Item>
-          </Col>
-        </Form>
-      </Card>
       <KeyDriverOfflineStyle>
+        <Card>
+          <Form
+            onFinish={onFinish}
+            onFinishFailed={() => {}}
+            form={form}
+            name="report-form-base"
+            layout="inline"
+            initialValues={{
+              date: date
+                ? moment(date).format(DATE_FORMAT.DDMMYYY)
+                : moment().format(DATE_FORMAT.DDMMYYY),
+            }}
+          >
+            <Col xs={24} md={8}>
+              <Form.Item name="date">
+                <CustomDatePicker
+                  format={DATE_FORMAT.DDMMYYY}
+                  placeholder="Chọn ngày"
+                  style={{ width: "100%" }}
+                  onChange={() => onFinish()}
+                  showToday={false}
+                />
+              </Form.Item>
+            </Col>
+          </Form>
+          <Button
+            className="columns-setting"
+            icon={<SettingOutlined />}
+            onClick={() => setShowSettingColumn(true)}
+          />
+        </Card>
         <Card
           title={
             <div>
@@ -569,7 +597,7 @@ function KeyDriverOffline() {
                 );
               },
             }}
-            columns={finalColumns}
+            columns={newFinalColumns}
             dataSource={data}
           />
         </Card>
@@ -582,6 +610,16 @@ function KeyDriverOffline() {
             </Button>
           </>
         }
+      />
+      <ModalSettingColumnData
+        visible={showSettingColumn}
+        onCancel={() => setShowSettingColumn(false)}
+        onOk={(data) => {
+          setShowSettingColumn(false);
+          setDisplayColumns(data);
+          localStorage.setItem(LocalStorageKey.KeyDriverOfflineColumns, JSON.stringify(data));
+        }}
+        data={displayColumns}
       />
     </ContentContainer>
   );

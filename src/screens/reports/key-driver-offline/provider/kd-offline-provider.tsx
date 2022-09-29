@@ -1,4 +1,4 @@
-import { KeyDriverTarget } from "model/report";
+import { KeyDriverTarget, LocalStorageKey } from "model/report";
 import React from "react";
 import { keyDriverOfflineTemplateData } from "../constant/key-driver-offline-template-data";
 
@@ -19,6 +19,8 @@ type KDOfflineProviderValue = {
   setSelectedStoreRank: React.Dispatch<React.SetStateAction<number | undefined>>;
   selectedAllStores: boolean;
   setSelectedAllStores: React.Dispatch<React.SetStateAction<boolean>>;
+  displayColumns: any[];
+  setDisplayColumns: React.Dispatch<React.SetStateAction<any[]>>;
 };
 
 export const KDOfflineContext = React.createContext<KDOfflineProviderValue>(
@@ -36,6 +38,57 @@ function KDOfflineProvider(props: { children: React.ReactNode }) {
   const [selectedDate, setSelectedDate] = React.useState<string>("");
   const [selectedStoreRank, setSelectedStoreRank] = React.useState<number | undefined>(undefined);
   const [selectedAllStores, setSelectedAllStores] = React.useState<boolean>(true);
+  const getColumns = localStorage.getItem(LocalStorageKey.KeyDriverOfflineColumns);
+  const [displayColumns, setDisplayColumns] = React.useState<any[]>(
+    getColumns
+      ? JSON.parse(getColumns)
+      : [
+          {
+            title: "Mục tiêu tháng",
+            name: "_month",
+            index: 0,
+            visible: true,
+          },
+          {
+            title: "Luỹ kế",
+            name: "_accumulatedMonth",
+            index: 1,
+            visible: true,
+            fixed: true,
+          },
+          {
+            title: "Tỉ lệ",
+            name: "_rateMonth",
+            index: 2,
+            visible: true,
+          },
+          {
+            title: "Dự kiến đạt",
+            name: "_targetMonth",
+            index: 3,
+            visible: true,
+          },
+          {
+            title: "Mục tiêu ngày",
+            name: "_day",
+            index: 4,
+            visible: true,
+          },
+          {
+            title: "Thực đạt",
+            name: "_actualDay",
+            index: 5,
+            visible: true,
+            fixed: true,
+          },
+          {
+            title: "Tỉ lệ",
+            name: "_rateDay",
+            index: 6,
+            visible: true,
+          },
+        ],
+  );
 
   return (
     <KDOfflineContext.Provider
@@ -57,6 +110,8 @@ function KDOfflineProvider(props: { children: React.ReactNode }) {
         setSelectedStoreRank,
         selectedAllStores,
         setSelectedAllStores,
+        displayColumns,
+        setDisplayColumns,
       }}
     />
   );
