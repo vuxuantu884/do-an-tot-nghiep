@@ -532,6 +532,7 @@ const SmsCustomerBirthday: React.FC = () => {
                       onChange={(e) => onChangeSmsContent(e.target.value, smsFormIndex)}
                       onFocus={onFocusTextArea}
                       autoSize={{ minRows: 10, maxRows: 10 }}
+                      className={"text-area-input-content"}
                     />
                   </div>
 
