@@ -102,6 +102,7 @@ type PropTypes = {
   currentStores?: StoreResponse[];
   isShowReceiveProductConfirmModal: boolean;
   setIsShowReceiveProductConfirmModal: (value: boolean) => void;
+  defaultReceiveReturnStore?: StoreResponse;
 };
 
 const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
@@ -126,6 +127,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
     currentStores,
     isShowReceiveProductConfirmModal,
     setIsShowReceiveProductConfirmModal,
+    defaultReceiveReturnStore,
   } = props;
 
   console.log("customerNeedToPayValue", customerNeedToPayValue);
@@ -839,6 +841,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                         isShowReceiveProductConfirmModal={isShowReceiveProductConfirmModal}
                         setIsShowReceiveProductConfirmModal={setIsShowReceiveProductConfirmModal}
                         currentStores={currentStores}
+                        defaultReceiveReturnStore={defaultReceiveReturnStore}
                       />
                     </Panel>
                   </Collapse>

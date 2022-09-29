@@ -3,7 +3,7 @@ import CustomSelect from "component/custom/select.custom";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { StoreResponse } from "model/core/store.model";
 import { FulFillmentResponse } from "model/response/order/order.response";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FulFillmentStatus } from "utils/Constants";
 import { StyledComponent } from "./styles";
 
@@ -14,6 +14,7 @@ type PropTypes = {
   isShowReceiveProductConfirmModal: boolean;
   setIsShowReceiveProductConfirmModal: (value: boolean) => void;
   form: FormInstance<any>;
+  defaultReceiveReturnStore?: StoreResponse;
 };
 
 function OrderFulfillmentReceiveGoods(props: PropTypes) {
@@ -24,15 +25,20 @@ function OrderFulfillmentReceiveGoods(props: PropTypes) {
     isShowReceiveProductConfirmModal,
     setIsShowReceiveProductConfirmModal,
     form,
+    defaultReceiveReturnStore,
   } = props;
 
-  let initStoreName = currentStores?.length === 1 ? currentStores[0].name : "";
+  const [storeName, setStoreName] = useState<string | undefined>("");
 
-  const [storeName, setStoreName] = useState(initStoreName);
+  console.log("defaultReceiveReturnStore", defaultReceiveReturnStore);
 
   const checkIfShowReceiveGoodsButton = (fulfillment: FulFillmentResponse) => {
     return fulfillment.return_status === FulFillmentStatus.RETURNING;
   };
+
+  useEffect(() => {
+    setStoreName(defaultReceiveReturnStore?.name);
+  }, [defaultReceiveReturnStore?.name]);
 
   if (!checkIfShowReceiveGoodsButton(fulfillment)) {
     return null;
