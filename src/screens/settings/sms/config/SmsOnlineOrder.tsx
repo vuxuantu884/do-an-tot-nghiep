@@ -126,8 +126,11 @@ const SmsOnlineOrder: React.FC = () => {
   const [originSmsFormList, setOriginSmsFormList] = useState<Array<smsFormOrderOnline>>([smsFormDefault]);
   const [smsContentId, setSmsContentId] = useState<string>("");
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const handleSmsConfigData = useCallback(
     (data: any) => {
+      setIsLoading(false);
       if (data) {
         setMessageStatus(data.online_order_msg_status === "ACTIVE");
         const channelIds = data.sent_channel_ids?.split(",")?.map((item: any) => Number(item));
@@ -168,6 +171,7 @@ const SmsOnlineOrder: React.FC = () => {
   );
 
   useEffect(() => {
+    setIsLoading(true);
     dispatch(getSmsConfigAction(handleSmsConfigData));
   }, [dispatch, handleSmsConfigData]);
 
@@ -452,6 +456,10 @@ const SmsOnlineOrder: React.FC = () => {
             form={form}
             layout="vertical"
             onFinish={handleSubmitForm}
+            onFinishFailed={({ errorFields }: any) => {
+              const element: any = document.getElementById(errorFields[0].name.join(""));
+              scrollAndFocusToDomElement(element);
+            }}
             className={"edit-content"}
           >
             <Card>
@@ -466,12 +474,16 @@ const SmsOnlineOrder: React.FC = () => {
                     setMessageStatus(checked);
                   }}
                   className={"switch-button"}
-                  disabled={!allowUpdateSms}
+                  disabled={!allowUpdateSms || isLoading}
                 />
                 {messageStatus ? <span>Hoạt động</span> : <span>Không hoạt động</span>}
               </Form.Item>
 
-              <Form.Item name="sent_channel_ids" label="Kênh bán hàng">
+              <Form.Item
+                name="sent_channel_ids"
+                label="Kênh bán hàng"
+                rules={[{ required: true, message: "Vui lòng chọn kênh bán hàng" }]}
+              >
                 <CustomSelect
                   mode="multiple"
                   showSearch
@@ -483,6 +495,8 @@ const SmsOnlineOrder: React.FC = () => {
                   optionFilterProp="children"
                   getPopupContainer={(trigger) => trigger.parentNode}
                   maxTagCount="responsive"
+                  loading={isLoading}
+                  disabled={isLoading}
                 >
                   {channelList &&
                     channelList.map((channel) => (
@@ -511,6 +525,8 @@ const SmsOnlineOrder: React.FC = () => {
                         style={{ width: "100%" }}
                         id={`source-id-${smsFormIndex}`}
                         className={`select-source-${smsFormIndex}`}
+                        loading={isLoading}
+                        disabled={isLoading}
                       />
                     </Col>
 
@@ -530,11 +546,8 @@ const SmsOnlineOrder: React.FC = () => {
                         onDeselect={(value) => handleDeselectCustomerGroup(value, smsFormIndex)}
                         onClear={() => handleClearCustomerGroup(smsFormIndex)}
                         style={{ width: "100%" }}
-                        // onFocus={onInputSelectFocus}
-                        // onBlur={onInputSelectBlur}
-                        // onDropdownVisibleChange={handleOnDropdownVisibleChange}
-                        // onPopupScroll={handleOnSelectPopupScroll}
-                        // onMouseLeave={handleOnMouseLeaveSelect}
+                        loading={isLoading}
+                        disabled={isLoading}
                       >
                         {customerGroupList.map((group: any) => (
                           <Option key={group.id} value={group.id}>
@@ -549,6 +562,7 @@ const SmsOnlineOrder: React.FC = () => {
                       <Button
                         type="default"
                         onClick={() => openPromotionModal(smsFormIndex)}
+                        loading={isLoading}
                       >
                         Xem chi tiết
                       </Button>
@@ -570,11 +584,8 @@ const SmsOnlineOrder: React.FC = () => {
                         onDeselect={(value) => handleDeselectCustomerRank(value, smsFormIndex)}
                         onClear={() => handleClearCustomerRank(smsFormIndex)}
                         style={{ width: "100%" }}
-                        // onFocus={onInputSelectFocus}
-                        // onBlur={onInputSelectBlur}
-                        // onDropdownVisibleChange={handleOnDropdownVisibleChange}
-                        // onPopupScroll={handleOnSelectPopupScroll}
-                        // onMouseLeave={handleOnMouseLeaveSelect}
+                        loading={isLoading}
+                        disabled={isLoading}
                       >
                         {customerRankList?.map((customerRank: any) => (
                           <Option key={customerRank.rank_id} value={customerRank.rank_id}>
@@ -597,6 +608,8 @@ const SmsOnlineOrder: React.FC = () => {
                       onChange={(e) => onChangeSmsContent(e.target.value, smsFormIndex)}
                       onFocus={onFocusTextArea}
                       autoSize={{ minRows: 10, maxRows: 10 }}
+                      className={"text-area-input-content"}
+                      disabled={isLoading}
                     />
                   </div>
 
@@ -608,6 +621,7 @@ const SmsOnlineOrder: React.FC = () => {
                         icon={<PlusOutlined />}
                         onClick={() => addSmsForm()}
                         className={"add-button"}
+                        loading={isLoading}
                       >
                         Thêm mẫu tin
                       </Button>
@@ -620,6 +634,7 @@ const SmsOnlineOrder: React.FC = () => {
                         icon={<img style={{ marginRight: 12 }} alt="" src={deleteIcon} />}
                         onClick={() => deleteSmsForm(smsFormIndex)}
                         className={"delete-button"}
+                        loading={isLoading}
                       >
                         Xóa
                       </Button>
@@ -668,7 +683,7 @@ const SmsOnlineOrder: React.FC = () => {
                   <Button
                     className="insert-button"
                     onClick={() => handleInsertKeyword(keyWord.value)}
-                    disabled={!allowUpdateSms}
+                    disabled={!allowUpdateSms || isLoading}
                   >
                     Chèn
                   </Button>

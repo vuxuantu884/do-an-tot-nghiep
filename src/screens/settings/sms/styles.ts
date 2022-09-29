@@ -59,6 +59,9 @@ export const StyledSmsConfigMessage = styled.div`
 
       .sms-content {
         margin: 20px 0;
+        .text-area-input-content {
+          padding-right: 20px;
+        }
         .warning-border {
           border: 1px solid red;
         }
