@@ -11,11 +11,7 @@ import { useDispatch } from "react-redux";
 import { getKDOfflineTotalSalesLoyalty } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
-import {
-  calculateTargetMonth,
-  findKeyDriver,
-  nonAccentVietnameseKD,
-} from "utils/KeyDriverOfflineUtils";
+import { calculateTargetMonth, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 import { calculateDimSummary } from "../utils/DimSummaryUtils";
@@ -32,16 +28,9 @@ function useFetchOfflineTotalSalesLoyalty(
   >();
 
   const findKeyDriverAndUpdateValue = useCallback(
-    (data: any, asmData: any, columnKey: string) => {
-      let customersCount: any = [];
-      const {
-        CustomersCount,
-        CustomerLte90DaysTotalSales,
-        ShopperLte90DaysTotalSales,
-        OthersTotalSales,
-      } = KeyDriverField;
-      findKeyDriver(data, CustomersCount, customersCount);
-      customersCount = customersCount[0];
+    (dataState: any, dimData: any, columnKey: string) => {
+      const { CustomerLte90DaysTotalSales, ShopperLte90DaysTotalSales, OthersTotalSales } =
+        KeyDriverField;
       const { Asm, Store, Staff } = KeyDriverDimension;
       let dimensionKey: "department_lv2" | "pos_location_name" | "staff_code" | "" = "";
       switch (dimension) {
@@ -57,30 +46,21 @@ function useFetchOfflineTotalSalesLoyalty(
         default:
           break;
       }
-      const dimensionName = nonAccentVietnameseKD(asmData[dimensionKey]);
+      const dimensionName = nonAccentVietnameseKD(dimData[dimensionKey]);
       if (dimensionName) {
-        customersCount[`${dimensionName}_${columnKey}`] = asmData[CustomersCount];
-        if (columnKey === "accumulatedMonth") {
-          customersCount[`${dimensionName}_targetMonth`] = calculateTargetMonth(
-            customersCount[`${dimensionName}_accumulatedMonth`],
-            selectedDate,
-          );
-        }
-      }
-      if (customersCount.children?.length) {
-        customersCount.children.forEach((item: any) => {
-          if (Object.keys(asmData).findIndex((itemKey) => item.key === itemKey) !== -1) {
-            item[`${dimensionName}_${columnKey}`] = asmData[item.key];
+        dataState.forEach((dataItem: any) => {
+          if (Object.keys(dimData).includes(dataItem.key)) {
+            dataItem[`${dimensionName}_${columnKey}`] = dimData[dataItem.key];
             // doanh thu nhóm KH khác = tổng doanh thu các nhóm khách hàng còn lại không show trên BC
-            if (item.key === OthersTotalSales) {
-              item[`${dimensionName}_${columnKey}`] =
-                asmData[item.key] +
-                asmData[CustomerLte90DaysTotalSales] +
-                asmData[ShopperLte90DaysTotalSales];
+            if (dataItem.key === OthersTotalSales) {
+              dataItem[`${dimensionName}_${columnKey}`] =
+                dimData[dataItem.key] +
+                dimData[CustomerLte90DaysTotalSales] +
+                dimData[ShopperLte90DaysTotalSales];
             }
             if (columnKey === "accumulatedMonth") {
-              item[`${dimensionName}_targetMonth`] = calculateTargetMonth(
-                item[`${dimensionName}_accumulatedMonth`],
+              dataItem[`${dimensionName}_targetMonth`] = calculateTargetMonth(
+                dataItem[`${dimensionName}_accumulatedMonth`],
                 selectedDate,
               );
             }
@@ -181,13 +161,11 @@ function useFetchOfflineTotalSalesLoyalty(
             showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Tổng khách mua");
           }
           if (resDay.length) {
-            setData((prev: any) => {
-              let dataPrev: any = prev[0];
+            setData((dataPrev: any) => {
               resDayDim.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
               });
-              prev[0] = dataPrev;
-              return [...prev];
+              return [...dataPrev];
             });
           }
           setIsFetchingOfflineTotalSalesLoyalty(false);
@@ -195,8 +173,7 @@ function useFetchOfflineTotalSalesLoyalty(
         }
 
         if (resMonth.length) {
-          setData((prev: any) => {
-            let dataPrev: any = prev[0];
+          setData((dataPrev: any) => {
             if (resDay.length) {
               resDayDim.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
@@ -212,8 +189,7 @@ function useFetchOfflineTotalSalesLoyalty(
             resMonthDim.forEach((item: any) => {
               findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
             });
-            prev[0] = dataPrev;
-            return [...prev];
+            return [...dataPrev];
           });
         }
       });

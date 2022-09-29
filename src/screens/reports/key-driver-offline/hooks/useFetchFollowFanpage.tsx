@@ -136,8 +136,7 @@ function useFetchFollowFanpage(dimension: KeyDriverDimension = KeyDriverDimensio
         }
 
         if (resMonth.length) {
-          setData((prev: any) => {
-            let dataPrev: any = prev[0];
+          setData((dataPrev: any) => {
             if (resDay.length) {
               resDayDim.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
@@ -157,8 +156,7 @@ function useFetchFollowFanpage(dimension: KeyDriverDimension = KeyDriverDimensio
             resMonthDim.forEach((item: any) => {
               findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
             });
-            prev[0] = dataPrev;
-            return [...prev];
+            return [...dataPrev];
           });
         }
       });

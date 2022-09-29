@@ -19,7 +19,7 @@ function useFetchCallLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.
   const [isFetchingCallLoyalty, setIsFetchingCallLoyalty] = useState<boolean | undefined>();
 
   const findKeyDriverAndUpdateValue = useCallback(
-    (data: any, asmData: any, columnKey: string) => {
+    (dataState: any, dimData: any, columnKey: string) => {
       const { Asm, Store } = KeyDriverDimension;
       let dimKey: "department_lv2" | "pos_location_name" | undefined;
       if (dimension === Asm) {
@@ -30,8 +30,8 @@ function useFetchCallLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.
         dimKey = undefined;
       }
       findKDAndUpdateCallSmsValue({
-        data,
-        asmData,
+        dataState,
+        dimData,
         columnKey,
         selectedDate,
         type: "call",
@@ -124,13 +124,11 @@ function useFetchCallLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.
           }
 
           if (resDay.length) {
-            setData((prev: any) => {
-              let dataPrev: any = prev[0];
+            setData((dataPrev: any) => {
               resDayDim.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
               });
-              prev[0] = dataPrev;
-              return [...prev];
+              return [...dataPrev];
             });
           }
           setIsFetchingCallLoyalty(false);
@@ -138,8 +136,7 @@ function useFetchCallLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.
         }
 
         if (resMonth.length) {
-          setData((prev: any) => {
-            let dataPrev: any = prev[0];
+          setData((dataPrev: any) => {
             if (resDay.length) {
               resDayDim.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
@@ -155,8 +152,7 @@ function useFetchCallLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.
             resMonthDim.forEach((item: any) => {
               findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
             });
-            prev[0] = dataPrev;
-            return [...prev];
+            return [...dataPrev];
           });
         }
       });

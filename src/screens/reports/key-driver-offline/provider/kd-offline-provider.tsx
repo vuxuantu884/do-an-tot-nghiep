@@ -1,6 +1,6 @@
-import { KeyDriverTarget, LocalStorageKey } from "model/report";
+import { KeyDriverDimension, KeyDriverTarget, LocalStorageKey } from "model/report";
 import React from "react";
-import { keyDriverOfflineTemplateData } from "../constant/key-driver-offline-template-data";
+import { kdOfflineTemplateData } from "../constant/kd-offline-template";
 
 type KDOfflineProviderValue = {
   data: any;
@@ -27,10 +27,11 @@ export const KDOfflineContext = React.createContext<KDOfflineProviderValue>(
   {} as KDOfflineProviderValue,
 );
 
-function KDOfflineProvider(props: { children: React.ReactNode }) {
-  const [data, setData] = React.useState<any>(
-    JSON.parse(JSON.stringify(keyDriverOfflineTemplateData)),
-  );
+function KDOfflineProvider(props: { children: React.ReactNode; dimension: KeyDriverDimension }) {
+  const defaultData = kdOfflineTemplateData.filter((item: any) => {
+    return !item.allowedDimension || item.allowedDimension.includes(props.dimension);
+  });
+  const [data, setData] = React.useState<any>(JSON.parse(JSON.stringify(defaultData)));
   const [kdTarget, setKDTarget] = React.useState<KeyDriverTarget[]>([]);
   const [selectedStores, setSelectedStores] = React.useState<string[]>([]);
   const [selectedAsm, setSelectedAsm] = React.useState<string[]>([]);

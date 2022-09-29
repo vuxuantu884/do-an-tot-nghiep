@@ -19,7 +19,7 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
   const [isFetchingSmsLoyalty, setIsFetchingSmsLoyalty] = useState<boolean | undefined>();
 
   const findKeyDriverAndUpdateValue = useCallback(
-    (data: any, asmData: any, columnKey: string) => {
+    (dataState: any, dimData: any, columnKey: string) => {
       const { Asm, Store } = KeyDriverDimension;
       let dimKey: "department_lv2" | "pos_location_name" | undefined;
       if (dimension === Asm) {
@@ -30,8 +30,8 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
         dimKey = undefined;
       }
       findKDAndUpdateCallSmsValue({
-        data,
-        asmData,
+        dataState,
+        dimData,
         columnKey,
         selectedDate,
         type: "sms",
@@ -122,13 +122,11 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
             showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế SMS theo hạng khách hàng");
           }
           if (resDay.length) {
-            setData((prev: any) => {
-              let dataPrev: any = prev[0];
+            setData((dataPrev: any) => {
               resDayDim.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
               });
-              prev[0] = dataPrev;
-              return [...prev];
+              return [...dataPrev];
             });
           }
           setIsFetchingSmsLoyalty(false);
@@ -136,8 +134,7 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
         }
 
         if (resMonth.length) {
-          setData((prev: any) => {
-            let dataPrev: any = prev[0];
+          setData((dataPrev: any) => {
             if (resDay.length) {
               resDayDim.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
@@ -153,8 +150,7 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
             resMonthDim.forEach((item: any) => {
               findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
             });
-            prev[0] = dataPrev;
-            return [...prev];
+            return [...dataPrev];
           });
         }
       });

@@ -80,16 +80,14 @@ export const findKeyDriver = (keyDriverData: any, key: string, result: any[]) =>
   }
 };
 
-export const calculateKDAverageCustomerSpent = (keyDriverData: any, department: string) => {
-  let offlineTotalSales: any = [];
-  findKeyDriver(keyDriverData, "offline_total_sales", offlineTotalSales);
-  let customersCount: any = [];
-  findKeyDriver(keyDriverData, "customers_count", customersCount);
-  let averageCustomerSpent: any = [];
-  findKeyDriver(keyDriverData, "average_customer_spent", averageCustomerSpent);
-  offlineTotalSales = offlineTotalSales[0];
-  customersCount = customersCount[0];
-  averageCustomerSpent = averageCustomerSpent[0];
+export const calculateKDAverageCustomerSpent = (
+  averageCustomerSpent: any,
+  department: string,
+  dataState: any[],
+) => {
+  const { OfflineTotalSales, CustomersCount } = KeyDriverField;
+  let offlineTotalSales: any = dataState.find((item) => item.key === OfflineTotalSales);
+  let customersCount: any = dataState.find((item) => item.key === CustomersCount);
   if (!averageCustomerSpent[`${department}_day`]) {
     averageCustomerSpent[`${department}_day`] = customersCount[`${department}_day`]
       ? offlineTotalSales[`${department}_day`] / customersCount[`${department}_day`] || ""
@@ -109,16 +107,14 @@ export const calculateKDAverageCustomerSpent = (keyDriverData: any, department: 
     : "";
 };
 
-export const calculateKDConvertionRate = (keyDriverData: any, department: string) => {
-  let convertionRate: any = [];
-  findKeyDriver(keyDriverData, KeyDriverField.ConvertionRate, convertionRate);
-  let customersCount: any = [];
-  findKeyDriver(keyDriverData, KeyDriverField.CustomersCount, customersCount);
-  let visitors: any = [];
-  findKeyDriver(keyDriverData, KeyDriverField.Visitors, visitors);
-  convertionRate = convertionRate[0];
-  customersCount = customersCount[0];
-  visitors = visitors[0];
+export const calculateKDConvertionRate = (
+  convertionRate: any,
+  department: string,
+  dataState: any[],
+) => {
+  const { CustomersCount, Visitors } = KeyDriverField;
+  let customersCount: any = dataState.find((item) => item.key === CustomersCount);
+  let visitors: any = dataState.find((item) => item.key === Visitors);
   if (!convertionRate[`${department}_day`]) {
     convertionRate[`${department}_day`] = visitors[`${department}_day`]
       ? +(
@@ -150,16 +146,14 @@ export const calculateKDConvertionRate = (keyDriverData: any, department: string
 };
 
 export const calculateKDAverageOrderValue = (
-  keyDriverData: any,
+  averageOrderValue: any,
   department: string,
   selectedDate: string,
+  dataState: any[],
 ) => {
-  let offlineTotalSales: any = [];
-  findKeyDriver(keyDriverData, KeyDriverField.OfflineTotalSales, offlineTotalSales);
-  let averageOrderValue: any = [];
-  findKeyDriver(keyDriverData, KeyDriverField.AverageOrderValue, averageOrderValue);
-  offlineTotalSales = offlineTotalSales[0];
-  averageOrderValue = averageOrderValue[0];
+  let offlineTotalSales: any = dataState.find(
+    (item) => item.key === KeyDriverField.OfflineTotalSales,
+  );
   const { YYYYMMDD } = DATE_FORMAT;
   const isPastDate = moment(selectedDate, YYYYMMDD).diff(moment(), "days", true) <= -1;
   const dayNumber = isPastDate
@@ -203,17 +197,13 @@ export const calculateKDAverageOrderValue = (
 };
 
 export const calculateKDNewCustomerRateTargetDay = (
-  keyDriverData: any,
+  newCustomersConversionRate: any,
   department: string,
   selectedDate: string,
+  dataState: any[],
 ) => {
-  const { NewCustomersConversionRate, PotentialCustomerCount } = KeyDriverField;
-  let potentialCustomerCount: any = [];
-  findKeyDriver(keyDriverData, PotentialCustomerCount, potentialCustomerCount);
-  let newCustomersConversionRate: any = [];
-  findKeyDriver(keyDriverData, NewCustomersConversionRate, newCustomersConversionRate);
-  potentialCustomerCount = potentialCustomerCount[0];
-  newCustomersConversionRate = newCustomersConversionRate[0];
+  const { PotentialCustomerCount } = KeyDriverField;
+  let potentialCustomerCount: any = dataState.find((item) => item.key === PotentialCustomerCount);
   const { YYYYMMDD } = DATE_FORMAT;
   const isPastDate = moment(selectedDate, YYYYMMDD).diff(moment(), "days", true) <= -1;
   const dayNumber = isPastDate
@@ -386,11 +376,6 @@ export const calculateMonthRateUtil = (keyDriver: any, departments: string[]) =>
     const asmKey = nonAccentVietnameseKD(asm);
     calculateDepartmentMonthRate(keyDriver, asmKey);
   });
-  if (keyDriver.children?.length) {
-    keyDriver.children.forEach((item: any) => {
-      calculateMonthRateUtil(item, departments);
-    });
-  }
 };
 
 // Tỷ lệ thực đạt so vs mục tiêu ngày
@@ -399,11 +384,6 @@ export const calculateDayRateUtil = (keyDriver: any, departments: string[]) => {
     const asmKey = nonAccentVietnameseKD(asm);
     calculateDepartmentDayRate(keyDriver, asmKey);
   });
-  if (keyDriver.children?.length) {
-    keyDriver.children.forEach((item: any) => {
-      calculateDayRateUtil(item, departments);
-    });
-  }
 };
 
 // Mục tiêu ngày
@@ -416,11 +396,6 @@ export const calculateDayTargetUtil = (
     const asmKey = nonAccentVietnameseKD(asm);
     calculateDepartmentDayTarget(keyDriver, asmKey, selectedDate);
   });
-  if (keyDriver.children?.length) {
-    keyDriver.children.forEach((item: any) => {
-      calculateDayTargetUtil(item, departments, selectedDate);
-    });
-  }
 };
 
 export const updateTargetMonthUtil = async (

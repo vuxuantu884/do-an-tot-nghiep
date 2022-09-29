@@ -1,4 +1,4 @@
-import { KDGroup, KeyDriverDimension } from "model/report";
+import { KDGroup, KeyDriverDimension, KeyDriverField } from "model/report";
 import moment from "moment";
 import { useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -137,9 +137,9 @@ function useFetchStoresProductTotalSales(dimension: KeyDriverDimension = KeyDriv
       const { data: resDayData } = res[0].result;
       setData((prev: any) => {
         const dimName = dimension === KeyDriverDimension.Staff ? selectedStores[0] : selectedAsm[0];
-        console.log("dimName", dimName);
-
-        const storesProductTotalSales: any = prev[1];
+        const storesProductTotalSales: any = prev.find(
+          (item: any) => item.key === KeyDriverField.ProductTotalSales,
+        );
         const childrenProduct: any[] = storesProductTotalSales.children;
         resDayData.forEach((item: any) => {
           if (item && item[0]) {
@@ -201,7 +201,6 @@ function useFetchStoresProductTotalSales(dimension: KeyDriverDimension = KeyDriv
           });
         }
         storesProductTotalSales.children = childrenProduct;
-        prev[1] = storesProductTotalSales;
         return [...prev];
       });
       setIsFetchingStoresProductTotalSales(false);

@@ -25,7 +25,7 @@ function useFetchKDOfflineTotalSales(dimension: KeyDriverDimension = KeyDriverDi
   >();
 
   const findKeyDriverAndUpdateValue = useCallback(
-    (data: any, asmData: any, columnKey: string, keyDriver: any) => {
+    (dataState: any, dimData: any, columnKey: string) => {
       const { Asm, Store, Staff } = KeyDriverDimension;
       let dimensionKey = "";
       switch (dimension) {
@@ -41,30 +41,23 @@ function useFetchKDOfflineTotalSales(dimension: KeyDriverDimension = KeyDriverDi
         default:
           break;
       }
-      const dimensionName = nonAccentVietnameseKD(asmData[dimensionKey]);
-      if (data.key === keyDriver && dimensionName) {
-        data[`${dimensionName}_${columnKey}`] = asmData[keyDriver];
-        if (
-          columnKey === "accumulatedMonth" &&
-          ![KeyDriverField.AverageOrderValue, KeyDriverField.AverageCustomerSpent].includes(
-            keyDriver,
-          )
-        ) {
-          data[`${dimensionName}_targetMonth`] = calculateTargetMonth(
-            data[`${dimensionName}_accumulatedMonth`],
-            selectedDate,
-          );
+      const dimensionName = nonAccentVietnameseKD(dimData[dimensionKey]);
+      dataState.forEach((dataItem: any) => {
+        if (Object.keys(dimData).includes(dataItem.key)) {
+          dataItem[`${dimensionName}_${columnKey}`] = dimData[dataItem.key];
+          if (
+            columnKey === "accumulatedMonth" &&
+            ![KeyDriverField.AverageOrderValue, KeyDriverField.AverageCustomerSpent].includes(
+              dataItem.key,
+            )
+          ) {
+            dataItem[`${dimensionName}_targetMonth`] = calculateTargetMonth(
+              dataItem[`${dimensionName}_accumulatedMonth`],
+              selectedDate,
+            );
+          }
         }
-      } else {
-        if (
-          data.children?.length &&
-          [KeyDriverField.TotalSales, KeyDriverField.OfflineTotalSales].includes(data.key)
-        ) {
-          data.children.forEach((item: any) => {
-            findKeyDriverAndUpdateValue(item, asmData, columnKey, keyDriver);
-          });
-        }
-      }
+      });
     },
     [dimension, selectedDate],
   );
@@ -200,25 +193,18 @@ function useFetchKDOfflineTotalSales(dimension: KeyDriverDimension = KeyDriverDi
           if (!resMonth && resMonth !== 0) {
             showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế doanh thu offline");
           }
-          setData((prev: any) => {
-            let dataPrev: any = prev[0];
+          setData((dataPrev: any) => {
             resDayDim.forEach((item: any) => {
-              Object.keys(item).forEach((keyDriver: any) => {
-                findKeyDriverAndUpdateValue(dataPrev, item, "actualDay", keyDriver);
-              });
+              findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
             });
-            prev[0] = dataPrev;
-            return [...prev];
+            return [...dataPrev];
           });
           setIsFetchingKDOfflineTotalSales(false);
           return;
         }
-        setData((prev: any) => {
-          let dataPrev: any = prev[0];
+        setData((dataPrev: any) => {
           resDayDim.forEach((item: any) => {
-            Object.keys(item).forEach((keyDriver: any) => {
-              findKeyDriverAndUpdateValue(dataPrev, item, "actualDay", keyDriver);
-            });
+            findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
           });
           let resMonthDim: any[] = [];
           if (dimension === Asm) {
@@ -229,12 +215,9 @@ function useFetchKDOfflineTotalSales(dimension: KeyDriverDimension = KeyDriverDi
             resMonthDim = [dimMonthData, ...resMonth];
           }
           resMonthDim.forEach((item: any) => {
-            Object.keys(item).forEach((keyDriver: any) => {
-              findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth", keyDriver);
-            });
+            findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
           });
-          prev[0] = dataPrev;
-          return [...prev];
+          return [...dataPrev];
         });
       });
       setIsFetchingKDOfflineTotalSales(false);

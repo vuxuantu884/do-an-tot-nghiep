@@ -18,7 +18,7 @@ function useFetchProfit(dimension: KeyDriverDimension = KeyDriverDimension.Store
   const [isFetchingProfit, setIsFetchingProfit] = useState<boolean | undefined>();
 
   const findKeyDriverAndUpdateValue = useCallback(
-    (data: any, dimData: any, columnKey: string, keyDriver: string) => {
+    (dataState: any, dimData: any, columnKey: string) => {
       const { Asm, Store } = KeyDriverDimension;
       let dimKey: "department_lv2" | "pos_location_name" | undefined;
       if (dimension === Asm) {
@@ -29,12 +29,11 @@ function useFetchProfit(dimension: KeyDriverDimension = KeyDriverDimension.Store
         dimKey = undefined;
       }
       findKDAndUpdateProfitKD({
-        data,
+        dataState,
         dimData,
         columnKey,
         selectedDate,
         dimKey,
-        keyDriver,
       });
     },
     [dimension, selectedDate],
@@ -115,27 +114,20 @@ function useFetchProfit(dimension: KeyDriverDimension = KeyDriverDimension.Store
             showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Cuộc gọi theo hạng khách hàng");
           }
           if (resDay.length) {
-            setData((prev: any) => {
-              let dataPrev: any = prev[2];
+            setData((dataPrev: any) => {
               resDayDim.forEach((item: any) => {
-                Object.keys(item).forEach((keyDriver) => {
-                  findKeyDriverAndUpdateValue(dataPrev, item, "actualDay", keyDriver);
-                });
+                findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
               });
-              prev[2] = dataPrev;
-              return [...prev];
+              return [...dataPrev];
             });
           }
           setIsFetchingProfit(false);
           return;
         }
-        setData((prev: any) => {
-          let dataPrev: any = prev[2];
+        setData((dataPrev: any) => {
           if (resDay.length) {
             resDayDim.forEach((item: any) => {
-              Object.keys(item).forEach((keyDriver) => {
-                findKeyDriverAndUpdateValue(dataPrev, item, "actualDay", keyDriver);
-              });
+              findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
             });
           }
           let resMonthDim: any[] = [];
@@ -146,12 +138,9 @@ function useFetchProfit(dimension: KeyDriverDimension = KeyDriverDimension.Store
             resMonthDim = calculateDimSummary(resMonth[0], dimension, dimName);
           }
           resMonthDim.forEach((item: any) => {
-            Object.keys(item).forEach((keyDriver) => {
-              findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth", keyDriver);
-            });
+            findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
           });
-          prev[2] = dataPrev;
-          return [...prev];
+          return [...dataPrev];
         });
       });
 

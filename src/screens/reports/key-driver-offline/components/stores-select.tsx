@@ -5,7 +5,7 @@ import { ReactElement, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { strForSearch } from "utils/StringUtils";
-import { keyDriverOfflineTemplateData } from "../constant/key-driver-offline-template-data";
+import { kdOfflineTemplateData } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 interface Props extends SelectProps<number> {
   asmName: string;
@@ -22,7 +22,7 @@ function StoresSelect(props: Props): ReactElement {
   const [listStore, setStore] = useState<Array<StoreResponse>>([]);
 
   const handleOnChange = (stores: string[]) => {
-    setData((prev: any) => JSON.parse(JSON.stringify(keyDriverOfflineTemplateData)));
+    setData((prev: any) => JSON.parse(JSON.stringify(kdOfflineTemplateData)));
     if (!stores.length) {
       setSelectedAllStores(true);
     } else {
@@ -64,7 +64,7 @@ function StoresSelect(props: Props): ReactElement {
 
   useEffect(() => {
     if (selectedStoreRank) {
-      setData((prev: any) => JSON.parse(JSON.stringify(keyDriverOfflineTemplateData)));
+      setData((prev: any) => JSON.parse(JSON.stringify(kdOfflineTemplateData)));
       setSelectedAllStores(true);
       setSelectedStores(
         storesInAsm.filter((item) => item.rank === selectedStoreRank).map((item) => item.name),
