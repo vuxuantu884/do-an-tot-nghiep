@@ -3,7 +3,7 @@ import CustomSelect from "component/custom/select.custom";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { StoreResponse } from "model/core/store.model";
 import { OrderResponse } from "model/response/order/order.response";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { isOrderFromPOS } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -18,6 +18,7 @@ type PropTypes = {
   form: FormInstance<any>;
   receivedStoreName?: string;
   OrderDetail: OrderResponse | null;
+  defaultReceiveReturnStore?: StoreResponse;
 };
 function CardReturnReceiveProducts(props: PropTypes) {
   const {
@@ -31,16 +32,14 @@ function CardReturnReceiveProducts(props: PropTypes) {
     form,
     receivedStoreName,
     OrderDetail,
+    defaultReceiveReturnStore,
   } = props;
 
-  let initStoreName =
-    currentStores?.length === 1
-      ? currentStores[0].name
-      : currentStores && currentStores?.length > 1 && OrderDetail?.store_id
-      ? currentStores?.find((single) => single.id === OrderDetail?.store_id)?.name || ""
-      : "";
+  const [storeName, setStoreName] = useState<string | undefined>("");
 
-  const [storeName, setStoreName] = useState(initStoreName);
+  const okButtonRef = useRef<any>();
+
+  console.log("defaultReceiveReturnStore", defaultReceiveReturnStore);
 
   const renderCardTitle = () => {
     return (
@@ -86,6 +85,15 @@ function CardReturnReceiveProducts(props: PropTypes) {
         {isDetailPage && <Button>Nhận hàng</Button>}
       </div>
     );
+  };
+
+  const onOk = () => {
+    setIsShowReceiveProductConfirmModal(false);
+    handleReceivedReturnProductsToStore();
+  };
+
+  const onCancel = () => {
+    setIsShowReceiveProductConfirmModal(false);
   };
 
   const mainRender = () => {
@@ -139,17 +147,35 @@ function CardReturnReceiveProducts(props: PropTypes) {
                   </Button>
                 </div>
                 <ModalConfirm
+                  onOk={onOk}
+                  onCancel={onCancel}
                   visible={isShowReceiveProductConfirmModal}
-                  onOk={() => {
-                    setIsShowReceiveProductConfirmModal(false);
-                    handleReceivedReturnProductsToStore();
-                  }}
-                  onCancel={() => setIsShowReceiveProductConfirmModal(false)}
                   title={`Bạn có chắc chắn nhận hàng về kho ${storeName}`}
                   subTitle={
                     <span>
                       Tồn kho sẽ được cộng về kho {storeName}! Vui lòng cân nhắc trước khi đồng ý!
                     </span>
+                  }
+                  footer={
+                    <React.Fragment>
+                      <Button
+                        type="primary"
+                        id="orderReturn_receive_return_store_button"
+                        ref={okButtonRef}
+                        onClick={() => {
+                          onOk();
+                        }}
+                      >
+                        OK
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          onCancel();
+                        }}
+                      >
+                        Hủy
+                      </Button>
+                    </React.Fragment>
                   }
                 />
               </React.Fragment>
@@ -175,6 +201,20 @@ function CardReturnReceiveProducts(props: PropTypes) {
       />
     );
   };
+
+  useEffect(() => {
+    if (isShowReceiveProductConfirmModal) {
+      setTimeout(() => {
+        if (okButtonRef.current) {
+          okButtonRef.current.focus();
+        }
+      }, 300);
+    }
+  }, [isShowReceiveProductConfirmModal]);
+
+  useEffect(() => {
+    setStoreName(defaultReceiveReturnStore?.name);
+  }, [defaultReceiveReturnStore?.name]);
 
   return <StyledComponent>{mainRender()}</StyledComponent>;
 }

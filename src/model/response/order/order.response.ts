@@ -192,6 +192,7 @@ export interface FulFillmentResponse {
   reason_name?: string;
   sub_reason_name?: string;
   returning_on?: string | null;
+  returned_store_id?: number | null;
 }
 
 export interface EcommerceDeliveryResponse {

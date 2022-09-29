@@ -82,6 +82,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useReactToPrint } from "react-to-print";
 import CustomerCard from "screens/order-online/component/order-detail/CardCustomer";
+import useGetDefaultReturnOrderReceivedStore from "screens/order-online/hooks/useGetDefaultReturnOrderReceivedStore";
+import useGetOrderDetail from "screens/order-online/hooks/useGetOrderDetail";
 import useHandleMomoCreateShipment from "screens/order-online/hooks/useHandleMomoCreateShipment";
 import {
   getPrintOrderReturnContentService,
@@ -122,7 +124,7 @@ import {
   RETURN_MONEY_TYPE,
   RETURN_TYPE_VALUES,
 } from "utils/Order.constants";
-import { findPaymentMethodByCode, getDefaultReceiveReturnStoreIdFormValue } from "utils/OrderUtils";
+import { findPaymentMethodByCode } from "utils/OrderUtils";
 import { showError } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -277,6 +279,16 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   const currentStores = useFetchStores();
 
+  const ReturnOriginOrderDetail: OrderResponse | undefined = useGetOrderDetail(
+    OrderDetail?.order_code,
+  );
+
+  const defaultReceiveReturnStore = useGetDefaultReturnOrderReceivedStore({
+    currentStores,
+    OrderDetail,
+    fulfillments: ReturnOriginOrderDetail?.fulfillments,
+  });
+
   const [isShowReceiveProductConfirmModal, setIsShowReceiveProductConfirmModal] = useState(false);
 
   const recentAccountCode = useMemo(() => {
@@ -344,14 +356,15 @@ const ScreenReturnCreate = (props: PropTypes) => {
       coordinator_code: OrderDetail?.coordinator_code,
       note: OrderDetail?.note,
       customer_note: OrderDetail?.customer_note,
-      orderReturn_receive_return_store_id: getDefaultReceiveReturnStoreIdFormValue(
-        currentStores,
-        OrderDetail,
-      ),
+      orderReturn_receive_return_store_id: defaultReceiveReturnStore?.id,
     };
   }, [
-    OrderDetail,
-    currentStores,
+    OrderDetail?.assignee_code,
+    OrderDetail?.coordinator_code,
+    OrderDetail?.customer_note,
+    OrderDetail?.marketer_code,
+    OrderDetail?.note,
+    defaultReceiveReturnStore?.id,
     initialForm,
     isExchange,
     recentAccountCode.accountCode,

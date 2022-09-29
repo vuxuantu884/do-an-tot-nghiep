@@ -17,7 +17,6 @@ import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import useCheckIfCanCreateMoneyRefund from "hook/order/useCheckIfCanCreateMoneyRefund";
 import useAuthorization from "hook/useAuthorization";
 import useFetchStores from "hook/useFetchStores";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
@@ -29,8 +28,10 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
+import useGetDefaultReturnOrderReceivedStore from "screens/order-online/hooks/useGetDefaultReturnOrderReceivedStore";
+import useGetOrderDetail from "screens/order-online/hooks/useGetOrderDetail";
 import useGetStoreDetail from "screens/order-online/hooks/useGetStoreDetail";
 import {
   deleteOrderReturnService,
@@ -41,7 +42,7 @@ import {
 import { handleFetchApiError, isFetchApiSuccessful, isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, PaymentMethodCode, POS } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
-import { findPaymentMethodByCode, getDefaultReceiveReturnStoreIdFormValue } from "utils/OrderUtils";
+import { findPaymentMethodByCode } from "utils/OrderUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { showSuccess } from "utils/ToastUtils";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -67,6 +68,13 @@ const ScreenReturnDetail = (props: PropTypes) => {
   const [isError, setError] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
+
+  const ReturnOriginOrderDetail: OrderResponse | undefined = useGetOrderDetail(
+    OrderDetail?.order_code,
+  );
+
+  console.log("ReturnOriginOrderDetail111", ReturnOriginOrderDetail);
+
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(null);
   const [paymentMethods, setListPaymentMethods] = useState<Array<PaymentMethodResponse>>([]);
 
@@ -90,6 +98,12 @@ const ScreenReturnDetail = (props: PropTypes) => {
   const currentStores = useFetchStores();
 
   console.log("currentStores", currentStores);
+  const defaultReceiveReturnStore = useGetDefaultReturnOrderReceivedStore({
+    currentStores,
+    OrderDetail,
+    fulfillments: ReturnOriginOrderDetail?.fulfillments,
+  });
+  console.log("defaultReceiveReturnStore", defaultReceiveReturnStore);
 
   const [isShowReceiveProductConfirmModal, setIsShowReceiveProductConfirmModal] = useState(false);
 
@@ -231,12 +245,9 @@ const ScreenReturnDetail = (props: PropTypes) => {
           returnMoneyAmount: 0,
         },
       ],
-      orderReturn_receive_return_store_id: getDefaultReceiveReturnStoreIdFormValue(
-        currentStores,
-        OrderDetail,
-      ),
+      orderReturn_receive_return_store_id: undefined,
     };
-  }, [OrderDetail, currentStores]);
+  }, []);
 
   const handleReturnMoney = () => {
     form.validateFields().then(() => {
@@ -557,6 +568,12 @@ const ScreenReturnDetail = (props: PropTypes) => {
     dispatch(getLoyaltyUsage(setLoyaltyUsageRules));
   }, [dispatch]);
 
+  useEffect(() => {
+    form.setFieldsValue({
+      orderReturn_receive_return_store_id: defaultReceiveReturnStore?.id,
+    });
+  }, [defaultReceiveReturnStore?.id, form]);
+
   return (
     <OrderReturnSingleContext.Provider value={orderReturnSingleContextData}>
       <ContentContainer
@@ -625,6 +642,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
                   form={form}
                   OrderDetail={OrderDetail}
                   receivedStoreName={receivedStoreDetail?.name}
+                  defaultReceiveReturnStore={defaultReceiveReturnStore}
                 />
               </Form>
             </Col>
