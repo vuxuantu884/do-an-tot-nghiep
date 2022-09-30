@@ -89,7 +89,6 @@ import {
   checkIfFinishedPayment,
   checkIfMomoPayment,
   checkIfOrderHasNotFinishPaymentMomo,
-  getDefaultReceiveReturnStoreIdFormValue,
   isDeliveryOrderReturned,
 } from "utils/OrderUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -108,6 +107,7 @@ import CardReturnMoney from "../component/order-detail/CardReturnMoney";
 import CardShowOrderPayments from "../component/order-detail/CardShowOrderPayments";
 import UpdateCustomerCard from "../component/update-customer-card";
 import UpdateShipmentCard from "../component/UpdateShipmentCard";
+import useGetDefaultReturnOrderReceivedStore from "../hooks/useGetDefaultReturnOrderReceivedStore";
 import CancelOrderModal from "../modal/cancel-order.modal";
 import CardReturnReceiveProducts from "../order-return/components/CardReturnReceiveProducts";
 import { StyledComponent } from "./styles";
@@ -205,6 +205,13 @@ const OrderDetail = (props: PropTypes) => {
   );
 
   const currentStores = useFetchStores();
+
+  const defaultReceiveReturnStore = useGetDefaultReturnOrderReceivedStore({
+    currentStores,
+    OrderDetail,
+    fulfillments: OrderDetail?.fulfillments,
+  });
+  console.log("defaultReceiveReturnStore", defaultReceiveReturnStore);
 
   const [isShowReceiveProductConfirmModal, setIsShowReceiveProductConfirmModal] = useState(false);
 
@@ -903,11 +910,8 @@ const OrderDetail = (props: PropTypes) => {
 
   const initialFormValue = {
     returnMoneyField: [{ returnMoneyMethod: undefined, returnMoneyNote: undefined }],
-    orderReturn_receive_return_store_id: getDefaultReceiveReturnStoreIdFormValue(
-      currentStores,
-      OrderDetail,
-    ),
-    ffm_receive_return_store_id: currentStores?.length === 1 ? currentStores[0].id : undefined,
+    orderReturn_receive_return_store_id: defaultReceiveReturnStore?.id,
+    ffm_receive_return_store_id: undefined,
   };
 
   const onSelectShipment = (value: number) => {
@@ -1008,6 +1012,12 @@ const OrderDetail = (props: PropTypes) => {
       }
     });
   }, [OrderDetail?.code, dispatch]);
+
+  useEffect(() => {
+    form.setFieldsValue({
+      ffm_receive_return_store_id: defaultReceiveReturnStore?.id,
+    });
+  }, [defaultReceiveReturnStore?.id, form]);
 
   return (
     <StyledComponent>
@@ -1142,6 +1152,7 @@ const OrderDetail = (props: PropTypes) => {
                   form={form}
                   isShowReceiveProductConfirmModal={isShowReceiveProductConfirmModal}
                   setIsShowReceiveProductConfirmModal={setIsShowReceiveProductConfirmModal}
+                  defaultReceiveReturnStore={defaultReceiveReturnStore}
                 />
                 {/*--- end shipment ---*/}
 

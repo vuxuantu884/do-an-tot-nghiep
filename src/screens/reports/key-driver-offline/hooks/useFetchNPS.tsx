@@ -110,7 +110,7 @@ function useFetchNPS(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
 
       await Promise.all([dayApi, monthApi]).then(([resDay, resMonth]) => {
         if (!resDay) {
-          showErrorReport("Lỗi khi lấy dữ liệu thực đạt Cuộc gọi theo hạng khách hàng");
+          showErrorReport("Lỗi khi lấy dữ liệu thực đạt NPS");
           setIsFetchingNPS(false);
           return;
         }
@@ -130,7 +130,7 @@ function useFetchNPS(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
         }
         if (!resMonth?.length) {
           if (!resMonth && resMonth !== 0) {
-            showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Cuộc gọi theo hạng khách hàng");
+            showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế NPS");
           }
 
           if (resDay.length) {

@@ -163,6 +163,12 @@ export const getKeyDriverOnlineApi = (
   return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/query/key-drivers`, { params });
 };
 
+export const actualDayUpdateApi = (
+  params: any,
+): Promise<BaseResponse<Omit<AnalyticDataQuery, "query">>> => {
+  return BaseAxiosApi.post(`/fact-key-drivers`, { ...params });
+};
+
 export const getMetadataKeyDriverOnlineApi = (
   params: KeyDriverOnlineParams,
 ): Promise<BaseResponse<Omit<AnalyticDataQuery, "query">>> => {

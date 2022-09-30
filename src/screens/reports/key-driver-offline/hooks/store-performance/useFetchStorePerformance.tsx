@@ -122,7 +122,7 @@ function useFetchStorePerformance(dimension: KeyDriverDimension = KeyDriverDimen
 
       await Promise.all([dayApi, monthApi]).then(([resDay, resMonth]) => {
         if (!resDay) {
-          showErrorReport("Lỗi khi lấy dữ liệu thực đạt Cuộc gọi theo hạng khách hàng");
+          showErrorReport("Lỗi khi lấy dữ liệu thực đạt Hiệu suất cửa hàng");
           setIsFetchingStorePerformance(false);
           return;
         }
@@ -142,7 +142,7 @@ function useFetchStorePerformance(dimension: KeyDriverDimension = KeyDriverDimen
         }
         if (!resMonth?.length) {
           if (!resMonth && resMonth !== 0) {
-            showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Cuộc gọi theo hạng khách hàng");
+            showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Hiệu suất cửa hàng");
           }
 
           if (resDay.length) {

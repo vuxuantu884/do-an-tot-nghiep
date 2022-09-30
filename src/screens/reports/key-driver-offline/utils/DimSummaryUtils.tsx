@@ -15,7 +15,7 @@ export const calculateDimSummary = (
     storeDim: "pos_location_name",
   },
 ) => {
-  const { pos_locations, fan_page_list, ...others } = data;
+  const { pos_locations, fan_page_list, pos_location_names, ...others } = data;
   const { asmDim, storeDim } = dimKeys;
   return dimension === KeyDriverDimension.Staff
     ? [
@@ -26,10 +26,10 @@ export const calculateDimSummary = (
           staff_name: dimName,
           staff_code: nonAccentVietnameseKD(dimName),
         },
-        ...(pos_locations || fan_page_list),
+        ...(pos_locations || fan_page_list || pos_location_names),
       ]
     : [
         { ...others, [storeDim]: data[asmDim], [asmDim]: data[asmDim] },
-        ...(pos_locations || fan_page_list),
+        ...(pos_locations || fan_page_list || pos_location_names),
       ];
 };
