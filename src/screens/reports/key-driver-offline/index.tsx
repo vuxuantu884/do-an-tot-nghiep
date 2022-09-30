@@ -216,7 +216,7 @@ function KeyDriverOffline() {
     setLoadingPage(true);
     if (
       isFetchingKDOfflineTotalSales === false &&
-      // isFetchingKeyDriverTarget === false &&
+      isFetchingKeyDriverTarget === false &&
       isFetchingOfflineTotalSalesLoyalty === false &&
       isFetchingCustomerVisitors === false &&
       isFetchingOfflineOnlineTotalSales === false &&
@@ -526,8 +526,18 @@ function KeyDriverOffline() {
     } else {
       newDate = moment().format(DATE_FORMAT.YYYYMMDD);
     }
-    setData(() => JSON.parse(JSON.stringify(kdOfflineTemplateData)));
-    history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}?date=${newDate}`);
+    setData(() =>
+      JSON.parse(
+        JSON.stringify(
+          kdOfflineTemplateData.filter((item: any) => {
+            return !item.allowedDimension || item.allowedDimension.includes(KeyDriverDimension.Asm);
+          }),
+        ),
+      ),
+    );
+    setTimeout(() => {
+      history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}?date=${newDate}`);
+    }, 1000);
   }, [form, history, setData]);
 
   const newFinalColumns = useMemo(() => {

@@ -461,7 +461,7 @@ function KeyDriverOfflineStore() {
     ) {
       setData((prev: any) => {
         prev.forEach((item: any, index: number) => {
-          // calculateDayTarget(item);
+          calculateDayTarget(item);
           const {
             AverageOrderValue,
             AverageCustomerSpent,
@@ -552,7 +552,17 @@ function KeyDriverOfflineStore() {
     } else {
       newDate = moment().format(DATE_FORMAT.YYYYMMDD);
     }
-    setData(() => JSON.parse(JSON.stringify(kdOfflineTemplateData)));
+    setData(() =>
+      JSON.parse(
+        JSON.stringify(
+          kdOfflineTemplateData.filter((item: any) => {
+            return (
+              !item.allowedDimension || item.allowedDimension.includes(KeyDriverDimension.Store)
+            );
+          }),
+        ),
+      ),
+    );
     history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}/${asmNameUrl}?date=${newDate}`);
   }, [asmName, form, history, setData]);
 

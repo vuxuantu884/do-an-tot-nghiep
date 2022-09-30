@@ -23,7 +23,6 @@ function useFetchKeyDriverTarget(dimension: KeyDriverDimension = KeyDriverDimens
     (dataState: any, keyDriversTarget: any, asmName: string) => {
       dataState.forEach((dataItem: any) => {
         if (Object.keys(keyDriversTarget).includes(dataItem.key)) {
-          dataItem[`${asmName}_day`] = keyDriversTarget[dataItem.key].value;
           dataItem[`${asmName}_month`] = keyDriversTarget[dataItem.key].value;
           if (!dataItem[`${asmName}_month`]) {
             dataItem[`${asmName}_day`] = "";

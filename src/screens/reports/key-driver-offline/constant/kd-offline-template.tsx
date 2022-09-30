@@ -446,7 +446,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     allowedDimension: [Asm],
   },
   {
-    key: "&nbsp;mini2_numbers",
+    key: "mini2_numbers",
     name: "Số lượng cửa hàng",
     method: "Số lượng cửa hàng",
     level: 3,
@@ -838,7 +838,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     allowedDimension: [Asm],
   },
   {
-    key: "total_sales_avg",
+    key: "total_sales_staffs_avg",
     name: "DTTB/ Nhân sự khối cửa hàng",
     method: "DTTB/ Nhân sự khối cửa hàng",
     level: 2,
@@ -850,7 +850,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     name: "Doanh thu",
     method: "Doanh thu",
     level: 3,
-    parent: "total_sales_avg",
+    parent: "total_sales_staffs_avg",
     allowedDimension: [Asm, Store],
   },
   {
@@ -858,7 +858,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     name: "Số lượng nhân sự",
     method: "Số lượng nhân sự",
     level: 3,
-    parent: "total_sales_avg",
+    parent: "total_sales_staffs_avg",
     allowedDimension: [Asm, Store],
   },
   {

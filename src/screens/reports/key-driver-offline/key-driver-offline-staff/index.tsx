@@ -511,7 +511,20 @@ function KeyDriverOfflineStaff() {
     } else {
       newDate = moment().format(DATE_FORMAT.YYYYMMDD);
     }
-    setData((prev: any) => JSON.parse(JSON.stringify(kdOfflineTemplateData)));
+    setData((prev: any) => {
+      prev = JSON.parse(
+        JSON.stringify(
+          kdOfflineTemplateData.filter((item: any) => {
+            return (
+              !item.allowedDimension || item.allowedDimension.includes(KeyDriverDimension.Staff)
+            );
+          }),
+        ),
+      );
+      console.log("prev", prev);
+
+      return [...prev];
+    });
     history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}/${asmNameUrl}/${storeNameUrl}?date=${newDate}`);
   }, [asmName, form, history, setData, storeName]);
 
