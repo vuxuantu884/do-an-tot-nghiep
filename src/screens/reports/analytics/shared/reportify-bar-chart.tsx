@@ -12,7 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { DashboardContainer } from "screens/dashboard/index.style";
+import { DashboardContainer } from "screens/dashboard/dashboard.style";
 import { formatCurrency } from "utils/AppUtils";
 import { currencyAbbreviation } from "utils/DashboardUtils";
 import { getTranslatePropertyKey } from "utils/ReportUtils";

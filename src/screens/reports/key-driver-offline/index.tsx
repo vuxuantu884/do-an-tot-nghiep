@@ -15,7 +15,7 @@ import moment from "moment";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation, useRouteMatch } from "react-router-dom";
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { formatCurrency, generateQuery, replaceFormatString } from "utils/AppUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import {
@@ -484,7 +484,12 @@ function KeyDriverOffline() {
       setSelectedDate(date);
     } else {
       const today = moment().format(DATE_FORMAT.YYYYMMDD);
-      history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}?date=${today}`);
+      // history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}?date=${today}`);
+      let queryParam = generateQuery({
+        "default-screen": "key-driver-offline",
+        date: today,
+      });
+      history.push(`?${queryParam}`);
     }
   }, [history, date, setSelectedDate]);
 
@@ -498,7 +503,12 @@ function KeyDriverOffline() {
       newDate = moment().format(DATE_FORMAT.YYYYMMDD);
     }
     setData(() => JSON.parse(JSON.stringify(keyDriverOfflineTemplateData)));
-    history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}?date=${newDate}`);
+    let queryParam = generateQuery({
+      "default-screen": "key-driver-offline",
+      date: newDate,
+    });
+    history.push(`?${queryParam}`);
+    // history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}?date=${newDate}`);
   }, [form, history, setData]);
 
   const newFinalColumns = useMemo(() => {

@@ -1,8 +1,8 @@
 import Top1SVG from "assets/icon/top-1-rank-income.svg";
 import { formatCurrency } from "utils/AppUtils";
 import { currencyAbbreviation } from "utils/DashboardUtils";
-import { ChartColor } from "../index.style";
-import { DashboardContainer } from "../index.style";
+import { ChartColor } from "../dashboard.style";
+import { DashboardContainer } from "../dashboard.style";
 
 export const CustomTooltip = (data: any) => {
   const { active, payload, label, labelName } = data;

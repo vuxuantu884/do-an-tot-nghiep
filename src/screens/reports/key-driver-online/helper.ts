@@ -209,7 +209,6 @@ const findParent: any = (groups: any, prev_schema: any) => {
 };
 // code by TO, ý kiến qua TO mà hỏi :))
 const buildSchemas = (_input: any) => {
-  console.log("_input", _input);
   const _schemas = _input.reduce(
     (schemas: any, current_value: any, current_index: any, arr: any) => {
       const schema = current_value;
@@ -238,7 +237,6 @@ const buildSchemas = (_input: any) => {
     arr
       .filter((item) => item.parent_key_driver === key_driver)
       .map((child) => ({ ...child, children: treeData(arr, child.key_driver) }));
-  // console.log("treeData", treeData(_schemas));
   const finalData = removeChildrentEmpty(treeData(_schemas)).filter(
     (i) => i.key !== "ON.LN.S1.01.L" && i.key !== "ON.HS.S1.01.L",
   );

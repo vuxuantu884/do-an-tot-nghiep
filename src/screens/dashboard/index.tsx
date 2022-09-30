@@ -1,68 +1,67 @@
-/**
- * Read carefully, this is the dashboard screen.
- * Data trong dashboard được quản lý tập trung tại context của dashboard
- * Việc request api được xử lý trong các hook: dashboard/hooks
- * Lý do dùng cách này để quản lý lượng request api sao cho phù hợp bởi đặc thù của dashboard là sử dụng lại các câu query của báo cáo
- * Đối với mỗi component thì có thể sử dụng 1 hoặc nhiều câu query để lấy dữ liệu, tuy nhiên cần tính toán xem có gom các câu query lại thành 1 câu query không
- * VD : Doanh thu online, offline, trả hàng được gom lại thành 1 câu query để giảm thời gian load dữ liệu
- * Ngoài ra cách tổ chức này sẽ support nhu cầu thay vị trí các component trong tương lai
- * Đọc code xong đừng chửi, peace!
- */
-import { Card, Col, Row } from "antd";
-import { TOP_CHARTS_KEY } from "config/dashboard";
-import { useContext } from "react";
-import BusinessResult from "./business-result";
-import RankHorizontalChart from "./chart/rank-hirizontal-chart";
-import RankVerticalChart from "./chart/rank-vertical-chart";
-import DashboardFilter from "./filter/index";
-import Greeting from "./greeting";
-import useFetchTopSaleByDepartment from "./hooks/useFetchTopSaleByDepartment";
-import useFetchTopSaleByShop from "./hooks/useFetchTopSaleByShop";
-import useFetchTopSaleByStaff from "./hooks/useFetchTopSaleByStaff";
-import { DashboardContainer } from "./index.style";
-import ProductDashboard from "./product";
-import DashboardPrivider, { DashboardContext } from "./provider/dashboard-provider";
-const Dashboard = () => {
-  const { topSale } = useContext(DashboardContext);
+import { Radio } from "antd";
+import { ReportPermissions } from "config/permissions/report.permisstion";
+import useAuthorization from "hook/useAuthorization";
+import { useCallback, useMemo } from "react";
+import { useHistory } from "react-router-dom";
+import KeyDriverOffline from "screens/reports/key-driver-offline";
+import KeyDriverOnline from "screens/reports/key-driver-online";
+import { generateQuery } from "utils/AppUtils";
+import { useQuery } from "utils/useQuery";
+import DashboardWithProvider from "./dashborad";
+import { StyledComponent } from "./index.style";
 
-  useFetchTopSaleByStaff();
-  useFetchTopSaleByShop();
-  useFetchTopSaleByDepartment();
+const NewDashboard = (props: any) => {
+  const history = useHistory();
+  const query = useQuery();
+  const defaultScreenQuery = query.get("default-screen");
+  const [allowViewReportOnline] = useAuthorization({
+    acceptPermissions: [ReportPermissions.reports_view_report_online],
+    not: false,
+  });
+
+  const [allowViewReportOffline] = useAuthorization({
+    acceptPermissions: [ReportPermissions.reports_view_report_offline],
+    not: false,
+  });
+  const defaultScreen = useMemo(() => {
+    return defaultScreenQuery &&
+      (defaultScreenQuery === "dash-board" ||
+        (defaultScreenQuery === "key-driver-online" && allowViewReportOnline) ||
+        (defaultScreenQuery === "key-driver-offline" && allowViewReportOffline))
+      ? defaultScreenQuery
+      : "dash-board";
+  }, [allowViewReportOffline, allowViewReportOnline, defaultScreenQuery]);
+  const onChangeOrderOptions = useCallback(
+    (e) => {
+      let queryParam = generateQuery({
+        "default-screen": e.target.value,
+      });
+      history.push(`?${queryParam}`);
+    },
+    [history],
+  );
 
   return (
-    <DashboardContainer>
-      <Greeting />
-      <DashboardFilter />
-      <BusinessResult />
-      <Card title="BẢNG THI ĐUA">
-        <Row className="rank-container">
-          <Col xs={24} md={8} className="user-rank">
-            <RankVerticalChart data={topSale.get(TOP_CHARTS_KEY.TOP_STAFF_SALES) || []} />
-          </Col>
-          <Col xs={24} md={8} className="store-rank">
-            <RankHorizontalChart data={topSale.get(TOP_CHARTS_KEY.TOP_SHOP_SALES) || []} />
-          </Col>
-          <Col xs={24} md={8} className="department-rank">
-            <RankHorizontalChart
-              data={topSale.get(TOP_CHARTS_KEY.TOP_DEPARTMENT_SALES) || []}
-              title="Bảng thi đua giữa các bộ phận"
-              subTitle="Top 5 bộ phận có doanh thu cao nhất"
-            />
-          </Col>
-        </Row>
-        <div className="padding-20" />
-      </Card>
-      <ProductDashboard /> {/* DOANH THU THEO NHÓM SẢN PHẨM */}
-    </DashboardContainer>
+    <StyledComponent>
+      <div className="dash-board-options">
+        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={defaultScreen}>
+          <Radio.Button value="dash-board">Dashboard</Radio.Button>
+          {allowViewReportOnline && (
+            <Radio.Button value="key-driver-online">Key Driver Online</Radio.Button>
+          )}
+          {allowViewReportOffline && (
+            <Radio.Button value="key-driver-offline">Key Driver Offline</Radio.Button>
+          )}
+        </Radio.Group>
+      </div>
+      {defaultScreenQuery !== "key-driver-online" &&
+        defaultScreenQuery !== "key-driver-offline" && <DashboardWithProvider />}
+      {allowViewReportOnline && defaultScreenQuery === "key-driver-online" && <KeyDriverOnline />}
+      {allowViewReportOffline && defaultScreenQuery === "key-driver-offline" && (
+        <KeyDriverOffline />
+      )}
+    </StyledComponent>
   );
 };
 
-const DashboardWithProvider = (props: any) => {
-  return (
-    <DashboardPrivider>
-      <Dashboard {...props} />
-    </DashboardPrivider>
-  );
-};
-
-export default DashboardWithProvider;
+export default NewDashboard;
