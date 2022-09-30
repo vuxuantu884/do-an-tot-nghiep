@@ -380,6 +380,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_stores_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_squares_avg",
@@ -428,6 +429,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_mini1_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_mini2_avg",
@@ -452,6 +454,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_mini2_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_mini3_avg",
@@ -476,6 +479,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_mini3_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_s1_avg",
@@ -500,6 +504,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_s1_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_s2_avg",
@@ -524,6 +529,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_s2_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_s3_avg",
@@ -548,6 +554,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_s3_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_m1_avg",
@@ -572,6 +579,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_m1_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_m2_avg",
@@ -596,6 +604,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_m2_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_m3_avg",
@@ -620,6 +629,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_m3_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_l1_avg",
@@ -644,6 +654,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_l1_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_l2_avg",
@@ -668,6 +679,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_l2_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_l3_avg",
@@ -692,6 +704,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_l3_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_xl2_avg",
@@ -716,6 +729,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_xl2_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_xl3_avg",
@@ -740,6 +754,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_xl3_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_f1_avg",
@@ -764,6 +779,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_f1_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_f2_avg",
@@ -788,6 +804,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_f2_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_f3_avg",
@@ -812,6 +829,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_f3_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_f4_avg",
@@ -836,6 +854,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_f4_avg",
     allowedDimension: [Asm],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_staffs_avg",
@@ -860,6 +879,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_staffs_avg",
     allowedDimension: [Asm, Store],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_consultants_avg",
@@ -884,6 +904,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_consultants_avg",
     allowedDimension: [Asm, Store],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_probationary_consultants_avg",
@@ -908,6 +929,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_probationary_consultants_avg",
     allowedDimension: [Asm, Store],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_official_consultants_avg",
@@ -932,6 +954,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_official_consultants_avg",
     allowedDimension: [Asm, Store],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_warehouse_staffs_avg",
@@ -956,6 +979,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_warehouse_staffs_avg",
     allowedDimension: [Asm, Store],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "total_sales_cashier_staffs_avg",
@@ -980,6 +1004,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     level: 3,
     parent: "total_sales_cashier_staffs_avg",
     allowedDimension: [Asm, Store],
+    disableColumns: ["monthTarget", "dayTarget", "monthExpected"],
   },
   {
     key: "nps",
@@ -987,6 +1012,7 @@ export const kdOfflineTemplateData: readonly any[] = [
     method: "",
     level: 1,
     allowedDimension: [Asm, Store],
+    suffix: "%",
   },
   {
     key: "point9_to10",
@@ -1021,3 +1047,5 @@ export const ASM_LIST = ["ASM Dương Sơn Tùng", "ASM Nguyễn Văn Ánh", "AS
 
 export const loadingMessage =
   "Dữ liệu đang được đưa lên báo cáo, có thể mất vài phút để hiển thị. Quý khách vui lòng chờ hệ thống xử lý.";
+
+export const kdNumber = 10;

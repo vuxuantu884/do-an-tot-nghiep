@@ -262,7 +262,7 @@ function KeyDriverOfflineStore() {
             render: (text: any, record: RowData, index: number) => {
               return ![ProductTotalSales, Cost, Shipping, StorePerformance].includes(
                 record.key as KeyDriverField,
-              ) ? (
+              ) && !record.disableColumns?.includes("monthTarget") ? (
                 <CellInput
                   value={text}
                   record={record}
@@ -360,7 +360,7 @@ function KeyDriverOfflineStore() {
             render: (text: any, record: RowData, index: number) => {
               return ![ProductTotalSales, Cost, Shipping, FollowFanpage, StorePerformance].includes(
                 record.key as KeyDriverField,
-              ) ? (
+              ) && !record.disableColumns?.includes("dayTarget") ? (
                 <CellInput
                   value={text}
                   record={record}

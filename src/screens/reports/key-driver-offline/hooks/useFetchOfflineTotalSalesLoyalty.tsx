@@ -13,6 +13,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { calculateTargetMonth, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
+import { kdNumber } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 import { calculateDimSummary } from "../utils/DimSummaryUtils";
 
@@ -20,7 +21,7 @@ function useFetchOfflineTotalSalesLoyalty(
   dimension: KeyDriverDimension = KeyDriverDimension.Store,
 ) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm, selectedStaffs, selectedDate } =
+  const { setData, selectedStores, selectedAsm, selectedStaffs, selectedDate, data } =
     useContext(KDOfflineContext);
 
   const [isFetchingOfflineTotalSalesLoyalty, setIsFetchingOfflineTotalSalesLoyalty] = useState<
@@ -86,6 +87,9 @@ function useFetchOfflineTotalSalesLoyalty(
 
   const refetchOfflineTotalSalesLoyalty = useCallback(() => {
     const fetchOfflineTotalSalesLoyalty = async () => {
+      if (data.length < kdNumber) {
+        return;
+      }
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
@@ -201,6 +205,7 @@ function useFetchOfflineTotalSalesLoyalty(
     }
   }, [
     calculateCompanyKeyDriver,
+    data.length,
     dimension,
     dispatch,
     findKeyDriverAndUpdateValue,

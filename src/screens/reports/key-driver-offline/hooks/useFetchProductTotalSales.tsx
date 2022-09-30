@@ -13,11 +13,12 @@ import {
   PRODUCT_TOTAL_SALES_DAY_QUERY,
   PRODUCT_TOTAL_SALES_MONTH_QUERY,
 } from "../config/key-driver-offline-asm-config";
+import { kdNumber } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 
 function useFetchProductTotalSales() {
   const dispatch = useDispatch();
-  const { setData, selectedDate } = useContext(KDOfflineContext);
+  const { setData, selectedDate, data } = useContext(KDOfflineContext);
 
   const [isFetchingProductTotalSales, setIsFetchingProductTotalSales] = useState<
     boolean | undefined
@@ -40,6 +41,9 @@ function useFetchProductTotalSales() {
 
   useEffect(() => {
     const fetchProductTotalSale = async () => {
+      if (data.length < kdNumber) {
+        return;
+      }
       setIsFetchingProductTotalSales(true);
       const { YYYYMMDD } = DATE_FORMAT;
       let res: any[];
@@ -122,7 +126,7 @@ function useFetchProductTotalSales() {
     if (selectedDate) {
       fetchProductTotalSale();
     }
-  }, [calculateCompanyKeyDriver, dispatch, selectedDate, setData]);
+  }, [calculateCompanyKeyDriver, data.length, dispatch, selectedDate, setData]);
 
   return { isFetchingProductTotalSales };
 }

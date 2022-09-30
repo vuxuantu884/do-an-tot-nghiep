@@ -7,13 +7,14 @@ import { getKDOfflineProfit } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { showErrorReport } from "utils/ReportUtils";
+import { kdNumber } from "../../constant/kd-offline-template";
 import { KDOfflineContext } from "../../provider/kd-offline-provider";
 import { calculateDimSummary } from "../../utils/DimSummaryUtils";
 import { findKDAndUpdateProfitKD } from "../../utils/ProfitKDUtils";
 
 function useFetchProfit(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedDate, selectedStores, selectedAsm } = useContext(KDOfflineContext);
+  const { setData, selectedDate, selectedStores, selectedAsm, data } = useContext(KDOfflineContext);
 
   const [isFetchingProfit, setIsFetchingProfit] = useState<boolean | undefined>();
 
@@ -54,6 +55,9 @@ function useFetchProfit(dimension: KeyDriverDimension = KeyDriverDimension.Store
 
   const refetchProfit = useCallback(() => {
     const fetchProfit = async () => {
+      if (data.length < kdNumber) {
+        return;
+      }
       setIsFetchingProfit(true);
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
@@ -151,6 +155,7 @@ function useFetchProfit(dimension: KeyDriverDimension = KeyDriverDimension.Store
     }
   }, [
     calculateCompanyKeyDriver,
+    data.length,
     dimension,
     dispatch,
     findKeyDriverAndUpdateValue,

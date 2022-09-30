@@ -15,12 +15,20 @@ import {
   STORES_PRODUCT_TOTAL_SALES_DAY_QUERY,
   STORES_PRODUCT_TOTAL_SALES_MONTH_QUERY,
 } from "../config/key-driver-offline-asm-config";
+import { kdNumber } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 
 function useFetchStoresProductTotalSales(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm, selectedStaffs, selectedDate, selectedAllStores } =
-    useContext(KDOfflineContext);
+  const {
+    setData,
+    selectedStores,
+    selectedAsm,
+    selectedStaffs,
+    selectedDate,
+    selectedAllStores,
+    data,
+  } = useContext(KDOfflineContext);
 
   const [isFetchingStoresProductTotalSales, setIsFetchingStoresProductTotalSales] = useState<
     boolean | undefined
@@ -28,6 +36,9 @@ function useFetchStoresProductTotalSales(dimension: KeyDriverDimension = KeyDriv
 
   useEffect(() => {
     const fetchProductTotalSale = async () => {
+      if (data.length < kdNumber) {
+        return;
+      }
       setIsFetchingStoresProductTotalSales(true);
       if (!selectedStores.length || !selectedAsm.length) {
         return;
@@ -209,6 +220,7 @@ function useFetchStoresProductTotalSales(dimension: KeyDriverDimension = KeyDriv
       fetchProductTotalSale();
     }
   }, [
+    data.length,
     dimension,
     dispatch,
     selectedAllStores,

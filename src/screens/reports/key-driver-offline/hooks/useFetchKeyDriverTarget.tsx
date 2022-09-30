@@ -10,11 +10,12 @@ import {
   nonAccentVietnameseKD,
 } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
+import { kdNumber } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 
 function useFetchKeyDriverTarget(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedStaffs, selectedDate, selectedAsm } =
+  const { setData, selectedStores, selectedStaffs, selectedDate, selectedAsm, data } =
     useContext(KDOfflineContext);
 
   const [isFetchingKeyDriverTarget, setIsFetchingKeyDriverTarget] = useState<boolean | undefined>();
@@ -37,6 +38,9 @@ function useFetchKeyDriverTarget(dimension: KeyDriverDimension = KeyDriverDimens
 
   const refetch = useCallback(() => {
     const fetchStoresKeyDriverTarget = async () => {
+      if (data.length < kdNumber) {
+        return;
+      }
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
@@ -149,14 +153,15 @@ function useFetchKeyDriverTarget(dimension: KeyDriverDimension = KeyDriverDimens
     }
   }, [
     selectedDate,
+    data.length,
+    dimension,
     selectedStores,
     selectedAsm,
-    dimension,
     selectedStaffs,
     dispatch,
     setData,
-    findKeyDriverAndUpdateValue,
     findKDProductAndUpdateValue,
+    findKeyDriverAndUpdateValue,
   ]);
 
   useEffect(() => {

@@ -521,8 +521,6 @@ function KeyDriverOfflineStaff() {
           }),
         ),
       );
-      console.log("prev", prev);
-
       return [...prev];
     });
     history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}/${asmNameUrl}/${storeNameUrl}?date=${newDate}`);

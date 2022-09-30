@@ -7,13 +7,14 @@ import { getKDSmsLoyalty } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { showErrorReport } from "utils/ReportUtils";
+import { kdNumber } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 import { findKDAndUpdateCallSmsValue } from "../utils/CallSmsKDUtils";
 import { calculateDimSummary } from "../utils/DimSummaryUtils";
 
 function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm, selectedDate, selectedStaffs } =
+  const { setData, selectedStores, selectedAsm, selectedDate, selectedStaffs, data } =
     useContext(KDOfflineContext);
 
   const [isFetchingSmsLoyalty, setIsFetchingSmsLoyalty] = useState<boolean | undefined>();
@@ -56,6 +57,9 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
 
   const refetchSmsLoyalty = useCallback(() => {
     const fetchSmsLoyalty = async () => {
+      if (data.length < kdNumber) {
+        return;
+      }
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
@@ -162,6 +166,7 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
     }
   }, [
     calculateCompanyKeyDriver,
+    data.length,
     dimension,
     dispatch,
     findKeyDriverAndUpdateValue,

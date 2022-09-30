@@ -1,10 +1,5 @@
 import { TODAY } from "config/dashboard";
-import {
-  ASM_LIST,
-  KDOfflineTotalSalesParams,
-  KeyDriverDimension,
-  KeyDriverField,
-} from "model/report";
+import { ASM_LIST, KDOfflineTotalSalesParams, KeyDriverDimension } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -13,12 +8,13 @@ import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { calculateTargetMonth, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
+import { kdNumber } from "../../constant/kd-offline-template";
 import { KDOfflineContext } from "../../provider/kd-offline-provider";
 import { calculateDimSummary } from "../../utils/DimSummaryUtils";
 
 function useFetchStorePerformance(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm, selectedStaffs, selectedDate } =
+  const { setData, selectedStores, selectedAsm, selectedStaffs, selectedDate, data } =
     useContext(KDOfflineContext);
 
   const [isFetchingStorePerformance, setIsFetchingStorePerformance] = useState<
@@ -48,9 +44,7 @@ function useFetchStorePerformance(dimension: KeyDriverDimension = KeyDriverDimen
           dataItem[`${dimensionName}_${columnKey}`] = dimData[dataItem.key];
           if (
             columnKey === "accumulatedMonth" &&
-            ![KeyDriverField.AverageOrderValue, KeyDriverField.AverageCustomerSpent].includes(
-              dataItem.key,
-            )
+            !dataItem.disableColumns?.includes("monthExpected")
           ) {
             dataItem[`${dimensionName}_targetMonth`] = calculateTargetMonth(
               dataItem[`${dimensionName}_accumulatedMonth`],
@@ -65,6 +59,9 @@ function useFetchStorePerformance(dimension: KeyDriverDimension = KeyDriverDimen
 
   const refetchStorePerformance = useCallback(() => {
     const fetchStorePerformance = async () => {
+      if (data.length < kdNumber) {
+        return;
+      }
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
@@ -189,6 +186,7 @@ function useFetchStorePerformance(dimension: KeyDriverDimension = KeyDriverDimen
     }
   }, [
     selectedDate,
+    data.length,
     dimension,
     selectedStores,
     selectedAsm,
