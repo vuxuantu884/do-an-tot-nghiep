@@ -1,16 +1,17 @@
-import { CheckSquareOutlined } from "@ant-design/icons";
+import { CheckSquareOutlined, SettingOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Form, Spin, Table, Tooltip } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
 import ContentContainer from "component/container/content.container";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
+import ModalSettingColumnData from "component/table/ModalSettingColumnData";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { debounce } from "lodash";
 import { KeyDriverField, KeyDriverFilter, KeyDriverTarget, LocalStorageKey } from "model/report";
 import moment from "moment";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation, useParams } from "react-router-dom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
@@ -173,6 +174,8 @@ function KeyDriverOfflineStore() {
     setSelectedDate,
     selectedDate,
     // setSelectedStoreRank,
+    displayColumns,
+    setDisplayColumns,
   } = useContext(KDOfflineContext);
   const dispatch = useDispatch();
   const asmName = useParams<{ asmName: string }>().asmName.toUpperCase();
@@ -186,6 +189,7 @@ function KeyDriverOfflineStore() {
   const [expandRowKeys, setExpandRowKeys] = useState<string[]>(
     expandedDefault ? JSON.parse(expandedDefault) : [],
   );
+  const [showSettingColumn, setShowSettingColumn] = useState(false);
 
   const setObjectiveColumns = useCallback(
     (
@@ -516,6 +520,19 @@ function KeyDriverOfflineStore() {
     history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}/${asmNameUrl}?date=${newDate}`);
   }, [asmName, form, history, setData]);
 
+  const newFinalColumns = useMemo(() => {
+    return finalColumns.map((columnDetails: any) => {
+      return {
+        ...columnDetails,
+        children: columnDetails.children
+          ? columnDetails.children.filter((children: any, index: number) =>
+              displayColumns.some((i) => i.visible && i.index === index),
+            )
+          : undefined,
+      };
+    });
+  }, [displayColumns, finalColumns]);
+
   return (
     <ContentContainer
       title={`Báo cáo kết quả kinh doanh Offline ${selectedAsm}`}
@@ -527,31 +544,32 @@ function KeyDriverOfflineStore() {
         { name: `${selectedAsm}` },
       ]}
     >
-      <Card>
-        <Form
-          onFinish={onFinish}
-          onFinishFailed={() => {}}
-          form={form}
-          name="report-form-base"
-          layout="inline"
-          initialValues={{
-            date: date
-              ? moment(date).format(DATE_FORMAT.DDMMYYY)
-              : moment().format(DATE_FORMAT.DDMMYYY),
-          }}
-        >
-          <Col xs={24} md={8}>
-            <Form.Item name={KeyDriverFilter.Date}>
-              <CustomDatePicker
-                format={DATE_FORMAT.DDMMYYY}
-                placeholder="Chọn ngày"
-                style={{ width: "100%" }}
-                onChange={() => onFinish()}
-                showToday={false}
-              />
-            </Form.Item>
-          </Col>
-          {/* <Col xs={24} md={8}>
+      <KeyDriverOfflineStyle>
+        <Card>
+          <Form
+            onFinish={onFinish}
+            onFinishFailed={() => {}}
+            form={form}
+            name="report-form-base"
+            layout="inline"
+            initialValues={{
+              date: date
+                ? moment(date).format(DATE_FORMAT.DDMMYYY)
+                : moment().format(DATE_FORMAT.DDMMYYY),
+            }}
+          >
+            <Col xs={24} md={8}>
+              <Form.Item name={KeyDriverFilter.Date}>
+                <CustomDatePicker
+                  format={DATE_FORMAT.DDMMYYY}
+                  placeholder="Chọn ngày"
+                  style={{ width: "100%" }}
+                  onChange={() => onFinish()}
+                  showToday={false}
+                />
+              </Form.Item>
+            </Col>
+            {/* <Col xs={24} md={8}>
             <Form.Item name={KeyDriverFilter.Rank}>
               <Select
                 placeholder="Chọn phân cấp cửa hàng"
@@ -566,12 +584,16 @@ function KeyDriverOfflineStore() {
               </Select>
             </Form.Item>
           </Col> */}
-          <Col xs={24} md={8}>
-            <StoresSelect asmName={asmName} className="select-filter" />
-          </Col>
-        </Form>
-      </Card>
-      <KeyDriverOfflineStyle>
+            <Col xs={24} md={8}>
+              <StoresSelect asmName={asmName} className="select-filter" />
+            </Col>
+          </Form>
+          <Button
+            className="columns-setting"
+            icon={<SettingOutlined />}
+            onClick={() => setShowSettingColumn(true)}
+          />
+        </Card>
         <Card
           title={
             <div>
@@ -618,11 +640,21 @@ function KeyDriverOfflineStore() {
                 );
               },
             }}
-            columns={finalColumns}
+            columns={newFinalColumns}
             dataSource={data}
           />
         </Card>
       </KeyDriverOfflineStyle>
+      <ModalSettingColumnData
+        visible={showSettingColumn}
+        onCancel={() => setShowSettingColumn(false)}
+        onOk={(data) => {
+          setShowSettingColumn(false);
+          setDisplayColumns(data);
+          localStorage.setItem(LocalStorageKey.KeyDriverOfflineColumns, JSON.stringify(data));
+        }}
+        data={displayColumns}
+      />
     </ContentContainer>
   );
 }

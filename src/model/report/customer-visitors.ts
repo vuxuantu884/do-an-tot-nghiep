@@ -10,4 +10,5 @@ export enum LocalStorageKey {
   CustomerPhoneSMSCountersStore = "customerPhoneSMSCountersStore",
   SatffAssigneeCode = "SatffAssigneeCode",
   KeyDriverOfflineRowkeysExpanded = "key-driver-offline-rowkeys-expanded",
+  KeyDriverOfflineColumns = "key-driver-offline-columns",
 }
