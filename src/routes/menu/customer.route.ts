@@ -3,7 +3,7 @@ import { RouteMenu } from "model/other";
 import React from "react";
 import {
   CustomerGroupPermission,
-  CustomerLevelPermission,
+  CUSTOMER_LEVEL_PERMISSIONS,
   CustomerListPermission,
 } from "config/permissions/customer.permission";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
@@ -16,7 +16,7 @@ const CustomerDetail = React.lazy(() => import("screens/customer/customer-detail
 const customergroup = React.lazy(() => import("screens/customer/customer-group"));
 const loyaltyCard = React.lazy(() => import("screens/customer/loyalty-card"));
 const uploadLoyaltyCard = React.lazy(() => import("screens/customer/loyalty-card/upload"));
-const rank = React.lazy(() => import("screens/customer/ranking/index"));
+const CustomerRankList = React.lazy(() => import("screens/customer/ranking/index"));
 const createRank = React.lazy(() => import("screens/customer/ranking/component/create/index"));
 const PointAdjustment = React.lazy(
   () => import("screens/customer/point-adjustment/PointAdjustment"),
@@ -120,11 +120,11 @@ const customers: Array<RouteMenu> = [
     exact: true,
     title: "Hạng khách hàng",
     icon: "icon-dot",
-    component: rank,
+    component: CustomerRankList,
     key: "submenu157",
     isShow: true,
     header: null,
-    permissions: [CustomerLevelPermission.levels_read],
+    permissions: [CUSTOMER_LEVEL_PERMISSIONS.READ],
     subMenu: [
       {
         path: `${UrlConfig.CUSTOMER2}-rankings/create`,
@@ -135,7 +135,7 @@ const customers: Array<RouteMenu> = [
         key: "submenu1571",
         isShow: true,
         header: null,
-        permissions: [CustomerLevelPermission.levels_create],
+        permissions: [CUSTOMER_LEVEL_PERMISSIONS.CREATE],
         subMenu: [],
       },
       {
@@ -147,7 +147,7 @@ const customers: Array<RouteMenu> = [
         key: "submenu1572",
         isShow: true,
         header: null,
-        permissions: [CustomerLevelPermission.levels_update],
+        permissions: [CUSTOMER_LEVEL_PERMISSIONS.UPDATE],
         subMenu: [],
       },
     ],
