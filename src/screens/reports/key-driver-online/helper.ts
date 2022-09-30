@@ -12,7 +12,11 @@ import {
 } from "model/report";
 import moment from "moment";
 import { Dispatch } from "redux";
-import { getKeyDriverOnlineApi, onlineCounterService } from "service/report/key-driver.service";
+import {
+  actualDayUpdateApi,
+  getKeyDriverOnlineApi,
+  onlineCounterService,
+} from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -160,7 +164,11 @@ export const convertDataToFlatTableKeyDriver = (
       i.key !== "ON.TC.QT.06" &&
       i.key !== "ON.TC.QT.03" &&
       i.key !== "ON.TC.QT.05" &&
-      i.key !== "ON.TC.QT.12",
+      i.key !== "ON.TC.QT.12" &&
+      i.key !== "ON.DT.AP.53" &&
+      i.key !== "ON.DT.AP.54" &&
+      i.key !== "ON.DT.AP.52" &&
+      i.key !== "ON.TC.AP.52",
   );
   return buildSchemas(newData);
 };
@@ -324,6 +332,44 @@ export async function saveMonthTargetKeyDriver(
     showError("Lưu không thành công");
     const input: any = document.getElementById(inputId);
     input.value = currentValue;
+  }
+}
+
+export async function saveActualDay(
+  department_lv1: string,
+  department_lv2: string,
+  department_lv3: string,
+  department_lv4: string,
+  driver_key: string,
+  value: number,
+  dispatch: Dispatch<any>,
+) {
+  const params = {
+    department_lv1,
+    department_lv2,
+    department_lv3,
+    // department_lv4,
+    driver_key,
+    value_a: value,
+    account_code: "",
+    account_name: "",
+    account_role: "",
+  };
+  console.log("params", params);
+  if (params.department_lv1 && params.department_lv2 && params.department_lv3) {
+    try {
+      const response = await callApiNative(
+        { notifyAction: "SHOW_ALL" },
+        dispatch,
+        actualDayUpdateApi,
+        params,
+      );
+      if (response) showSuccess("Lưu thành công");
+    } catch {
+      showError("Lưu không thành công");
+    }
+  } else {
+    showError("Chỉ số thực đạt được nhập phải từ shop");
   }
 }
 
