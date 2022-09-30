@@ -303,7 +303,7 @@ const InventoryAdjustment: React.FC = () => {
           <div>
             {item.created_name ? (
               <div>
-                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${item.created_name}`}>
+                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>
                   {item.created_name}
                 </Link>
               </div>
