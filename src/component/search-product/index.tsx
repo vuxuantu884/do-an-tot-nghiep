@@ -44,6 +44,7 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
       setResultSearchVariant([{ ...result[index] }]);
       if (onSelect) {
         onSelect({ ...result[index] }, dataSource);
+        setKeySearch('');
       }
     },
     [resultSearchVariant, setKeySearch, onSelect, dataSource],
