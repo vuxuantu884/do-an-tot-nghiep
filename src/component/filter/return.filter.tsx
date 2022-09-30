@@ -790,6 +790,11 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
                     search_term: e.target.value.trim(),
                   });
                 }}
+                onPressEnter={(e) => {
+                  let element: any = document.getElementById("search_term");
+                  element?.focus();
+                  element?.select();
+                }}
               />
             </Item>
 

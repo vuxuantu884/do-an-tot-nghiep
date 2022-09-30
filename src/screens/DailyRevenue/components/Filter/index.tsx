@@ -22,6 +22,7 @@ import { formatDateTimeOrderFilter } from "utils/OrderUtils";
 import DiffNumberInputCustom from "../DiffNumberInputCustom";
 import { FilterOutlined } from "@ant-design/icons";
 import { filterNumberDiff } from "screens/DailyRevenue/helper";
+import NumberInput from "component/custom/number-input.custom";
 
 const dateFormat = DATE_FORMAT.DD_MM_YYYY;
 const dateTimeFormat = DATE_FORMAT.DD_MM_YY_HHmmss;
@@ -553,7 +554,7 @@ const DailyRevenueFilter: React.FC<Props> = (props: Props) => {
                 </Select>
               </Form.Item>
               <Form.Item name="ids" style={{ width: "25%" }}>
-                <Input placeholder="ID phiếu" prefix={<img src={search} alt="" />} />
+                <NumberInput placeholder="ID phiếu" prefix={<img src={search} alt="" />} min={0} />
               </Form.Item>
 
               <Button htmlType="submit" type="primary">

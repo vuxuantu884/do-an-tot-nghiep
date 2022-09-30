@@ -29,6 +29,7 @@ const initQuery: ReturnSearchQuery = {
   assignee_codes: [],
   marketer_codes: [],
   coordinator_codes: [],
+  returned_store_ids: [],
 };
 
 type PropTypes = {
