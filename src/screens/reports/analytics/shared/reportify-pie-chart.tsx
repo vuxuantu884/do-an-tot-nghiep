@@ -3,7 +3,7 @@ import Color from "assets/css/export-variable.module.scss";
 import { FIELD_FORMAT } from "model/report/analytics.model";
 import React, { useContext } from "react";
 import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { DashboardContainer } from "screens/dashboard/index.style";
+import { DashboardContainer } from "screens/dashboard/dashboard.style";
 import { formatCurrency } from "utils/AppUtils";
 import { AnalyticsContext } from "./analytics-provider";
 

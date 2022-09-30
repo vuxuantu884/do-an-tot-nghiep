@@ -17,7 +17,12 @@ import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { getKeyDriverOnlineApi } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
-import { formatCurrency, parseLocaleNumber, replaceFormatString } from "utils/AppUtils";
+import {
+  formatCurrency,
+  generateQuery,
+  parseLocaleNumber,
+  replaceFormatString,
+} from "utils/AppUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
@@ -615,9 +620,12 @@ function KeyDriverOnline() {
       );
     } else {
       const today = moment().format(DATE_FORMAT.YYYYMMDD);
-      history.push(
-        `${UrlConfig.KEY_DRIVER_ONLINE}?date=${today}&keyDriverGroupLv1=${DEFAULT_KEY_DRIVER_GROUP_LV_1}`,
-      );
+      let queryParam = generateQuery({
+        "default-screen": "key-driver-online",
+        date: today,
+        keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
+      });
+      history.push(`?${queryParam}`);
     }
   }, [initTable, history, date, keyDriverGroupLv1, departmentLv2, departmentLv3]);
 
@@ -632,9 +640,12 @@ function KeyDriverOnline() {
         form.setFieldsValue({ date: moment() });
       }, 1000);
     }
-    history.push(
-      `${UrlConfig.KEY_DRIVER_ONLINE}?date=${newDate}&keyDriverGroupLv1=${DEFAULT_KEY_DRIVER_GROUP_LV_1}`,
-    );
+    let queryParam = generateQuery({
+      "default-screen": "key-driver-online",
+      date: newDate,
+      keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
+    });
+    history.push(`?${queryParam}`);
   }, [form, history]);
   return (
     <ContentContainer
