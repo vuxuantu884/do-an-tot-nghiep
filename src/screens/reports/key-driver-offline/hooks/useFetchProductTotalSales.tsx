@@ -1,4 +1,4 @@
-import { KDGroup } from "model/report";
+import { KDGroup, KeyDriverField } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -13,11 +13,12 @@ import {
   PRODUCT_TOTAL_SALES_DAY_QUERY,
   PRODUCT_TOTAL_SALES_MONTH_QUERY,
 } from "../config/key-driver-offline-asm-config";
+import { kdNumber } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 
 function useFetchProductTotalSales() {
   const dispatch = useDispatch();
-  const { setData, selectedDate } = useContext(KDOfflineContext);
+  const { setData, selectedDate, data } = useContext(KDOfflineContext);
 
   const [isFetchingProductTotalSales, setIsFetchingProductTotalSales] = useState<
     boolean | undefined
@@ -40,6 +41,9 @@ function useFetchProductTotalSales() {
 
   useEffect(() => {
     const fetchProductTotalSale = async () => {
+      if (data.length < kdNumber) {
+        return;
+      }
       setIsFetchingProductTotalSales(true);
       const { YYYYMMDD } = DATE_FORMAT;
       let res: any[];
@@ -67,7 +71,9 @@ function useFetchProductTotalSales() {
       }
       const { data: resDayData } = res[0].result;
       setData((prev: any) => {
-        const productTotalSales: any = prev[1];
+        const productTotalSales: any = prev.find(
+          (item: any) => item.key === KeyDriverField.ProductTotalSales,
+        );
         const childrenProduct: any[] = productTotalSales.children;
         const companyDayData = calculateCompanyKeyDriver(resDayData);
         [...companyDayData, ...resDayData].forEach((item, index) => {
@@ -113,7 +119,6 @@ function useFetchProductTotalSales() {
           });
         }
         productTotalSales.children = childrenProduct;
-        prev[1] = productTotalSales;
         return [...prev];
       });
       setIsFetchingProductTotalSales(false);
@@ -121,7 +126,7 @@ function useFetchProductTotalSales() {
     if (selectedDate) {
       fetchProductTotalSale();
     }
-  }, [calculateCompanyKeyDriver, dispatch, selectedDate, setData]);
+  }, [calculateCompanyKeyDriver, data.length, dispatch, selectedDate, setData]);
 
   return { isFetchingProductTotalSales };
 }

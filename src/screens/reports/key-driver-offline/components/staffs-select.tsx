@@ -4,11 +4,12 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
+import { KeyDriverDimension } from "model/report";
 import { ReactElement, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { strForSearch } from "utils/StringUtils";
-import { keyDriverOfflineTemplateData } from "../constant/key-driver-offline-template-data";
+import { kdOfflineTemplateData } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 interface Props extends SelectProps<number> {
   asmName: string;
@@ -27,7 +28,17 @@ function StaffsSelect(props: Props): ReactElement {
   const [staffs, setStaffs] = useState<AccountResponse[]>([]);
 
   const handleOnChange = (selectedStaffs: string[]) => {
-    setData((prev: any) => JSON.parse(JSON.stringify(keyDriverOfflineTemplateData)));
+    setData((prev: any) =>
+      JSON.parse(
+        JSON.stringify(
+          kdOfflineTemplateData.filter((item: any) => {
+            return (
+              !item.allowedDimension || item.allowedDimension.includes(KeyDriverDimension.Staff)
+            );
+          }),
+        ),
+      ),
+    );
     setSelectedStaffs(
       selectedStaffs.length ? selectedStaffs : staffs.map((item) => JSON.stringify(item)),
     );

@@ -7,18 +7,19 @@ import { getKDOfflineProfit } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { showErrorReport } from "utils/ReportUtils";
+import { kdNumber } from "../../constant/kd-offline-template";
 import { KDOfflineContext } from "../../provider/kd-offline-provider";
 import { calculateDimSummary } from "../../utils/DimSummaryUtils";
 import { findKDAndUpdateProfitKD } from "../../utils/ProfitKDUtils";
 
 function useFetchProfit(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedDate, selectedStores, selectedAsm } = useContext(KDOfflineContext);
+  const { setData, selectedDate, selectedStores, selectedAsm, data } = useContext(KDOfflineContext);
 
   const [isFetchingProfit, setIsFetchingProfit] = useState<boolean | undefined>();
 
   const findKeyDriverAndUpdateValue = useCallback(
-    (data: any, dimData: any, columnKey: string, keyDriver: string) => {
+    (dataState: any, dimData: any, columnKey: string) => {
       const { Asm, Store } = KeyDriverDimension;
       let dimKey: "department_lv2" | "pos_location_name" | undefined;
       if (dimension === Asm) {
@@ -29,12 +30,11 @@ function useFetchProfit(dimension: KeyDriverDimension = KeyDriverDimension.Store
         dimKey = undefined;
       }
       findKDAndUpdateProfitKD({
-        data,
+        dataState,
         dimData,
         columnKey,
         selectedDate,
         dimKey,
-        keyDriver,
       });
     },
     [dimension, selectedDate],
@@ -55,6 +55,9 @@ function useFetchProfit(dimension: KeyDriverDimension = KeyDriverDimension.Store
 
   const refetchProfit = useCallback(() => {
     const fetchProfit = async () => {
+      if (data.length < kdNumber) {
+        return;
+      }
       setIsFetchingProfit(true);
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
@@ -115,27 +118,20 @@ function useFetchProfit(dimension: KeyDriverDimension = KeyDriverDimension.Store
             showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Cuộc gọi theo hạng khách hàng");
           }
           if (resDay.length) {
-            setData((prev: any) => {
-              let dataPrev: any = prev[2];
+            setData((dataPrev: any) => {
               resDayDim.forEach((item: any) => {
-                Object.keys(item).forEach((keyDriver) => {
-                  findKeyDriverAndUpdateValue(dataPrev, item, "actualDay", keyDriver);
-                });
+                findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
               });
-              prev[2] = dataPrev;
-              return [...prev];
+              return [...dataPrev];
             });
           }
           setIsFetchingProfit(false);
           return;
         }
-        setData((prev: any) => {
-          let dataPrev: any = prev[2];
+        setData((dataPrev: any) => {
           if (resDay.length) {
             resDayDim.forEach((item: any) => {
-              Object.keys(item).forEach((keyDriver) => {
-                findKeyDriverAndUpdateValue(dataPrev, item, "actualDay", keyDriver);
-              });
+              findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
             });
           }
           let resMonthDim: any[] = [];
@@ -146,12 +142,9 @@ function useFetchProfit(dimension: KeyDriverDimension = KeyDriverDimension.Store
             resMonthDim = calculateDimSummary(resMonth[0], dimension, dimName);
           }
           resMonthDim.forEach((item: any) => {
-            Object.keys(item).forEach((keyDriver) => {
-              findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth", keyDriver);
-            });
+            findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
           });
-          prev[2] = dataPrev;
-          return [...prev];
+          return [...dataPrev];
         });
       });
 
@@ -162,6 +155,7 @@ function useFetchProfit(dimension: KeyDriverDimension = KeyDriverDimension.Store
     }
   }, [
     calculateCompanyKeyDriver,
+    data.length,
     dimension,
     dispatch,
     findKeyDriverAndUpdateValue,

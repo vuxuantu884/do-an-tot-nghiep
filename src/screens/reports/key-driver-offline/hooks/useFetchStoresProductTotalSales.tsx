@@ -1,4 +1,4 @@
-import { KDGroup, KeyDriverDimension } from "model/report";
+import { KDGroup, KeyDriverDimension, KeyDriverField } from "model/report";
 import moment from "moment";
 import { useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -15,12 +15,20 @@ import {
   STORES_PRODUCT_TOTAL_SALES_DAY_QUERY,
   STORES_PRODUCT_TOTAL_SALES_MONTH_QUERY,
 } from "../config/key-driver-offline-asm-config";
+import { kdNumber } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 
 function useFetchStoresProductTotalSales(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm, selectedStaffs, selectedDate, selectedAllStores } =
-    useContext(KDOfflineContext);
+  const {
+    setData,
+    selectedStores,
+    selectedAsm,
+    selectedStaffs,
+    selectedDate,
+    selectedAllStores,
+    data,
+  } = useContext(KDOfflineContext);
 
   const [isFetchingStoresProductTotalSales, setIsFetchingStoresProductTotalSales] = useState<
     boolean | undefined
@@ -28,6 +36,9 @@ function useFetchStoresProductTotalSales(dimension: KeyDriverDimension = KeyDriv
 
   useEffect(() => {
     const fetchProductTotalSale = async () => {
+      if (data.length < kdNumber) {
+        return;
+      }
       setIsFetchingStoresProductTotalSales(true);
       if (!selectedStores.length || !selectedAsm.length) {
         return;
@@ -137,9 +148,9 @@ function useFetchStoresProductTotalSales(dimension: KeyDriverDimension = KeyDriv
       const { data: resDayData } = res[0].result;
       setData((prev: any) => {
         const dimName = dimension === KeyDriverDimension.Staff ? selectedStores[0] : selectedAsm[0];
-        console.log("dimName", dimName);
-
-        const storesProductTotalSales: any = prev[1];
+        const storesProductTotalSales: any = prev.find(
+          (item: any) => item.key === KeyDriverField.ProductTotalSales,
+        );
         const childrenProduct: any[] = storesProductTotalSales.children;
         resDayData.forEach((item: any) => {
           if (item && item[0]) {
@@ -201,7 +212,6 @@ function useFetchStoresProductTotalSales(dimension: KeyDriverDimension = KeyDriv
           });
         }
         storesProductTotalSales.children = childrenProduct;
-        prev[1] = storesProductTotalSales;
         return [...prev];
       });
       setIsFetchingStoresProductTotalSales(false);
@@ -210,6 +220,7 @@ function useFetchStoresProductTotalSales(dimension: KeyDriverDimension = KeyDriv
       fetchProductTotalSale();
     }
   }, [
+    data.length,
     dimension,
     dispatch,
     selectedAllStores,
