@@ -23,6 +23,7 @@ export default function DataDog() {
       version: packageJson.version,
       sampleRate: 100,
       premiumSampleRate: 100,
+      sessionReplaySampleRate: 0,
       trackInteractions: true,
       defaultPrivacyLevel: "mask-user-input",
       allowedTracingOrigins,

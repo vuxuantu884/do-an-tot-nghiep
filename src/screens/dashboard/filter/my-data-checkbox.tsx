@@ -4,7 +4,7 @@ import { STAFF_POSITION_LIST } from "config/dashboard/filter-config";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useContext } from "react";
 import { useSelector } from "react-redux";
-import { ShowMyDataStyle } from "../index.style";
+import { ShowMyDataStyle } from "../dashboard.style";
 import { DashboardContext } from "../provider/dashboard-provider";
 
 type Props = {};
