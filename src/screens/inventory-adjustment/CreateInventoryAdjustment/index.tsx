@@ -112,6 +112,10 @@ const CreateInventoryAdjustment: FC = () => {
     TotalRealOnHand: 0,
   });
 
+  const myStores: any = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.account_stores,
+  );
+
   const lstAudiTypes = [
     {
       key: "partly",
@@ -863,7 +867,13 @@ const CreateInventoryAdjustment: FC = () => {
                         store ? setFormStoreData(store) : setFormStoreData(null);
                       }}
                     >
-                      {Array.isArray(stores) &&
+                      {Array.isArray(myStores) &&
+                        myStores.length > 0 ?
+                        myStores.map((item, index) => (
+                          <Option key={"adjusted_store_id" + index} value={item.store_id.toString()}>
+                            {item.store}
+                          </Option>
+                        )) : Array.isArray(stores) &&
                         stores.length > 0 &&
                         stores.map((item, index) => (
                           <Option key={"adjusted_store_id" + index} value={item.id.toString()}>
