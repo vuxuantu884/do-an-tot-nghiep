@@ -13,7 +13,6 @@ import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { calculateTargetMonth, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
-import { kdNumber } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 import { calculateDimSummary } from "../utils/DimSummaryUtils";
 
@@ -21,7 +20,7 @@ function useFetchOfflineTotalSalesPotential(
   dimension: KeyDriverDimension = KeyDriverDimension.Store,
 ) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm, selectedDate, data } = useContext(KDOfflineContext);
+  const { setData, selectedStores, selectedAsm, selectedDate } = useContext(KDOfflineContext);
 
   const [isFetchingOfflineTotalSalesPotential, setIsFetchingOfflineTotalSalesPotential] = useState<
     boolean | undefined
@@ -115,9 +114,7 @@ function useFetchOfflineTotalSalesPotential(
 
   const refetchOfflineTotalSalesPotential = useCallback(() => {
     const fetchOfflineTotalSalesPotential = async () => {
-      if (data.length < kdNumber) {
-        return;
-      }
+      setIsFetchingOfflineTotalSalesPotential(true);
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
@@ -126,7 +123,6 @@ function useFetchOfflineTotalSalesPotential(
         setIsFetchingOfflineTotalSalesPotential(false);
         return;
       }
-      setIsFetchingOfflineTotalSalesPotential(true);
       const params: KDOfflineTotalSalesParams = {
         from: TODAY,
         to: TODAY,
@@ -242,7 +238,6 @@ function useFetchOfflineTotalSalesPotential(
   }, [
     calculateCompanyKeyDriver,
     calculateConversionRate,
-    data.length,
     dimension,
     dispatch,
     findKeyDriverAndUpdateValue,

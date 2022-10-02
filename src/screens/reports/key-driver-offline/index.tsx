@@ -12,7 +12,7 @@ import UrlConfig from "config/url.config";
 import { debounce } from "lodash";
 import { KeyDriverDimension, KeyDriverField, KeyDriverTarget, LocalStorageKey } from "model/report";
 import moment from "moment";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import { formatCurrency, generateQuery, replaceFormatString } from "utils/AppUtils";
@@ -30,7 +30,12 @@ import {
   updateTargetDayUtil,
   updateTargetMonthUtil,
 } from "utils/KeyDriverOfflineUtils";
-import { ASM_LIST, kdOfflineTemplateData, loadingMessage } from "./constant/kd-offline-template";
+import {
+  ASM_LIST,
+  kdNumber,
+  kdOfflineTemplateData,
+  loadingMessage,
+} from "./constant/kd-offline-template";
 import useFetchProfit from "./hooks/profit/useFetchProfit";
 import useFetchStorePerformance from "./hooks/store-performance/useFetchStorePerformance";
 import useFetchCallLoyalty from "./hooks/useFetchCallLoyalty";
@@ -47,7 +52,7 @@ import useFetchProductTotalSales from "./hooks/useFetchProductTotalSales";
 import useFetchSmsLoyalty from "./hooks/useFetchSmsLoyalty";
 import { KeyDriverOfflineStyle } from "./index.style";
 import KDOfflineProvider, { KDOfflineContext } from "./provider/kd-offline-provider";
-import { formatData } from "./utils/formatData";
+import { formatData } from "./utils/FormatDataState";
 
 type RowData = {
   name: string;
@@ -154,7 +159,8 @@ function KeyDriverOffline() {
   const [finalColumns, setFinalColumns] = useState<ColumnsType<any>>([]);
   const [loadingPage, setLoadingPage] = useState<boolean | undefined>();
   const { isFetchingKeyDriverTarget, refetch } = useFetchKeyDriverTarget(Asm);
-  const { isFetchingKDOfflineTotalSales } = useFetchKDOfflineTotalSales(Asm);
+  const { isFetchingKDOfflineTotalSales, setIsFetchingKDOfflineTotalSales } =
+    useFetchKDOfflineTotalSales(Asm);
   const { isFetchingOfflineTotalSalesLoyalty } = useFetchOfflineTotalSalesLoyalty(Asm);
   const { isFetchingCustomerVisitors } = useFetchCustomerVisitors(Asm);
   const { isFetchingOfflineOnlineTotalSales } = useFetchOfflineOnlineTotalSales(Asm);
@@ -180,6 +186,7 @@ function KeyDriverOffline() {
   const [syncDataTime, setSyncDataTime] = useState<string>(
     moment().format(DATE_FORMAT.DD_MM_YY_HHmmss),
   );
+  const selectedDateParam = useRef("");
 
   const expandedDefault = localStorage.getItem(LocalStorageKey.KeyDriverOfflineRowkeysExpanded);
   const [expandRowKeys, setExpandRowKeys] = useState<string[]>(
@@ -215,6 +222,7 @@ function KeyDriverOffline() {
   useEffect(() => {
     setLoadingPage(true);
     if (
+      selectedDate &&
       isFetchingKDOfflineTotalSales === false &&
       isFetchingKeyDriverTarget === false &&
       isFetchingOfflineTotalSalesLoyalty === false &&
@@ -232,6 +240,9 @@ function KeyDriverOffline() {
     ) {
       setData((prev: any[]) => {
         prev.forEach((item: any, index) => {
+          if (prev.length < kdNumber) {
+            return;
+          }
           calculateDayTarget(item);
           const {
             AverageOrderValue,
@@ -269,6 +280,8 @@ function KeyDriverOffline() {
         prev = formatData(prev);
         return [...prev];
       });
+      console.log("recycle");
+
       setSyncDataTime(moment().format(DATE_FORMAT.DD_MM_YY_HHmmss));
       setLoadingPage(false);
     }
@@ -509,6 +522,9 @@ function KeyDriverOffline() {
   }, [setObjectiveColumns]);
 
   useEffect(() => {
+    if (selectedDateParam.current) {
+      return;
+    }
     if (date) {
       setSelectedDate(date);
     } else {
@@ -522,6 +538,19 @@ function KeyDriverOffline() {
     }
   }, [history, date, setSelectedDate]);
 
+  useEffect(() => {
+    const { current } = selectedDateParam;
+    if (data.length >= kdNumber && current && !selectedDate && isFetchingKDOfflineTotalSales) {
+      let queryParam = generateQuery({
+        "default-screen": "key-driver-offline",
+        date: current,
+      });
+
+      setSelectedDate(current);
+      history.push(`?${queryParam}`);
+    }
+  }, [data.length, history, isFetchingKDOfflineTotalSales, selectedDate, setSelectedDate]);
+
   const onFinish = useCallback(() => {
     setLoadingPage(true);
     let date = form.getFieldsValue(true)["date"];
@@ -531,6 +560,7 @@ function KeyDriverOffline() {
     } else {
       newDate = moment().format(DATE_FORMAT.YYYYMMDD);
     }
+    setSelectedDate("");
     setData(() =>
       JSON.parse(
         JSON.stringify(
@@ -540,13 +570,11 @@ function KeyDriverOffline() {
         ),
       ),
     );
-    let queryParam = generateQuery({
-      "default-screen": "key-driver-offline",
-      date: newDate,
-    });
-    history.push(`?${queryParam}`);
+    selectedDateParam.current = newDate;
+    setIsFetchingKDOfflineTotalSales(true);
     // history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}?date=${newDate}`);
-  }, [form, history, setData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, setData, setSelectedDate]);
 
   const newFinalColumns = useMemo(() => {
     return finalColumns.map((columnDetails: any) => {

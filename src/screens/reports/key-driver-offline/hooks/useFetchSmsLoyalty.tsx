@@ -7,15 +7,13 @@ import { getKDSmsLoyalty } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { showErrorReport } from "utils/ReportUtils";
-import { kdNumber } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 import { findKDAndUpdateCallSmsValue } from "../utils/CallSmsKDUtils";
 import { calculateDimSummary } from "../utils/DimSummaryUtils";
 
 function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm, selectedDate, selectedStaffs, data } =
-    useContext(KDOfflineContext);
+  const { setData, selectedStores, selectedAsm, selectedDate } = useContext(KDOfflineContext);
 
   const [isFetchingSmsLoyalty, setIsFetchingSmsLoyalty] = useState<boolean | undefined>();
 
@@ -57,30 +55,21 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
 
   const refetchSmsLoyalty = useCallback(() => {
     const fetchSmsLoyalty = async () => {
-      if (data.length < kdNumber) {
-        return;
-      }
+      setIsFetchingSmsLoyalty(true);
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
       }
 
-      if (
-        dimension === Staff &&
-        (!selectedStores.length || !selectedAsm.length || !selectedStaffs.length)
-      ) {
+      if (dimension === Staff) {
         return;
       }
-      setIsFetchingSmsLoyalty(true);
       let params: KDOfflineTotalSalesParams = {
         from: TODAY,
         to: TODAY,
         posLocationNames: dimension === Asm ? [] : selectedStores,
         departmentLv2s: dimension === Asm ? ASM_LIST : selectedAsm,
       };
-      if (dimension === Staff) {
-        params = { ...params, staffCodes: selectedStaffs.map((item) => JSON.parse(item).code) };
-      }
       const dayApi = callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDSmsLoyalty, {
         ...params,
         from: selectedDate,
@@ -111,7 +100,7 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
           setIsFetchingSmsLoyalty(false);
           return;
         }
-        const dimName = dimension === KeyDriverDimension.Staff ? selectedStores[0] : "";
+        const dimName = "";
         let resDayDim: any[] = [];
         if (resDay.length) {
           if (dimension === Asm) {
@@ -166,13 +155,11 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
     }
   }, [
     calculateCompanyKeyDriver,
-    data.length,
     dimension,
     dispatch,
     findKeyDriverAndUpdateValue,
     selectedAsm,
     selectedDate,
-    selectedStaffs,
     selectedStores,
     setData,
   ]);
