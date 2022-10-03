@@ -7,15 +7,13 @@ import { getKDFollowFanpage } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { showErrorReport } from "utils/ReportUtils";
-import { kdNumber } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 import { calculateDimSummary } from "../utils/DimSummaryUtils";
 import { findKDAndUpdateFollowFanpageValue } from "../utils/FollowFanpageUtils";
 
 function useFetchFollowFanpage(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm, selectedDate, selectedStaffs, data } =
-    useContext(KDOfflineContext);
+  const { setData, selectedStores, selectedAsm, selectedDate } = useContext(KDOfflineContext);
 
   const [isFetchingFollowFanpage, setIsFetchingFollowFanpage] = useState<boolean | undefined>();
 
@@ -46,30 +44,21 @@ function useFetchFollowFanpage(dimension: KeyDriverDimension = KeyDriverDimensio
 
   const refetchFollowFanpage = useCallback(() => {
     const fetchFollowFanpage = async () => {
-      if (data.length < kdNumber) {
-        return;
-      }
+      setIsFetchingFollowFanpage(true);
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
       }
-      if (
-        dimension === Staff &&
-        (!selectedStores.length || !selectedAsm.length || !selectedStaffs.length)
-      ) {
+      if (dimension === Staff) {
+        setIsFetchingFollowFanpage(false);
         return;
       }
-      setIsFetchingFollowFanpage(true);
       let params: KDOfflineTotalSalesParams = {
         from: TODAY,
         to: TODAY,
         posLocationNames: dimension === Asm ? [] : selectedStores,
         departmentLv2s: dimension === Asm ? ASM_LIST : selectedAsm,
       };
-      if (dimension === Staff) {
-        setIsFetchingFollowFanpage(false);
-        return;
-      }
       // const dayApi = callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDFollowFanpage, {
       //   ...params,
       //   from: selectedDate,
@@ -171,13 +160,11 @@ function useFetchFollowFanpage(dimension: KeyDriverDimension = KeyDriverDimensio
       fetchFollowFanpage();
     }
   }, [
-    data.length,
     dimension,
     dispatch,
     findKeyDriverAndUpdateValue,
     selectedAsm,
     selectedDate,
-    selectedStaffs.length,
     selectedStores,
     setData,
   ]);

@@ -13,7 +13,6 @@ import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { calculateTargetMonth, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
-import { kdNumber } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 import { calculateDimSummary } from "../utils/DimSummaryUtils";
 
@@ -21,7 +20,7 @@ function useFetchOfflineTotalSalesLoyalty(
   dimension: KeyDriverDimension = KeyDriverDimension.Store,
 ) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm, selectedStaffs, selectedDate, data } =
+  const { setData, selectedStores, selectedAsm, selectedStaffs, selectedDate } =
     useContext(KDOfflineContext);
 
   const [isFetchingOfflineTotalSalesLoyalty, setIsFetchingOfflineTotalSalesLoyalty] = useState<
@@ -50,7 +49,10 @@ function useFetchOfflineTotalSalesLoyalty(
       const dimensionName = nonAccentVietnameseKD(dimData[dimensionKey]);
       if (dimensionName) {
         dataState.forEach((dataItem: any) => {
-          if (Object.keys(dimData).includes(dataItem.key)) {
+          if (
+            Object.keys(dimData).includes(dataItem.key) &&
+            dataItem.key !== KeyDriverField.TotalSales
+          ) {
             dataItem[`${dimensionName}_${columnKey}`] = dimData[dataItem.key];
             // doanh thu nhóm KH khác = tổng doanh thu các nhóm khách hàng còn lại không show trên BC
             if (dataItem.key === OthersTotalSales) {
@@ -87,9 +89,7 @@ function useFetchOfflineTotalSalesLoyalty(
 
   const refetchOfflineTotalSalesLoyalty = useCallback(() => {
     const fetchOfflineTotalSalesLoyalty = async () => {
-      if (data.length < kdNumber) {
-        return;
-      }
+      setIsFetchingOfflineTotalSalesLoyalty(true);
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
@@ -100,7 +100,6 @@ function useFetchOfflineTotalSalesLoyalty(
       ) {
         return;
       }
-      setIsFetchingOfflineTotalSalesLoyalty(true);
       let params: KDOfflineTotalSalesParams = {
         from: TODAY,
         to: TODAY,
@@ -205,7 +204,6 @@ function useFetchOfflineTotalSalesLoyalty(
     }
   }, [
     calculateCompanyKeyDriver,
-    data.length,
     dimension,
     dispatch,
     findKeyDriverAndUpdateValue,

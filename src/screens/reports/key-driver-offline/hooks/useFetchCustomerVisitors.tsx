@@ -13,12 +13,11 @@ import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { calculateTargetMonth, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
-import { kdNumber } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 
 function useFetchCustomerVisitors(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm, selectedStaffs, selectedDate, data } =
+  const { setData, selectedStores, selectedAsm, selectedStaffs, selectedDate } =
     useContext(KDOfflineContext);
 
   const [isFetchingCustomerVisitors, setIsFetchingCustomerVisitors] = useState<
@@ -95,9 +94,7 @@ function useFetchCustomerVisitors(dimension: KeyDriverDimension = KeyDriverDimen
 
   const refetchCustomerVisitors = useCallback(() => {
     const fetchCustomerVisitors = async () => {
-      if (data.length < kdNumber) {
-        return;
-      }
+      setIsFetchingCustomerVisitors(true);
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
@@ -108,7 +105,6 @@ function useFetchCustomerVisitors(dimension: KeyDriverDimension = KeyDriverDimen
       ) {
         return;
       }
-      setIsFetchingCustomerVisitors(true);
       let params: KDOfflineTotalSalesParams = {
         from: TODAY,
         to: TODAY,
@@ -197,7 +193,6 @@ function useFetchCustomerVisitors(dimension: KeyDriverDimension = KeyDriverDimen
   }, [
     calculateCompanyKeyDriver,
     calculateDimKeyDriver,
-    data.length,
     dimension,
     dispatch,
     findKeyDriverAndUpdateValue,

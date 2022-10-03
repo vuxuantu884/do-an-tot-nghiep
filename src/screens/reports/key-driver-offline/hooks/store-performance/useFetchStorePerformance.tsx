@@ -8,14 +8,12 @@ import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { calculateTargetMonth, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
-import { kdNumber } from "../../constant/kd-offline-template";
 import { KDOfflineContext } from "../../provider/kd-offline-provider";
 import { calculateDimSummary } from "../../utils/DimSummaryUtils";
 
 function useFetchStorePerformance(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm, selectedStaffs, selectedDate, data } =
-    useContext(KDOfflineContext);
+  const { setData, selectedStores, selectedAsm, selectedDate } = useContext(KDOfflineContext);
 
   const [isFetchingStorePerformance, setIsFetchingStorePerformance] = useState<
     boolean | undefined
@@ -59,18 +57,13 @@ function useFetchStorePerformance(dimension: KeyDriverDimension = KeyDriverDimen
 
   const refetchStorePerformance = useCallback(() => {
     const fetchStorePerformance = async () => {
-      if (data.length < kdNumber) {
-        return;
-      }
+      setIsFetchingStorePerformance(true);
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
       }
 
-      if (
-        dimension === Staff &&
-        (!selectedStores.length || !selectedAsm.length || !selectedStaffs.length)
-      ) {
+      if (dimension === Staff) {
         setIsFetchingStorePerformance(false);
         return;
       }
@@ -80,9 +73,6 @@ function useFetchStorePerformance(dimension: KeyDriverDimension = KeyDriverDimen
         posLocationNames: dimension === Asm ? [] : selectedStores,
         departmentLv2s: dimension === Asm ? ASM_LIST : selectedAsm,
       };
-      if (dimension === Staff) {
-        params = { ...params, staffCodes: selectedStaffs.map((item) => JSON.parse(item).code) };
-      }
       const dayApi = callApiNative(
         { notifyAction: "SHOW_ALL" },
         dispatch,
@@ -123,7 +113,7 @@ function useFetchStorePerformance(dimension: KeyDriverDimension = KeyDriverDimen
           setIsFetchingStorePerformance(false);
           return;
         }
-        const dimName = dimension === Staff ? selectedStores[0] : "";
+        const dimName = "";
         let resDayDim: any[] = [];
         if (resDay.length) {
           if (dimension === Asm) {
@@ -186,11 +176,9 @@ function useFetchStorePerformance(dimension: KeyDriverDimension = KeyDriverDimen
     }
   }, [
     selectedDate,
-    data.length,
     dimension,
     selectedStores,
     selectedAsm,
-    selectedStaffs,
     dispatch,
     setData,
     findKeyDriverAndUpdateValue,

@@ -10,12 +10,11 @@ import {
   nonAccentVietnameseKD,
 } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
-import { kdNumber } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 
 function useFetchKeyDriverTarget(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedStaffs, selectedDate, selectedAsm, data } =
+  const { setData, selectedStores, selectedStaffs, selectedDate, selectedAsm } =
     useContext(KDOfflineContext);
 
   const [isFetchingKeyDriverTarget, setIsFetchingKeyDriverTarget] = useState<boolean | undefined>();
@@ -38,9 +37,7 @@ function useFetchKeyDriverTarget(dimension: KeyDriverDimension = KeyDriverDimens
 
   const refetch = useCallback(() => {
     const fetchStoresKeyDriverTarget = async () => {
-      if (data.length < kdNumber) {
-        return;
-      }
+      setIsFetchingKeyDriverTarget(true);
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
@@ -51,7 +48,6 @@ function useFetchKeyDriverTarget(dimension: KeyDriverDimension = KeyDriverDimens
       ) {
         return;
       }
-      setIsFetchingKeyDriverTarget(true);
       const { YYYYMMDD } = DATE_FORMAT;
       const res = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKeyDriversTarget, {
         "year.equals": moment(selectedDate, YYYYMMDD).year(),
@@ -153,7 +149,6 @@ function useFetchKeyDriverTarget(dimension: KeyDriverDimension = KeyDriverDimens
     }
   }, [
     selectedDate,
-    data.length,
     dimension,
     selectedStores,
     selectedAsm,

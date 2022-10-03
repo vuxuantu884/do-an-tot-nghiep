@@ -13,14 +13,12 @@ import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { calculateTargetMonth, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
-import { kdNumber } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 import { calculateDimSummary } from "../utils/DimSummaryUtils";
 
 function useFetchNPS(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm, selectedStaffs, selectedDate, data } =
-    useContext(KDOfflineContext);
+  const { setData, selectedStores, selectedAsm, selectedDate } = useContext(KDOfflineContext);
 
   const [isFetchingNPS, setIsFetchingNPS] = useState<boolean | undefined>();
 
@@ -64,18 +62,12 @@ function useFetchNPS(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
 
   const refetchNPS = useCallback(() => {
     const fetchNPS = async () => {
-      if (data.length < kdNumber) {
-        return;
-      }
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
       }
 
-      if (
-        dimension === Staff &&
-        (!selectedStores.length || !selectedAsm.length || !selectedStaffs.length)
-      ) {
+      if (dimension === Staff) {
         setIsFetchingNPS(false);
         return;
       }
@@ -85,9 +77,6 @@ function useFetchNPS(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
         posLocationNames: dimension === Asm ? [] : selectedStores,
         departmentLv2s: dimension === Asm ? ASM_LIST : selectedAsm,
       };
-      if (dimension === Staff) {
-        params = { ...params, staffCodes: selectedStaffs.map((item) => JSON.parse(item).code) };
-      }
       const dayApi = callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDOfflineNPS, {
         ...params,
         from: selectedDate,
@@ -118,7 +107,7 @@ function useFetchNPS(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
           setIsFetchingNPS(false);
           return;
         }
-        const dimName = dimension === Staff ? selectedStores[0] : "";
+        const dimName = "";
         let resDayDim: any[] = [];
         if (resDay.length) {
           if (dimension === Asm) {
@@ -181,11 +170,9 @@ function useFetchNPS(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
     }
   }, [
     selectedDate,
-    data.length,
     dimension,
     selectedStores,
     selectedAsm,
-    selectedStaffs,
     dispatch,
     setData,
     findKeyDriverAndUpdateValue,

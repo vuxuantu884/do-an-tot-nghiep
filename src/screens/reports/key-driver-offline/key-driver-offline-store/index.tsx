@@ -17,7 +17,7 @@ import {
   LocalStorageKey,
 } from "model/report";
 import moment from "moment";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation, useParams } from "react-router-dom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
@@ -36,7 +36,7 @@ import {
   updateTargetMonthUtil,
 } from "utils/KeyDriverOfflineUtils";
 import StoresSelect from "../components/stores-select";
-import { kdOfflineTemplateData, loadingMessage } from "../constant/kd-offline-template";
+import { kdNumber, kdOfflineTemplateData, loadingMessage } from "../constant/kd-offline-template";
 import useFetchProfit from "../hooks/profit/useFetchProfit";
 import useFetchStorePerformance from "../hooks/store-performance/useFetchStorePerformance";
 import useFetchCallLoyalty from "../hooks/useFetchCallLoyalty";
@@ -53,7 +53,7 @@ import useFetchSmsLoyalty from "../hooks/useFetchSmsLoyalty";
 import useFetchStoresProductTotalSales from "../hooks/useFetchStoresProductTotalSales";
 import { KeyDriverOfflineStyle } from "../index.style";
 import KDOfflineProvider, { KDOfflineContext } from "../provider/kd-offline-provider";
-import { formatData } from "../utils/formatData";
+import { formatData } from "../utils/FormatDataState";
 
 // const { Option } = Select;
 
@@ -160,7 +160,8 @@ function KeyDriverOfflineStore() {
   const [finalColumns, setFinalColumns] = useState<ColumnsType<any>>([]);
   const [loadingPage, setLoadingPage] = useState<boolean | undefined>();
   const { isFetchingKeyDriverTarget, refetch } = useFetchKeyDriverTarget();
-  const { isFetchingKDOfflineTotalSales } = useFetchStoresKDOfflineTotalSales();
+  const { isFetchingKDOfflineTotalSales, setIsFetchingKDOfflineTotalSales } =
+    useFetchStoresKDOfflineTotalSales();
   const { isFetchingOfflineTotalSalesLoyalty } = useFetchOfflineTotalSalesLoyalty();
   const { isFetchingCustomerVisitors } = useFetchCustomerVisitors();
   const { isFetchingOfflineOnlineTotalSales } = useFetchOfflineOnlineTotalSales();
@@ -198,6 +199,7 @@ function KeyDriverOfflineStore() {
     expandedDefault ? JSON.parse(expandedDefault) : [],
   );
   const [showSettingColumn, setShowSettingColumn] = useState(false);
+  const selectedDateParam = useRef("");
 
   const setObjectiveColumns = useCallback(
     (
@@ -444,6 +446,7 @@ function KeyDriverOfflineStore() {
   useEffect(() => {
     setLoadingPage(true);
     if (
+      selectedStores.length &&
       isFetchingKDOfflineTotalSales === false &&
       isFetchingKeyDriverTarget === false &&
       isFetchingOfflineTotalSalesLoyalty === false &&
@@ -542,16 +545,25 @@ function KeyDriverOfflineStore() {
   //   isFirstLoad.current = false;
   // }, [dispatch]);
 
+  useEffect(() => {
+    const { current } = selectedDateParam;
+    if (data.length >= kdNumber && current && !selectedDate && isFetchingKDOfflineTotalSales) {
+      const asmNameUrl = asmName.toLocaleLowerCase();
+      setSelectedDate(current);
+      history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}/${asmNameUrl}?date=${current}`);
+    }
+  }, [asmName, data.length, history, isFetchingKDOfflineTotalSales, selectedDate, setSelectedDate]);
+
   const onFinish = useCallback(() => {
     setLoadingPage(true);
     let date = form.getFieldsValue(true)["date"];
     let newDate = "";
-    const asmNameUrl = asmName.toLocaleLowerCase();
     if (date) {
       newDate = moment(date, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.YYYYMMDD);
     } else {
       newDate = moment().format(DATE_FORMAT.YYYYMMDD);
     }
+    setSelectedDate("");
     setData(() =>
       JSON.parse(
         JSON.stringify(
@@ -563,8 +575,10 @@ function KeyDriverOfflineStore() {
         ),
       ),
     );
-    history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}/${asmNameUrl}?date=${newDate}`);
-  }, [asmName, form, history, setData]);
+    selectedDateParam.current = newDate;
+    setIsFetchingKDOfflineTotalSales(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, setData, setSelectedDate]);
 
   const newFinalColumns = useMemo(() => {
     return finalColumns.map((columnDetails: any) => {
