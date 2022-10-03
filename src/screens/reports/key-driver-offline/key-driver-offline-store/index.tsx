@@ -446,6 +446,7 @@ function KeyDriverOfflineStore() {
   useEffect(() => {
     setLoadingPage(true);
     if (
+      selectedStores.length &&
       isFetchingKDOfflineTotalSales === false &&
       isFetchingKeyDriverTarget === false &&
       isFetchingOfflineTotalSalesLoyalty === false &&

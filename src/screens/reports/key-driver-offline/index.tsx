@@ -280,8 +280,6 @@ function KeyDriverOffline() {
         prev = formatData(prev);
         return [...prev];
       });
-      console.log("recycle");
-
       setSyncDataTime(moment().format(DATE_FORMAT.DD_MM_YY_HHmmss));
       setLoadingPage(false);
     }
