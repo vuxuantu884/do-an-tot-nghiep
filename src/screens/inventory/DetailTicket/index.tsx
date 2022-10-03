@@ -1748,7 +1748,12 @@ const DetailTicket: FC = () => {
             }}
             loading={isLoadingBtn}
             errorData={errorData}
-            onOk={() => dispatch(acceptInventoryAction(Number(data?.id), onReload))}
+            onOk={() => {
+              dispatch(showLoading());
+              dispatch(acceptInventoryAction(Number(data?.id), onReload));
+              setIsOpenModalErrors(false);
+              setLoadingBtn(false);
+            }}
             title={"Có một số phiếu chuyển tương tự được tạo trong 1 tháng trở lại đây. Tiếp tục thực hiện?"}
             visible={isOpenModalErrors}
           />
