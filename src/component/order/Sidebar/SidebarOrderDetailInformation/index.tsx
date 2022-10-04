@@ -332,7 +332,7 @@ function SidebarOrderDetailInformation(props: PropTypes) {
 
   return (
     <StyledComponent>
-      <Card title="THÔNG TIN ĐƠN HÀNG">
+      <Card title="THÔNG TIN ĐƠN HÀNG" className="orderDetailSidebar">
         {detailArr.map((single, index) => {
           if (single.title && single.value) {
             return (
