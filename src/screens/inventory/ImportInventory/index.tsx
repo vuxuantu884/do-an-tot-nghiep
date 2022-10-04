@@ -117,6 +117,29 @@ const UpdateTicket: FC = () => {
     BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import/${fileId}`).then(
       (res: any) => {
         if (!res.data) return;
+        if (res.data.data) {
+          stores.forEach((store) => {
+            if (store.id === Number(form.getFieldValue("from_store_id"))) {
+              res.data.data.store_transfer = {
+                store_id: store.id,
+                hotline: store.hotline,
+                address: store.address,
+                name: store.name,
+                code: store.code,
+              };
+            }
+            if (store.id === Number(form.getFieldValue("to_store_id"))) {
+              res.data.data.store_receive = {
+                store_id: store.id,
+                hotline: store.hotline,
+                address: store.address,
+                name: store.name,
+                code: store.code,
+              };
+            }
+          });
+        }
+
         setData(res.data);
         setDataProcess(res.data.process);
 
@@ -126,7 +149,7 @@ const UpdateTicket: FC = () => {
             : res.data.errors;
         downloadErrorDetail(newDataUpdateError);
         setDataUploadError(newDataUpdateError);
-        if (res.data.status !== "FINISH") return;
+        if (res.data.status !== "FINISH" || res.data.code !== HttpStatus.SERVER_ERROR) return;
         setFileId(null);
       },
     );
