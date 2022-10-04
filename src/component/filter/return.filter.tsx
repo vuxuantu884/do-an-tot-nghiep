@@ -790,6 +790,11 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
                     search_term: e.target.value.trim(),
                   });
                 }}
+                onPressEnter={(e) => {
+                  let element: any = document.getElementById("search_term");
+                  element?.focus();
+                  element?.select();
+                }}
               />
             </Item>
 
@@ -1059,7 +1064,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
                   </Col>
                 )}
                 {orderType === ORDER_TYPES.online && (
-                  <Col span={8} xxl={8} hidden>
+                  <Col span={8} xxl={8}>
                     <Item name="returned_store_ids" label="Kho nhận">
                       <CustomSelect
                         mode="multiple"

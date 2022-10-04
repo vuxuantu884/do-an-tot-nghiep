@@ -1753,6 +1753,8 @@ const EcommerceOrders: React.FC = () => {
   // handle print yody delivery note
   const printAction = useCallback(
     (printType: string) => {
+      handleChangeOrderStatusToPicked(selectedRow);
+
       let params = {
         action: "print",
         ids: selectedRowKeys,
@@ -1763,7 +1765,7 @@ const EcommerceOrders: React.FC = () => {
       const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
       window.open(printPreviewUrl, "_blank", "noopener,noreferrer");
     },
-    [selectedRowKeys],
+    [handleChangeOrderStatusToPicked, selectedRow, selectedRowKeys],
   );
 
   const printEcommerceAction = useCallback(

@@ -233,7 +233,7 @@ const ImportMultipleInventory: FC = () => {
         setLoadingTable(false);
         if (res.code === HttpStatus.SUCCESS) {
           setDataTable((dataTable: any) => {
-            return new Map([[file.uid, {
+            const newDatatable = new Map([[file.uid, {
               url: res.data[0],
               fileAttr: file,
               file: <span className="file-attached cursor-p">
@@ -275,6 +275,15 @@ const ImportMultipleInventory: FC = () => {
                 placeholder="Nhập ghi chú..."
               />,
             }], ...dataTable]);
+
+            return new Map([...newDatatable.entries()].sort(function(a: any, b: any) {
+              if (!a[1].fileAttr || !b[1].fileAttr) return 0;
+              const keyA = a[1].fileAttr.name.toLowerCase(),
+                keyB = b[1].fileAttr.name.toLowerCase();
+              if (keyA < keyB) return -1;
+              if (keyA > keyB) return 1;
+              return 0;
+            }));
           });
         }
       });

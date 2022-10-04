@@ -49,11 +49,11 @@ const SmsWebsiteOrder: React.FC = () => {
   const handleSmsConfigData = useCallback(
     (data: any) => {
       if (data) {
-        const messages = JSON.parse(data.messages);
+        const messages = data.messages?.find((item: any) => item.type === "WEBSITE");
         setMessageStatus(data.website_msg_status === "ACTIVE");
 
         const initFormValue = {
-          website_message: messages?.website_message,
+          website_message: messages?.content,
           website_msg_status: data.website_msg_status,
         };
         setInitValue(initFormValue);
@@ -135,11 +135,11 @@ const SmsWebsiteOrder: React.FC = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Cài đặt gửi tin",
-          path: UrlConfig.SMS_SETTINGS,
+          name: "Cài đặt",
         },
         {
-          name: "Notifications",
+          name: "Cài đặt gửi tin",
+          path: UrlConfig.SMS_SETTINGS,
         },
         {
           name: "Phát sinh hóa đơn trên Website",
@@ -156,7 +156,6 @@ const SmsWebsiteOrder: React.FC = () => {
           >
             <Card title="SMS">
               <Form.Item
-                name="website_msg_status"
                 label={<b>Trạng thái:</b>}
                 className={"action-status"}
               >

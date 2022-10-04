@@ -363,7 +363,7 @@ const UpdateTicket: FC = () => {
                       labelCol={{ span: 24, offset: 0 }}
                     >
                       <Select
-                        placeholder="Chọn kho nhận"
+                        placeholder="Chọn kho gửi"
                         showArrow
                         showSearch
                         optionFilterProp="children"
