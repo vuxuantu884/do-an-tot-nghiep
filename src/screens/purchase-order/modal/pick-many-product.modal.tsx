@@ -87,7 +87,13 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
           setSelection([...selection, ...filterVariantsInactive]);
         }
       } else {
-        setSelection([]);
+        const selectionClone = [...selection];
+        const newData = selectionClone.filter((sl) => {
+          const findIndex = data?.items.findIndex((i) => i.id === sl.id);
+
+          return findIndex === -1;
+        });
+        setSelection(newData);
       }
     },
     [data, selection],
@@ -145,7 +151,6 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
         props.onCancel && props.onCancel();
       }}
       onOk={() => {
-        if (selection.length === 0) return;
         props.onSave && props.onSave(selection);
         setSelection([]);
       }}

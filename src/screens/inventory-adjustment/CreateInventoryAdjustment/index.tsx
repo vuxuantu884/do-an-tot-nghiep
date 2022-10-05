@@ -304,7 +304,7 @@ const CreateInventoryAdjustment: FC = () => {
   );
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
-    const newResult = result?.map((item) => {
+    const newResult: any = result?.map((item) => {
       const variantPrice =
         item &&
         item.variant_prices &&
@@ -325,17 +325,14 @@ const CreateInventoryAdjustment: FC = () => {
         on_way: item.on_way ?? 0,
       };
     });
-    const dataTemp = [...dataTable, ...newResult];
 
-    const arrayUnique = [...new Map(dataTemp.map((item) => [item.id, item])).values()];
-
-    form.setFieldsValue({ [VARIANTS_FIELD]: arrayUnique });
+    form.setFieldsValue({ [VARIANTS_FIELD]: newResult });
     setIsLoadingTable(true);
-    setDataTable(arrayUnique);
-    setSearchVariant(arrayUnique);
+    setDataTable(newResult);
+    setSearchVariant(newResult);
     setIsLoadingTable(false);
     setVisibleManyProduct(false);
-    drawColumns(arrayUnique);
+    drawColumns(newResult);
   };
 
   const onBeforeUpload = useCallback((file) => {
