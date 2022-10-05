@@ -710,9 +710,9 @@ export const fetchProductGridData = async (
     );
 
     if (product?.variants) {
-      const variants = product.variants.filter(
-        (variant) => variant.status !== "inactive" && variant.type !== 1,
-      ); //variant.type === 1 là sản phẩm lỗi
+      const variants = product.variants
+        .filter((variant) => variant.status !== "inactive" && variant.type !== 1)
+        .sort((pre, next) => ("" + pre.sku).localeCompare(next.sku)); //variant.type === 1 là sản phẩm lỗi
       product.variants = variants;
       /**
        * Tạo schema cho grid (bộ khung để tạo lên grid, dùng để check các ô input có hợp lệ hay không, nếu không thì disable)

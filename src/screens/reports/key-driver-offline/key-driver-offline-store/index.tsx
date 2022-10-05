@@ -9,9 +9,15 @@ import ModalSettingColumnData from "component/table/ModalSettingColumnData";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { debounce } from "lodash";
-import { KeyDriverField, KeyDriverFilter, KeyDriverTarget, LocalStorageKey } from "model/report";
+import {
+  KeyDriverDimension,
+  KeyDriverField,
+  KeyDriverFilter,
+  KeyDriverTarget,
+  LocalStorageKey,
+} from "model/report";
 import moment from "moment";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation, useParams } from "react-router-dom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
@@ -30,24 +36,24 @@ import {
   updateTargetMonthUtil,
 } from "utils/KeyDriverOfflineUtils";
 import StoresSelect from "../components/stores-select";
-import {
-  keyDriverOfflineTemplateData,
-  loadingMessage,
-} from "../constant/key-driver-offline-template-data";
+import { kdNumber, kdOfflineTemplateData, loadingMessage } from "../constant/kd-offline-template";
 import useFetchProfit from "../hooks/profit/useFetchProfit";
+import useFetchStorePerformance from "../hooks/store-performance/useFetchStorePerformance";
 import useFetchCallLoyalty from "../hooks/useFetchCallLoyalty";
 import useFetchCustomerVisitors from "../hooks/useFetchCustomerVisitors";
 import useFetchFollowFanpage from "../hooks/useFetchFollowFanpage";
 import useFetchStoresKDOfflineTotalSales from "../hooks/useFetchKDOfflineTotalSales";
 import useFetchStoresKDTargetDay from "../hooks/useFetchKDTargetDay";
 import useFetchKeyDriverTarget from "../hooks/useFetchKeyDriverTarget";
+import useFetchNPS from "../hooks/useFetchNPS";
 import useFetchOfflineOnlineTotalSales from "../hooks/useFetchOfflineOnlineTotalSales";
 import useFetchOfflineTotalSalesLoyalty from "../hooks/useFetchOfflineTotalSalesLoyalty";
 import useFetchOfflineTotalSalesPotential from "../hooks/useFetchOfflineTotalSalesPotential";
 import useFetchSmsLoyalty from "../hooks/useFetchSmsLoyalty";
 import useFetchStoresProductTotalSales from "../hooks/useFetchStoresProductTotalSales";
 import { KeyDriverOfflineStyle } from "../index.style";
-import KDOfflineStoresProvider, { KDOfflineContext } from "../provider/kd-offline-provider";
+import KDOfflineProvider, { KDOfflineContext } from "../provider/kd-offline-provider";
+import { formatData } from "../utils/FormatDataState";
 
 // const { Option } = Select;
 
@@ -154,7 +160,8 @@ function KeyDriverOfflineStore() {
   const [finalColumns, setFinalColumns] = useState<ColumnsType<any>>([]);
   const [loadingPage, setLoadingPage] = useState<boolean | undefined>();
   const { isFetchingKeyDriverTarget, refetch } = useFetchKeyDriverTarget();
-  const { isFetchingKDOfflineTotalSales } = useFetchStoresKDOfflineTotalSales();
+  const { isFetchingKDOfflineTotalSales, setIsFetchingKDOfflineTotalSales } =
+    useFetchStoresKDOfflineTotalSales();
   const { isFetchingOfflineTotalSalesLoyalty } = useFetchOfflineTotalSalesLoyalty();
   const { isFetchingCustomerVisitors } = useFetchCustomerVisitors();
   const { isFetchingOfflineOnlineTotalSales } = useFetchOfflineOnlineTotalSales();
@@ -165,6 +172,8 @@ function KeyDriverOfflineStore() {
   const { isFetchingProfit } = useFetchProfit();
   const { isFetchingKDTargetDay, refetch: refetchTargetDay } = useFetchStoresKDTargetDay();
   const { isFetchingFollowFanpage } = useFetchFollowFanpage();
+  const { isFetchingStorePerformance } = useFetchStorePerformance();
+  const { isFetchingNPS } = useFetchNPS();
   const {
     data,
     kdTarget,
@@ -190,6 +199,7 @@ function KeyDriverOfflineStore() {
     expandedDefault ? JSON.parse(expandedDefault) : [],
   );
   const [showSettingColumn, setShowSettingColumn] = useState(false);
+  const selectedDateParam = useRef("");
 
   const setObjectiveColumns = useCallback(
     (
@@ -197,7 +207,7 @@ function KeyDriverOfflineStore() {
       department: string,
       className: string = "department-name--secondary",
     ): ColumnGroupType<any> | ColumnType<any> => {
-      const { ProductTotalSales, Cost, Shipping, FollowFanpage } = KeyDriverField;
+      const { ProductTotalSales, Cost, Shipping, FollowFanpage, StorePerformance } = KeyDriverField;
       const asmNameUrl = asmName.toLocaleLowerCase();
       const storeNameUrl = nonAccentVietnameseKD(department).toLowerCase();
       return {
@@ -252,7 +262,9 @@ function KeyDriverOfflineStore() {
             dataIndex: `${departmentKey}_month`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return ![ProductTotalSales, Cost, Shipping].includes(record.key as KeyDriverField) ? (
+              return ![ProductTotalSales, Cost, Shipping, StorePerformance].includes(
+                record.key as KeyDriverField,
+              ) && !record.disableColumns?.includes("monthTarget") ? (
                 <CellInput
                   value={text}
                   record={record}
@@ -348,9 +360,9 @@ function KeyDriverOfflineStore() {
             dataIndex: `${departmentKey}_day`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return ![ProductTotalSales, Cost, Shipping, FollowFanpage].includes(
+              return ![ProductTotalSales, Cost, Shipping, FollowFanpage, StorePerformance].includes(
                 record.key as KeyDriverField,
-              ) ? (
+              ) && !record.disableColumns?.includes("dayTarget") ? (
                 <CellInput
                   value={text}
                   record={record}
@@ -434,6 +446,7 @@ function KeyDriverOfflineStore() {
   useEffect(() => {
     setLoadingPage(true);
     if (
+      selectedStores.length &&
       isFetchingKDOfflineTotalSales === false &&
       isFetchingKeyDriverTarget === false &&
       isFetchingOfflineTotalSalesLoyalty === false &&
@@ -445,23 +458,47 @@ function KeyDriverOfflineStore() {
       isFetchingKDTargetDay === false &&
       isFetchingSmsLoyalty === false &&
       isFetchingProfit === false &&
-      isFetchingFollowFanpage === false
+      isFetchingFollowFanpage === false &&
+      isFetchingStorePerformance === false &&
+      isFetchingNPS === false
     ) {
       setData((prev: any) => {
         prev.forEach((item: any, index: number) => {
           calculateDayTarget(item);
-          if (index === 0) {
+          const {
+            AverageOrderValue,
+            AverageCustomerSpent,
+            ConvertionRate,
+            NewCustomersConversionRate,
+          } = KeyDriverField;
+          if (item.key === AverageOrderValue) {
             [...selectedStores, selectedAsm[0]].forEach((asm) => {
               const asmKey = nonAccentVietnameseKD(asm);
-              calculateKDAverageCustomerSpent(item, asmKey);
-              calculateKDConvertionRate(item, asmKey);
-              calculateKDAverageOrderValue(item, asmKey, selectedDate);
-              calculateKDNewCustomerRateTargetDay(item, asmKey, selectedDate);
+              calculateKDAverageOrderValue(item, asmKey, selectedDate, prev);
+            });
+          }
+          if (item.key === AverageCustomerSpent) {
+            [...selectedStores, selectedAsm[0]].forEach((asm) => {
+              const asmKey = nonAccentVietnameseKD(asm);
+              calculateKDAverageCustomerSpent(item, asmKey, prev);
+            });
+          }
+          if (item.key === ConvertionRate) {
+            [...selectedStores, selectedAsm[0]].forEach((asm) => {
+              const asmKey = nonAccentVietnameseKD(asm);
+              calculateKDConvertionRate(item, asmKey, prev);
+            });
+          }
+          if (item.key === NewCustomersConversionRate) {
+            [...selectedStores, selectedAsm[0]].forEach((asm) => {
+              const asmKey = nonAccentVietnameseKD(asm);
+              calculateKDNewCustomerRateTargetDay(item, asmKey, selectedDate, prev);
             });
           }
           calculateMonthRate(item);
           calculateDayRate(item);
         });
+        prev = formatData(prev);
         return [...prev];
       });
       setSyncDataTime(moment().format(DATE_FORMAT.DD_MM_YY_HHmmss));
@@ -487,6 +524,8 @@ function KeyDriverOfflineStore() {
     selectedAsm,
     isFetchingProfit,
     isFetchingFollowFanpage,
+    isFetchingStorePerformance,
+    isFetchingNPS,
   ]);
 
   useEffect(() => {
@@ -506,19 +545,40 @@ function KeyDriverOfflineStore() {
   //   isFirstLoad.current = false;
   // }, [dispatch]);
 
+  useEffect(() => {
+    const { current } = selectedDateParam;
+    if (data.length >= kdNumber && current && !selectedDate && isFetchingKDOfflineTotalSales) {
+      const asmNameUrl = asmName.toLocaleLowerCase();
+      setSelectedDate(current);
+      history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}/${asmNameUrl}?date=${current}`);
+    }
+  }, [asmName, data.length, history, isFetchingKDOfflineTotalSales, selectedDate, setSelectedDate]);
+
   const onFinish = useCallback(() => {
     setLoadingPage(true);
     let date = form.getFieldsValue(true)["date"];
     let newDate = "";
-    const asmNameUrl = asmName.toLocaleLowerCase();
     if (date) {
       newDate = moment(date, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.YYYYMMDD);
     } else {
       newDate = moment().format(DATE_FORMAT.YYYYMMDD);
     }
-    setData(() => JSON.parse(JSON.stringify(keyDriverOfflineTemplateData)));
-    history.push(`${UrlConfig.KEY_DRIVER_OFFLINE}/${asmNameUrl}?date=${newDate}`);
-  }, [asmName, form, history, setData]);
+    setSelectedDate("");
+    setData(() =>
+      JSON.parse(
+        JSON.stringify(
+          kdOfflineTemplateData.filter((item: any) => {
+            return (
+              !item.allowedDimension || item.allowedDimension.includes(KeyDriverDimension.Store)
+            );
+          }),
+        ),
+      ),
+    );
+    selectedDateParam.current = newDate;
+    setIsFetchingKDOfflineTotalSales(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, setData, setSelectedDate]);
 
   const newFinalColumns = useMemo(() => {
     return finalColumns.map((columnDetails: any) => {
@@ -641,7 +701,7 @@ function KeyDriverOfflineStore() {
               },
             }}
             columns={newFinalColumns}
-            dataSource={data}
+            dataSource={!loadingPage ? data : []}
           />
         </Card>
       </KeyDriverOfflineStyle>
@@ -661,9 +721,9 @@ function KeyDriverOfflineStore() {
 
 const KDOfflineStoresWithProvider = (props: any) => {
   return (
-    <KDOfflineStoresProvider>
+    <KDOfflineProvider dimension={KeyDriverDimension.Store}>
       <KeyDriverOfflineStore {...props} />
-    </KDOfflineStoresProvider>
+    </KDOfflineProvider>
   );
 };
 

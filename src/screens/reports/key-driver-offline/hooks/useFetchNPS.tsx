@@ -1,56 +1,74 @@
 import { TODAY } from "config/dashboard";
-import { ASM_LIST, KDOfflineTotalSalesParams, KeyDriverDimension } from "model/report";
+import {
+  ASM_LIST,
+  KDOfflineTotalSalesParams,
+  KeyDriverDimension,
+  KeyDriverField,
+} from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { getKDFollowFanpage } from "service/report/key-driver.service";
+import { getKDOfflineNPS } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
+import { calculateTargetMonth, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 import { calculateDimSummary } from "../utils/DimSummaryUtils";
-import { findKDAndUpdateFollowFanpageValue } from "../utils/FollowFanpageUtils";
 
-function useFetchFollowFanpage(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
+function useFetchNPS(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
   const { setData, selectedStores, selectedAsm, selectedDate } = useContext(KDOfflineContext);
 
-  const [isFetchingFollowFanpage, setIsFetchingFollowFanpage] = useState<boolean | undefined>();
+  const [isFetchingNPS, setIsFetchingNPS] = useState<boolean | undefined>();
 
   const findKeyDriverAndUpdateValue = useCallback(
-    (data: any, asmData: any, columnKey: string) => {
-      let dimKey: "department_lv2" | "pos_location_name" | "store_name" | undefined = undefined;
-      const { Asm, Store } = KeyDriverDimension;
+    (dataState: any, dimData: any, columnKey: string) => {
+      const { Asm, Store, Staff } = KeyDriverDimension;
+      let dimensionKey = "";
       switch (dimension) {
         case Asm:
-          dimKey = "department_lv2";
+          dimensionKey = "department_lv2";
           break;
         case Store:
-          dimKey = "store_name";
+          dimensionKey = "pos_location_name";
+          break;
+        case Staff:
+          dimensionKey = "staff_code";
           break;
         default:
           break;
       }
-      findKDAndUpdateFollowFanpageValue({
-        data,
-        asmData,
-        columnKey,
-        selectedDate,
-        dimKey,
+      const dimensionName = nonAccentVietnameseKD(dimData[dimensionKey]);
+      dataState.forEach((dataItem: any) => {
+        if (Object.keys(dimData).includes(dataItem.key)) {
+          dataItem[`${dimensionName}_${columnKey}`] = dimData[dataItem.key];
+          if (
+            columnKey === "accumulatedMonth" &&
+            ![KeyDriverField.AverageOrderValue, KeyDriverField.AverageCustomerSpent].includes(
+              dataItem.key,
+            )
+          ) {
+            dataItem[`${dimensionName}_targetMonth`] = calculateTargetMonth(
+              dataItem[`${dimensionName}_accumulatedMonth`],
+              selectedDate,
+            );
+          }
+        }
       });
     },
     [dimension, selectedDate],
   );
 
-  const refetchFollowFanpage = useCallback(() => {
-    const fetchFollowFanpage = async () => {
-      setIsFetchingFollowFanpage(true);
+  const refetchNPS = useCallback(() => {
+    const fetchNPS = async () => {
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
       }
+
       if (dimension === Staff) {
-        setIsFetchingFollowFanpage(false);
+        setIsFetchingNPS(false);
         return;
       }
       let params: KDOfflineTotalSalesParams = {
@@ -59,25 +77,24 @@ function useFetchFollowFanpage(dimension: KeyDriverDimension = KeyDriverDimensio
         posLocationNames: dimension === Asm ? [] : selectedStores,
         departmentLv2s: dimension === Asm ? ASM_LIST : selectedAsm,
       };
-      // const dayApi = callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDFollowFanpage, {
-      //   ...params,
-      //   from: selectedDate,
-      //   to: selectedDate,
-      // });
-      const dayApi = Promise.resolve([]);
+      const dayApi = callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDOfflineNPS, {
+        ...params,
+        from: selectedDate,
+        to: selectedDate,
+      });
       const { YYYYMMDD } = DATE_FORMAT;
       let monthApi: Promise<any>;
       if (selectedDate === moment().format(YYYYMMDD)) {
         monthApi =
           moment(selectedDate, YYYYMMDD).date() > 1
-            ? callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDFollowFanpage, {
+            ? callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDOfflineNPS, {
                 ...params,
                 from: moment(selectedDate, YYYYMMDD).startOf("month").format(YYYYMMDD),
                 to: moment(selectedDate, YYYYMMDD).subtract(1, "days").format(YYYYMMDD),
               })
             : Promise.resolve(0);
       } else {
-        monthApi = callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDFollowFanpage, {
+        monthApi = callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDOfflineNPS, {
           ...params,
           from: moment(selectedDate, YYYYMMDD).startOf("month").format(YYYYMMDD),
           to: moment(selectedDate, YYYYMMDD).format(YYYYMMDD),
@@ -86,45 +103,38 @@ function useFetchFollowFanpage(dimension: KeyDriverDimension = KeyDriverDimensio
 
       await Promise.all([dayApi, monthApi]).then(([resDay, resMonth]) => {
         if (!resDay) {
-          showErrorReport("Lỗi khi lấy dữ liệu thực đạt Lượt follow fanpage");
-          setIsFetchingFollowFanpage(false);
+          showErrorReport("Lỗi khi lấy dữ liệu thực đạt NPS");
+          setIsFetchingNPS(false);
           return;
         }
         const dimName = "";
-        const dimKeys = {
-          asmDim: "department_lv2",
-          storeDim: "store_name",
-        };
         let resDayDim: any[] = [];
         if (resDay.length) {
           if (dimension === Asm) {
             resDayDim = resDay.map((item: any) => {
-              if (item.department_lv2 === null) {
-                item.department_lv2 = "COMPANY";
+              if (!item.department_lv2) {
+                item.department_lv2 = "Company";
               }
               return item;
             });
           } else {
-            resDayDim = calculateDimSummary(resDay[0], dimension, dimName, dimKeys);
+            resDayDim = calculateDimSummary(resDay[0], dimension, dimName);
           }
         }
         if (!resMonth?.length) {
           if (!resMonth && resMonth !== 0) {
-            showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Lượt follow fanpage");
+            showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế NPS");
           }
+
           if (resDay.length) {
-            if (resDayDim.length) {
-              setData((prev: any) => {
-                let dataPrev: any = prev[0];
-                resDayDim.forEach((item: any) => {
-                  findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
-                });
-                prev[0] = dataPrev;
-                return [...prev];
+            setData((dataPrev: any) => {
+              resDayDim.forEach((item: any) => {
+                findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
               });
-            }
+              return [...dataPrev];
+            });
           }
-          setIsFetchingFollowFanpage(false);
+          setIsFetchingNPS(false);
           return;
         }
 
@@ -138,13 +148,13 @@ function useFetchFollowFanpage(dimension: KeyDriverDimension = KeyDriverDimensio
             let resMonthDim: any[] = [];
             if (dimension === Asm) {
               resMonthDim = resMonth.map((item: any) => {
-                if (item.department_lv2 === null) {
-                  item.department_lv2 = "COMPANY";
+                if (!item.department_lv2) {
+                  item.department_lv2 = "Company";
                 }
                 return item;
               });
             } else {
-              resMonthDim = calculateDimSummary(resMonth[0], dimension, dimName, dimKeys);
+              resMonthDim = calculateDimSummary(resMonth[0], dimension, dimName);
             }
             resMonthDim.forEach((item: any) => {
               findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
@@ -153,30 +163,29 @@ function useFetchFollowFanpage(dimension: KeyDriverDimension = KeyDriverDimensio
           });
         }
       });
-
-      setIsFetchingFollowFanpage(false);
+      setIsFetchingNPS(false);
     };
     if (selectedDate) {
-      fetchFollowFanpage();
+      fetchNPS();
     }
   }, [
-    dimension,
-    dispatch,
-    findKeyDriverAndUpdateValue,
-    selectedAsm,
     selectedDate,
+    dimension,
     selectedStores,
+    selectedAsm,
+    dispatch,
     setData,
+    findKeyDriverAndUpdateValue,
   ]);
 
   useEffect(() => {
-    refetchFollowFanpage();
-  }, [refetchFollowFanpage]);
+    refetchNPS();
+  }, [refetchNPS]);
 
   return {
-    isFetchingFollowFanpage,
-    refetchFollowFanpage,
+    isFetchingNPS,
+    refetchNPS,
   };
 }
 
-export default useFetchFollowFanpage;
+export default useFetchNPS;

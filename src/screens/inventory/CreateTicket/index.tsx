@@ -731,7 +731,7 @@ const CreateTicket: FC = () => {
       title="Thêm mới phiếu chuyển hàng"
       breadcrumb={[
         {
-          name: "Tổng quan",
+          name: "Kho hàng",
           path: UrlConfig.HOME,
         },
         {

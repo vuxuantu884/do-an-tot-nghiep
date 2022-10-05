@@ -668,7 +668,7 @@ const RequestTicket: FC = () => {
       title="Yêu cầu phiếu chuyển hàng"
       breadcrumb={[
         {
-          name: "Tổng quan",
+          name: "Kho hàng",
           path: UrlConfig.HOME,
         },
         {

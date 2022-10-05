@@ -140,6 +140,20 @@ export const getKDFollowFanpage = (
   });
 };
 
+export const getKDOfflineStorePerformance = (
+  params: KDOfflineTotalSalesParams,
+): Promise<BaseResponse<any>> => {
+  return BaseAxiosApi.get(`${ApiConfig.OFFLINE_STORE_PERFORMANCE}`, {
+    params,
+  });
+};
+
+export const getKDOfflineNPS = (params: KDOfflineTotalSalesParams): Promise<BaseResponse<any>> => {
+  return BaseAxiosApi.get(`${ApiConfig.OFFLINE_NPS}`, {
+    params,
+  });
+};
+
 /* keydriver offline api */
 
 /* keydriver online api */

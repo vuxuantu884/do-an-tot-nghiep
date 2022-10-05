@@ -1,9 +1,9 @@
 import { SearchOutlined } from "@ant-design/icons";
-import { Divider, Input, List, Modal, Checkbox, Skeleton } from "antd";
+import { Divider, Input, List, Modal, Checkbox, Skeleton, Button } from "antd";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import CustomPagination from "component/table/CustomPagination";
 import ProductItem from "../component/product-item";
@@ -87,7 +87,13 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
           setSelection([...selection, ...filterVariantsInactive]);
         }
       } else {
-        setSelection([]);
+        const selectionClone = [...selection];
+        const newData = selectionClone.filter((sl) => {
+          const findIndex = data?.items.findIndex((i) => i.id === sl.id);
+
+          return findIndex === -1;
+        });
+        setSelection(newData);
       }
     },
     [data, selection],
@@ -137,17 +143,27 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
     <Modal
       visible={props.visible}
       cancelText="Thoát"
-      okText="Thêm sản phẩm"
+      footer={[
+        <Button type="default" onClick={() => {
+          setSelection([]);
+          setQuery(initQuery);
+          props.onCancel && props.onCancel();
+        }}>
+          Thoát
+        </Button>,
+        <Button disabled={selection.length === 0} type="primary" onClick={() => {
+          if (selection.length === 0) return;
+          props.onSave && props.onSave(selection);
+          setSelection([]);
+        }}>
+          Thêm sản phẩm
+        </Button>
+      ]}
       width={1000}
       onCancel={() => {
         setSelection([]);
         setQuery(initQuery);
         props.onCancel && props.onCancel();
-      }}
-      onOk={() => {
-        if (selection.length === 0) return;
-        props.onSave && props.onSave(selection);
-        setSelection([]);
       }}
       title="Chọn nhiều sản phẩm"
     >

@@ -25,7 +25,7 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { Input, Modal, Form, Button, Row, Typography } from "antd";
+import { Modal, Button, Row, Typography } from "antd";
 import { InventoryTransferTabWrapper } from "./styles";
 import { STATUS_INVENTORY_TRANSFER, STATUS_INVENTORY_TRANSFER_ARRAY } from "../../../constants";
 
@@ -39,7 +39,6 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import {
   BarsOutlined,
   CopyOutlined,
-  FormOutlined,
   PaperClipOutlined,
   PrinterOutlined,
   ExportOutlined,
@@ -71,9 +70,10 @@ import { TransferExportField, TransferExportLineItemField } from "model/inventor
 import { ImportStatusWrapper } from "../../../ImportInventory/styles";
 import { HttpStatus } from "config/http-status.config";
 import { STATUS_IMPORT_EXPORT } from "utils/Constants";
-import CustomPagination from "../../../../../component/table/CustomPagination";
+import CustomPagination from "component/table/CustomPagination";
 import queryString from "query-string";
-const { TextArea } = Input;
+import EditPopover from "../../../../inventory-defects/ListInventoryDefect/components/EditPopover";
+import { primaryColor } from "utils/global-styles/variables";
 const { Text } = Typography;
 
 let firstLoad = true;
@@ -146,13 +146,11 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
 
   const [loadingBtn, setLoadingBtn] = useState(false);
   const [tableLoading, setTableLoading] = useState(false);
-  const [isModalVisibleNote, setIsModalVisibleNote] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
 
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
   const [isStatusModalVisible, setIsStatusModalVisible] = useState<boolean>(false);
-  const [itemData, setItemData] = useState<InventoryTransferDetailItem>();
   const printElementRef = useRef(null);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [dataUploadError, setDataUploadError] = useState<string[]>([]);
@@ -240,7 +238,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     ...initQuery,
     ...getQueryParams(query),
   };
-  const [formNote] = Form.useForm();
   let [params, setParams] = useState<InventoryTransferSearchQuery>(dataQuery);
   const [actions, setActions] = useState<MenuAction[]>([]);
   const [data, setData] = useState<PageResponse<Array<InventoryTransferDetailItem>>>({
@@ -251,6 +248,70 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     },
     items: [],
   });
+
+  const editNote = (note: string, row: InventoryTransferDetailItem, stores: Array<Store> | undefined) => {
+    let newData: any = {};
+    console.log(stores)
+    stores?.forEach((store) => {
+      newData.note = note;
+      console.log(row)
+      if (store.id === Number(row?.from_store_id)) {
+        newData.store_transfer = {
+          id: row?.store_transfer?.id,
+          store_id: store.id,
+          hotline: store.hotline,
+          address: store.address,
+          name: store.name,
+          code: store.code,
+        };
+      }
+      if (store.id === Number(row?.to_store_id)) {
+        newData.store_receive = {
+          id: row?.store_receive?.id,
+          store_id: store.id,
+          hotline: store.hotline,
+          address: store.address,
+          name: store.name,
+          code: store.code,
+        };
+      }
+    });
+    newData.from_store_id = row?.from_store_id;
+    newData.to_store_id = row?.to_store_id;
+    newData.attached_files = row?.attached_files;
+    newData.line_items = row?.line_items;
+    newData.exception_items = row?.exception_items;
+    newData.version = row?.version;
+
+    console.log(newData)
+
+    if (row?.id) {
+      dispatch(
+        updateInventoryTransferAction(row.id, newData, (result) => {
+          if (result) showSuccess(`Cập nhật ${row?.code} thành công`);
+          let status: string[] = [];
+          switch (activeTab) {
+            case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
+              status = ["transferring", "confirmed"];
+              break;
+            case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
+              status = ["transferring"];
+              break;
+            default:
+              break;
+          }
+
+          let newParams = {
+            ...params,
+            ...getQueryParams(query),
+            status: params.status.length > 0 ? params.status : status,
+          };
+
+          dispatch(getListInventoryTransferAction(newParams, setSearchResult));
+        }),
+      );
+    }
+  };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const defaultColumns = [
@@ -263,7 +324,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       width: 150,
       render: (value: string, row: InventoryTransferDetailItem) => (
         <div>
-          <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${row.id}`}>{value}</Link>
+          <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${row.id}`} style={{ fontWeight: 600, fontSize: 16 }}>{value}</Link>
           <div>{ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYY_HHmm)}</div>
         </div>
       ),
@@ -405,14 +466,14 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       width: "220px",
       render: (item: string, row: InventoryTransferDetailItem) => {
         return (
-          <div className={item ? "note" : ""}>
-            {item}
-            <FormOutlined
-              onClick={() => {
-                setItemData(row);
-                setIsModalVisibleNote(true);
+          <div className="single">
+            <EditPopover
+              content={item}
+              title={`Sửa ghi chú ${row?.code}`}
+              color={primaryColor}
+              onOk={(newNote) => {
+                editNote(newNote, row, stores);
               }}
-              className={item ? "note-icon" : ""}
             />
           </div>
         );
@@ -611,6 +672,29 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
                 width: 120,
               };
             }
+            if (newColumns[i].dataIndex === "note") {
+              newColumns[i] = {
+                title: "Ghi chú",
+                dataIndex: "note",
+                visible: true,
+                align: "left",
+                width: "220px",
+                render: (item: string, row: InventoryTransferDetailItem) => {
+                  return (
+                    <div className="single">
+                      <EditPopover
+                        content={item}
+                        title={`Sửa ghi chú ${row?.code}`}
+                        color={primaryColor}
+                        onOk={(newNote) => {
+                          editNote(newNote, row, stores);
+                        }}
+                      />
+                    </div>
+                  );
+                },
+              };
+            }
           }
 
           setColumn(newColumns);
@@ -626,7 +710,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [columns, defaultColumns],
+    [columns, defaultColumns, stores],
   );
 
   const getAccounts = async (codes: string) => {
@@ -1038,6 +1122,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
   useEffect(() => {
     setTableLoading(true);
     if (activeTab === "") return;
+    if (stores?.length === 0) return;
 
     let status: string[] = [];
     switch (activeTab) {
@@ -1094,7 +1179,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
 
     dispatch(getListInventoryTransferAction(newParams, setSearchResult));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, activeTab, params, accountStores]);
+  }, [dispatch, activeTab, params, accountStores, stores]);
 
   return (
     <InventoryTransferTabWrapper>
@@ -1144,97 +1229,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
         columns={columnFinal}
         rowKey={(item: VariantResponse) => item.id}
       />
-      {isModalVisibleNote && (
-        <Modal
-          title={`Sửa ghi chú ${itemData?.code}`}
-          visible={isModalVisibleNote}
-          onOk={() => {
-            formNote.submit();
-            setIsModalVisibleNote(false);
-          }}
-          onCancel={() => {
-            setIsModalVisibleNote(false);
-          }}
-        >
-          <Form
-            form={formNote}
-            initialValues={itemData}
-            onFinish={(data) => {
-              stores?.forEach((store) => {
-                if (store.id === Number(itemData?.from_store_id)) {
-                  data.store_transfer = {
-                    id: itemData?.store_transfer?.id,
-                    store_id: store.id,
-                    hotline: store.hotline,
-                    address: store.address,
-                    name: store.name,
-                    code: store.code,
-                  };
-                }
-                if (store.id === Number(itemData?.to_store_id)) {
-                  data.store_receive = {
-                    id: itemData?.store_receive?.id,
-                    store_id: store.id,
-                    hotline: store.hotline,
-                    address: store.address,
-                    name: store.name,
-                    code: store.code,
-                  };
-                }
-              });
-              data.from_store_id = itemData?.from_store_id;
-              data.to_store_id = itemData?.to_store_id;
-              data.attached_files = itemData?.attached_files;
-              data.line_items = itemData?.line_items;
-              data.exception_items = itemData?.exception_items;
-              data.version = itemData?.version;
-
-              if (itemData?.id) {
-                dispatch(
-                  updateInventoryTransferAction(itemData.id, data, (result) => {
-                    setItemData(undefined);
-                    if (result) showSuccess(`Cập nhật ${itemData?.code} thành công`);
-                    let status: string[] = [];
-                    switch (activeTab) {
-                      case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
-                        status = ["transferring", "confirmed"];
-                        break;
-                      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
-                        status = ["transferring"];
-                        break;
-                      default:
-                        break;
-                    }
-
-                    let newParams = {
-                      ...params,
-                      ...getQueryParams(query),
-                      status: params.status.length > 0 ? params.status : status,
-                    };
-
-                    dispatch(getListInventoryTransferAction(newParams, setSearchResult));
-                  }),
-                );
-              }
-            }}
-            onFinishFailed={() => {}}
-          >
-            <Form.Item noStyle hidden name="note">
-              <Input />
-            </Form.Item>
-            <Form.Item>
-              <TextArea
-                maxLength={250}
-                onChange={(e) => {
-                  formNote.setFieldsValue({ note: e.target.value });
-                }}
-                defaultValue={itemData?.note}
-                rows={4}
-              />
-            </Form.Item>
-          </Form>
-        </Modal>
-      )}
 
       {isDeleteTicket && (
         <DeleteTicketModal

@@ -1,4 +1,4 @@
-import { ASM_LIST, KDGroup, KeyDriverDimension } from "model/report";
+import { ASM_LIST, KDGroup, KeyDriverDimension, KeyDriverField } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -20,19 +20,15 @@ function useFetchKeyDriverTarget(dimension: KeyDriverDimension = KeyDriverDimens
   const [isFetchingKeyDriverTarget, setIsFetchingKeyDriverTarget] = useState<boolean | undefined>();
 
   const findKeyDriverAndUpdateValue = useCallback(
-    (data: any, keyDriversTarget: any, asmName: string, keyDriver) => {
-      if (data.key === keyDriver) {
-        data[`${asmName}_month`] = keyDriversTarget[keyDriver].value;
-        if (!data[`${asmName}_month`]) {
-          data[`${asmName}_day`] = "";
+    (dataState: any, keyDriversTarget: any, asmName: string) => {
+      dataState.forEach((dataItem: any) => {
+        if (Object.keys(keyDriversTarget).includes(dataItem.key)) {
+          dataItem[`${asmName}_month`] = keyDriversTarget[dataItem.key].value;
+          if (!dataItem[`${asmName}_month`]) {
+            dataItem[`${asmName}_day`] = "";
+          }
         }
-      } else {
-        if (data.children?.length) {
-          data.children.forEach((item: any) => {
-            findKeyDriverAndUpdateValue(item, keyDriversTarget, asmName, keyDriver);
-          });
-        }
-      }
+      });
     },
     [],
   );
@@ -41,6 +37,7 @@ function useFetchKeyDriverTarget(dimension: KeyDriverDimension = KeyDriverDimens
 
   const refetch = useCallback(() => {
     const fetchStoresKeyDriverTarget = async () => {
+      setIsFetchingKeyDriverTarget(true);
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
@@ -51,7 +48,6 @@ function useFetchKeyDriverTarget(dimension: KeyDriverDimension = KeyDriverDimens
       ) {
         return;
       }
-      setIsFetchingKeyDriverTarget(true);
       const { YYYYMMDD } = DATE_FORMAT;
       const res = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKeyDriversTarget, {
         "year.equals": moment(selectedDate, YYYYMMDD).year(),
@@ -97,9 +93,9 @@ function useFetchKeyDriverTarget(dimension: KeyDriverDimension = KeyDriverDimens
 
         resMapper.forEach((item: any) => {
           const { department } = item;
-          let kdTotalSalesTarget: any[] = [];
-          let kdProductTarget: any[] = [];
-          let kdProfitTarget: any[] = [];
+          let kdTotalSalesTarget: any = {};
+          let kdProductTarget: any = {};
+          let kdProfitTarget: any = {};
           Object.keys(item.data).forEach((key: string) => {
             if (key.includes(SKU3)) {
               kdProductTarget = { ...kdProductTarget, [key]: item.data[key] };
@@ -130,13 +126,17 @@ function useFetchKeyDriverTarget(dimension: KeyDriverDimension = KeyDriverDimens
           [...selectedData].forEach((asm) => {
             const asmKey = nonAccentVietnameseKD(asm);
             if (department === asmKey) {
-              Object.keys(kdTotalSalesTarget).forEach((keyDriver) => {
-                findKeyDriverAndUpdateValue(prev[0], kdTotalSalesTarget, asmKey, keyDriver);
-              });
-              findKDProductAndUpdateValue(prev[1], kdProductTarget, asmKey, "month");
-              Object.keys(kdProfitTarget).forEach((keyDriver) => {
-                findKeyDriverAndUpdateValue(prev[2], kdProfitTarget, asmKey, keyDriver);
-              });
+              findKDProductAndUpdateValue(
+                prev.find((item: any) => item.key === KeyDriverField.ProductTotalSales),
+                kdProductTarget,
+                asmKey,
+                "month",
+              );
+              findKeyDriverAndUpdateValue(
+                prev,
+                { ...kdTotalSalesTarget, ...kdProfitTarget },
+                asmKey,
+              );
             }
           });
         });
@@ -149,14 +149,14 @@ function useFetchKeyDriverTarget(dimension: KeyDriverDimension = KeyDriverDimens
     }
   }, [
     selectedDate,
+    dimension,
     selectedStores,
     selectedAsm,
-    dimension,
     selectedStaffs,
     dispatch,
     setData,
-    findKeyDriverAndUpdateValue,
     findKDProductAndUpdateValue,
+    findKeyDriverAndUpdateValue,
   ]);
 
   useEffect(() => {

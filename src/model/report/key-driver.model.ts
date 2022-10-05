@@ -96,6 +96,8 @@ export enum KeyDriverField {
   RevenueSuccess = "revenue_success_PROFIT",
   Shipping = "shipping_PROFIT",
   Cost = "cost_PROFIT",
+  // store performance
+  StorePerformance = "store_performance",
 }
 
 export const ASM_LIST = ["ASM Dương Sơn Tùng", "ASM Nguyễn Văn Ánh", "ASM Đỗ Quang Hiếu"];
