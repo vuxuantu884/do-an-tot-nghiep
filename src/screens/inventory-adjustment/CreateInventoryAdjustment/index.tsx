@@ -49,6 +49,7 @@ import TextEllipsis from "component/table/TextEllipsis";
 import debounce from "lodash/debounce";
 import AccountSearchPaging from "../../../component/custom/select-search/account-select-paging";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import { fullTextSearch } from "../../../utils/StringUtils";
 
 const { Option } = Select;
 
@@ -725,10 +726,11 @@ const CreateInventoryAdjustment: FC = () => {
       ...temps.filter((e: LineItemAdjustment) => {
         return (
           e.on_hand === parseInt(keyLowerCase) ||
-          e.variant_name?.toLocaleLowerCase().includes(keyLowerCase) ||
-          e.sku?.toLocaleLowerCase().includes(keyLowerCase) ||
-          e.code?.toLocaleLowerCase().includes(keyLowerCase) ||
-          e.barcode?.toLocaleLowerCase().includes(keyLowerCase)
+          fullTextSearch(keyLowerCase, e.variant_name?.toLocaleLowerCase()) ||
+          fullTextSearch(keyLowerCase, e.sku?.toLocaleLowerCase()) ||
+          fullTextSearch(keyLowerCase, e.name?.toLocaleLowerCase()) ||
+          fullTextSearch(keyLowerCase, e.code?.toLocaleLowerCase()) ||
+          fullTextSearch(keyLowerCase,  e.barcode?.toLocaleLowerCase())
         );
       }),
     ];
