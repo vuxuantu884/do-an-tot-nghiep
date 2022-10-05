@@ -65,12 +65,12 @@ export const StyledWrapper = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
+    width: 40px;
     height: 40px;
     border-radius: 3px;
     background-color: #f2f2f2;
     img {
-      max-width: 30px;
+      max-width: 40px;
       max-height: 40px;
       border-radius: 3px;
     }
