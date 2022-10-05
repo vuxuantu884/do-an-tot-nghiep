@@ -9,6 +9,7 @@ import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import CustomSelect from "component/custom/select.custom";
 import FilterConfigModal from "component/modal/FilterConfigModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import SearchProductComponent from "component/search-product";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
@@ -21,6 +22,8 @@ import { StoreResponse } from "model/core/store.model";
 import { OrderTypeModel } from "model/order/order.model";
 import { ReturnSearchQuery } from "model/order/return.model";
 import { FilterConfig } from "model/other";
+import { VariantResponse } from "model/product/product.model";
+import { OrderReturnReasonDetailModel } from "model/response/order/order.response";
 import { SourceResponse } from "model/response/order/source.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
@@ -36,8 +39,6 @@ import { formatDateTimeOrderFilter, getTimeFormatOrderFilterTag } from "utils/Or
 import BaseFilter from "./base.filter";
 import "./order.filter.scss";
 import UserCustomFilterTag from "./UserCustomFilterTag";
-import SearchProductComponent from "component/search-product";
-import { VariantResponse } from "model/product/product.model";
 
 type ReturnFilterProps = {
   params: ReturnSearchQuery;
@@ -45,7 +46,7 @@ type ReturnFilterProps = {
   listSource: Array<SourceResponse>;
   listStore: Array<StoreResponse> | undefined;
   accounts: Array<AccountResponse>;
-  reasons: Array<{ id: number; name: string }>;
+  reasons: OrderReturnReasonDetailModel[] | undefined;
   isLoading?: boolean;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: ReturnSearchQuery | Object) => void;
@@ -76,6 +77,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
   } = props;
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
+  console.log("reasons", reasons);
 
   const loadingFilter = useMemo(() => {
     return isLoading ? true : false;
@@ -130,8 +132,8 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
               received_on_max: null,
             });
           break;
-        case "reason_ids":
-          onFilter && onFilter({ ...params, reason_ids: [] });
+        case "sub_sub_reason_ids":
+          onFilter && onFilter({ ...params, sub_sub_reason_ids: [] });
           break;
         case "is_received":
           onFilter && onFilter({ ...params, is_received: [] });
@@ -186,7 +188,9 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
       payment_status: Array.isArray(params.payment_status)
         ? params.payment_status
         : [params.payment_status],
-      reason_ids: Array.isArray(params.reason_ids) ? params.reason_ids : [params.reason_ids],
+      sub_reason_ids: Array.isArray(params.sub_reason_ids)
+        ? params.sub_reason_ids
+        : [params.sub_reason_ids],
       source_ids: Array.isArray(params.source_ids)
         ? params.source_ids.map((i) => Number(i))
         : [Number(params.source_ids)],
@@ -485,16 +489,17 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
         value: text,
       });
     }
-    if (initialValues.reason_ids.length) {
+    if (initialValues.sub_reason_ids.length) {
       let textReason = "";
-      initialValues.reason_ids.forEach((reason_id) => {
+      initialValues.sub_reason_ids.forEach((reason_id) => {
         const reason = reasons?.find((reason) => reason.id.toString() === reason_id);
         textReason = reason
-          ? textReason + `${initialValues.reason_ids.length > 1 ? reason.name + ";" : reason.name}`
+          ? textReason +
+            `${initialValues.sub_reason_ids.length > 1 ? reason.name + "; " : reason.name}`
           : textReason;
       });
       list.push({
-        key: "reason_ids",
+        key: "sub_sub_reason_ids",
         name: "Lý do trả hàng",
         value: textReason,
       });
@@ -667,7 +672,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
     return list;
   }, [
     initialValues.store_ids,
-    initialValues.reason_ids,
+    initialValues.sub_reason_ids,
     initialValues.is_received,
     initialValues.payment_status,
     initialValues.created_on_min,
@@ -798,7 +803,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
               />
             </Item>
 
-            <Item className="input-search" style={{ width: "300px" }}>
+            <Item className="input-search" style={{ width: "270px" }}>
               <SearchProductComponent
                 keySearch={keySearchVariant}
                 setKeySearch={setKeySearchVariant}
@@ -809,7 +814,12 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
             </Item>
 
             <Item>
-              <Button type="primary" loading={loadingFilter} htmlType="submit">
+              <Button
+                type="primary"
+                loading={loadingFilter}
+                htmlType="submit"
+                style={{ width: 70 }}
+              >
                 Lọc
               </Button>
             </Item>
@@ -887,7 +897,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
                     />
                   </Item>
                   <p>Lý do trả hàng</p>
-                  <Item name="reason_ids">
+                  <Item name="sub_reason_ids">
                     <CustomSelect
                       mode="multiple"
                       showSearch
@@ -900,14 +910,15 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
                       getPopupContainer={(trigger) => trigger.parentNode}
                       allowClear
                     >
-                      {reasons.map((reason) => (
-                        <CustomSelect.Option
-                          key={reason.id.toString()}
-                          value={reason.id.toString()}
-                        >
-                          {reason.name}
-                        </CustomSelect.Option>
-                      ))}
+                      {reasons &&
+                        reasons.map((reason) => (
+                          <CustomSelect.Option
+                            key={reason.id.toString()}
+                            value={reason.id.toString()}
+                          >
+                            {reason.name}
+                          </CustomSelect.Option>
+                        ))}
                     </CustomSelect>
                   </Item>
                 </Col>
