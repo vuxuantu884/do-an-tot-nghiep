@@ -527,7 +527,8 @@ function KeyDriverOnline() {
                   record.key === "ON.DT.MK.23" ||
                   record.key === "ON.DT.MK.24") &&
                 departmentLv2 &&
-                !departmentLv3 &&
+                (!departmentLv3 ||
+                  departmentKey.replaceAll(" ", "") !== departmentLv3.replaceAll(" ", "")) &&
                 departmentKey.replaceAll(" ", "") !== departmentLv2.replaceAll(" ", "")
               ) {
                 const targetDrillingLevel = +record[`target_drilling_level`];
