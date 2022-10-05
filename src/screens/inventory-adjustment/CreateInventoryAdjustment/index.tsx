@@ -49,6 +49,7 @@ import TextEllipsis from "component/table/TextEllipsis";
 import debounce from "lodash/debounce";
 import AccountSearchPaging from "../../../component/custom/select-search/account-select-paging";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import { AccountStoreResponse } from "../../../model/account/account.model";
 
 const { Option } = Select;
 
@@ -112,7 +113,7 @@ const CreateInventoryAdjustment: FC = () => {
     TotalRealOnHand: 0,
   });
 
-  const myStores: any = useSelector(
+  const myStores: AccountStoreResponse[] | undefined = useSelector(
     (state: RootReducerType) => state.userReducer.account?.account_stores,
   );
 
@@ -870,7 +871,7 @@ const CreateInventoryAdjustment: FC = () => {
                       {Array.isArray(myStores) &&
                         myStores.length > 0 ?
                         myStores.map((item, index) => (
-                          <Option key={"adjusted_store_id" + index} value={item.store_id.toString()}>
+                          <Option key={"adjusted_store_id" + index} value={item.store_id ? item.store_id.toString() : ''}>
                             {item.store}
                           </Option>
                         )) : Array.isArray(stores) &&
