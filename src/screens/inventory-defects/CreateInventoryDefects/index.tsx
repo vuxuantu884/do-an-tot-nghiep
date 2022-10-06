@@ -240,7 +240,16 @@ const InventoryDefectCreate: React.FC = () => {
       store: formStoreData.name,
       items: itemsDefect,
     };
-    await callApiNative({ isShowError: true }, dispatch, createInventoryDefect, dataSubmit);
+    const res = await callApiNative(
+      { isShowError: true },
+      dispatch,
+      createInventoryDefect,
+      dataSubmit,
+    );
+    if (!res) {
+      setIsLoading(false);
+      return;
+    }
     //Phía BE cần xử lý bất đồng bộ cho ES nên cần FE delay 3s
     setTimeout(() => {
       setIsLoading(false);
@@ -323,6 +332,7 @@ const InventoryDefectCreate: React.FC = () => {
             store: store.name,
             store_id: store.id,
             product_id: selectedItem.product_id,
+            barcode: selectedItem.barcode,
           };
           calculatingDefectAndInventory(dataTable.concat([{ ...item }]));
           setDataTable((prev: Array<LineItemDefect>) => prev.concat([{ ...item }]));
