@@ -70,7 +70,8 @@ enum TabName {
   INVENTORY = "inventory",
   ADVERTISING_HISTORY = "advertising history",
 }
-const ProductDetailScreen: React.FC = () => {
+const ProductDetailScreen = (props: {setTitle : (value: string) => void}) => {
+  const {setTitle} = props;
   const { TabPane } = Tabs;
   const history = useHistory();
   const dispatch = useDispatch();
@@ -514,6 +515,12 @@ const ProductDetailScreen: React.FC = () => {
     [debounceSearch],
   );
 
+  useEffect(() => {
+    if(data?.name) {
+      setTitle(`${data?.name}`)
+    }
+  }, [data?.name, setTitle])
+  
   return (
     <StyledComponent className="product-detail">
       <ContentContainer
