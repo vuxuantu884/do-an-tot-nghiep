@@ -27,7 +27,7 @@ const ScreenReturnDetail = React.lazy(() => import("screens/order-online/order-r
 
 const YDPageAdmin = React.lazy(() => import("screens/yd-page"));
 //Handover
-const CreateHandoverScreeen = React.lazy(
+const CreateHandoverScreen = React.lazy(
   () => import("screens/order-online/handover/create.screen"),
 );
 const HandoverScreen = React.lazy(() => import("screens/order-online/handover/list.screen"));
@@ -247,7 +247,7 @@ const bill: Array<RouteMenu> = [
         exact: true,
         title: "Thêm mới biên bản bàn giao",
         icon: "icon-dot",
-        component: CreateHandoverScreeen,
+        component: CreateHandoverScreen,
         key: "submenu581",
         isShow: true,
         header: null,
