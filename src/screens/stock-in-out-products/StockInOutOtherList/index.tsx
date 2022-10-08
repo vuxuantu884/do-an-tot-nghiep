@@ -155,7 +155,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = () => {
                     pathname: `${UrlConfig.STOCK_IN_OUT_OTHERS}/${record.id}`,
                   }}
                 >
-                  <b>{value}</b>
+                  <b style={{ fontSize: 16 }}>{value}</b>
                 </Link>
               </div>
               <div style={{ fontSize: 12 }}>
@@ -466,7 +466,9 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = () => {
               { isShowError: true },
               dispatch,
               getStockInOutOtherList,
-              `page=${index}&limit=${limit}&type=${type === TYPE_EXPORT.allin ? StockInOutType.stock_in : StockInOutType.stock_out}`
+              `page=${index}&limit=${limit}&type=${
+                type === TYPE_EXPORT.allin ? StockInOutType.stock_in : StockInOutType.stock_out
+              }`,
             );
             if (res) {
               items = items.concat(res.items);
@@ -506,16 +508,17 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = () => {
         [`Giá`]: formatCurrency(product[item.policy_price]),
         [`Thành tiền`]: formatCurrency(product[item.policy_price] * product.quantity),
         [`Trạng thái`]: text,
-        [`Lý do`]: item.type === StockInOutType.stock_in
-          ? StockInReasonMappingField[item.stock_in_out_reason]
-          : StockOutReasonMappingField[item.stock_in_out_reason],
+        [`Lý do`]:
+          item.type === StockInOutType.stock_in
+            ? StockInReasonMappingField[item.stock_in_out_reason]
+            : StockOutReasonMappingField[item.stock_in_out_reason],
         [`Người đề xuất`]: `${item.account_code} - ${item.account_name}`,
         [`Người tạo`]: `${product.created_by} - ${product.created_name}`,
         [`Ngày tạo`]: ConvertUtcToLocalDate(product.created_date, DATE_FORMAT.DDMMYY_HHmm),
         [`Ghi chú`]: item.internal_note,
-      }
+      };
     });
-  }
+  };
 
   const actionExport = {
     Ok: async (typeExport: string) => {
@@ -526,9 +529,9 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = () => {
         setVExportDetailStockInOut(false);
         return;
       }
-      setIsLoading(true)
+      setIsLoading(true);
       const res = await getItemsByCondition(typeExport);
-      setIsLoading(false)
+      setIsLoading(false);
       if (res && res.length === 0) {
         setStatusExport(0);
         showWarning("Không có phiếu chuyển nào đủ điều kiện");
@@ -540,10 +543,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = () => {
       for (let i = 0; i < res.length; i++) {
         const e = res[i];
         const items = convertItemExport(e);
-        dataExport = [
-          ...dataExport,
-          ...items
-        ]
+        dataExport = [...dataExport, ...items];
       }
 
       let worksheet = XLSX.utils.json_to_sheet(dataExport);
