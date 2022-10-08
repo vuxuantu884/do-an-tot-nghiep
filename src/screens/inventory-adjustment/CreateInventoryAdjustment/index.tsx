@@ -224,6 +224,18 @@ const CreateInventoryAdjustment: FC = () => {
           setResultSearch,
         ),
       );
+    } else if (value.trim() === "") {
+      dispatch(
+        inventoryGetVariantByStoreAction(
+          {
+            status: "active",
+            limit: 10,
+            page: 1,
+            store_ids: storeId ?? 0,
+          },
+          setResultSearch,
+        ),
+      );
     }
   };
 
