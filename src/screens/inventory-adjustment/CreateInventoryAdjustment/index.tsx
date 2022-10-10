@@ -91,6 +91,7 @@ const CreateInventoryAdjustment: FC = () => {
     items: [],
   });
   const [keySearch, setKeySearch] = useState<string>("");
+  const [keySearchProduct, setKeySearchProduct] = useState<string>("");
   const history = useHistory();
   const productSearchRef = createRef<CustomAutoComplete>();
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
@@ -203,6 +204,7 @@ const CreateInventoryAdjustment: FC = () => {
   const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse> | any>();
 
   const onSearchProductDebounce = debounce((key: string) => {
+    setKeySearchProduct(key);
     onSearchProduct(key);
   }, 300);
 
@@ -765,10 +767,12 @@ const CreateInventoryAdjustment: FC = () => {
       setDataTable([]);
       drawColumns([]);
       setSearchVariant([]);
+      onSearchProduct(keySearchProduct);
     } else {
       dispatch(getVariantHasOnHandByStoreAction({ store_adj: storeId }, onResultGetVariant));
     }
-  }, [form, query, auditType, onResultGetVariant, dispatch, drawColumns]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, query, auditType, drawColumns, keySearchProduct, dispatch, onResultGetVariant]);
 
   return (
     <ContentContainer
