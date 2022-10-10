@@ -171,7 +171,7 @@ const reports: Array<RouteMenu> = [
         key: "menureport05",
         isShow: true,
         header: null,
-        permissions: [ReportPermissions.reports_view_report_offline],
+        // permissions: [ReportPermissions.reports_view_report_offline],
         subMenu: [
           {
             path: `${UrlConfig.KEY_DRIVER_OFFLINE}/:asmName`,
@@ -217,7 +217,7 @@ const reports: Array<RouteMenu> = [
         key: "menureport6",
         isShow: true,
         header: null,
-        permissions: [ReportPermissions.reports_view_report_online],
+        // permissions: [ReportPermissions.reports_view_report_online],
         subMenu: [],
       },
       {
