@@ -14,10 +14,12 @@ import moment from "moment";
 import { Dispatch } from "redux";
 import { DiscountUnitType } from "screens/promotion/constants";
 import { CustomerFilterField } from "screens/promotion/shared/cusomer-condition.form";
-import { formatCurrency } from "./AppUtils";
+import { formatCurrency, scrollAndFocusToDomElement } from "./AppUtils";
 import { PROMO_TYPE } from "./Constants";
 import { DATE_FORMAT } from "./DateUtils";
 import { showError } from "./ToastUtils";
+import { GIFT_METHOD_ENUM, GiftEntitlementForm, GiftProductEntitlements } from "model/promotion/gift.model";
+import { CustomerConditionField } from "screens/promotion/gift/components/GiftCustomerCondition";
 
 /**
  * Đóng modal xác nhận thêm mã cha
@@ -286,9 +288,6 @@ export const getDateFormDuration = (duration: number) => {
   if (duration) {
     const day = duration % 100;
     const month = (duration - day) / 100;
-
-    console.log(month, day);
-
     return day + "/" + month;
   } else {
     return " -/- ";
@@ -452,10 +451,10 @@ export const onSelectVariantOfDiscount = (
       isParentProduct: false,
     };
 
-    entitlements[name].entitled_variant_ids.unshift(selectedItem.id);
+    entitlements[name].entitled_variant_ids?.unshift(selectedItem.id);
   } else if (selectedItem && !isVariant) {
     itemParseFromSelectToTable = parseSelectProductToTableData(selectedItem);
-    entitlements[name].entitled_product_ids.unshift(selectedItem.id);
+    entitlements[name].entitled_product_ids?.unshift(selectedItem.id);
   }
 
   currentProductList.unshift(itemParseFromSelectToTable);
@@ -538,7 +537,6 @@ export const addProductFromSelectToForm = (
   form.setFieldsValue({
     entitlements: _.cloneDeep(entilementFormValue),
   });
-  console.log(form.getFieldValue("entitlements"));
 };
 
 export const getEntilementValue = (
@@ -554,7 +552,7 @@ export const getEntilementValue = (
 
     // check không được để trống sản phẩm trong nhóm chiết khấu
     const checkEmpty = entitlements.some(
-      (e) => e.entitled_product_ids.length === 0 && e.entitled_variant_ids.length === 0,
+      (e) => e.entitled_product_ids?.length === 0 && e.entitled_variant_ids?.length === 0,
     );
     if (checkEmpty) {
       throw new Error("Không được để trống sản phẩm trong nhóm chiết khấu");
@@ -571,7 +569,7 @@ export const transformData = (values: any, priceRuleType = PROMO_TYPE.AUTOMATIC)
   body.entitlements = getEntilementValue(values.entitlements, values.entitled_method);
 
   body.type = priceRuleType;
-  body.starts_date = values.starts_date.format();
+  body.starts_date = values.starts_date?.format();
   body.ends_date = values.ends_date?.format() || null;
 
   body.prerequisite_store_ids = values.prerequisite_store_ids ?? [];
@@ -676,7 +674,7 @@ export const handleChangeDiscountMethod = (
     if (
       (isFixedPriceMethod || isQuantityMethod) &&
       Array.isArray(formData?.entitlements) &&
-      formData?.entitlements.length > 0
+      formData?.entitlements?.length > 0
     ) {
       formData?.entitlements?.forEach((item: EntilementFormModel) => {
         const temp = {
@@ -712,4 +710,248 @@ export const handleChangeDiscountMethod = (
       entitlements: _.cloneDeep(formData?.entitlements),
     });
   }
+};
+
+/** gift */
+export const getGiftEntitlementValue = (
+  entitlements: GiftEntitlementForm[],
+  entitlementMethod: string,
+) => {
+  // xóa quà tặng chưa được chọn
+  entitlements?.forEach((item: GiftEntitlementForm) => {
+    item.entitled_gift_ids = item?.entitled_gift_ids?.filter(giftId => !!giftId);
+  });
+
+  // check không được để trống sản phẩm quà tặng
+  const checkEmptyGiftVariant = entitlements.some((e) => e.entitled_gift_ids?.length === 0);
+  if (checkEmptyGiftVariant) {
+    throw new Error("Không được để trống quà tặng");
+  }
+  if (entitlementMethod === GIFT_METHOD_ENUM.ORDER_THRESHOLD) {
+    return entitlements?.map((item: GiftEntitlementForm) => {
+      return {
+        entitled_gift_ids: item?.entitled_gift_ids
+      };
+    });
+  } else {
+    if (!entitlements || !Array.isArray(entitlements)) {
+      return null;
+    }
+
+    // check không được để trống sản phẩm trong nhóm quà tặng
+    const checkEmptyProductApply = entitlements.some(
+      (e) => e.entitled_product_ids?.length === 0 && e.entitled_variant_ids?.length === 0,
+    );
+    if (checkEmptyProductApply) {
+      throw new Error("Không được để trống sản phẩm trong nhóm chiết khấu");
+    }
+
+    entitlements?.forEach((item: GiftEntitlementForm) => {
+      item.prerequisite_quantity_ranges = item.prerequisite_quantity_ranges.map((quantity_ranges_item: any) => {
+        return {
+          greater_than_or_equal_to: quantity_ranges_item.greater_than_or_equal_to
+        }
+      });
+    });
+    return entitlements?.map((item: GiftEntitlementForm) => {
+      delete item.selectedProducts;
+      delete item.selectedGifts;
+      return item;
+    });
+  }
+};
+
+const checkCustomerCondition = (body: any) => {
+  if (body.prerequisite_total_money_spend_from > body.prerequisite_total_money_spend_to) {
+    const element: any = document.getElementById(CustomerConditionField.prerequisite_total_money_spend_from);
+    scrollAndFocusToDomElement(element);
+    throw new Error("Tiền tích lũy bắt đầu lớn hơn kết thúc.");
+  }
+  if (body.prerequisite_total_finished_order_from > body.prerequisite_total_finished_order_to) {
+    const element: any = document.getElementById(CustomerConditionField.prerequisite_total_finished_order_from);
+    scrollAndFocusToDomElement(element);
+    throw new Error("Tổng đơn hàng bắt đầu lớn hơn kết thúc.");
+  }
+}
+
+export const transformGiftRequest = (values: any) => {
+  let body: any = values;
+  body.entitlements = getGiftEntitlementValue(values.entitlements, values.entitled_method);
+
+  body.type = "GIFT";
+  body.starts_date = values.starts_date?.utc() || null;
+  body.ends_date = values.ends_date?.utc() || null;
+  // body.starts_date = values.starts_date?.format() || null;
+  // body.ends_date = values.ends_date?.format() || null;
+
+  checkCustomerCondition(body);
+
+  body.prerequisite_store_ids = values.prerequisite_store_ids ?? [];
+  body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names ?? [];
+  body.prerequisite_order_source_ids = values.prerequisite_order_source_ids ?? [];
+
+  // ==Đối tượng khách hàng==
+
+  // Giới tính
+  body.prerequisite_genders = values.prerequisite_genders ?? [];
+  //Ngày sinh khách hàng
+  const startsBirthday = values[CustomerFilterField.starts_birthday]
+    ? moment(values[CustomerFilterField.starts_birthday])
+    : null;
+  const endsBirthday = values[CustomerFilterField.ends_birthday]
+    ? moment(values[CustomerFilterField.ends_birthday])
+    : null;
+  if (startsBirthday || endsBirthday) {
+    body.prerequisite_birthday_duration = {
+      starts_mmdd_key: startsBirthday
+        ? Number(
+          (startsBirthday.month() + 1).toString().padStart(2, "0") +
+          startsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
+        )
+        : null,
+      ends_mmdd_key: endsBirthday
+        ? Number(
+          (endsBirthday.month() + 1).toString().padStart(2, "0") +
+          endsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
+        )
+        : null,
+    };
+  } else {
+    body.prerequisite_birthday_duration = null;
+  }
+
+  //==Ngày cưới khách hàng
+  const startsWeddingDays = values[CustomerFilterField.starts_wedding_day]
+    ? moment(values[CustomerFilterField.starts_wedding_day])
+    : null;
+  const endsWeddingDays = values[CustomerFilterField.ends_wedding_day]
+    ? moment(values[CustomerFilterField.ends_wedding_day])
+    : null;
+
+  if (startsWeddingDays || endsWeddingDays) {
+    body.prerequisite_wedding_duration = {
+      starts_mmdd_key: startsWeddingDays
+        ? Number(
+          (startsWeddingDays.month() + 1).toString().padStart(2, "0") +
+          startsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
+        )
+        : null,
+      ends_mmdd_key: endsWeddingDays
+        ? Number(
+          (endsWeddingDays.month() + 1).toString().padStart(2, "0") +
+          endsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
+        )
+        : null,
+    };
+  } else {
+    body.prerequisite_wedding_duration = null;
+  }
+
+  //Khách hàng thuộc nhóm
+  body.prerequisite_customer_group_ids = values.prerequisite_customer_group_ids ?? [];
+  //Khách hàng thuộc cấp độ
+  body.prerequisite_customer_loyalty_level_ids = values.prerequisite_customer_loyalty_level_ids ?? [];
+
+  //==Chiết khấu nâng cao theo đơn hàng==
+  //Điều kiện chung
+
+  if (values?.rule && !_.isEmpty(JSON.parse(JSON.stringify(values?.rule)))) {
+    delete values.rule.value_type;
+    body.rule = values.rule;
+  }
+
+  return body;
+};
+
+export const onSelectVariantOfGift = (
+  value: string,
+  selectedProductParentRef: any,
+  variantIdOfSelectedProdcutRef: any,
+  setIsVisibleConfirmModal: (isVisible: boolean) => void,
+  form: FormInstance,
+  name: number, // index of a group entilement
+  dispatch: Dispatch<YodyAction>,
+) => {
+  const entitlements: Array<GiftEntitlementForm> = form.getFieldValue("entitlements");
+
+  const currentProductList: Array<GiftProductEntitlements> = entitlements[name].selectedProducts || [];
+
+  const selectedItem = JSON.parse(value);
+
+  const isVariant = !!selectedItem?.sku;
+
+  if (!isVariant) {
+    // sp cha không có sku => set sku = code
+    selectedItem.sku = selectedItem.code;
+  }
+
+  /**
+   *  Check sản phẩm đã tồn tại trong danh sách hay chưa
+   */
+  const checkExist = currentProductList.some(
+    (e) => e.sku === (selectedItem.sku ?? selectedItem.code),
+  );
+  if (checkExist) {
+    showError("Sản phẩm đã được chọn!");
+    return;
+  }
+
+  /**
+   * Trường hợp trên ds đã có mã cha
+   * → tìm kiếm sp variant thì thông báo lỗi đã đưa mã cha vào ds
+   * → Nếu muốn thay đổi thì xóa mã cha
+   */
+  if (isVariant && currentProductList.some((e) => selectedItem?.sku?.includes(e?.sku))) {
+    showError("Sản phẩm đã được chọn mã cha");
+    return;
+  }
+
+  /**
+   * Trường hợp trên ds đã có mã variant
+   * → tìm kiếm sp  cha thì thông báo đã có mã variant vào ds
+   * → popup thông báo sẽ áp dụng các variant còn lại của mã này
+   * → Bấm XÁC NHẬN/ HỦY
+   */
+  if (!isVariant && currentProductList.some((e) => e?.sku?.startsWith(selectedItem?.sku))) {
+    selectedProductParentRef.current = selectedItem;
+
+    dispatch(
+      productGetDetail(selectedItem.id, (result: ProductResponse | false) => {
+        if (result) {
+          variantIdOfSelectedProdcutRef.current = result.variants;
+        }
+      }),
+    );
+    setIsVisibleConfirmModal(true);
+    return;
+  }
+
+  /**
+   * Pass hết các trường hợp trên thì thêm vào ds
+   */
+  let itemParseFromSelectToTable: GiftProductEntitlements = {} as GiftProductEntitlements;
+  if (selectedItem && isVariant) {
+    itemParseFromSelectToTable = {
+      ...selectedItem,
+      cost: selectedItem.variant_prices[0]?.cost_price,
+      retail_price: selectedItem.variant_prices[0]?.retail_price,
+      open_quantity: selectedItem.on_hand,
+      variant_title: selectedItem.name,
+      product_id: selectedItem.product_id, // id của sp cha
+      variant_id: selectedItem.id, // id của sp variant
+      sku: selectedItem.sku,
+      isParentProduct: false,
+    };
+
+    entitlements[name].entitled_variant_ids?.unshift(selectedItem.id);
+  } else if (selectedItem && !isVariant) {
+    itemParseFromSelectToTable = parseSelectProductToTableData(selectedItem);
+    entitlements[name].entitled_product_ids?.unshift(selectedItem.id);
+  }
+
+  currentProductList.unshift(itemParseFromSelectToTable);
+  entitlements[name].selectedProducts = currentProductList;
+  form.setFieldsValue({
+    entitlements: _.cloneDeep(entitlements),
+  });
 };

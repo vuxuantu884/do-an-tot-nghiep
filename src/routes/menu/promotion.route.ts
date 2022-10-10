@@ -1,6 +1,7 @@
 import {
   PriceRulesPermission,
   PromotionReleasePermission,
+  PROMOTION_GIFT_PERMISSIONS,
 } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
@@ -32,8 +33,11 @@ const promoCodeList = React.lazy(() => import("screens/promotion/promo-code/prom
 const PromoCodeUpdate = React.lazy(() => import("screens/promotion/issue/update/issue-update"));
 
 const CreatePromoCodePage = React.lazy(() => import("screens/promotion/issue/create/issue-create"));
-// const GiftCreate = React.lazy(() => import("screens/promotion/gift/gift.create"));
-// const GiftList = React.lazy(() => import("screens/promotion/gift/gift.list"));
+
+const GiftList = React.lazy(() => import("screens/promotion/gift/GiftList"));
+const GiftCreate = React.lazy(() => import("screens/promotion/gift/create/GiftCreate"));
+const GiftDetail = React.lazy(() => import("screens/promotion/gift/detail/GiftDetail"));
+const GiftUpdate = React.lazy(() => import("screens/promotion/gift/update/GiftUpdate"));
 
 const promotion: Array<RouteMenu> = [
   {
@@ -154,31 +158,6 @@ const promotion: Array<RouteMenu> = [
       },
     ],
   },
-  // {
-  //   path: `${UrlConfig.PROMOTION}${UrlConfig.GIFT}`,
-  //   exact: true,
-  //   title: "Quà tặng",
-  //   icon: "icon-dot",
-  //   component: GiftList,
-  //   key: "submenu110",
-  //   isShow: true,
-  //   header: null,
-  //   permissions: [PromotionReleasePermission.READ],
-  //   subMenu: [
-  //     {
-  //       path: `${UrlConfig.PROMOTION}${UrlConfig.GIFT}/create`,
-  //       exact: true,
-  //       title: "Tạo quà tặng",
-  //       icon: "icon-dot",
-  //       component: GiftCreate,
-  //       key: "submenu110",
-  //       isShow: true,
-  //       header: null,
-  //       permissions: [PromotionReleasePermission.READ],
-  //       subMenu: [],
-  //     },
-  //   ],
-  // },
   {
     path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
     exact: true,
@@ -237,6 +216,55 @@ const promotion: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         permissions: [PromotionReleasePermission.READ],
+      },
+    ],
+  },
+  {
+    path: `${UrlConfig.PROMOTION}${UrlConfig.GIFT}`,
+    exact: true,
+    title: "Quà tặng",
+    icon: "icon-dot",
+    component: GiftList,
+    key: "gift-list",
+    isShow: true,
+    header: null,
+    permissions: [PROMOTION_GIFT_PERMISSIONS.READ],
+    subMenu: [
+      {
+        path: `${UrlConfig.PROMOTION}${UrlConfig.GIFT}/create`,
+        exact: true,
+        title: "Tạo quà tặng",
+        icon: "icon-dot",
+        component: GiftCreate,
+        key: "gift-create",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [PROMOTION_GIFT_PERMISSIONS.CREATE],
+      },
+      {
+        path: `${UrlConfig.PROMOTION}${UrlConfig.GIFT}/:id`,
+        exact: true,
+        title: "Chi tiết quà tặng",
+        icon: "icon-dot",
+        component: GiftDetail,
+        key: "gift-detail",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [PROMOTION_GIFT_PERMISSIONS.READ],
+      },
+      {
+        path: `${UrlConfig.PROMOTION}${UrlConfig.GIFT}/:id/update`,
+        exact: true,
+        title: "Cập nhật quà tặng",
+        icon: "icon-dot",
+        component: GiftUpdate,
+        key: "gift-update",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [PROMOTION_GIFT_PERMISSIONS.UPDATE],
       },
     ],
   },
