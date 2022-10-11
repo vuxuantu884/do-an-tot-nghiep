@@ -28,7 +28,7 @@ type HeaderContainerProps = {
 const hotlineNumber = "0888 464 258";
 const youtubeUrl = "https://www.youtube.com/channel/UCVgds2lhgxftOxEtQJooKKQ/playlists";
 const gapoUrl = "https://www.gapowork.vn/group/unicorn";
-const gopyUrl="http://surl.li/dhjrg";
+const gopyUrl = "https://forms.gle/zCgBGA7Th7MDNNL58";
 
 const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerProps) => {
   const user_id = useSelector((state: RootReducerType) => state.userReducer.account?.user_id);
