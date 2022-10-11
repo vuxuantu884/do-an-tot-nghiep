@@ -1793,7 +1793,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                 />
                 {/* hiện tại đang ẩn cái hoàn tiền khi trả */}
                 {/* {!isExchange && ( */}
-                {!isExchange && !isReturnAndNotShowMoneyRefund && canCreateMoneyRefund && (
+                {/* {!isExchange && !isReturnAndNotShowMoneyRefund && canCreateMoneyRefund && (
                   <CardReturnMoneyPageCreateReturn
                     paymentMethods={paymentMethods}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
@@ -1803,7 +1803,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     setReturnPaymentMethodCode={setReturnPaymentMethodCode}
                     canCreateMoneyRefund={canCreateMoneyRefund}
                   />
-                )}
+                )} */}
 
                 {isExchange && (
                   <CardReturnMoneyPageCreate
