@@ -35,6 +35,7 @@ import _ from "lodash";
 import { searchVariantsApi } from "service/product/product.service";
 import { STATUS_INVENTORY_ADJUSTMENT } from "../../../ListInventoryAdjustment/constants";
 import NumberInput from "component/custom/number-input.custom";
+import { OFFSET_HEADER_TABLE } from "../../../../../utils/Constants";
 
 const arrTypeNote = [
   { key: 1, value: "XNK sai quy trình" },
@@ -603,7 +604,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         style={{ paddingTop: 16 }}
         pagination={false}
         columns={defaultColumns}
-        sticky
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         scroll={{
           x: "max-content",
         }}

@@ -775,7 +775,7 @@ const CreateInventoryAdjustment: FC = () => {
       title="Thêm mới phiếu kiểm kho"
       breadcrumb={[
         {
-          name: "Tổng quan",
+          name: "Kho hàng",
           path: UrlConfig.HOME,
         },
         {

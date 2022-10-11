@@ -16,7 +16,7 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import { PageResponse } from "model/base/base-metadata.response";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { Button, Card, Form, Input, Modal, Space, Tag } from "antd";
+import { Button, Card, Space, Tag } from "antd";
 import { InventoryAdjustmentWrapper } from "./styles";
 import { INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY, STATUS_INVENTORY_ADJUSTMENT } from "../constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -37,10 +37,10 @@ import { STATUS_IMPORT_EXPORT } from "screens/inventory-adjustment/DetailInvetor
 import InventoryTransferExportModal from "screens/inventory-adjustment/DetailInvetoryAdjustment/conponents/ExportModal";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 import useAuthorization from "hook/useAuthorization";
-import { FormOutlined } from "@ant-design/icons";
-import TextArea from "antd/es/input/TextArea";
 import InventoryReportIcon from "assets/icon/inventory-report.svg";
 import InventoryReportModal from "../components/InventoryReportModal";
+import EditPopover from "../../../inventory-defects/ListInventoryDefect/components/EditPopover";
+import { primaryColor } from "utils/global-styles/variables";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 import useSetTableColumns from "hook/table/useSetTableColumns";
@@ -86,11 +86,8 @@ const InventoryAdjustment: React.FC = () => {
   const [statusExport, setStatusExport] = useState<number>(STATUS_IMPORT_EXPORT.DEFAULT);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [exportProgress, setExportProgress] = useState<number>(0);
-  const [isModalVisibleNote, setIsModalVisibleNote] = useState(false);
-  const [itemData, setItemData] = useState<InventoryAdjustmentDetailItem>();
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [inventoryIdSelected, setInventoryIdSelected] = useState<number | null>(null);
-  const [formNote] = Form.useForm();
 
   const printElementRef = useRef(null);
   const handlePrint = useReactToPrint({
@@ -159,6 +156,20 @@ const InventoryAdjustment: React.FC = () => {
       );
     }
     return <Compoment />;
+  };
+
+  const editNote = (note: string, row: InventoryAdjustmentDetailItem) => {
+    let newData: any = row;
+    newData.note = note;
+
+    if (row?.id) {
+      dispatch(
+        updateInventoryAdjustmentAction(row.id, newData, (result) => {
+          if (result) showSuccess(`Cập nhật ${row?.code} thành công`);
+          dispatch(getListInventoryAdjustmentAction(params, setSearchResult));
+        }),
+      );
+    }
   };
 
   const defaultColumns: Array<ICustomTableColumType<InventoryAdjustmentDetailItem>> = [
@@ -250,7 +261,7 @@ const InventoryAdjustment: React.FC = () => {
       dataIndex: "status",
       key: "status",
       visible: true,
-      width: 100,
+      width: 150,
       align: "center",
       render: (item: string) => {
         let textTag: string;
@@ -358,14 +369,14 @@ const InventoryAdjustment: React.FC = () => {
       width: "220px",
       render: (item: string, row: InventoryAdjustmentDetailItem) => {
         return (
-          <div className={item ? "note" : ""}>
-            {item}
-            <FormOutlined
-              onClick={() => {
-                setItemData(row);
-                setIsModalVisibleNote(true);
+          <div className="single">
+            <EditPopover
+              content={item}
+              title={`Sửa ghi chú ${row?.code}`}
+              color={primaryColor}
+              onOk={(newNote) => {
+                editNote(newNote, row);
               }}
-              className={item ? "note-icon" : ""}
             />
           </div>
         );
@@ -623,52 +634,6 @@ const InventoryAdjustment: React.FC = () => {
             visible={isOpenModal}
             onCancel={() => setIsOpenModal(false)}
           />
-        )}
-
-        {isModalVisibleNote && (
-          <Modal
-            title={`Sửa ghi chú ${itemData?.code}`}
-            visible={isModalVisibleNote}
-            onOk={() => {
-              formNote.submit();
-              setIsModalVisibleNote(false);
-            }}
-            onCancel={() => {
-              setIsModalVisibleNote(false);
-            }}
-          >
-            <Form
-              form={formNote}
-              initialValues={itemData}
-              onFinish={(data) => {
-                if (itemData?.id) {
-                  data.list_attached_files = itemData.list_attached_files;
-                  dispatch(
-                    updateInventoryAdjustmentAction(itemData.id, data, (result) => {
-                      setItemData(undefined);
-                      if (result) showSuccess(`Cập nhật ${itemData?.code} thành công`);
-                      dispatch(getListInventoryAdjustmentAction(params, setSearchResult));
-                    }),
-                  );
-                }
-              }}
-              onFinishFailed={() => {}}
-            >
-              <Form.Item noStyle hidden name="note">
-                <Input />
-              </Form.Item>
-              <Form.Item>
-                <TextArea
-                  maxLength={250}
-                  onChange={(e) => {
-                    formNote.setFieldsValue({ note: e.target.value });
-                  }}
-                  defaultValue={itemData?.note}
-                  rows={4}
-                />
-              </Form.Item>
-            </Form>
-          </Modal>
         )}
       </Card>
     </InventoryAdjustmentWrapper>

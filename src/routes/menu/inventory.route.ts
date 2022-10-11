@@ -280,7 +280,7 @@ export const inventory: Array<RouteMenu> = [
       {
         path: `${UrlConfig.INVENTORY_ADJUSTMENTS}/create`,
         exact: true,
-        title: "Kiểm kho",
+        title: "Thêm mới phiếu kiểm kho",
         icon: "icon-dot",
         component: CreateInventoryAdjustment,
         key: "submenu33",
@@ -292,7 +292,7 @@ export const inventory: Array<RouteMenu> = [
       {
         path: `${UrlConfig.INVENTORY_ADJUSTMENTS}/:id`,
         exact: true,
-        title: "Kiểm kho",
+        title: "Chi tiết phiếu kiểm kho",
         icon: "icon-dot",
         component: DetailInvetoryAdjustment,
         key: "submenu33",

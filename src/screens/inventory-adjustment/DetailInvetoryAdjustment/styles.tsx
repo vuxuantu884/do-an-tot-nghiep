@@ -85,7 +85,7 @@ export const StyledWrapper = styled.div`
   .bottom {
     &__right {
       .ant-space-align-center {
-        gap: 20px !important;
+        gap: 0 !important;
 
         a {
           color: #2a2a86;
@@ -252,5 +252,9 @@ export const StyledWrapper = styled.div`
   }
   .number-text {
     color: #5656a2;
+  }
+  
+  .ant-table-sticky-holder {
+    top: 56px !important;
   }
 `;
