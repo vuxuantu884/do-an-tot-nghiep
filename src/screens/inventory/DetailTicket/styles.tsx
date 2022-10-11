@@ -247,4 +247,8 @@ export const StyledWrapper = styled.div`
     justify-content: right;
     margin-top: 10px;
   }
+
+  .ant-steps-dot .ant-steps-item-tail:after, .ant-steps-dot.ant-steps-small .ant-steps-item-tail:after {
+    height: 1px !important;
+  }
 `;

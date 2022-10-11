@@ -14,10 +14,6 @@ const ListInventoryAdjustments: React.FC = () => {
         title="Kiểm kho"
         breadcrumb={[
           {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
-          },
-          {
             name: "Kho hàng",
             path: UrlConfig.HOME,
           },

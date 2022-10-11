@@ -1260,6 +1260,21 @@
   text-align: center;
 }
 
+.ant-radio-group-solid .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):active,
+.ant-radio-button-wrapper-checked:not([class*=" ant-radio-button-wrapper-disabled"]).ant-radio-button-wrapper:first-child {
+  background-color: $primary-color;
+}
+
+.ant-radio-button-wrapper-checked:not([class*=" ant-radio-button-wrapper-disabled"]).ant-radio-button-wrapper:first-child {
+  border-right-color: $primary-color;
+}
+
+.ant-radio-group-solid .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled),
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):before {
+  background-color: $primary-color !important;
+  border-color: $primary-color !important;
+}
+
 .ant-drawer-close {
   padding: 13px 32px 10px 32px;
 }

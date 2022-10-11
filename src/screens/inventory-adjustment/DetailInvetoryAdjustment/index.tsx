@@ -831,7 +831,7 @@ const DetailInventoryAdjustment: FC = () => {
           <>
             <Form form={form}>
               <Row gutter={30} className="mb-20 detail-info">
-                <Col span={24} md={5}>
+                <Col span={24} md={6}>
                   <div className="label label-green mb-20 mt-10">
                     <div>Quét được</div>
                     <div style={{ color: "#FFFFFF", fontSize: 18 }}>
@@ -870,21 +870,21 @@ const DetailInventoryAdjustment: FC = () => {
                     <img src={CloseCircleIcon} alt="close" className="icon" />
                   </div>
                 </Col>
-                <Col span={24} md={7}>
+                <Col span={24} md={8}>
                   <Row className="margin-bottom-15 mt-10">
-                    <Col span={8} className="title">
+                    <Col span={6} className="title">
                       Mã phiếu:
                     </Col>
-                    <Col span={16} className="font-weight-500">
+                    <Col span={18} className="font-weight-500">
                       {data.code}
                     </Col>
                   </Row>
 
                   <Row className="margin-bottom-15">
-                    <Col span={8} className="title">
+                    <Col span={6} className="title">
                       Loại kiểm:
                     </Col>
-                    <Col span={16} className="font-weight-500">
+                    <Col span={18} className="font-weight-500">
                       {INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.find(
                         (e) => e.value === data.audit_type,
                       )?.name ?? ""}
@@ -892,22 +892,23 @@ const DetailInventoryAdjustment: FC = () => {
                   </Row>
 
                   <Row className="margin-bottom-15">
-                    <Col span={8} className="title">
+                    <Col span={6} className="title">
                       Người tạo:
                     </Col>
-                    <Col span={16} className="font-weight-500">
+                    <Col span={18} className="font-weight-500">
                       {`${data.created_by} - ${data?.created_name}`}
                     </Col>
                   </Row>
 
                   <Row className="margin-bottom-15">
-                    <Col span={8} className="title">
+                    <Col span={6} className="title">
                       Người kiểm:
                     </Col>
-                    <Col span={16} className="font-weight-500">
+                    <Col span={18} className="font-weight-500">
                       {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status &&
                       isPermissionAudit ? (
                         <Form.Item
+                          style={{ margin: 0 }}
                           name="audited_bys"
                           labelCol={{ span: 24, offset: 0 }}
                           colon={false}
@@ -942,16 +943,16 @@ const DetailInventoryAdjustment: FC = () => {
                   </Row>
 
                   <Row className="margin-bottom-15">
-                    <Col span={8} className="title">
+                    <Col span={6} className="title">
                       Trạng thái:
                     </Col>
-                    <Col span={16} className="font-weight-500">
+                    <Col span={18} className="font-weight-500">
                       <div className={classTag}>{textTag}</div>
                     </Col>
                   </Row>
                 </Col>
 
-                <Col span={24} md={12}>
+                <Col span={24} md={10}>
                   <Row className="margin-bottom-15 mt-10">
                     <Col span={4} className="title">
                       Kho hàng:
@@ -1270,6 +1271,7 @@ const DetailInventoryAdjustment: FC = () => {
                       </AuthWrapper>
                       <AuthWrapper acceptPermissions={[InventoryAdjustmentPermission.audit]}>
                         <Button
+                          style={{ marginLeft: 10 }}
                           type="primary"
                           onClick={() => {
                             setIsShowConfirmAdited(true);
