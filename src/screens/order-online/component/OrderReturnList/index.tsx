@@ -598,65 +598,65 @@ function OrderReturnList(props: PropTypes) {
       align: "center",
       width: 140,
     },
-    {
-      title: "Hoàn tiền",
-      //dataIndex: "total_amount",
-      render: (record: ReturnModel) => {
-        if (!record?.payment_status) {
-          return null;
-        }
+    // {
+    //   title: "Hoàn tiền",
+    //   //dataIndex: "total_amount",
+    //   render: (record: ReturnModel) => {
+    //     if (!record?.payment_status) {
+    //       return null;
+    //     }
 
-        const payment_date = () => {
-          if (!record?.payments) {
-            return null;
-          }
-          if (record?.payments.length === 0) {
-            return null;
-          }
+    //     const payment_date = () => {
+    //       if (!record?.payments) {
+    //         return null;
+    //       }
+    //       if (record?.payments.length === 0) {
+    //         return null;
+    //       }
 
-          let payments = record.payments.sort((a, b) => {
-            if (moment(a.created_date) > moment(b.created_date)) {
-              return -1;
-            }
-            return 0;
-          });
+    //       let payments = record.payments.sort((a, b) => {
+    //         if (moment(a.created_date) > moment(b.created_date)) {
+    //           return -1;
+    //         }
+    //         return 0;
+    //       });
 
-          return (
-            <React.Fragment>
-              {
-                // record.payments?.map((p) => (
-                //   p?.created_date ? (
-                //     <div className="textSmall" title="Ngày tạo đơn">{ConvertUtcToLocalDate(p.created_date, dateFormat)}</div>
-                //   ) : "ok"
-                // ))
-                <div className="textSmall">
-                  {ConvertUtcToLocalDate(payments[0].created_date, dateFormat)}
-                </div>
-              }
-            </React.Fragment>
-          );
-        };
+    //       return (
+    //         <React.Fragment>
+    //           {
+    //             // record.payments?.map((p) => (
+    //             //   p?.created_date ? (
+    //             //     <div className="textSmall" title="Ngày tạo đơn">{ConvertUtcToLocalDate(p.created_date, dateFormat)}</div>
+    //             //   ) : "ok"
+    //             // ))
+    //             <div className="textSmall">
+    //               {ConvertUtcToLocalDate(payments[0].created_date, dateFormat)}
+    //             </div>
+    //           }
+    //         </React.Fragment>
+    //       );
+    //     };
 
-        return record.payment_status === ORDER_PAYMENT_STATUS.unpaid ? (
-          <div className="text-center refund-amount-danger">Chưa hoàn tiền</div>
-        ) : record.payment_status === ORDER_PAYMENT_STATUS.paid ? (
-          <>
-            <div className="text-center refund-amount-success">Đã hoàn tiền</div>
-            {payment_date()}
-          </>
-        ) : record.payment_status === ORDER_PAYMENT_STATUS.partial_paid ? (
-          <>
-            <div className="text-center refund-amount-warning">Hoàn một phần</div>
-            {payment_date()}
-          </>
-        ) : null;
-      },
-      className: "refund-amount",
-      key: "refund_amount",
-      visible: true,
-      align: "center",
-      width: 140,
-    },
+    //     return record.payment_status === ORDER_PAYMENT_STATUS.unpaid ? (
+    //       <div className="text-center refund-amount-danger">Chưa hoàn tiền</div>
+    //     ) : record.payment_status === ORDER_PAYMENT_STATUS.paid ? (
+    //       <>
+    //         <div className="text-center refund-amount-success">Đã hoàn tiền</div>
+    //         {payment_date()}
+    //       </>
+    //     ) : record.payment_status === ORDER_PAYMENT_STATUS.partial_paid ? (
+    //       <>
+    //         <div className="text-center refund-amount-warning">Hoàn một phần</div>
+    //         {payment_date()}
+    //       </>
+    //     ) : null;
+    //   },
+    //   className: "refund-amount",
+    //   key: "refund_amount",
+    //   visible: true,
+    //   align: "center",
+    //   width: 140,
+    // },
 
     // {
     //   title: "Trạng thái nhận hàng",

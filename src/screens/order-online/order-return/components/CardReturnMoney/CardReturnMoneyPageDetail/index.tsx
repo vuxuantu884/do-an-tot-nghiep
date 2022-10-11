@@ -5,7 +5,6 @@ import React from "react";
 import { formatCurrency } from "utils/AppUtils";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
-import ReturnMoneySelect from "../ReturnMoneySelect";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
@@ -25,14 +24,14 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
   const {
     payments,
     totalAmountReturnToCustomerLeft = 0,
-    paymentMethods,
-    handleReturnMoney,
+    // paymentMethods,
+    // handleReturnMoney,
     setIsShowPaymentMethod,
-    returnPaymentMethodCode,
-    setReturnPaymentMethodCode,
+    // returnPaymentMethodCode,
+    // setReturnPaymentMethodCode,
     returnPaymentStatus,
     isShowPaymentMethod,
-    canCreateMoneyRefund,
+    // canCreateMoneyRefund,
   } = props;
 
   const renderCardTitle = () => {
@@ -121,7 +120,7 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
     <StyledComponent>
       <Card title={renderCardTitle()}>
         {renderPayments()}
-        {returnPaymentStatus !== ORDER_PAYMENT_STATUS.paid && (
+        {/* {returnPaymentStatus !== ORDER_PAYMENT_STATUS.paid && (
           <ReturnMoneySelect
             paymentMethods={paymentMethods}
             totalAmountCustomerNeedToPay={-totalAmountReturnToCustomerLeft}
@@ -133,7 +132,7 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
             setReturnPaymentMethodCode={setReturnPaymentMethodCode}
             canCreateMoneyRefund={canCreateMoneyRefund}
           />
-        )}
+        )} */}
       </Card>
     </StyledComponent>
   );

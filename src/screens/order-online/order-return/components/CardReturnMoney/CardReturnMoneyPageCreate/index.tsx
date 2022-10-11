@@ -129,6 +129,9 @@ function CardReturnMoneyPageCreate(props: PropTypes) {
     dispatch(getLoyaltyRate(setLoyaltyRate));
   }, [dispatch]);
 
+  if(isReturnMoneyToCustomer) {
+    return null
+  }
   return (
     <Card title={isReturnMoneyToCustomer ? "Hoàn tiền" : "Thanh toán"}>{renderIfIsExchange()}</Card>
   );
