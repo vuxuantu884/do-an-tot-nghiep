@@ -130,7 +130,7 @@ const InventoryScreen: React.FC = () => {
     >
       <Card style={{ padding: 0 }} className="card-tab">
         <Tabs style={{ overflow: "initial" }} activeKey={activeTab} renderTabBar={RenderTabBar}>
-          <TabPane tab={<Link to={InventoryTabUrl.ALL}>Tồn kho</Link>} key={InventoryTabUrl.ALL}>
+          <TabPane tab={<span onClick={() => history.push(InventoryTabUrl.ALL)}>Tồn kho</span>} key={InventoryTabUrl.ALL}>
             <AllTab
               showExportModal={showExportModal}
               setShowExportModal={setShowExportModal}
@@ -144,7 +144,7 @@ const InventoryScreen: React.FC = () => {
           </TabPane>
 
           <TabPane
-            tab={<Link to={InventoryTabUrl.HISTORIES}>Lịch sử tồn kho</Link>}
+            tab={<span onClick={() => history.push(InventoryTabUrl.HISTORIES)}>Lịch sử tồn kho</span>}
             key={InventoryTabUrl.HISTORIES}
           >
             <HistoryTab
