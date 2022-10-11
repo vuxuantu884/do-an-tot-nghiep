@@ -223,6 +223,10 @@ const InventoryDefectCreate: React.FC = () => {
       showError("Chưa có sản phẩm nào được chọn");
       return;
     }
+    if (dataTable.some((el: LineItemDefect) => el.defect <= 0)) {
+      showError("Số lượng hàng lỗi không được nhỏ hơn 1");
+      return;
+    }
     setIsLoading(true);
     const itemsDefect = dataTable.map((item: LineItemDefect) => {
       return {
