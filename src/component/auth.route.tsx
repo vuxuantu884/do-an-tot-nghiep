@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useState } from "react";
 import { Route } from "react-router";
 import NoPermission from "screens/no-permission.screen";
 import SplashScreen from "screens/splash.screen";
@@ -16,7 +16,8 @@ type AuthRouteProps = {
 };
 
 const AuthRoute: React.FC<AuthRouteProps> = (props: AuthRouteProps) => {
-  const { title, path, component: Component, permissions, exact } = props;
+  const { path, component: Component, permissions, exact } = props;
+  const [title, setTitle] = useState(props.title);
   return (
     <Route sensitive path={path} exact={exact}>
       <Container title={title}>
@@ -27,7 +28,7 @@ const AuthRoute: React.FC<AuthRouteProps> = (props: AuthRouteProps) => {
                 isLoadingUserPermission ? (
                   <SplashScreen />
                 ) : allowed ? (
-                  <Component />
+                  <Component setTitle={setTitle} />
                 ) : (
                   <NoPermission />
                 )

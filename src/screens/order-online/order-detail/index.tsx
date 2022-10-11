@@ -114,6 +114,7 @@ import { StyledComponent } from "./styles";
 
 type PropTypes = {
   id?: string;
+  setTitle: (value?: string) => void;
 };
 type OrderParam = {
   id: string;
@@ -130,6 +131,7 @@ const OrderDetail = (props: PropTypes) => {
   if (!id && props.id) {
     id = props.id;
   }
+  const {setTitle} = props;
   // let OrderId = parseInt(id);
   const isFirstLoad = useRef(true);
   const isEcommerceOrder = useRef(false);
@@ -404,7 +406,7 @@ const OrderDetail = (props: PropTypes) => {
             f.status !== FulFillmentStatus.RETURNED &&
             f.status !== FulFillmentStatus.RETURNING,
         );
-
+        setTitle(`Đơn hàng ${_data.code}`)
         setOrderDetail(_data);
         setShippingFeeInformedCustomer(
           _data.shipping_fee_informed_to_customer ? _data.shipping_fee_informed_to_customer : 0,
