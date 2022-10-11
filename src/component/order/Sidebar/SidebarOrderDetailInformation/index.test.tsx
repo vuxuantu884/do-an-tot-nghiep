@@ -15,7 +15,7 @@ const setup = (orderDetail: OrderResponse) => {
   render(
     <Provider store={store}>
       <Router>
-        <SidebarOrderDetailInformation OrderDetail={orderDetail} />
+        <SidebarOrderDetailInformation OrderDetail={orderDetail} />,
       </Router>
     </Provider>,
   );
@@ -23,14 +23,23 @@ const setup = (orderDetail: OrderResponse) => {
 
 describe("chi tiết đơn hàng sidebar", () => {
   testOrderArr.map((single: OrderResponse) => {
-    return it(`test tên cửa hàng ${single.id}`, async () => {
+    return test(`test tên cửa hàng ${single.id}`, async () => {
       setup(single);
       const inputElement = document.querySelector(
-        ".orderDetailSidebar div.ant-card-body > div:nth-child(1) > div.ant-col.ant-col-14.rowDetail__value > a",
+        ".orderDetailSidebar   div.ant-card-body > div:nth-child(1) > div.ant-col.ant-col-14.rowDetail__value > a",
       );
-      if (inputElement && single?.store) {
-        return expect(inputElement?.innerHTML).toEqual(single?.store);
-      }
+      console.log("inputElement", inputElement);
+      expect(inputElement?.innerHTML).toEqual(single?.store);
+    });
+  });
+  testOrderArr.map((single: OrderResponse) => {
+    return test(`test tên cửa hàng ${single.id}`, async () => {
+      setup(single);
+      const inputElement = document.querySelector(
+        ".orderDetailSidebar   div.ant-card-body > div:nth-child(1) > div.ant-col.ant-col-14.rowDetail__value > a",
+      );
+      console.log("inputElement", inputElement);
+      expect(inputElement?.innerHTML).toEqual(single?.store);
     });
   });
   testOrderArr.map((single: OrderResponse) => {
@@ -39,9 +48,7 @@ describe("chi tiết đơn hàng sidebar", () => {
       const inputElement = document.querySelector(
         ".orderDetailSidebar div.ant-card-body > div:nth-child(2) > div.ant-col.ant-col-14.rowDetail__value > a span",
       );
-      if (inputElement && single?.store_phone_number) {
-        return expect(inputElement?.innerHTML).toEqual(single?.store_phone_number);
-      }
+      expect(inputElement?.innerHTML).toEqual(single?.store_phone_number);
     });
   });
 });

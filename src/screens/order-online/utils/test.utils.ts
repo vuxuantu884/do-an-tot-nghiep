@@ -61,7 +61,7 @@ export const testOrderArr: OrderResponse[] | any = [
     company: "Công ty cổ phần thời trang YODY",
     store_id: 78,
     store_code: "YDVNTNN04",
-    store: "YODY Sông Công",
+    store: "YODY Sông Công abc",
     store_phone_number: "0916883258",
     store_full_address: "206 đường cách mạng tháng 8, Cải Đan , thành phố Sông Công , Thái Nguyên",
     status: "finalized",
