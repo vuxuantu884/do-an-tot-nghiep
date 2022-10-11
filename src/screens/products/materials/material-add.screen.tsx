@@ -1,5 +1,19 @@
 import { EditOutlined, InfoCircleOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Form, Input, Popover, Row, Select, Space, Switch, Upload } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  Modal,
+  Popover,
+  Row,
+  Select,
+  Space,
+  Switch,
+  Upload,
+} from "antd";
+import type { RcFile } from "antd/es/upload";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomEditor from "component/custom/custom-editor";
@@ -629,6 +643,7 @@ const AddMaterial: React.FC = () => {
                     <Upload
                       fileList={fileList}
                       multiple={true}
+                      listType="picture-card"
                       maxCount={7}
                       beforeUpload={(file: any) => {
                         onBeforeUpload(file, "img");
@@ -643,7 +658,7 @@ const AddMaterial: React.FC = () => {
                         onRemoveFile(data, "img");
                       }}
                     >
-                      <Button icon={<UploadOutlined />}>Chọn file Ảnh</Button>
+                      Chọn ảnh
                     </Upload>
                   </Form.Item>
                   <Form.Item noStyle hidden name="images">
@@ -672,6 +687,7 @@ const AddMaterial: React.FC = () => {
                       onRemove={(data: UploadFile<any>) => {
                         onRemoveFile(data, "video");
                       }}
+                      listType="picture"
                     >
                       <Button icon={<UploadOutlined />}>Chọn file Video</Button>
                     </Upload>

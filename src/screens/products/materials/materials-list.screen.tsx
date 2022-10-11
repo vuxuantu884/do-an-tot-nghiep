@@ -6,13 +6,10 @@ import { MaterialQuery, MaterialResponse } from "model/product/material.model";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getMaterialAction,
-  updateMaterialOtherAction,
-} from "domain/actions/product/material.action";
+import { getMaterialAction } from "domain/actions/product/material.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
-import { showSuccess, showWarning } from "utils/ToastUtils";
+import { showWarning } from "utils/ToastUtils";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
@@ -22,8 +19,6 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import { ProductPermission } from "config/permissions/product.permission";
 import useAuthorization from "hook/useAuthorization";
 import "assets/css/custom-filter.scss";
-import EditNote from "../../order-online/component/edit-note";
-import { primaryColor } from "utils/global-styles/variables";
 import { SupplierResponse } from "../../../model/core/supplier.model";
 import TextShowMore from "component/container/show-more/text-show-more";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -57,14 +52,6 @@ const ListMaterial: React.FC = () => {
     (state: RootReducerType) => state.bootstrapReducer.data?.material_status,
   );
 
-  const onUpdateNote = (note: string, items: MaterialResponse) => {
-    const newValue: any = {
-      description: note,
-      status: items.status,
-    };
-    dispatch(updateMaterialOtherAction(items.id, newValue, onUpdateStatus));
-  };
-
   const columns = [
     {
       title: "ID chất liệu",
@@ -74,8 +61,12 @@ const ListMaterial: React.FC = () => {
       render: (value: string, item: MaterialResponse) => {
         return (
           <div>
-            <Link to={`${UrlConfig.MATERIALS}/${item.id}`}>{value}</Link>
-            <div>{ConvertUtcToLocalDate(item.created_date, DATE_FORMAT.DDMMYY_HHmm)}</div>
+            <Link
+              to={`${UrlConfig.MATERIALS}/${item.id}`}
+              style={{ fontWeight: "bold", fontSize: 16 }}
+            >
+              {value}
+            </Link>
           </div>
         );
       },
@@ -205,18 +196,18 @@ const ListMaterial: React.FC = () => {
       width: 140,
       dataIndex: "description",
       render: (value: string, item: MaterialResponse) => {
+        return <span>{value}</span>;
+      },
+    },
+    {
+      title: "",
+      width: 50,
+      dataIndex: "action",
+      render: (value: any, item: MaterialResponse) => {
         return (
-          <>
-            <EditNote
-              isHaveEditPermission={true}
-              note={value}
-              title=""
-              color={primaryColor}
-              onOk={(newNote) => {
-                onUpdateNote(newNote, item);
-              }}
-            />
-          </>
+          <Link target="_blank" to={`${UrlConfig.MATERIALS}/${item.id}/update`}>
+            <EditOutlined />
+          </Link>
         );
       },
     },
@@ -310,16 +301,6 @@ const ListMaterial: React.FC = () => {
     setLoading(true);
     dispatch(getMaterialAction(params, onGetSuccess));
   }, [dispatch, onGetSuccess, params]);
-
-  const onUpdateStatus = useCallback(
-    (material: MaterialResponse | false) => {
-      if (!!material) {
-        showSuccess("Cập nhật trạng thái thành công.");
-        setPrams({ ...params });
-      }
-    },
-    [params],
-  );
 
   return (
     <ContentContainer
