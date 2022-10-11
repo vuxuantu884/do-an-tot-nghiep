@@ -667,10 +667,11 @@
     }
     &.primary-bg {
       .ant-tag-close-icon {
-        color: white;
+        color: rgba(0, 0, 0, 0.45);
       }
-      background-color: $primary-color;
-      color: $white;
+      background-color: $gray-f5;
+      color: rgba(0, 0, 0, 0.85);
+      border-radius: 2px;
     }
     &.primary-txt {
       background-color: rgba(42, 42, 134, 0.1);
@@ -680,7 +681,7 @@
   //Drawer
   &-drawer {
     &-header {
-      padding: 20px 32px;
+      padding: 10px 32px;
       color: $label-color;
       border-bottom: 0;
     }
@@ -1257,4 +1258,16 @@
 .image-product .ant-image-mask-info {
   font-size: 10px;
   text-align: center;
+}
+
+.ant-drawer-close {
+  padding: 13px 32px 10px 32px;
+}
+
+.ant-input-number-handler-wrap {
+  display: none;
+}
+
+.ant-modal-centered {
+  display: flex;
 }

@@ -26,6 +26,9 @@
   }
   .ant-image-img {
     width: 40px;
+    height: 40px;
+    object-fit: cover;
+    object-position: center;
   }
   .image-product .ant-image-mask-info {
     font-size: 10px;

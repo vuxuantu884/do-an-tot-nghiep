@@ -35,7 +35,6 @@ const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
       placement="right"
       title="Thêm bộ lọc"
       width={width}
-      closable={false}
       onClose={onCancel}
       className={className}
       {...props}
