@@ -137,6 +137,7 @@ const InventoryDefectCreate: React.FC = () => {
             isFloat={false}
             id={`item-defect-${index}`}
             min={0}
+            maxLength={9}
             value={value}
             placeholder="0"
             className="border-input"
