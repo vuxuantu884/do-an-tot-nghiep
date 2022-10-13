@@ -111,6 +111,8 @@ export const ORDER_PAYMENT_STATUS = {
   unpaid: "unpaid", // chưa trả
   partial_paid: "partial_paid", // thanh toán một phần
   cancelled: "cancelled", // hủy
+  expired: "expired", // hết hạn
+  failure: "failure", // thất bại
 };
 
 export const ORDER_EXPORT_TYPE = {

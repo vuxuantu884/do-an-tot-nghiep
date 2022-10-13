@@ -378,7 +378,7 @@ export const checkIfExpiredPayment = (payment: OrderPaymentResponse | OrderPayme
   if (!payment.expired_at) {
     return false;
   }
-  return moment(payment.expired_at).isBefore(moment());
+  return moment(payment.expired_at).isBefore(moment()) || payment.status ===ORDER_PAYMENT_STATUS.failure;
 };
 
 export const checkIfNotFinishedAndExpiredPaymentMomo = (payment: OrderPaymentResponse) => {
