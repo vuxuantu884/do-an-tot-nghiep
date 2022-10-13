@@ -24,7 +24,6 @@ const ModalImport: React.FC<ModalImportProps> = (props: ModalImportProps) => {
   return (
     <Modal
       title="Nhập file"
-      centered
       onCancel={onCancel}
       visible={visible}
       footer={[
