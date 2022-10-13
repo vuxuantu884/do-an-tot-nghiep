@@ -79,6 +79,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
+  const [loading, setLoading] = React.useState<boolean>(false);
 
   const onOkPress = useCallback(() => {
     form.submit();
@@ -155,6 +156,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
 
   const handleSubmit = useCallback(
     (value: CustomerShippingAddress) => {
+      setLoading(true);
       if (!isCreateForm) {
         if (customer && formItem) {
           value.is_default = value.default;
@@ -183,6 +185,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
               } else {
                 showError("Cập nhật địa chỉ thất bại");
               }
+              setLoading(false);
             }),
           );
         }
@@ -202,6 +205,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
               } else {
                 showError("Thêm địa chỉ thất bại");
               }
+              setLoading(false);
             }),
           );
         }
@@ -234,6 +238,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
       onOk={onOkPress}
       onCancel={handleCancel}
       width={"700px"}
+      okButtonProps={{ disabled: loading }}
     >
       <Form form={form} initialValues={initialFormValue} layout="vertical" onFinish={handleSubmit}>
         <Row gutter={20}>
