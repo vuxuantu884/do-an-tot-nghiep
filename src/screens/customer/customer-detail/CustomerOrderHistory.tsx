@@ -842,15 +842,16 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
               return null;
             }
             if (isOrderReturn) {
-              let textResult = getReturnMoneyStatusText(record?.payment_status || "");
-              let textColor = getReturnMoneyStatusColor(record?.payment_status || "");
-              return (
-                <React.Fragment>
-                  <div className="text-return-status 111">
-                    <span style={{ color: textColor }}>{textResult}</span>
-                  </div>
-                </React.Fragment>
-              );
+              return null;
+              // let textResult = getReturnMoneyStatusText(record?.payment_status || "");
+              // let textColor = getReturnMoneyStatusColor(record?.payment_status || "");
+              // return (
+              //   <React.Fragment>
+              //     <div className="text-return-status 111">
+              //       <span style={{ color: textColor }}>{textResult}</span>
+              //     </div>
+              //   </React.Fragment>
+              // );
             }
             let className =
               record.sub_status_code === ORDER_SUB_STATUS.fourHour_delivery
