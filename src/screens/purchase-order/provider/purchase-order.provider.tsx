@@ -232,7 +232,7 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
           variant: lineItem.variant,
           variant_id: lineItem.variant_id,
           variant_image: lineItem.variant_image,
-          id: uuidv4() + index.toString(),
+          id: procurement.uuid ? procurement.uuid : uuidv4() + index.toString(),
           percent: procurement.percent,
         };
       });
@@ -274,7 +274,15 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
         ];
       },
     );
-    formMain.setFieldsValue({ procurements: procurementsResult });
+    const procurementsForm: PurchaseProcument[] = [];
+    procurementsAllResult.forEach((procurementsResult) => {
+      procurementsResult.forEach((item) => {
+        procurementsForm.push(item);
+      });
+    });
+    formMain.setFieldsValue({
+      procurements: procurementsForm,
+    });
     setProcurementsAll([...procurementsAllResult]);
     handleSetProcurementTableContext(procurementsResult, lineItems, procurementsAllResult);
   };
