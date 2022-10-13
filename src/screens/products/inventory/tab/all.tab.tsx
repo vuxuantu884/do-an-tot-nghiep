@@ -156,15 +156,15 @@ const AllTab: React.FC<any> = (props) => {
         ${store_ids ? `&stores=${store_ids}` : ""}&content=${newSku}`;
           break;
         case EInventoryStatus.ON_HOLD:
-          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
-        ${store_ids ? `&from_store_id=${store_ids}` : ""}&condition=${newSku}&status=confirmed`;
+          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}/export-import-list?page=1&limit=30&simple=true
+        ${store_ids ? `&from_store_id=${store_ids}` : ""}&condition=${newSku}&status=confirmed,pending&pending=excess`;
           break;
         case EInventoryStatus.ON_WAY:
-          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
-        ${store_ids ? `&from_store_id=${store_ids}` : ""}&condition=${newSku}&status=transferring`;
+          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}/export-import-list?page=1&limit=30&simple=true
+        ${store_ids ? `&from_store_id=${store_ids}` : ""}&condition=${newSku}&status=transferring,pending&pending=missing`;
           break;
         case EInventoryStatus.TRANSFERRING:
-          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
+          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}/export-import-list?page=1&limit=30&simple=true
         ${store_ids ? `&to_store_id=${store_ids}` : ""}&condition=${newSku}&status=transferring`;
           break;
         case EInventoryStatus.DEFECT:
