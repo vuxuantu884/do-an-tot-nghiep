@@ -38,6 +38,7 @@ export interface ReturnModel {
   payments?: OrderPaymentResponse[] | null;
   channel?: string | null;
   channel_id?: number | null;
+  sub_reason?: ReasonReturn | null;
 }
 
 export interface ReturnSearchQuery {

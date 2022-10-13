@@ -361,6 +361,7 @@ export const COLUMN_CONFIG_TYPE = {
   COLUMN_PRODUCT: "column_product",
   COLUMN_PRODUCT_HISTORY: "column_product_history",
   COLUMN_PRODUCT_PRICE: "column_product_price",
+  COLUMN_INVENTORY_ADJUSTMENT: "column_inventory_adjustment",
 };
 
 export const ACCOUNT_ROLE_ID = {

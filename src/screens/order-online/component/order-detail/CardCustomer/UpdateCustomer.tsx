@@ -53,10 +53,11 @@ import { GENDER_OPTIONS, VietNamId } from "utils/Constants";
 import { textBodyColor } from "utils/global-styles/variables";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
+import DeleteOrderBillRequestConfirmModal from "../../OrderBillRequest/DeleteOrderBillRequestConfirmModal";
+import OrderBillRequestButton from "../../OrderBillRequest/OrderBillRequestButton";
+import OrderBillRequestModal from "../../OrderBillRequest/OrderBillRequestModal";
 import CustomerShippingAddressOrder from "./customer-shipping";
-import DeleteOrderBillRequestConfirmModal from "./OrderBillRequest/DeleteOrderBillRequestConfirmModal";
-import OrderBillRequestButton from "./OrderBillRequest/OrderBillRequestButton";
-import OrderBillRequestModal from "./OrderBillRequest/OrderBillRequestModal";
+
 import { StyledComponent } from "./updateCustomer.styles";
 
 type UpdateCustomerProps = {

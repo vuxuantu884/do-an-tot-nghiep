@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { Button } from "antd";
-import { GoPlus } from "react-icons/go";
 import { ReactNode } from "react";
+import { PlusOutlined } from "@ant-design/icons";
+import "./button-create.scss"
 type ButtonCreateProps = {
   path: string;
   disabled?: boolean;
@@ -19,7 +20,7 @@ const ButtonCreate: React.FC<ButtonCreateProps> = (props: ButtonCreateProps) => 
         type="primary"
         className="ant-btn-primary"
         size={props.size || "large"}
-        icon={<GoPlus style={{ marginRight: "0.2em" }} />}
+        icon={<PlusOutlined className="ant-btn-primary-icon"/>}
         disabled={props.disabled}
         hidden={hidden}
       >

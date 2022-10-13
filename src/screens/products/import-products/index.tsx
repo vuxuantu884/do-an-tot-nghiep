@@ -1,5 +1,4 @@
-import { UploadOutlined } from "@ant-design/icons";
-import exportIcon from "assets/icon/export.svg";
+import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Card, Upload } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { UploadFile } from "antd/lib/upload/interface";
@@ -7,6 +6,7 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import { callApiNative } from "utils/ApiUtils";
 import { useDispatch } from "react-redux";
 import { getFileProductByCode, productImportFile } from "service/product/product.service";
+import "./index.scss"
 
 const ImportFileProducts: React.FC = () => {
   const [fileList, setFileList] = useState<Array<UploadFile>>([]);
@@ -92,7 +92,7 @@ const ImportFileProducts: React.FC = () => {
           return false;
         }}
       >
-        <Button size="middle" icon={<UploadOutlined />}>
+        <Button size="middle" icon={<UploadOutlined className="btn-view-icon"/>}>
           Nhập file mã vạch
         </Button>
       </Upload>
@@ -101,7 +101,7 @@ const ImportFileProducts: React.FC = () => {
           type="default"
           className="light"
           size="middle"
-          icon={<img style={{ paddingRight: 15 }} src={exportIcon} alt="" />}
+          icon={<DownloadOutlined className="btn-view-icon"/>}
           loading={loading}
           onClick={() => {
             onUploadFile();

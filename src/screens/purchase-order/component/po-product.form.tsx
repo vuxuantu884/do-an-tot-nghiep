@@ -295,6 +295,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         // [POField.line_items]: lineItems,
       });
       setProcurementTableData([...procurementTableData]);
+      handleChangeProcument(formMain);
     }
   };
 

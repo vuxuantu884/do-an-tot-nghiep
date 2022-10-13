@@ -159,7 +159,7 @@ export const inventory: Array<RouteMenu> = [
       {
         path: `${UrlConfig.INVENTORY_TRANSFERS}/create`,
         exact: true,
-        title: "Chuyển hàng",
+        title: "Tạo phiếu chuyển hàng",
         icon: "icon-dot",
         component: CreateTicket,
         key: "submenu31_6",
@@ -171,7 +171,7 @@ export const inventory: Array<RouteMenu> = [
       {
         path: `${UrlConfig.INVENTORY_TRANSFERS}/request`,
         exact: true,
-        title: "Chuyển hàng",
+        title: "Yêu cầu phiếu chuyển hàng",
         icon: "icon-dot",
         component: RequestTicket,
         key: "submenu31_7",
@@ -280,7 +280,7 @@ export const inventory: Array<RouteMenu> = [
       {
         path: `${UrlConfig.INVENTORY_ADJUSTMENTS}/create`,
         exact: true,
-        title: "Kiểm kho",
+        title: "Thêm mới phiếu kiểm kho",
         icon: "icon-dot",
         component: CreateInventoryAdjustment,
         key: "submenu33",
@@ -292,7 +292,7 @@ export const inventory: Array<RouteMenu> = [
       {
         path: `${UrlConfig.INVENTORY_ADJUSTMENTS}/:id`,
         exact: true,
-        title: "Kiểm kho",
+        title: "Chi tiết phiếu kiểm kho",
         icon: "icon-dot",
         component: DetailInvetoryAdjustment,
         key: "submenu33",

@@ -1,6 +1,7 @@
 import { FormInstance } from "antd";
-import { AppConfig } from "config/app.config";
 import { isEmpty, uniqBy } from "lodash";
+import { v4 as uuidv4 } from "uuid";
+import { AppConfig } from "config/app.config";
 import { ProductResponse, VariantResponse } from "model/product/product.model";
 import { CostLine } from "model/purchase-order/cost-line.model";
 import { POField } from "model/purchase-order/po-field";
@@ -393,6 +394,7 @@ const POUtils = {
               retail_price: lineItem.retail_price,
               price: lineItem.price,
               product_name: lineItem.product,
+              id: uuidv4(),
             });
           } else if (procuments.length === 1) {
             newProcumentLineItem[index].quantity = lineItem.quantity;

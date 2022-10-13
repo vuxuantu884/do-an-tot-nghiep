@@ -61,16 +61,17 @@ export const BaseFilterWrapper = styled.div`
   .ant-select {
     .ant-select-selector {
       .ant-select-selection-item {
-        background-color: #2a2a86;
-        border-radius: 6px;
+        background-color: $gray-f5;
         font-style: normal;
         font-weight: normal;
         font-size: 14px;
         line-height: 18px;
+        border: 1px solid #F0F0F0;
+        border-radius: 2px;
         font-family: Roboto;
         .ant-select-selection-item-content,
         .ant-select-selection-item-remove {
-          color: #ffffff;
+          color: rgba(0, 0, 0, 0.85);
         }
       }
     }

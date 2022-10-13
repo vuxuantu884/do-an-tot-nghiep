@@ -4,7 +4,7 @@ export const POInventoryDraftTable = styled.div`
   position: relative;
   .product-item-image {
     img {
-      max-width: 30px;
+      max-width: 40px;
       max-height: 40px;
       border-radius: 3px;
     }

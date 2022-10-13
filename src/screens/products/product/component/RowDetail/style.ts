@@ -8,10 +8,10 @@ export const StyledComponent = styled.div`
     flex-direction: row;
     width: 100%;
     &-left {
-      width: 40% !important;
+      width: 30% !important;
     }
     &-right {
-      width: 60%;
+      width: 70%;
     }
     .dot {
       margin-right: 10px;

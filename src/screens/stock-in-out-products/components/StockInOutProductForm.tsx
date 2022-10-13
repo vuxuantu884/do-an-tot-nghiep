@@ -45,6 +45,7 @@ import {
 import StockInOutProductUtils from "../util/StockInOutProductUtils";
 import { StockInOutItemsOther } from "model/stock-in-out-other";
 import { showError } from "utils/ToastUtils";
+import { ProductPermission } from "config/permissions/product.permission";
 
 interface IEProductFormProps {
   formMain: FormInstance;
@@ -52,9 +53,10 @@ interface IEProductFormProps {
   title: string;
   typePrice: string;
   setTypePrice: (value: string) => void;
+  readPricePermissions: string[];
 }
 const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) => {
-  const { formMain, inventoryType, title, typePrice, setTypePrice } = props;
+  const { formMain, inventoryType, title, typePrice, setTypePrice, readPricePermissions } = props;
   const [loadingSearch, setLoadingSearch] = useState(false);
   const productSearchRef = createRef<CustomAutoComplete>();
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
@@ -389,6 +391,28 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
     // }
   };
 
+  const renderFormat = (value: string) => {
+    let text = "";
+    if (value) {
+      text = formatCurrency(value);
+    } else if (
+      !value &&
+      !isEmpty(readPricePermissions) &&
+      readPricePermissions.includes(ProductPermission.read_cost) &&
+      typePrice === StockInOutPolicyPriceField.cost_price
+    ) {
+      text = "Chưa có giá vốn";
+    } else if (
+      !value &&
+      !isEmpty(readPricePermissions) &&
+      readPricePermissions.includes(ProductPermission.read_import) &&
+      typePrice === StockInOutPolicyPriceField.import_price
+    ) {
+      text = "Chưa có giá nhập";
+    }
+    return text;
+  };
+
   return (
     <Card
       title={title}
@@ -588,8 +612,8 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                         padding: "7px 14px",
                       }}
                     >
-                      <div>Số Lượng</div>
-                      <div
+                      <span>Số Lượng</span>
+                      <span
                         style={{
                           color: "#2A2A86",
                           fontWeight: "normal",
@@ -602,7 +626,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                           ".",
                         )}
                         )
-                      </div>
+                      </span>
                     </div>
                   ),
                   width: "15%",
@@ -654,16 +678,18 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                       </div>
                     </div>
                   ),
-                  width: "15%",
+                  width: "20%",
                   dataIndex: typePrice,
                   render: (value) => {
                     return (
                       <NumberInput
                         className="hide-number-handle"
                         format={(a: string) => {
-                          return a ? formatCurrency(a) : "";
+                          return renderFormat(a);
                         }}
-                        replace={(a: string) => replaceFormatString(a)}
+                        replace={(a: string) => {
+                          return replaceFormatString(a);
+                        }}
                         value={value}
                         disabled={true}
                       />

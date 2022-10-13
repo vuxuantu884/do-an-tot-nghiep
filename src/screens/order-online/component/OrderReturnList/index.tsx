@@ -738,13 +738,13 @@ function OrderReturnList(props: PropTypes) {
     },
     {
       title: "Lý do trả",
-      dataIndex: "reason",
-      key: "reason",
+      dataIndex: "sub_reason",
+      key: "sub_reason",
       visible: true,
       align: "center",
       width: 160,
       render: (value: any, record: ReturnModel, index: number) => (
-        <div>{record?.return_reason?.name}</div>
+        <div>{record?.sub_reason?.name}</div>
       ),
     },
   ]);
