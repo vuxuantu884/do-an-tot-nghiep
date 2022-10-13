@@ -234,7 +234,6 @@ const StockOutOtherCreate: React.FC = () => {
           rightComponent={
             <Space>
               <Button
-                type="primary"
                 onClick={() => importFile()}
                 icon={<UploadOutlined style={{ marginTop: 9, fontSize: 15 }} />}
               >
