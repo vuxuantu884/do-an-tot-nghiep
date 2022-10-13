@@ -49,6 +49,7 @@ type propsInventoryAdjustment = {
   keySearch: string;
   tab: string;
   isPermissionAudit: boolean;
+  isPermissionEdit: boolean;
   isReSearch: boolean;
   isRerenderTab: boolean;
   tableLoading: boolean;
@@ -91,7 +92,8 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     tab,
     setIsReRender,
     setDataTab,
-    isReSearch
+    isReSearch,
+    isPermissionEdit
   } = props;
 
   //phân quyền
@@ -387,7 +389,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       align: "center",
       width: 60,
       render: (value, row: LineItemAdjustment) => {
-        if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT && allowUpdate) {
+        if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT && allowUpdate && isPermissionEdit) {
           return (
             <NumberInput
               disabled={!isPermissionAudit}
@@ -536,7 +538,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         return (
           <>
             {data.status !== STATUS_INVENTORY_ADJUSTMENT.AUDITED.status &&
-              data.status !== STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status && (
+              data.status !== STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status && isPermissionEdit && isPermissionAudit && (
                 <ReloadOutlined
                   title="Cập nhật lại tồn trong kho"
                   onClick={() => reloadOnHand(row)}

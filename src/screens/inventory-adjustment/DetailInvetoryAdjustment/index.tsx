@@ -4,13 +4,7 @@ import exportIcon from "assets/icon/export.svg";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { Button, Col, Form, Input, Modal, Row, Space, Tabs, Upload } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
-import {
-  DeleteOutlined,
-  PaperClipOutlined,
-  PrinterOutlined,
-  SearchOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, PaperClipOutlined, PrinterOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { useHistory, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -56,21 +50,12 @@ import { StoreResponse } from "model/core/store.model";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { UploadFile } from "antd/lib/upload/interface";
 import InventoryTransferImportModal from "./conponents/ImportModal";
-import {
-  exportFileV2,
-  getFile,
-  getFileV2,
-  importFile,
-} from "service/other/import.inventory.service";
+import { exportFileV2, getFile, getFileV2, importFile } from "service/other/import.inventory.service";
 import { ImportResponse } from "model/other/files/export-model";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 import { callApiNative } from "utils/ApiUtils";
-import {
-  addLineItem,
-  cancelInventoryTicket,
-  getTotalOnHand,
-} from "service/inventory/adjustment/index.service";
+import { addLineItem, cancelInventoryTicket, getTotalOnHand } from "service/inventory/adjustment/index.service";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import EditNote from "../../order-online/component/edit-note";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
@@ -80,8 +65,9 @@ import { primaryColor } from "utils/global-styles/variables";
 import ScanIcon from "assets/icon/scan.svg";
 import CloseCircleIcon from "assets/icon/close-circle.svg";
 import IconPrint from "assets/icon/printer-blue.svg";
-import BaseAxios from "../../../base/base.axios";
-import { ApiConfig } from "../../../config/api.config";
+import BaseAxios from "base/base.axios";
+import { ApiConfig } from "config/api.config";
+import useAuthorization from "hook/useAuthorization";
 
 const { TabPane } = Tabs;
 
@@ -754,6 +740,13 @@ const DetailInventoryAdjustment: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps,
   }, [idNumber, isReRender]);
 
+  const editPermission = [InventoryAdjustmentPermission.update];
+
+  const [isHaveEditPermission] = useAuthorization({
+    acceptPermissions: editPermission,
+    not: false,
+  });
+
   useEffect(() => {
     dispatch(searchAccountPublicAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
@@ -906,7 +899,7 @@ const DetailInventoryAdjustment: FC = () => {
                     </Col>
                     <Col span={18} className="font-weight-500">
                       {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status &&
-                      isPermissionAudit ? (
+                      isPermissionAudit && isHaveEditPermission ? (
                         <Form.Item
                           style={{ margin: 0 }}
                           name="audited_bys"
@@ -1024,7 +1017,7 @@ const DetailInventoryAdjustment: FC = () => {
                     </Col>
                     <Col span={20} className="font-weight-500">
                       <EditNote
-                        isHaveEditPermission={true}
+                        isHaveEditPermission={isPermissionAudit && isHaveEditPermission}
                         note={data.note}
                         title=""
                         color={primaryColor}
@@ -1058,7 +1051,7 @@ const DetailInventoryAdjustment: FC = () => {
                       >
                         <AuthWrapper acceptPermissions={[InventoryAdjustmentPermission.update]}>
                           <Input.Group style={{ paddingTop: 16 }} className="display-flex">
-                            {renderSearchComponent()}
+                            {isHaveEditPermission && renderSearchComponent()}
                             <Input
                               name="key_search"
                               onChange={(e) => {
@@ -1090,6 +1083,7 @@ const DetailInventoryAdjustment: FC = () => {
                         </AuthWrapper>
                         {activeTab === "1" && (
                           <InventoryAdjustmentListAll
+                            isPermissionEdit={isHaveEditPermission}
                             setIsReRender={() => {
                               setIsReRenderTotalOnHand((isReRenderTotalOnHand) => {
                                 return !isReRenderTotalOnHand;
@@ -1111,7 +1105,7 @@ const DetailInventoryAdjustment: FC = () => {
                       <TabPane tab={`Tất cả (${total})`} key="2">
                         <AuthWrapper acceptPermissions={[InventoryAdjustmentPermission.update]}>
                           <Input.Group style={{ paddingTop: 16 }} className="display-flex">
-                            {renderSearchComponent()}
+                            {isHaveEditPermission && renderSearchComponent()}
                             <Input
                               name="key_search"
                               onChange={(e) => {
@@ -1143,6 +1137,7 @@ const DetailInventoryAdjustment: FC = () => {
                         </AuthWrapper>
                         {activeTab === "2" && (
                           <InventoryAdjustmentListAll
+                            isPermissionEdit={isHaveEditPermission}
                             isReSearch={isReSearch}
                             setIsReRender={() => {
                               setIsReRenderTotalOnHand((isReRenderTotalOnHand) => {
@@ -1188,7 +1183,8 @@ const DetailInventoryAdjustment: FC = () => {
               rightComponent={
                 <Space>
                   {data.status !== STATUS_INVENTORY_ADJUSTMENT.CANCELED.status &&
-                    data.status !== STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status && (
+                    data.status !== STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status &&
+                      isPermissionAudit && isHaveEditPermission && (
                       <AuthWrapper acceptPermissions={[InventoryAdjustmentPermission.cancel]}>
                         <Button
                           loading={isLoadingBtnCancel}
@@ -1231,22 +1227,26 @@ const DetailInventoryAdjustment: FC = () => {
                         </Button>
                       </AuthWrapper>
                     )}
-                  <Button
-                    loading={isLoadingBtn}
-                    disabled={isLoadingBtn}
-                    onClick={() => {
-                      setShowExportModal(true);
-                      onExport();
-                    }}
-                    type="primary"
-                    ghost
-                    icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-                    style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
-                  >
-                    <Space>
-                      Xuất excel
-                    </Space>
-                  </Button>
+                  {isHaveEditPermission && isPermissionAudit && (
+                    <AuthWrapper acceptPermissions={[InventoryAdjustmentPermission.export]}>
+                      <Button
+                        loading={isLoadingBtn}
+                        disabled={isLoadingBtn}
+                        onClick={() => {
+                          setShowExportModal(true);
+                          onExport();
+                        }}
+                        type="primary"
+                        ghost
+                        icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                        style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                      >
+                        <Space>
+                          Xuất excel
+                        </Space>
+                      </Button>
+                    </AuthWrapper>
+                  )}
                   {(data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ||
                     data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status) && (
                     <>
