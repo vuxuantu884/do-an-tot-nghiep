@@ -255,7 +255,7 @@ const product: Array<RouteMenu> = [
           {
             path: `${UrlConfig.COLORS}/:id`,
             exact: true,
-            title: "Sừa màu sắc",
+            title: "Sửa màu sắc",
             icon: "icon-dot",
             component: ColorUpdateScreen,
             key: "submenu2342",
