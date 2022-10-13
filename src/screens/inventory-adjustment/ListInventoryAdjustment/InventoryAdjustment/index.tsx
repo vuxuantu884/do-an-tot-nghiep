@@ -80,7 +80,6 @@ const InventoryAdjustment: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(true);
   const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const [selected, setSelected] = useState<Array<InventoryAdjustmentDetailItem>>([]);
 
   const [showExportModal, setShowExportModal] = useState(false);
   const [statusExport, setStatusExport] = useState<number>(STATUS_IMPORT_EXPORT.DEFAULT);
@@ -148,7 +147,7 @@ const InventoryAdjustment: React.FC = () => {
 
   const ActionComponent = () => {
     let Compoment = () => <span>Mã phiếu</span>;
-    if (selected?.length > 0) {
+    if (selectedRowKeys?.length > 0) {
       Compoment = () => (
         <CustomFilter onMenuClick={onMenuClick} menu={actions}>
           <Fragment />
@@ -524,16 +523,25 @@ const InventoryAdjustment: React.FC = () => {
     history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}?${queryParam}`);
   }, [history]);
 
-  const onSelectedChange = useCallback((selectedRow: Array<InventoryAdjustmentDetailItem>) => {
-    const selectedRowKeys = selectedRow.map((row) => row.id);
-    setSelectedRowKeys(selectedRowKeys);
+  const onSelectedChange = useCallback((selectedRow: Array<InventoryAdjustmentDetailItem>, selected: boolean | undefined, changeRow: any) => {
+    const newSelectedRowKeys = changeRow.map((row: any) => row.id);
 
-    setSelected(
-      selectedRow.filter(function (el) {
-        return el !== undefined;
-      }),
-    );
-  }, []);
+    if (selected) {
+      setSelectedRowKeys([
+        ...selectedRowKeys,
+        ...newSelectedRowKeys
+      ]);
+      return;
+    }
+
+    const newSelectedRowKeysByDeselected = selectedRowKeys.filter((item) => {
+      const findIndex = changeRow.findIndex((row: any) => row.id === item);
+
+      return findIndex === -1
+    });
+
+    setSelectedRowKeys(newSelectedRowKeysByDeselected);
+  }, [selectedRowKeys]);
 
   //get store
   useEffect(() => {
@@ -589,7 +597,8 @@ const InventoryAdjustment: React.FC = () => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
-          onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+          selectedRowKey={selectedRowKeys}
+          onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
           onShowColumnSetting={() => setShowSettingColumn(true)}
           dataSource={data.items}
           columns={columnFinal}
