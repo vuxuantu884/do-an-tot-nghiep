@@ -1,7 +1,6 @@
 import CustomPagination from "component/table/CustomPagination";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import TextEllipsis from "component/table/TextEllipsis";
 import { AppConfig } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
 import UrlConfig, { InventoryTabUrl } from "config/url.config";
@@ -44,9 +43,10 @@ import { callApiNative } from "utils/ApiUtils";
 import { searchVariantsInventoriesApi } from "service/product/product.service";
 import { StoreResponse } from "model/core/store.model";
 import { enumStoreStatus } from "model/warranty/warranty.model";
+import TextEllipsis from "component/table/TextEllipsis";
 
 let varaintName = "";
-let varaintSku = "";
+let variantSKU = "";
 
 export const STATUS_IMPORT_EXPORT = {
   DEFAULT: 1,
@@ -61,6 +61,8 @@ enum EInventoryStatus {
   IN_COMING = "in_coming",
   TRANSFERRING = "transferring",
   ON_WAY = "on_way",
+  DEFECT = "defect",
+  SHIPPING = "shipping",
 }
 
 type ConfigColumnInventory = {
@@ -113,7 +115,7 @@ const AllTab: React.FC<any> = (props) => {
   });
 
   const [expandRow, setExpandRow] = useState<Array<number> | undefined>();
-  const [inventiryVariant, setInventiryVariant] = useState<Map<number, AllInventoryResponse[]>>(
+  const [inventoryVariant, setInventoryVariant] = useState<Map<number, AllInventoryResponse[]>>(
     new Map(),
   );
 
@@ -144,26 +146,41 @@ const AllTab: React.FC<any> = (props) => {
         case EInventoryStatus.COMMITTED:
           linkDocument = `${
             UrlConfig.ORDER
-          }?page=1&limit=30&is_online=true&order_status=finalized&sub_status_code=out_of_stock%2Cawaiting_coordinator_confirmation%2Cfirst_call_attempt%2Csecond_call_attempt%2Cthird_call_attempt%2Ccoordinator_confirming%2Cawaiting_saler_confirmation%2Ccoordinator_confirmed%2Crequire_warehouse_change%2Cmerchandise_picking%2Cmerchandise_packed%2Cawaiting_shipper&channel_codes=FB%2CWEBSITE%2CMOBILE_APP%2CLANDING_PAGE%2CADMIN%2CWEB%2CZALO%2CINSTAGRAM%2CTIKTOK%20%20%20%20%20%20%20%20%2CShopee%2CAPP%2CLANDINGPAGE%2Cpos%2Cweb%2Clazada%2Csendo%2Ctiki%2Czalo%2Cinstagram%2Ctiktok%2Capi%2Cadayroi%2Cvatgia%2C1Landingvn%20%20%20%20%20%20%20%20%2CSHOPEE%2CPOS%2CTIKI%2CSENDO%2CLAZADA%2CTIKTOK&searched_product=${variantName}${
+          }?page=1&limit=30&is_online=true&sub_status_code=awaiting_shipper%2Cmerchandise_packed%2Cmerchandise_picking%2Ccoordinator_confirmed%2Ccoordinator_confirming%2Cawaiting_saler_confirmation%2Cawaiting_coordinator_confirmation%2Cfirst_call_attempt%2Csecond_call_attempt%2Cthird_call_attempt%2Crequire_warehouse_change&channel_codes=FB%2CWEBSITE%2CMOBILE_APP%2CLANDING_PAGE%2CADMIN%2CWEB%2CZALO%2CINSTAGRAM%2CTIKTOK${
+            store_ids ? `&store_ids=${store_ids}` : ""
+          }&searched_product=${variantName}`;
+          break;
+        case EInventoryStatus.IN_COMING:
+          linkDocument = `${UrlConfig.PROCUREMENT}/products?page=1&limit=30${
+            store_ids ? `&stores=${store_ids}` : ""
+          }&content=${sku}`;
+          break;
+        case EInventoryStatus.ON_HOLD:
+          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true${
+            store_ids ? `&from_store_id=${store_ids}` : ""
+          }&condition=${sku}&status=confirmed`;
+          break;
+        case EInventoryStatus.ON_WAY:
+          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true${
+            store_ids ? `&from_store_id=${store_ids}` : ""
+          }&condition=${sku}&status=transferring`;
+          break;
+        case EInventoryStatus.TRANSFERRING:
+          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true${
+            store_ids ? `&to_store_id=${store_ids}` : ""
+          }&condition=${sku}&status=transferring`;
+          break;
+        case EInventoryStatus.DEFECT:
+          linkDocument = `${UrlConfig.INVENTORY_DEFECTS}?condition=${sku}${
             store_ids ? `&store_ids=${store_ids}` : ""
           }`;
           break;
-        case EInventoryStatus.IN_COMING:
-          linkDocument = `${UrlConfig.PROCUREMENT}/products?page=1&limit=30
-        ${store_ids ? `&stores=${store_ids}` : ""}&content=${sku}`;
+        case EInventoryStatus.SHIPPING:
+          linkDocument = `${UrlConfig.ORDER}?page=1&limit=30&is_online=true${
+            store_ids ? `&store_ids=${store_ids}` : ""
+          }&sub_status_code=shipping&fulfillment_status=shipping&channel_codes=FB%2CWEBSITE%2CAPP%2CLANDING_PAGE%2CADMIN%2CWEB%2CZALO%2CINSTAGRAM&searched_product=${sku}`;
           break;
-        case EInventoryStatus.ON_HOLD:
-          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
-        ${store_ids ? `&from_store_id=${store_ids}` : ""}&condition=${sku}&status=confirmed`;
-          break;
-        case EInventoryStatus.ON_WAY:
-          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
-        ${store_ids ? `&from_store_id=${store_ids}` : ""}&condition=${sku}&status=transferring`;
-          break;
-        case EInventoryStatus.TRANSFERRING:
-          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
-        ${store_ids ? `&to_store_id=${store_ids}` : ""}&condition=${sku}&status=transferring`;
-          break;
+
         default:
           break;
       }
@@ -405,7 +422,7 @@ const AllTab: React.FC<any> = (props) => {
         visible: true,
         dataIndex: `on_hold`,
         align: "center",
-        width: 80,
+        width: 100,
         render: (value: number, record: InventoryResponse) => {
           return (
             <div>
@@ -441,8 +458,22 @@ const AllTab: React.FC<any> = (props) => {
         dataIndex: `defect`,
         align: "center",
         width: 80,
-        render: (value) => {
-          return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
+        render: (value, record) => {
+          return (
+            <div>
+              {value ? (
+                <Link
+                  to={goDocument(EInventoryStatus.DEFECT, record.sku, record.name)}
+                  target="_blank"
+                >
+                  {value}
+                </Link>
+              ) : (
+                ""
+              )}
+            </div>
+          );
+          // return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
         },
       },
       {
@@ -567,8 +598,17 @@ const AllTab: React.FC<any> = (props) => {
         dataIndex: `shipping`,
         align: "center",
         width: 80,
-        render: (value) => {
-          return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
+        render: (value, record) => {
+          return value ? (
+            <Link
+              target="_blank"
+              to={goDocument(EInventoryStatus.SHIPPING, record.sku, record.name)}
+            >
+              {value}
+            </Link>
+          ) : (
+            ""
+          );
         },
       },
     ];
@@ -642,7 +682,7 @@ const AllTab: React.FC<any> = (props) => {
                   target="_blank"
                   to={goDocument(
                     EInventoryStatus.COMMITTED,
-                    varaintSku,
+                    variantSKU,
                     varaintName,
                     record.store_id,
                   )}
@@ -660,7 +700,7 @@ const AllTab: React.FC<any> = (props) => {
         title: "Tạm giữ",
         dataIndex: `on_hold`,
         align: "center",
-        width: 80,
+        width: 100,
         render: (value: number, record: InventoryResponse) => {
           return (
             <div>
@@ -670,7 +710,7 @@ const AllTab: React.FC<any> = (props) => {
                   target="_blank"
                   to={goDocument(
                     EInventoryStatus.ON_HOLD,
-                    varaintSku,
+                    variantSKU,
                     varaintName,
                     record.store_id,
                   )}
@@ -689,8 +729,18 @@ const AllTab: React.FC<any> = (props) => {
         dataIndex: `defect`,
         align: "center",
         width: 80,
-        render: (value) => {
-          return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
+        render: (value, record) => {
+          return value ? (
+            <Link
+              to={goDocument(EInventoryStatus.DEFECT, variantSKU, record.name, record.store_id)}
+              target="_blank"
+            >
+              {value}
+            </Link>
+          ) : (
+            ""
+          );
+          // return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
         },
       },
       {
@@ -707,7 +757,7 @@ const AllTab: React.FC<any> = (props) => {
                   target="_blank"
                   to={goDocument(
                     EInventoryStatus.IN_COMING,
-                    varaintSku,
+                    variantSKU,
                     varaintName,
                     record.store_id,
                   )}
@@ -735,7 +785,7 @@ const AllTab: React.FC<any> = (props) => {
                   target="_blank"
                   to={goDocument(
                     EInventoryStatus.TRANSFERRING,
-                    varaintSku,
+                    variantSKU,
                     varaintName,
                     record.store_id,
                   )}
@@ -761,7 +811,7 @@ const AllTab: React.FC<any> = (props) => {
               {value ? (
                 <Link
                   target="_blank"
-                  to={goDocument(EInventoryStatus.ON_WAY, varaintSku, varaintName, record.store_id)}
+                  to={goDocument(EInventoryStatus.ON_WAY, variantSKU, varaintName, record.store_id)}
                 >
                   {formatCurrencyForProduct(value)}
                 </Link>
@@ -777,8 +827,17 @@ const AllTab: React.FC<any> = (props) => {
         dataIndex: `shipping`,
         align: "center",
         width: 80,
-        render: (value) => {
-          return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
+        render: (value, record) => {
+          return value ? (
+            <Link
+              target="_blank"
+              to={goDocument(EInventoryStatus.SHIPPING, variantSKU, record.name, record.store_id)}
+            >
+              {value}
+            </Link>
+          ) : (
+            ""
+          );
         },
       },
     ];
@@ -808,7 +867,7 @@ const AllTab: React.FC<any> = (props) => {
     };
 
     items.forEach((e) => {
-      if (e === undefined) return;
+      if (!e) return;
 
       objSum.Sum_On_hand += e.on_hand ?? 0;
       objSum.Sum_Available += e.available ?? 0;
@@ -844,7 +903,7 @@ const AllTab: React.FC<any> = (props) => {
   const onResult = useCallback((result: PageResponse<VariantResponse> | false) => {
     setLoading(false);
     if (result) {
-      setInventiryVariant(new Map());
+      setInventoryVariant(new Map());
       setData(result);
       setExpandRow([]);
       if (result.items && result.items.length > 0) {
@@ -858,27 +917,24 @@ const AllTab: React.FC<any> = (props) => {
   }, []);
   const columnsFinal = useMemo(() => columns.filter((item) => item.visible), [columns]);
 
-  const onSaveInventory = (result: Array<AllInventoryResponse>, variant_ids: Array<number>) => {
-    if (Array.isArray(result) && variant_ids[0]) {
-      const tempMap = new Map(inventiryVariant);
-      tempMap.set(variant_ids[0], result);
-      setInventiryVariant(tempMap);
-    }
-  };
-
   const fetchInventoryByVariant = useCallback(
     (variant_ids: Array<number>, store_ids: Array<number>) => {
-      const request: InventoryVariantListQuery = JSON.parse(
-        JSON.stringify({ variant_ids, store_ids, is_detail: true }),
-      );
+      const request: InventoryVariantListQuery = { variant_ids, store_ids, is_detail: true };
       if (params && params.remain) {
         request.remain = params.remain;
       }
 
-      dispatch(inventoryByVariantAction(request, (result) => onSaveInventory(result, variant_ids)));
+      dispatch(
+        inventoryByVariantAction(request, (result) => {
+          if (variant_ids[0]) {
+            const tempMap = new Map(inventoryVariant);
+            tempMap.set(variant_ids[0], result);
+            setInventoryVariant(tempMap);
+          }
+        }),
+      );
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, params],
+    [dispatch, inventoryVariant, params],
   );
 
   const debouncedSearch = React.useMemo(
@@ -1251,7 +1307,7 @@ const AllTab: React.FC<any> = (props) => {
             }
 
             varaintName = record.name;
-            varaintSku = record.sku;
+            variantSKU = record.sku;
             setExpandRow([record.id]);
             let store_ids: any[] = params.store_ids ? params.store_ids.toString().split(",") : [];
 
@@ -1265,7 +1321,7 @@ const AllTab: React.FC<any> = (props) => {
                 bordered
                 scroll={{ x: "max-content" }}
                 showHeader={false}
-                dataSource={inventiryVariant.get(record.id) || []}
+                dataSource={inventoryVariant.get(record.id) || []}
                 pagination={false}
                 columns={columnsDrill}
               />

@@ -1,4 +1,4 @@
-import { Button, Card, Form, Input, Image, Select } from "antd";
+import { Button, Card, Form, Input, Image, Select, Menu, Dropdown } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import search from "assets/img/search.svg";
@@ -23,11 +23,12 @@ import UrlConfig from "config/url.config";
 import ButtonCreate from "component/header/ButtonCreate";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import { DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, EllipsisOutlined } from "@ant-design/icons";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ProductPermission } from "config/permissions/product.permission";
 import useAuthorization from "hook/useAuthorization";
 import "assets/css/custom-filter.scss";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const actionDefault: Array<MenuAction> = [
   {
@@ -64,6 +65,67 @@ const ColorListScreen: React.FC = () => {
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   let [params, setPrams] = useState<ColorSearchQuery>(getQueryParams(query));
+
+  const [allowDeleteColors] = useAuthorization({
+    acceptPermissions: [ProductPermission.colors_delete],
+    not: false,
+  });
+
+  const RenderActionColumn = (value: any, row: ColorResponse, idx: number) => {
+    // check if current user has right to update/delete colors:
+    const [allowUpdateColors] = useAuthorization({
+      acceptPermissions: [ProductPermission.colors_update],
+      not: false,
+    });
+
+    const [allowDeleteColors] = useAuthorization({
+      acceptPermissions: [ProductPermission.colors_delete],
+      not: false,
+    });
+
+    const menu = (
+      <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
+        {allowUpdateColors && (
+          <Menu.Item key="1">
+            <Button
+              icon={<EditOutlined />}
+              onClick={() => {
+                history.push(`${UrlConfig.COLORS}/${row.id}`);
+              }}
+            >
+              Chỉnh sửa
+            </Button>
+          </Menu.Item>
+        )}
+
+        {allowDeleteColors && (
+          <Menu.Item key="2">
+            <Button
+              style={{ color: "red" }}
+              icon={<DeleteOutlined />}
+              onClick={() => {
+                setSelected([...selected, row]);
+                setConfirmDelete(true);
+              }}
+            >
+              Xóa
+            </Button>
+          </Menu.Item>
+        )}
+      </Menu>
+    );
+
+    return (
+      <>
+        {(allowUpdateColors || allowDeleteColors) && (
+          <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
+            <Button type="text" size="small" icon={<EllipsisOutlined />}></Button>
+          </Dropdown>
+        )}
+      </>
+    );
+  };
+
   const [columns, setColumn] = useState<Array<ICustomTableColumType<ColorResponse>>>([
     {
       title: "Mã màu",
@@ -131,7 +193,7 @@ const ColorListScreen: React.FC = () => {
             width={40}
             src={value}
             style={{ fontSize: 10, textAlign: "center" }}
-            placeholder={<img alt="" src={imgDefault} />}
+            placeholder={<img alt="preview" src={imgDefault} />}
           />
         ) : (
           ""
@@ -162,34 +224,37 @@ const ColorListScreen: React.FC = () => {
       visible: false,
       width: 120,
     },
+    {
+      title: "",
+      dataIndex: "description",
+      visible: true,
+      width: "5%",
+      render: (value, record, idx) => RenderActionColumn(value, record, idx),
+    },
   ]);
-
-  const [canDeleteColor] = useAuthorization({
-    acceptPermissions: [ProductPermission.colors_delete],
-  });
 
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   const actions = useMemo(() => {
     return actionDefault.filter((item) => {
       if (item.id === 0) {
-        return canDeleteColor;
-      } else {
-        return true;
+        return allowDeleteColors && !!selected.length;
       }
+      return true;
     });
-  }, [canDeleteColor]);
+  }, [allowDeleteColors, selected]);
 
   const searchColorCallback = useCallback((listResult: PageResponse<ColorResponse>) => {
     setTableLoading(false);
     setData(listResult);
   }, []);
+
   const onDeleteSuccess = useCallback(() => {
-    selected.splice(0, selected.length);
+    setSelected([]);
     showSuccess("Xóa màu sắc thành công");
     setTableLoading(true);
     dispatch(getColorAction({ ...params, is_main_color: 0 }, searchColorCallback));
-  }, [dispatch, params, searchColorCallback, selected]);
+  }, [dispatch, params, searchColorCallback]);
 
   const onDelete = useCallback(() => {
     if (selected.length === 1) {
@@ -197,10 +262,13 @@ const ColorListScreen: React.FC = () => {
       dispatch(colorDeleteAction(id, onDeleteSuccess));
       return;
     }
-    let ids: Array<number> = [];
-    selected.forEach((a) => ids.push(a.id));
 
-    dispatch(colorDeleteManyAction(ids, onDeleteSuccess));
+    dispatch(
+      colorDeleteManyAction(
+        selected.map((color) => color.id),
+        onDeleteSuccess,
+      ),
+    );
   }, [dispatch, onDeleteSuccess, selected]);
 
   const onSelect = useCallback((selectedRow: Array<ColorResponse>) => {
@@ -210,6 +278,7 @@ const ColorListScreen: React.FC = () => {
       }),
     );
   }, []);
+
   const onFinish = useCallback(
     (values: ColorSearchQuery) => {
       let newPrams = {
@@ -226,22 +295,21 @@ const ColorListScreen: React.FC = () => {
     },
     [history, params],
   );
-  const onPageChange = useCallback(
-    (page, size) => {
-      let newPrams = {
-        ...params,
-        info: params.info?.trim(),
-        hex_code: params.hex_code?.trim(),
-        page: page,
-        limit: size,
-      };
 
-      let queryParam = generateQuery(params);
-      setPrams({ ...newPrams });
-      history.replace(`${UrlConfig.COLORS}?${queryParam}`);
-    },
-    [history, params],
-  );
+  const onPageChange = (page: number, size?: number) => {
+    let newPrams = {
+      ...params,
+      info: params.info?.trim(),
+      hex_code: params.hex_code?.trim(),
+      page: page,
+      limit: size,
+    };
+
+    let queryParam = generateQuery(params);
+    setPrams({ ...newPrams });
+    history.replace(`${UrlConfig.COLORS}?${queryParam}`);
+  };
+
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
@@ -263,17 +331,17 @@ const ColorListScreen: React.FC = () => {
     dispatch(getColorAction({ is_main_color: 1 }, setListMainColor));
     return () => {};
   }, [dispatch, params, searchColorCallback]);
+
   return (
     <ContentContainer
       title="Quản lý màu sắc"
       breadcrumb={[
         {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
           name: "Sản phẩm",
           path: `${UrlConfig.PRODUCT}`,
+        },
+        {
+          name: "Thuộc tính",
         },
         {
           name: "Màu sắc",
@@ -333,6 +401,8 @@ const ColorListScreen: React.FC = () => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          isShowPaginationAtHeader
+          sticky={{ offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           isLoading={tableLoading}
           dataSource={data.items}
           showColumnSetting={true}
