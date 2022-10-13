@@ -111,12 +111,12 @@ const CategoryDetailScreen: React.FC = () => {
       isLoading={loading}
       breadcrumb={[
         {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
           name: "Sản phẩm",
           path: UrlConfig.PRODUCT,
+        },
+        {
+          name: "Phân loại",
+          path: UrlConfig.CATEGORIES,
         },
         {
           name: "Danh mục",

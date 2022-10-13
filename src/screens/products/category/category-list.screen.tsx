@@ -13,7 +13,7 @@ import { convertCategory, generateQuery } from "utils/AppUtils";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
-import { DeleteOutlined, EditOutlined, ExportOutlined } from "@ant-design/icons";
+import { ApartmentOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, ExportOutlined } from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import { showSuccess, showWarning } from "utils/ToastUtils";
@@ -26,12 +26,10 @@ import "assets/css/custom-filter.scss";
 import CustomSelect from "component/custom/select.custom";
 import { callApiNative } from "utils/ApiUtils";
 import { getCategoryApi } from "service/product/category.service";
-import LevelIcon from "assets/icon/level.svg";
 import "./index.scss";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import moment from "moment";
 import * as XLSX from "xlsx";
-import exportIcon from "assets/icon/export.svg";
 import CategoryExportModal from "./component/CategoryExportModal";
 import { STATUS_IMPORT_EXPORT } from "utils/Constants";
 import { TYPE_EXPORT } from "../constants";
@@ -338,12 +336,12 @@ const Category = () => {
       title="Quản lý danh mục"
       breadcrumb={[
         {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
           name: "Sản phẩm",
           path: `${UrlConfig.PRODUCT}`,
+        },
+        {
+          name: "Phân loại",
+          path: `${UrlConfig.CATEGORIES}`,
         },
         {
           name: "Danh mục",
@@ -355,7 +353,7 @@ const Category = () => {
           <Link to={`${UrlConfig.CATEGORIES}/overview`}>
             <Button
               className="btn-view"
-              icon={<img className="icon-level" src={LevelIcon} alt="level" />}
+              icon={<ApartmentOutlined className="btn-view-icon" />}
             >
               Xem sơ đồ danh mục
             </Button>
@@ -363,7 +361,7 @@ const Category = () => {
           <Button
             className="btn-view"
             size="large"
-            icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+            icon={<DownloadOutlined className="btn-view-icon"/>}
             onClick={() => {
               setExportCategory(true);
             }}
@@ -409,6 +407,7 @@ const Category = () => {
         <CustomTable
           isRowSelection
           isLoading={loading}
+          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
           onSelectedChange={onSelect}
           pagination={false}
           dataSource={data}

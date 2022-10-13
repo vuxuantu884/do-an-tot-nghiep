@@ -36,6 +36,7 @@ import { modalActionType } from "model/modal/modal.model";
 import FormSize from "./conponents";
 import CustomModal from "component/modal/CustomModal";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
+import "./size-list.scss"
 
 const actionsDefault: Array<MenuAction> = [
   {
@@ -260,7 +261,7 @@ const SizeListScreen: React.FC = () => {
           <Button
             className="ant-btn-primary"
             size="large"
-            icon={<PlusOutlined />}
+            icon={<PlusOutlined className="ant-btn-primary-icon"/>}
             onClick={() => {
               setModalAction("create");
               setIsShowModalDetail(true);
