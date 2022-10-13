@@ -132,9 +132,10 @@ const AllTab: React.FC<any> = (props) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const goDocument = useCallback(
-    (inventoryStatus: string, sku: string, variantName: string, store_id?: number) => {
+    (inventoryStatus: string, sku: string, variantName: string, store_id?: number, shipBackToStore?: boolean) => {
       let linkDocument = "";
-      let store_ids = undefined;
+      let newSku = sku || params.info;
+      let store_ids: any = undefined;
       if (store_id) {
         store_ids = store_id;
       }
@@ -151,36 +152,33 @@ const AllTab: React.FC<any> = (props) => {
           }&searched_product=${variantName}`;
           break;
         case EInventoryStatus.IN_COMING:
-          linkDocument = `${UrlConfig.PROCUREMENT}/products?page=1&limit=30${
-            store_ids ? `&stores=${store_ids}` : ""
-          }&content=${sku}`;
+          linkDocument = `${UrlConfig.PROCUREMENT}/products?page=1&limit=30
+        ${store_ids ? `&stores=${store_ids}` : ""}&content=${newSku}`;
           break;
         case EInventoryStatus.ON_HOLD:
-          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true${
-            store_ids ? `&from_store_id=${store_ids}` : ""
-          }&condition=${sku}&status=confirmed`;
+          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
+        ${store_ids ? `&from_store_id=${store_ids}` : ""}&condition=${newSku}&status=confirmed`;
           break;
         case EInventoryStatus.ON_WAY:
-          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true${
-            store_ids ? `&from_store_id=${store_ids}` : ""
-          }&condition=${sku}&status=transferring`;
+          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
+        ${store_ids ? `&from_store_id=${store_ids}` : ""}&condition=${newSku}&status=transferring`;
           break;
         case EInventoryStatus.TRANSFERRING:
-          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true${
-            store_ids ? `&to_store_id=${store_ids}` : ""
-          }&condition=${sku}&status=transferring`;
+          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
+        ${store_ids ? `&to_store_id=${store_ids}` : ""}&condition=${newSku}&status=transferring`;
           break;
         case EInventoryStatus.DEFECT:
-          linkDocument = `${UrlConfig.INVENTORY_DEFECTS}?condition=${sku}${
+          linkDocument = `${UrlConfig.INVENTORY_DEFECTS}?condition=${newSku}${
             store_ids ? `&store_ids=${store_ids}` : ""
           }`;
           break;
         case EInventoryStatus.SHIPPING:
-          linkDocument = `${UrlConfig.ORDER}?page=1&limit=30&is_online=true${
+          linkDocument = `${UrlConfig.ORDER}${
+            !!shipBackToStore ? UrlConfig.ORDERS_RETURN + "?is_received=false&" : "?" // in case product is being shipped back to store
+          }page=1&limit=30&is_online=true${
             store_ids ? `&store_ids=${store_ids}` : ""
-          }&sub_status_code=shipping&fulfillment_status=shipping&channel_codes=FB%2CWEBSITE%2CAPP%2CLANDING_PAGE%2CADMIN%2CWEB%2CZALO%2CINSTAGRAM&searched_product=${sku}`;
+          }&fulfillment_status=shipping&channel_codes=FB%2CPOS%2CSHOPEE%2CWEBSITE%2CAPP%2CLANDING_PAGE%2CADMIN%2CWEB%2CLAZADA%2CSENDO%2CTIKI%2CZALO%2CINSTAGRAM%2CTIKTOK&searched_product=${newSku}`;
           break;
-
         default:
           break;
       }
@@ -459,21 +457,12 @@ const AllTab: React.FC<any> = (props) => {
         align: "center",
         width: 80,
         render: (value, record) => {
-          return (
-            <div>
-              {value ? (
-                <Link
-                  to={goDocument(EInventoryStatus.DEFECT, record.sku, record.name)}
-                  target="_blank"
-                >
-                  {value}
-                </Link>
-              ) : (
-                ""
-              )}
-            </div>
-          );
-          // return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
+          return <Link
+            target="_blank"
+            to={goDocument(EInventoryStatus.DEFECT, record.sku, record.name, record.store_id)}
+          >
+            {value ? formatCurrencyForProduct(value) : ""}
+          </Link>
         },
       },
       {
@@ -599,16 +588,14 @@ const AllTab: React.FC<any> = (props) => {
         align: "center",
         width: 80,
         render: (value, record) => {
-          return value ? (
+          return (
             <Link
               target="_blank"
-              to={goDocument(EInventoryStatus.SHIPPING, record.sku, record.name)}
+              to={goDocument(EInventoryStatus.SHIPPING, variantSKU, record.name, record.store_id)}
             >
-              {value}
+              {formatCurrencyForProduct(value)}
             </Link>
-          ) : (
-            ""
-          );
+          )
         },
       },
     ];
@@ -728,17 +715,12 @@ const AllTab: React.FC<any> = (props) => {
         align: "center",
         width: 80,
         render: (value, record) => {
-          return value ? (
-            <Link
-              to={goDocument(EInventoryStatus.DEFECT, variantSKU, record.name, record.store_id)}
-              target="_blank"
-            >
-              {value}
-            </Link>
-          ) : (
-            ""
-          );
-          // return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
+          return <Link
+            target="_blank"
+            to={goDocument(EInventoryStatus.DEFECT, record.sku, record.name, record.store_id)}
+          >
+            {value ? formatCurrencyForProduct(value) : ""}
+          </Link>
         },
       },
       {
@@ -916,7 +898,7 @@ const AllTab: React.FC<any> = (props) => {
   const columnsFinal = useMemo(() => columns.filter((item) => item.visible), [columns]);
 
   const fetchInventoryByVariant = useCallback(
-    (variant_ids: Array<number>, store_ids: Array<number>) => {
+    (variant_ids: Array<number>, store_ids: Array<number>, variantSKU: string, name: string) => {
       const request: InventoryVariantListQuery = { variant_ids, store_ids, is_detail: true };
       if (params && params.remain) {
         request.remain = params.remain;
@@ -926,7 +908,14 @@ const AllTab: React.FC<any> = (props) => {
         inventoryByVariantAction(request, (result) => {
           if (variant_ids[0]) {
             const tempMap = new Map(inventoryVariant);
-            tempMap.set(variant_ids[0], result);
+            const newResult = result.map((i) => {
+              return {
+                ...i,
+                sku: variantSKU,
+                name
+              }
+            })
+            tempMap.set(variant_ids[0], newResult);
             setInventoryVariant(tempMap);
           }
         }),
@@ -998,7 +987,7 @@ const AllTab: React.FC<any> = (props) => {
 
                     let isValidColumns = true;
                     for (let i = 0; i < cf.Columns.length; i++) {
-                      if (typeof cf.Columns[i] === "object") {
+                      if (typeof cf.Columns[i] === "string") {
                         isValidColumns = false;
                         break;
                       }
@@ -1012,10 +1001,11 @@ const AllTab: React.FC<any> = (props) => {
                       }
                     }
 
-                    const newColumns: any = defaultColumns.map((i) => {
+                    const newColumns: any = cf.Columns.map((i) => {
+                      const newObject = defaultColumns.filter((j) => i.dataIndex === j.dataIndex);
                       return {
-                        ...i,
-                        visible: cf.Columns.filter((j) => i.dataIndex === j).length > 0,
+                        ...newObject[0],
+                        visible: i.visible
                       };
                     });
 
@@ -1043,6 +1033,7 @@ const AllTab: React.FC<any> = (props) => {
         .finally(() => {
           dispatch(hideLoading());
         });
+
     }
   }, [account, dispatch, defaultColumns, defaultColumnsDrill]);
 
@@ -1057,11 +1048,14 @@ const AllTab: React.FC<any> = (props) => {
       if (!config) config = {} as FilterConfigRequest;
 
       const newData = data.map((i) => {
-        return i.visible ? i.dataIndex : null;
+        return {
+          dataIndex: i.dataIndex,
+          visible: i.visible
+        }
       });
 
       const configRequest = {
-        Columns: newData.filter((i) => i),
+        Columns: newData,
         ColumnDrill: dataDrill.map((i: any) => i.dataIndex).filter((i) => i),
       } as ConfigColumnInventory;
 
@@ -1292,7 +1286,9 @@ const AllTab: React.FC<any> = (props) => {
             return (
               <div
                 style={{ cursor: "pointer" }}
-                onClick={(event) => props.onExpand(props.record, event)}
+                onClick={(event) => {
+                  props.onExpand(props.record, event);
+                }}
               >
                 {icon}
               </div>
@@ -1314,7 +1310,7 @@ const AllTab: React.FC<any> = (props) => {
               if (ele && Number(ele)) acc.push(Number(ele));
               return acc;
             }, [] as Array<number>);
-            fetchInventoryByVariant([record.id], store_ids_result);
+            fetchInventoryByVariant([record.id], store_ids_result, variantSKU, varaintName);
           },
 
           expandedRowRender: (record: VariantResponse) => {
