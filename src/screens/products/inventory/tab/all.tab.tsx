@@ -1,7 +1,7 @@
 import CustomPagination from "component/table/CustomPagination";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { AppConfig } from "config/app.config";
+import { AppConfig, STORE_ID_0 } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
 import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
@@ -243,9 +243,9 @@ const AllTab: React.FC<any> = (props) => {
       window.screen.width >= 1920
         ? splitEllipsis(strName, 100, 30)
         : window.screen.width >= 1600
-        ? (splitEllipsis(strName, 60, 30))
+        ? splitEllipsis(strName, 60, 30)
         : window.screen.width >= 1366
-        ? (splitEllipsis(strName, 47, 30))
+        ? splitEllipsis(strName, 47, 30)
         : strName;
     return strName;
   };
@@ -622,9 +622,7 @@ const AllTab: React.FC<any> = (props) => {
         fixed: true,
         width: 250,
         render(value) {
-          return <div>
-            {storeRef.current.get(value)}
-          </div>;
+          return <div>{storeRef.current.get(value)}</div>;
         },
       },
       {
@@ -1017,12 +1015,12 @@ const AllTab: React.FC<any> = (props) => {
                     const newColumns: any = defaultColumns.map((i) => {
                       return {
                         ...i,
-                        visible: cf.Columns.filter((j) => i.dataIndex === j).length > 0
+                        visible: cf.Columns.filter((j) => i.dataIndex === j).length > 0,
                       };
                     });
 
                     let newColumnsDrill: any = cf.ColumnDrill.map((i) => {
-                      return defaultColumnsDrill.filter((j) => i === j.dataIndex)[0]
+                      return defaultColumnsDrill.filter((j) => i === j.dataIndex)[0];
                     });
 
                     setColumns(isValidColumns ? newColumns : defaultColumns);
@@ -1059,7 +1057,7 @@ const AllTab: React.FC<any> = (props) => {
       if (!config) config = {} as FilterConfigRequest;
 
       const newData = data.map((i) => {
-        return i.visible ? i.dataIndex : null
+        return i.visible ? i.dataIndex : null;
       });
 
       const configRequest = {
@@ -1309,10 +1307,14 @@ const AllTab: React.FC<any> = (props) => {
             varaintName = record.name;
             variantSKU = record.sku;
             setExpandRow([record.id]);
-            let store_ids: any[] = params.store_ids ? params.store_ids.toString().split(",") : [];
-
-            store_ids = store_ids.map((item) => parseInt(item));
-            fetchInventoryByVariant([record.id], store_ids);
+            const store_ids: Array<number | string> = params.store_ids
+              ? params.store_ids.toString().split(",")
+              : [];
+            const store_ids_result: Array<number> = store_ids.reduce((acc, ele) => {
+              if (ele && Number(ele)) acc.push(Number(ele));
+              return acc;
+            }, [] as Array<number>);
+            fetchInventoryByVariant([record.id], store_ids_result);
           },
 
           expandedRowRender: (record: VariantResponse) => {
@@ -1350,7 +1352,13 @@ const AllTab: React.FC<any> = (props) => {
           setShowSettingColumn(false);
           setColumns(data);
           let columnsInRow: any = data
-            .filter((e) => e.visible === true && e.dataIndex !== "sku" && e.dataIndex !== "code" && e.dataIndex !== "variant_prices")
+            .filter(
+              (e) =>
+                e.visible === true &&
+                e.dataIndex !== "sku" &&
+                e.dataIndex !== "code" &&
+                e.dataIndex !== "variant_prices",
+            )
             .map((item: ICustomTableColumType<InventoryResponse>) => {
               return {
                 title: item.title,
@@ -1368,7 +1376,7 @@ const AllTab: React.FC<any> = (props) => {
             fixed: true,
             render: () => {
               return <></>;
-            }
+            },
           });
           columnsInRow.unshift({
             title: "Kho hàng",
@@ -1377,9 +1385,7 @@ const AllTab: React.FC<any> = (props) => {
             fixed: true,
             width: 250,
             render(value: any) {
-              return <div>
-                {storeRef.current.get(value)}
-              </div>;
+              return <div>{storeRef.current.get(value)}</div>;
             },
           });
           setColumnsDrill(columnsInRow);
