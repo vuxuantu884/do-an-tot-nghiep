@@ -175,17 +175,19 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
         prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
       />
       <Divider />
-      <Checkbox
-        style={{ marginLeft: 12 }}
-        // checked={selection.length === data?.metadata.limit}
-        // checked={data?.items.every(item => selection.findIndex(s => s.id === item.id) > -1)}
-        checked={fillAllChecked()}
-        onChange={(e) => {
-          fillAll(e.target.checked);
-        }}
-      >
-        Chọn tất cả
-      </Checkbox>
+      {data && data.items.length > 0 && (
+        <Checkbox
+          style={{ marginLeft: 12 }}
+          // checked={selection.length === data?.metadata.limit}
+          // checked={data?.items.every(item => selection.findIndex(s => s.id === item.id) > -1)}
+          checked={fillAllChecked()}
+          onChange={(e) => {
+            fillAll(e.target.checked);
+          }}
+        >
+          Chọn tất cả
+        </Checkbox>
+      )}
       <Divider />
       {data !== null ? (
         <div className="modal-product-list">
