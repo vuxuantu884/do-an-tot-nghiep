@@ -1,5 +1,4 @@
 import { BreadcrumbProps } from "component/container/breadcrumb.container";
-import UrlConfig from "config/url.config";
 import { uniqBy } from "lodash";
 import { KeyboardKey } from "model/other/keyboard/keyboard.model";
 import {
@@ -13,17 +12,15 @@ import {
 import moment from "moment";
 import queryString from "query-string";
 import { Dispatch } from "redux";
+import { MigrateKDOfflineUrl } from "routes/menu/reports.route";
 import {
-  actualDayUpdateApi,
-  getKeyDriverOnlineApi,
-  onlineCounterService
+  getKeyDriverOnlineApi
 } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
 // import { parseLocaleNumber } from "utils/AppUtils";
 
-export const DEFAULT_KEY_DRIVER_GROUP_LV_1 = "Kinh doanh Online";
+export const DEFAULT_KEY_DRIVER_GROUP_LV_1 = "Kinh doanh Offline";
 export const DRILLING_LEVEL = {
   COMPANY: 1,
   DEPARTMENT: 2,
@@ -149,28 +146,7 @@ export const convertDataToFlatTableKeyDriver = (
       data[data.length - 1] = newRow;
     }
   });
-  const newData = data.filter(
-    (i) =>
-      i.key !== "ON.DT.QT.01" &&
-      i.key !== "ON.DT.QT.13" &&
-      i.key !== "ON.DT.QT.14" &&
-      i.key !== "ON.DT.QT.02" &&
-      i.key !== "ON.DT.QT.11" &&
-      i.key !== "ON.DT.QT.03" &&
-      i.key !== "ON.DT.QT.05" &&
-      i.key !== "ON.DT.QT.12" &&
-      i.key !== "ON.TC.QT.01" &&
-      i.key !== "ON.TC.QT.02" &&
-      i.key !== "ON.TC.QT.06" &&
-      i.key !== "ON.TC.QT.03" &&
-      i.key !== "ON.TC.QT.05" &&
-      i.key !== "ON.TC.QT.12" &&
-      i.key !== "ON.DT.AP.53" &&
-      i.key !== "ON.DT.AP.54" &&
-      i.key !== "ON.DT.AP.52" &&
-      i.key !== "ON.TC.AP.52",
-  );
-  return buildSchemas(newData);
+  return buildSchemas(data);
 };
 
 const sliceGroups = (schema: any) => {
@@ -185,7 +161,7 @@ const sliceGroups = (schema: any) => {
   return groups.filter((_group) => !!_group);
 };
 
-const findParent: any = (groups: any, prev_schema: any) => {
+const findParent: any = (groups: any, prev_schema: any) => {  
   if (!groups || !prev_schema) {
     return {
       _parent: null,
@@ -215,7 +191,7 @@ const findParent: any = (groups: any, prev_schema: any) => {
   const { _parent } = findParent(groups, prev_schema._parent);
   return { _parent, _grouped: true };
 };
-// code by TO, ý kiến qua TO mà hỏi :))
+
 const buildSchemas = (_input: any) => {
   const _schemas = _input.reduce(
     (schemas: any, current_value: any, current_index: any, arr: any) => {
@@ -237,6 +213,7 @@ const buildSchemas = (_input: any) => {
     },
     [],
   );
+  
   _schemas.forEach((_schema: any) => {
     delete _schema["_parent"];
     delete _schema["_grouped"];
@@ -245,9 +222,7 @@ const buildSchemas = (_input: any) => {
     arr
       .filter((item) => item.parent_key_driver === key_driver)
       .map((child) => ({ ...child, children: treeData(arr, child.key_driver) }));
-  const finalData = removeChildrentEmpty(treeData(_schemas)).filter(
-    (i) => i.key !== "ON.LN.S1.01.L" && i.key !== "ON.HS.S1.01.L",
-  );
+  const finalData = removeChildrentEmpty(treeData(_schemas));
   return finalData;
 };
 
@@ -316,23 +291,23 @@ export async function saveMonthTargetKeyDriver(
     ...value,
   };
 
-  const response = await callApiNative(
-    { notifyAction: "SHOW_ALL" },
-    dispatch,
-    onlineCounterService,
-    params,
-  );
-  console.log("response[key]", response[key]);
-  // if (response && response[key]) {
-  if (response) {
-    showSuccess("Lưu thành công");
-    // const input: any = document.getElementById(inputId);
-    // input.value = parseLocaleNumber(response[key]);
-  } else {
-    showError("Lưu không thành công");
-    const input: any = document.getElementById(inputId);
-    input.value = currentValue;
-  }
+  // const response = await callApiNative(
+  //   { notifyAction: "SHOW_ALL" },
+  //   dispatch,
+  //   onlineCounterService,
+  //   params,
+  // );
+  // console.log("response[key]", response[key]);
+  // // if (response && response[key]) {
+  // if (response) {
+  //   showSuccess("Lưu thành công");
+  //   // const input: any = document.getElementById(inputId);
+  //   // input.value = parseLocaleNumber(response[key]);
+  // } else {
+  //   showError("Lưu không thành công");
+  //   const input: any = document.getElementById(inputId);
+  //   input.value = currentValue;
+  // }
 }
 
 export async function saveActualDay(
@@ -355,22 +330,21 @@ export async function saveActualDay(
     account_name: "",
     account_role: "",
   };
-  console.log("params", params);
-  if (params.department_lv1 && params.department_lv2 && params.department_lv3) {
-    try {
-      const response = await callApiNative(
-        { notifyAction: "SHOW_ALL" },
-        dispatch,
-        actualDayUpdateApi,
-        params,
-      );
-      if (response) showSuccess("Lưu thành công");
-    } catch {
-      showError("Lưu không thành công");
-    }
-  } else {
-    showError("Chỉ số thực đạt được nhập phải từ shop");
-  }
+  // if (params.department_lv1 && params.department_lv2 && params.department_lv3) {
+  //   try {
+  //     const response = await callApiNative(
+  //       { notifyAction: "SHOW_ALL" },
+  //       dispatch,
+  //       actualDayUpdateApi,
+  //       params,
+  //     );
+  //     if (response) showSuccess("Lưu thành công");
+  //   } catch {
+  //     showError("Lưu không thành công");
+  //   }
+  // } else {
+  //   showError("Chỉ số thực đạt được nhập phải từ shop");
+  // }
 }
 
 export const handleFocusInput = (e: any) => {
@@ -420,20 +394,20 @@ export const getBreadcrumbByLevel = (
   const breadcrumb: BreadcrumbProps[] = [
     {
       name: "TỔNG CÔNG TY",
-      path: UrlConfig.KEY_DRIVER_ONLINE,
+      path: MigrateKDOfflineUrl,
     },
   ];
 
   if (departmentLv2) {
     breadcrumb.push({
       name: departmentLv2,
-      path: `${UrlConfig.KEY_DRIVER_ONLINE}?${queryString.stringify({ departmentLv2 })}`,
+      path: `${MigrateKDOfflineUrl}?${queryString.stringify({ departmentLv2 })}`,
     });
   }
   if (departmentLv2 && departmentLv3) {
     breadcrumb.push({
       name: departmentLv3,
-      path: `${UrlConfig.KEY_DRIVER_ONLINE}?${queryString.stringify({
+      path: `${MigrateKDOfflineUrl}?${queryString.stringify({
         departmentLv2,
         departmentLv3,
       })}`,

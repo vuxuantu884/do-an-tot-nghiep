@@ -7,14 +7,14 @@ import ContentContainer from "component/container/content.container";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
 import ModalSettingColumnData from "component/table/ModalSettingColumnData";
-import UrlConfig from "config/url.config";
 // import { KeyboardKey } from "model/other/keyboard/keyboard.model";
-import { KeyDriverDataSourceType } from "model/report";
+import { KeyDriverDataSourceType, LocalStorageKey } from "model/report";
 import moment from "moment";
 import queryString from "query-string";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
+import { MigrateKDOfflineUrl } from "routes/menu/reports.route";
 import { getKeyDriverOnlineApi } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import {
@@ -33,14 +33,13 @@ import {
   DEFAULT_KEY_DRIVER_GROUP_LV_1,
   getAllDepartmentByAnalyticResult,
   getBreadcrumbByLevel,
-  saveActualDay,
   // getInputTargetId,
   // handleMoveFocusInput,
   saveMonthTargetKeyDriver
 } from "./helper";
-import KeyDriverOnlineProvider, {
+import KeyDriverOfflineProvider, {
   KeyDriverOfflineContext
-} from "./provider/key-driver-online-provider";
+} from "./provider/key-driver-offline-provider";
 
 type VerifyCellProps = {
   row: KeyDriverDataSourceType;
@@ -90,7 +89,7 @@ function VerifyCell(props: VerifyCellProps) {
   }
 }
 
-function KeyDriverOnline() {
+function KeyDriverOffline() {
   const history = useHistory();
   // get query from url
   const query = new URLSearchParams(useLocation().search);
@@ -121,8 +120,8 @@ function KeyDriverOnline() {
       valueSetter?.call(element, value);
     }
   };
-  const expandedDefault = localStorage.getItem("key-dirver-online-rowkeys-expanded");
-  const getColumns = localStorage.getItem("key-dirver-online-columns");
+  const expandedDefault = localStorage.getItem(LocalStorageKey.KeyDriverOfflineRowkeysExpanded);
+  const getColumns = localStorage.getItem(LocalStorageKey.KeyDriverOfflineColumns);
   const [expandRowKeys, setExpandRowKeys] = useState<any[]>(
     expandedDefault ? JSON.parse(expandedDefault) : [],
   );
@@ -231,7 +230,6 @@ function KeyDriverOnline() {
             dataIndex: `${departmentKey}_monthly_target`,
             className: "input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              const targetDrillingLevel = +record[`target_drilling_level`];
               // const inputId = getInputTargetId(index, columnIndex * 2, PREFIX_CELL_TABLE);
               const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-month-target`;
               let newValue = text ? Number(text) : 0;
@@ -242,7 +240,6 @@ function KeyDriverOnline() {
                     <NumberInput
                       id={inputId}
                       value={newValue}
-                      disabled={departmentDrillingLevel > targetDrillingLevel}
                       onPressEnter={(e: any) => {
                         const input: any = document.getElementById(inputId);
                         input.blur();
@@ -400,7 +397,6 @@ function KeyDriverOnline() {
             dataIndex: `${departmentKey}_daily_target`,
             className: "input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              const targetDrillingLevel = +record[`target_drilling_level`];
               // const inputId = getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE);
               const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-day-target`;
               let newValue = text ? Number(text) : 0;
@@ -410,7 +406,6 @@ function KeyDriverOnline() {
                   <div style={{ position: "relative" }}>
                     <NumberInput
                       id={inputId}
-                      disabled={departmentDrillingLevel > targetDrillingLevel}
                       value={newValue}
                       onPressEnter={(e: any) => {
                         const input: any = document.getElementById(inputId);
@@ -522,144 +517,13 @@ function KeyDriverOnline() {
             dataIndex: `${departmentKey}_daily_actual`,
             className: "input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              if (
-                (record.key === "ON.DT.ZA.33" ||
-                  record.key === "ON.DT.MK.23" ||
-                  record.key === "ON.DT.MK.24") &&
-                departmentLv2 &&
-                !departmentLv3 &&
-                departmentKey.replaceAll(" ", "") !== departmentLv2.replaceAll(" ", "")
-              ) {
-                const targetDrillingLevel = +record[`target_drilling_level`];
-                // const inputId = getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE);s
-                const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-day-actual`;
-                let newValue = text ? Number(text) : 0;
-                let clickCancel = false;
-                return (
-                  <VerifyCell row={record} value={text} type="edit">
-                    <div style={{ position: "relative" }}>
-                      <NumberInput
-                        id={inputId}
-                        disabled={departmentDrillingLevel > targetDrillingLevel}
-                        value={newValue}
-                        onPressEnter={(e: any) => {
-                          const input: any = document.getElementById(inputId);
-                          input.blur();
-                        }}
-                        onFocus={(e) => {
-                          document.getElementById(`${inputId}-action`)?.removeAttribute("hidden");
-                          const input: any = document.getElementById(inputId);
-                          input.style.border = "solid 1px #ddd";
-                        }}
-                        onBlur={(e) => {
-                          setTimeout(() => {
-                            const input: any = document.getElementById(inputId);
-                            const value = input.value
-                              ? parseLocaleNumber(input.value)
-                              : parseLocaleNumber(newValue);
-                            console.log("value, newValue", value, newValue);
-
-                            if (!clickCancel && value != newValue) {
-                              newValue = value;
-                              console.log(
-                                "departmentKey",
-                                department,
-                                departmentLv2,
-                                departmentLv3,
-                              );
-                              const params: any = {
-                                department_lv1: "TỔNG CÔNG TY",
-                                department_lv2: departmentLv2,
-                                department_lv3: department,
-                                department_lv4: null,
-                                driver_key: record.key,
-                                value,
-                              };
-
-                              saveActualDay(
-                                params.department_lv1,
-                                params.department_lv2,
-                                params.department_lv3,
-                                params.department_lv4,
-                                params.driver_key,
-                                params.value,
-                                dispatch,
-                              );
-                            } else {
-                              clickCancel = false;
-                            }
-                            input.style.border = "none";
-                            document
-                              .getElementById(`${inputId}-action`)
-                              ?.setAttribute("hidden", "false");
-                          }, 100);
-                        }}
-                        onKeyDown={(e: any) => {
-                          // if (e.shiftKey) {
-                          //   handleMoveFocusInput(
-                          //     index,
-                          //     columnIndex * 2 + 1,
-                          //     PREFIX_CELL_TABLE,
-                          //     e.key,
-                          //   );
-                          // }
-                          if (e.key === "Escape") {
-                            const event = new Event("input", { bubbles: true });
-                            const input: any = document.getElementById(inputId);
-                            setNativeValue(input, newValue);
-                            input.dispatchEvent(event);
-                            input.blur();
-                          }
-                        }}
-                        suffix={record.unit === "percent" ? "%" : null}
-                        {...inputTargetDefaultProps}
-                      />
-                      <div
-                        id={`${inputId}-action`}
-                        hidden
-                        style={{
-                          display: "flex",
-                          justifyContent: "flex-end",
-                          position: "absolute",
-                          zIndex: 2,
-                          paddingTop: "2px",
-                          right: 0,
-                        }}
-                      >
-                        <Button
-                          size="small"
-                          icon={<CloseOutlined style={{ verticalAlign: "0.25em" }} />}
-                          style={{ borderColor: "#ddd", backgroundColor: "#fff" }}
-                          onClick={(e) => {
-                            clickCancel = true;
-                            const event = new Event("input", { bubbles: true });
-                            const input: any = document.getElementById(inputId);
-                            setNativeValue(input, newValue);
-                            input.dispatchEvent(event);
-                            input.blur();
-                          }}
-                        />
-                        <Button
-                          size="small"
-                          icon={<CheckOutlined style={{ verticalAlign: "0.25em" }} />}
-                          style={{ marginLeft: 5, borderColor: "#ddd", backgroundColor: "#fff" }}
-                          onClick={(e) => {
-                            const input: any = document.getElementById(inputId);
-                            input.blur();
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </VerifyCell>
-                );
-              } else {
+              
                 return (
                   <VerifyCell row={record} value={text}>
                     {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
                   </VerifyCell>
                 );
               }
-            },
           },
           {
             title: "TỶ LỆ",
@@ -678,7 +542,7 @@ function KeyDriverOnline() {
         ],
       };
     },
-    [day, departmentLv2, departmentLv3, dispatch, targetDay],
+    [day, dispatch, targetDay],
   );
 
   const initTable = useCallback(
@@ -722,7 +586,7 @@ function KeyDriverOnline() {
               departmentLv3: columnDepartmentLv3,
             };
 
-            link = `${UrlConfig.KEY_DRIVER_ONLINE}?${queryString.stringify(params)}`;
+            link = `${MigrateKDOfflineUrl}?${queryString.stringify(params)}`;
           }
 
           temp.push(
@@ -754,7 +618,6 @@ function KeyDriverOnline() {
     } else {
       const today = moment().format(DATE_FORMAT.YYYYMMDD);
       let queryParam = generateQuery({
-        "default-screen": "key-driver-online",
         date: today,
         keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
       });
@@ -774,7 +637,6 @@ function KeyDriverOnline() {
       }, 1000);
     }
     let queryParam = generateQuery({
-      "default-screen": "key-driver-online",
       date: newDate,
       keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
     });
@@ -782,7 +644,7 @@ function KeyDriverOnline() {
   }, [form, history]);
   return (
     <ContentContainer
-      title={"Báo cáo kết quả kinh doanh Online"}
+      title={"Báo cáo kết quả kinh doanh Offline v2"}
       breadcrumb={getBreadcrumbByLevel(departmentLv2, departmentLv3)}
     >
       <KeyDriverStyle>
@@ -839,9 +701,8 @@ function KeyDriverOnline() {
             expandable={{
               defaultExpandAllRows: true,
               onExpandedRowsChange: (rowKeys: any) => {
-                console.log("rowKeys", rowKeys);
                 setExpandRowKeys(rowKeys);
-                localStorage.setItem("key-dirver-online-rowkeys-expanded", JSON.stringify(rowKeys));
+                localStorage.setItem(LocalStorageKey.KeyDriverOfflineRowkeysExpanded, JSON.stringify(rowKeys));
               },
             }}
             rowClassName={(record: any, rowIndex: any) => {
@@ -860,7 +721,7 @@ function KeyDriverOnline() {
             onOk={(data) => {
               setShowSettingColumn(false);
               setColumns(data);
-              localStorage.setItem("key-dirver-online-columns", JSON.stringify(data));
+              localStorage.setItem(LocalStorageKey.KeyDriverOfflineColumns, JSON.stringify(data));
             }}
             data={columns}
           />
@@ -870,12 +731,12 @@ function KeyDriverOnline() {
   );
 }
 
-const KeyDriverOnlineWithProvider = (props: any) => {
+const KeyDriverOfflineWithProvider = (props: any) => {
   return (
-    <KeyDriverOnlineProvider>
-      <KeyDriverOnline {...props} />
-    </KeyDriverOnlineProvider>
+    <KeyDriverOfflineProvider>
+      <KeyDriverOffline {...props} />
+    </KeyDriverOfflineProvider>
   );
 };
 
-export default KeyDriverOnlineWithProvider;
+export default KeyDriverOfflineWithProvider;

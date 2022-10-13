@@ -184,13 +184,13 @@ export enum PotentialImportingSource {
   BOUGHT = "BOUGHT",
 }
 
-export interface KeyDriverOnlineDataSourceType {
+export interface KeyDriverDataSourceType {
   key: string;
   title: string;
   method?: string;
   hideInput?: boolean;
   [key: string]: any; // giá trị hiển thị
-  children: KeyDriverOnlineDataSourceType[];
+  children: KeyDriverDataSourceType[];
 }
 
 export interface MonthlyCounter {
