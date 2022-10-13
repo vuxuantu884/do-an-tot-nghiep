@@ -5,6 +5,7 @@ import isEqual from "lodash/isEqual";
 import { CloseOutlined } from "@ant-design/icons";
 import { StyledComponent } from "./styles";
 import { BaseFilterTag } from "../../../model/base/base-filter-tag";
+import TextShowMore from "component/container/show-more/text-show-more";
 
 type BaseFilterResultProps = Omit<TagProps, "onClose"> & {
   data?: BaseFilterTag[];
@@ -25,7 +26,7 @@ function BaseFilterResult({ data = [], onClose, ...props }: BaseFilterResultProp
               {...props}
               onClose={() => onClose(index)}
             >
-              {item.keyName}: {item.valueName}
+              <TextShowMore>{`${item.keyName}: ${item.valueName}`}</TextShowMore>
             </Tag>
           ))}
         </StyledComponent>

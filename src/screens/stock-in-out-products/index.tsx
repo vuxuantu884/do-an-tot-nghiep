@@ -1,19 +1,15 @@
 import { Button, Card, Row, Space } from "antd";
 import ContentContainer from "component/container/content.container";
-// import RenderTabBar from "component/table/StickyTabBar";
 import UrlConfig from "config/url.config";
 import { RouteComponentProps } from "react-router";
 import { useHistory } from "react-router-dom";
-// import TabCurrent from "./tabs/TabCurrent";
-// import TabSevenDays from "./tabs/TabSevenDays";
-import { GoPlus } from "react-icons/go";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { StockInOutOthersPermission } from "config/permissions/stock-in-out.permission";
 import StockInOutOtherList from "./StockInOutOtherList";
+import { PlusOutlined } from "@ant-design/icons";
 
 const InventoryImportExportScreen: React.FC<RouteComponentProps> = (props) => {
   const history = useHistory();
-  // const path = history.location.pathname;
 
   return (
     <ContentContainer
@@ -35,7 +31,7 @@ const InventoryImportExportScreen: React.FC<RouteComponentProps> = (props) => {
                 type="primary"
                 className="ant-btn-primary"
                 size={"large"}
-                icon={<GoPlus style={{ marginRight: "0.2em" }} />}
+                icon={<PlusOutlined style={{ paddingTop: 2 }} />}
                 onClick={() => history.push(`${UrlConfig.STOCK_IN_OUT_OTHERS}/create-stock-in`)}
               >
                 Nhập khác
@@ -46,7 +42,7 @@ const InventoryImportExportScreen: React.FC<RouteComponentProps> = (props) => {
                 type="primary"
                 className="ant-btn-primary"
                 size={"large"}
-                icon={<GoPlus style={{ marginRight: "0.2em" }} />}
+                icon={<PlusOutlined style={{ paddingTop: 2 }} />}
                 onClick={() => history.push(`${UrlConfig.STOCK_IN_OUT_OTHERS}/create-stock-out`)}
               >
                 Xuất khác
