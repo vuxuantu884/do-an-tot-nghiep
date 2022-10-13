@@ -681,7 +681,6 @@ const UpdateMaterial: React.FC = () => {
                       <Upload
                         fileList={fileList}
                         multiple={true}
-                        listType="picture-card"
                         maxCount={7}
                         beforeUpload={(file: any) => {
                           onBeforeUpload(file, "img");
@@ -696,7 +695,7 @@ const UpdateMaterial: React.FC = () => {
                           onRemoveFile(data, "img");
                         }}
                       >
-                        Thêm ảnh
+                        <Button icon={<UploadOutlined />}>Chọn file Ảnh</Button>
                       </Upload>
                     </Form.Item>
                     <Form.Item noStyle hidden name="images">
