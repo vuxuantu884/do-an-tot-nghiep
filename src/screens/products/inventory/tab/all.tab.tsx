@@ -132,7 +132,13 @@ const AllTab: React.FC<any> = (props) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const goDocument = useCallback(
-    (inventoryStatus: string, sku: string, variantName: string, store_id?: number, shipBackToStore?: boolean) => {
+    (
+      inventoryStatus: string,
+      sku: string,
+      variantName: string,
+      store_id?: number,
+      shipBackToStore?: boolean,
+    ) => {
       let linkDocument = "";
       let newSku = sku || params.info;
       let store_ids: any = undefined;
@@ -147,24 +153,34 @@ const AllTab: React.FC<any> = (props) => {
         case EInventoryStatus.COMMITTED:
           linkDocument = `${
             UrlConfig.ORDER
-          }?page=1&limit=30&is_online=true&sub_status_code=awaiting_shipper%2Cmerchandise_packed%2Cmerchandise_picking%2Ccoordinator_confirmed%2Ccoordinator_confirming%2Cawaiting_saler_confirmation%2Cawaiting_coordinator_confirmation%2Cfirst_call_attempt%2Csecond_call_attempt%2Cthird_call_attempt%2Crequire_warehouse_change&channel_codes=FB%2CWEBSITE%2CMOBILE_APP%2CLANDING_PAGE%2CADMIN%2CWEB%2CZALO%2CINSTAGRAM%2CTIKTOK${
+          }?page=1&limit=30&is_online=true&order_status=finalized&sub_status_code=out_of_stock%2Cawaiting_coordinator_confirmation%2Cfirst_call_attempt%2Csecond_call_attempt%2Cthird_call_attempt%2Ccoordinator_confirming%2Cawaiting_saler_confirmation%2Ccoordinator_confirmed%2Crequire_warehouse_change%2Cmerchandise_picking%2Cmerchandise_packed%2Cawaiting_shipper&channel_codes=FB%2CWEBSITE%2CMOBILE_APP%2CLANDING_PAGE%2CADMIN%2CWEB%2CZALO%2CINSTAGRAM%2CTIKTOK%20%20%20%20%20%20%20%20%2CShopee%2CAPP%2CLANDINGPAGE%2Cpos%2Cweb%2Clazada%2Csendo%2Ctiki%2Czalo%2Cinstagram%2Ctiktok%2Capi%2Cadayroi%2Cvatgia%2C1Landingvn%20%20%20%20%20%20%20%20%2CSHOPEE%2CPOS%2CTIKI%2CSENDO%2CLAZADA%2CTIKTOK&searched_product=${variantName}${
             store_ids ? `&store_ids=${store_ids}` : ""
-          }&searched_product=${variantName}`;
+          }`;
           break;
         case EInventoryStatus.IN_COMING:
           linkDocument = `${UrlConfig.PROCUREMENT}/products?page=1&limit=30
         ${store_ids ? `&stores=${store_ids}` : ""}&content=${newSku}`;
           break;
         case EInventoryStatus.ON_HOLD:
-          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}/export-import-list?page=1&limit=30&simple=true
-        ${store_ids ? `&from_store_id=${store_ids}` : ""}&condition=${newSku}&status=confirmed,pending&pending=excess`;
+          linkDocument = `${
+            UrlConfig.INVENTORY_TRANSFERS
+          }/export-import-list?page=1&limit=30&simple=true
+        ${
+          store_ids ? `&from_store_id=${store_ids}` : ""
+        }&condition=${newSku}&status=confirmed,pending&pending=excess`;
           break;
         case EInventoryStatus.ON_WAY:
-          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}/export-import-list?page=1&limit=30&simple=true
-        ${store_ids ? `&from_store_id=${store_ids}` : ""}&condition=${newSku}&status=transferring,pending&pending=missing`;
+          linkDocument = `${
+            UrlConfig.INVENTORY_TRANSFERS
+          }/export-import-list?page=1&limit=30&simple=true
+        ${
+          store_ids ? `&from_store_id=${store_ids}` : ""
+        }&condition=${newSku}&status=transferring,pending&pending=missing`;
           break;
         case EInventoryStatus.TRANSFERRING:
-          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}/export-import-list?page=1&limit=30&simple=true
+          linkDocument = `${
+            UrlConfig.INVENTORY_TRANSFERS
+          }/export-import-list?page=1&limit=30&simple=true
         ${store_ids ? `&to_store_id=${store_ids}` : ""}&condition=${newSku}&status=transferring`;
           break;
         case EInventoryStatus.DEFECT:
@@ -457,12 +473,14 @@ const AllTab: React.FC<any> = (props) => {
         align: "center",
         width: 80,
         render: (value, record) => {
-          return <Link
-            target="_blank"
-            to={goDocument(EInventoryStatus.DEFECT, record.sku, record.name, record.store_id)}
-          >
-            {value ? formatCurrencyForProduct(value) : ""}
-          </Link>
+          return (
+            <Link
+              target="_blank"
+              to={goDocument(EInventoryStatus.DEFECT, record.sku, record.name, record.store_id)}
+            >
+              {value ? formatCurrencyForProduct(value) : ""}
+            </Link>
+          );
         },
       },
       {
@@ -595,7 +613,7 @@ const AllTab: React.FC<any> = (props) => {
             >
               {formatCurrencyForProduct(value)}
             </Link>
-          )
+          );
         },
       },
     ];
@@ -715,12 +733,14 @@ const AllTab: React.FC<any> = (props) => {
         align: "center",
         width: 80,
         render: (value, record) => {
-          return <Link
-            target="_blank"
-            to={goDocument(EInventoryStatus.DEFECT, record.sku, record.name, record.store_id)}
-          >
-            {value ? formatCurrencyForProduct(value) : ""}
-          </Link>
+          return (
+            <Link
+              target="_blank"
+              to={goDocument(EInventoryStatus.DEFECT, record.sku, record.name, record.store_id)}
+            >
+              {value ? formatCurrencyForProduct(value) : ""}
+            </Link>
+          );
         },
       },
       {
@@ -912,9 +932,9 @@ const AllTab: React.FC<any> = (props) => {
               return {
                 ...i,
                 sku: variantSKU,
-                name
-              }
-            })
+                name,
+              };
+            });
             tempMap.set(variant_ids[0], newResult);
             setInventoryVariant(tempMap);
           }
@@ -1005,7 +1025,7 @@ const AllTab: React.FC<any> = (props) => {
                       const newObject = defaultColumns.filter((j) => i.dataIndex === j.dataIndex);
                       return {
                         ...newObject[0],
-                        visible: i.visible
+                        visible: i.visible,
                       };
                     });
 
@@ -1033,7 +1053,6 @@ const AllTab: React.FC<any> = (props) => {
         .finally(() => {
           dispatch(hideLoading());
         });
-
     }
   }, [account, dispatch, defaultColumns, defaultColumnsDrill]);
 
@@ -1050,8 +1069,8 @@ const AllTab: React.FC<any> = (props) => {
       const newData = data.map((i) => {
         return {
           dataIndex: i.dataIndex,
-          visible: i.visible
-        }
+          visible: i.visible,
+        };
       });
 
       const configRequest = {
