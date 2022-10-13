@@ -90,7 +90,12 @@ export const PoWareHouse = (props: IProps) => {
     });
   };
 
-  const handleSetQuantityWarehouses = (indexData: number, value: number, uuid: string) => {
+  const handleSetQuantityWarehouses = (
+    indexData: number,
+    value: number,
+    uuid: string,
+    indexTable?: number,
+  ) => {
     const procurementItemsIndex: PurchaseProcumentLineItem[] = procurementsAll
       .reduce((acc, val) => acc.concat(val), [])
       .reduce((acc, val) => acc.concat(val.procurement_items), [] as PurchaseProcumentLineItem[])
@@ -152,13 +157,13 @@ export const PoWareHouse = (props: IProps) => {
       });
     });
     formMain?.setFieldsValue({
-      [POField.procurements]: [...procurements],
+      [POField.procurements]: [...JSON.parse(JSON.stringify(procurements))],
     });
   };
 
   const onChangeNumber = (indexData: number, index: number, value: number, uuid: string) => {
     procurementTable[indexData].plannedQuantities[index] = value;
-    handleSetQuantityWarehouses(indexData, value, uuid + index);
+    handleSetQuantityWarehouses(indexData, value, uuid + index, index);
     setProcurementTable([...procurementTable]);
   };
 
