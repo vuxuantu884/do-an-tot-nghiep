@@ -94,8 +94,8 @@ import {
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import { ECOMMERCE_CHANNEL } from "../../ecommerce/common/commonAction";
+import CardCustomer from "../component/CardCustomer";
 import OrderDetailBottomBar from "../component/order-detail/BottomBar";
-import CardCustomer from "../component/order-detail/CardCustomer";
 import CardShowOrderPayments from "../component/order-detail/CardShowOrderPayments";
 import OrderFulfillmentCancelledShowDate from "../component/OrderPackingAndShippingDetail/OrderFulfillmentCancelledShowDate";
 import OrderFulfillmentDetail from "../component/OrderPackingAndShippingDetail/OrderFulfillmentDetail";
