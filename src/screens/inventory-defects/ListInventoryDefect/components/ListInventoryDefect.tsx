@@ -242,7 +242,7 @@ const ListInventoryDefect: React.FC = () => {
         fixed: "left",
         visible: true,
         render: (value: string, item: InventoryDefectResponse) => {
-          let strName = item.name.trim();
+          let strName = item.name?.trim() ?? "";
           strName =
             window.screen.width >= 1920
               ? splitEllipsis(strName, 100, 30)
