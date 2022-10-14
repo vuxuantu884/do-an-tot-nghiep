@@ -120,7 +120,8 @@ function ReturnMoneySelect(props: PropTypes) {
                                 }
                                 // setInitialReturnAmount(value || 0);
                               }}
-                              disabled={!canCreateMoneyRefund}
+                              // disabled={!canCreateMoneyRefund}
+                              disabled // ko cho thay đổi số tiền nữa
                             />
                           </Form.Item>
                         </Col>
