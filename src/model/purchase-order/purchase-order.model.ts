@@ -283,8 +283,6 @@ export type POProgressResult = {
   errors: number;
   message_errors: Array<string>;
 };
-
-export interface PurchaseOrderReturnQuery extends BaseQuery {}
 export interface PurchaseOrderPercentsQuery {
   month: number;
 }
@@ -303,4 +301,12 @@ export interface PurchaseOrderReturn extends BaseObject {
   supplier_id?: number;
   total_refunds?: number;
   untaxed_amount_refunds?: number;
+}
+
+export interface PurchaseOrderReturnQuery extends BaseQuery {
+  info?: string;
+  store_ids?: Array<number>;
+  merchandisers?: Array<string>;
+  supplier_ids?: Array<number>;
+  [key: string]: any;
 }
