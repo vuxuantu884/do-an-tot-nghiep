@@ -820,7 +820,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
             return (
               <Tag
                 key={index}
-                className="tag mb-20"
+                className="tag"
                 closable
                 onClose={(e) => onCloseTag(e, filter)}
               >

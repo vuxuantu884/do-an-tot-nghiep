@@ -53,13 +53,16 @@ import ReturnDetailBottom from "../components/ReturnBottomBar/return-detail-bott
 import OrderReturnActionHistory from "../components/Sidebar/OrderReturnActionHistory";
 import OrderShortDetailsReturn from "../components/Sidebar/OrderShortDetailsReturn";
 
-type PropTypes = {};
+type PropTypes = {
+  setTitle: (value?: string) => void;
+};
 type OrderParam = {
   id: string;
 };
 
 const ScreenReturnDetail = (props: PropTypes) => {
   let { id } = useParams<OrderParam>();
+  const {setTitle} = props;
   let returnOrderId = parseInt(id);
   const dispatch = useDispatch();
   const [form] = Form.useForm();
@@ -513,6 +516,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
                     f.status !== FulFillmentStatus.RETURNING,
                 );
                 setOrderDetail(_data);
+                setTitle(`Đơn trả hàng ${_data.code}`)
                 if (_data.items) {
                   let returnProductFormatted: ReturnProductModel[] = _data.items.map((single) => {
                     return {

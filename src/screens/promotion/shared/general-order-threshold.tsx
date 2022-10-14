@@ -105,7 +105,7 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
 
   const getIsDisableOptions = useCallback(
     (operatorOptions: string[], index: number) => {
-      const currentField = discountList[index].field;
+      const currentField = discountList[index]?.field;
 
       const acceptTypeOfCurrentField = _.find(FIELD_SELECT_OPTIONS, ["value", currentField])?.type;
 

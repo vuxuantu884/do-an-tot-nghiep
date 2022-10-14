@@ -1,6 +1,7 @@
 import { FormInstance } from "antd";
-import { AppConfig } from "config/app.config";
 import { isEmpty, uniqBy } from "lodash";
+import { v4 as uuidv4 } from "uuid";
+import { AppConfig } from "config/app.config";
 import { ProductResponse, VariantResponse } from "model/product/product.model";
 import { CostLine } from "model/purchase-order/cost-line.model";
 import { POField } from "model/purchase-order/po-field";
@@ -393,6 +394,7 @@ const POUtils = {
               retail_price: lineItem.retail_price,
               price: lineItem.price,
               product_name: lineItem.product,
+              id: uuidv4(),
             });
           } else if (procuments.length === 1) {
             newProcumentLineItem[index].quantity = lineItem.quantity;
@@ -710,9 +712,9 @@ export const fetchProductGridData = async (
     );
 
     if (product?.variants) {
-      const variants = product.variants.filter(
-        (variant) => variant.status !== "inactive" && variant.type !== 1,
-      ); //variant.type === 1 là sản phẩm lỗi
+      const variants = product.variants
+        .filter((variant) => variant.status !== "inactive" && variant.type !== 1)
+        .sort((pre, next) => ("" + pre.sku).localeCompare(next.sku)); //variant.type === 1 là sản phẩm lỗi
       product.variants = variants;
       /**
        * Tạo schema cho grid (bộ khung để tạo lên grid, dùng để check các ô input có hợp lệ hay không, nếu không thì disable)

@@ -22,13 +22,14 @@ const initQuery: ReturnSearchQuery = {
   store_ids: [],
   is_received: [],
   account_codes: [],
-  reason_ids: [],
+  sub_reason_ids: [],
   is_online: false,
   source_ids: [],
   channel_codes: [],
   assignee_codes: [],
   marketer_codes: [],
   coordinator_codes: [],
+  returned_store_ids: [],
 };
 
 type PropTypes = {

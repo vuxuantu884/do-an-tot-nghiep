@@ -1,47 +1,36 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Card } from "antd";
 import { StyledSmsSetting } from "screens/settings/sms/styles";
-import CustomTable, { ICustomTableColumType } from "../../../../component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
+import { cloneDeep } from "lodash";
 
 const SMS_ACTION_INIT = [
   {
     label: "Phát sinh hóa đơn bán lẻ",
-    key: "retail_offline_message",
+    type: "OFFLINE",
     url: `${UrlConfig.SMS_SETTINGS}/order-retail`,
-    value: "",
+    value: [],
   },
   {
     label: "Phát sinh hóa đơn trên Website",
-    key: "website_message",
+    type: "WEBSITE",
     url: `${UrlConfig.SMS_SETTINGS}/website-order`,
-    value: "",
+    value: [],
   },
   {
     label: "Đi đơn online thành công",
-    key: "online_order_message",
+    type: "ONLINE",
     url: `${UrlConfig.SMS_SETTINGS}/online-order`,
-    value: "",
+    value: [],
   },
-  // {
-  // 	label: "Khách hàng tăng cấp độ (Cài đặt được nhiều tin)",
-  // 	key: "customer_level_up_message",
-  // 	url: `${UrlConfig.SMS_SETTINGS}/level-up`,
-  // 	value: "",
-  // },
-  // {
-  // 	label: "Khách hàng giảm cấp độ",
-  // 	key: "customer_level_down_message",
-  // 	url: `${UrlConfig.SMS_SETTINGS}/level-down`,
-  // 	value: "",
-  // },
-  // {
-  // 	label: "Trước ngày sinh nhật khách hàng",
-  // 	key: "birthday_message",
-  // 	url: `${UrlConfig.SMS_SETTINGS}/birthday`,
-  // 	value: "",
-  // },
+	{
+		label: "Trước ngày sinh nhật khách hàng",
+    type: "BIRTHDAY",
+		url: `${UrlConfig.SMS_SETTINGS}/customer-birthday`,
+		value: [],
+	},
 ];
 
 const SmsActionSetting: React.FC<any> = (props: any) => {
@@ -50,13 +39,11 @@ const SmsActionSetting: React.FC<any> = (props: any) => {
   const [smsActionList, setSmsActionList] = useState<any>(SMS_ACTION_INIT);
 
   const handleSmsActionData = useCallback((data: any) => {
-    if (data) {
-      const messages = JSON.parse(data?.messages);
-      const newSmsActionList = smsActionList.map((action: any) => {
-        return {
-          ...action,
-          value: messages?.[action.key]?.toString().trim(),
-        };
+    if (data && data.messages) {
+      let newSmsActionList = cloneDeep(smsActionList);
+      Array.isArray(data.messages) && data.messages.forEach((message: any) => {
+        const smsActionIndex = newSmsActionList.findIndex((smsAction: any) => smsAction.type === message.type);
+        newSmsActionList[smsActionIndex].value.push(message.content);
       });
       setSmsActionList(newSmsActionList);
     }
@@ -85,10 +72,18 @@ const SmsActionSetting: React.FC<any> = (props: any) => {
     {
       title: "Mô tả",
       dataIndex: "value",
+      className: "message-content",
       render: (value) => {
         return (
           <>
-            {value ? <div>{value}</div> : <div style={{ color: "#75757B" }}>Chưa có tin nhắn</div>}
+            {value.length > 0 ?
+              value.map((item: string, index: number) => {
+                return (
+                  <div key={index}>{item}</div>
+                )
+              })
+              :
+              <div style={{ color: "#75757B" }}>Chưa có tin nhắn</div>}
           </>
         );
       },
@@ -97,12 +92,13 @@ const SmsActionSetting: React.FC<any> = (props: any) => {
 
   return (
     <StyledSmsSetting>
-      <Card title={"CÀI ĐẶT HÀNH ĐỘNG GỬI TIN"}>
+      <Card title={"CÀI ĐẶT HÀNH ĐỘNG GỬI TIN"} className={"sms-action-setting"}>
         <CustomTable
           bordered
           pagination={false}
           dataSource={smsActionList}
           columns={smsActionColumns}
+          rowKey={(item: any) => item.label}
         />
       </Card>
     </StyledSmsSetting>

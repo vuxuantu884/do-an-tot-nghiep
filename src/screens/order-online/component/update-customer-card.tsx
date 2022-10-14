@@ -1,22 +1,18 @@
 //#region Import
 import { PhoneOutlined } from "@ant-design/icons";
-import { Avatar, Card, Col, Divider, Row, Space, Tag, Typography } from "antd";
-import birthdayIcon from "assets/img/bithday.svg";
-import callIcon from "assets/img/call.svg";
-import pointIcon from "assets/img/point.svg";
+import {Card, Col, Divider, Row } from "antd";
 import addressIcon from "assets/img/user-pin.svg";
-import UrlConfig from "config/url.config";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { OrderResponse } from "model/response/order/order.response";
-import moment from "moment";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { POS } from "utils/Constants";
 import { dangerColor, textBodyColor } from "utils/global-styles/variables";
-import OrderBillRequestButton from "./order-detail/CardCustomer/OrderBillRequest/OrderBillRequestButton";
-import OrderBillRequestDetailModal from "./order-detail/CardCustomer/OrderBillRequest/OrderBillRequestDetailModal";
+import InfoCustomer from "./CardCustomer/InfoCustomer";
+import OrderBillRequestButton from "./OrderBillRequest/OrderBillRequestButton";
+import OrderBillRequestDetailModal from "./OrderBillRequest/OrderBillRequestDetailModal";
+
 //#endregion
 
 type CustomerCardUpdateProps = {
@@ -28,8 +24,6 @@ type CustomerCardUpdateProps = {
 
 const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (props: CustomerCardUpdateProps) => {
   const { loyaltyPoint, loyaltyUsageRules } = props;
-
-  let customerBirthday = moment(props.customerDetail?.birthday).format("DD/MM/YYYY");
 
   const [isVisibleOrderBillRequestDetailModal, setIsVisibleOrderBillRequestDetailModal] =
     useState(false);
@@ -55,11 +49,6 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (props: CustomerCa
     }
     return result;
   };
-
-  const rankName = loyaltyUsageRules.find(
-    (x) =>
-      x.rank_id === (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id),
-  )?.rank_name;
 
   const renderOrderSourceName = () => {
     let result = props.OrderDetail?.source;
@@ -118,110 +107,55 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (props: CustomerCa
           </div>
         }
       >
-        <div>
-          <Row align="middle" justify="space-between" className="row-customer-detail">
-            <Space>
-              <Avatar size={32}>A</Avatar>
-              <Link target="_blank" to={`${UrlConfig.CUSTOMER}/${props.customerDetail?.id}`}>
-                {props.customerDetail?.full_name}
-              </Link>
-              <Tag className="orders-tag orders-tag-vip">
-                <b>{!rankName ? "Không có hạng" : rankName}</b>
-              </Tag>
-            </Space>
-            <Space className="customer-detail-phone">
-              <span className="customer-detail-icon">
-                <img src={callIcon} alt="" className="icon-customer-info" />
-              </span>
-              <Link
-                to={`${UrlConfig.ORDER}?search_term=${props.customerDetail?.phone}`}
-                className="customer-detail-text"
-                target="_blank"
-              >
-                {props.customerDetail?.phone}
-              </Link>
-            </Space>
-
-            <Space className="customer-detail-point">
-              <span className="customer-detail-icon">
-                <img src={pointIcon} alt="" />
-              </span>
-              <span className="customer-detail-text">
-                Tổng điểm:
-                <Typography.Text
-                  type="success"
-                  style={{ color: "#FCAF17", marginLeft: "5px" }}
-                  strong
-                >
-                  {loyaltyPoint?.point === undefined ? "0" : loyaltyPoint?.point}
-                </Typography.Text>
-              </span>
-            </Space>
-
-            <Space className="customer-detail-birthday nn">
-              <span className="customer-detail-icon">
-                <img src={birthdayIcon} alt="" />
-              </span>
-              <span className="customer-detail-text">
-                {props.customerDetail?.birthday !== null ? customerBirthday : "Không xác định"}
-              </span>
-            </Space>
-
-            {props.OrderDetail?.billing_address?.tax_code && !props.OrderDetail?.shipping_address && (
-              <Space className="customer-detail-birthday nn">
+      {props.customerDetail && (
+        <InfoCustomer
+          customer={props.customerDetail}
+          loyaltyPoint= {loyaltyPoint}
+          loyaltyUsageRules={loyaltyUsageRules}
+        />
+      )}
+      
+      {props.OrderDetail?.shipping_address && (
+        <>
+          <Row gutter={24} style={{ paddingTop: "14px" }}>
+            <Col
+              xs={props.OrderDetail?.billing_address?.order_id ? 16 : 24}
+              className="font-weight-500 customer-info-left"
+            >
+              <div className="title-address 66">
+                <img
+                  src={addressIcon}
+                  alt=""
+                  style={{
+                    width: "24px",
+                    height: "24px",
+                    marginRight: "10px",
+                  }}
+                />
+                Địa chỉ giao hàng:
+                <span style={{ fontWeight: 400, marginLeft: "10px" }}>
+                  {renderFulfillmentShippingAddress(props.OrderDetail)}
+                </span>
+              </div>
+            </Col>
+            {props.OrderDetail?.billing_address?.order_id ? (
+              <Col xs={8}>
                 <OrderBillRequestButton
                   handleClickOrderBillRequestButton={() => {
                     setIsVisibleOrderBillRequestDetailModal(true);
                   }}
                   orderDetail={props.OrderDetail}
-                  color={textBodyColor}
+                  color={props.OrderDetail ? dangerColor : textBodyColor}
                 />
-              </Space>
-            )}
+              </Col>
+            ) : null}
           </Row>
-          {props.OrderDetail?.shipping_address && (
-            <>
-              <Divider style={{ padding: 0, marginBottom: 0 }} />
-              <div>
-                <Row gutter={24} style={{ paddingTop: "14px" }}>
-                  <Col
-                    xs={props.OrderDetail?.billing_address?.order_id ? 16 : 24}
-                    className="font-weight-500 customer-info-left"
-                  >
-                    <div className="title-address 66">
-                      <img
-                        src={addressIcon}
-                        alt=""
-                        style={{
-                          width: "24px",
-                          height: "24px",
-                          marginRight: "10px",
-                        }}
-                      />
-                      Địa chỉ giao hàng:
-                      <span style={{ fontWeight: 400, marginLeft: "10px" }}>
-                        {renderFulfillmentShippingAddress(props.OrderDetail)}
-                      </span>
-                    </div>
-                  </Col>
-                  {props.OrderDetail?.billing_address?.order_id ? (
-                    <Col xs={8}>
-                      <OrderBillRequestButton
-                        handleClickOrderBillRequestButton={() => {
-                          setIsVisibleOrderBillRequestDetailModal(true);
-                        }}
-                        orderDetail={props.OrderDetail}
-                        color={props.OrderDetail ? dangerColor : textBodyColor}
-                      />
-                    </Col>
-                  ) : null}
-                </Row>
 
-                <Row
-                  gutter={24}
-                  hidden={props.OrderDetail?.shipping_address?.second_phone ? false : true}
-                >
-                  <Col
+          <Row
+            gutter={24}
+            hidden={props.OrderDetail?.shipping_address?.second_phone ? false : true}
+          >
+            <Col
                     xs={24}
                     style={{
                       paddingTop: "14px",
@@ -251,10 +185,10 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (props: CustomerCa
                         {props.OrderDetail?.shipping_address?.second_phone}
                       </span>
                     </div>
-                  </Col>
-                </Row>
+            </Col>
+          </Row>
 
-                <div className="send-order-box" hidden={true}>
+          <div className="send-order-box" hidden={true}>
                   <Divider style={{ padding: 0, margin: 0 }} />
                   <Row gutter={24}>
                     <Col
@@ -286,11 +220,9 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (props: CustomerCa
                       </div>
                     </Col>
                   </Row>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
+          </div>
+        </>
+      )}
       </Card>
       <OrderBillRequestDetailModal
         isVisibleOrderBillRequestDetailModal={isVisibleOrderBillRequestDetailModal}

@@ -36,9 +36,6 @@ const SmsScreen: React.FC = () => {
         {
           name: "Cài đặt gửi tin",
         },
-        {
-          name: "Notification",
-        },
       ]}
     >
       <SmsAccountSetting smsConfigData={smsConfigData} />

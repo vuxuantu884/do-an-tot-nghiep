@@ -166,7 +166,7 @@ export interface DiscountUsageDetailResponse {
 
 export interface PriceRule extends BaseObject {
   activated_by: string;
-  activated_date: Date;
+  activated_date?: Date;
   activated_name: string;
   async_allocation_count?: number;
   async_usage_count: number;
@@ -174,7 +174,7 @@ export interface PriceRule extends BaseObject {
   cancelled_date?: Date;
   cancelled_name?: string;
   code: string;
-  customer_selection: CustomerSelectionOption;
+  customer_selection?: CustomerSelectionOption;
   description?: string;
   disabled_by?: string;
   disabled_date?: Date;
@@ -201,11 +201,11 @@ export interface PriceRule extends BaseObject {
   priority: number;
   quantity_limit?: number;
   rule?: DiscountRule;
-  starts_date: Date;
-  state: PriceRuleState;
+  starts_date?: Date;
+  state?: PriceRuleState;
   title: string;
   total_usage_count?: number;
-  type: PriceRuleType;
+  type?: PriceRuleType;
   usage_limit?: number;
   usage_limit_per_customer?: number;
 }

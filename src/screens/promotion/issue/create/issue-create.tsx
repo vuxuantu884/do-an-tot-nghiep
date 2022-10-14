@@ -7,7 +7,7 @@ import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PriceRule, PriceRuleMethod } from "model/promotion/price-rules.model";
 import moment from "moment";
-import React, { ReactElement, useEffect } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import GeneralConditionForm from "screens/promotion/shared/general-condition.form";
@@ -25,6 +25,8 @@ function IssueCreate(props: Props): ReactElement {
   const history = useHistory();
   const [form] = Form.useForm();
   const dispatch = useDispatch();
+
+  const [isSetFormValues, setIsSetFormValues] = useState<boolean>(false);
 
   let isActive = true;
   const handleSaveAndActivate = (values: any) => {
@@ -68,6 +70,8 @@ function IssueCreate(props: Props): ReactElement {
       priority: 1,
       entitlements: [],
     };
+
+    setIsSetFormValues(true);
     form.setFieldsValue(initialValues);
   }, [form]);
 
@@ -92,7 +96,7 @@ function IssueCreate(props: Props): ReactElement {
         <Form form={form} name="issue-create" onFinish={onFinish} layout="vertical">
           <Row gutter={24}>
             <Col span={18}>
-              <IssueForm form={form} />
+              <IssueForm form={form} isSetFormValues={isSetFormValues} />
             </Col>
             <Col span={6}>
               <GeneralConditionForm

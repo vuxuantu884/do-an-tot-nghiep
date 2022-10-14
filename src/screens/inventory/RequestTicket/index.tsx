@@ -202,13 +202,14 @@ const RequestTicket: FC = () => {
               limit: 10,
               page: 1,
               info: value.trim(),
+              store_ids: form.getFieldValue("from_store_id"),
             },
             setResultSearch,
           ),
         );
       }
     },
-    [dispatch, setResultSearch],
+    [dispatch, form],
   );
 
   const [fileList, setFileList] = useState<Array<UploadFile>>([]);
@@ -668,7 +669,7 @@ const RequestTicket: FC = () => {
       title="Yêu cầu phiếu chuyển hàng"
       breadcrumb={[
         {
-          name: "Tổng quan",
+          name: "Kho hàng",
           path: UrlConfig.HOME,
         },
         {
@@ -813,6 +814,10 @@ const RequestTicket: FC = () => {
                     onSearch={onSearch}
                     options={renderResult}
                     defaultActiveFirstOption
+                    onBlur={() => {
+                      setResultSearch([]);
+                      setKeySearch("");
+                    }}
                     id="product_search_variant"
                   >
                     <Input

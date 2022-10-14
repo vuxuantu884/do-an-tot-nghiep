@@ -19,10 +19,12 @@ const BankAccountCreateScreen = React.lazy(
 const BackAccountUpdateScreen = React.lazy(
   () => import("screens/settings/bank/update/bank-account.update.screen"),
 );
+
 const SmsScreen = React.lazy(() => import("screens/settings/sms/sms.screen"));
 const SmsOrderRetail = React.lazy(() => import("screens/settings/sms/config/SmsOrderRetail"));
 const SmsWebsiteOrder = React.lazy(() => import("screens/settings/sms/config/SmsWebsiteOrder"));
 const SmsOnlineOrder = React.lazy(() => import("screens/settings/sms/config/SmsOnlineOrder"));
+const SmsCustomerBirthday = React.lazy(() => import("screens/settings/sms/config/SmsCustomerBirthday"));
 
 const ManageUserScreen = React.lazy(() => import("screens/settings/account/AccountList"));
 
@@ -547,6 +549,18 @@ const setting: Array<RouteMenu> = [
         icon: "icon-dot",
         component: SmsOnlineOrder,
         key: "sms-online-order",
+        isShow: true,
+        header: null,
+        permissions: [SMS_CONFIG_PERMISSIONS.READ],
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.SMS_SETTINGS}/customer-birthday`,
+        exact: true,
+        title: "Trước ngày sinh nhật khách hàng",
+        icon: "icon-dot",
+        component: SmsCustomerBirthday,
+        key: "sms-customer-birthday",
         isShow: true,
         header: null,
         permissions: [SMS_CONFIG_PERMISSIONS.READ],

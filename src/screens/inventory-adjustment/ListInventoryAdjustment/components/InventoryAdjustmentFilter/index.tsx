@@ -53,6 +53,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     setAccounts,
   } = props;
   const [dateClick, setDateClick] = useState("");
+  const [messageErrorQuality, setMessageErrorQuality] = useState("");
   const initialValues = useMemo(() => {
     return {
       ...params,
@@ -109,9 +110,10 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
   }, [formAvd, params]);
 
   const onFilterClick = useCallback(() => {
+    if (messageErrorQuality !== "") return;
     setVisible(false);
     formRef.current?.submit();
-  }, [formRef]);
+  }, [formRef, messageErrorQuality]);
 
   const onClearFilterClick = useCallback(() => {
     onClearFilter && onClearFilter();
@@ -365,6 +367,32 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     return list;
   };
 
+  const validateFromQuality = (e: any) => {
+    form.setFieldsValue({
+      from_total_quantity: e
+    });
+    const toQuality = form.getFieldValue("to_total_quality");
+    if (e > toQuality) {
+      setMessageErrorQuality("Số lượng từ lớn hơn số lượng đến.");
+      return;
+    }
+
+    setMessageErrorQuality("");
+  }
+
+  const validateToQuality = (e: any) => {
+    form.setFieldsValue({
+      to_total_quality: e
+    });
+    const fromQuality = form.getFieldValue("from_total_quantity");
+    if (e < fromQuality) {
+      setMessageErrorQuality("Số lượng từ lớn hơn số lượng đến.");
+      return;
+    }
+
+    setMessageErrorQuality("");
+  }
+
   return (
     <>
       <div className="adjustment-filter">
@@ -542,6 +570,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                         style={{ textAlign: "center", margin: "10px 0px" }}
                       >
                         <InputNumber
+                          onChange={validateFromQuality}
                           className="price_min"
                           placeholder="Từ"
                           min="0"
@@ -555,6 +584,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                         style={{ textAlign: "center", margin: "10px 0px" }}
                       >
                         <InputNumber
+                          onChange={validateToQuality}
                           className="site-input-right price_max"
                           placeholder="Đến"
                           min="0"
@@ -562,6 +592,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                         />
                       </Item>
                     </Input.Group>
+                    <div style={{ color: "#e24343" }}>{messageErrorQuality}</div>
                   </Col>
                 </Row>
               </>

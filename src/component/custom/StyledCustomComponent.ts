@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const StyledHashTag = styled.div`
   .custom-tags {
-    padding: 10px;
+    padding: 5px;
 
     .tags-list {
       margin-bottom: 0px;
@@ -32,8 +32,8 @@ export const StyledHashTag = styled.div`
       height: 26px;
       width: 100px;
       &:focus {
-        border-color: #40a9ff;
-        box-shadow: 0 0 0 2px rgb(24 144 255 / 20%);
+        border-color: $primary-color;
+        box-shadow: 0 0 0 2px $primary-color;
       }
     }
   }

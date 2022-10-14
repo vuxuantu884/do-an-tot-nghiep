@@ -113,6 +113,7 @@ const initQueryCustomer: CustomerSearchQuery = {
   search_type: "SIMPLE",
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => {
   const {
     customer,
@@ -907,4 +908,4 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   );
 };
 
-export default CustomerCard;
+// export default CustomerCard;

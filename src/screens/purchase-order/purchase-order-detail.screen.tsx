@@ -695,7 +695,11 @@ const PODetailScreen: React.FC = () => {
     ];
     if (!purchaseOrder) return [];
     const poStatus = purchaseOrder.status;
-    if (poStatus && [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus) && canCancelPO) {
+    if (
+      poStatus &&
+      [POStatus.FINALIZED, POStatus.DRAFT, POStatus.WAITING_APPROVAL].includes(poStatus) &&
+      canCancelPO
+    ) {
       menuActions.push({
         id: ActionMenu.DELETE,
         name: "Hủy",
