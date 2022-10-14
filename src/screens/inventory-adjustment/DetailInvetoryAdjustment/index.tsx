@@ -1227,26 +1227,24 @@ const DetailInventoryAdjustment: FC = () => {
                         </Button>
                       </AuthWrapper>
                     )}
-                  {isHaveEditPermission && isPermissionAudit && (
-                    <AuthWrapper acceptPermissions={[InventoryAdjustmentPermission.export]}>
-                      <Button
-                        loading={isLoadingBtn}
-                        disabled={isLoadingBtn}
-                        onClick={() => {
-                          setShowExportModal(true);
-                          onExport();
-                        }}
-                        type="primary"
-                        ghost
-                        icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-                        style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
-                      >
-                        <Space>
-                          Xuất excel
-                        </Space>
-                      </Button>
-                    </AuthWrapper>
-                  )}
+                  <AuthWrapper acceptPermissions={[InventoryAdjustmentPermission.export]}>
+                    <Button
+                      loading={isLoadingBtn}
+                      disabled={isLoadingBtn}
+                      onClick={() => {
+                        setShowExportModal(true);
+                        onExport();
+                      }}
+                      type="primary"
+                      ghost
+                      icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                      style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                    >
+                      <Space>
+                        Xuất excel
+                      </Space>
+                    </Button>
+                  </AuthWrapper>
                   {(data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ||
                     data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status) && (
                     <>
