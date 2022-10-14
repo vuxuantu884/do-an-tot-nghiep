@@ -1,31 +1,38 @@
-export const KEY_DRIVER_ONLINE_COUNTER = [
-  { value: "messenger_count", label: "SỐ MESS" },
+export const KEY_DRIVER_ONLINE_COUNTER: { name: string; label: string; value: string }[] = [
+  { name: "messenger_count", label: "SỐ MESS", value: "ON.DT.FB.13" },
   {
-    value: "shopee_internal_traffic",
+    name: "shopee_internal_traffic",
     label: "TRAFFIC NỘI SÀN SHOPEE",
+    value: "ON.DT.MK.23 - SHOPEE",
   },
   {
-    value: "shopee_external_traffic",
+    name: "shopee_external_traffic",
     label: "TRAFFIC NGOẠI SÀN SHOPEE",
+    value: "ON.DT.MK.24 - SHOPEE",
   },
   {
-    value: "lazada_internal_traffic",
+    name: "lazada_internal_traffic",
     label: "TRAFFIC NỘI SÀN LAZADA",
+    value: "ON.DT.MK.23 - LAZADA",
   },
   {
-    value: "lazada_external_traffic",
+    name: "lazada_external_traffic",
     label: "TRAFFIC NGOẠI SÀN LAZADA",
+    value: "ON.DT.MK.24 - LAZADA",
   },
   {
-    value: "tiki_internal_traffic",
+    name: "tiki_internal_traffic",
     label: "TRAFFIC NỘI SÀN TIKI",
+    value: "ON.DT.MK.23 - TIKI",
   },
   {
-    value: "tiki_external_traffic",
+    name: "tiki_external_traffic",
     label: "TRAFFIC NGOẠI SÀN TIKI",
+    value: "ON.DT.MK.24 - TIKI",
   },
   {
-    value: "zalo_leads",
+    name: "zalo_leads",
     label: "SỐ DATA ZALO CHĂM SÓC",
+    value: "ON.DT.ZA.33",
   },
 ];

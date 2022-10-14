@@ -9,7 +9,7 @@ import { Dispatch } from "redux";
 import {
   getMetadataKeyDriverOnlineApi,
   getOnlineCounterService,
-  onlineCounterService,
+  onlineCounterService
 } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { parseLocaleNumber } from "utils/AppUtils";
@@ -148,7 +148,7 @@ export const getColumnByDate = (
                     // );
                     const params = {
                       entity_name: keyDriver,
-                      entity_key: "",
+                      entity_key: keyDriver,
                       department_lv1: departmentLv1,
                       department_lv2: departmentLv2,
                       department_lv3: departmentLv3,
