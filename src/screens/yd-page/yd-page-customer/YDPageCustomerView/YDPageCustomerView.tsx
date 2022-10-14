@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Table, Card, Tooltip, Tag, Input, Button, Form } from "antd";
 
 import { useDispatch } from "react-redux";
@@ -8,11 +8,11 @@ import NumberFormat from "react-number-format";
 import moment from "moment";
 
 import { showSuccess } from "utils/ToastUtils";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, handleFetchApiError, isFetchApiSuccessful, isNullOrUndefined } from "utils/AppUtils";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import UrlConfig from "config/url.config";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderModel } from "model/order/order.model";
+import { OrderHistorySearch } from "model/order/order.model";
 import { getLoyaltyPoint } from "domain/actions/loyalty/loyalty.action";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 
@@ -25,7 +25,8 @@ import phonePlus from "assets/icon/phone-plus.svg";
 import editIcon from "assets/icon/edit.svg";
 
 import { StyledComponent } from "./styles";
-import { getCustomerOrderHistoryAction } from "domain/actions/customer/customer.action";
+import { getOrderHistoryService } from "service/order/order.service";
+import { CustomerOrderHistoryResponse } from "model/response/order/order.response";
 
 const YDPageCustomerView = (props: any) => {
   const {
@@ -70,7 +71,7 @@ const YDPageCustomerView = (props: any) => {
   }, [customer.full_name]);
 
   // handle customer order history
-  const [orderHistoryYDpageQuery, setOrderHistoryYDpageQuery] = useState<any>({
+  const [orderHistoryYDpageQuery, setOrderHistoryYDpageQuery] = useState<OrderHistorySearch>({
     limit: 10,
     page: 1,
     customer_ids: null,
@@ -87,7 +88,7 @@ const YDPageCustomerView = (props: any) => {
     };
   }, []);
 
-  const [orderHistory, setOrderHistory] = useState<PageResponse<OrderModel>>(defaultOrderHistory);
+  const [orderHistory, setOrderHistory] = useState<PageResponse<CustomerOrderHistoryResponse>>(defaultOrderHistory);
   const [orderHistoryLoading, setOrderHistoryLoading] = useState<boolean>(false);
 
   const onPageChange = React.useCallback(
@@ -97,23 +98,25 @@ const YDPageCustomerView = (props: any) => {
     [orderHistoryYDpageQuery, setOrderHistoryYDpageQuery],
   );
 
-  const updateCustomerOrderHistory = useCallback(
-    (data: PageResponse<OrderModel> | false) => {
-      setOrderHistoryLoading(false);
-      if (data) {
-        setOrderHistory(data);
-      } else {
-        setOrderHistory(defaultOrderHistory);
-      }
-    },
-    [defaultOrderHistory],
-  );
-
   useEffect(() => {
-    if (customer && customer.id !== null && customer.id !== undefined) {
-      orderHistoryYDpageQuery.customer_id = [customer.id];
+    if (customer && !isNullOrUndefined(customer.id)) {
+      orderHistoryYDpageQuery.customer_ids = Number(customer.id);
       setOrderHistoryLoading(true);
-      dispatch(getCustomerOrderHistoryAction(orderHistoryYDpageQuery, updateCustomerOrderHistory));
+      getOrderHistoryService(orderHistoryYDpageQuery)
+        .then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            setOrderHistory(response.data);
+          } else {
+            setOrderHistory(defaultOrderHistory);
+            handleFetchApiError(response, "Danh sách lịch sử đơn hàng", dispatch);
+          }
+        })
+        .catch((error) => {
+          console.log("error", error);
+        })
+        .finally(() => {
+          setOrderHistoryLoading(false);
+        });
     } else {
       setOrderHistory(defaultOrderHistory);
     }
@@ -123,7 +126,6 @@ const YDPageCustomerView = (props: any) => {
     defaultOrderHistory,
     dispatch,
     orderHistoryYDpageQuery,
-    updateCustomerOrderHistory,
   ]);
   // end handle customer order history
 
