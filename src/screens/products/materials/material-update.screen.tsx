@@ -309,6 +309,34 @@ const UpdateMaterial: React.FC = () => {
     }
   };
 
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value: string = form.getFieldValue("price").toString();
+
+    const dotIndex = value.indexOf(".");
+    if (dotIndex === -1) {
+      // natural number
+      try {
+        const int = parseInt(value);
+        form.setFields([{ errors: undefined, name: "price", value: `${int}` }]);
+      } catch {
+        form.setFields([{ errors: ["Bạn phải nhập vào một số"], name: "price" }]);
+      }
+
+      return;
+    }
+
+    // float value entered
+    try {
+      const floatValue = parseFloat(value);
+      if (value.split(".")[1].length >= 3) {
+        // at most 3 decimal places allowed
+        form.setFields([{ name: "price", errors: undefined, value: floatValue.toFixed(3) }]);
+      }
+    } catch {
+      form.setFields([{ name: "price", errors: ["Bạn vui lòng nhập vào một số"] }]);
+    }
+  };
+
   const onChangeFile = useCallback((info, type: string) => {
     if (type === "video") {
       setFileListVideo(info.fileList);
@@ -606,13 +634,11 @@ const UpdateMaterial: React.FC = () => {
                     <Form.Item label="Giá:">
                       <Input.Group compact>
                         <Form.Item name="price" noStyle>
-                          <NumberInput
-                            format={(a: string) => formatCurrency(a)}
-                            replace={(a: string) => replaceFormatString(a)}
-                            maxLength={15}
-                            isFloat
+                          <Input
+                            style={{ width: "calc(100% - 170px)", textAlign: "right" }}
                             placeholder="Giá"
-                            style={{ width: "calc(100% - 170px)" }}
+                            onChange={handlePriceChange}
+                            type="number"
                           />
                         </Form.Item>
                         <Form.Item name="price_unit" noStyle>

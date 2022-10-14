@@ -1403,6 +1403,10 @@
     {
       "name": "g/y",
       "value": "g/y"
+    },
+    {
+      "name": "oz",
+      "value": "oz"
     }
   ],
   "material_status": [
@@ -1427,6 +1431,10 @@
     {
       "name": "y",
       "value": "y"
+    },
+    {
+      "name": "oz",
+      "value": "oz"
     }
   ]
 }
