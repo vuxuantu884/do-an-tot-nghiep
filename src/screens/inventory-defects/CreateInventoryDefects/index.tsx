@@ -364,6 +364,8 @@ const InventoryDefectCreate: React.FC = () => {
   const onChangeStore = useCallback(() => {
     const storeId = form.getFieldValue("store_id");
     setDefectStoreIdBak(storeId);
+    const store = stores.find((e) => e.id.toString() === storeId?.toString());
+    store && store !== null ? setFormStoreData(store) : setFormStoreData(null);
     setIsShowModalChangeStore(false);
     setKeySearch("");
     setObjSummaryTable({
@@ -371,7 +373,7 @@ const InventoryDefectCreate: React.FC = () => {
       total_on_hand: 0,
     });
     setDataTable([]);
-  }, [form]);
+  }, [form, stores]);
 
   const handleSearchProduct = useCallback(
     async (keyCode: string, code: string) => {
@@ -382,14 +384,13 @@ const InventoryDefectCreate: React.FC = () => {
 
         const storeId = form.getFieldValue("store_id");
         if (!storeId) {
-          showError("Vui lòng chọn kho gửi");
+          showError("Vui lòng chọn cửa hàng");
           return;
         }
         let res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, {
           barcode: code,
           store_ids: storeId ?? null,
         });
-        console.log("res.items.length", res.items.length);
 
         if (res && res.items && res.items.length > 0) {
           onSelectProduct(res.items[0], dataTable);
@@ -427,10 +428,9 @@ const InventoryDefectCreate: React.FC = () => {
     (value: number, option) => {
       if (defectStoreIdBak && value !== defectStoreIdBak && dataTable.length > 0) {
         setIsShowModalChangeStore(true);
-      } else {
-        setDefectStoreIdBak(value);
-      }
-
+        return
+      } 
+      setDefectStoreIdBak(value);
       const store = stores.find((e) => e.id.toString() === value?.toString());
       store && store !== null ? setFormStoreData(store) : setFormStoreData(null);
     },
@@ -531,12 +531,8 @@ const InventoryDefectCreate: React.FC = () => {
             tableLayout="fixed"
             pagination={false}
             columns={columns}
-            // loading={isLoadingTable}
             dataSource={dataTable}
           />
-          {/* <div className={"sum-qty"}>
-            <span>Tổng số lượng:</span> <b>{getTotalQuantity()}</b>
-          </div> */}
         </Card>
 
         <BottomBarContainer
@@ -581,7 +577,7 @@ const InventoryDefectCreate: React.FC = () => {
         <ModalConfirm
           onCancel={() => {
             setIsShowModalChangeStore(false);
-            form.setFieldsValue({ defect_store_id: defectStoreIdBak });
+            form.setFieldsValue({ store_id: defectStoreIdBak });
             const store = stores.find((e) => e.id.toString() === defectStoreIdBak?.toString());
             store && store !== null ? setFormStoreData(store) : setFormStoreData(null);
           }}
