@@ -61,6 +61,7 @@ export const PoWareHouse = (props: IProps) => {
     setProcurementTable,
     handleSetProcurementTableContext,
     setDisabledDate,
+    handleChangeProcument,
   } = useContext(PurchaseOrderCreateContext);
   const [columns, setColumns] = useState<Array<ICustomTableColumType<any>>>([]);
   const [expectReceiptDates, setExpectReceiptDates] = useState<Array<IExpectReceiptDates>>([]);
@@ -203,6 +204,12 @@ export const PoWareHouse = (props: IProps) => {
             return {
               ...procurement,
               percent: findStore >= 0 ? datePercents[findStore].percent : procurement.percent,
+              procurement_items: procurement.procurement_items.map((item) => {
+                return {
+                  ...item,
+                  percent: findStore >= 0 ? datePercents[findStore].percent : procurement.percent,
+                };
+              }),
               expect_receipt_date: expectReceiptDate,
             };
           }
@@ -210,9 +217,10 @@ export const PoWareHouse = (props: IProps) => {
             ...procurement,
           };
         });
-        formMain?.setFieldsValue({ procurements });
         setExpectReceiptDates([...expectReceiptDates]);
         setDisabledDate(false);
+        formMain?.setFieldsValue({ procurements });
+        formMain && handleChangeProcument(formMain);
       } catch {
         setDisabledDate(false);
       }
