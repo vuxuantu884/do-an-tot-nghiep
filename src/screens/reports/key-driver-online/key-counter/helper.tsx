@@ -297,7 +297,7 @@ export const getMonthlyCounterByDepartmentLevel3 = async (
   form: FormInstance,
   dispatch: Dispatch<any>,
 ): Promise<Array<MonthlyCounter>> => {
-  const selectedKeyDriver = form.getFieldValue("key_driver");
+  const selectedKeyDriver = form.getFieldValue("key_driver").split(' - ')[0].toLowerCase();
   const selectedDate = form.getFieldValue("date") as Moment;
   const selectedYear = selectedDate?.year();
   const selectedMonth = selectedDate?.month() + 1;

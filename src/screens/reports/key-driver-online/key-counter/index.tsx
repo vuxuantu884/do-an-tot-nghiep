@@ -29,7 +29,7 @@ function KeyDriverOnlineCounter() {
   const [dataSrc, setDataSrc] = useState<any[]>([]);
 
   const initColumnTable = async (shopList: DepartmentLevelGroup[]) => {
-    const keyDriver = form.getFieldValue("key_driver").split(' - ')[0];
+    const keyDriver = form.getFieldValue("key_driver").split(' - ')[0].toLowerCase();
     const selectedDate: Moment = form.getFieldValue("date");
 
     const selectedShopIndex: number = form.getFieldValue("shop");
