@@ -17,4 +17,12 @@ const PriceRulesPermission = {
   CANCEL: "price_rules_entitlement_cancel",
 };
 
+export const PROMOTION_GIFT_PERMISSIONS = {
+  READ: "price_rules_gift_read",
+  CREATE: "price_rules_gift_create",
+  UPDATE: "price_rules_gift_update",
+  EXPORT: "price_rules_gift_export",
+  CANCEL: "price_rules_gift_cancel",
+};
+
 export { PromotionReleasePermission, PriceRulesPermission };
