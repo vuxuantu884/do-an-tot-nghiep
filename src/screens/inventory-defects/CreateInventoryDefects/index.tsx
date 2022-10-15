@@ -97,7 +97,9 @@ const InventoryDefectCreate: React.FC = () => {
               <span className="product-item-name-detail">{value}</span>
             </div>
             <div className="product-item-name">
-              <span className="product-item-name-detail">{record.variant_name}</span>
+              <span className="product-item-name-detail ant-table-cell" title={record.variant_name}>
+                {record.variant_name.length > 40 ? record.variant_name.slice(0, 40) + "...": record.variant_name}
+              </span>
             </div>
           </div>
         </div>
@@ -429,7 +431,7 @@ const InventoryDefectCreate: React.FC = () => {
       if (defectStoreIdBak && value !== defectStoreIdBak && dataTable.length > 0) {
         setIsShowModalChangeStore(true);
         return
-      } 
+      }
       setDefectStoreIdBak(value);
       const store = stores.find((e) => e.id.toString() === value?.toString());
       store && store !== null ? setFormStoreData(store) : setFormStoreData(null);
