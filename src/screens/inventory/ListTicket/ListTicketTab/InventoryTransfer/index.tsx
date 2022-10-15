@@ -146,7 +146,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
 
   const [loadingBtn, setLoadingBtn] = useState(false);
   const [tableLoading, setTableLoading] = useState(false);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [isModalVisibleNote, setIsModalVisibleNote] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
   const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
 
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
@@ -882,12 +883,36 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     history.push(`${UrlConfig.INVENTORY_TRANSFERS}#1?${queryParam}`);
   }, [history]);
 
-  const onSelectedChange = useCallback((selectedRow) => {
-    const newSelectedRowKeys = selectedRow.filter((i: any) => i);
-    const selectedRowKeys = newSelectedRowKeys.map((row: any) => row && row.id);
-    setSelectedRowData(newSelectedRowKeys);
-    setSelectedRowKeys(selectedRowKeys);
-  }, []);
+  const onSelectedChange = useCallback((selectedRow: Array<InventoryTransferDetailItem>, selected: boolean | undefined, changeRow: any) => {
+    const newSelectedRowKeys = changeRow.map((row: any) => row.id);
+
+    if (selected) {
+      setSelectedRowKeys([
+        ...selectedRowKeys,
+        ...newSelectedRowKeys
+      ]);
+      setSelectedRowData([
+        ...selectedRowData,
+        ...changeRow
+      ]);
+      return;
+    }
+
+    const newSelectedRowKeysByDeselected = selectedRowKeys.filter((item) => {
+      const findIndex = changeRow.findIndex((row: any) => row.id === item);
+
+      return findIndex === -1
+    });
+
+    const newSelectedRowByDeselected = selectedRowData.filter((item) => {
+      const findIndex = changeRow.findIndex((row: any) => row.id === item.id);
+
+      return findIndex === -1
+    });
+
+    setSelectedRowKeys(newSelectedRowKeysByDeselected);
+    setSelectedRowData(newSelectedRowByDeselected);
+  }, [selectedRowData, selectedRowKeys]);
 
   const convertItemExport = (item: InventoryTransferDetailItem) => {
     return {
@@ -1223,7 +1248,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
         scroll={{ x: 1000 }}
         sticky={{ offsetScroll: 5, offsetHeader: 55 }}
         pagination={false}
-        onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+        onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
         onShowColumnSetting={() => setShowSettingColumn(true)}
         dataSource={data.items}
         columns={columnFinal}
