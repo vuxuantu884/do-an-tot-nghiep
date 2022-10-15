@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
-  InventoryExportImportTransferDetailItem,
+  InventoryExportImportTransferDetailItem, InventoryTransferDetailItem,
   InventoryTransferImportExportSearchQuery,
   Store,
 } from "model/inventory/transfer";
@@ -99,7 +99,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [statusExport, setStatusExport] = useState<number>(0);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
   const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
   const [totalItems, setTotalItems] = useState<number>(0);
   const query = useQuery();
@@ -580,11 +580,36 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
     getListExportImportTransfer().then();
   };
 
-  const onSelectedChange = useCallback((selectedRow) => {
-    const selectedRowKeys = selectedRow.map((row: any) => row && row.id);
-    setSelectedRowData(selectedRow);
-    setSelectedRowKeys(selectedRowKeys);
-  }, []);
+  const onSelectedChange = useCallback((selectedRow: Array<InventoryTransferDetailItem>, selected: boolean | undefined, changeRow: any) => {
+    const newSelectedRowKeys = changeRow.map((row: any) => row.id);
+
+    if (selected) {
+      setSelectedRowKeys([
+        ...selectedRowKeys,
+        ...newSelectedRowKeys
+      ]);
+      setSelectedRowData([
+        ...selectedRowData,
+        ...changeRow
+      ]);
+      return;
+    }
+
+    const newSelectedRowKeysByDeselected = selectedRowKeys.filter((item) => {
+      const findIndex = changeRow.findIndex((row: any) => row.id === item);
+
+      return findIndex === -1
+    });
+
+    const newSelectedRowByDeselected = selectedRowData.filter((item) => {
+      const findIndex = changeRow.findIndex((row: any) => row.id === item.id);
+
+      return findIndex === -1
+    });
+
+    setSelectedRowKeys(newSelectedRowKeysByDeselected);
+    setSelectedRowData(newSelectedRowByDeselected);
+  }, [selectedRowData, selectedRowKeys]);
 
   const getItemsByCondition = useCallback(
     async (type: string) => {
@@ -810,7 +835,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
         onShowColumnSetting={() => setShowSettingColumn(true)}
         dataSource={data.items}
         columns={columnFinal}
-        onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+        onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
         rowKey={(item: VariantResponse) => item.id}
       />
       {isModalVisibleNote && (
