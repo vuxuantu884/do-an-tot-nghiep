@@ -1389,7 +1389,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   };
 
   const onChangeTag = useCallback(
-    (value: []) => {
+    (value: string[]) => {
       const strTag = value.join(",");
       setTags(strTag);
     },
