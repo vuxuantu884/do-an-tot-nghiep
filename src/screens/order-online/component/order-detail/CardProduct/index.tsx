@@ -260,6 +260,7 @@ function UpdateProductCard(props: PropTypes) {
           <span className="title-card">SẢN PHẨM</span>
         </div>
       }
+      id="product_store_in_order"
       extra={
         <Row>
           <Space>
@@ -283,6 +284,7 @@ function UpdateProductCard(props: PropTypes) {
       <div>
         <Row className="sale-product-box" justify="space-between">
           <Table
+            id="product_store_in_order_table"
             locale={{
               emptyText: !OrderDetail ? (
                 <Button
