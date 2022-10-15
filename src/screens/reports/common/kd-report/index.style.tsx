@@ -60,7 +60,12 @@ export const KeyDriverStyle = styled.div`
   }
 
   .input-cell {
-    padding: 0px 1px !important;
+    padding: 0px !important;
+    input {
+      text-align: right;
+      width: 100%;
+      padding: 0 5px 0 0;
+    }
   }
 
   .non-input-cell {
@@ -70,12 +75,6 @@ export const KeyDriverStyle = styled.div`
   .input-number {
     border: none;
     width: 100%;
-
-    input {
-      text-align: right;
-      width: 100%;
-      padding: 0 5px 0 0;
-    }
   }
 
   .ant-input-number-handler-wrap {
@@ -165,5 +164,9 @@ export const KeyDriverStyle = styled.div`
     .anticon {
       vertical-align: 0.125em;
     }
+  }
+
+  .ant-table-thead th {
+    text-align: center !important;
   }
 `;
