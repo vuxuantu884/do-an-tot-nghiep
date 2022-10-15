@@ -172,6 +172,7 @@ function OrdersTable(props: PropTypes) {
   // };
 
   const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(undefined);
+  const [returnStore, setReturnStore] = useState<StoreResponse | null>();
 
   const [selectedOrder, setSelectedOrder] = useState<OrderModel | null>(null);
 
@@ -1240,6 +1241,11 @@ function OrdersTable(props: PropTypes) {
                           showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!");
                           return;
                         }
+                        const returnedStoreData = listStore?.find(
+                          (p) =>
+                            p.id === getFulfillmentActive(record?.fulfillments)?.returned_store_id,
+                        );
+                        setReturnStore(returnedStoreData);
                         setToSubStatusCode(value);
                       }}
                     >
@@ -1758,6 +1764,7 @@ function OrdersTable(props: PropTypes) {
         toSubStatus={toSubStatusCode}
         setToSubStatusCode={setToSubStatusCode}
         changeSubStatusCallback={changeSubStatusCallback}
+        returnStore={returnStore}
       />
       {/* hiển thị image ảnh sản phẩm */}
       <Image

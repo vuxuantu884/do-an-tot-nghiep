@@ -1191,6 +1191,7 @@ const OrderDetail = (props: PropTypes) => {
                   handleUpdateSubStatus={handleUpdateSubStatus}
                   setReload={setReload}
                   OrderDetailAllFulfillment={OrderDetailAllFulfillment}
+                  currentStores={currentStores}
                 />
                 <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} editNote={editNote} />
                 <ActionHistory
