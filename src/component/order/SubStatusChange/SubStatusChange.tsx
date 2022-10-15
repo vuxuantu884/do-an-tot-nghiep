@@ -1,5 +1,6 @@
 import ModalConfirm from "component/modal/ModalConfirm";
 import { setSubStatusAction } from "domain/actions/order/order.action";
+import { StoreResponse } from "model/core/store.model";
 import { OrderResponse } from "model/response/order/order.response";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -12,6 +13,7 @@ type PropTypes = {
   isEcommerceOrder?: boolean;
   reasonId?: number;
   subReasonRequireWarehouseChange?: number;
+  returnStore?: StoreResponse | null; //kho nhận
   changeSubStatusCallback: (value: string, data?: any) => void;
   setToSubStatusCode: (value: string | undefined) => void;
   setOrderDetail?: (data: OrderResponse) => void;
@@ -28,6 +30,7 @@ function SubStatusChange(props: PropTypes): JSX.Element {
     reasonId,
     subReasonRequireWarehouseChange,
     setOrderDetail,
+    returnStore,
   } = props;
   const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
   const [subText, setSubText] = useState("");
@@ -49,11 +52,16 @@ function SubStatusChange(props: PropTypes): JSX.Element {
       setSubText("Đơn hàng trạng thái Hết Hàng sẽ không thao tác được nữa.");
       setIsShowModalConfirm(true);
       isChange = false;
+    } else if (toSubStatus === ORDER_SUB_STATUS.returned) {
+      setSubText(`Tồn kho sẽ được cộng về kho ${returnStore?.name}! Vui lòng cân nhắc
+      trước khi đồng ý!`);
+      setIsShowModalConfirm(true);
+      isChange = false;
     } else {
       isChange = true;
     }
     return isChange;
-  }, [toSubStatus]);
+  }, [toSubStatus, returnStore]);
 
   const resetValues = useCallback(() => {
     setIsShowModalConfirm(false);

@@ -35,6 +35,7 @@ const ModalConfirm: React.FC<ModalConfirmProps> = (props: ModalConfirmProps) => 
               color: "#FFFFFF",
               backgroundColor: "#FCAF17",
               fontSize: "45px",
+              paddingBottom: 5,
             }}
             className="modal-confirm-icon"
           >
