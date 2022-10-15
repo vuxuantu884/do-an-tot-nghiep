@@ -100,3 +100,18 @@ export const DiscountDetailListStyled = styled.div`
     border-bottom-left-radius: 0;
   }
 `;
+
+export const CustomerConditionStyled = styled.div`
+  .form-item-title {
+    font-weight: 500;
+    color: #222222;
+    font-style: normal;
+    margin-bottom: 8px;
+  }
+
+  .form-item-scope {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+`;
