@@ -288,7 +288,7 @@ export default function Order() {
   }
 
   const onChangeTag = useCallback(
-    (value: []) => {
+    (value: string[]) => {
       const strTag = value.join(",");
       setTags(strTag);
     },
@@ -1063,6 +1063,7 @@ export default function Order() {
           tags: response.tags,
           channel_id: response.channel_id,
           automatic_discount: response.automatic_discount,
+          uniform: response.uniform
         });
         form.resetFields();
         // load lại form sau khi set initialValue

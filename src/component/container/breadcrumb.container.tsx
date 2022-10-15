@@ -9,7 +9,7 @@ interface IProps {
 }
 
 export interface BreadcrumbProps {
-  name: string;
+  name: string | ReactNode;
   path?: string;
 }
 const BreadcrumbContainer = (props: IProps) => {

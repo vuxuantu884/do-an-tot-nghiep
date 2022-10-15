@@ -1,7 +1,7 @@
-import { BaseObject } from "model/base/base.response";
-import { StoreResponse } from "model/core/store.model";
-import { ReasonReturn } from "model/order/return.model";
-import { GoodsReceiptsResponse } from "../pack/pack.response";
+import {BaseObject} from "model/base/base.response";
+import {StoreResponse} from "model/core/store.model";
+import {ReasonReturn} from "model/order/return.model";
+import {GoodsReceiptsResponse} from "../pack/pack.response";
 
 export interface OrderResponse extends BaseObject {
   ecommerce_shop_id: null;
@@ -103,6 +103,7 @@ export interface OrderResponse extends BaseObject {
   bill: OrderBillResponseModel | null;
   goods_receipts?: GoodsReceiptsResponse[] | null;
   returned_store_id?: number;
+  uniform?: boolean | null | undefined;
 }
 
 export interface OrderLineItemResponse {

@@ -1,8 +1,9 @@
-import { InfoCircleOutlined } from "@ant-design/icons";
-import { Form, Input } from "antd";
+import {InfoCircleOutlined} from "@ant-design/icons";
+import {Checkbox, Form, Input} from "antd";
 import CustomInputTags from "component/custom/custom-input-tags";
-import React, { useMemo } from "react";
-import { StyledComponent } from "./styles";
+import React, {useEffect, useMemo, useState} from "react";
+import {StyledComponent} from "./styles";
+import {CheckboxChangeEvent} from "antd/es/checkbox";
 
 type PropTypes = {
   onChangeTag: (value: []) => void;
@@ -12,7 +13,7 @@ type PropTypes = {
 };
 
 function CreateOrderSidebarOrderExtraInformation(props: PropTypes): JSX.Element {
-  const { onChangeTag, tags, isExchange, isReturn } = props;
+  const {onChangeTag, tags, isExchange, isReturn} = props;
 
   const moreTextIfIsReturn = useMemo(() => {
     if (isReturn) {
@@ -28,6 +29,19 @@ function CreateOrderSidebarOrderExtraInformation(props: PropTypes): JSX.Element 
 
   return (
     <StyledComponent>
+      <Form.Item
+        name="uniform"
+        valuePropName="checked"
+        label={`Đơn đồng phục`}
+        initialValue={false}
+        tooltip={{
+          title: "Đánh dấu đây là đơn đồng phục",
+          icon: <InfoCircleOutlined/>,
+        }}
+      >
+        <Checkbox>Đơn đồng phục</Checkbox>
+      </Form.Item>
+
       <Form.Item name="customer_note" label={`Ghi chú của khách ${moreTextIfIsReturn || ""}`}>
         <Input.TextArea
           placeholder="Điền ghi chú"
@@ -39,7 +53,7 @@ function CreateOrderSidebarOrderExtraInformation(props: PropTypes): JSX.Element 
         label={`Ghi chú nội bộ ${moreTextIfIsReturn || ""}`}
         tooltip={{
           title: "Thêm thông tin ghi chú chăm sóc khách hàng",
-          icon: <InfoCircleOutlined />,
+          icon: <InfoCircleOutlined/>,
         }}
       >
         <Input.TextArea
@@ -51,11 +65,11 @@ function CreateOrderSidebarOrderExtraInformation(props: PropTypes): JSX.Element 
         label={`Nhãn ${moreTextIfIsReturn || ""}`}
         tooltip={{
           title: "Thêm từ khóa để tiện lọc đơn hàng",
-          icon: <InfoCircleOutlined />,
+          icon: <InfoCircleOutlined/>,
         }}
         // name="tags"
       >
-        <CustomInputTags onChangeTag={onChangeTag} tags={tags} />
+        <CustomInputTags onChangeTag={onChangeTag} tags={tags}/>
       </Form.Item>
     </StyledComponent>
   );
