@@ -139,7 +139,7 @@ export interface OrderModel extends BaseObject {
   export_bill: boolean;
   bill: OrderBillResponseModel | null;
   actual_quantity?: number | null;
-  uniform?: boolean | null | undefined;
+  uniform?: boolean | null;
 }
 
 export interface OrderSearchQuery {
@@ -219,6 +219,7 @@ export interface OrderSearchQuery {
   affiliate?: string | null;
   //
   is_expired_payment?: boolean | string | null;
+  uniform?: boolean | string | null;
   expired_at?: number | null;
 }
 

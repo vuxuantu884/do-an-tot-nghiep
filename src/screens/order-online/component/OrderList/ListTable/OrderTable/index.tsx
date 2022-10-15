@@ -686,6 +686,10 @@ function OrdersTable(props: PropTypes) {
               <div className="textSmall single">
                 <strong>Tổng SP: {getTotalQuantity(i.items)}</strong>
               </div>
+              {i?.uniform && <div className="single uniformText">
+                <strong>Đơn đồng phục</strong>
+              </div>}
+
               {renderTypeIfOrderReturn(i)}
             </React.Fragment>
           );
