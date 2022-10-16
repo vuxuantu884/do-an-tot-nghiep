@@ -17,6 +17,7 @@ import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import useCheckIfCanCreateMoneyRefund from "hook/order/useCheckIfCanCreateMoneyRefund";
 import useAuthorization from "hook/useAuthorization";
 import useFetchStores from "hook/useFetchStores";
+import useCheckIfFullAccessStore from "hook/warranty/useCheckIfFullAccessStore";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
@@ -100,6 +101,9 @@ const ScreenReturnDetail = (props: PropTypes) => {
 
   const currentStores = useFetchStores();
 
+  const isFullAccessStore = useCheckIfFullAccessStore()
+  console.log('isFullAccessStore', isFullAccessStore)
+
   console.log("currentStores", currentStores);
   const defaultReceiveReturnStore = useGetDefaultReturnOrderReceivedStore({
     currentStores,
@@ -147,7 +151,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
       return;
     }
 
-    if (!allowReceiveReturn) {
+    if (!allowReceiveReturn && !isFullAccessStore) {
       renderModalNotificationReturn(
         "Tài khoản không có quyền nhận hàng vui lòng liên hệ IT để được cấp",
       );
