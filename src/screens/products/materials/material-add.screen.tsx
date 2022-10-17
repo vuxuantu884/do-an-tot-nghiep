@@ -3,14 +3,12 @@ import { Button, Card, Col, Form, Input, Popover, Row, Select, Space, Switch, Up
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomEditor from "component/custom/custom-editor";
-import NumberInput from "component/custom/number-input.custom";
 import UrlConfig from "config/url.config";
 import { MaterialCreateRequest } from "model/product/material.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import ModalCares from "../Component/CareInformation";
 import { careInformation } from "../product/component/CareInformation/care-value";
@@ -22,6 +20,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { uploadFileApi } from "service/core/import.service";
 import { createMaterialApi } from "service/product/material.service";
 import SupplierSearchSelect from "component/filter/component/supplier-select";
+import { validateNumberValue } from "./utils";
 
 let initialRequest: MaterialCreateRequest = {
   fabric_code: "",
@@ -338,31 +337,9 @@ const AddMaterial: React.FC = () => {
     }
   };
 
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value: string = form.getFieldValue("price").toString();
-
-    const dotIndex = value.indexOf(".");
-    if (dotIndex === -1) {
-      // natural number
-      try {
-        const int = parseInt(value);
-        form.setFields([{ errors: undefined, name: "price", value: `${int}` }]);
-      } catch {
-        form.setFields([{ errors: ["Bạn phải nhập vào một số"], name: "price" }]);
-      }
-
-      return;
-    }
-
-    // float value entered
-    try {
-      const floatValue = parseFloat(value);
-      if (value.split(".")[1].length >= 3) { // at most 3 decimal places allowed
-        form.setFields([{ name: "price", errors: undefined, value: floatValue.toFixed(3) }]);
-      }
-    } catch {
-      form.setFields([{ name: "price", errors: ["Bạn vui lòng nhập vào một số"] }]);
-    }
+  const handleNumberInputChange = (name: "price" | "fabric_size" | "weight") => {
+    let vl: string = form.getFieldValue(name).toString();
+    form.setFields([{ ...validateNumberValue(vl), name }]);
   };
 
   return (
@@ -526,13 +503,11 @@ const AddMaterial: React.FC = () => {
                   <Form.Item label="Khổ vải:">
                     <Input.Group compact>
                       <Form.Item name="fabric_size" noStyle>
-                        <NumberInput
-                          format={(a: string) => formatCurrency(a)}
-                          replace={(a: string) => replaceFormatString(a)}
-                          maxLength={15}
-                          isFloat
+                        <Input
                           placeholder="Khổ vải"
-                          style={{ width: "calc(100% - 100px)" }}
+                          type="number"
+                          style={{ width: "calc(100% - 100px)", textAlign: "right" }}
+                          onChange={() => handleNumberInputChange("fabric_size")}
                         />
                       </Form.Item>
                       <Form.Item name="fabric_size_unit" noStyle>
@@ -551,13 +526,11 @@ const AddMaterial: React.FC = () => {
                   <Form.Item label="Trọng lượng:">
                     <Input.Group compact>
                       <Form.Item name="weight" noStyle>
-                        <NumberInput
-                          format={(a: string) => formatCurrency(a)}
-                          replace={(a: string) => replaceFormatString(a)}
-                          maxLength={15}
-                          isFloat
-                          placeholder="Trọng lượng"
-                          style={{ width: "calc(100% - 100px)" }}
+                        <Input
+                          placeholder="Khổ vải"
+                          type="number"
+                          style={{ width: "calc(100% - 100px)", textAlign: "right" }}
+                          onChange={() => handleNumberInputChange("weight")}
                         />
                       </Form.Item>
                       <Form.Item name="weight_unit" noStyle>
@@ -579,7 +552,7 @@ const AddMaterial: React.FC = () => {
                         <Input
                           placeholder="Giá"
                           style={{ width: "calc(100% - 170px)", textAlign: "right" }}
-                          onChange={handlePriceChange}
+                          onChange={() => handleNumberInputChange("price")}
                           type="number"
                         />
                       </Form.Item>

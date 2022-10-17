@@ -27,6 +27,7 @@ import { uploadFileApi } from "service/core/import.service";
 import { careInformation } from "../Component/CareInformation/care-value";
 import "./style.scss";
 import { updateMaterialApi } from "service/product/material.service";
+import { validateNumberValue } from "./utils";
 
 type MaterialPamram = {
   id: string;
@@ -229,6 +230,11 @@ const UpdateMaterial: React.FC = () => {
     return "";
   }, [marterialStatusList, status]);
 
+  const handleNumberInputChange = (name: "price" | "fabric_size" | "weight") => {
+    let vl: string = form.getFieldValue(name).toString();
+    form.setFields([{ ...validateNumberValue(vl), name }]);
+  };
+
   const checkFile = (file: any, type: string, mess: boolean = false) => {
     let check = true;
     switch (type) {
@@ -306,34 +312,6 @@ const UpdateMaterial: React.FC = () => {
         break;
       default:
         break;
-    }
-  };
-
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value: string = form.getFieldValue("price").toString();
-
-    const dotIndex = value.indexOf(".");
-    if (dotIndex === -1) {
-      // natural number
-      try {
-        const int = parseInt(value);
-        form.setFields([{ errors: undefined, name: "price", value: `${int}` }]);
-      } catch {
-        form.setFields([{ errors: ["Bạn phải nhập vào một số"], name: "price" }]);
-      }
-
-      return;
-    }
-
-    // float value entered
-    try {
-      const floatValue = parseFloat(value);
-      if (value.split(".")[1].length >= 3) {
-        // at most 3 decimal places allowed
-        form.setFields([{ name: "price", errors: undefined, value: floatValue.toFixed(3) }]);
-      }
-    } catch {
-      form.setFields([{ name: "price", errors: ["Bạn vui lòng nhập vào một số"] }]);
     }
   };
 
@@ -584,13 +562,11 @@ const UpdateMaterial: React.FC = () => {
                     <Form.Item label="Khổ vải:">
                       <Input.Group compact>
                         <Form.Item name="fabric_size" noStyle>
-                          <NumberInput
-                            format={(a: string) => formatCurrency(a)}
-                            replace={(a: string) => replaceFormatString(a)}
-                            maxLength={15}
-                            isFloat
+                          <Input
+                            style={{ width: "calc(100% - 170px)", textAlign: "right" }}
                             placeholder="Khổ vải"
-                            style={{ width: "calc(100% - 100px)" }}
+                            onChange={() => handleNumberInputChange("fabric_size")}
+                            type="number"
                           />
                         </Form.Item>
                         <Form.Item name="fabric_size_unit" noStyle>
@@ -609,13 +585,11 @@ const UpdateMaterial: React.FC = () => {
                     <Form.Item label="Trọng lượng:">
                       <Input.Group compact>
                         <Form.Item name="weight" noStyle>
-                          <NumberInput
-                            format={(a: string) => formatCurrency(a)}
-                            replace={(a: string) => replaceFormatString(a)}
-                            maxLength={15}
-                            isFloat
+                          <Input
+                            type="number"
                             placeholder="Trọng lượng"
-                            style={{ width: "calc(100% - 100px)" }}
+                            style={{ width: "calc(100% - 100px)", textAlign: "right" }}
+                            onChange={() => handleNumberInputChange("weight")}
                           />
                         </Form.Item>
                         <Form.Item name="weight_unit" noStyle>
@@ -637,7 +611,7 @@ const UpdateMaterial: React.FC = () => {
                           <Input
                             style={{ width: "calc(100% - 170px)", textAlign: "right" }}
                             placeholder="Giá"
-                            onChange={handlePriceChange}
+                            onChange={() => handleNumberInputChange("price")}
                             type="number"
                           />
                         </Form.Item>
