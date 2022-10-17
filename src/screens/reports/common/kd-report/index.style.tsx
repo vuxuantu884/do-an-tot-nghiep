@@ -56,7 +56,7 @@ export const KeyDriverStyle = styled.div`
 
   .ant-table-cell {
     /* height: 56px; */
-    padding: 8px 4px;
+    padding: 2px 2px;
   }
 
   .input-cell {
@@ -64,17 +64,34 @@ export const KeyDriverStyle = styled.div`
     input {
       text-align: right;
       width: 100%;
-      padding: 0 5px 0 0;
+      padding: 0 2px 0 0;
+    }
+    .ant-input-suffix {
+      margin-left: -2px;
+      z-index: 1;
     }
   }
 
   .non-input-cell {
     padding: -1px 13px !important;
+    input {
+      text-align: right;
+      width: 100%;
+      padding: 0 2px 0 0;
+    }
+    .ant-input-suffix {
+      margin-left: -2px;
+      z-index: 1;
+    }
   }
 
   .input-number {
     border: none;
     width: 100%;
+    height: auto;
+    .ant-input {
+      height: auto;
+    }
   }
 
   .ant-input-number-handler-wrap {
@@ -84,7 +101,7 @@ export const KeyDriverStyle = styled.div`
   .ant-table-content > table > tbody > tr > td {
     /* padding-right:  4px;
     padding-left:  4px; */
-    padding: 8px 4px;
+    padding: 2px 2px;
   }
 
   .ant-table .ant-table-cell-with-append {
@@ -99,6 +116,8 @@ export const KeyDriverStyle = styled.div`
       margin-top: 0px;
       min-width: 18px;
     }
+    // position: absolute !important;
+    // max-width: 220px;
   }
 
   .ant-table-row-expand-icon:focus,
@@ -107,41 +126,61 @@ export const KeyDriverStyle = styled.div`
   .ant-table-row-expand-icon:before {
     color: ${color.primary};
   }
-
+  
   .ant-table-row-level {
     &-0 {
       td,
-      input {
-        background-color: #ffd978 !important;
-      }
+      input,
+      .input-number,
       .ant-input-affix-wrapper {
         background-color: #ffd978 !important;
       }
     }
     &-1 {
       td,
-      input {
-        background-color: #fff8e2 !important;
-      }
+      input,
+      .input-number,
       .ant-input-affix-wrapper {
-        background-color: #fff8e2 !important;
+        background-color: #ffe5a4 !important;
       }
     }
     &-2 {
       td,
-      input {
-        background-color: #fff !important;
-      }
+      input,
+      .input-number,
       .ant-input-affix-wrapper {
-        background-color: #fff !important;
+        background-color: #fff0c5 !important;
+      }
+    }
+    &-3 {
+      td,
+      input,
+      .input-number,
+      .ant-input-affix-wrapper {
+        background-color: #fff8e2 !important;
+      }
+    }
+    &-4 {
+      td,
+      input,
+      .input-number,
+      .ant-input-affix-wrapper {
+        background-color: #fffdf5 !important;
+      }
+    }
+    &-5 {
+      td,
+      input,
+      .input-number,
+      .ant-input-affix-wrapper {
+        background-color: #ffffff !important;
       }
     }
   }
   .expand-parent {
     td,
-    input {
-      background-color: #fff !important;
-    }
+    input,
+    .input-number,
     .ant-input-affix-wrapper {
       background-color: #fff !important;
     }
@@ -168,5 +207,23 @@ export const KeyDriverStyle = styled.div`
 
   .ant-table-thead th {
     text-align: center !important;
+  }
+
+  tbody > tr:hover {
+    td,
+    input,
+      .input-number,
+      .ant-input-affix-wrapper  {
+      background: rgba(245, 245, 245, 1) !important;
+    }
+  }
+
+  .overflow-wrap-normal {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  .ant-input-affix-wrapper {
+    padding-right: 2px;
   }
 `;

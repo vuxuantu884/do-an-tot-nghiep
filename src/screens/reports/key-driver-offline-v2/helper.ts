@@ -35,6 +35,7 @@ const ATTRIBUTE_VALUE = [
   "monthly_actual",
   "monthly_progress",
   "monthly_forecasted",
+  "monthly_forecasted_progress",
   "daily_target",
   "daily_actual",
   "daily_progress",
