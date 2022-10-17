@@ -21,6 +21,17 @@ type Props = {
 
 const InfoCustomer: React.FC<Props> = (props: Props) => {
   const { customer, loyaltyPoint, loyaltyUsageRules, levelOrder = 0, CustomerDeleteInfo } = props;
+
+  console.log(
+    "test customer",
+    customer,
+    "|",
+    loyaltyPoint,
+    "|",
+    loyaltyUsageRules,
+    "|",
+    levelOrder,
+  );
   let customerBirthday = moment(customer.birthday).format("DD/MM/YYYY");
 
   const rankName = loyaltyUsageRules.find(
@@ -29,7 +40,12 @@ const InfoCustomer: React.FC<Props> = (props: Props) => {
   )?.rank_name;
   return (
     <StyleComponent>
-      <Row align="middle" justify="space-between" className="row-customer-detail">
+      <Row
+        align="middle"
+        justify="space-between"
+        className="row-customer-detail"
+        id="customer_info"
+      >
         <Space>
           <Avatar size={32}>A</Avatar>
           <Link
@@ -79,7 +95,7 @@ const InfoCustomer: React.FC<Props> = (props: Props) => {
           </span>
         </Space>
 
-        {levelOrder < 3 && CustomerDeleteInfo &&(
+        {levelOrder < 3 && CustomerDeleteInfo && (
           <Space className="customer-detail-action">
             <CloseOutlined onClick={CustomerDeleteInfo} style={{ marginRight: "5px" }} />
           </Space>
