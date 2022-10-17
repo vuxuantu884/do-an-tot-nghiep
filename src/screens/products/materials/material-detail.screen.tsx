@@ -191,7 +191,7 @@ const MaterialDetail: React.FC = () => {
                       </Col>
                       <Col span={16}>
                         <div className="content">
-                          {formatCurrency(data.fabric_size)}{" "}
+                          {data.fabric_size}{" "}
                           {data.fabric_size ? data.fabric_size_unit : ""}
                         </div>
                       </Col>
@@ -203,7 +203,7 @@ const MaterialDetail: React.FC = () => {
                       </Col>
                       <Col span={16}>
                         <div className="content">
-                          {formatCurrency(data.weight)} {data.weight ? data.weight_unit : ""}
+                          {data.weight} {data.weight ? data.weight_unit : ""}
                         </div>
                       </Col>
                     </Row>
