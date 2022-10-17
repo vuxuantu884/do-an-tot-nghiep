@@ -85,7 +85,7 @@ function VerifyCell(props: VerifyCellProps) {
   } else if (!value && typeof value !== "number" && type === "display") {
     return <div>-</div>;
   } else {
-    return <div>{children}</div>;
+    return <div className="overflow-wrap-normal">{children}</div>;
   }
 }
 
@@ -144,7 +144,7 @@ function KeyDriverOffline() {
             fixed: true,
           },
           {
-            title: "Tỉ lệ",
+            title: "Tỷ lệ (Luỹ kế/Mục tiêu tháng)",
             name: "monthly_progress",
             index: 2,
             visible: true,
@@ -156,22 +156,28 @@ function KeyDriverOffline() {
             visible: true,
           },
           {
+            title: "Tỷ lệ (Dự kiến đạt/Mục tiêu tháng)",
+            name: "monthly_forecasted_progress",
+            index: 4,
+            visible: true,
+          },
+          {
             title: "Mục tiêu ngày",
             name: "daily_target",
-            index: 4,
+            index: 5,
             visible: true,
           },
           {
             title: "Thực đạt",
             name: "daily_actual",
-            index: 5,
+            index: 6,
             visible: true,
             fixed: true,
           },
           {
-            title: "Tỉ lệ",
+            title: "Tỷ lệ (Thực đạt/Mục tiêu ngày)",
             name: "daily_progress",
-            index: 6,
+            index: 7,
             visible: true,
           },
         ],
@@ -376,7 +382,7 @@ function KeyDriverOffline() {
               return (
                 <div
                   className={
-                    Number(text) / record[`${departmentKey}_monthly_target`] > 1
+                    Number(text) / record[`${departmentKey}_monthly_target`] >= 1
                       ? "background-green"
                       : Number(text) / record[`${departmentKey}_monthly_target`] < 1 / 2
                       ? "background-red"
@@ -385,6 +391,26 @@ function KeyDriverOffline() {
                 >
                   <VerifyCell row={record} value={text}>
                     {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
+                  </VerifyCell>
+                </div>
+              );
+            },
+          },
+          {
+            title: "TỶ LỆ",
+            width: 80,
+            align: "right",
+            dataIndex: `${departmentKey}_monthly_forecasted_progress`,
+            className: "non-input-cell",
+            render: (text: any, record: KeyDriverDataSourceType) => {
+              return (
+                <div
+                  className={
+                    text >= 100 ? "background-green" : text && text < 50 ? "background-red" : ""
+                  }
+                >
+                  <VerifyCell row={record} value={text}>
+                    {text ? `${text}%` : '-'}
                   </VerifyCell>
                 </div>
               );
@@ -515,7 +541,7 @@ function KeyDriverOffline() {
             width: 120,
             align: "right",
             dataIndex: `${departmentKey}_daily_actual`,
-            className: "input-cell",
+            className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
               
                 return (
