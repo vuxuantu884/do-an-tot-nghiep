@@ -18,9 +18,7 @@ import { MigrateKDOfflineUrl } from "routes/menu/reports.route";
 import { getKeyDriverOnlineApi } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import {
-  formatCurrency,
-  generateQuery,
-  parseLocaleNumber,
+  formatCurrency, parseLocaleNumber,
   replaceFormatString
 } from "utils/AppUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
@@ -643,13 +641,18 @@ function KeyDriverOffline() {
       );
     } else {
       const today = moment().format(DATE_FORMAT.YYYYMMDD);
-      let queryParam = generateQuery({
+      setTimeout(() => {
+        form.setFieldsValue({ date: moment() });
+      }, 1000);
+      const queryParams = queryString.parse(history.location.search);
+      const newQueries = {
+        ...queryParams,
         date: today,
         keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
-      });
-      history.push(`?${queryParam}`);
+      };
+      history.push({ search: queryString.stringify(newQueries) });
     }
-  }, [initTable, history, date, keyDriverGroupLv1, departmentLv2, departmentLv3]);
+  }, [initTable, history, date, keyDriverGroupLv1, departmentLv2, departmentLv3, form]);
 
   const onFinish = useCallback(() => {
     let date = form.getFieldsValue(true)["date"];
@@ -662,11 +665,13 @@ function KeyDriverOffline() {
         form.setFieldsValue({ date: moment() });
       }, 1000);
     }
-    let queryParam = generateQuery({
+    const queryParams = queryString.parse(history.location.search);
+    const newQueries = {
+      ...queryParams,
       date: newDate,
       keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
-    });
-    history.push(`?${queryParam}`);
+    };
+    history.push({ search: queryString.stringify(newQueries) });
   }, [form, history]);
   return (
     <ContentContainer

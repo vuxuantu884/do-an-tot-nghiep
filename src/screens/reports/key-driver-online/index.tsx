@@ -18,9 +18,7 @@ import { Link, useHistory, useLocation } from "react-router-dom";
 import { getKeyDriverOnlineApi } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import {
-  formatCurrency,
-  generateQuery,
-  parseLocaleNumber,
+  formatCurrency, parseLocaleNumber,
   replaceFormatString
 } from "utils/AppUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
@@ -131,57 +129,57 @@ function KeyDriverOnline() {
     getColumns
       ? JSON.parse(getColumns)
       : [
-        {
-          title: "Mục tiêu tháng",
-          name: "monthly_target",
-          index: 0,
-          visible: true,
-        },
-        {
-          title: "Luỹ kế",
-          name: "monthly_actual",
-          index: 1,
-          visible: true,
-          fixed: true,
-        },
-        {
-          title: "Tỷ lệ (Luỹ kế/Mục tiêu tháng)",
-          name: "monthly_progress",
-          index: 2,
-          visible: true,
-        },
-        {
-          title: "Dự kiến đạt",
-          name: "monthly_forecasted",
-          index: 3,
-          visible: true,
-        },
-        {
-          title: "Tỷ lệ (Dự kiến đạt/Mục tiêu tháng)",
-          name: "monthly_forecasted_progress",
-          index: 4,
-          visible: true,
-        },
-        {
-          title: "Mục tiêu ngày",
-          name: "daily_target",
-          index: 5,
-          visible: true,
-        },
-        {
-          title: "Thực đạt",
-          name: "daily_actual",
-          index: 6,
-          visible: true,
-          fixed: true,
-        },
-        {
-          title: "Tỷ lệ (Thực đạt/Mục tiêu ngày)",
-          name: "daily_progress",
-          index: 7,
-          visible: true,
-        },
-      ],
+          {
+            title: "Mục tiêu tháng",
+            name: "monthly_target",
+            index: 0,
+            visible: true,
+          },
+          {
+            title: "Luỹ kế",
+            name: "monthly_actual",
+            index: 1,
+            visible: true,
+            fixed: true,
+          },
+          {
+            title: "Tỷ lệ (Luỹ kế/Mục tiêu tháng)",
+            name: "monthly_progress",
+            index: 2,
+            visible: true,
+          },
+          {
+            title: "Dự kiến đạt",
+            name: "monthly_forecasted",
+            index: 3,
+            visible: true,
+          },
+          {
+            title: "Tỷ lệ (Dự kiến đạt/Mục tiêu tháng)",
+            name: "monthly_forecasted_progress",
+            index: 4,
+            visible: true,
+          },
+          {
+            title: "Mục tiêu ngày",
+            name: "daily_target",
+            index: 5,
+            visible: true,
+          },
+          {
+            title: "Thực đạt",
+            name: "daily_actual",
+            index: 6,
+            visible: true,
+            fixed: true,
+          },
+          {
+            title: "Tỷ lệ (Thực đạt/Mục tiêu ngày)",
+            name: "daily_progress",
+            index: 7,
+            visible: true,
+          },
+        ],
   );
 
   const newFinalColumns = useMemo(() => {
@@ -207,13 +205,7 @@ function KeyDriverOnline() {
       link: string,
     ): ColumnGroupType<any> | ColumnType<any> => {
       return {
-        title: link ? (
-          <Link to={link}>
-            {department}
-          </Link>
-        ) : (
-          department
-        ),
+        title: link ? <Link to={link}>{department}</Link> : department,
         className: classnames("department-name", className),
         onHeaderCell: (data: any) => {
           return {
@@ -356,7 +348,8 @@ function KeyDriverOnline() {
             render: (text: any, record: KeyDriverDataSourceType) => {
               return (
                 <VerifyCell row={record} value={text}>
-                  {formatCurrency(text)}{record.unit === "percent" ? "%" : ""}
+                  {formatCurrency(text)}
+                  {record.unit === "percent" ? "%" : ""}
                 </VerifyCell>
               );
             },
@@ -393,7 +386,8 @@ function KeyDriverOnline() {
                   }
                 >
                   <VerifyCell row={record} value={text}>
-                    {formatCurrency(text)}{record.unit === "percent" ? "%" : ""}
+                    {formatCurrency(text)}
+                    {record.unit === "percent" ? "%" : ""}
                   </VerifyCell>
                 </div>
               );
@@ -413,7 +407,7 @@ function KeyDriverOnline() {
                   }
                 >
                   <VerifyCell row={record} value={text}>
-                    {text ? `${text}%` : '-'}
+                    {text ? `${text}%` : "-"}
                   </VerifyCell>
                 </div>
               );
@@ -779,14 +773,19 @@ function KeyDriverOnline() {
       );
     } else {
       const today = moment().format(DATE_FORMAT.YYYYMMDD);
-      let queryParam = generateQuery({
+      setTimeout(() => {
+        form.setFieldsValue({ date: moment() });
+      }, 1000);
+      const queryParams = queryString.parse(history.location.search);
+      const newQueries = {
         "default-screen": "key-driver-online",
+        ...queryParams,
         date: today,
         keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
-      });
-      history.push(`?${queryParam}`);
+      };
+      history.push({ search: queryString.stringify(newQueries) });
     }
-  }, [initTable, history, date, keyDriverGroupLv1, departmentLv2, departmentLv3]);
+  }, [initTable, history, date, keyDriverGroupLv1, departmentLv2, departmentLv3, form]);
 
   const onFinish = useCallback(() => {
     let date = form.getFieldsValue(true)["date"];
@@ -799,12 +798,14 @@ function KeyDriverOnline() {
         form.setFieldsValue({ date: moment() });
       }, 1000);
     }
-    let queryParam = generateQuery({
+    const queryParams = queryString.parse(history.location.search);
+    const newQueries = {
       "default-screen": "key-driver-online",
+      ...queryParams,
       date: newDate,
       keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
-    });
-    history.push(`?${queryParam}`);
+    };
+    history.push({ search: queryString.stringify(newQueries) });
   }, [form, history]);
   return (
     <ContentContainer
