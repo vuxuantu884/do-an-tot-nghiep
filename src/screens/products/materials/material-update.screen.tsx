@@ -313,6 +313,34 @@ const UpdateMaterial: React.FC = () => {
     }
   };
 
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value: string = form.getFieldValue("price").toString();
+
+    const dotIndex = value.indexOf(".");
+    if (dotIndex === -1) {
+      // natural number
+      try {
+        const int = parseInt(value);
+        form.setFields([{ errors: undefined, name: "price", value: `${int}` }]);
+      } catch {
+        form.setFields([{ errors: ["Bạn phải nhập vào một số"], name: "price" }]);
+      }
+
+      return;
+    }
+
+    // float value entered
+    try {
+      const floatValue = parseFloat(value);
+      if (value.split(".")[1].length >= 3) {
+        // at most 3 decimal places allowed
+        form.setFields([{ name: "price", errors: undefined, value: floatValue.toFixed(3) }]);
+      }
+    } catch {
+      form.setFields([{ name: "price", errors: ["Bạn vui lòng nhập vào một số"] }]);
+    }
+  };
+
   const onChangeFile = useCallback((info, type: string) => {
     if (type === "video") {
       setFileListVideo(info.fileList);

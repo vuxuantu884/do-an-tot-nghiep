@@ -87,7 +87,7 @@ function OrderFulfillmentHeader(props: PropTypes) {
 
   return (
     <StyledComponent>
-      <div className="saleorder-header-content">
+      <div className="saleorder-header-content" id="order_fulfillment_header">
         <div className="saleorder-header-content__info">
           <span className="text-field fulfillmentCode">{fulfillment.code}</span>
           <div className="buttonCopy">

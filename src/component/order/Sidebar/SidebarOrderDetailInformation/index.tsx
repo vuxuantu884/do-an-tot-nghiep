@@ -1,26 +1,39 @@
 import { Card, Col, Row } from "antd";
 import { AppConfig } from "config/app.config";
 import UrlConfig, { BASE_NAME_ROUTER, SAPO_URL, SHOPIFY_URL } from "config/url.config";
+import { StoreResponse } from "model/core/store.model";
 import { HandoverResponse } from "model/handover/handover.response";
 import { OrderResponse } from "model/response/order/order.response";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { handleFetchApiError, isFetchApiSuccessful, isOrderFromPOS } from "utils/AppUtils";
 import { YODY_APP, YODY_LANDING_PAGE, YODY_WEB } from "utils/Constants";
+import { getFulfillmentActive, isDeliveryOrderReturned } from "utils/OrderUtils";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
   OrderDetail: OrderResponse | null;
   orderDetailHandover?: HandoverResponse[] | null;
+  currentStores: StoreResponse[];
 };
 
 function SidebarOrderDetailInformation(props: PropTypes) {
-  const { OrderDetail, orderDetailHandover } = props;
+  const { OrderDetail, orderDetailHandover, currentStores } = props;
   const [createdByName, setCreatedByName] = useState("");
   const dispatch = useDispatch();
+
+  const returnedStore = useMemo(() => {
+    const fulfillment = getFulfillmentActive(OrderDetail?.fulfillments);
+    if (!isDeliveryOrderReturned(fulfillment)) {
+      return null;
+    }
+    const result = currentStores.find((p) => p.id === fulfillment?.returned_store_id);
+    console.log("currentStores SidebarOrderDetailInformation", OrderDetail?.fulfillments);
+    return <Link to={`${UrlConfig.STORE}/${result?.id}`}>{result?.name}</Link>;
+  }, [OrderDetail, currentStores]);
 
   const renderSplitOrder = () => {
     let title: React.ReactNode = null;
@@ -328,11 +341,15 @@ function SidebarOrderDetailInformation(props: PropTypes) {
       title: renderOrderHandover()?.returnTitle,
       value: renderOrderHandover()?.returnValue,
     },
+    {
+      title: "Kho nhận hàng hoàn",
+      value: returnedStore,
+    },
   ];
 
   return (
     <StyledComponent>
-      <Card title="THÔNG TIN ĐƠN HÀNG">
+      <Card title="THÔNG TIN ĐƠN HÀNG" className="orderDetailSidebar">
         {detailArr.map((single, index) => {
           if (single.title && single.value) {
             return (

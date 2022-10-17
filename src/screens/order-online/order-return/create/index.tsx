@@ -1389,7 +1389,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   };
 
   const onChangeTag = useCallback(
-    (value: []) => {
+    (value: string[]) => {
       const strTag = value.join(",");
       setTags(strTag);
     },
@@ -1897,7 +1897,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
               </Col>
 
               <Col md={6}>
-                <SidebarOrderDetailInformation OrderDetail={OrderDetail} />
+                <SidebarOrderDetailInformation OrderDetail={OrderDetail} currentStores={currentStores}/>
                 <CreateOrderSidebarOrderInformation
                   form={form}
                   orderDetail={OrderDetail}

@@ -218,6 +218,7 @@ export const StyledComponent = styled.div.attrs((props: any) => {
       }
     }
   }
+  
   .shipmentType {
     .icon {
       margin-right: 5px;
@@ -235,6 +236,12 @@ export const StyledComponent = styled.div.attrs((props: any) => {
           top: 0;
         }
       }
+    }
+    .coordinator{
+      padding: 10px 0px;
+    }
+    .coordinator:not(:first-child) {
+      border-top: 1px solid #ddd;
     }
   }
   .ant-table {
@@ -558,6 +565,11 @@ export const StyledComponent = styled.div.attrs((props: any) => {
     color: ${primaryColor};
     font-weight: 500;
   }
+  .uniformText{
+    color: red;
+  }
 `;
 
 export { nameQuantityWidth };
+
+

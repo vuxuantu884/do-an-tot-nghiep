@@ -1,0 +1,158 @@
+import { render, waitFor } from "@testing-library/react";
+import { FulFillmentResponse, OrderResponse } from "model/response/order/order.response";
+import { handleFixWindowMatchMediaTest, testOrderArr } from "screens/order-online/utils/test.utils";
+import UpdateProductCard from ".";
+import configureStore from "redux-mock-store";
+import { Provider } from "react-redux";
+import { BrowserRouter as Router } from "react-router-dom";
+import FulfillmentStatusTag from ".";
+
+handleFixWindowMatchMediaTest();
+
+const fulfillmentDataTest: any = {
+  id: 149101,
+  code: "FM000149101",
+  version: 1,
+  created_by: "YD10893",
+  created_name: "LÊ VĂN LONG",
+  created_date: "2022-10-05T08:48:20Z",
+  updated_by: "YD10893",
+  updated_name: "LÊ VĂN LONG",
+  updated_date: "2022-10-08T02:57:36Z",
+  order_id: 21903525,
+  account_code: "YD10893",
+  assignee_code: "YD10893",
+  delivery_type: "",
+  status: "shipped",
+  partner_status: null,
+  shipment: {
+    id: 73720,
+    code: "b6234c94-2926-4ec9-8517-adaa65bf4b96",
+    version: 1,
+    created_by: "YD10893",
+    created_name: "LÊ VĂN LONG",
+    created_date: "2022-10-08T02:57:28Z",
+    updated_by: "YD10893",
+    updated_name: "LÊ VĂN LONG",
+    updated_date: "2022-10-08T02:57:28Z",
+    delivery_service_provider_id: null,
+    delivery_service_provider_code: null,
+    delivery_service_provider_name: null,
+    delivery_service_provider_type: "pick_at_store",
+    delivery_transport_type: null,
+    delivery_service_note: null,
+    handover_id: null,
+    service: null,
+    who_paid: null,
+    fee_type: null,
+    fee_base_on: null,
+    delivery_fee: null,
+    reference_status: null,
+    reference_status_explanation: null,
+    cancel_reason: null,
+    tracking_code: null,
+    tracking_url: null,
+    received_date: null,
+    expected_received_date: null,
+    shipping_fee_paid_to_three_pls: null,
+    sender_address_id: null,
+    sender_address: null,
+    requirements: "open_try",
+    requirements_name: null,
+    note_to_shipper: null,
+    fulfillment_id: 149101,
+    cod: 231200,
+    shipper_code: null,
+    shipper_name: null,
+    pushing_note: null,
+    pushing_status: null,
+    shipping_address: null,
+    office_time: null,
+    shipper_phone: null,
+    recipient_sort_code: null,
+    info_shipper: null,
+    type_shipment: null,
+  },
+  billing_address_id: null,
+  items: [
+    {
+      id: 185129,
+      code: "33af543f-a258-4086-b8b7-1d15d15b108e",
+      version: 1,
+      created_by: "YD10893",
+      created_name: "LÊ VĂN LONG",
+      created_date: "2022-10-05T08:48:20Z",
+      updated_by: "YD10893",
+      updated_name: "LÊ VĂN LONG",
+      updated_date: "2022-10-05T08:52:00Z",
+      order_line_item_id: 228658,
+      product_id: 4637,
+      product: "Polo nam kid phối bo",
+      product_code: "APK5169",
+      variant_id: 27816,
+      variant: "Polo nam kid phối bo - Vàng - 2",
+      order_line_item_note: null,
+      quantity: 1,
+      base_price: null,
+      discount_rate: 0,
+      discount_value: 0,
+      tax_type_id: null,
+      tax_rate: 0,
+      line_amount: null,
+      line_discount_amount: null,
+      line_amount_after_line_discount: 229000,
+      weight: 150,
+      weight_unit: "g",
+      sku: "APK5169-VAG-2",
+      variant_barcode: "2000190943161",
+      unit: "piece",
+    },
+  ],
+  stock_location_id: 2,
+  returned_store_id: 2,
+  payment_status: "",
+  total: 251200,
+  total_tax: null,
+  total_discount: 0,
+  total_quantity: 1,
+  stock_out_account_code: null,
+  receive_account_code: null,
+  cancel_account_code: null,
+  receive_cancellation_account_code: null,
+  payments: null,
+  picked_on: "2022-10-08T02:57:29.000+00:00",
+  packed_on: "2022-10-08T02:57:29.000+00:00",
+  shipped_on: "2022-10-08T02:57:36.000+00:00",
+  export_on: "2022-10-08T02:57:36.000+00:00",
+  received_on: null,
+  cancel_date: null,
+  return_status: "unreturned",
+  receive_cancellation_on: null,
+  status_before_cancellation: null,
+  discount_rate: 8.73,
+  discount_value: 20000,
+  discount_amount: null,
+  total_line_amount_after_line_discount: 229000,
+  returning_on: null,
+  sub_reason_id: null,
+  reason_id: null,
+  reason_name: null,
+  sub_reason_detail_id: null,
+  sub_reason_name: null,
+  sub_reason_detail_name: null,
+  tracking_log: [],
+};
+
+const setup = () => {
+  render(<FulfillmentStatusTag fulfillment={fulfillmentDataTest} />);
+};
+
+describe("FulfillmentStatusTag component", () => {
+  it("fulfillment status", async () => {
+    setup();
+    await waitFor(() => {
+      const element = document.querySelector("span.orders-tag");
+      expect(element?.innerHTML).toEqual("Đã giao hàng");
+    });
+  });
+});

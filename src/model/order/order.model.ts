@@ -1,5 +1,5 @@
-import { HandoverResponse } from "./../handover/handover.response";
-import { BaseObject } from "model/base/base.response";
+import {HandoverResponse} from "./../handover/handover.response";
+import {BaseObject} from "model/base/base.response";
 import {
   BillingAddressResponseModel,
   FulFillmentResponse,
@@ -13,8 +13,8 @@ import {
   ShippingAddress,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
-import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
-import { ORDER_TYPES } from "utils/Order.constants";
+import {GoodsReceiptsResponse} from "model/response/pack/pack.response";
+import {ORDER_TYPES} from "utils/Order.constants";
 
 export interface OrderItemModel {
   product_id: number;
@@ -23,6 +23,7 @@ export interface OrderItemModel {
   sku: string;
   variant: string;
 }
+
 export interface OrderPaymentModel {
   id: number;
   payment_method_id: number;
@@ -47,6 +48,7 @@ export interface OrderFulfillmentsModel {
 
   status: string;
 }
+
 export interface OrderModel extends BaseObject {
   ecommerce_shop_id: null;
   company_id: number | null;
@@ -137,6 +139,7 @@ export interface OrderModel extends BaseObject {
   export_bill: boolean;
   bill: OrderBillResponseModel | null;
   actual_quantity?: number | null;
+  uniform?: boolean | null;
 }
 
 export interface OrderSearchQuery {
@@ -216,6 +219,7 @@ export interface OrderSearchQuery {
   affiliate?: string | null;
   //
   is_expired_payment?: boolean | string | null;
+  uniform?: boolean | string | null;
   expired_at?: number | null;
 }
 

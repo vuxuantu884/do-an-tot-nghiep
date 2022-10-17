@@ -9,9 +9,10 @@ import React, { ReactElement, useEffect, useState } from "react";
 import Countdown from "react-countdown";
 import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
-import CustomerConditionDetail from "./customer-condition.detail";
+import CustomerConditionDetail from "screens/promotion/shared/customer-condition.detail";
+import { PromotionGift } from "model/promotion/gift.model";
 interface Props {
-  data: PriceRule;
+  data: PriceRule | PromotionGift;
 }
 
 export default function GeneralConditionDetail(props: Props): ReactElement {
@@ -123,7 +124,7 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
                 >
                   {listStore &&
                     data.prerequisite_store_ids.map((id) => (
-                      <li>{listStore.find((store) => store.id === id)?.name}</li>
+                      <li key={id}>{listStore.find((store) => store.id === id)?.name}</li>
                     ))}
                 </ul>
               </>
@@ -163,11 +164,13 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
               <ul
                 style={{
                   padding: "0 16px",
+                  maxHeight: "225px",
+                  overflow: "auto",
                 }}
               >
                 {listSource &&
                   data.prerequisite_order_source_ids.map((id) => (
-                    <li>{listSource.find((source) => source.id === id)?.name}</li>
+                    <li key={id}>{listSource.find((source) => source.id === id)?.name}</li>
                   ))}
               </ul>
             ) : (

@@ -11,10 +11,9 @@ type PropTypes = {
 
 function OrderFulfillmentShowProduct(props: PropTypes) {
   const { orderDetail } = props;
-
   return (
     <StyledComponent>
-      <Row className="orders-shipment-item">
+      <Row className="orders-shipment-item" id="order_fulfillment_production">
         <Collapse ghost>
           <Collapse.Panel
             header={
