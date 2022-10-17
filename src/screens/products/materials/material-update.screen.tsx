@@ -25,7 +25,7 @@ import { uploadFileApi } from "service/core/import.service";
 import { careInformation } from "../Component/CareInformation/care-value";
 import "./style.scss";
 import { updateMaterialApi } from "service/product/material.service";
-import { validateNumberValue } from "./utils";
+import { validateNumberValue } from "utils/Material.util";
 
 type MaterialPamram = {
   id: string;

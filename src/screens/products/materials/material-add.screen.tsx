@@ -20,7 +20,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { uploadFileApi } from "service/core/import.service";
 import { createMaterialApi } from "service/product/material.service";
 import SupplierSearchSelect from "component/filter/component/supplier-select";
-import { validateNumberValue } from "./utils";
+import { validateNumberValue } from "utils/Material.util";
 
 let initialRequest: MaterialCreateRequest = {
   fabric_code: "",
