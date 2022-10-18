@@ -14,7 +14,7 @@ export const StylesWrapperRight = styled(Col)`
   .container-right {
     width: 65%;
     max-width: 500px;
-    height: 100%;
+    height: 90%;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -23,12 +23,14 @@ export const StylesWrapperRight = styled(Col)`
     }
   }
   .hotline-info {
+    cursor: pointer;
     display: flex;
+    justify-content: center;
     align-items: center;
     font-size: 16px;
     img {
-      width: 24px;
-      height: 24px;
+      width: 36px;
+      height: 36px;
     }
     .hotline-group {
       display: flex;
