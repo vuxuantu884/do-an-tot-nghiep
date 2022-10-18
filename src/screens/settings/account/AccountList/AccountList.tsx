@@ -348,7 +348,7 @@ const ListAccountScreen: React.FC = () => {
       extra={
         <Row>
           <Space>
-            {/* <AuthWrapper acceptPermissions={[AccountPermissions.CREATE]}>
+            <AuthWrapper acceptPermissions={[AccountPermissions.CREATE]}>
               <Button
                 className="light"
                 size="large"
@@ -357,7 +357,7 @@ const ListAccountScreen: React.FC = () => {
               >
                 Nhập file
               </Button>
-            </AuthWrapper> */}
+            </AuthWrapper>
             <AuthWrapper acceptPermissions={[AccountPermissions.CREATE]}>
               <ButtonCreate child="Thêm người dùng" path={`${UrlConfig.ACCOUNTS}/create`} />
             </AuthWrapper>
