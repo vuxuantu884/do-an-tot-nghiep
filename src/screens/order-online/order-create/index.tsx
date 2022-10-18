@@ -95,8 +95,8 @@ import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 import { checkIfOrderHasNotFinishedPaymentMomo } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
+import CardCustomer from "../component/CardCustomer";
 import OrderDetailBottomBar from "../component/order-detail/BottomBar";
-import CardCustomer from "../component/order-detail/CardCustomer";
 import useHandleMomoCreateShipment from "../hooks/useHandleMomoCreateShipment";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import { StyledComponent } from "./styles";
@@ -288,7 +288,7 @@ export default function Order() {
   }
 
   const onChangeTag = useCallback(
-    (value: []) => {
+    (value: string[]) => {
       const strTag = value.join(",");
       setTags(strTag);
     },
@@ -1063,6 +1063,7 @@ export default function Order() {
           tags: response.tags,
           channel_id: response.channel_id,
           automatic_discount: response.automatic_discount,
+          uniform: response.uniform
         });
         form.resetFields();
         // load lại form sau khi set initialValue

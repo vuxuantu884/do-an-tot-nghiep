@@ -3,6 +3,7 @@ import hotlineIcon from "assets/icon/hotline.svg";
 import youtubeIcon from "assets/icon/youtube-icon.svg";
 import devEnvMarkup from "assets/img/dev-env-markup.png";
 import gapoIcon from "assets/img/gapo_icon.png";
+import gopyIcon from "assets/icon/gop-y.svg";
 import logo from "assets/img/logo.svg";
 import uatEnvMarkup from "assets/img/uat-env-markup.png";
 import logoDev from "assets/img/yody-logo-dev.svg";
@@ -27,6 +28,7 @@ type HeaderContainerProps = {
 const hotlineNumber = "0888 464 258";
 const youtubeUrl = "https://www.youtube.com/channel/UCVgds2lhgxftOxEtQJooKKQ/playlists";
 const gapoUrl = "https://www.gapowork.vn/group/unicorn";
+const gopyUrl = "https://forms.gle/zCgBGA7Th7MDNNL58";
 
 const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerProps) => {
   const user_id = useSelector((state: RootReducerType) => state.userReducer.account?.user_id);
@@ -165,6 +167,11 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
                 <a href={gapoUrl} target={"_blank"} rel="noreferrer" className="support-link">
                   <img className="support-icon" src={gapoIcon} alt="gapo" />
                   {"Nhóm hỗ trợ Gapo »"}
+                </a>
+
+                <a href={gopyUrl} target={"_blank"} rel="noreferrer" className="support-link">
+                  <img className="support-icon" src={gopyIcon} alt="gop y" />
+                  {"Góp ý »"}
                 </a>
               </div>
             )}

@@ -9,6 +9,10 @@ import { LoyaltyRankResponse } from "model/response/loyalty/ranking/loyalty-rank
 import React, { ReactElement, useCallback, useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
+import CustomNumberInput from "component/custom/customNumberInput";
+import { formatCurrencyNotDefaultValue } from "utils/AppUtils";
+import rightArrow from "assets/icon/right-arrow.svg";
+import { CustomerConditionStyled } from "screens/promotion/discount/discount-style";
 const { Option } = Select;
 
 interface Props {
@@ -25,6 +29,10 @@ export enum CustomerFilterField {
   prerequisite_customer_loyalty_level_ids = "prerequisite_customer_loyalty_level_ids",
   prerequisite_customer_group_ids = "prerequisite_customer_group_ids",
   prerequisite_assignee_codes = "prerequisite_assignee_codes",
+  prerequisite_total_money_spend_from = "prerequisite_total_money_spend_from",
+  prerequisite_total_money_spend_to = "prerequisite_total_money_spend_to",
+  prerequisite_total_finished_order_from = "prerequisite_total_finished_order_from",
+  prerequisite_total_finished_order_to = "prerequisite_total_finished_order_to",
 }
 
 const genderOptions = [
@@ -124,7 +132,7 @@ export default function CustomerFilter(props: Props): ReactElement {
           </Form.Item>
 
           {!checkedAll && (
-            <>
+            <CustomerConditionStyled>
               <Form.Item
                 label="Giới tính"
                 name={CustomerFilterField.prerequisite_genders}
@@ -370,7 +378,92 @@ export default function CustomerFilter(props: Props): ReactElement {
                 help={false}
                 maxTagCount={undefined}
               />
-            </>
+
+              <div>
+                <div className="form-item-title">Tiền tích lũy</div>
+                <div className={"form-item-scope"}>
+                  <Form.Item
+                    name={CustomerFilterField.prerequisite_total_money_spend_from}
+                    rules={[
+                      {
+                        validator: validateAll,
+                      },
+                    ]}
+                    help={false}
+                  >
+                    <CustomNumberInput
+                      id={CustomerFilterField.prerequisite_total_money_spend_from}
+                      style={{ textAlign: "left" }}
+                      format={(a: string) => formatCurrencyNotDefaultValue(a)}
+                      placeholder="Từ"
+                      maxLength={15}
+                    />
+                  </Form.Item>
+
+                  <img style={{ margin: "0 4px" }} src={rightArrow} alt="" />
+
+                  <Form.Item
+                    name={CustomerFilterField.prerequisite_total_money_spend_to}
+                    rules={[
+                      {
+                        validator: validateAll,
+                      },
+                    ]}
+                    help={false}
+                  >
+                    <CustomNumberInput
+                      style={{ textAlign: "left" }}
+                      format={(a: string) => formatCurrencyNotDefaultValue(a)}
+                      placeholder="Đến"
+                      maxLength={15}
+                    />
+                  </Form.Item>
+                </div>
+              </div>
+
+              <div>
+                <div className="form-item-title">Tổng đơn hàng</div>
+                <div className={"form-item-scope"}>
+                  <Form.Item
+                    name={CustomerFilterField.prerequisite_total_finished_order_from}
+                    rules={[
+                      {
+                        validator: validateAll,
+                      },
+                    ]}
+                    help={false}
+                  >
+                    <CustomNumberInput
+                      id={CustomerFilterField.prerequisite_total_finished_order_from}
+                      style={{ textAlign: "left" }}
+                      format={(a: string) => formatCurrencyNotDefaultValue(a)}
+                      placeholder="Từ"
+                      maxLength={13}
+                    />
+                  </Form.Item>
+
+                  <img style={{ margin: "0 4px" }} src={rightArrow} alt="" />
+
+                  <Form.Item
+                    name={CustomerFilterField.prerequisite_total_finished_order_to}
+                    rules={[
+                      {
+                        validator: validateAll,
+                      },
+                    ]}
+                    help={false}
+                  >
+                    <CustomNumberInput
+                      style={{ textAlign: "left" }}
+                      format={(a: string) => formatCurrencyNotDefaultValue(a)}
+                      placeholder="Đến"
+                      maxLength={13}
+                    />
+                  </Form.Item>
+                </div>
+              </div>
+
+            </CustomerConditionStyled>
           )}
         </Col>
       </Row>

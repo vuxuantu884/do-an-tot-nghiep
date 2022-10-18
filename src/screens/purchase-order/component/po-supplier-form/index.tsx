@@ -210,15 +210,18 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                       >
                         {supplier}
                       </Link>
-                      {/*TH tạo mới, clone đơn hàng, đơn nháp*/}
-                      {!isEdit && (!status || status === POStatus.DRAFT) && (
-                        <Button
-                          type="link"
-                          onClick={removeSupplier}
-                          style={{ display: "flex", alignItems: "center" }}
-                          icon={<AiOutlineClose />}
-                        />
-                      )}
+                      {/*TH tạo mới, clone đơn hàng, đơn nháp, chờ duyệt*/}
+                      {!isEdit &&
+                        (!status ||
+                          status === POStatus.DRAFT ||
+                          status === POStatus.WAITING_APPROVAL) && (
+                          <Button
+                            type="link"
+                            onClick={removeSupplier}
+                            style={{ display: "flex", alignItems: "center" }}
+                            icon={<AiOutlineClose />}
+                          />
+                        )}
                     </Row>
                     <Divider style={{ marginBottom: 0 }} />
                   </>

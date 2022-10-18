@@ -1,4 +1,4 @@
-import { KDGroup } from "model/report";
+import { KDGroup, KeyDriverField } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -67,7 +67,9 @@ function useFetchProductTotalSales() {
       }
       const { data: resDayData } = res[0].result;
       setData((prev: any) => {
-        const productTotalSales: any = prev[1];
+        const productTotalSales: any = prev.find(
+          (item: any) => item.key === KeyDriverField.ProductTotalSales,
+        );
         const childrenProduct: any[] = productTotalSales.children;
         const companyDayData = calculateCompanyKeyDriver(resDayData);
         [...companyDayData, ...resDayData].forEach((item, index) => {
@@ -113,7 +115,6 @@ function useFetchProductTotalSales() {
           });
         }
         productTotalSales.children = childrenProduct;
-        prev[1] = productTotalSales;
         return [...prev];
       });
       setIsFetchingProductTotalSales(false);

@@ -84,6 +84,11 @@ const DiscountReplicate = () => {
         prerequisite_customer_loyalty_level_ids: result.prerequisite_customer_loyalty_level_ids,
         prerequisite_assignee_codes: result.prerequisite_assignee_codes,
 
+        prerequisite_total_finished_order_from: result.prerequisite_total_finished_order_from,
+        prerequisite_total_finished_order_to: result.prerequisite_total_finished_order_to,
+        prerequisite_total_money_spend_from: result.prerequisite_total_money_spend_from,
+        prerequisite_total_money_spend_to: result.prerequisite_total_money_spend_to,
+
         starts_birthday: parseDurationToMoment(
           result.prerequisite_birthday_duration?.starts_mmdd_key,
         ),

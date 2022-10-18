@@ -5,44 +5,51 @@ export const KeyDriverOfflineStyle = styled.div`
   .ant-table-row-level {
     &-0 {
       td,
-      input {
+      input,
+      .input-number {
         background-color: #ffd978 !important;
       }
     }
     &-1 {
       td,
-      input {
+      input,
+      .input-number {
         background-color: #ffe5a4 !important;
       }
     }
     &-2 {
       td,
-      input {
+      input,
+      .input-number {
         background-color: #fff0c5 !important;
       }
     }
     &-3 {
       td,
-      input {
+      input,
+      .input-number {
         background-color: #fff8e2 !important;
       }
     }
     &-4 {
       td,
-      input {
+      input,
+      .input-number {
         background-color: #fffdf5 !important;
       }
     }
     &-5 {
       td,
-      input {
+      input,
+      .input-number {
         background-color: #ffffff !important;
       }
     }
   }
   .expand-parent {
     td,
-    input {
+    input,
+    .input-number {
       background-color: #fff !important;
     }
   }

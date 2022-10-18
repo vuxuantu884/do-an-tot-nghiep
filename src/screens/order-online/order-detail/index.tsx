@@ -110,10 +110,11 @@ import UpdateShipmentCard from "../component/UpdateShipmentCard";
 import useGetDefaultReturnOrderReceivedStore from "../hooks/useGetDefaultReturnOrderReceivedStore";
 import CancelOrderModal from "../modal/cancel-order.modal";
 import CardReturnReceiveProducts from "../order-return/components/CardReturnReceiveProducts";
-import { StyledComponent } from "./styles";
+import {StyledComponent, UniformText} from "./styles";
 
 type PropTypes = {
   id?: string;
+  setTitle: (value?: string) => void;
 };
 type OrderParam = {
   id: string;
@@ -130,6 +131,7 @@ const OrderDetail = (props: PropTypes) => {
   if (!id && props.id) {
     id = props.id;
   }
+  const {setTitle} = props;
   // let OrderId = parseInt(id);
   const isFirstLoad = useRef(true);
   const isEcommerceOrder = useRef(false);
@@ -220,9 +222,7 @@ const OrderDetail = (props: PropTypes) => {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
 
-  const [shippingServiceConfig, setShippingServiceConfig] = useState<
-    ShippingServiceConfigDetailResponseModel[]
-  >([]);
+  const [shippingServiceConfig, setShippingServiceConfig] = useState<ShippingServiceConfigDetailResponseModel[]>([]);
 
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
   // xác nhận đơn
@@ -404,7 +404,7 @@ const OrderDetail = (props: PropTypes) => {
             f.status !== FulFillmentStatus.RETURNED &&
             f.status !== FulFillmentStatus.RETURNING,
         );
-
+        setTitle(`Đơn hàng ${_data.code}`)
         setOrderDetail(_data);
         setShippingFeeInformedCustomer(
           _data.shipping_fee_informed_to_customer ? _data.shipping_fee_informed_to_customer : 0,
@@ -1028,18 +1028,18 @@ const OrderDetail = (props: PropTypes) => {
         breadcrumb={
           OrderDetail
             ? [
-                {
-                  name: isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`,
-                  path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
-                },
-                {
-                  name: `Danh sách đơn hàng ${isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
-                  path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
-                },
-                {
-                  name: OrderDetail?.code ? `Đơn hàng ${OrderDetail?.code}` : "Đang tải dữ liệu...",
-                },
-              ]
+              {
+                name: isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`,
+                path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
+              },
+              {
+                name: `Danh sách đơn hàng ${isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
+                path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
+              },
+              {
+                name: <span>{OrderDetail?.code ? <>Đơn hàng {OrderDetail?.code} {OrderDetail?.uniform && <UniformText>(ĐƠN ĐỒNG PHỤC)</UniformText>}</> : "Đang tải dữ liệu..."}</span>,
+              },
+            ]
             : undefined
         }
         extra={
@@ -1178,8 +1178,9 @@ const OrderDetail = (props: PropTypes) => {
               <Col md={6}>
                 {showOrderDetailUtm && <SidebarOrderDetailUtm OrderDetail={OrderDetail} />}
                 <SidebarOrderDetailInformation
-                  OrderDetail={OrderDetail}
+                  OrderDetail={OrderDetailAllFulfillment}
                   orderDetailHandover={orderDetailHandover}
+                  currentStores={currentStores}
                 />
                 <SubStatusOrder
                   setOrderDetail={handleStatusOrder}

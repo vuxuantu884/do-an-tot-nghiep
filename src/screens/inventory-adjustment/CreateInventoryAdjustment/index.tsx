@@ -49,6 +49,8 @@ import TextEllipsis from "component/table/TextEllipsis";
 import debounce from "lodash/debounce";
 import AccountSearchPaging from "../../../component/custom/select-search/account-select-paging";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import { fullTextSearch } from "../../../utils/StringUtils";
+import { AccountStoreResponse } from "../../../model/account/account.model";
 
 const { Option } = Select;
 
@@ -89,6 +91,7 @@ const CreateInventoryAdjustment: FC = () => {
     items: [],
   });
   const [keySearch, setKeySearch] = useState<string>("");
+  const [keySearchProduct, setKeySearchProduct] = useState<string>("");
   const history = useHistory();
   const productSearchRef = createRef<CustomAutoComplete>();
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
@@ -111,6 +114,10 @@ const CreateInventoryAdjustment: FC = () => {
     TotalOnHand: 0,
     TotalRealOnHand: 0,
   });
+
+  const myStores: AccountStoreResponse[] | undefined = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.account_stores,
+  );
 
   const lstAudiTypes = [
     {
@@ -197,6 +204,7 @@ const CreateInventoryAdjustment: FC = () => {
   const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse> | any>();
 
   const onSearchProductDebounce = debounce((key: string) => {
+    setKeySearchProduct(key);
     onSearchProduct(key);
   }, 300);
 
@@ -214,6 +222,18 @@ const CreateInventoryAdjustment: FC = () => {
             page: 1,
             store_ids: storeId ?? 0,
             info: value.trim(),
+          },
+          setResultSearch,
+        ),
+      );
+    } else if (value.trim() === "") {
+      dispatch(
+        inventoryGetVariantByStoreAction(
+          {
+            status: "active",
+            limit: 10,
+            page: 1,
+            store_ids: storeId ?? 0,
           },
           setResultSearch,
         ),
@@ -303,7 +323,7 @@ const CreateInventoryAdjustment: FC = () => {
   );
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
-    const newResult = result?.map((item) => {
+    const newResult: any = result?.map((item) => {
       const variantPrice =
         item &&
         item.variant_prices &&
@@ -324,17 +344,14 @@ const CreateInventoryAdjustment: FC = () => {
         on_way: item.on_way ?? 0,
       };
     });
-    const dataTemp = [...dataTable, ...newResult];
 
-    const arrayUnique = [...new Map(dataTemp.map((item) => [item.id, item])).values()];
-
-    form.setFieldsValue({ [VARIANTS_FIELD]: arrayUnique });
+    form.setFieldsValue({ [VARIANTS_FIELD]: newResult });
     setIsLoadingTable(true);
-    setDataTable(arrayUnique);
-    setSearchVariant(arrayUnique);
+    setDataTable(newResult);
+    setSearchVariant(newResult);
     setIsLoadingTable(false);
     setVisibleManyProduct(false);
-    drawColumns(arrayUnique);
+    drawColumns(newResult);
   };
 
   const onBeforeUpload = useCallback((file) => {
@@ -342,10 +359,15 @@ const CreateInventoryAdjustment: FC = () => {
     if (!isLt2M) {
       showWarning("Cần chọn file nhỏ hơn 10mb");
     }
+    const fileListFiltered = fileList.filter((oldFile) => oldFile.name === file.name);
+    if (fileListFiltered.length > 0) {
+      showWarning("File tải lên bị trùng.");
+      return Upload.LIST_IGNORE;
+    }
     return isLt2M ? true : Upload.LIST_IGNORE;
-  }, []);
+  }, [fileList]);
 
-  const onCustomRequest = (options: UploadRequestOption<any>) => {
+  const onCustomRequest = (options: UploadRequestOption) => {
     const { file } = options;
     let files: Array<File> = [];
     if (file instanceof File) {
@@ -725,10 +747,11 @@ const CreateInventoryAdjustment: FC = () => {
       ...temps.filter((e: LineItemAdjustment) => {
         return (
           e.on_hand === parseInt(keyLowerCase) ||
-          e.variant_name?.toLocaleLowerCase().includes(keyLowerCase) ||
-          e.sku?.toLocaleLowerCase().includes(keyLowerCase) ||
-          e.code?.toLocaleLowerCase().includes(keyLowerCase) ||
-          e.barcode?.toLocaleLowerCase().includes(keyLowerCase)
+          fullTextSearch(keyLowerCase, e.variant_name?.toLocaleLowerCase()) ||
+          fullTextSearch(keyLowerCase, e.sku?.toLocaleLowerCase()) ||
+          fullTextSearch(keyLowerCase, e.name?.toLocaleLowerCase()) ||
+          fullTextSearch(keyLowerCase, e.code?.toLocaleLowerCase()) ||
+          fullTextSearch(keyLowerCase,  e.barcode?.toLocaleLowerCase())
         );
       }),
     ];
@@ -756,17 +779,19 @@ const CreateInventoryAdjustment: FC = () => {
       setDataTable([]);
       drawColumns([]);
       setSearchVariant([]);
+      onSearchProduct(keySearchProduct);
     } else {
       dispatch(getVariantHasOnHandByStoreAction({ store_adj: storeId }, onResultGetVariant));
     }
-  }, [form, query, auditType, onResultGetVariant, dispatch, drawColumns]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, query, auditType, drawColumns, keySearchProduct, dispatch, onResultGetVariant]);
 
   return (
     <ContentContainer
       title="Thêm mới phiếu kiểm kho"
       breadcrumb={[
         {
-          name: "Tổng quan",
+          name: "Kho hàng",
           path: UrlConfig.HOME,
         },
         {
@@ -847,6 +872,7 @@ const CreateInventoryAdjustment: FC = () => {
                     labelCol={{ span: 24, offset: 0 }}
                   >
                     <CustomSelect
+                      notFoundContent="Không tìm thấy kết quả tìm kiếm"
                       placeholder="Chọn kho kiểm"
                       showArrow
                       optionFilterProp="children"
@@ -863,7 +889,13 @@ const CreateInventoryAdjustment: FC = () => {
                         store ? setFormStoreData(store) : setFormStoreData(null);
                       }}
                     >
-                      {Array.isArray(stores) &&
+                      {Array.isArray(myStores) &&
+                        myStores.length > 0 ?
+                        myStores.map((item, index) => (
+                          <Option key={"adjusted_store_id" + index} value={item.store_id ? item.store_id.toString() : ''}>
+                            {item.store}
+                          </Option>
+                        )) : Array.isArray(stores) &&
                         stores.length > 0 &&
                         stores.map((item, index) => (
                           <Option key={"adjusted_store_id" + index} value={item.id.toString()}>

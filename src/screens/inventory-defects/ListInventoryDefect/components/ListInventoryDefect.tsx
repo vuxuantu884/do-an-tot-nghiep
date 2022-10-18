@@ -42,7 +42,7 @@ import { StoreResponse } from "model/core/store.model";
 import { DefectFilterBasicEnum, DefectFilterBasicName } from "model/inventory-defects/filter";
 import { useArray } from "hook/useArray";
 import BaseFilterResult from "component/base/BaseFilterResult";
-import { DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import EditPopover from "./EditPopover";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { InventoryDefectsPermission } from "config/permissions/inventory-defects.permission";
@@ -212,19 +212,20 @@ const ListInventoryDefect: React.FC = () => {
       {
         title: "Ảnh",
         align: "center",
+        fixed: "left",
         dataIndex: "variant_image",
         width: 70,
         render: (value: string) => {
-          // let url = null;
-          // value.variant_images?.forEach((item) => {
-          //     if (item.product_avatar) {
-          //       url = item.url;
-          //     }
-          //   });
           return (
             <>
               {value ? (
-                <Image width={40} height={40} placeholder="Xem" src={value ?? ""} />
+                <Image
+                  width={40}
+                  height={40}
+                  src={value ?? ""}
+                  placeholder="Xem"
+                  preview={{ mask: <EyeOutlined /> }}
+                />
               ) : (
                 <ImageProduct disabled={true} onClick={undefined} path={value} />
               )}
@@ -241,7 +242,7 @@ const ListInventoryDefect: React.FC = () => {
         fixed: "left",
         visible: true,
         render: (value: string, item: InventoryDefectResponse) => {
-          let strName = item.name.trim();
+          let strName = item.name?.trim() ?? "";
           strName =
             window.screen.width >= 1920
               ? splitEllipsis(strName, 100, 30)

@@ -13,13 +13,12 @@ import { calculateDimSummary } from "../utils/DimSummaryUtils";
 
 function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm, selectedDate, selectedStaffs } =
-    useContext(KDOfflineContext);
+  const { setData, selectedStores, selectedAsm, selectedDate } = useContext(KDOfflineContext);
 
   const [isFetchingSmsLoyalty, setIsFetchingSmsLoyalty] = useState<boolean | undefined>();
 
   const findKeyDriverAndUpdateValue = useCallback(
-    (data: any, asmData: any, columnKey: string) => {
+    (dataState: any, dimData: any, columnKey: string) => {
       const { Asm, Store } = KeyDriverDimension;
       let dimKey: "department_lv2" | "pos_location_name" | undefined;
       if (dimension === Asm) {
@@ -30,8 +29,8 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
         dimKey = undefined;
       }
       findKDAndUpdateCallSmsValue({
-        data,
-        asmData,
+        dataState,
+        dimData,
         columnKey,
         selectedDate,
         type: "sms",
@@ -56,27 +55,21 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
 
   const refetchSmsLoyalty = useCallback(() => {
     const fetchSmsLoyalty = async () => {
+      setIsFetchingSmsLoyalty(true);
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
       }
 
-      if (
-        dimension === Staff &&
-        (!selectedStores.length || !selectedAsm.length || !selectedStaffs.length)
-      ) {
+      if (dimension === Staff) {
         return;
       }
-      setIsFetchingSmsLoyalty(true);
       let params: KDOfflineTotalSalesParams = {
         from: TODAY,
         to: TODAY,
         posLocationNames: dimension === Asm ? [] : selectedStores,
         departmentLv2s: dimension === Asm ? ASM_LIST : selectedAsm,
       };
-      if (dimension === Staff) {
-        params = { ...params, staffCodes: selectedStaffs.map((item) => JSON.parse(item).code) };
-      }
       const dayApi = callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDSmsLoyalty, {
         ...params,
         from: selectedDate,
@@ -107,7 +100,7 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
           setIsFetchingSmsLoyalty(false);
           return;
         }
-        const dimName = dimension === KeyDriverDimension.Staff ? selectedStores[0] : "";
+        const dimName = "";
         let resDayDim: any[] = [];
         if (resDay.length) {
           if (dimension === Asm) {
@@ -122,13 +115,11 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
             showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế SMS theo hạng khách hàng");
           }
           if (resDay.length) {
-            setData((prev: any) => {
-              let dataPrev: any = prev[0];
+            setData((dataPrev: any) => {
               resDayDim.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
               });
-              prev[0] = dataPrev;
-              return [...prev];
+              return [...dataPrev];
             });
           }
           setIsFetchingSmsLoyalty(false);
@@ -136,8 +127,7 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
         }
 
         if (resMonth.length) {
-          setData((prev: any) => {
-            let dataPrev: any = prev[0];
+          setData((dataPrev: any) => {
             if (resDay.length) {
               resDayDim.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
@@ -153,8 +143,7 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
             resMonthDim.forEach((item: any) => {
               findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
             });
-            prev[0] = dataPrev;
-            return [...prev];
+            return [...dataPrev];
           });
         }
       });
@@ -171,7 +160,6 @@ function useFetchSmsLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.S
     findKeyDriverAndUpdateValue,
     selectedAsm,
     selectedDate,
-    selectedStaffs,
     selectedStores,
     setData,
   ]);

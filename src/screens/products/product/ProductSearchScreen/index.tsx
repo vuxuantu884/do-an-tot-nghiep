@@ -1,6 +1,5 @@
+import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Card, Row, Space, Tabs } from "antd";
-import exportIcon from "assets/icon/export.svg";
-import importIcon from "assets/icon/import.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
@@ -13,6 +12,7 @@ import { GoPlus } from "react-icons/go";
 import { Link, useHistory, useRouteMatch } from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
 import { StyledComponent } from "../tab/style";
+import "./index.scss"
 const { TabPane } = Tabs;
 
 const TabProduct = React.lazy(() => import("../tab/TabProduct"));
@@ -153,9 +153,9 @@ const ListProductScreen: React.FC = () => {
             <AuthWrapper acceptPermissions={[ProductPermission.import_excel]}>
               <Link to={`${UrlConfig.PRODUCT}/import`}>
                 <Button
-                  className="light"
+                  className="btn-view"
                   size="large"
-                  icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+                  icon={<UploadOutlined className="btn-view-icon"/>}
                 >
                   Nhập file
                 </Button>
@@ -165,9 +165,9 @@ const ListProductScreen: React.FC = () => {
               activeTab === ProductTabUrl.STAMP_PRINTING_HISTORY) && (
               <AuthWrapper acceptPermissions={[ProductPermission.export_excel]}>
                 <Button
-                  className="light"
+                  className="btn-view"
                   size="large"
-                  icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                  icon={<DownloadOutlined className="btn-view-icon"/>}
                   onClick={() => {
                     setVExportProduct(true);
                   }}

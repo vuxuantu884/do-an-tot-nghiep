@@ -1,11 +1,12 @@
 import { Select, SelectProps } from "antd";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
-import { ReactElement, useContext, useEffect, useMemo, useState } from "react";
+import { KeyDriverDimension } from "model/report";
+import { ReactElement, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { strForSearch } from "utils/StringUtils";
-import { keyDriverOfflineTemplateData } from "../constant/key-driver-offline-template-data";
+import { kdNumber, kdOfflineTemplateData } from "../constant/kd-offline-template";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 interface Props extends SelectProps<number> {
   asmName: string;
@@ -17,22 +18,29 @@ StoresSelect.defaultProps = {};
 function StoresSelect(props: Props): ReactElement {
   const { asmName } = props;
   const dispatch = useDispatch();
-  const { setSelectedAsm, setSelectedStores, setData, selectedStoreRank, setSelectedAllStores } =
-    useContext(KDOfflineContext);
+  const {
+    setSelectedAsm,
+    setSelectedStores,
+    setData,
+    selectedStoreRank,
+    setSelectedAllStores,
+    data,
+  } = useContext(KDOfflineContext);
   const [listStore, setStore] = useState<Array<StoreResponse>>([]);
+  const selectedStoresParam = useRef([]);
+
+  const storeKeyDriver = JSON.parse(
+    JSON.stringify(
+      kdOfflineTemplateData.filter((item: any) => {
+        return !item.allowedDimension || item.allowedDimension.includes(KeyDriverDimension.Store);
+      }),
+    ),
+  );
 
   const handleOnChange = (stores: string[]) => {
-    setData((prev: any) => JSON.parse(JSON.stringify(keyDriverOfflineTemplateData)));
-    if (!stores.length) {
-      setSelectedAllStores(true);
-    } else {
-      setSelectedAllStores(false);
-    }
-    setSelectedStores(
-      stores.length
-        ? stores.map((item) => JSON.parse(item).name)
-        : storesInAsm.map((item) => item.name),
-    );
+    setData((prev: any) => storeKeyDriver);
+    selectedStoresParam.current = stores as any;
+    setSelectedStores([]);
   };
 
   const storesInAsm: StoreResponse[] = useMemo(() => {
@@ -62,15 +70,41 @@ function StoresSelect(props: Props): ReactElement {
     dispatch(StoreGetListAction(setStore));
   }, [dispatch]);
 
+  // useEffect(() => {
+  //   if (selectedStoreRank) {
+  //     setData((prev: any) =>
+  //       JSON.parse(
+  //         JSON.stringify(
+  //           kdOfflineTemplateData.filter((item: any) => {
+  //             return (
+  //               !item.allowedDimension || item.allowedDimension.includes(KeyDriverDimension.Store)
+  //             );
+  //           }),
+  //         ),
+  //       ),
+  //     );
+  //     setSelectedAllStores(true);
+  //     setSelectedStores(
+  //       storesInAsm.filter((item) => item.rank === selectedStoreRank).map((item) => item.name),
+  //     );
+  //   }
+  // }, [selectedStoreRank, setData, setSelectedAllStores, setSelectedStores, storesInAsm]);
+
   useEffect(() => {
-    if (selectedStoreRank) {
-      setData((prev: any) => JSON.parse(JSON.stringify(keyDriverOfflineTemplateData)));
-      setSelectedAllStores(true);
+    const stores: any = selectedStoresParam.current;
+    if (data.length >= kdNumber && stores) {
+      if (!stores.length) {
+        setSelectedAllStores(true);
+      } else {
+        setSelectedAllStores(false);
+      }
       setSelectedStores(
-        storesInAsm.filter((item) => item.rank === selectedStoreRank).map((item) => item.name),
+        stores.length
+          ? stores.map((item: any) => JSON.parse(item).name)
+          : storesInAsm.map((item) => item.name),
       );
     }
-  }, [selectedStoreRank, setData, setSelectedAllStores, setSelectedStores, storesInAsm]);
+  }, [data.length, setSelectedAllStores, setSelectedStores, storesInAsm]);
   return (
     <Select
       mode="multiple"

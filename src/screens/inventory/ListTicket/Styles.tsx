@@ -23,6 +23,15 @@ export const ListTicketStylesWrapper = styled.div`
     background-color: #FFFFFF;
     border: 1px solid #dedede;
   }
+  .dropdown .ant-btn .anticon {
+    width: 16px;
+    height: 16px;
+  }
+  .ant-btn-group>.ant-btn:last-child:not(:first-child), .ant-btn-group>span:last-child:not(:first-child)>.ant-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
   .card-transfer {
     position: relative;
     .transferring-sender {

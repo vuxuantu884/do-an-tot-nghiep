@@ -81,7 +81,7 @@ import { TiWarningOutline } from "react-icons/ti";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useReactToPrint } from "react-to-print";
-import CustomerCard from "screens/order-online/component/order-detail/CardCustomer";
+import CardCustomer from "screens/order-online/component/CardCustomer";
 import useGetDefaultReturnOrderReceivedStore from "screens/order-online/hooks/useGetDefaultReturnOrderReceivedStore";
 import useGetOrderDetail from "screens/order-online/hooks/useGetOrderDetail";
 import useHandleMomoCreateShipment from "screens/order-online/hooks/useHandleMomoCreateShipment";
@@ -134,7 +134,6 @@ import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 import CardReturnProductContainer from "../components/containers/CardReturnProductContainer";
 import ReturnBottomBar from "../components/ReturnBottomBar";
 import OrderReturnReason from "../components/Sidebar/OrderReturnReason";
-
 type PropTypes = {
   id?: string;
 };
@@ -1390,7 +1389,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   };
 
   const onChangeTag = useCallback(
-    (value: []) => {
+    (value: string[]) => {
       const strTag = value.join(",");
       setTags(strTag);
     },
@@ -1714,7 +1713,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                 )}
 
                 {isShowSelectOrderSources && (
-                  <CustomerCard
+                  <CardCustomer
                     customer={customer}
                     handleCustomer={handleCustomer}
                     loyaltyPoint={loyaltyPoint}
@@ -1734,8 +1733,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     //isDisableSelectSource={true}
                     initialForm={initialForm}
                     updateOrder
-                    initDefaultOrderSourceId={OrderDetail?.source_id}
-                    isAutoDefaultOrderSource={false}
+                    // initDefaultOrderSourceId={OrderDetail?.source_id}
+                    // isAutoDefaultOrderSource={false}
                     customerChange={customerChange}
                     setCustomerChange={setCustomerChange}
                     // handleOrderBillRequest={()=>{}}
@@ -1898,7 +1897,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
               </Col>
 
               <Col md={6}>
-                <SidebarOrderDetailInformation OrderDetail={OrderDetail} />
+                <SidebarOrderDetailInformation OrderDetail={OrderDetail} currentStores={currentStores}/>
                 <CreateOrderSidebarOrderInformation
                   form={form}
                   orderDetail={OrderDetail}

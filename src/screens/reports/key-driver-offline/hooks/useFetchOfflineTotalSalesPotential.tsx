@@ -11,11 +11,7 @@ import { useDispatch } from "react-redux";
 import { getKDOfflineTotalSalesPotential } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
-import {
-  calculateTargetMonth,
-  findKeyDriver,
-  nonAccentVietnameseKD,
-} from "utils/KeyDriverOfflineUtils";
+import { calculateTargetMonth, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 import { calculateDimSummary } from "../utils/DimSummaryUtils";
@@ -32,68 +28,73 @@ function useFetchOfflineTotalSalesPotential(
 
   const findKeyDriverAndUpdateValue = useCallback(
     (data: any, asmData: any, columnKey: string) => {
-      let potentialCustomerCount: any = [];
-      const { PotentialCustomerCount } = KeyDriverField;
-      findKeyDriver(data, PotentialCustomerCount, potentialCustomerCount);
-      potentialCustomerCount = potentialCustomerCount[0];
-      const { Asm, Store, Staff } = KeyDriverDimension;
-      let dimensionKey: "department_lv2_name" | "store_name" | "staff_code" | "" = "";
-      switch (dimension) {
-        case Asm:
-          dimensionKey = "department_lv2_name";
-          break;
-        case Store:
-          dimensionKey = "store_name";
-          break;
-        case Staff:
-          dimensionKey = "staff_code";
-          break;
-        default:
-          break;
-      }
-      const asmName = nonAccentVietnameseKD(asmData[dimensionKey]);
-      if (asmName) {
-        potentialCustomerCount[`${asmName}_${columnKey}`] = asmData[PotentialCustomerCount];
-        if (columnKey === "accumulatedMonth") {
-          potentialCustomerCount[`${asmName}_targetMonth`] = calculateTargetMonth(
-            potentialCustomerCount[`${asmName}_accumulatedMonth`],
-            selectedDate,
-          );
+      data.forEach((dataItem: any) => {
+        const { PotentialCustomerCount } = KeyDriverField;
+        if (dataItem.key === PotentialCustomerCount) {
+          const { Asm, Store, Staff } = KeyDriverDimension;
+          let dimensionKey: "department_lv2_name" | "store_name" | "staff_code" | "" = "";
+          switch (dimension) {
+            case Asm:
+              dimensionKey = "department_lv2_name";
+              break;
+            case Store:
+              dimensionKey = "store_name";
+              break;
+            case Staff:
+              dimensionKey = "staff_code";
+              break;
+            default:
+              break;
+          }
+          const asmName = nonAccentVietnameseKD(asmData[dimensionKey]);
+          if (asmName) {
+            dataItem[`${asmName}_${columnKey}`] = asmData[PotentialCustomerCount];
+            if (columnKey === "accumulatedMonth") {
+              dataItem[`${asmName}_targetMonth`] = calculateTargetMonth(
+                dataItem[`${asmName}_accumulatedMonth`],
+                selectedDate,
+              );
+            }
+          }
         }
-      }
+      });
     },
     [dimension, selectedDate],
   );
 
   const calculateConversionRate = useCallback(
     (data: any, asmData: any, columnKey: string) => {
-      let newCustomersConversionRate: any = [];
       const { NewCustomersConversionRate, PotentialCustomerCount, NewCustomersCount } =
         KeyDriverField;
-      findKeyDriver(data, NewCustomersConversionRate, newCustomersConversionRate);
-      newCustomersConversionRate = newCustomersConversionRate[0];
-      const { Asm, Store } = KeyDriverDimension;
-      let dimKey: "department_lv2_name" | "store_name" | "" = "";
-      if (dimension === Asm) {
-        dimKey = "department_lv2_name";
-      } else if (dimension === Store) {
-        dimKey = "store_name";
-      } else {
-        dimKey = "";
-      }
-      const asmName = nonAccentVietnameseKD(asmData[dimKey]);
-      if (asmName) {
-        newCustomersConversionRate[`${asmName}_${columnKey}`] = (
-          (asmData[NewCustomersCount] / asmData[PotentialCustomerCount]) *
-          100
-        ).toFixed(2);
-        if (columnKey === "accumulatedMonth") {
-          newCustomersConversionRate[`${asmName}_targetMonth`] = (
-            (asmData[NewCustomersCount] / asmData[PotentialCustomerCount]) *
-            100
-          ).toFixed(2);
+      data.forEach((dataItem: any) => {
+        if (dataItem.key === PotentialCustomerCount) {
+          const newCustomersConversionRate = data.find(
+            (item: any) => item.key === NewCustomersConversionRate,
+          );
+          const { Asm, Store } = KeyDriverDimension;
+          let dimKey: "department_lv2_name" | "store_name" | "" = "";
+          if (dimension === Asm) {
+            dimKey = "department_lv2_name";
+          } else if (dimension === Store) {
+            dimKey = "store_name";
+          } else {
+            dimKey = "";
+          }
+          const asmName = nonAccentVietnameseKD(asmData[dimKey]);
+          if (asmName) {
+            newCustomersConversionRate[`${asmName}_${columnKey}`] = (
+              (asmData[NewCustomersCount] / asmData[PotentialCustomerCount]) *
+              100
+            ).toFixed(2);
+            if (columnKey === "accumulatedMonth") {
+              newCustomersConversionRate[`${asmName}_targetMonth`] = (
+                (asmData[NewCustomersCount] / asmData[PotentialCustomerCount]) *
+                100
+              ).toFixed(2);
+            }
+          }
         }
-      }
+      });
     },
     [dimension],
   );
@@ -113,6 +114,7 @@ function useFetchOfflineTotalSalesPotential(
 
   const refetchOfflineTotalSalesPotential = useCallback(() => {
     const fetchOfflineTotalSalesPotential = async () => {
+      setIsFetchingOfflineTotalSalesPotential(true);
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
@@ -121,7 +123,6 @@ function useFetchOfflineTotalSalesPotential(
         setIsFetchingOfflineTotalSalesPotential(false);
         return;
       }
-      setIsFetchingOfflineTotalSalesPotential(true);
       const params: KDOfflineTotalSalesParams = {
         from: TODAY,
         to: TODAY,
@@ -192,14 +193,12 @@ function useFetchOfflineTotalSalesPotential(
             showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế khách hàng tiềm năng");
           }
           if (resDay.length) {
-            setData((prev: any) => {
-              let dataPrev: any = prev[0];
+            setData((dataPrev: any) => {
               resDayDim.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
                 calculateConversionRate(dataPrev, item, "actualDay");
               });
-              prev[0] = dataPrev;
-              return [...prev];
+              return [...dataPrev];
             });
           }
           setIsFetchingOfflineTotalSalesPotential(false);
@@ -207,8 +206,7 @@ function useFetchOfflineTotalSalesPotential(
         }
 
         if (resMonth.length) {
-          setData((prev: any) => {
-            let dataPrev: any = prev[0];
+          setData((dataPrev: any) => {
             if (resDay.length) {
               const resDayStores = calculateDimSummary(resDay[0], dimension, dimName, dimKeys);
               resDayStores.forEach((item: any) => {
@@ -227,8 +225,7 @@ function useFetchOfflineTotalSalesPotential(
               findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
               calculateConversionRate(dataPrev, item, "accumulatedMonth");
             });
-            prev[0] = dataPrev;
-            return [...prev];
+            return [...dataPrev];
           });
         }
       });

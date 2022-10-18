@@ -96,6 +96,8 @@ export enum KeyDriverField {
   RevenueSuccess = "revenue_success_PROFIT",
   Shipping = "shipping_PROFIT",
   Cost = "cost_PROFIT",
+  // store performance
+  StorePerformance = "store_performance",
 }
 
 export const ASM_LIST = ["ASM Dương Sơn Tùng", "ASM Nguyễn Văn Ánh", "ASM Đỗ Quang Hiếu"];
@@ -182,13 +184,13 @@ export enum PotentialImportingSource {
   BOUGHT = "BOUGHT",
 }
 
-export interface KeyDriverOnlineDataSourceType {
+export interface KeyDriverDataSourceType {
   key: string;
   title: string;
   method?: string;
   hideInput?: boolean;
   [key: string]: any; // giá trị hiển thị
-  children: KeyDriverOnlineDataSourceType[];
+  children: KeyDriverDataSourceType[];
 }
 
 export interface MonthlyCounter {

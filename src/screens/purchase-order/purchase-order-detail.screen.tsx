@@ -413,21 +413,21 @@ const PODetailScreen: React.FC = () => {
         });
       });
 
-      value.line_items.forEach((lineItem) => {
-        const totalProcumentPlannedQuantityByLineItem = value.procurements
-          .reduce(
-            (acc, val) => acc.concat(val.procurement_items),
-            [] as PurchaseProcumentLineItem[],
-          )
-          .filter((item) => item.sku === lineItem.sku)
-          .reduce((total, element) => total + element.planned_quantity, 0);
+      // value.line_items.forEach((lineItem) => {
+      //   const totalProcumentPlannedQuantityByLineItem = value.procurements
+      //     .reduce(
+      //       (acc, val) => acc.concat(val.procurement_items),
+      //       [] as PurchaseProcumentLineItem[],
+      //     )
+      //     .filter((item) => item.sku === lineItem.sku)
+      //     .reduce((total, element) => total + element.planned_quantity, 0);
 
-        if (totalProcumentPlannedQuantityByLineItem > lineItem.quantity) {
-          throw new Error(
-            `Số lượng hàng về dự kiến sản phẩm ${lineItem.sku} nhiều hơn số lượng đặt hàng`,
-          );
-        }
-      });
+      //   if (totalProcumentPlannedQuantityByLineItem > lineItem.quantity) {
+      //     throw new Error(
+      //       `Số lượng hàng về dự kiến sản phẩm ${lineItem.sku} nhiều hơn số lượng đặt hàng`,
+      //     );
+      //   }
+      // });
 
       const untaxed_amount = getUntaxedAmountByLineItemType(value.line_items, POLoadType.ALL);
       value.untaxed_amount = untaxed_amount;
@@ -695,7 +695,11 @@ const PODetailScreen: React.FC = () => {
     ];
     if (!purchaseOrder) return [];
     const poStatus = purchaseOrder.status;
-    if (poStatus && [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus) && canCancelPO) {
+    if (
+      poStatus &&
+      [POStatus.FINALIZED, POStatus.DRAFT, POStatus.WAITING_APPROVAL].includes(poStatus) &&
+      canCancelPO
+    ) {
       menuActions.push({
         id: ActionMenu.DELETE,
         name: "Hủy",

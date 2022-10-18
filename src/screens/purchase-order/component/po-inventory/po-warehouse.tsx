@@ -61,6 +61,7 @@ export const PoWareHouse = (props: IProps) => {
     setProcurementTable,
     handleSetProcurementTableContext,
     setDisabledDate,
+    handleChangeProcument,
   } = useContext(PurchaseOrderCreateContext);
   const [columns, setColumns] = useState<Array<ICustomTableColumType<any>>>([]);
   const [expectReceiptDates, setExpectReceiptDates] = useState<Array<IExpectReceiptDates>>([]);
@@ -90,7 +91,12 @@ export const PoWareHouse = (props: IProps) => {
     });
   };
 
-  const handleSetQuantityWarehouses = (indexData: number, value: number, uuid: string) => {
+  const handleSetQuantityWarehouses = (
+    indexData: number,
+    value: number,
+    uuid: string,
+    indexTable?: number,
+  ) => {
     const procurementItemsIndex: PurchaseProcumentLineItem[] = procurementsAll
       .reduce((acc, val) => acc.concat(val), [])
       .reduce((acc, val) => acc.concat(val.procurement_items), [] as PurchaseProcumentLineItem[])
@@ -152,13 +158,13 @@ export const PoWareHouse = (props: IProps) => {
       });
     });
     formMain?.setFieldsValue({
-      [POField.procurements]: [...procurements],
+      [POField.procurements]: [...JSON.parse(JSON.stringify(procurements))],
     });
   };
 
   const onChangeNumber = (indexData: number, index: number, value: number, uuid: string) => {
     procurementTable[indexData].plannedQuantities[index] = value;
-    handleSetQuantityWarehouses(indexData, value, uuid + index);
+    handleSetQuantityWarehouses(indexData, value, uuid + index, index);
     setProcurementTable([...procurementTable]);
   };
 
@@ -198,6 +204,12 @@ export const PoWareHouse = (props: IProps) => {
             return {
               ...procurement,
               percent: findStore >= 0 ? datePercents[findStore].percent : procurement.percent,
+              procurement_items: procurement.procurement_items.map((item) => {
+                return {
+                  ...item,
+                  percent: findStore >= 0 ? datePercents[findStore].percent : procurement.percent,
+                };
+              }),
               expect_receipt_date: expectReceiptDate,
             };
           }
@@ -205,9 +217,10 @@ export const PoWareHouse = (props: IProps) => {
             ...procurement,
           };
         });
-        formMain?.setFieldsValue({ procurements });
         setExpectReceiptDates([...expectReceiptDates]);
         setDisabledDate(false);
+        formMain?.setFieldsValue({ procurements });
+        formMain && handleChangeProcument(formMain);
       } catch {
         setDisabledDate(false);
       }

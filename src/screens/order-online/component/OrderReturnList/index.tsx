@@ -59,6 +59,7 @@ import {
 } from "service/order/return.service";
 import EditNote from "../EditOrderNote";
 import IconPaymentReturn from "assets/icon/payment/tien-hoan.svg";
+import useFetchOrderReturnReasons from "screens/order-online/hooks/useFetchOrderReturnReasons";
 
 type PropTypes = {
   initQuery: ReturnSearchQuery;
@@ -91,7 +92,8 @@ function OrderReturnList(props: PropTypes) {
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const [reasons, setReasons] = useState<Array<{ id: number; name: string }>>([]);
+
+  const reasons = useFetchOrderReturnReasons();
 
   const [isLoopInfoIfOrderHasMoreThanTwoProducts, setIsLoopInfoIfOrderHasMoreThanTwoProducts] =
     useState(false);
@@ -736,13 +738,13 @@ function OrderReturnList(props: PropTypes) {
     },
     {
       title: "Lý do trả",
-      dataIndex: "reason",
-      key: "reason",
+      dataIndex: "sub_reason",
+      key: "sub_reason",
       visible: true,
       align: "center",
       width: 160,
       render: (value: any, record: ReturnModel, index: number) => (
-        <div>{record?.return_reason?.name}</div>
+        <div>{record?.sub_reason?.name}</div>
       ),
     },
   ]);
@@ -1138,7 +1140,6 @@ function OrderReturnList(props: PropTypes) {
     dispatch(searchAccountPublicAction({ limit: 30 }, setDataAccounts));
     dispatch(getAllSourcesRequestAction(setListSource));
     dispatch(StoreGetListAction(setStore));
-    dispatch(getListReasonRequest(setReasons));
   }, [dispatch]);
 
   return (

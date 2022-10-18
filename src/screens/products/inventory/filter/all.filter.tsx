@@ -117,6 +117,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
     let temp: Array<CategoryView> = convertCategory(arr);
     setListCategory(temp);
   }, []);
+  const [messageErrorQuality, setMessageErrorQuality] = useState("");
 
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
   const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>({
@@ -507,9 +508,10 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
   }, [formAdvanceFilter, onFilter]);
 
   const onFilterClick = useCallback(() => {
+    if (messageErrorQuality !== "") return;
     setVisible(false);
     formAdvanceFilter.submit();
-  }, [formAdvanceFilter]);
+  }, [formAdvanceFilter, messageErrorQuality]);
 
   const resetField = useCallback(
     (field: string) => {
@@ -669,6 +671,32 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
     getConfigInventory();
   }, [params, dispatch, getConfigInventory, setDataCategory, setDataCollection]);
 
+  const validateFromQuality = (e: any) => {
+    formAdvanceFilter.setFieldsValue({
+      from_price: e
+    });
+    const toPrice = formAdvanceFilter.getFieldValue("to_price");
+    if (e > toPrice) {
+      setMessageErrorQuality("Giá bán từ lớn hơn số Giá bán đến.");
+      return;
+    }
+
+    setMessageErrorQuality("");
+  }
+
+  const validateToQuality = (e: any) => {
+    formAdvanceFilter.setFieldsValue({
+      to_price: e
+    });
+    const fromPrice = formAdvanceFilter.getFieldValue("from_price");
+    if (e < fromPrice) {
+      setMessageErrorQuality("Giá bán từ lớn hơn giá bán đến.");
+      return;
+    }
+
+    setMessageErrorQuality("");
+  }
+
   return (
     <div className="inventory-filter">
       <Form
@@ -771,7 +799,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
             </Row>
           )}
           <Row gutter={25}>
-            <Col span={16}>
+            <Col span={24}>
               <Item name={AvdInventoryFilter.info} className="search">
                 <Input
                   allowClear
@@ -781,8 +809,10 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
                 />
               </Item>
             </Col>
-            <Col span={8}>
-              <Item name={AvdInventoryFilter.store_ids} className="store">
+          </Row>
+          <Row gutter={25}>
+            <Col span={12}>
+              <Item name={AvdInventoryFilter.store_ids} className="store" label="Cửa hàng">
                 <TreeStore
                   form={formBaseFilter}
                   name={InventoryQueryField.store_ids}
@@ -792,9 +822,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
                 />
               </Item>
             </Col>
-          </Row>
-          <Row gutter={25}>
-            <Col span={8}>
+            <Col span={12}>
               <Item name={AvdInventoryFilter.made_in_ids} label="Xuất xứ">
                 <CustomSelect
                   showSearch
@@ -815,19 +843,21 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
                 </CustomSelect>
               </Item>
             </Col>
-            <Col span={8}>
+          </Row>
+          <Row gutter={25}>
+            <Col span={12}>
               <Item name={AvdInventoryFilter.designer_codes} label="Nhà thiết kế">
                 <AccountSearchPaging mode="multiple" placeholder="Chọn nhà thiết kế" />
               </Item>
             </Col>
-            <Col span={8}>
+            <Col span={12}>
               <Item name={AvdInventoryFilter.merchandiser_codes} label="Merchandiser">
                 <AccountSearchPaging mode="multiple" placeholder="Chọn Merchandiser" />
               </Item>
             </Col>
           </Row>
           <Row gutter={25}>
-            <Col span={8}>
+            <Col span={12}>
               <Item name="remain" style={{ minWidth: 250 }} label="Trạng thái tồn">
                 <CustomSelect
                   showSearch
@@ -847,7 +877,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
                 </CustomSelect>
               </Item>
             </Col>
-            <Col span={8}>
+            <Col span={12}>
               <Item name={AvdInventoryFilter.category_ids} label="Danh mục">
                 <CustomSelect
                   showSearch
@@ -868,10 +898,36 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
                 </CustomSelect>
               </Item>
             </Col>
-            <Col span={8}>
+          </Row>
+          <Row gutter={25}>
+            <Col span={12}>
+              <Item name={AvdInventoryFilter.collections} label="Nhóm hàng">
+                <CollectionSearchPaging mode="multiple" placeholder="Chọn chọn nhóm hàng" />
+              </Item>
+            </Col>
+            <Col span={12}>
+              <Item name={AvdInventoryFilter.sizes} label="Kích thước">
+                <SizeSearchSelect mode="multiple" />
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={25}>
+            <Col span={12}>
+              <Item name={AvdInventoryFilter.variant_sku3} label="Mã 3">
+                <VariantSku3SearchPaging mode="multiple" />
+              </Item>
+            </Col>
+            <Col span={12}>
+              <Item name={AvdInventoryFilter.variant_sku7} label="Mã 7">
+                <ProductSearchPaging mode="multiple" />
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={25}>
+            <Col span={12}>
               <Item label="Giá bán">
-                <Input.Group compact style={{ height: 38 }}>
-                  <Item hidden={true} name="variant_prices"></Item>
+                <Input.Group compact style={{ height: 38, display: "flex", alignItems: "center" }}>
+                  <Item hidden={true} name="variant_prices" />
                   <Item
                     name="from_price"
                     style={{
@@ -881,6 +937,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
                     }}
                   >
                     <InputNumber
+                      onChange={validateFromQuality}
+                      style={{ width: '94%' }}
                       className="price_min"
                       placeholder="Từ"
                       formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
@@ -898,6 +956,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
                     }}
                   >
                     <InputNumber
+                      onChange={validateToQuality}
+                      style={{ width: '94%' }}
                       className="site-input-right price_max"
                       placeholder="Đến"
                       formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
@@ -906,21 +966,10 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
                     />
                   </Item>
                 </Input.Group>
+                <div style={{ color: "#e24343" }}>{messageErrorQuality}</div>
               </Item>
             </Col>
-          </Row>
-          <Row gutter={25}>
-            <Col span={8}>
-              <Item name={AvdInventoryFilter.collections} label="Nhóm hàng">
-                <CollectionSearchPaging mode="multiple" placeholder="Chọn chọn nhóm hàng" />
-              </Item>
-            </Col>
-            <Col span={8}>
-              <Item name={AvdInventoryFilter.sizes} label="Kích thước">
-                <SizeSearchSelect mode="multiple" />
-              </Item>
-            </Col>
-            <Col span={8}>
+            <Col span={12}>
               <Item
                 tooltip={{
                   title: "Tìm kiếm sản phẩm theo tags",
@@ -930,18 +979,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
                 label="Từ khóa"
               >
                 <HashTag />
-              </Item>
-            </Col>
-          </Row>
-          <Row gutter={25}>
-            <Col span={8}>
-              <Item name={AvdInventoryFilter.variant_sku3} label="Mã 3">
-                <VariantSku3SearchPaging mode="multiple" />
-              </Item>
-            </Col>
-            <Col span={8}>
-              <Item name={AvdInventoryFilter.variant_sku7} label="Mã 7">
-                <ProductSearchPaging mode="multiple" />
               </Item>
             </Col>
           </Row>

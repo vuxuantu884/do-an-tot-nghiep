@@ -27,6 +27,7 @@ const InventoryExport: React.FC<ExportModalProps> = (props: ExportModalProps) =>
       width={600}
       confirmLoading={statusExportDetail === STATUS_IMPORT_EXPORT.DEFAULT}
       visible={visible}
+      centered
       cancelText="Hủy"
       onOk={onOkClick}
       title="Xuất file tồn kho"

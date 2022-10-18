@@ -23,10 +23,11 @@ import { useDispatch } from "react-redux";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { getDayOptions } from "utils/PromotionUtils";
-import { dayOfWeekOptions } from "../constants";
+import { dayOfWeekOptions, PROMOTION_TYPE } from "screens/promotion/constants";
 import { CustomerContitionFormlStyle } from "./condition.style";
 import CustomerFilter from "./cusomer-condition.form";
 import TreeSource from "../../../component/treeSource";
+import GiftCustomerCondition from "screens/promotion/gift/components/GiftCustomerCondition";
 
 const { Option } = Select;
 const TimeRangePicker = TimePicker.RangePicker;
@@ -37,6 +38,7 @@ interface Props {
   isAllChannel?: boolean;
   isAllSource?: boolean;
   isAllCustomer?: boolean;
+  promotionType?: string;
 }
 
 function GeneralConditionForm({
@@ -45,6 +47,7 @@ function GeneralConditionForm({
   isAllSource,
   isAllStore,
   isAllCustomer,
+  promotionType,
 }: Props): ReactElement {
   const dispatch = useDispatch();
 
@@ -84,6 +87,7 @@ function GeneralConditionForm({
               rules={[{ required: true, message: "Vui lòng chọn thời gian áp dụng" }]}
             >
               <DatePicker
+                id={"starts_date"}
                 style={{ width: "100%" }}
                 placeholder="Từ ngày"
                 showTime={{ format: "HH:mm" }}
@@ -303,7 +307,11 @@ function GeneralConditionForm({
         </Row>
       </Card>
       {/* Đối tượng khách hàng áp dụng */}
-      <CustomerFilter form={form} isAllCustomer={isAllCustomer} />
+      {promotionType === PROMOTION_TYPE.GIFT ?
+        <GiftCustomerCondition form={form} isAllCustomer={isAllCustomer} />
+        :
+        <CustomerFilter form={form} isAllCustomer={isAllCustomer} />
+      }
     </CustomerContitionFormlStyle>
   );
 }

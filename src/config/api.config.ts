@@ -32,6 +32,8 @@ const ServiceNames = {
   OFFLINE_SMS_LOYALTY_LEVEL_SERVICE: "key-drivers/offline-sms-conversion-rate-by-loyalty-level",
   OFFLINE_PROFIT_SERVICE: "key-drivers/offline-profit",
   OFFLINE_FOLLOW_FANPAGE_SERVICE: "key-drivers/fanpage-follower",
+  OFFLINE_STORE_PERFORMANCE_SERVICE: "key-drivers/offline-store-performance",
+  OFFLINE_NPS_SERVICE: "key-drivers/offline-store-nps",
 };
 
 const v1 = ``;
@@ -74,6 +76,8 @@ const ApiConfig = {
   OFFLINE_SMS_LOYALTY_LEVEL: `${v1}/${ServiceNames.OFFLINE_SMS_LOYALTY_LEVEL_SERVICE}`,
   OFFLINE_PROFIT: `${v1}/${ServiceNames.OFFLINE_PROFIT_SERVICE}`,
   OFFLINE_FOLLOW_FANPAGE: `${v1}/${ServiceNames.OFFLINE_FOLLOW_FANPAGE_SERVICE}`,
+  OFFLINE_STORE_PERFORMANCE: `${v1}/${ServiceNames.OFFLINE_STORE_PERFORMANCE_SERVICE}`,
+  OFFLINE_NPS: `${v1}/${ServiceNames.OFFLINE_NPS_SERVICE}`,
 };
 
 export { ApiConfig };

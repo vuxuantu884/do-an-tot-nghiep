@@ -1,7 +1,7 @@
 import color from "assets/css/export-variable.module.scss";
 import styled from "styled-components";
 
-export const KeyDriverOnlineStyle = styled.div`
+export const KeyDriverStyle = styled.div`
   .ant-table-thead > tr > th {
     border-bottom: unset;
     white-space: pre-line;
@@ -10,15 +10,22 @@ export const KeyDriverOnlineStyle = styled.div`
 
   .department-name {
     cursor: pointer;
-
+    a {
+      color: ${color.white};
+    }
     &--primary {
-      background-color: ${color.primary} !important;
+      background-color: rgba(42, 42, 134, 1) !important;
       color: ${color.white};
     }
 
     &--secondary {
-      background-color: ${color.secondary} !important;
       color: ${color.white};
+      &:nth-child(odd) {
+        background-color: rgba(60, 60, 185, 1) !important;
+      }
+      &:nth-child(even) {
+        background-color: rgba(92, 92, 227, 1) !important;
+      }
     }
   }
 
@@ -149,7 +156,7 @@ export const KeyDriverOnlineStyle = styled.div`
     color: red;
   }
   .background-green {
-    color: green;
+    color: #27ae60;
   }
   .columns-setting {
     right: 20px;

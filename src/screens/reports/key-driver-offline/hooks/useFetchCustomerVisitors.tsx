@@ -11,11 +11,7 @@ import { useDispatch } from "react-redux";
 import { getKDCustomerVisitors } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
-import {
-  calculateTargetMonth,
-  findKeyDriver,
-  nonAccentVietnameseKD,
-} from "utils/KeyDriverOfflineUtils";
+import { calculateTargetMonth, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 
@@ -30,9 +26,7 @@ function useFetchCustomerVisitors(dimension: KeyDriverDimension = KeyDriverDimen
 
   const findKeyDriverAndUpdateValue = useCallback(
     (data: any, asmData: any, columnKey: string) => {
-      let visitors: any = [];
-      findKeyDriver(data, KeyDriverField.Visitors, visitors);
-      visitors = visitors[0];
+      const visitors = data.find((item: any) => item.key === KeyDriverField.Visitors);
       const { Asm, Store, Staff } = KeyDriverDimension;
       let dimensionKey = "";
       switch (dimension) {
@@ -100,6 +94,7 @@ function useFetchCustomerVisitors(dimension: KeyDriverDimension = KeyDriverDimen
 
   const refetchCustomerVisitors = useCallback(() => {
     const fetchCustomerVisitors = async () => {
+      setIsFetchingCustomerVisitors(true);
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
@@ -110,7 +105,6 @@ function useFetchCustomerVisitors(dimension: KeyDriverDimension = KeyDriverDimen
       ) {
         return;
       }
-      setIsFetchingCustomerVisitors(true);
       let params: KDOfflineTotalSalesParams = {
         from: TODAY,
         to: TODAY,
@@ -164,19 +158,16 @@ function useFetchCustomerVisitors(dimension: KeyDriverDimension = KeyDriverDimen
           if (!resMonth && resMonth !== 0) {
             showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Khách vào cửa hàng");
           }
-          setData((prev: any) => {
-            let dataPrev: any = prev[0];
+          setData((dataPrev: any) => {
             resDayDim.forEach((item: any) => {
-              findKeyDriverAndUpdateValue(prev[0], item, "actualDay");
+              findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
             });
-            prev[0] = dataPrev;
-            return [...prev];
+            return [...dataPrev];
           });
           setIsFetchingCustomerVisitors(false);
           return;
         }
-        setData((prev: any) => {
-          let dataPrev: any = prev[0];
+        setData((dataPrev: any) => {
           resDayDim.forEach((item: any) => {
             findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
           });
@@ -191,8 +182,7 @@ function useFetchCustomerVisitors(dimension: KeyDriverDimension = KeyDriverDimen
           resMonthDim.forEach((item: any) => {
             findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
           });
-          prev[0] = dataPrev;
-          return [...prev];
+          return [...dataPrev];
         });
       });
       setIsFetchingCustomerVisitors(false);

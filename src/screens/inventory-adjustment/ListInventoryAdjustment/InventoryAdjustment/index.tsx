@@ -16,7 +16,7 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import { PageResponse } from "model/base/base-metadata.response";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { Button, Card, Form, Input, Modal, Space, Tag } from "antd";
+import { Button, Card, Space, Tag } from "antd";
 import { InventoryAdjustmentWrapper } from "./styles";
 import { INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY, STATUS_INVENTORY_ADJUSTMENT } from "../constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -37,10 +37,13 @@ import { STATUS_IMPORT_EXPORT } from "screens/inventory-adjustment/DetailInvetor
 import InventoryTransferExportModal from "screens/inventory-adjustment/DetailInvetoryAdjustment/conponents/ExportModal";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 import useAuthorization from "hook/useAuthorization";
-import { FormOutlined } from "@ant-design/icons";
-import TextArea from "antd/es/input/TextArea";
 import InventoryReportIcon from "assets/icon/inventory-report.svg";
 import InventoryReportModal from "../components/InventoryReportModal";
+import EditPopover from "../../../inventory-defects/ListInventoryDefect/components/EditPopover";
+import { primaryColor } from "utils/global-styles/variables";
+import useHandleFilterColumns from "hook/table/useHandleTableColumns";
+import { COLUMN_CONFIG_TYPE } from "utils/Constants";
+import useSetTableColumns from "hook/table/useSetTableColumns";
 
 const ACTIONS_INDEX = {
   PRINT: 1,
@@ -77,17 +80,13 @@ const InventoryAdjustment: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(true);
   const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const [selected, setSelected] = useState<Array<InventoryAdjustmentDetailItem>>([]);
 
   const [showExportModal, setShowExportModal] = useState(false);
   const [statusExport, setStatusExport] = useState<number>(STATUS_IMPORT_EXPORT.DEFAULT);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [exportProgress, setExportProgress] = useState<number>(0);
-  const [isModalVisibleNote, setIsModalVisibleNote] = useState(false);
-  const [itemData, setItemData] = useState<InventoryAdjustmentDetailItem>();
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [inventoryIdSelected, setInventoryIdSelected] = useState<number | null>(null);
-  const [formNote] = Form.useForm();
 
   const printElementRef = useRef(null);
   const handlePrint = useReactToPrint({
@@ -148,7 +147,7 @@ const InventoryAdjustment: React.FC = () => {
 
   const ActionComponent = () => {
     let Compoment = () => <span>Mã phiếu</span>;
-    if (selected?.length > 0) {
+    if (selectedRowKeys?.length > 0) {
       Compoment = () => (
         <CustomFilter onMenuClick={onMenuClick} menu={actions}>
           <Fragment />
@@ -158,10 +157,25 @@ const InventoryAdjustment: React.FC = () => {
     return <Compoment />;
   };
 
+  const editNote = (note: string, row: InventoryAdjustmentDetailItem) => {
+    let newData: any = row;
+    newData.note = note;
+
+    if (row?.id) {
+      dispatch(
+        updateInventoryAdjustmentAction(row.id, newData, (result) => {
+          if (result) showSuccess(`Cập nhật ${row?.code} thành công`);
+          dispatch(getListInventoryAdjustmentAction(params, setSearchResult));
+        }),
+      );
+    }
+  };
+
   const defaultColumns: Array<ICustomTableColumType<InventoryAdjustmentDetailItem>> = [
     {
       title: <ActionComponent />,
       dataIndex: "code",
+      key: "code",
       visible: true,
       align: "left",
       fixed: "left",
@@ -203,6 +217,7 @@ const InventoryAdjustment: React.FC = () => {
       title: "Số SP",
       width: 80,
       dataIndex: "total_variant",
+      key: "total_variant",
       visible: true,
       align: "right",
       render: (value: number) => {
@@ -213,6 +228,7 @@ const InventoryAdjustment: React.FC = () => {
       title: "Tổng SL",
       width: 90,
       dataIndex: "total_on_hand",
+      key: "total_on_hand",
       visible: true,
       align: "right",
       render: (value: number) => {
@@ -222,6 +238,7 @@ const InventoryAdjustment: React.FC = () => {
     {
       title: "Thừa/Thiếu",
       width: 140,
+      key: "ratio",
       align: "center",
       visible: true,
       render: (item: InventoryAdjustmentDetailItem) => {
@@ -241,8 +258,9 @@ const InventoryAdjustment: React.FC = () => {
     {
       title: "Trạng thái",
       dataIndex: "status",
+      key: "status",
       visible: true,
-      width: 100,
+      width: 150,
       align: "center",
       render: (item: string) => {
         let textTag: string;
@@ -276,11 +294,13 @@ const InventoryAdjustment: React.FC = () => {
       title: "Kho kiểm",
       width: 120,
       dataIndex: "adjusted_store_name",
+      key: "adjusted_store_name",
       visible: true,
     },
     {
       title: "Loại kho kiểm",
       dataIndex: "audit_type",
+      key: "audit_type",
       render: (item: string) => {
         let text = "Một phần";
         const auditType = INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.find((e) => e.value === item);
@@ -297,13 +317,14 @@ const InventoryAdjustment: React.FC = () => {
       title: "Người tạo",
       width: 140,
       visible: true,
+      key: "created_by",
       align: "left",
-      render: (item: InventoryAdjustmentDetailItem) => {
+      render: (value, item: InventoryAdjustmentDetailItem) => {
         return (
           <div>
             {item.created_name ? (
               <div>
-                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${item.created_name}`}>
+                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>
                   {item.created_name}
                 </Link>
               </div>
@@ -319,12 +340,14 @@ const InventoryAdjustment: React.FC = () => {
       title: "Ngày kiểm",
       width: 100,
       dataIndex: "audited_date",
+      key: "audited_date",
       visible: true,
       align: "left",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
     },
     {
       title: "Cân tồn kho",
+      key: "balance",
       visible: true,
       render: (item: InventoryAdjustmentDetailItem) => {
         return (
@@ -339,19 +362,20 @@ const InventoryAdjustment: React.FC = () => {
     {
       title: "Ghi chú",
       dataIndex: "note",
+      key: "note",
       visible: true,
       align: "left",
       width: "220px",
       render: (item: string, row: InventoryAdjustmentDetailItem) => {
         return (
-          <div className={item ? "note" : ""}>
-            {item}
-            <FormOutlined
-              onClick={() => {
-                setItemData(row);
-                setIsModalVisibleNote(true);
+          <div className="single">
+            <EditPopover
+              content={item}
+              title={`Sửa ghi chú ${row?.code}`}
+              color={primaryColor}
+              onOk={(newNote) => {
+                editNote(newNote, row);
               }}
-              className={item ? "note-icon" : ""}
             />
           </div>
         );
@@ -416,11 +440,6 @@ const InventoryAdjustment: React.FC = () => {
 
   const [columns, setColumn] =
     useState<Array<ICustomTableColumType<InventoryAdjustmentDetailItem>>>(defaultColumns);
-
-  useEffect(() => {
-    setColumn(defaultColumns);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected]);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -504,16 +523,25 @@ const InventoryAdjustment: React.FC = () => {
     history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}?${queryParam}`);
   }, [history]);
 
-  const onSelectedChange = useCallback((selectedRow: Array<InventoryAdjustmentDetailItem>) => {
-    const selectedRowKeys = selectedRow.map((row) => row.id);
-    setSelectedRowKeys(selectedRowKeys);
+  const onSelectedChange = useCallback((selectedRow: Array<InventoryAdjustmentDetailItem>, selected: boolean | undefined, changeRow: any) => {
+    const newSelectedRowKeys = changeRow.map((row: any) => row.id);
 
-    setSelected(
-      selectedRow.filter(function (el) {
-        return el !== undefined;
-      }),
-    );
-  }, []);
+    if (selected) {
+      setSelectedRowKeys([
+        ...selectedRowKeys,
+        ...newSelectedRowKeys
+      ]);
+      return;
+    }
+
+    const newSelectedRowKeysByDeselected = selectedRowKeys.filter((item) => {
+      const findIndex = changeRow.findIndex((row: any) => row.id === item);
+
+      return findIndex === -1
+    });
+
+    setSelectedRowKeys(newSelectedRowKeysByDeselected);
+  }, [selectedRowKeys]);
 
   //get store
   useEffect(() => {
@@ -525,6 +553,16 @@ const InventoryAdjustment: React.FC = () => {
   useEffect(() => {
     dispatch(getListInventoryAdjustmentAction(params, setSearchResult));
   }, [history, dispatch, params, setSearchResult]);
+
+  const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(
+    COLUMN_CONFIG_TYPE.COLUMN_INVENTORY_ADJUSTMENT,
+  );
+  useSetTableColumns(
+    COLUMN_CONFIG_TYPE.COLUMN_INVENTORY_ADJUSTMENT,
+    tableColumnConfigs,
+    defaultColumns,
+    setColumn,
+  );
 
   return (
     <InventoryAdjustmentWrapper>
@@ -559,7 +597,8 @@ const InventoryAdjustment: React.FC = () => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
-          onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+          selectedRowKey={selectedRowKeys}
+          onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
           onShowColumnSetting={() => setShowSettingColumn(true)}
           dataSource={data.items}
           columns={columnFinal}
@@ -571,6 +610,7 @@ const InventoryAdjustment: React.FC = () => {
           onOk={(data) => {
             setShowSettingColumn(false);
             setColumn(data);
+            onSaveConfigTableColumn(data);
           }}
           data={columns}
         />
@@ -603,52 +643,6 @@ const InventoryAdjustment: React.FC = () => {
             visible={isOpenModal}
             onCancel={() => setIsOpenModal(false)}
           />
-        )}
-
-        {isModalVisibleNote && (
-          <Modal
-            title={`Sửa ghi chú ${itemData?.code}`}
-            visible={isModalVisibleNote}
-            onOk={() => {
-              formNote.submit();
-              setIsModalVisibleNote(false);
-            }}
-            onCancel={() => {
-              setIsModalVisibleNote(false);
-            }}
-          >
-            <Form
-              form={formNote}
-              initialValues={itemData}
-              onFinish={(data) => {
-                if (itemData?.id) {
-                  data.list_attached_files = itemData.list_attached_files;
-                  dispatch(
-                    updateInventoryAdjustmentAction(itemData.id, data, (result) => {
-                      setItemData(undefined);
-                      if (result) showSuccess(`Cập nhật ${itemData?.code} thành công`);
-                      dispatch(getListInventoryAdjustmentAction(params, setSearchResult));
-                    }),
-                  );
-                }
-              }}
-              onFinishFailed={() => {}}
-            >
-              <Form.Item noStyle hidden name="note">
-                <Input />
-              </Form.Item>
-              <Form.Item>
-                <TextArea
-                  maxLength={250}
-                  onChange={(e) => {
-                    formNote.setFieldsValue({ note: e.target.value });
-                  }}
-                  defaultValue={itemData?.note}
-                  rows={4}
-                />
-              </Form.Item>
-            </Form>
-          </Modal>
         )}
       </Card>
     </InventoryAdjustmentWrapper>

@@ -9,7 +9,7 @@ import NumberInput from "component/custom/number-input.custom";
 import ModalSettingColumnData from "component/table/ModalSettingColumnData";
 import UrlConfig from "config/url.config";
 // import { KeyboardKey } from "model/other/keyboard/keyboard.model";
-import { KeyDriverOnlineDataSourceType } from "model/report";
+import { KeyDriverDataSourceType } from "model/report";
 import moment from "moment";
 import queryString from "query-string";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
@@ -21,11 +21,12 @@ import {
   formatCurrency,
   generateQuery,
   parseLocaleNumber,
-  replaceFormatString,
+  replaceFormatString
 } from "utils/AppUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
+import { KeyDriverStyle } from "../common/kd-report/index.style";
 import {
   COLUMN_ORDER_LIST,
   convertDataToFlatTableKeyDriver,
@@ -35,15 +36,14 @@ import {
   saveActualDay,
   // getInputTargetId,
   // handleMoveFocusInput,
-  saveMonthTargetKeyDriver,
+  saveMonthTargetKeyDriver
 } from "./helper";
-import { KeyDriverOnlineStyle } from "./index.style";
 import KeyDriverOnlineProvider, {
-  KeyDriverOfflineContext,
+  KeyDriverOfflineContext
 } from "./provider/key-driver-online-provider";
 
 type VerifyCellProps = {
-  row: KeyDriverOnlineDataSourceType;
+  row: KeyDriverDataSourceType;
   children: any;
   value: number;
   type?: "display" | "edit";
@@ -202,13 +202,13 @@ function KeyDriverOnline() {
     ): ColumnGroupType<any> | ColumnType<any> => {
       return {
         title: link ? (
-          <Link className={classnames("department-name", className)} to={link}>
+          <Link to={link}>
             {department}
           </Link>
         ) : (
           department
         ),
-        className: classnames("", className),
+        className: classnames("department-name", className),
         onHeaderCell: (data: any) => {
           return {
             onClick: () => {
@@ -230,7 +230,7 @@ function KeyDriverOnline() {
             align: "right",
             dataIndex: `${departmentKey}_monthly_target`,
             className: "input-cell",
-            render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
+            render: (text: any, record: KeyDriverDataSourceType, index: number) => {
               const targetDrillingLevel = +record[`target_drilling_level`];
               // const inputId = getInputTargetId(index, columnIndex * 2, PREFIX_CELL_TABLE);
               const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-month-target`;
@@ -347,7 +347,7 @@ function KeyDriverOnline() {
             align: "right",
             dataIndex: `${departmentKey}_monthly_actual`,
             className: "non-input-cell",
-            render: (text: any, record: KeyDriverOnlineDataSourceType) => {
+            render: (text: any, record: KeyDriverDataSourceType) => {
               return (
                 <VerifyCell row={record} value={text}>
                   {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
@@ -361,7 +361,7 @@ function KeyDriverOnline() {
             align: "right",
             dataIndex: `${departmentKey}_monthly_progress`,
             className: "non-input-cell",
-            render: (text: any, record: KeyDriverOnlineDataSourceType) => {
+            render: (text: any, record: KeyDriverDataSourceType) => {
               return (
                 <VerifyCell row={record} value={text}>
                   {`${text}%`}
@@ -375,7 +375,7 @@ function KeyDriverOnline() {
             align: "right",
             dataIndex: `${departmentKey}_monthly_forecasted`,
             className: "non-input-cell",
-            render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
+            render: (text: any, record: KeyDriverDataSourceType, index: number) => {
               return (
                 <div
                   className={
@@ -399,7 +399,7 @@ function KeyDriverOnline() {
             align: "right",
             dataIndex: `${departmentKey}_daily_target`,
             className: "input-cell",
-            render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
+            render: (text: any, record: KeyDriverDataSourceType, index: number) => {
               const targetDrillingLevel = +record[`target_drilling_level`];
               // const inputId = getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE);
               const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-day-target`;
@@ -521,7 +521,7 @@ function KeyDriverOnline() {
             align: "right",
             dataIndex: `${departmentKey}_daily_actual`,
             className: "input-cell",
-            render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
+            render: (text: any, record: KeyDriverDataSourceType, index: number) => {
               if (
                 (record.key === "ON.DT.ZA.33" ||
                   record.key === "ON.DT.MK.23" ||
@@ -667,7 +667,7 @@ function KeyDriverOnline() {
             align: "right",
             dataIndex: `${departmentKey}_daily_progress`,
             className: "non-input-cell",
-            render: (text: any, record: KeyDriverOnlineDataSourceType) => {
+            render: (text: any, record: KeyDriverDataSourceType) => {
               return (
                 <VerifyCell row={record} value={text}>
                   {`${text}%`}
@@ -785,7 +785,7 @@ function KeyDriverOnline() {
       title={"Báo cáo kết quả kinh doanh Online"}
       breadcrumb={getBreadcrumbByLevel(departmentLv2, departmentLv3)}
     >
-      <KeyDriverOnlineStyle>
+      <KeyDriverStyle>
         <Card>
           <Form
             onFinish={onFinish}
@@ -865,7 +865,7 @@ function KeyDriverOnline() {
             data={columns}
           />
         </Card>
-      </KeyDriverOnlineStyle>
+      </KeyDriverStyle>
     </ContentContainer>
   );
 }

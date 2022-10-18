@@ -26,6 +26,7 @@ import { isNullOrUndefined } from "utils/AppUtils";
 import StockInOutAlertPricePermission from "../components/StockInOutAlertPricePermission";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { ProductPermission } from "config/permissions/product.permission";
+import { UploadOutlined } from "@ant-design/icons";
 
 const StockInOtherCreate: React.FC = () => {
   const [isRequireNote, setIsRequireNote] = useState<boolean>(false);
@@ -202,6 +203,7 @@ const StockInOtherCreate: React.FC = () => {
               typePrice={typePrice}
               setTypePrice={(value) => setTypePrice(value)}
               inventoryType={StockInOutType.stock_in}
+              readPricePermissions={readPricePermissions}
             />
           </Col>
           <Col span={6}>
@@ -229,7 +231,10 @@ const StockInOtherCreate: React.FC = () => {
           }
           rightComponent={
             <Space>
-              <Button type="primary" onClick={() => importFile()}>
+              <Button
+                onClick={() => importFile()}
+                icon={<UploadOutlined style={{ marginTop: 9, fontSize: 15 }} />}
+              >
                 Nhập file
               </Button>
               <Button type="primary" onClick={() => formMain.submit()}>

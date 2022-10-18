@@ -13,6 +13,7 @@ import {
   PRICE_RULE_FIELDS,
 } from "../constants";
 import { OrderThresholdStyle } from "../discount/components/order-threshold.style";
+import { PromotionGift } from "model/promotion/gift.model";
 const rule = PRICE_RULE_FIELDS.rule;
 const conditions = PRICE_RULE_FIELDS.conditions;
 
@@ -29,12 +30,12 @@ const blankRow = {
 };
 interface Props {
   form: FormInstance;
-  priceRuleData: PriceRule;
+  priceRuleData: PriceRule | PromotionGift;
 }
 
 const defaultValueComponent = (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
   <Form.Item name={name} rules={rules}>
-    <Input placeholder="Tên sản phẩm" defaultValue={defaultValue} />
+    <Input placeholder="Nhập giá trị thuộc tính" defaultValue={defaultValue} />
   </Form.Item>
 );
 
@@ -105,7 +106,7 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
 
   const getIsDisableOptions = useCallback(
     (operatorOptions: string[], index: number) => {
-      const currentField = discountList[index].field;
+      const currentField = discountList[index]?.field;
 
       const acceptTypeOfCurrentField = _.find(FIELD_SELECT_OPTIONS, ["value", currentField])?.type;
 

@@ -94,8 +94,8 @@ import {
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import { ECOMMERCE_CHANNEL } from "../../ecommerce/common/commonAction";
+import CardCustomer from "../component/CardCustomer";
 import OrderDetailBottomBar from "../component/order-detail/BottomBar";
-import CardCustomer from "../component/order-detail/CardCustomer";
 import CardShowOrderPayments from "../component/order-detail/CardShowOrderPayments";
 import OrderFulfillmentCancelledShowDate from "../component/OrderPackingAndShippingDetail/OrderFulfillmentCancelledShowDate";
 import OrderFulfillmentDetail from "../component/OrderPackingAndShippingDetail/OrderFulfillmentDetail";
@@ -335,6 +335,7 @@ export default function Order(props: PropTypes) {
       payments: [],
       channel_id: null,
       finalized: false,
+      uniform:false,
       // automatic_discount: true,
       automatic_discount: false, // sửa đơn hàng ko mặc định bật chiết khấu tự động
     };
@@ -1038,6 +1039,7 @@ export default function Order(props: PropTypes) {
             sub_status_code: response.sub_status_code,
             // automatic_discount: response.automatic_discount,
             automatic_discount: false, // sửa đơn hàng ko mặc định bật chiết khấu tự động
+            uniform:response.uniform,
           });
           setShippingFeeInformedToCustomer(response.shipping_fee_informed_to_customer);
 

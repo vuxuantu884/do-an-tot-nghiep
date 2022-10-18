@@ -79,11 +79,15 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
         Array.isArray(params.from_store_id) &&
         params.from_store_id.length > 0
           ? params.from_store_id.map((i) => Number(i))
-          : [],
+          : params.from_store_id !== "" && params.from_store_id.toString() !== "0" && !Array.isArray(params.from_store_id)
+            ? params.from_store_id.toString().split(',').map((i: string) => Number(i))
+            : [],
       to_store_id:
         params.to_store_id && Array.isArray(params.to_store_id) && params.to_store_id.length > 0
           ? params.to_store_id.map((i) => Number(i))
-          : [],
+          : params.to_store_id !== "" && params.to_store_id.toString() !== "0" && !Array.isArray(params.to_store_id)
+            ? params.to_store_id.toString().split(',').map((i: string) => Number(i))
+            : [],
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, accountStores]);

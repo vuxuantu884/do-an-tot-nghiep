@@ -1,10 +1,11 @@
 import { MenuAction } from "component/table/ActionButton";
 import { getListLogInventoryTransferAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import InventoryListLogFilters from "../../Components/FIlter/InventoryListLogFilter";
 import { InventoryTransferTabWrapper } from "./styles";
 import {
+  InventoryTransferDetailItem,
   InventoryTransferLog,
   InventoryTransferLogSearchQuery,
   Store,
@@ -19,8 +20,9 @@ import { generateQuery } from "utils/AppUtils";
 import { useHistory } from "react-router";
 import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
 import { Link } from "react-router-dom";
-import { callApiNative } from "../../../../../utils/ApiUtils";
-import { searchAccountPublicApi } from "../../../../../service/accounts/account.service";
+import { callApiNative } from "utils/ApiUtils";
+import { searchAccountPublicApi } from "service/accounts/account.service";
+import CustomPagination from "../../../../../component/table/CustomPagination";
 
 const ACTIONS_INDEX = {
   ADD_FORM_EXCEL: 1,
@@ -120,6 +122,8 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
   props: HistoryInventoryTransferTabProps,
 ) => {
   const { accountStores, accounts, stores, setAccounts } = props;
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
+  const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
   const [accountStoresSelected, setAccountStoresSelected] = useState<AccountStoreResponse | null>(
     null,
   );
@@ -325,6 +329,37 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, setSearchResult, params]);
 
+  const onSelectedChange = useCallback((selectedRow: Array<InventoryTransferDetailItem>, selected: boolean | undefined, changeRow: any) => {
+    const newSelectedRowKeys = changeRow.map((row: any) => row.id);
+
+    if (selected) {
+      setSelectedRowKeys([
+        ...selectedRowKeys,
+        ...newSelectedRowKeys
+      ]);
+      setSelectedRowData([
+        ...selectedRowData,
+        ...changeRow
+      ]);
+      return;
+    }
+
+    const newSelectedRowKeysByDeselected = selectedRowKeys.filter((item) => {
+      const findIndex = changeRow.findIndex((row: any) => row.id === item);
+
+      return findIndex === -1
+    });
+
+    const newSelectedRowByDeselected = selectedRowData.filter((item) => {
+      const findIndex = changeRow.findIndex((row: any) => row.id === item.id);
+
+      return findIndex === -1
+    });
+
+    setSelectedRowKeys(newSelectedRowKeysByDeselected);
+    setSelectedRowData(newSelectedRowByDeselected);
+  }, [selectedRowData, selectedRowKeys]);
+
   return (
     <InventoryTransferTabWrapper>
       <InventoryListLogFilters
@@ -339,20 +374,25 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
         accountStoresSelected={accountStoresSelected}
         setAccountStoresSelected={(value) => setAccountStoresSelected(value)}
       />
+      <CustomPagination
+        pagination={{
+          showSizeChanger: true,
+          pageSize: data.metadata.limit,
+          current: data.metadata.page,
+          total: data.metadata.total,
+          onChange: onPageChange,
+          onShowSizeChange: onPageChange,
+        }}
+      />
       <CustomTable
         bordered
         isRowSelection
         isLoading={tableLoading}
+        selectedRowKey={selectedRowKeys}
         scroll={{ x: 1300 }}
         sticky={{ offsetScroll: 5, offsetHeader: 55 }}
-        pagination={{
-          pageSize: data.metadata.limit,
-          total: data.metadata.total,
-          current: data.metadata.page,
-          showSizeChanger: true,
-          onChange: onPageChange,
-          onShowSizeChange: onPageChange,
-        }}
+        pagination={false}
+        onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
         onShowColumnSetting={() => setShowSettingColumn(true)}
         dataSource={data.items}
         columns={columnFinal}

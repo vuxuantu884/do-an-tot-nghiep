@@ -35,6 +35,8 @@ import "assets/css/custom-filter.scss";
 import { modalActionType } from "model/modal/modal.model";
 import FormSize from "./conponents";
 import CustomModal from "component/modal/CustomModal";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
+import "./size-list.scss"
 
 const actionsDefault: Array<MenuAction> = [
   {
@@ -78,7 +80,11 @@ const SizeListScreen: React.FC = () => {
       render: (item: SizeResponse) => {
         return item.created_name ? (
           <div>
-            <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>
+            <Link
+              target="_blank"
+              className="product-size-creator"
+              to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}
+            >
               {item.created_name}
             </Link>
           </div>
@@ -255,7 +261,7 @@ const SizeListScreen: React.FC = () => {
           <Button
             className="ant-btn-primary"
             size="large"
-            icon={<PlusOutlined />}
+            icon={<PlusOutlined className="ant-btn-primary-icon"/>}
             onClick={() => {
               setModalAction("create");
               setIsShowModalDetail(true);
@@ -292,6 +298,7 @@ const SizeListScreen: React.FC = () => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          sticky={{ offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           isLoading={loadingTable}
           dataSource={data.items}
           columns={columns}

@@ -7,20 +7,20 @@ import {
   AnalyticDataQuery,
   AnalyticResult,
   ArrayAny,
-  KeyDriverOnlineDataSourceType,
-  KeyDriverOnlineParams,
+  KeyDriverDataSourceType,
+  KeyDriverOnlineParams
 } from "model/report";
 import moment from "moment";
+import queryString from "query-string";
 import { Dispatch } from "redux";
 import {
   actualDayUpdateApi,
   getKeyDriverOnlineApi,
-  onlineCounterService,
+  onlineCounterService
 } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
-import queryString from "query-string";
 // import { parseLocaleNumber } from "utils/AppUtils";
 
 export const DEFAULT_KEY_DRIVER_GROUP_LV_1 = "Kinh doanh Online";
@@ -97,7 +97,7 @@ export const convertDataToFlatTableKeyDriver = (
   const keyDriverDescriptionDataIndex = attributeOrdered.indexOf("key_driver_description");
   const drillingLevelDataIndex = attributeOrdered.indexOf("drilling_level");
 
-  const data: KeyDriverOnlineDataSourceType[] = [];
+  const data: KeyDriverDataSourceType[] = [];
 
   let keyDriver = "";
   keyDriverResult.data.forEach((row: Array<string>) => {
@@ -284,7 +284,7 @@ export const getAllDepartmentByAnalyticResult = (
 
 export async function saveMonthTargetKeyDriver(
   value: { [key: string]: number },
-  row: KeyDriverOnlineDataSourceType,
+  row: KeyDriverDataSourceType,
   columnDrillingLevel: number,
   columnKey: string,
   inputId: string,

@@ -13,13 +13,12 @@ import { calculateDimSummary } from "../utils/DimSummaryUtils";
 
 function useFetchCallLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm, selectedDate, selectedStaffs } =
-    useContext(KDOfflineContext);
+  const { setData, selectedStores, selectedAsm, selectedDate } = useContext(KDOfflineContext);
 
   const [isFetchingCallLoyalty, setIsFetchingCallLoyalty] = useState<boolean | undefined>();
 
   const findKeyDriverAndUpdateValue = useCallback(
-    (data: any, asmData: any, columnKey: string) => {
+    (dataState: any, dimData: any, columnKey: string) => {
       const { Asm, Store } = KeyDriverDimension;
       let dimKey: "department_lv2" | "pos_location_name" | undefined;
       if (dimension === Asm) {
@@ -30,8 +29,8 @@ function useFetchCallLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.
         dimKey = undefined;
       }
       findKDAndUpdateCallSmsValue({
-        data,
-        asmData,
+        dataState,
+        dimData,
         columnKey,
         selectedDate,
         type: "call",
@@ -62,10 +61,7 @@ function useFetchCallLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.
         return;
       }
 
-      if (
-        dimension === Staff &&
-        (!selectedStores.length || !selectedAsm.length || !selectedStaffs.length)
-      ) {
+      if (dimension === Staff) {
         setIsFetchingCallLoyalty(false);
         return;
       }
@@ -75,9 +71,6 @@ function useFetchCallLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.
         posLocationNames: dimension === Asm ? [] : selectedStores,
         departmentLv2s: dimension === Asm ? ASM_LIST : selectedAsm,
       };
-      if (dimension === Staff) {
-        params = { ...params, staffCodes: selectedStaffs.map((item) => JSON.parse(item).code) };
-      }
       const dayApi = callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDCallLoyalty, {
         ...params,
         from: selectedDate,
@@ -108,7 +101,7 @@ function useFetchCallLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.
           setIsFetchingCallLoyalty(false);
           return;
         }
-        const dimName = dimension === Staff ? selectedStores[0] : "";
+        const dimName = "";
         let resDayDim: any[] = [];
         if (resDay.length) {
           if (dimension === Asm) {
@@ -124,13 +117,11 @@ function useFetchCallLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.
           }
 
           if (resDay.length) {
-            setData((prev: any) => {
-              let dataPrev: any = prev[0];
+            setData((dataPrev: any) => {
               resDayDim.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
               });
-              prev[0] = dataPrev;
-              return [...prev];
+              return [...dataPrev];
             });
           }
           setIsFetchingCallLoyalty(false);
@@ -138,8 +129,7 @@ function useFetchCallLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.
         }
 
         if (resMonth.length) {
-          setData((prev: any) => {
-            let dataPrev: any = prev[0];
+          setData((dataPrev: any) => {
             if (resDay.length) {
               resDayDim.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
@@ -155,8 +145,7 @@ function useFetchCallLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.
             resMonthDim.forEach((item: any) => {
               findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
             });
-            prev[0] = dataPrev;
-            return [...prev];
+            return [...dataPrev];
           });
         }
       });
@@ -173,7 +162,6 @@ function useFetchCallLoyalty(dimension: KeyDriverDimension = KeyDriverDimension.
     findKeyDriverAndUpdateValue,
     selectedAsm,
     selectedDate,
-    selectedStaffs,
     selectedStores,
     setData,
   ]);

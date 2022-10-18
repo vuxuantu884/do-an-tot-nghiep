@@ -11,11 +11,7 @@ import { useDispatch } from "react-redux";
 import { getKDOfflineOnlineTotalSales } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
-import {
-  calculateTargetMonth,
-  findKeyDriver,
-  nonAccentVietnameseKD,
-} from "utils/KeyDriverOfflineUtils";
+import { calculateTargetMonth, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { KDOfflineContext } from "../provider/kd-offline-provider";
 import { calculateDimSummary } from "../utils/DimSummaryUtils";
@@ -31,9 +27,9 @@ function useFetchOfflineOnlineTotalSales(dimension: KeyDriverDimension = KeyDriv
 
   const findKeyDriverAndUpdateValue = useCallback(
     (data: any, asmData: any, columnKey: string) => {
-      let uniformOnlineTotalSales: any = [];
-      findKeyDriver(data, KeyDriverField.UniformOnlineTotalSales, uniformOnlineTotalSales);
-      uniformOnlineTotalSales = uniformOnlineTotalSales[0];
+      const uniformOnlineTotalSales = data.find(
+        (item: any) => item.key === KeyDriverField.UniformOnlineTotalSales,
+      );
       const { Asm, Store, Staff } = KeyDriverDimension;
       let dimensionKey: "department_lv2" | "pos_location_name" | "staff_code" | "" = "";
       switch (dimension) {
@@ -79,6 +75,7 @@ function useFetchOfflineOnlineTotalSales(dimension: KeyDriverDimension = KeyDriv
 
   const refetchOfflineOnlineTotalSales = useCallback(() => {
     const fetchOfflineOnlineTotalSales = async () => {
+      setIsFetchingOfflineOnlineTotalSales(true);
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
@@ -89,7 +86,6 @@ function useFetchOfflineOnlineTotalSales(dimension: KeyDriverDimension = KeyDriv
       ) {
         return;
       }
-      setIsFetchingOfflineOnlineTotalSales(true);
       let params: KDOfflineTotalSalesParams = {
         from: TODAY,
         to: TODAY,
@@ -154,21 +150,18 @@ function useFetchOfflineOnlineTotalSales(dimension: KeyDriverDimension = KeyDriv
             showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Doanh thu đóng hàng Online");
           }
           if (resDay.length) {
-            setData((prev: any) => {
-              let dataPrev: any = prev[0];
+            setData((dataPrev: any) => {
               resDayDim.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
               });
-              prev[0] = dataPrev;
-              return [...prev];
+              return [...dataPrev];
             });
           }
           setIsFetchingOfflineOnlineTotalSales(false);
           return;
         }
         if (resMonth.length) {
-          setData((prev: any) => {
-            let dataPrev: any = prev[0];
+          setData((dataPrev: any) => {
             if (resDay.length) {
               resDayDim.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
@@ -184,8 +177,7 @@ function useFetchOfflineOnlineTotalSales(dimension: KeyDriverDimension = KeyDriv
             resMonthDim.forEach((item: any) => {
               findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
             });
-            prev[0] = dataPrev;
-            return [...prev];
+            return [...dataPrev];
           });
         }
       });

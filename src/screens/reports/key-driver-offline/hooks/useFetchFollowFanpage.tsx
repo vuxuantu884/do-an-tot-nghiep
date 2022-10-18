@@ -13,8 +13,7 @@ import { findKDAndUpdateFollowFanpageValue } from "../utils/FollowFanpageUtils";
 
 function useFetchFollowFanpage(dimension: KeyDriverDimension = KeyDriverDimension.Store) {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm, selectedDate, selectedStaffs } =
-    useContext(KDOfflineContext);
+  const { setData, selectedStores, selectedAsm, selectedDate } = useContext(KDOfflineContext);
 
   const [isFetchingFollowFanpage, setIsFetchingFollowFanpage] = useState<boolean | undefined>();
 
@@ -45,27 +44,21 @@ function useFetchFollowFanpage(dimension: KeyDriverDimension = KeyDriverDimensio
 
   const refetchFollowFanpage = useCallback(() => {
     const fetchFollowFanpage = async () => {
+      setIsFetchingFollowFanpage(true);
       const { Asm, Store, Staff } = KeyDriverDimension;
       if (dimension === Store && (!selectedStores.length || !selectedAsm.length)) {
         return;
       }
-      if (
-        dimension === Staff &&
-        (!selectedStores.length || !selectedAsm.length || !selectedStaffs.length)
-      ) {
+      if (dimension === Staff) {
+        setIsFetchingFollowFanpage(false);
         return;
       }
-      setIsFetchingFollowFanpage(true);
       let params: KDOfflineTotalSalesParams = {
         from: TODAY,
         to: TODAY,
         posLocationNames: dimension === Asm ? [] : selectedStores,
         departmentLv2s: dimension === Asm ? ASM_LIST : selectedAsm,
       };
-      if (dimension === Staff) {
-        setIsFetchingFollowFanpage(false);
-        return;
-      }
       // const dayApi = callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDFollowFanpage, {
       //   ...params,
       //   from: selectedDate,
@@ -136,8 +129,7 @@ function useFetchFollowFanpage(dimension: KeyDriverDimension = KeyDriverDimensio
         }
 
         if (resMonth.length) {
-          setData((prev: any) => {
-            let dataPrev: any = prev[0];
+          setData((dataPrev: any) => {
             if (resDay.length) {
               resDayDim.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
@@ -157,8 +149,7 @@ function useFetchFollowFanpage(dimension: KeyDriverDimension = KeyDriverDimensio
             resMonthDim.forEach((item: any) => {
               findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
             });
-            prev[0] = dataPrev;
-            return [...prev];
+            return [...dataPrev];
           });
         }
       });
@@ -174,7 +165,6 @@ function useFetchFollowFanpage(dimension: KeyDriverDimension = KeyDriverDimensio
     findKeyDriverAndUpdateValue,
     selectedAsm,
     selectedDate,
-    selectedStaffs,
     selectedStores,
     setData,
   ]);

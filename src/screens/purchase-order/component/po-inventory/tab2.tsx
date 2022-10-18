@@ -32,14 +32,14 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
           //     )
           //     : [];
           const items = procurements !== undefined && procurements !== null ? procurements : [];
-          const dataSource = items.filter((item) => {
-            return (
-              Number(formatCurrency(POUtils.totalAcceptedQuantity(item.procurement_items))) ||
-              Number(
-                formatCurrency(POUtils.totalRealQuantityProcument(item.procurement_items), "."),
-              )
-            );
-          });
+          // const dataSource = items.filter((item) => {
+          //   return (
+          //     Number(formatCurrency(POUtils.totalAcceptedQuantity(item.procurement_items))) ||
+          //     Number(
+          //       formatCurrency(POUtils.totalRealQuantityProcument(item.procurement_items), "."),
+          //     )
+          //   );
+          // });
           return (
             <Table
               locale={{
@@ -48,7 +48,7 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
               className="product-table"
               rowKey={(record: PurchaseProcument) => (record.id ? record.id : new Date().getTime())}
               rowClassName="product-table-row"
-              dataSource={dataSource}
+              dataSource={items}
               tableLayout="fixed"
               scroll={{ x: 600 }}
               pagination={false}
