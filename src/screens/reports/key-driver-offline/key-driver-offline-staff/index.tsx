@@ -27,7 +27,7 @@ import {
   calculateMonthRateUtil,
   nonAccentVietnameseKD,
   updateTargetDayUtil,
-  updateTargetMonthUtil,
+  updateTargetMonthUtil
 } from "utils/KeyDriverOfflineUtils";
 import StaffsSelect from "../components/staffs-select";
 import { kdNumber, kdOfflineTemplateData, loadingMessage } from "../constant/kd-offline-template";
@@ -174,7 +174,7 @@ function KeyDriverOfflineStaff() {
     moment().format(DATE_FORMAT.DD_MM_YY_HHmmss),
   );
 
-  const expandedDefault = localStorage.getItem(LocalStorageKey.KeyDriverOfflineRowkeysExpanded);
+  const expandedDefault = localStorage.getItem(LocalStorageKey.KDOfflineRowkeysExpanded);
   const [expandRowKeys, setExpandRowKeys] = useState<string[]>(
     expandedDefault ? JSON.parse(expandedDefault) : [],
   );
@@ -651,7 +651,7 @@ function KeyDriverOfflineStaff() {
               onExpandedRowsChange: (rowKeys: any) => {
                 setExpandRowKeys(rowKeys);
                 localStorage.setItem(
-                  LocalStorageKey.KeyDriverOfflineRowkeysExpanded,
+                  LocalStorageKey.KDOfflineRowkeysExpanded,
                   JSON.stringify(rowKeys),
                 );
               },
@@ -667,7 +667,7 @@ function KeyDriverOfflineStaff() {
         onOk={(data) => {
           setShowSettingColumn(false);
           setDisplayColumns(data);
-          localStorage.setItem(LocalStorageKey.KeyDriverOfflineColumns, JSON.stringify(data));
+          localStorage.setItem(LocalStorageKey.KDOfflineColumnsV1, JSON.stringify(data));
         }}
         data={displayColumns}
       />
