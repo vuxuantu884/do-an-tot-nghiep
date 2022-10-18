@@ -151,6 +151,7 @@ const CustomerUpdate = (props: any) => {
     values.full_name = values.full_name.trim();
     if (!values.full_name) return showError("Vui lòng nhập họ tên khách hàng");
     const processValue = {
+      ...customer,
       ...values,
       birthday: values.birthday ? new Date(values.birthday).toUTCString() : null,
       wedding_date: values.wedding_date ? new Date(values.wedding_date).toUTCString() : null,

@@ -1,4 +1,5 @@
 import { BaseQuery } from "model/base/base.query";
+import { BillingAddress, contact, note, ShippingAddress } from "model/response/customer/customer.response";
 
 interface BaseObject {
   created_by: number | null;
@@ -182,10 +183,11 @@ export interface CustomerRequest extends BaseObject {
   status: string | null;
   version: number | null;
   city_id: number | null;
-  billing_addresses: Array<CustomerBillingAddress>;
-  shipping_addresses: Array<CustomerShippingAddress>;
-  contacts: Array<CustomerContact>;
-  notes: Array<CustomerNote>;
+  billing_addresses: Array<CustomerBillingAddress | BillingAddress>;
+  shipping_addresses: Array<CustomerShippingAddress | ShippingAddress>;
+  contacts: Array<CustomerContact | contact>;
+  notes: Array<CustomerNote | note>;
+  family_info: Array<any>;
 }
 
 export class CustomerModel implements CustomerRequest {
@@ -224,6 +226,7 @@ export class CustomerModel implements CustomerRequest {
   shipping_addresses: Array<CustomerShippingAddress> = [];
   contacts: Array<CustomerContact> = [];
   notes: Array<CustomerNote> = [];
+  family_info: Array<any> = [];
 }
 
 export interface CustomerUpdateRequest extends CustomerRequest {

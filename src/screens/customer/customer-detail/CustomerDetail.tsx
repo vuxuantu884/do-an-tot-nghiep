@@ -24,7 +24,6 @@ import {
   getRecalculatePointCustomerAction,
   getRecalculateMoneyCustomerAction,
 } from "domain/actions/loyalty/loyalty.action";
-// import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { LoyaltyCardSearch } from "domain/actions/loyalty/card/loyalty-card.action";
@@ -41,8 +40,29 @@ import { RegionResponse } from "model/content/country.model";
 import { GetRegionAction } from "domain/actions/content/content.action";
 import CustomerOrderHistory from "./CustomerOrderHistory";
 import { showSuccess } from "utils/ToastUtils";
+import CustomerFamily from "screens/customer/customer-detail/customer-family/CustomerFamily";
+import BottomBarContainer from "component/container/bottom-bar.container";
 
 const { TabPane } = Tabs;
+
+const defaultActions: Array<MenuAction> = [
+  {
+    id: 1,
+    name: "Tặng điểm",
+  },
+  {
+    id: 2,
+    name: "Trừ điểm",
+  },
+  {
+    id: 3,
+    name: "Tặng tiền tích lũy",
+  },
+  {
+    id: 4,
+    name: "Trừ tiền tích lũy",
+  },
+];
 
 const viewCustomerDetailPermission = [
   CustomerListPermission.customers_read,
@@ -76,7 +96,7 @@ const CustomerDetail = () => {
   const params: any = useParams();
   const dispatch = useDispatch();
   const history = useHistory();
-  const [customer, setCustomer] = React.useState<CustomerResponse>();
+  const [customer, setCustomer] = React.useState<CustomerResponse>({} as CustomerResponse);
   const [customerPointInfo, setCustomerPoint] = React.useState<any>([]);
   const [modalAction, setModalAction] = React.useState<modalActionType>("create");
   const [loyaltyPoint, setLoyaltyPoint] = React.useState<any>(null);
@@ -85,25 +105,6 @@ const CustomerDetail = () => {
     [],
   );
   const [customerSpendDetail, setCustomerSpendDetail] = React.useState<any>([]);
-
-  const defaultActions: Array<MenuAction> = [
-    {
-      id: 1,
-      name: "Tặng điểm",
-    },
-    {
-      id: 2,
-      name: "Trừ điểm",
-    },
-    {
-      id: 3,
-      name: "Tặng tiền tích lũy",
-    },
-    {
-      id: 4,
-      name: "Trừ tiền tích lũy",
-    },
-  ];
 
   const actions: Array<MenuAction> = useMemo(() => {
     let _actions = defaultActions;
@@ -122,7 +123,7 @@ const CustomerDetail = () => {
     }
     
     return _actions;
-  }, [allowRecalculateMoneyPoint, defaultActions]);
+  }, [allowRecalculateMoneyPoint]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -139,6 +140,7 @@ const CustomerDetail = () => {
         }
       }),
     );
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
   }, [dispatch]);
   // end get region list
 
@@ -157,7 +159,7 @@ const CustomerDetail = () => {
       return;
     }
 
-    if (customer) {
+    if (customer && customer.id) {
       dispatch(getLoyaltyPoint(customer.id, setLoyaltyPoint));
       dispatch(
         LoyaltyCardSearch({ customer_id: customer.id, statuses: ["ASSIGNED"] }, updateLoyaltyCard),
@@ -165,7 +167,6 @@ const CustomerDetail = () => {
     } else {
       setLoyaltyPoint(null);
     }
-    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
   }, [dispatch, customer, allowViewCustomerDetail, updateLoyaltyCard]);
 
   React.useEffect(() => {
@@ -209,6 +210,10 @@ const CustomerDetail = () => {
           break;
         case "#updated-logging":
           setActiveTab("updated-logging");
+          setIsShowAddBtn(false);
+          break;
+        case "#family":
+          setActiveTab("family");
           setIsShowAddBtn(false);
           break;
       }
@@ -370,26 +375,14 @@ const CustomerDetail = () => {
   const handleChangeTab = (active: string) => {
     switch (active) {
       case "contacts":
-        setIsShowAddBtn(true);
-        break;
       case "billing":
-        setIsShowAddBtn(true);
-        break;
       case "shipping":
-        setIsShowAddBtn(true);
-        break;
       case "notes":
         setIsShowAddBtn(true);
         break;
       case "caring-history":
-        setIsShowAddBtn(false);
-        break;
       case "updated-logging":
-        setIsShowAddBtn(false);
-        break;
       case "history":
-        setIsShowAddBtn(false);
-        break;
       case "activity-log":
         setIsShowAddBtn(false);
         break;
@@ -622,6 +615,12 @@ const CustomerDetail = () => {
                       />
                     </TabPane>
 
+                    <TabPane tab="Thông tin người thân" key="family">
+                      <CustomerFamily
+                        customer={customer}
+                      />
+                    </TabPane>
+
                     {allowUpdateCustomer && isShowAddBtn && (
                       <TabPane
                         tab={
@@ -635,6 +634,13 @@ const CustomerDetail = () => {
                     )}
                   </Tabs>
                 </Card>
+
+                <BottomBarContainer
+                  back={"Quay lại danh sách khách hàng"}
+                  backAction={() => {
+                    history.push(`${UrlConfig.CUSTOMER}`)
+                  }}
+                />
               </>
             ) : (
               <NoPermission />
