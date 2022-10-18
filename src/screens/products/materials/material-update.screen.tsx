@@ -5,7 +5,6 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomEditor from "component/custom/custom-editor";
-import NumberInput from "component/custom/number-input.custom";
 import SupplierSearchSelect from "component/filter/component/supplier-select";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { ProductPermission } from "config/permissions/product.permission";
@@ -17,7 +16,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { callApiNative } from "utils/ApiUtils";
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { CompareObject } from "utils/CompareObject";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
@@ -27,6 +25,7 @@ import { uploadFileApi } from "service/core/import.service";
 import { careInformation } from "../Component/CareInformation/care-value";
 import "./style.scss";
 import { updateMaterialApi } from "service/product/material.service";
+import { validateNumberValue } from "utils/Material.util";
 
 type MaterialPamram = {
   id: string;
@@ -228,6 +227,11 @@ const UpdateMaterial: React.FC = () => {
     }
     return "";
   }, [marterialStatusList, status]);
+
+  const handleNumberInputChange = (name: "price" | "fabric_size" | "weight") => {
+    let vl: string = form.getFieldValue(name).toString();
+    form.setFields([{ ...validateNumberValue(vl), name }]);
+  };
 
   const checkFile = (file: any, type: string, mess: boolean = false) => {
     let check = true;
@@ -556,13 +560,11 @@ const UpdateMaterial: React.FC = () => {
                     <Form.Item label="Khổ vải:">
                       <Input.Group compact>
                         <Form.Item name="fabric_size" noStyle>
-                          <NumberInput
-                            format={(a: string) => formatCurrency(a)}
-                            replace={(a: string) => replaceFormatString(a)}
-                            maxLength={15}
-                            isFloat
+                          <Input
+                            style={{ width: "calc(100% - 170px)", textAlign: "right" }}
                             placeholder="Khổ vải"
-                            style={{ width: "calc(100% - 100px)" }}
+                            onChange={() => handleNumberInputChange("fabric_size")}
+                            type="number"
                           />
                         </Form.Item>
                         <Form.Item name="fabric_size_unit" noStyle>
@@ -581,13 +583,11 @@ const UpdateMaterial: React.FC = () => {
                     <Form.Item label="Trọng lượng:">
                       <Input.Group compact>
                         <Form.Item name="weight" noStyle>
-                          <NumberInput
-                            format={(a: string) => formatCurrency(a)}
-                            replace={(a: string) => replaceFormatString(a)}
-                            maxLength={15}
-                            isFloat
+                          <Input
+                            type="number"
                             placeholder="Trọng lượng"
-                            style={{ width: "calc(100% - 100px)" }}
+                            style={{ width: "calc(100% - 100px)", textAlign: "right" }}
+                            onChange={() => handleNumberInputChange("weight")}
                           />
                         </Form.Item>
                         <Form.Item name="weight_unit" noStyle>
@@ -606,13 +606,11 @@ const UpdateMaterial: React.FC = () => {
                     <Form.Item label="Giá:">
                       <Input.Group compact>
                         <Form.Item name="price" noStyle>
-                          <NumberInput
-                            format={(a: string) => formatCurrency(a)}
-                            replace={(a: string) => replaceFormatString(a)}
-                            maxLength={15}
-                            isFloat
+                          <Input
+                            style={{ width: "calc(100% - 170px)", textAlign: "right" }}
                             placeholder="Giá"
-                            style={{ width: "calc(100% - 170px)" }}
+                            onChange={() => handleNumberInputChange("price")}
+                            type="number"
                           />
                         </Form.Item>
                         <Form.Item name="price_unit" noStyle>
@@ -682,6 +680,7 @@ const UpdateMaterial: React.FC = () => {
                         fileList={fileList}
                         multiple={true}
                         maxCount={7}
+                        listType="picture-card"
                         beforeUpload={(file: any) => {
                           onBeforeUpload(file, "img");
                         }}
@@ -695,7 +694,7 @@ const UpdateMaterial: React.FC = () => {
                           onRemoveFile(data, "img");
                         }}
                       >
-                        <Button icon={<UploadOutlined />}>Chọn file Ảnh</Button>
+                        Chọn file Ảnh
                       </Upload>
                     </Form.Item>
                     <Form.Item noStyle hidden name="images">

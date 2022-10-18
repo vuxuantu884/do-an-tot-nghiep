@@ -24,3 +24,7 @@ export const StyledComponent = styled.div`
     }
   }
 `;
+export const UniformText = styled.span`
+  color: red;
+  font-weight: 800;
+`;

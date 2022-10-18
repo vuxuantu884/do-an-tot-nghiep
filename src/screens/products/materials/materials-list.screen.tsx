@@ -1,5 +1,5 @@
-import { Button, Card, Form, Input } from "antd";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Button, Card, Dropdown, Form, Input, Menu } from "antd";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import search from "assets/img/search.svg";
 import { MaterialQuery, MaterialResponse } from "model/product/material.model";
@@ -11,8 +11,7 @@ import {
   updateMaterialOtherAction,
 } from "domain/actions/product/material.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { MenuAction } from "component/table/ActionButton";
-import { showSuccess, showWarning } from "utils/ToastUtils";
+import { showSuccess } from "utils/ToastUtils";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
@@ -28,18 +27,10 @@ import { SupplierResponse } from "../../../model/core/supplier.model";
 import TextShowMore from "component/container/show-more/text-show-more";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { EditOutlined } from "@ant-design/icons";
+import { EditOutlined, EllipsisOutlined } from "@ant-design/icons";
 
-const actionsDefault: Array<MenuAction> = [
-  {
-    id: 1,
-    name: "Chỉnh sửa",
-    icon: <EditOutlined />,
-  },
-];
 const { Item } = Form;
 const ListMaterial: React.FC = () => {
-  const [selected, setSelected] = useState<Array<MaterialResponse>>([]);
   const history = useHistory();
   const dispatch = useDispatch();
   const query = useQuery();
@@ -65,6 +56,45 @@ const ListMaterial: React.FC = () => {
     dispatch(updateMaterialOtherAction(items.id, newValue, onUpdateStatus));
   };
 
+  const onGetSuccess = useCallback((data: PageResponse<MaterialResponse> | false) => {
+    setLoading(false);
+    if (!!data) {
+      setData(data);
+    }
+  }, []);
+
+  // check if current user has right to update/delete material:
+  const [canUpdateMaterial] = useAuthorization({
+    acceptPermissions: [ProductPermission.materials_update],
+    not: false,
+  });
+
+  const RenderActionColumn = (value: any, row: MaterialResponse, idx: number) => {
+    const menu = (
+      <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
+        {canUpdateMaterial && (
+          <Menu.Item key="1">
+            <Button
+              icon={<EditOutlined />}
+              type="text"
+              onClick={() => {
+                history.push(`${UrlConfig.MATERIALS}/${row.id}/update`);
+              }}
+            >
+              Chỉnh sửa
+            </Button>
+          </Menu.Item>
+        )}
+      </Menu>
+    );
+
+    return (
+      <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
+        <Button type="text" size="small" icon={<EllipsisOutlined />}></Button>
+      </Dropdown>
+    );
+  };
+
   const columns = [
     {
       title: "ID chất liệu",
@@ -73,10 +103,12 @@ const ListMaterial: React.FC = () => {
       key: "code",
       render: (value: string, item: MaterialResponse) => {
         return (
-          <div>
-            <Link to={`${UrlConfig.MATERIALS}/${item.id}`}>{value}</Link>
-            <div>{ConvertUtcToLocalDate(item.created_date, DATE_FORMAT.DDMMYY_HHmm)}</div>
-          </div>
+          <Link
+            style={{ fontSize: 16, fontWeight: "bold" }}
+            to={`${UrlConfig.MATERIALS}/${item.id}`}
+          >
+            {value}
+          </Link>
         );
       },
     },
@@ -220,30 +252,15 @@ const ListMaterial: React.FC = () => {
         );
       },
     },
+    {
+      title: "",
+      width: 50,
+      dataIndex: "action",
+      render: (value: string, item: MaterialResponse, idx: number) =>
+        RenderActionColumn(value, item, idx),
+    },
   ];
 
-  const onGetSuccess = useCallback((data: PageResponse<MaterialResponse> | false) => {
-    setLoading(false);
-    if (!!data) {
-      setData(data);
-    }
-  }, []);
-
-  const onUpdate = useCallback(() => {
-    if (selected.length === 0) {
-      showWarning("Vui lòng chọn chất liệu cần sửa");
-      return;
-    }
-    if (selected.length === 1) {
-      let id = selected[0].id;
-      history.push(`${UrlConfig.MATERIALS}/${id}`);
-      return;
-    }
-  }, [history, selected]);
-
-  const onSelect = useCallback((selectedRow: Array<MaterialResponse>) => {
-    setSelected(selectedRow);
-  }, []);
   const onFinish = useCallback(
     (values: MaterialQuery) => {
       let newPrams = {
@@ -276,35 +293,6 @@ const ListMaterial: React.FC = () => {
     },
     [history, params],
   );
-  const onMenuClick = useCallback(
-    (index: number) => {
-      switch (index) {
-        case 1:
-          onUpdate();
-          break;
-      }
-    },
-    [onUpdate],
-  );
-
-  const [canDeleteMaterials] = useAuthorization({
-    acceptPermissions: [ProductPermission.materials_delete],
-  });
-  const [canUpdateMaterials] = useAuthorization({
-    acceptPermissions: [ProductPermission.materials_update],
-  });
-
-  const menuFilter = useMemo(() => {
-    return actionsDefault.filter((item) => {
-      if (item.id === 1) {
-        return selected.length === 1 && canUpdateMaterials;
-      }
-      if (item.id === 2) {
-        return canDeleteMaterials;
-      }
-      return true;
-    });
-  }, [selected, canDeleteMaterials, canUpdateMaterials]);
 
   useEffect(() => {
     setLoading(true);
@@ -344,7 +332,7 @@ const ListMaterial: React.FC = () => {
     >
       <Card>
         <div className="custom-filter">
-          <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
+          <CustomFilter menu={[]}>
             <Form onFinish={onFinish} initialValues={params} layout="inline">
               <Item name="info" className="input-search">
                 <Input prefix={<img src={search} alt="" />} placeholder="Tên / Mã chất liệu" />
@@ -373,7 +361,6 @@ const ListMaterial: React.FC = () => {
         </div>
         <CustomTable
           bordered
-          isRowSelection
           isLoading={loading}
           pagination={{
             pageSize: data.metadata.limit,
@@ -383,9 +370,9 @@ const ListMaterial: React.FC = () => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          isShowPaginationAtHeader
           dataSource={data.items}
           columns={columns}
-          onSelectedChange={onSelect}
           scroll={{ x: 1360 }}
           sticky={{ offsetScroll: 10, offsetHeader: 55 }}
           rowKey={(item: MaterialResponse) => item.id}
