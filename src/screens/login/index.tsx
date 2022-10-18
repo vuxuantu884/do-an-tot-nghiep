@@ -1,4 +1,3 @@
-import { Button, Checkbox, Col, Form, Input, Row, Space, Tooltip } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { Redirect } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,7 +5,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { loginRequestAction } from "domain/actions/auth/auth.action";
 import { useQuery } from "utils/useQuery";
 import UrlConfig from "config/url.config";
-import { AppConfig, hotlineNumber } from "config/app.config";
+import { AppConfig, hotlineCBNumber, hotlineNumber } from "config/app.config";
 import { LoginWeb } from "./LoginWeb";
 import { LoginMobile } from "./LoginMobile";
 
@@ -50,16 +49,21 @@ const Login = () => {
     window.location.href = `tel:${hotlineNumber}`;
   };
 
+  const callHotlineCBSupport = () => {
+    window.location.href = `tel:${hotlineCBNumber}`;
+  };
+
   return (
     <>
       {window.screen.width <= 992 ? (
         <LoginMobile
           callHotlineSupport={callHotlineSupport}
+          callHotlineCBSupport={callHotlineCBSupport}
           onFinish={onFinish}
           loading={loading}
         />
       ) : (
-        <LoginWeb callHotlineSupport={callHotlineSupport} onFinish={onFinish} loading={loading} />
+        <LoginWeb callHotlineCBSupport={callHotlineCBSupport} callHotlineSupport={callHotlineSupport} onFinish={onFinish} loading={loading} />
       )}
     </>
   );

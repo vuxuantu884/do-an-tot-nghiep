@@ -1,21 +1,23 @@
-import { Button, Checkbox, Col, Form, Input, Row, Space, Tooltip } from "antd";
+import { Button, Col, Form, Input, Row, Space, Tooltip } from "antd";
 import { StylesWrapperLeft, StylesWrapperRight } from "./styles";
 import logoLogin from "assets/img/LOGIN/logo.svg";
 import fashionTech from "assets/img/LOGIN/FashionTech.png";
 import logoMain from "assets/img/LOGIN/LogoMain.png";
-import questionICon from "assets/icon/LOGIN/question.svg";
 import hotlineIcon from "assets/icon/hotline.svg";
-import { hotlineNumber } from "config/app.config";
+import hotlineCBIcon from "assets/icon/cb.svg";
+import gapoIcon from "assets/icon/gapo.svg";
+import { hotlineCBNumber, hotlineNumber } from "config/app.config";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 
 type IProps = {
   callHotlineSupport: () => void;
+  callHotlineCBSupport: () => void;
   onFinish: (values: any) => void;
   loading: boolean;
 };
 
 export const LoginWeb = (props: IProps) => {
-  const { callHotlineSupport, onFinish, loading } = props;
+  const { callHotlineSupport, onFinish, loading, callHotlineCBSupport } = props;
   return (
     <Row gutter={24} style={{ width: "100%", height: "100%" }}>
       <StylesWrapperLeft span={12}>
@@ -36,6 +38,40 @@ export const LoginWeb = (props: IProps) => {
         </div>
       </StylesWrapperLeft>
       <StylesWrapperRight span={12}>
+        <Row gutter={24} align="middle">
+          <Col span={8}>
+            <div className="hotline-info">
+              <img style={{ marginRight: 5 }} src={hotlineCBIcon} alt="hotlineCB" />
+              <span className="hotline-group">
+                <span style={{ marginBottom: "-3px", color: "#595959" }}> {"C&B - Hotline"}</span>
+                <Tooltip title="Click để gọi Mai C&B" color="blue" placement="bottom">
+                  <span className="phone-number" onClick={callHotlineCBSupport}>
+                    {hotlineCBNumber}
+                  </span>
+                </Tooltip>
+              </span>
+            </div>
+          </Col>
+          <Col span={8}>
+            <div className="hotline-info">
+              <img style={{ marginRight: 5 }} src={hotlineIcon} alt="hotline" />
+              <span className="hotline-group">
+                <span style={{ marginBottom: "-3px", color: "#595959" }}> {"Hotline hỗ trợ: "}</span>
+                <Tooltip title="Click để gọi hỗ trợ" color="blue" placement="bottom">
+                  <span className="phone-number" onClick={callHotlineSupport}>
+                    {hotlineNumber}
+                  </span>
+                </Tooltip>
+              </span>
+            </div>
+          </Col>
+          <Col span={8}>
+            <a style={{ color: "#595959" }} className="hotline-info" href="https://www.gapowork.vn/group/unicorn" target="_bank">
+              <img style={{ marginRight: 5 }} src={gapoIcon} alt="gapo" />
+              <span> {"Nhóm hỗ trợ "} <span style={{ fontWeight: 600 }}>Gapo</span></span>
+            </a>
+          </Col>
+        </Row>
         <div
           className="container-right"
           style={{
@@ -43,39 +79,6 @@ export const LoginWeb = (props: IProps) => {
             marginRight: "auto !important",
           }}
         >
-          <Row gutter={24} align="middle" justify="space-between">
-            <Col>
-              <div className="hotline-info">
-                <img
-                  style={{ marginRight: 5, width: "24px", height: "24px" }}
-                  src={questionICon}
-                  alt="hotline"
-                />
-                <span style={{ cursor: "pointer" }}>
-                  {" "}
-                  <a href="https://hdsd.yody.io/faq-cau-hoi-thuong-gap" target="_bank">
-                    {" "}
-                    {"Câu hỏi thường gặp"}
-                  </a>
-                </span>
-              </div>
-            </Col>
-            <Col>
-              <Space size={15}>
-                <div className="hotline-info">
-                  <img style={{ marginRight: 5 }} src={hotlineIcon} alt="hotline" />
-                  <span className="hotline-group">
-                    <span style={{ marginBottom: "-8px" }}> {"Hotline hỗ trợ: "}</span>
-                    <Tooltip title="Click để gọi hỗ trợ" color="blue" placement="bottom">
-                      <span className="phone-number" onClick={callHotlineSupport}>
-                        {hotlineNumber}
-                      </span>
-                    </Tooltip>
-                  </span>
-                </div>
-              </Space>
-            </Col>
-          </Row>
           <div className="login">
             <div className="login-group">
               <div className="login-title">
