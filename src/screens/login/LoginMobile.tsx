@@ -1,20 +1,22 @@
 import logoLogin from "assets/img/LOGIN/logo.svg";
 import fashionTech from "assets/img/LOGIN/FashionTech.png";
 import styled from "styled-components";
-import { Button, Checkbox, Col, Form, Input, Row, Space, Tooltip } from "antd";
+import { Button, Col, Form, Input, Row, Tooltip } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import hotlineIcon from "assets/icon/hotline.svg";
-import { hotlineNumber } from "config/app.config";
-import questionICon from "assets/icon/LOGIN/question.svg";
+import { hotlineCBNumber, hotlineNumber } from "config/app.config";
+import hotlineCBIcon from "assets/icon/cb.svg";
+import gapoIcon from "assets/icon/gapo.svg";
 
 type IProps = {
   onFinish: (values: any) => void;
   loading: boolean;
   callHotlineSupport: () => void;
+  callHotlineCBSupport: () => void;
 };
 
 export const LoginMobile = (props: IProps) => {
-  const { onFinish, loading, callHotlineSupport } = props;
+  const { onFinish, loading, callHotlineSupport, callHotlineCBSupport } = props;
   return (
     <StyledLoginMobile>
       <div className="container-header">
@@ -93,37 +95,39 @@ export const LoginMobile = (props: IProps) => {
           </Form>
         </div>
       </div>
-      <Row gutter={24} justify="center" align="middle" className="login-bottom">
-        <Col>
+      <Row gutter={24} align="middle">
+        <Col span={8}>
           <div className="hotline-info">
-            <img
-              style={{ marginRight: 5, width: "20px", height: "20px" }}
-              src={questionICon}
-              alt="hotline"
-            />
-            <span style={{ cursor: "pointer" }}>
-              {" "}
-              <a href="https://hdsd.yody.io/faq-cau-hoi-thuong-gap" target="_bank">
-                {" "}
-                {"Câu hỏi thường gặp"}
-              </a>
+            <img style={{ marginRight: 5 }} src={hotlineCBIcon} alt="hotlineCB" />
+            <span className="hotline-group">
+              <span style={{ marginBottom: "-3px", color: "#595959" }}> {"C&B - Hotline"}</span>
+              <Tooltip title="Click để gọi Mai C&B" color="blue" placement="bottom">
+                <span className="phone-number" onClick={callHotlineCBSupport}>
+                  {hotlineCBNumber}
+                </span>
+              </Tooltip>
             </span>
           </div>
         </Col>
-        <Col>
-          <Space size={15}>
-            <div className="hotline-info">
-              <img style={{ marginRight: 5 }} src={hotlineIcon} alt="hotline" />
-              <span className="hotline-group">
-                <span style={{ marginBottom: "-8px" }}> {"Hotline hỗ trợ: "}</span>
-                <Tooltip title="Click để gọi hỗ trợ" color="blue" placement="bottom">
-                  <span className="phone-number" onClick={callHotlineSupport}>
-                    {hotlineNumber}
-                  </span>
-                </Tooltip>
-              </span>
-            </div>
-          </Space>
+        <Col span={8}>
+          <div className="hotline-info">
+            <img style={{ marginRight: 5, marginBottom: 5 }} src={hotlineIcon} alt="hotline" />
+            <span className="hotline-group">
+              <span style={{ marginBottom: "-3px", color: "#595959" }}> {"Hotline hỗ trợ: "}</span>
+              <Tooltip title="Click để gọi hỗ trợ" color="blue" placement="bottom">
+                <span className="phone-number" onClick={callHotlineSupport}>
+                  {hotlineNumber}
+                </span>
+              </Tooltip>
+            </span>
+          </div>
+        </Col>
+        <Col span={8}>
+          <a style={{ color: "#595959" }} className="hotline-info" href="https://www.gapowork.vn/group/unicorn" target="_bank">
+            <img style={{ marginRight: 5, marginBottom: 5 }} src={gapoIcon} alt="gapo" />
+            <span> {"Nhóm hỗ trợ "}</span>
+            <span style={{ fontWeight: 600 }}>Gapo</span>
+          </a>
         </Col>
       </Row>
     </StyledLoginMobile>
@@ -241,9 +245,16 @@ const StyledLoginMobile = styled.div`
     }
   }
   .hotline-info {
+    cursor: pointer;
     display: flex;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
     font-size: 16px;
+    img {
+      width: 36px;
+      height: 36px;
+    }
     .hotline-group {
       display: flex;
       flex-direction: column;
