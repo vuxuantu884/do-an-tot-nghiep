@@ -209,6 +209,12 @@ const TransferService = {
       data,
     );
   },
+
+  updateAvailableApi: (transferId: string) : Promise<BaseResponse<string>> => {
+    return BaseAxios.put(
+      `${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/reload-stock`,
+    );
+  }
 };
 
 export const {
@@ -228,4 +234,5 @@ export const {
   cancelMultipleInventoryTransfer,
   adjustmentInventory,
   getTransferRecordNumberApi,
+  updateAvailableApi,
 } = TransferService;
