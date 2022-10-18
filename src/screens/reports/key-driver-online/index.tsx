@@ -9,7 +9,7 @@ import NumberInput from "component/custom/number-input.custom";
 import ModalSettingColumnData from "component/table/ModalSettingColumnData";
 import UrlConfig from "config/url.config";
 // import { KeyboardKey } from "model/other/keyboard/keyboard.model";
-import { KeyDriverDataSourceType } from "model/report";
+import { KeyDriverDataSourceType, LocalStorageKey } from "model/report";
 import moment from "moment";
 import queryString from "query-string";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
@@ -119,8 +119,8 @@ function KeyDriverOnline() {
       valueSetter?.call(element, value);
     }
   };
-  const expandedDefault = localStorage.getItem("key-dirver-online-rowkeys-expanded");
-  const getColumns = localStorage.getItem("key-dirver-online-columns");
+  const expandedDefault = localStorage.getItem(LocalStorageKey.KDOnlineRowkeysExpanded);
+  const getColumns = localStorage.getItem(LocalStorageKey.KDOnlineColumns);
   const [expandRowKeys, setExpandRowKeys] = useState<any[]>(
     expandedDefault ? JSON.parse(expandedDefault) : [],
   );
@@ -868,7 +868,7 @@ function KeyDriverOnline() {
               onExpandedRowsChange: (rowKeys: any) => {
                 console.log("rowKeys", rowKeys);
                 setExpandRowKeys(rowKeys);
-                localStorage.setItem("key-dirver-online-rowkeys-expanded", JSON.stringify(rowKeys));
+                localStorage.setItem(LocalStorageKey.KDOnlineRowkeysExpanded, JSON.stringify(rowKeys));
               },
             }}
             rowClassName={(record: any, rowIndex: any) => {
@@ -887,7 +887,7 @@ function KeyDriverOnline() {
             onOk={(data) => {
               setShowSettingColumn(false);
               setColumns(data);
-              localStorage.setItem("key-dirver-online-columns", JSON.stringify(data));
+              localStorage.setItem(LocalStorageKey.KDOnlineColumns, JSON.stringify(data));
             }}
             data={columns}
           />

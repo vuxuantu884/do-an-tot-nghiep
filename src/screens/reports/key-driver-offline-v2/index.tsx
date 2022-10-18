@@ -118,8 +118,8 @@ function KeyDriverOffline() {
       valueSetter?.call(element, value);
     }
   };
-  const expandedDefault = localStorage.getItem(LocalStorageKey.KeyDriverOfflineRowkeysExpanded);
-  const getColumns = localStorage.getItem(LocalStorageKey.KeyDriverOfflineColumns);
+  const expandedDefault = localStorage.getItem(LocalStorageKey.KDOfflineRowkeysExpanded);
+  const getColumns = localStorage.getItem(LocalStorageKey.KDOfflineColumns);
   const [expandRowKeys, setExpandRowKeys] = useState<any[]>(
     expandedDefault ? JSON.parse(expandedDefault) : [],
   );
@@ -733,7 +733,7 @@ function KeyDriverOffline() {
               defaultExpandAllRows: true,
               onExpandedRowsChange: (rowKeys: any) => {
                 setExpandRowKeys(rowKeys);
-                localStorage.setItem(LocalStorageKey.KeyDriverOfflineRowkeysExpanded, JSON.stringify(rowKeys));
+                localStorage.setItem(LocalStorageKey.KDOfflineRowkeysExpanded, JSON.stringify(rowKeys));
               },
             }}
             rowClassName={(record: any, rowIndex: any) => {
@@ -752,7 +752,7 @@ function KeyDriverOffline() {
             onOk={(data) => {
               setShowSettingColumn(false);
               setColumns(data);
-              localStorage.setItem(LocalStorageKey.KeyDriverOfflineColumns, JSON.stringify(data));
+              localStorage.setItem(LocalStorageKey.KDOfflineColumns, JSON.stringify(data));
             }}
             data={columns}
           />
