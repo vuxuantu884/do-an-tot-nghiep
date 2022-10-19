@@ -73,6 +73,7 @@ import {
   SHOPEE,
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
+import { FulfillmentStatus } from "utils/FulfillmentStatus.constant";
 import { primaryColor } from "utils/global-styles/variables";
 import {
   ORDER_PAYMENT_STATUS,
@@ -83,8 +84,10 @@ import {
 import {
   checkIfFulfillmentCancelled,
   checkIfOrderHasNotFinishedPaymentMomo,
+  getFulfillmentActive,
   getLink,
   getTotalAmountBeforeDiscount,
+  isDeliveryOrderReturned,
 } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
@@ -169,6 +172,7 @@ function OrdersTable(props: PropTypes) {
   // };
 
   const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(undefined);
+  const [returnStore, setReturnStore] = useState<StoreResponse | null>();
 
   const [selectedOrder, setSelectedOrder] = useState<OrderModel | null>(null);
 
@@ -578,6 +582,28 @@ function OrdersTable(props: PropTypes) {
       .finally(() => {
         dispatch(hideLoading());
       });
+  };
+
+  const renderCoordinator = (record: any) => {
+    return (
+      <div className="single coordinator">
+        <div className="coordinator-item">
+          <strong>NV điều phối: </strong>
+          {record.coordinator ? (
+            <React.Fragment>
+              <Link
+                to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`}
+                className="coordinatorCode"
+              >
+                {record.coordinator_code} - {record.coordinator}
+              </Link>
+            </React.Fragment>
+          ) : (
+            "-"
+          )}
+        </div>
+      </div>
+    );
   };
 
   const initColumnsDefault: ICustomTableColumTypeExtra = useMemo(() => {
@@ -1000,6 +1026,7 @@ function OrdersTable(props: PropTypes) {
                           ) : null}
                         </React.Fragment>
                       )}
+                      {renderCoordinator(record)}
                     </React.Fragment>
                   );
                 case ShipmentMethod.EMPLOYEE:
@@ -1039,6 +1066,7 @@ function OrdersTable(props: PropTypes) {
                           )}
                         </div>
                       </Tooltip>
+                      {renderCoordinator(record)}
                     </React.Fragment>
                   );
                 case ShipmentMethod.PICK_AT_STORE:
@@ -1071,6 +1099,7 @@ function OrdersTable(props: PropTypes) {
                           )}
                         </div>
                       </Tooltip>
+                      {renderCoordinator(record)}
                     </React.Fragment>
                   );
                 case ShipmentMethod.SHOPEE:
@@ -1100,6 +1129,7 @@ function OrdersTable(props: PropTypes) {
                           )}
                         </div>
                       </Tooltip>
+                      {renderCoordinator(record)}
                     </React.Fragment>
                   );
                 default:
@@ -1128,6 +1158,7 @@ function OrdersTable(props: PropTypes) {
                           )}
                         </div>
                       </Tooltip>
+                      {renderCoordinator(record)}
                     </React.Fragment>
                   );
               }
@@ -1167,6 +1198,9 @@ function OrdersTable(props: PropTypes) {
               : record.sub_status_code
               ? record.sub_status_code
               : "";
+          const returnedStore = listStore?.find(
+            (p) => p.id === getFulfillmentActive(record?.fulfillments)?.returned_store_id,
+          );
           return (
             <div className="orderStatus">
               <div className="inner">
@@ -1207,6 +1241,11 @@ function OrdersTable(props: PropTypes) {
                           showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!");
                           return;
                         }
+                        const returnedStoreData = listStore?.find(
+                          (p) =>
+                            p.id === getFulfillmentActive(record?.fulfillments)?.returned_store_id,
+                        );
+                        setReturnStore(returnedStoreData);
                         setToSubStatusCode(value);
                       }}
                     >
@@ -1223,23 +1262,25 @@ function OrdersTable(props: PropTypes) {
                     "-"
                   )}
                 </div>
-                <div className="single">
-                  <div className="coordinator-item">
-                    <strong>NV điều phối: </strong>
-                    {record.coordinator ? (
-                      <React.Fragment>
-                        <Link
-                          to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`}
-                          className="coordinatorCode"
-                        >
-                          {record.coordinator_code} - {record.coordinator}
-                        </Link>
-                      </React.Fragment>
-                    ) : (
-                      "-"
-                    )}
+                {record?.sub_status_code === FulfillmentStatus.RETURNED && (
+                  <div className="single">
+                    <div className="coordinator-item">
+                      <strong>Kho nhận hàng hoàn: </strong>
+                      {returnedStore ? (
+                        <React.Fragment>
+                          <Link
+                            to={`${UrlConfig.STORE}/${returnedStore?.id}`}
+                            className="coordinatorCode"
+                          >
+                            {returnedStore?.name}
+                          </Link>
+                        </React.Fragment>
+                      ) : (
+                        "-"
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           );
@@ -1334,7 +1375,7 @@ function OrdersTable(props: PropTypes) {
       },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items.length, deliveryServices, editNote, status_order]);
+  }, [items.length, deliveryServices, editNote, status_order, listStore]);
 
   const initColumns = useMemo(() => {
     if (orderType === ORDER_TYPES.online) {
@@ -1723,6 +1764,7 @@ function OrdersTable(props: PropTypes) {
         toSubStatus={toSubStatusCode}
         setToSubStatusCode={setToSubStatusCode}
         changeSubStatusCallback={changeSubStatusCallback}
+        returnStore={returnStore}
       />
       {/* hiển thị image ảnh sản phẩm */}
       <Image

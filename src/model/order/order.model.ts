@@ -217,6 +217,7 @@ export interface OrderSearchQuery {
   //
   is_expired_payment?: boolean | string | null;
   expired_at?: number | null;
+  returned_store_ids?: number[] | null;
 }
 
 export interface OrderSearchQueryModel {

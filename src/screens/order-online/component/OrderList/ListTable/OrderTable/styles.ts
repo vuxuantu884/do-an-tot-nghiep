@@ -236,6 +236,12 @@ export const StyledComponent = styled.div.attrs((props: any) => {
         }
       }
     }
+    .coordinator{
+      padding: 10px 0px;
+    }
+    .coordinator:not(:first-child) {
+      border-top: 1px solid #ddd;
+    }
   }
   .ant-table {
     .ant-table-footer {

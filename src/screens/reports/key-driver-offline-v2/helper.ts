@@ -14,10 +14,12 @@ import queryString from "query-string";
 import { Dispatch } from "redux";
 import { MigrateKDOfflineUrl } from "routes/menu/reports.route";
 import {
-  getKeyDriverOnlineApi
+  getKeyDriverOnlineApi,
+  onlineCounterService
 } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 // import { parseLocaleNumber } from "utils/AppUtils";
 
 export const DEFAULT_KEY_DRIVER_GROUP_LV_1 = "Kinh doanh Offline";
@@ -33,6 +35,7 @@ const ATTRIBUTE_VALUE = [
   "monthly_actual",
   "monthly_progress",
   "monthly_forecasted",
+  "monthly_forecasted_progress",
   "daily_target",
   "daily_actual",
   "daily_progress",
@@ -291,60 +294,23 @@ export async function saveMonthTargetKeyDriver(
     ...value,
   };
 
-  // const response = await callApiNative(
-  //   { notifyAction: "SHOW_ALL" },
-  //   dispatch,
-  //   onlineCounterService,
-  //   params,
-  // );
-  // console.log("response[key]", response[key]);
-  // // if (response && response[key]) {
-  // if (response) {
-  //   showSuccess("Lưu thành công");
-  //   // const input: any = document.getElementById(inputId);
-  //   // input.value = parseLocaleNumber(response[key]);
-  // } else {
-  //   showError("Lưu không thành công");
-  //   const input: any = document.getElementById(inputId);
-  //   input.value = currentValue;
-  // }
-}
-
-export async function saveActualDay(
-  department_lv1: string,
-  department_lv2: string,
-  department_lv3: string,
-  department_lv4: string,
-  driver_key: string,
-  value: number,
-  dispatch: Dispatch<any>,
-) {
-  const params = {
-    department_lv1,
-    department_lv2,
-    department_lv3,
-    // department_lv4,
-    driver_key,
-    value_a: value,
-    account_code: "",
-    account_name: "",
-    account_role: "",
-  };
-  // if (params.department_lv1 && params.department_lv2 && params.department_lv3) {
-  //   try {
-  //     const response = await callApiNative(
-  //       { notifyAction: "SHOW_ALL" },
-  //       dispatch,
-  //       actualDayUpdateApi,
-  //       params,
-  //     );
-  //     if (response) showSuccess("Lưu thành công");
-  //   } catch {
-  //     showError("Lưu không thành công");
-  //   }
-  // } else {
-  //   showError("Chỉ số thực đạt được nhập phải từ shop");
-  // }
+  const response = await callApiNative(
+    { notifyAction: "SHOW_ALL" },
+    dispatch,
+    onlineCounterService,
+    params,
+  );
+  console.log("response[key]", response[key]);
+  // if (response && response[key]) {
+  if (response) {
+    showSuccess("Lưu thành công");
+    // const input: any = document.getElementById(inputId);
+    // input.value = parseLocaleNumber(response[key]);
+  } else {
+    showError("Lưu không thành công");
+    const input: any = document.getElementById(inputId);
+    input.value = currentValue;
+  }
 }
 
 export const handleFocusInput = (e: any) => {

@@ -18,9 +18,7 @@ import { MigrateKDOfflineUrl } from "routes/menu/reports.route";
 import { getKeyDriverOnlineApi } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import {
-  formatCurrency,
-  generateQuery,
-  parseLocaleNumber,
+  formatCurrency, parseLocaleNumber,
   replaceFormatString
 } from "utils/AppUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
@@ -85,7 +83,7 @@ function VerifyCell(props: VerifyCellProps) {
   } else if (!value && typeof value !== "number" && type === "display") {
     return <div>-</div>;
   } else {
-    return <div>{children}</div>;
+    return <div className="overflow-wrap-normal">{children}</div>;
   }
 }
 
@@ -120,8 +118,8 @@ function KeyDriverOffline() {
       valueSetter?.call(element, value);
     }
   };
-  const expandedDefault = localStorage.getItem(LocalStorageKey.KeyDriverOfflineRowkeysExpanded);
-  const getColumns = localStorage.getItem(LocalStorageKey.KeyDriverOfflineColumns);
+  const expandedDefault = localStorage.getItem(LocalStorageKey.KDOfflineRowkeysExpanded);
+  const getColumns = localStorage.getItem(LocalStorageKey.KDOfflineColumns);
   const [expandRowKeys, setExpandRowKeys] = useState<any[]>(
     expandedDefault ? JSON.parse(expandedDefault) : [],
   );
@@ -144,7 +142,7 @@ function KeyDriverOffline() {
             fixed: true,
           },
           {
-            title: "Tỉ lệ",
+            title: "Tỷ lệ (Luỹ kế/Mục tiêu tháng)",
             name: "monthly_progress",
             index: 2,
             visible: true,
@@ -156,22 +154,28 @@ function KeyDriverOffline() {
             visible: true,
           },
           {
+            title: "Tỷ lệ (Dự kiến đạt/Mục tiêu tháng)",
+            name: "monthly_forecasted_progress",
+            index: 4,
+            visible: true,
+          },
+          {
             title: "Mục tiêu ngày",
             name: "daily_target",
-            index: 4,
+            index: 5,
             visible: true,
           },
           {
             title: "Thực đạt",
             name: "daily_actual",
-            index: 5,
+            index: 6,
             visible: true,
             fixed: true,
           },
           {
-            title: "Tỉ lệ",
+            title: "Tỷ lệ (Thực đạt/Mục tiêu ngày)",
             name: "daily_progress",
-            index: 6,
+            index: 7,
             visible: true,
           },
         ],
@@ -376,7 +380,7 @@ function KeyDriverOffline() {
               return (
                 <div
                   className={
-                    Number(text) / record[`${departmentKey}_monthly_target`] > 1
+                    Number(text) / record[`${departmentKey}_monthly_target`] >= 1
                       ? "background-green"
                       : Number(text) / record[`${departmentKey}_monthly_target`] < 1 / 2
                       ? "background-red"
@@ -385,6 +389,26 @@ function KeyDriverOffline() {
                 >
                   <VerifyCell row={record} value={text}>
                     {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
+                  </VerifyCell>
+                </div>
+              );
+            },
+          },
+          {
+            title: "TỶ LỆ",
+            width: 80,
+            align: "right",
+            dataIndex: `${departmentKey}_monthly_forecasted_progress`,
+            className: "non-input-cell",
+            render: (text: any, record: KeyDriverDataSourceType) => {
+              return (
+                <div
+                  className={
+                    text >= 100 ? "background-green" : text && text < 50 ? "background-red" : ""
+                  }
+                >
+                  <VerifyCell row={record} value={text}>
+                    {text ? `${text}%` : '-'}
                   </VerifyCell>
                 </div>
               );
@@ -515,7 +539,7 @@ function KeyDriverOffline() {
             width: 120,
             align: "right",
             dataIndex: `${departmentKey}_daily_actual`,
-            className: "input-cell",
+            className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
               
                 return (
@@ -617,13 +641,18 @@ function KeyDriverOffline() {
       );
     } else {
       const today = moment().format(DATE_FORMAT.YYYYMMDD);
-      let queryParam = generateQuery({
+      setTimeout(() => {
+        form.setFieldsValue({ date: moment() });
+      }, 1000);
+      const queryParams = queryString.parse(history.location.search);
+      const newQueries = {
+        ...queryParams,
         date: today,
         keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
-      });
-      history.push(`?${queryParam}`);
+      };
+      history.push({ search: queryString.stringify(newQueries) });
     }
-  }, [initTable, history, date, keyDriverGroupLv1, departmentLv2, departmentLv3]);
+  }, [initTable, history, date, keyDriverGroupLv1, departmentLv2, departmentLv3, form]);
 
   const onFinish = useCallback(() => {
     let date = form.getFieldsValue(true)["date"];
@@ -636,11 +665,13 @@ function KeyDriverOffline() {
         form.setFieldsValue({ date: moment() });
       }, 1000);
     }
-    let queryParam = generateQuery({
+    const queryParams = queryString.parse(history.location.search);
+    const newQueries = {
+      ...queryParams,
       date: newDate,
       keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
-    });
-    history.push(`?${queryParam}`);
+    };
+    history.push({ search: queryString.stringify(newQueries) });
   }, [form, history]);
   return (
     <ContentContainer
@@ -702,7 +733,7 @@ function KeyDriverOffline() {
               defaultExpandAllRows: true,
               onExpandedRowsChange: (rowKeys: any) => {
                 setExpandRowKeys(rowKeys);
-                localStorage.setItem(LocalStorageKey.KeyDriverOfflineRowkeysExpanded, JSON.stringify(rowKeys));
+                localStorage.setItem(LocalStorageKey.KDOfflineRowkeysExpanded, JSON.stringify(rowKeys));
               },
             }}
             rowClassName={(record: any, rowIndex: any) => {
@@ -721,7 +752,7 @@ function KeyDriverOffline() {
             onOk={(data) => {
               setShowSettingColumn(false);
               setColumns(data);
-              localStorage.setItem(LocalStorageKey.KeyDriverOfflineColumns, JSON.stringify(data));
+              localStorage.setItem(LocalStorageKey.KDOfflineColumns, JSON.stringify(data));
             }}
             data={columns}
           />

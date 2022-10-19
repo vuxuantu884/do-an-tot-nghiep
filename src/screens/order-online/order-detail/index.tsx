@@ -1180,8 +1180,9 @@ const OrderDetail = (props: PropTypes) => {
               <Col md={6}>
                 {showOrderDetailUtm && <SidebarOrderDetailUtm OrderDetail={OrderDetail} />}
                 <SidebarOrderDetailInformation
-                  OrderDetail={OrderDetail}
+                  OrderDetail={OrderDetailAllFulfillment}
                   orderDetailHandover={orderDetailHandover}
+                  currentStores={currentStores}
                 />
                 <SubStatusOrder
                   setOrderDetail={handleStatusOrder}
@@ -1190,6 +1191,7 @@ const OrderDetail = (props: PropTypes) => {
                   handleUpdateSubStatus={handleUpdateSubStatus}
                   setReload={setReload}
                   OrderDetailAllFulfillment={OrderDetailAllFulfillment}
+                  currentStores={currentStores}
                 />
                 <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} editNote={editNote} />
                 <ActionHistory
