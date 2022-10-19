@@ -9,7 +9,7 @@ import { Dispatch } from "redux";
 import {
   getMetadataKeyDriverOnlineApi,
   getOnlineCounterService,
-  onlineCounterService
+  onlineCounterService,
 } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { parseLocaleNumber } from "utils/AppUtils";
@@ -158,7 +158,7 @@ export const getColumnByDate = (
                       month: date.month() + 1,
                       year: date.year(),
                       [`day${i.toString().padStart(2, "0")}`]: Number(value),
-                      date_input: `${date.year()}-${date.month() + 1}-${i.toString().padStart(2, "0")}`
+                      // date_input: `${date.year()}-${date.month() + 1}-${i.toString().padStart(2, "0")}`
                     } as MonthlyCounter;
                     console.log("params params", params);
                     const response = await callApiNative(
@@ -298,7 +298,7 @@ export const getMonthlyCounterByDepartmentLevel3 = async (
   form: FormInstance,
   dispatch: Dispatch<any>,
 ): Promise<Array<MonthlyCounter>> => {
-  const selectedKeyDriver = form.getFieldValue("key_driver");
+  const selectedKeyDriver = form.getFieldValue("key_driver").toLowerCase();
   const selectedDate = form.getFieldValue("date") as Moment;
   const selectedYear = selectedDate?.year();
   const selectedMonth = selectedDate?.month() + 1;
