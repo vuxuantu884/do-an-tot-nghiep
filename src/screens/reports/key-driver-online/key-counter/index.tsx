@@ -16,7 +16,7 @@ import {
   getColumnByDate,
   getDepartmentLevel4ByShop,
   getMonthlyCounterByDepartmentLevel3,
-  getShopListByDate,
+  getShopListByDate
 } from "./helper";
 import { KeyDriverOnlineCounterStyled } from "./style";
 
@@ -130,7 +130,7 @@ function KeyDriverOnlineCounter() {
             className="filter-container"
             initialValues={{
               // date: moment(),
-              date: moment("2022-07-31", DATE_FORMAT.YYYYMMDD), // draft
+              date: moment(new Date(), DATE_FORMAT.YYYYMMDD), // draft
               key_driver: KEY_DRIVER_ONLINE_COUNTER[0].value,
             }}
           >
