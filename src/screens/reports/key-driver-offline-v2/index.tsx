@@ -17,10 +17,7 @@ import { Link, useHistory, useLocation } from "react-router-dom";
 import { MigrateKDOfflineUrl } from "routes/menu/reports.route";
 import { getKeyDriverOnlineApi } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
-import {
-  formatCurrency, parseLocaleNumber,
-  replaceFormatString
-} from "utils/AppUtils";
+import { formatCurrency, parseLocaleNumber, replaceFormatString } from "utils/AppUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
@@ -33,10 +30,10 @@ import {
   getBreadcrumbByLevel,
   // getInputTargetId,
   // handleMoveFocusInput,
-  saveMonthTargetKeyDriver
+  saveMonthTargetKeyDriver,
 } from "./helper";
 import KeyDriverOfflineProvider, {
-  KeyDriverOfflineContext
+  KeyDriverOfflineContext,
 } from "./provider/key-driver-offline-provider";
 
 type VerifyCellProps = {
@@ -118,11 +115,12 @@ function KeyDriverOffline() {
       valueSetter?.call(element, value);
     }
   };
-  const expandedDefault = localStorage.getItem(LocalStorageKey.KDOfflineRowkeysExpanded);
+  // const expandedDefault = localStorage.getItem(LocalStorageKey.KDOfflineRowkeysExpanded);
   const getColumns = localStorage.getItem(LocalStorageKey.KDOfflineColumns);
-  const [expandRowKeys, setExpandRowKeys] = useState<any[]>(
-    expandedDefault ? JSON.parse(expandedDefault) : [],
-  );
+  // const [expandRowKeys, setExpandRowKeys] = useState<any[]>(
+  //   expandedDefault ? JSON.parse(expandedDefault) : [],
+  // );
+  const [expandRowKeys, setExpandRowKeys] = useState<any[]>([]);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [columns, setColumns] = useState<any[]>(
     getColumns
@@ -204,13 +202,7 @@ function KeyDriverOffline() {
       link: string,
     ): ColumnGroupType<any> | ColumnType<any> => {
       return {
-        title: link ? (
-          <Link to={link}>
-            {department}
-          </Link>
-        ) : (
-          department
-        ),
+        title: link ? <Link to={link}>{department}</Link> : department,
         className: classnames("department-name", className),
         onHeaderCell: (data: any) => {
           return {
@@ -408,7 +400,7 @@ function KeyDriverOffline() {
                   }
                 >
                   <VerifyCell row={record} value={text}>
-                    {text ? `${text}%` : '-'}
+                    {text ? `${text}%` : "-"}
                   </VerifyCell>
                 </div>
               );
@@ -541,13 +533,12 @@ function KeyDriverOffline() {
             dataIndex: `${departmentKey}_daily_actual`,
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              
-                return (
-                  <VerifyCell row={record} value={text}>
-                    {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
-                  </VerifyCell>
-                );
-              }
+              return (
+                <VerifyCell row={record} value={text}>
+                  {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
+                </VerifyCell>
+              );
+            },
           },
           {
             title: "TỶ LỆ",
@@ -733,7 +724,7 @@ function KeyDriverOffline() {
               defaultExpandAllRows: true,
               onExpandedRowsChange: (rowKeys: any) => {
                 setExpandRowKeys(rowKeys);
-                localStorage.setItem(LocalStorageKey.KDOfflineRowkeysExpanded, JSON.stringify(rowKeys));
+                // localStorage.setItem(LocalStorageKey.KDOfflineRowkeysExpanded, JSON.stringify(rowKeys));
               },
             }}
             rowClassName={(record: any, rowIndex: any) => {

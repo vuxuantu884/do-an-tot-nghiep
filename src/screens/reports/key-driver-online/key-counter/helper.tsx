@@ -158,7 +158,7 @@ export const getColumnByDate = (
                       month: date.month() + 1,
                       year: date.year(),
                       [`day${i.toString().padStart(2, "0")}`]: Number(value),
-                      date_input: `${date.year()}-${date.month() + 1}-${i.toString().padStart(2, "0")}`
+                      // date_input: `${date.year()}-${date.month() + 1}-${i.toString().padStart(2, "0")}`
                     } as MonthlyCounter;
                     console.log("params params", params);
                     const response = await callApiNative(
