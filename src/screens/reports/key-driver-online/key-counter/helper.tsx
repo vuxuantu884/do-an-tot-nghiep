@@ -155,9 +155,9 @@ export const getColumnByDate = (
                       account_code: record.account_code,
                       account_name: record.account_name,
                       account_role: record.account_role,
-                      [`day${i.toString().padStart(2, "0")}`]: Number(value),
                       month: date.month() + 1,
                       year: date.year(),
+                      date_input: `${date.year()}-${date.month() + 1}-${i.toString().padStart(2, "0")}`
                     } as MonthlyCounter;
                     console.log("params params", params);
                     const response = await callApiNative(
@@ -297,7 +297,7 @@ export const getMonthlyCounterByDepartmentLevel3 = async (
   form: FormInstance,
   dispatch: Dispatch<any>,
 ): Promise<Array<MonthlyCounter>> => {
-  const selectedKeyDriver = form.getFieldValue("key_driver").split(' - ')[0].toLowerCase();
+  const selectedKeyDriver = form.getFieldValue("key_driver");
   const selectedDate = form.getFieldValue("date") as Moment;
   const selectedYear = selectedDate?.year();
   const selectedMonth = selectedDate?.month() + 1;
