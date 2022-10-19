@@ -13,7 +13,8 @@ import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { renderDiscountValue, renderTotalBill } from "utils/PromotionUtils";
 import NumberInput from "component/custom/number-input.custom";
 import React from "react";
-import { GiftEntitlementForm } from "../../../model/promotion/gift.model";
+import { GiftEntitlementForm } from "model/promotion/gift.model";
+import moment from "moment/moment";
 const { Item } = Form;
 
 export const MAX_FIXED_DISCOUNT_VALUE = 999999999;
@@ -623,4 +624,39 @@ export const PROMOTION_TYPE = {
   GIFT: "GIFT",
   DISCOUNT: "DISCOUNT",
   PROMOTION_CODE: "PROMOTION_CODE",
+};
+
+export const STATE_LIST = [
+  {
+    value: "DRAFT",
+    name: "Chờ áp dụng",
+  },
+  {
+    value: "ACTIVE",
+    name: "Đang áp dụng",
+  },
+  {
+    value: "DISABLED",
+    name: "Tạm ngừng",
+  },
+];
+
+export const DATE_LIST_FORMAT = {
+  todayFrom: moment().startOf("day").format("DD-MM-YYYY"),
+  todayTo: moment().endOf("day").format("DD-MM-YYYY"),
+
+  yesterdayFrom: moment().startOf("day").subtract(1, "days").format("DD-MM-YYYY"),
+  yesterdayTo: moment().endOf("day").subtract(1, "days").format("DD-MM-YYYY"),
+
+  thisWeekFrom: moment().startOf("week").format("DD-MM-YYYY"),
+  thisWeekTo: moment().endOf("week").format("DD-MM-YYYY"),
+
+  lastWeekFrom: moment().startOf("week").subtract(1, "weeks").format("DD-MM-YYYY"),
+  lastWeekTo: moment().endOf("week").subtract(1, "weeks").format("DD-MM-YYYY"),
+
+  thisMonthFrom: moment().startOf("month").format("DD-MM-YYYY"),
+  thisMonthTo: moment().endOf("month").format("DD-MM-YYYY"),
+
+  lastMonthFrom: moment().subtract(1, "months").startOf("month").format("DD-MM-YYYY"),
+  lastMonthTo: moment().subtract(1, "months").endOf("month").format("DD-MM-YYYY"),
 };

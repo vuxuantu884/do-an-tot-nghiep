@@ -111,7 +111,7 @@ export const GiftListFilterStyled = styled.div`
         flex-grow: 1;
       }
       .search-variant {
-        width: 50%;
+        width: 30%;
       }
       .select-state {
         min-width: 150px;

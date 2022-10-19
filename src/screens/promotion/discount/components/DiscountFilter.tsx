@@ -36,6 +36,7 @@ import TreeSource from "component/treeSource";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { cloneDeep } from "lodash";
 import { DiscountFilterStyled } from "screens/promotion/discount/components/style";
+import { STATE_LIST, DATE_LIST_FORMAT } from "screens/promotion/constants";
 
 type DiscountFilterProps = {
   initQuery: DiscountSearchQuery;
@@ -57,24 +58,6 @@ const PRIORITY_LIST = [
   { value: 5 },
 ];
 
-const STATE_LIST = [
-  {
-    value: "DRAFT",
-    name: "Chờ áp dụng",
-  },
-  {
-    value: "ACTIVE",
-    name: "Đang áp dụng",
-  },
-  {
-    value: "DISABLED",
-    name: "Tạm ngưng",
-  },
-  {
-    value: "CANCELLED",
-    name: "Đã huỷ",
-  },
-];
 
 const DISCOUNT_METHOD_LIST = [
   {
@@ -90,26 +73,6 @@ const DISCOUNT_METHOD_LIST = [
     value: PriceRuleMethod.ORDER_THRESHOLD,
   },
 ];
-
-const DATE_LIST_FORMAT = {
-  todayFrom: moment().startOf("day").format("DD-MM-YYYY"),
-  todayTo: moment().endOf("day").format("DD-MM-YYYY"),
-
-  yesterdayFrom: moment().startOf("day").subtract(1, "days").format("DD-MM-YYYY"),
-  yesterdayTo: moment().endOf("day").subtract(1, "days").format("DD-MM-YYYY"),
-
-  thisWeekFrom: moment().startOf("week").format("DD-MM-YYYY"),
-  thisWeekTo: moment().endOf("week").format("DD-MM-YYYY"),
-
-  lastWeekFrom: moment().startOf("week").subtract(1, "weeks").format("DD-MM-YYYY"),
-  lastWeekTo: moment().endOf("week").subtract(1, "weeks").format("DD-MM-YYYY"),
-
-  thisMonthFrom: moment().startOf("month").format("DD-MM-YYYY"),
-  thisMonthTo: moment().endOf("month").format("DD-MM-YYYY"),
-
-  lastMonthFrom: moment().subtract(1, "months").startOf("month").format("DD-MM-YYYY"),
-  lastMonthTo: moment().subtract(1, "months").endOf("month").format("DD-MM-YYYY"),
-};
 
 const { Item } = Form;
 const { Option } = Select;

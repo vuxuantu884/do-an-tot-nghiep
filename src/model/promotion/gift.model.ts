@@ -31,7 +31,7 @@ export const GIFT_METHOD_LIST = [
     label: "Tặng quà theo đơn hàng",
     value: GIFT_METHOD_ENUM.ORDER_THRESHOLD,
   },
-]
+];
 
 export interface GiftEntitlementForm {
   entitled_category_ids?: Array<number>;
@@ -165,7 +165,6 @@ export interface GiftSearchQuery extends BaseQuery {
   variant_id?: string | null;
   product_id?: string | null;
   states?: Array<any> | [];
-  priorities?: Array<number> | [];
   entitled_methods?: Array<any> | [];
   creators?: Array<string> | [];
   store_ids?: Array<any> | [];
@@ -186,3 +185,23 @@ export interface GiftSearchQuery extends BaseQuery {
   customer_category?: Array<any> | [];
   discount_method?: Array<any> | [];
 }
+
+export const GiftFilterField = {
+  entitled_methods: "entitled_methods",
+  creators: "creators",
+  store_ids: "store_ids",
+  channels: "channels",
+  source_ids: "source_ids",
+  starts_date: "starts_date",
+  ends_date: "ends_date",
+};
+
+export const GiftFilterFieldMapping = {
+  [GiftFilterField.entitled_methods]: "Loại khuyến mại",
+  [GiftFilterField.creators]: "Người tạo khuyến mại",
+  [GiftFilterField.starts_date]: "Ngày bắt đầu áp dụng",
+  [GiftFilterField.ends_date]: "Ngày kết thúc áp dụng",
+  [GiftFilterField.store_ids]: "Cửa hàng áp dụng",
+  [GiftFilterField.channels]: "Kênh bán hàng áp dụng",
+  [GiftFilterField.source_ids]: "Nguồn đơn hàng áp dụng",
+};
