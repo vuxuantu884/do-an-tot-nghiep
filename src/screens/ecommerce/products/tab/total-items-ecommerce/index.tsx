@@ -347,6 +347,8 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
         const requestParams = {
           shop_id: item.shop_id,
           core_variant_id: item.core_variant_id,
+          ecommerce_id: item.ecommerce_id,
+          ecommerce_product_id: item.ecommerce_product_id,
         };
         setIsLoadingInventory(true);
         dispatch(
@@ -446,7 +448,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
           return (
             <div style={{ display: "flex", flexDirection: "column" }}>
               <span>{item.stock}</span>
-              {item.ecommerce_id === ECOMMERCE_ID.TIKI && item.connect_status === "connected" && (
+              {(item.ecommerce_id === ECOMMERCE_ID.TIKI || item.ecommerce_id === ECOMMERCE_ID.TIKTOK) && item.connect_status === "connected" && (
                 <Popover
                   placement="right"
                   overlayStyle={{ zIndex: 1000, top: "150px", maxWidth: "60%" }}
