@@ -16,7 +16,7 @@ import {
   getColumnByDate,
   getDepartmentLevel4ByShop,
   getMonthlyCounterByDepartmentLevel3,
-  getShopListByDate
+  getShopListByDate,
 } from "./helper";
 import { KeyDriverOnlineCounterStyled } from "./style";
 
@@ -29,7 +29,7 @@ function KeyDriverOnlineCounter() {
   const [dataSrc, setDataSrc] = useState<any[]>([]);
 
   const initColumnTable = async (shopList: DepartmentLevelGroup[]) => {
-    const keyDriver = form.getFieldValue("key_driver");
+    const keyDriver = form.getFieldValue("key_driver").toLowerCase();
     const selectedDate: Moment = form.getFieldValue("date");
 
     const selectedShopIndex: number = form.getFieldValue("shop");
