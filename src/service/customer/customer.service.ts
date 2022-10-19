@@ -20,6 +20,7 @@ import {
 } from "model/request/customer.request";
 import { ExportResponse } from "model/other/files/export-model";
 import { ProgressRankingCustomerRunning } from "model/response/loyalty/ranking/loyalty-rank.response";
+import { CustomerFamilyInfoRequest } from "model/customer/customer.request";
 
 export const getCustomers = (
   query: CustomerSearchQuery,
@@ -180,7 +181,7 @@ export const createCustomer = (customer: CustomerRequest): Promise<BaseResponse<
 
 export const updateCustomer = (
   id: number,
-  request: CustomerRequest,
+  request: any,
 ): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers/${id}`;
   return BaseAxios.put(url, request);
@@ -235,4 +236,30 @@ export const getProgressUpdateRankingCustomerApi = (
 ): Promise<ProgressRankingCustomerRunning> => {
   const requestUrl = `${ApiConfig.CUSTOMER}/jobs/${process_code}`;
   return BaseAxios.get(requestUrl);
+};
+
+/** family info */
+export const createFamilyMemberService = (
+  customerId: number,
+  memberInfo: CustomerFamilyInfoRequest,
+): Promise<BaseResponse<any>> => {
+  const url = `${ApiConfig.CUSTOMER}/customers/${customerId}/family`;
+  return BaseAxios.post(url, memberInfo);
+};
+
+export const updateFamilyMemberService = (
+  id: number,
+  customerId: number,
+  memberInfo: any,
+): Promise<BaseResponse<any>> => {
+  const url = `${ApiConfig.CUSTOMER}/customers/${customerId}/family/${id}`;
+  return BaseAxios.put(url, memberInfo);
+};
+
+export const deleteFamilyMemberService = (
+  id: number,
+  customerId: number,
+): Promise<BaseResponse<any>> => {
+  const url = `${ApiConfig.CUSTOMER}/customers/${customerId}/family/${id}`;
+  return BaseAxios.delete(url);
 };
