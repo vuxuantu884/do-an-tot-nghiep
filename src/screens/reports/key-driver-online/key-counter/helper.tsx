@@ -157,6 +157,7 @@ export const getColumnByDate = (
                       account_role: record.account_role,
                       month: date.month() + 1,
                       year: date.year(),
+                      [`day${i.toString().padStart(2, "0")}`]: Number(value),
                       date_input: `${date.year()}-${date.month() + 1}-${i.toString().padStart(2, "0")}`
                     } as MonthlyCounter;
                     console.log("params params", params);
