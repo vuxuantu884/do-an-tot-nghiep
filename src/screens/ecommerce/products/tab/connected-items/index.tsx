@@ -566,6 +566,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         const requestParams = {
           shop_id: item.shop_id,
           core_variant_id: item.core_variant_id,
+          ecommerce_id: item.ecommerce_id,
+          ecommerce_product_id: item.ecommerce_product_id,
         };
         setIsLoadingInventory(true);
         dispatch(
@@ -655,56 +657,58 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           return (
             <div>
               <span>{item.stock}</span>
-              {item.ecommerce_id === ECOMMERCE_ID.TIKI && item.connect_status === "connected" && (
-                <Popover
-                  placement="right"
-                  overlayStyle={{ zIndex: 1000, top: "150px", maxWidth: "60%" }}
-                  content={
-                    <Table
-                      columns={[
-                        {
-                          title: "Kho (Unicorn)",
-                          render: (item: any) => (
-                            <div style={{ display: "flex", flexDirection: "column" }}>
-                              <span style={{ color: "#2a2a86", textAlign: "center" }}>
-                                {item?.core_warehouse_name}
-                              </span>
-                              <span>{`ID: ${item?.core_warehouse_id}`}</span>
-                            </div>
-                          ),
-                        },
-
-                        {
-                          title: "Tồn kho (Có thể bán)",
-                          render: (item: any) => {
-                            return (
-                              <span style={{ display: "flex", justifyContent: "center" }}>
-                                {item?.stock}
-                              </span>
-                            );
+              {(item.ecommerce_id === ECOMMERCE_ID.TIKI ||
+                item.ecommerce_id === ECOMMERCE_ID.TIKTOK) &&
+                item.connect_status === "connected" && (
+                  <Popover
+                    placement="right"
+                    overlayStyle={{ zIndex: 1000, top: "150px", maxWidth: "60%" }}
+                    content={
+                      <Table
+                        columns={[
+                          {
+                            title: "Kho (Unicorn)",
+                            render: (item: any) => (
+                              <div style={{ display: "flex", flexDirection: "column" }}>
+                                <span style={{ color: "#2a2a86", textAlign: "center" }}>
+                                  {item?.core_warehouse_name}
+                                </span>
+                                <span>{`ID: ${item?.core_warehouse_id}`}</span>
+                              </div>
+                            ),
                           },
-                        },
-                      ]}
-                      loading={isLoadingInventory}
-                      dataSource={dataInventoryUnicornProduct}
-                      pagination={false}
-                      rowKey={(item: any) => item.core_warehouse_id}
-                    />
-                  }
-                  trigger="click"
-                  onVisibleChange={(visible) => {
-                    visible && handleInventoryUnicornProductData(item, index);
-                  }}
-                >
-                  <Button
-                    type="link"
-                    className="checkInventoryButton"
-                    icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />}
-                    style={{ width: "100%", padding: 0 }}
-                    title="Kiểm tra tồn kho"
-                  ></Button>
-                </Popover>
-              )}
+
+                          {
+                            title: "Tồn kho (Có thể bán)",
+                            render: (item: any) => {
+                              return (
+                                <span style={{ display: "flex", justifyContent: "center" }}>
+                                  {item?.stock}
+                                </span>
+                              );
+                            },
+                          },
+                        ]}
+                        loading={isLoadingInventory}
+                        dataSource={dataInventoryUnicornProduct}
+                        pagination={false}
+                        rowKey={(item: any) => item.core_warehouse_id}
+                      />
+                    }
+                    trigger="click"
+                    onVisibleChange={(visible) => {
+                      visible && handleInventoryUnicornProductData(item, index);
+                    }}
+                  >
+                    <Button
+                      type="link"
+                      className="checkInventoryButton"
+                      icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />}
+                      style={{ width: "100%", padding: 0 }}
+                      title="Kiểm tra tồn kho"
+                    ></Button>
+                  </Popover>
+                )}
             </div>
           );
         },
