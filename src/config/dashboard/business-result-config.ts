@@ -71,7 +71,7 @@ export const BUSINESS_RESULT_CANCELED_QUERY: AnalyticSampleQuery = {
   query: {
     columns: [
       {
-        field: "total_sales ",
+        field: "pre_total_sales ",
       },
     ],
     rows: ["day"],
