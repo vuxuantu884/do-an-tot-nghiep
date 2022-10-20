@@ -74,7 +74,7 @@ function SidebarOrderDetailExtraInformation(props: PropTypes) {
 
   return (
     <StyledComponent>
-      <Card title={<span className="78">THÔNG TIN BỔ SUNG</span>}>
+      <Card className='orderDetailExtraSidebar' title={<span className="78">THÔNG TIN BỔ SUNG</span>}>
         {detailArr.map((single, index) => {
           return (
             <Row gutter={5} className="singleRow" key={index}>
