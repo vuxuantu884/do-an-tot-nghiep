@@ -259,11 +259,11 @@ function OrdersTable(props: PropTypes) {
         itemResult[indexOrder].customer_note = customer_note;
       }
       setData({
-        ...data,
+        ...dataResult,
         items: itemResult,
       });
     },
-    [data, setData],
+    [setData],
   );
 
   const editNote = useCallback(
