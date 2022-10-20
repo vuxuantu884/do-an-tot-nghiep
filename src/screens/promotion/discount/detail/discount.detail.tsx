@@ -152,11 +152,11 @@ const PromotionDetailScreen: React.FC = () => {
       value: dataDiscount?.quantity_limit ?? "Không giới hạn",
       position: "right",
     },
-    // {
-    //   name: "Tổng doanh thu",
-    //   value: "---",
-    //   position: "right",
-    // },
+    {
+      name: "Số lượt áp dụng trên 1 KH",
+      value: dataDiscount?.usage_limit_per_customer ?? "Không giới hạn",
+      position: "right",
+    },
     {
       name: "Mức độ ưu tiên",
       value: dataDiscount?.priority,
@@ -525,7 +525,7 @@ const PromotionDetailScreen: React.FC = () => {
                           }}
                         >
                           <Col
-                            span={8}
+                            span={10}
                             style={{
                               display: "flex",
                               justifyContent: "space-between",

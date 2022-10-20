@@ -21,6 +21,7 @@ const { Option } = Select;
 interface Props {
   form: FormInstance;
   unlimitedUsageProps: boolean;
+  usageLimitPerCustomerProps: boolean;
   idNumber?: number;
   originalEntitlements?: any;
   setGetIndexRemoveDiscount?: (index: any) => void;
@@ -29,6 +30,7 @@ interface Props {
 function DiscountUpdateForm({
   form,
   unlimitedUsageProps,
+  usageLimitPerCustomerProps,
   idNumber,
   originalEntitlements,
   setGetIndexRemoveDiscount,
@@ -38,10 +40,12 @@ function DiscountUpdateForm({
   const { discountMethod, setDiscountMethod } = discountUpdateContext;
 
   const [unlimitedQuantity, setUnlimitedQuantity] = useState<boolean>(false);
+  const [usageLimitPerCustomer, setUsageLimitPerCustomer] = useState<boolean>(false);
 
   useLayoutEffect(() => {
     setUnlimitedQuantity(unlimitedUsageProps);
-  }, [unlimitedUsageProps]);
+    setUsageLimitPerCustomer(usageLimitPerCustomerProps);
+  }, [unlimitedUsageProps, usageLimitPerCustomerProps]);
 
   return (
     <div>
@@ -109,10 +113,61 @@ function DiscountUpdateForm({
                     <Switch
                       checked={unlimitedQuantity}
                       onChange={(value) => {
-                        form.setFieldsValue({
-                          quantity_limit: null,
-                        });
+                        form.setFields([
+                          {
+                            name: "quantity_limit",
+                            value: null,
+                            errors: [],
+                          },
+                        ]);
                         setUnlimitedQuantity(value);
+                      }}
+                    />
+                    {"Không giới hạn"}
+                  </Space>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={30}>
+              <Col span={12}>
+                <Form.Item
+                  label={"Số lượt áp dụng trên 1 KH"}
+                  name="usage_limit_per_customer"
+                  rules={[
+                    {
+                      required: !usageLimitPerCustomer,
+                      message: "Vui lòng nhập số lượt áp dụng trên 1 KH",
+                    },
+                    {
+                      type: "integer",
+                      message: "Số lượt áp dụng trên 1 KH phải là số nguyên",
+                    },
+                  ]}
+                >
+                  <InputNumber
+                    disabled={usageLimitPerCustomer}
+                    style={{ borderRadius: "5px", width: "100%" }}
+                    placeholder="Nhập số lượt áp dụng trên 1 KH"
+                    min={1}
+                    max={MAX_FIXED_DISCOUNT_VALUE}
+                    step={1}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label=" ">
+                  <Space>
+                    <Switch
+                      checked={usageLimitPerCustomer}
+                      onChange={(value) => {
+                        form.setFields([
+                          {
+                            name: "usage_limit_per_customer",
+                            value: null,
+                            errors: [],
+                          },
+                        ]);
+                        setUsageLimitPerCustomer(value);
                       }}
                     />
                     {"Không giới hạn"}

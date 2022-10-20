@@ -111,7 +111,11 @@ function DiscountCreateV2(): ReactElement {
       >
         <Row gutter={24}>
           <Col span={18}>
-            <DiscountUpdateForm unlimitedUsageProps={true} form={form} />
+            <DiscountUpdateForm
+              unlimitedUsageProps={true}
+              usageLimitPerCustomerProps={true}
+              form={form}
+            />
           </Col>
           <Col span={6}>
             <GeneralConditionForm
