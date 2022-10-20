@@ -71,14 +71,14 @@ export const BUSINESS_RESULT_CANCELED_QUERY: AnalyticSampleQuery = {
   query: {
     columns: [
       {
-        field: "total_sales ",
+        field: "pre_total_sales ",
       },
     ],
     rows: ["day"],
     cube: "sales",
     conditions: [
       ["sale_area", "==", ReportDatavalue.KD_ONLINE],
-      ["cancelled", "==", "Đã hủy"],
+      ["cancelled", "==", "Hủy/hết hàng"],
     ],
     from: START_OF_MONTH,
     to: TODAY,
