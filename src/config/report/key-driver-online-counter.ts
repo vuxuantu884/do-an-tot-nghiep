@@ -1,5 +1,5 @@
 export const KEY_DRIVER_ONLINE_COUNTER: { name: string; label: string; value: string }[] = [
-  { name: "messenger_count", label: "SỐ MESS", value: "ON.DT.FB.13" },
+  // { name: "messenger_count", label: "SỐ MESS", value: "ON.DT.FB.13" },
   {
     name: "shopee_internal_traffic",
     label: "TRAFFIC NỘI SÀN SHOPEE",
