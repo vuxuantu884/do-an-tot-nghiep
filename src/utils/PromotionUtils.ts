@@ -14,7 +14,7 @@ import moment from "moment";
 import { Dispatch } from "redux";
 import { DiscountUnitType } from "screens/promotion/constants";
 import { CustomerFilterField } from "screens/promotion/shared/cusomer-condition.form";
-import { formatCurrency, isNullOrUndefined, scrollAndFocusToDomElement } from "utils/AppUtils";
+import { formatCurrency, scrollAndFocusToDomElement } from "utils/AppUtils";
 import { PROMO_TYPE } from "./Constants";
 import { DATE_FORMAT } from "./DateUtils";
 import { showError } from "./ToastUtils";
@@ -565,26 +565,26 @@ export const getEntilementValue = (
 };
 
 
-const checkingCustomerCondition = (body: any) => {
-  if (!isNullOrUndefined(body.prerequisite_total_money_spend_to) &&
-    Number(body.prerequisite_total_money_spend_from) > Number(body.prerequisite_total_money_spend_to)) {
-    const element: any = document.getElementById(CustomerConditionField.prerequisite_total_money_spend_from);
-    scrollAndFocusToDomElement(element);
-    throw new Error("Tiền tích lũy bắt đầu lớn hơn kết thúc.");
-  }
-  if (!isNullOrUndefined(body.prerequisite_total_finished_order_to) &&
-    Number(body.prerequisite_total_finished_order_from) > Number(body.prerequisite_total_finished_order_to)) {
-    const element: any = document.getElementById(CustomerConditionField.prerequisite_total_finished_order_from);
-    scrollAndFocusToDomElement(element);
-    throw new Error("Tổng đơn hàng bắt đầu lớn hơn kết thúc.");
-  }
-}
+// const checkingCustomerCondition = (body: any) => {
+//   if (!isNullOrUndefined(body.prerequisite_total_money_spend_to) &&
+//     Number(body.prerequisite_total_money_spend_from) > Number(body.prerequisite_total_money_spend_to)) {
+//     const element: any = document.getElementById(CustomerConditionField.prerequisite_total_money_spend_from);
+//     scrollAndFocusToDomElement(element);
+//     throw new Error("Tiền tích lũy bắt đầu lớn hơn kết thúc.");
+//   }
+//   if (!isNullOrUndefined(body.prerequisite_total_finished_order_to) &&
+//     Number(body.prerequisite_total_finished_order_from) > Number(body.prerequisite_total_finished_order_to)) {
+//     const element: any = document.getElementById(CustomerConditionField.prerequisite_total_finished_order_from);
+//     scrollAndFocusToDomElement(element);
+//     throw new Error("Tổng đơn hàng bắt đầu lớn hơn kết thúc.");
+//   }
+// }
 
 export const transformData = (values: any, priceRuleType = PROMO_TYPE.AUTOMATIC) => {
   let body: any = values;
   body.entitlements = getEntilementValue(values.entitlements, values.entitled_method);
 
-  checkingCustomerCondition(body);
+  // checkingCustomerCondition(body);
 
   body.type = priceRuleType;
   body.starts_date = values.starts_date?.format();

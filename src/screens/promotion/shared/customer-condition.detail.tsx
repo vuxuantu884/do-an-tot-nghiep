@@ -180,7 +180,7 @@ export default function CustomerConditionDetail(props: PriceRule | PromotionGift
           title: "Nhân viên phụ trách",
           info: getAssignerName(),
         },
-        ...giftCustomerConditionExtended
+        // ...giftCustomerConditionExtended
       ]
     }
   }, [customerDatas, getAssignerName, giftCustomerConditionExtended, type]);
