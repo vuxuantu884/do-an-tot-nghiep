@@ -1,6 +1,7 @@
-import { FormInstance } from "antd";
-import { OrderResponse } from "model/response/order/order.response";
+import {FormInstance} from "antd";
+import {OrderResponse} from "model/response/order/order.response";
 import configureStore from "redux-mock-store";
+import {StoreResponse} from "../../../model/core/store.model";
 
 export const handleFixWindowMatchMediaTest = () => {
   return Object.defineProperty(window, "matchMedia", {
@@ -468,3 +469,54 @@ export const testOrderArr: OrderResponse[] | any = [
     sub_reason_name: null,
   },
 ];
+export const testStoreArr: StoreResponse[] | any = [
+  {
+    address: "Bình Định, Vietnam",
+    begin_date: null,
+    city_id: 56,
+    city_name: "Tỉnh Bình Định",
+    code: "YDVNBDH01",
+    country_id: 233,
+    country_name: "VIETNAM",
+    created_by: "",
+    created_date: "2021-11-29T13:27:27Z",
+    created_name: "",
+    department: "YODY QUY NHƠN",
+    department_h3: "ASM Đỗ Quang Hiếu",
+    department_h3_id: 147,
+    department_h4: "VĂN PHÒNG KINH DOANH",
+    department_h4_id: 13,
+    department_id: 159,
+    district_id: 637,
+    district_name: "Thành phố Qui Nhơn",
+    hotline: "0834999258",
+    id: 7,
+    is_saleable: true,
+    is_stocktaking: false,
+
+    latitude: "14.1665324",
+    link_google_map: "https://www.google.com/maps/search/?api=1&query=14.1665324,108.902683",
+    longitude: "108.902683",
+    mail: null,
+    name: "YODY QUY NHƠN",
+    rank: 1,
+    rank_name: "H1",
+    reference_id: 107480,
+    square: 248,
+    status: "active",
+    status_name: "Đang hoạt động",
+    store_manager_code: null,
+    store_manager_name: null,
+    type: "store",
+    type_name: "Cửa hàng & kho",
+    updated_by: "YD99999",
+    updated_date: "2022-10-08T02:51:20Z",
+    updated_name: "Quản trị viên",
+    version: 1,
+    vm: null,
+    vm_code: null,
+    ward_id: 10172,
+    ward_name: "Phường Bùi Thị Xuân",
+    zip_code: null,
+  }
+]
