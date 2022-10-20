@@ -3,7 +3,6 @@ import {
   actionCancelTicketByIds,
   actionExportInventoryByIds,
   getListInventoryTransferAction,
-  updateInventoryTransferAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -63,7 +62,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import TransferExport from "../../Components/TransferExport";
 import { TYPE_EXPORT } from "screens/products/constants";
-import { getListInventoryTransferApi } from "service/inventory/transfer/index.service";
+import { getListInventoryTransferApi, updateNoteTransferApi } from "service/inventory/transfer/index.service";
 import moment from "moment";
 import * as XLSX from "xlsx";
 import { TransferExportField, TransferExportLineItemField } from "model/inventory/field";
@@ -146,7 +145,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
 
   const [loadingBtn, setLoadingBtn] = useState(false);
   const [tableLoading, setTableLoading] = useState(false);
-  const [isModalVisibleNote, setIsModalVisibleNote] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
   const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
 
@@ -250,67 +248,30 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     items: [],
   });
 
-  const editNote = (note: string, row: InventoryTransferDetailItem, stores: Array<Store> | undefined) => {
-    let newData: any = {};
-    console.log(stores)
-    stores?.forEach((store) => {
-      newData.note = note;
-      console.log(row)
-      if (store.id === Number(row?.from_store_id)) {
-        newData.store_transfer = {
-          id: row?.store_transfer?.id,
-          store_id: store.id,
-          hotline: store.hotline,
-          address: store.address,
-          name: store.name,
-          code: store.code,
-        };
-      }
-      if (store.id === Number(row?.to_store_id)) {
-        newData.store_receive = {
-          id: row?.store_receive?.id,
-          store_id: store.id,
-          hotline: store.hotline,
-          address: store.address,
-          name: store.name,
-          code: store.code,
-        };
-      }
-    });
-    newData.from_store_id = row?.from_store_id;
-    newData.to_store_id = row?.to_store_id;
-    newData.attached_files = row?.attached_files;
-    newData.line_items = row?.line_items;
-    newData.exception_items = row?.exception_items;
-    newData.version = row?.version;
+  const updateNote = async (id: number, data: any, itemData: InventoryTransferDetailItem) => {
+    const response = await callApiNative(
+      { isShowError: true },
+      dispatch,
+      updateNoteTransferApi,
+      id,
+      data,
+    );
 
-    console.log(newData)
+    if (response) showSuccess(`Cập nhật ${itemData?.code} thành công`);
+    dispatch(getListInventoryTransferAction(params, setSearchResult));
+  };
+
+  const editNote = (
+    note: string,
+    row: InventoryTransferDetailItem,
+  ) => {
+    const newData = {
+      version: row?.version,
+      note,
+    };
 
     if (row?.id) {
-      dispatch(
-        updateInventoryTransferAction(row.id, newData, (result) => {
-          if (result) showSuccess(`Cập nhật ${row?.code} thành công`);
-          let status: string[] = [];
-          switch (activeTab) {
-            case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
-              status = ["transferring", "confirmed"];
-              break;
-            case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
-              status = ["transferring"];
-              break;
-            default:
-              break;
-          }
-
-          let newParams = {
-            ...params,
-            ...getQueryParams(query),
-            status: params.status.length > 0 ? params.status : status,
-          };
-
-          dispatch(getListInventoryTransferAction(newParams, setSearchResult));
-        }),
-      );
+      updateNote(row.id, newData, row).then();
     }
   };
 
@@ -473,7 +434,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
               title={`Sửa ghi chú ${row?.code}`}
               color={primaryColor}
               onOk={(newNote) => {
-                editNote(newNote, row, stores);
+                editNote(newNote, row);
               }}
             />
           </div>
@@ -688,7 +649,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
                         title={`Sửa ghi chú ${row?.code}`}
                         color={primaryColor}
                         onOk={(newNote) => {
-                          editNote(newNote, row, stores);
+                          editNote(newNote, row);
                         }}
                       />
                     </div>
