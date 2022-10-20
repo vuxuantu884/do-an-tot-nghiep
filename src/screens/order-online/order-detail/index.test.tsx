@@ -92,7 +92,7 @@ describe("test chi tiết đơn hàng thanh toán", () => {
       <Provider store={store}>
         <BrowserRouter>
           <Route>
-            <OrderDetail id="21903707" />
+            <OrderDetail id="21903707" setTitle={jest.fn} />
           </Route>
         </BrowserRouter>
       </Provider>,
