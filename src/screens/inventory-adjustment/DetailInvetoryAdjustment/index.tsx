@@ -1051,7 +1051,9 @@ const DetailInventoryAdjustment: FC = () => {
                       >
                         <AuthWrapper acceptPermissions={[InventoryAdjustmentPermission.update]}>
                           <Input.Group style={{ paddingTop: 16 }} className="display-flex">
-                            {isHaveEditPermission && renderSearchComponent()}
+                            {isHaveEditPermission && data.status !== STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status
+                            && data.status !== STATUS_INVENTORY_ADJUSTMENT.AUDITED.status
+                            && renderSearchComponent()}
                             <Input
                               name="key_search"
                               onChange={(e) => {

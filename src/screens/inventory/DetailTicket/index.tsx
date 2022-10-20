@@ -258,12 +258,7 @@ const DetailTicket: FC = () => {
       name: "Hủy phiếu",
       icon: <CloseCircleOutlined />,
       color: "#E24343",
-      disabled:
-        !(
-          (data?.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
-            data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) &&
-          data?.shipment === null
-        ) || !allowCancel,
+      disabled: !allowCancel,
     },
     {
       id: 2,

@@ -19,6 +19,7 @@ export interface CustomerResponse extends BaseObject {
   card_number: string | null;
   customer_level_id: number;
   customer_level: string | null;
+  customer_type_id: number | null;
   wedding_date: string | null;
   birthday: string | null;
   gender: string;
@@ -44,6 +45,7 @@ export interface CustomerResponse extends BaseObject {
   report: any;
   loyalty_level_id: number | null;
   version: number;
+  family_info: any;
 }
 
 export interface note extends BaseObject {

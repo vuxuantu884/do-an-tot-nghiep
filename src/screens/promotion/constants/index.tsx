@@ -13,6 +13,7 @@ import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { renderDiscountValue, renderTotalBill } from "utils/PromotionUtils";
 import NumberInput from "component/custom/number-input.custom";
 import React from "react";
+import { GiftEntitlementForm } from "../../../model/promotion/gift.model";
 const { Item } = Form;
 
 export const MAX_FIXED_DISCOUNT_VALUE = 999999999;
@@ -84,6 +85,21 @@ export const newEntitlements: EntilementFormModel = {
       allocation_limit: undefined,
       value: 0,
       value_type: undefined,
+    },
+  ],
+};
+
+export const newGiftEntitlements: GiftEntitlementForm = {
+  entitled_variant_ids: [],
+  entitled_product_ids: [],
+  entitled_gift_ids: [],
+  selectedProducts: [],
+  selectedGifts: [],
+  prerequisite_variant_ids: [],
+  entitled_category_ids: [],
+  prerequisite_quantity_ranges: [
+    {
+      greater_than_or_equal_to: 0,
     },
   ],
 };
@@ -320,9 +336,9 @@ export const DISCOUNT_STATUS = [
   },
   {
     code: "DISABLED",
-    value: "Tạm ngưng",
+    value: "Tạm ngừng",
 
-    Component: <TagStatus type="warning">Tạm ngưng</TagStatus>,
+    Component: <TagStatus type="warning">Tạm ngừng</TagStatus>,
   },
   {
     code: "DRAFT",
@@ -602,3 +618,9 @@ export const ACTIONS_PROMO_CODE: Array<MenuAction> = [
     disabled: false,
   },
 ];
+
+export const PROMOTION_TYPE = {
+  GIFT: "GIFT",
+  DISCOUNT: "DISCOUNT",
+  PROMOTION_CODE: "PROMOTION_CODE",
+};

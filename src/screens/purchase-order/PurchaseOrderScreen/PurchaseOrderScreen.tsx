@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { Link, RouteComponentProps, useHistory } from "react-router-dom";
 import { PurchaseOrderTabUrl } from "../helper";
 import PurchaseOrderListScreen from "../purchase-order-list.screen";
-import PurchaseOrderReturnList from "../tab/PurchaseOrderReturn/PurchaseOrderReturn";
+import PurchaseOrderReturnList from "../tab/PurchaseOrderReturn";
 import { PurchaseOrderStyleWrapper } from "./style";
 
 const { TabPane } = Tabs;

@@ -335,6 +335,7 @@ export default function Order(props: PropTypes) {
       payments: [],
       channel_id: null,
       finalized: false,
+      uniform:false,
       // automatic_discount: true,
       automatic_discount: false, // sửa đơn hàng ko mặc định bật chiết khấu tự động
     };
@@ -1038,6 +1039,7 @@ export default function Order(props: PropTypes) {
             sub_status_code: response.sub_status_code,
             // automatic_discount: response.automatic_discount,
             automatic_discount: false, // sửa đơn hàng ko mặc định bật chiết khấu tự động
+            uniform:response.uniform,
           });
           setShippingFeeInformedToCustomer(response.shipping_fee_informed_to_customer);
 

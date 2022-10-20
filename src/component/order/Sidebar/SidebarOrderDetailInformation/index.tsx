@@ -69,14 +69,14 @@ function SidebarOrderDetailInformation(props: PropTypes) {
     };
   };
 
-  const renderReturnedOrder = () => {
+  const renderReturnedOrder = (dataTestId: string) => {
     let result = null;
     if (OrderDetail?.order_returns && OrderDetail?.order_returns?.length > 0) {
       const returnedArr = OrderDetail?.order_returns;
       result = returnedArr.map((single, index) => {
         return (
           <React.Fragment>
-            <Link to={`${UrlConfig.ORDERS_RETURN}/${single.id}`}>{single.code}</Link>
+            <Link data-testid={dataTestId || ''} to={`${UrlConfig.ORDERS_RETURN}/${single.id}`}>{single.code}</Link>
             {index < returnedArr.length - 1 && ", "}
           </React.Fragment>
         );
@@ -114,7 +114,7 @@ function SidebarOrderDetailInformation(props: PropTypes) {
     return channelId ? titleEcommerce[channelId] || titleEcommerce.default : titleEcommerce.default;
   };
 
-  const renderElementReference = (order?: OrderResponse | null) => {
+  const renderElementReference = (order?: OrderResponse | null, dataTestId?: string) => {
     let link = "";
 
     if (order?.created_by && order?.created_by.toLocaleUpperCase() === "YD0WEB") {
@@ -144,20 +144,21 @@ function SidebarOrderDetailInformation(props: PropTypes) {
     }
     return (
       <React.Fragment>
-        <a href={link} target="_blank" rel="noreferrer">
+        <a data-testid={dataTestId || ''} href={link} target="_blank" rel="noreferrer">
           {order?.reference_code}
         </a>
       </React.Fragment>
     );
   };
 
-  const renderElementReferenceHandover = (goods_receipts?: GoodsReceiptsResponse[] | null) => {
+  const renderElementReferenceHandover = (goods_receipts?: GoodsReceiptsResponse[] | null, dataTestId?: string) => {
     return (
       <React.Fragment>
         {goods_receipts?.map((p) => (
           <Link
             to={`${UrlConfig.DELIVERY_RECORDS}/${p.id}`}
             target="_blank"
+            data-testid={dataTestId || ''}
             className="reference-good-receipt"
             key={p.id}
           >
@@ -211,101 +212,131 @@ function SidebarOrderDetailInformation(props: PropTypes) {
       title: "Cửa hàng",
       value: (
         <Link
+          data-testid="storeVal"
           target="_blank"
           to={`${UrlConfig.ORDER}?page=1&limit=30&store_ids=${OrderDetail?.store_id}`}
         >
           {OrderDetail?.store}
         </Link>
       ),
+      dataTestIdTitle: "storeTitle",
+      dataTestIdVal: ''
     },
     {
       title: "Mã đơn gốc",
       value: OrderDetail?.order_return_origin?.order_id ? (
         <Link
+          data-testid="originalCodeVal"
           to={`${UrlConfig.ORDER}/${OrderDetail?.order_return_origin?.order_id}`}
           target="_blank"
         >
           {OrderDetail?.order_return_origin?.order_code}
         </Link>
       ) : null,
+      dataTestIdTitle: "originalCodeTitle",
+      dataTestIdVal: ''
     },
     {
       title: OrderDetail?.channel_id ? getTitleEcommerce(OrderDetail?.channel_id) : null,
       value: OrderDetail?.ecommerce_shop_name || null,
+      dataTestIdTitle: "ecommerceShopNameTitle",
+      dataTestIdVal: 'ecommerceShopNameVal'
     },
     {
       title: "Điện thoại",
       value: (
         <a href={`tel:${OrderDetail?.store_phone_number}`}>
-          <span>{OrderDetail?.store_phone_number}</span>
+          <span data-testid="phoneNumberVal">{OrderDetail?.store_phone_number}</span>
         </a>
       ),
+      dataTestIdTitle: "phoneNumberTitle",
+      dataTestIdVal: ''
     },
     {
       title: "Địa chỉ",
       value: OrderDetail?.store_full_address || "-",
+      className: 'address',
+      dataTestIdTitle: "addressTitle",
+      dataTestIdVal: 'addressVal'
     },
     {
       title: isOrderFromPOS(OrderDetail) ? "NV thu ngân" : null,
       value: isOrderFromPOS(OrderDetail) ? (
         <Link
           target="_blank"
+          data-testid="cashierVal"
           to={`${UrlConfig.ORDER}?page=1&limit=30&assignee_codes=${OrderDetail?.account_code}`}
         >
           {OrderDetail?.account_code} - {OrderDetail?.account}
         </Link>
       ) : null,
+      dataTestIdTitle: "cashierTitle",
+      dataTestIdVal: ''
     },
     {
       title: isOrderFromPOS(OrderDetail) ? "NV tư vấn" : "NV bán hàng",
       value: (
         <Link
           target="_blank"
+          data-testid="salesConsultantVal"
           to={`${UrlConfig.ORDER}?page=1&limit=30&assignee_codes=${OrderDetail?.assignee_code}`}
         >
           {OrderDetail?.assignee_code} - {OrderDetail?.assignee}
         </Link>
       ),
+      dataTestIdTitle: "salesConsultantTitle",
+      dataTestIdVal: ''
     },
     {
       title: "NV marketing",
       value: (
         <Link
           target="_blank"
+          data-testid="marketingVal"
           to={`${UrlConfig.ORDER}?page=1&limit=30&marketer_codes=${OrderDetail?.marketer_code}`}
         >
           {OrderDetail?.marketer_code} - {OrderDetail?.marketer}
         </Link>
       ),
+      dataTestIdTitle: "marketingTitle",
+      dataTestIdVal: ''
     },
     {
       title: "NV điều phối",
       value: (
         <Link
           target="_blank"
+          data-testid="coordinatorVal"
           to={`${UrlConfig.ORDER}?page=1&limit=30&coordinator_codes=${OrderDetail?.coordinator_code}`}
         >
           {OrderDetail?.coordinator_code} - {OrderDetail?.coordinator}
         </Link>
       ),
+      dataTestIdTitle: "coordinatorTitle",
+      dataTestIdVal: ''
     },
     {
       title: "Người tạo",
       value: (
         <Link
           target="_blank"
+          data-testid="creatorVal"
           to={`${UrlConfig.ORDER}?page=1&limit=30&created_by=${OrderDetail?.account_code}`}
         >
           {OrderDetail?.created_by} - {createdByName}
         </Link>
       ),
+      dataTestIdTitle: "creatorTitle",
+      dataTestIdVal: ''
     },
     {
       title: "Tham chiếu",
       value:
         OrderDetail?.reference_code && OrderDetail?.reference_code.length > 0
-          ? renderElementReference(OrderDetail)
+          ? renderElementReference(OrderDetail, 'referenceVal')
           : null,
+      dataTestIdTitle: "referenceTitle",
+      dataTestIdVal: ''
     },
     {
       title: "Lý do huỷ",
@@ -314,32 +345,46 @@ function SidebarOrderDetailInformation(props: PropTypes) {
           ? OrderDetail?.sub_reason_name
           : OrderDetail?.reason_name
         : null,
+      className: 'cancelReason',
+      dataTestIdTitle: "cancelReasonTitle",
+      dataTestIdVal: 'cancelReasonVal'
     },
     {
       title: "Mã đơn trả hàng",
       value:
         OrderDetail?.order_returns && OrderDetail?.order_returns?.length > 0
-          ? renderReturnedOrder()
+          ? renderReturnedOrder('returnedOrderCodeVal')
           : null,
+      className: 'returnedOrderCode',
+      dataTestIdTitle: "returnedOrderCodeTitle",
+      dataTestIdVal: ''
+
     },
     {
       title: "Biên bản bàn giao",
       value:
         OrderDetail?.goods_receipts && OrderDetail?.goods_receipts.length > 0
-          ? renderElementReferenceHandover(OrderDetail?.goods_receipts)
+          ? renderElementReferenceHandover(OrderDetail?.goods_receipts, 'referenceHandoverVal')
           : null,
+      dataTestIdTitle: "referenceHandoverTitle",
+      dataTestIdVal: ''
     },
     {
       title: renderSplitOrder()?.title,
       value: renderSplitOrder()?.value,
+      dataTestIdTitle: "splitOrderTitle",
+      dataTestIdVal: 'splitOrderValue'
     },
     {
       title: renderOrderHandover()?.transferTitle,
       value: renderOrderHandover()?.transferValue,
+      className: 'orderHandoverTransfer'
+
     },
     {
       title: renderOrderHandover()?.returnTitle,
       value: renderOrderHandover()?.returnValue,
+      className: 'orderHandoverReturn'
     },
     {
       title: "Kho nhận hàng hoàn",
@@ -349,13 +394,13 @@ function SidebarOrderDetailInformation(props: PropTypes) {
 
   return (
     <StyledComponent>
-      <Card title="THÔNG TIN ĐƠN HÀNG">
+      <Card title="THÔNG TIN ĐƠN HÀNG" className="orderDetailSidebar">
         {detailArr.map((single, index) => {
           if (single.title && single.value) {
             return (
-              <Row className="rowDetail" gutter={5} key={index}>
-                <Col span={10}>{single.title}:</Col>
-                <Col span={14} className="rowDetail__value">
+              <Row className={`rowDetail ${single.className}`} gutter={5} key={index}>
+                <Col span={10} data-testid={single.dataTestIdTitle || ''}>{single.title}:</Col>
+                <Col span={14} data-testid={single?.dataTestIdVal || ''} className="rowDetail__value">
                   {single.value}
                 </Col>
               </Row>

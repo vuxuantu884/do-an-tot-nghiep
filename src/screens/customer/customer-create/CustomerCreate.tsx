@@ -21,16 +21,18 @@ import { WardResponse } from "model/content/ward.model";
 import { CustomerModel, CustomerContactClass } from "model/request/customer.request";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
+import { CustomerFamilyInfoRequest } from "model/customer/customer.request";
 
 import ContentContainer from "component/container/content.container";
 import CustomerContactInfo from "screens/customer/common/CustomerContactInfo";
 import CustomerGeneralInfo from "screens/customer/common/CustomerGeneralInfo";
+import CustomerFamilyInfo from "screens/customer/customer-create/CustomerFamilyInfo";
 
 import arrowBack from "assets/icon/arrow-back.svg";
 import { StyledCustomerInfo } from "screens/customer/customerStyled";
 import "screens/customer/customer.scss";
 
-const CustomerCreate = (props: any) => {
+const CustomerCreate = () => {
   const [customerForm] = Form.useForm();
   const formRef = createRef<FormInstance>();
   const history = useHistory();
@@ -48,6 +50,7 @@ const CustomerCreate = (props: any) => {
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
   const [regionCode, setRegionCode] = React.useState<string>("84");
+  const [customerFamilyList, setCustomerFamilyList] = useState<Array<CustomerFamilyInfoRequest>>([]);
   const setDataAccounts = React.useCallback((data: PageResponse<AccountResponse> | false) => {
     if (!data) {
       return;
@@ -151,6 +154,7 @@ const CustomerCreate = (props: any) => {
           email: values.contact_email,
         },
       ],
+      family_info: customerFamilyList,
     };
 
     setIsLoading(true);
@@ -196,6 +200,11 @@ const CustomerCreate = (props: any) => {
           />
 
           <CustomerContactInfo form={customerForm} isLoading={isLoading} />
+
+          <CustomerFamilyInfo
+            customerFamilyList={customerFamilyList}
+            setCustomerFamilyList={setCustomerFamilyList}
+          />
 
           <div className="customer-info-footer">
             <Button

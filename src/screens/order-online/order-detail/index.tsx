@@ -110,7 +110,7 @@ import UpdateShipmentCard from "../component/UpdateShipmentCard";
 import useGetDefaultReturnOrderReceivedStore from "../hooks/useGetDefaultReturnOrderReceivedStore";
 import CancelOrderModal from "../modal/cancel-order.modal";
 import CardReturnReceiveProducts from "../order-return/components/CardReturnReceiveProducts";
-import { StyledComponent } from "./styles";
+import {StyledComponent, UniformText} from "./styles";
 
 type PropTypes = {
   id?: string;
@@ -222,9 +222,7 @@ const OrderDetail = (props: PropTypes) => {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
 
-  const [shippingServiceConfig, setShippingServiceConfig] = useState<
-    ShippingServiceConfigDetailResponseModel[]
-  >([]);
+  const [shippingServiceConfig, setShippingServiceConfig] = useState<ShippingServiceConfigDetailResponseModel[]>([]);
 
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
   // xác nhận đơn
@@ -1030,18 +1028,18 @@ const OrderDetail = (props: PropTypes) => {
         breadcrumb={
           OrderDetail
             ? [
-                {
-                  name: isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`,
-                  path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
-                },
-                {
-                  name: `Danh sách đơn hàng ${isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
-                  path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
-                },
-                {
-                  name: OrderDetail?.code ? `Đơn hàng ${OrderDetail?.code}` : "Đang tải dữ liệu...",
-                },
-              ]
+              {
+                name: isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`,
+                path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
+              },
+              {
+                name: `Danh sách đơn hàng ${isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
+                path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
+              },
+              {
+                name: <span>{OrderDetail?.code ? <>Đơn hàng {OrderDetail?.code} {OrderDetail?.uniform && <UniformText>(ĐƠN ĐỒNG PHỤC)</UniformText>}</> : "Đang tải dữ liệu..."}</span>,
+              },
+            ]
             : undefined
         }
         extra={

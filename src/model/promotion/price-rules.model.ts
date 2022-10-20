@@ -198,6 +198,10 @@ export interface PriceRule extends BaseObject {
   prerequisite_time_duration?: DateDuration;
   prerequisite_wedding_duration?: DateDuration;
   prerequisite_weekdays?: Array<WeekDays>;
+  prerequisite_total_finished_order_from?: number;
+  prerequisite_total_finished_order_to?: number;
+  prerequisite_total_money_spend_from?: number;
+  prerequisite_total_money_spend_to?: number;
   priority: number;
   quantity_limit?: number;
   rule?: DiscountRule;

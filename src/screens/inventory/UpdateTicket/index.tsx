@@ -65,7 +65,7 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { AccountStoreResponse } from "model/account/account.model";
 import { callApiNative } from "utils/ApiUtils";
-import { getStoreApi } from "service/inventory/transfer/index.service";
+import { getStoreApi, updateAvailableApi } from "service/inventory/transfer/index.service";
 import { getAccountDetail } from "service/accounts/account.service";
 import { RefSelectProps } from "antd/lib/select";
 import { RegUtil } from "utils/RegUtils";
@@ -74,7 +74,6 @@ import { searchVariantsApi } from "service/product/product.service";
 import ModalShowError from "../common/ModalShowError";
 import { HttpStatus } from "config/http-status.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-
 const { Option } = Select;
 
 const VARIANTS_FIELD = "line_items";
@@ -909,6 +908,23 @@ const UpdateTicket: FC = () => {
     dispatch(creatInventoryTransferAction(continueData, createCallback));
   };
 
+  const updateAvailable = async () => {
+    dispatch(showLoading());
+    const res = await callApiNative(
+      { isShowError: false },
+      dispatch,
+      updateAvailableApi,
+      id
+    );
+
+    dispatch(hideLoading());
+
+    if (res) {
+      showSuccess("Cập nhật tồn Có thể bán trong kho thành công");
+      dispatch(getDetailInventoryTransferAction(idNumber, onResult));
+    }
+  };
+
   return (
     <ContentContainer
       title={
@@ -1187,6 +1203,15 @@ const UpdateTicket: FC = () => {
               <Space>
                 {!CopyId && !stateImport && (
                   <Button onClick={() => setIsDeleteTicket(true)}>Huỷ phiếu</Button>
+                )}
+
+                {!CopyId && !stateImport && (
+                  <Button
+                    type="primary"
+                    onClick={updateAvailable}
+                  >
+                    Cập nhật lại tồn
+                  </Button>
                 )}
 
                 <Button disabled={isLoading} htmlType={"submit"} type="primary" loading={isLoading}>

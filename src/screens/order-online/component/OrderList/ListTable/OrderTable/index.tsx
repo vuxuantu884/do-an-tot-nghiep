@@ -259,11 +259,11 @@ function OrdersTable(props: PropTypes) {
         itemResult[indexOrder].customer_note = customer_note;
       }
       setData({
-        ...data,
+        ...dataResult,
         items: itemResult,
       });
     },
-    [data, setData],
+    [setData],
   );
 
   const editNote = useCallback(
@@ -687,6 +687,10 @@ function OrdersTable(props: PropTypes) {
               <div className="textSmall single">
                 <strong>Tổng SP: {getTotalQuantity(i.items)}</strong>
               </div>
+              {i?.uniform && <div className="single uniformText">
+                <strong>Đơn đồng phục</strong>
+              </div>}
+
               {renderTypeIfOrderReturn(i)}
             </React.Fragment>
           );

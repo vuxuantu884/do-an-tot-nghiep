@@ -907,6 +907,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           onClickOpen={() => setShowSettingColumn(true)}
           accounts={accounts}
           onMenuClick={onMenuClick}
+          listStore={listStore}
         />
         <div style={{ marginTop: -20 }}>
           <CustomTable

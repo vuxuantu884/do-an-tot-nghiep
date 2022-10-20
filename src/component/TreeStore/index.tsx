@@ -123,8 +123,8 @@ const TreeStore = (props: Props) => {
       treeCheckable
       treeNodeFilterProp="title"
       maxTagCount="responsive"
-      filterTreeNode={(textSearch: any, item: any) => {
-        return fullTextSearch(textSearch, item?.title);
+      filterTreeNode={(search: any, item: any) => {
+        return item?.title?.toString().toLowerCase().includes(search?.toString().toLowerCase());
       }}
       {...restProps}
       onChange={(value, labelList, extra) => {

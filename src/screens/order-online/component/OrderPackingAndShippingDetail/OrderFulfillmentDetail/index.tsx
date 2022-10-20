@@ -286,9 +286,11 @@ function OrderFulfillmentDetail(props: PropTypes) {
 
   return (
     <StyledComponent>
-      {checkIfFulfillmentIsAtStore(fulfillment) || isOrderFromPOS(orderDetail)
-        ? renderIfFulfillmentIsAtStore()
-        : renderIfFulfillmentIsNotAtStore()}
+      <div id="order_fulfillment_detail">
+        {checkIfFulfillmentIsAtStore(fulfillment) || isOrderFromPOS(orderDetail)
+          ? renderIfFulfillmentIsAtStore()
+          : renderIfFulfillmentIsNotAtStore()}
+      </div>
     </StyledComponent>
   );
 }

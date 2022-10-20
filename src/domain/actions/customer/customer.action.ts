@@ -307,3 +307,39 @@ export const importCustomerAction = (
 ) => {
   return BaseAction(CustomerType.IMPORT_CUSTOMER, { queryParams, callback });
 };
+
+/** family info */
+export const createFamilyMemberAction = (customerId: number, memberInfo: any, callback: (data: any) => void) => {
+  return BaseAction(CustomerType.CREATE_FAMILY_MEMBER, {
+    customerId,
+    memberInfo,
+    callback,
+  });
+};
+
+export const updateFamilyMemberAction = (
+  id: number,
+  customerId: number,
+  memberInfo: any,
+  callback: (data: any) => void,
+) => {
+  return BaseAction(CustomerType.UPDATE_FAMILY_MEMBER, {
+    id,
+    customerId,
+    memberInfo,
+    callback,
+  });
+};
+
+export const deleteFamilyMemberAction = (
+  id: number,
+  customerId: number,
+  callback: (data: any) => void,
+) => {
+  return BaseAction(CustomerType.DELETE_FAMILY_MEMBER, {
+    id,
+    customerId,
+    callback
+  });
+};
+/** end family info */

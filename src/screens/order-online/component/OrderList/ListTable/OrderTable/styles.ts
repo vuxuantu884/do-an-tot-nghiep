@@ -218,6 +218,7 @@ export const StyledComponent = styled.div.attrs((props: any) => {
       }
     }
   }
+  
   .shipmentType {
     .icon {
       margin-right: 5px;
@@ -564,6 +565,11 @@ export const StyledComponent = styled.div.attrs((props: any) => {
     color: ${primaryColor};
     font-weight: 500;
   }
+  .uniformText{
+    color: red;
+  }
 `;
 
 export { nameQuantityWidth };
+
+

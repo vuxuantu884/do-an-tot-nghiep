@@ -30,6 +30,9 @@ import {
   getCustomerOrderReturnHistoryApi,
   getCustomerActivityLogApi,
   getCustomerActivityLogDetailApi,
+  createFamilyMemberService,
+  updateFamilyMemberService,
+  deleteFamilyMemberService,
 } from "service/customer/customer.service";
 import { showError } from "utils/ToastUtils";
 import { isFetchApiSuccessful } from "utils/AppUtils";
@@ -614,6 +617,23 @@ function* importCustomerSaga(action: YodyAction) {
   }
 }
 
+/** family info */
+function* createFamilyMemberSaga(action: YodyAction) {
+  const { customerId, memberInfo, callback } = action.payload;
+  yield callApiSaga({ notifyAction: "SHOW_ALL" }, callback, createFamilyMemberService, customerId, memberInfo);
+}
+
+function* updateFamilyMemberSaga(action: YodyAction) {
+  const { id, customerId, memberInfo, callback } = action.payload;
+  yield callApiSaga({ notifyAction: "SHOW_ALL" }, callback, updateFamilyMemberService, id, customerId, memberInfo);
+}
+
+function* deleteFamilyMemberSaga(action: YodyAction) {
+  const { id, customerId, callback } = action.payload;
+  yield callApiSaga({ notifyAction: "SHOW_ALL" }, callback, deleteFamilyMemberService, id, customerId);
+}
+
+
 export default function* customerSagas() {
   yield takeLatest(CustomerType.KEY_SEARCH_CUSTOMER_CHANGE, onKeySearchCustomerChange);
   yield takeLatest(CustomerType.KEY_SEARCH_CUSTOMER_CHANGE_SO, onKeySearchCustomerChangeSo);
@@ -643,4 +663,7 @@ export default function* customerSagas() {
   yield takeLatest(CustomerType.DELETE_SHIPPING_ADDR, DeleteShippingAddress);
   yield takeLatest(CustomerType.DELETE_NOTE, DeleteNote);
   yield takeLatest(CustomerType.IMPORT_CUSTOMER, importCustomerSaga);
+  yield takeLatest(CustomerType.CREATE_FAMILY_MEMBER, createFamilyMemberSaga);
+  yield takeLatest(CustomerType.UPDATE_FAMILY_MEMBER, updateFamilyMemberSaga);
+  yield takeLatest(CustomerType.DELETE_FAMILY_MEMBER, deleteFamilyMemberSaga);
 }

@@ -34,7 +34,6 @@ import BaseSelectMerchans from "../../../../component/base/BaseSelect/BaseSelect
 import { useFetchMerchans } from "../../../../hook/useFetchMerchans";
 import { callApiNative } from "../../../../utils/ApiUtils";
 import { supplierGetApi } from "../../../../service/core/supplier.service";
-import { getStoreApi } from "service/inventory/transfer/index.service";
 import CustomSelect from "component/custom/select.custom";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import { MenuAction } from "component/table/ActionButton";
@@ -45,10 +44,11 @@ const { Item } = Form;
 interface ProcurementTabListFilterProps extends ProcurementFilterProps {
   actions: Array<MenuAction>;
   onMenuClick: (index: number) => void;
+  listStore: Array<StoreResponse>;
 }
 
 function TabListFilter(props: ProcurementTabListFilterProps) {
-  const { onClickOpen, paramsUrl, accounts, actions, onMenuClick } = props;
+  const { onClickOpen, paramsUrl, accounts, actions, onMenuClick, listStore } = props;
   const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
@@ -56,7 +56,6 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
   const [allSupplier, setAllSupplier] = useState<Array<SupplierResponse>>();
   const [visible, setVisible] = useState(false);
   const [dateClick, setDateClick] = useState("");
-  const [allStore, setAllStore] = useState<Array<StoreResponse>>();
   // const { array: selectedStatuses, set: setSelectedStatuses, remove: removeStatus } = useArray([])
   const { array: paramsArray, set: setParamsArray, remove, prevArray } = useArray([]);
 
@@ -141,20 +140,7 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
 
   useEffect(() => {
     dispatch(SupplierGetAllAction((suppliers) => setAllSupplier(suppliers)));
-    // dispatch(getListStoresSimpleAction((stores) => setAllStore(stores)));
-    const getStores = async () => {
-      const res = await callApiNative({ isShowError: true }, dispatch, getStoreApi, {
-        status: "active",
-        simple: true,
-        type: "distribution_center",
-      });
-      if (res) {
-        setAllStore(res);
-      }
-    };
-    getStores();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (history.location.pathname !== ProcurementTabUrl.ALL) {
@@ -198,7 +184,7 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
           return { ...item, valueName: findSupplier?.name };
         case ProcurementFilterBasicEnum.store_ids:
           if (isArray(item.valueId)) {
-            const filterStore = allStore?.filter((elem) =>
+            const filterStore = listStore?.filter((elem) =>
               item.valueId.find((id: number) => +elem.id === +id),
             );
             if (filterStore)
@@ -207,7 +193,7 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
                 valueName: filterStore?.map((item: any) => item.name).toString(),
               };
           }
-          const findStore = allStore?.find((store) => +store.id === +item.valueId);
+          const findStore = listStore?.find((store) => +store.id === +item.valueId);
           return { ...item, valueName: findStore?.name };
         case ProcurementFilterBasicEnum.status:
           let statuses: any = [];
@@ -273,7 +259,7 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
     });
     setParamsArray(transformParams);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paramsUrl, JSON.stringify(allStore), JSON.stringify(allSupplier), accounts]);
+  }, [paramsUrl, JSON.stringify(listStore), JSON.stringify(allSupplier), accounts]);
 
   const removeDate = (params: any, key: string) => {
     const { start, end } = splitDateRange(params[key]);
@@ -381,7 +367,7 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
                   form={formBase}
                   name={ProcurementFilterBasicEnum.store_ids}
                   placeholder="Kho nhận"
-                  listStore={allStore}
+                  listStore={listStore}
                 />
               </Item>
               <Item className="suppliers">

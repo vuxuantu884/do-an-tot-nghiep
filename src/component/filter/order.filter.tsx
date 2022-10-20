@@ -139,7 +139,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
   const [services, setServices] = useState<any[]>([]);
   const [isExpiresPayment, setIsExpiresPayment] = useState<boolean>();
-
+  const [isUniform, setIsUniform] = useState<boolean>();
   const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
 
   const status = bootstrapReducer.data?.order_main_status.filter(
@@ -559,6 +559,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         case "is_expired_payment":
           onFilter && onFilter({ ...params, is_expired_payment: undefined });
           break;
+        case "uniform":
+          onFilter && onFilter({ ...params, uniform: undefined });
+          break;
         case "expired_at":
           onFilter && onFilter({ ...params, expired_at: undefined });
           break;
@@ -660,6 +663,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         : [],
 
       is_expired_payment: params.is_expired_payment === "true" ? true : undefined,
+      uniform: params.uniform === "true" ? true : undefined,
 
       issued_on_min: formatDateFilter(params.issued_on_min || undefined),
       issued_on_max: formatDateFilter(params.issued_on_max || undefined),
@@ -812,6 +816,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
           ...values,
           discount_codes: discount_codes,
           is_expired_payment: isExpiresPayment,
+          uniform: isUniform,
         });
       setRerender(false);
     }
@@ -1516,7 +1521,13 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         value: <React.Fragment>Hết hạn</React.Fragment>,
       });
     }
-
+    if (initialValues?.uniform && initialValues?.uniform === true) {
+      list.push({
+        key: "uniform",
+        name: "Đơn đồng phục",
+        value: <React.Fragment>Có</React.Fragment>,
+      });
+    }
     if (
       filterTagFormatted?.returned_store_ids?.data &&
       filterTagFormatted.returned_store_ids?.data?.length > 0
@@ -1592,6 +1603,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     initialValues?.in_goods_receipt,
     initialValues.expired_at,
     initialValues?.is_expired_payment,
+    initialValues?.uniform,
     initChannelCodes,
     orderType,
     listStore,
@@ -1658,6 +1670,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     const isExpires = isExpiresPayment === true ? undefined : true;
     setIsExpiresPayment(isExpires);
   }, [isExpiresPayment]);
+
+  const handleUniform = useCallback(() => {
+    const isUniformCheck = isUniform === true ? undefined : true;
+    console.log("isExpires", isUniformCheck);
+    setIsUniform(isUniformCheck);
+  }, [isUniform]);
 
   const handleClearFilterConfig = () => {
     setTagActive(undefined);
@@ -1791,6 +1809,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   useEffect(() => {
     setIsExpiresPayment(initialValues.is_expired_payment);
   }, [initialValues.is_expired_payment]);
+  useEffect(() => {
+    setIsUniform(initialValues.uniform);
+  }, [initialValues.uniform]);
 
   const renderFilterTag = (filter: ListFilterTagTypes) => {
     if (filter.isExpand) {
@@ -2527,6 +2548,18 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                         Chưa nằm trong biên bản
                       </Select.Option>
                     </Select>
+                  </Item>
+                </Col>
+                <Col span={8} xxl={8}>
+                  <Item label="Đơn đồng phục:">
+                    <div className="button-option-3">
+                      <Button
+                        onClick={() => handleUniform()}
+                        className={isUniform === true ? "active" : "deactive"}
+                      >
+                        Đơn đồng phục
+                      </Button>
+                    </div>
                   </Item>
                 </Col>
                 <Col span={8} xxl={8} hidden={orderType !== ORDER_TYPES.online}>
