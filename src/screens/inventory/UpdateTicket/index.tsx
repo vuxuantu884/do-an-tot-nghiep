@@ -1205,12 +1205,14 @@ const UpdateTicket: FC = () => {
                   <Button onClick={() => setIsDeleteTicket(true)}>Huỷ phiếu</Button>
                 )}
 
-                <Button
-                  type="primary"
-                  onClick={updateAvailable}
-                >
-                  Cập nhật lại tồn
-                </Button>
+                {!CopyId && !stateImport && (
+                  <Button
+                    type="primary"
+                    onClick={updateAvailable}
+                  >
+                    Cập nhật lại tồn
+                  </Button>
+                )}
 
                 <Button disabled={isLoading} htmlType={"submit"} type="primary" loading={isLoading}>
                   {CopyId || stateImport ? "Tạo" : "Lưu"}
