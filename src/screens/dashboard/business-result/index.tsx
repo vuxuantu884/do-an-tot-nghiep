@@ -1,4 +1,4 @@
-import { Card, Col, Row, Skeleton } from "antd";
+import { Card, Col, Row } from "antd";
 import { BUSINESS_RESULT_CART_NAME } from "config/dashboard";
 // import { useContext } from "react";
 // import TotalSaleByMonthChartArea from "../chart/total-sale-by-month-chart-area";
@@ -37,18 +37,6 @@ function BusinessResult(props: Props) {
               loading={isFetchingBusinessResultComplete}
             />
           </div>
-          <div className="verti-grid__item">
-            <BusinessCard
-              dataKey={BUSINESS_RESULT_CART_NAME.cancel}
-              loading={isFetchingTotalSaleCanceled}
-            />
-          </div>
-          <div className="verti-grid__item">
-            <BusinessCard
-              dataKey={BUSINESS_RESULT_CART_NAME.return}
-              loading={isFetchingBusinessResultComplete}
-            />
-          </div>
         </Col>
         <Col xs={24} md={16} lg={18}>
           <Row className="horiz-grid">
@@ -73,19 +61,33 @@ function BusinessResult(props: Props) {
               />
             </Col>
           </Row>
-          <Row>
+          <Row className="horiz-grid">
+            <Col xs={24} lg={8} className="horiz-grid__item">
+              <BusinessCard
+                dataKey={BUSINESS_RESULT_CART_NAME.cancel}
+                loading={isFetchingTotalSaleCanceled}
+              />
+            </Col>
+            <Col xs={24} lg={8} className="horiz-grid__item">
+              <BusinessCard
+                dataKey={BUSINESS_RESULT_CART_NAME.return}
+                loading={isFetchingBusinessResultComplete}
+              />
+            </Col>
+          </Row>
+          {/* <Row>
             <div className="chart-monthly-container">
-            <Skeleton /> 
-              {/* {isFetchingChartData ? (
+              <Skeleton />
+              {isFetchingChartData ? (
                 <Skeleton active />
               ) : (
                 <TotalSaleByMonthChartArea
                   monthTotalSalesOverDay={dataSrcChartBusinessResult}
                   totalSalesToday={totalSalesToday}
                 />
-              )} */}
+              )}
             </div>
-          </Row>
+          </Row> */}
         </Col>
         <div className="padding-20" />
       </Row>

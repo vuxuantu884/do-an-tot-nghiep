@@ -78,7 +78,7 @@ export const BUSINESS_RESULT_CANCELED_QUERY: AnalyticSampleQuery = {
     cube: "sales",
     conditions: [
       ["sale_area", "==", ReportDatavalue.KD_ONLINE],
-      ["cancelled", "==", "Đã hủy"],
+      ["cancelled", "==", "Hủy/hết hàng"],
     ],
     from: START_OF_MONTH,
     to: TODAY,
