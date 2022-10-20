@@ -22,8 +22,7 @@ export default function DataDog() {
       // Specify a version number to identify the deployed version of your application in Datadog
       version: packageJson.version,
       sampleRate: 100,
-      premiumSampleRate: 100,
-      // sessionReplaySampleRate: 0,
+      sessionReplaySampleRate: 0,
       trackInteractions: true,
       defaultPrivacyLevel: "mask-user-input",
       allowedTracingOrigins,

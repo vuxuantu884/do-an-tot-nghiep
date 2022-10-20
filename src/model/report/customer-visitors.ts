@@ -9,6 +9,9 @@ export enum LocalStorageKey {
   CustomerVisitorsStore = "customerVisitorsStore",
   CustomerPhoneSMSCountersStore = "customerPhoneSMSCountersStore",
   SatffAssigneeCode = "SatffAssigneeCode",
-  KeyDriverOfflineRowkeysExpanded = "key-driver-offline-rowkeys-expanded",
-  KeyDriverOfflineColumns = "key-driver-offline-columns",
+  KDOfflineRowkeysExpanded = "kd-offline-rowkeys-expanded",
+  KDOfflineColumnsV1 = "kd-offline-columns-v1",
+  KDOfflineColumns = "kd-offline-columns-v2",
+  KDOnlineColumns = "kd-online-columns-v2",
+  KDOnlineRowkeysExpanded = "kd-online-rowkeys-expanded",
 }

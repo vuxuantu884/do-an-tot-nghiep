@@ -14,7 +14,7 @@ import {
   KeyDriverField,
   KeyDriverFilter,
   KeyDriverTarget,
-  LocalStorageKey,
+  LocalStorageKey
 } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
@@ -33,7 +33,7 @@ import {
   calculateMonthRateUtil,
   nonAccentVietnameseKD,
   updateTargetDayUtil,
-  updateTargetMonthUtil,
+  updateTargetMonthUtil
 } from "utils/KeyDriverOfflineUtils";
 import StoresSelect from "../components/stores-select";
 import { kdNumber, kdOfflineTemplateData, loadingMessage } from "../constant/kd-offline-template";
@@ -194,7 +194,7 @@ function KeyDriverOfflineStore() {
     moment().format(DATE_FORMAT.DD_MM_YY_HHmmss),
   );
 
-  const expandedDefault = localStorage.getItem(LocalStorageKey.KeyDriverOfflineRowkeysExpanded);
+  const expandedDefault = localStorage.getItem(LocalStorageKey.KDOfflineRowkeysExpanded);
   const [expandRowKeys, setExpandRowKeys] = useState<string[]>(
     expandedDefault ? JSON.parse(expandedDefault) : [],
   );
@@ -695,7 +695,7 @@ function KeyDriverOfflineStore() {
               onExpandedRowsChange: (rowKeys: any) => {
                 setExpandRowKeys(rowKeys);
                 localStorage.setItem(
-                  LocalStorageKey.KeyDriverOfflineRowkeysExpanded,
+                  LocalStorageKey.KDOfflineRowkeysExpanded,
                   JSON.stringify(rowKeys),
                 );
               },
@@ -711,7 +711,7 @@ function KeyDriverOfflineStore() {
         onOk={(data) => {
           setShowSettingColumn(false);
           setDisplayColumns(data);
-          localStorage.setItem(LocalStorageKey.KeyDriverOfflineColumns, JSON.stringify(data));
+          localStorage.setItem(LocalStorageKey.KDOfflineColumnsV1, JSON.stringify(data));
         }}
         data={displayColumns}
       />

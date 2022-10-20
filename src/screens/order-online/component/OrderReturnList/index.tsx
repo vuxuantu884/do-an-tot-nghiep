@@ -882,7 +882,7 @@ function OrderReturnList(props: PropTypes) {
       // let hiddenFields = [];
       switch (optionExport) {
         case 1:
-          newParams = {};
+          newParams = {is_online: orderType === ORDER_TYPES.online};
           break;
         case 2:
           break;

@@ -39,7 +39,7 @@ function KDOfflineProvider(props: { children: React.ReactNode; dimension: KeyDri
   const [selectedDate, setSelectedDate] = React.useState<string>("");
   const [selectedStoreRank, setSelectedStoreRank] = React.useState<number | undefined>(undefined);
   const [selectedAllStores, setSelectedAllStores] = React.useState<boolean>(true);
-  const getColumns = localStorage.getItem(LocalStorageKey.KeyDriverOfflineColumns);
+  const getColumns = localStorage.getItem(LocalStorageKey.KDOfflineColumnsV1);
   const [displayColumns, setDisplayColumns] = React.useState<any[]>(
     getColumns
       ? JSON.parse(getColumns)

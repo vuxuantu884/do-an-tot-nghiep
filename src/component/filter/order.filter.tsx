@@ -122,7 +122,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     initChannelCodes,
     channels,
   } = props;
-  // console.log('props', props)
+
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
   const [visibleUTM, setVisibleUTM] = useState<boolean>(false);
@@ -280,7 +280,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   // lưu bộ lọc
   const onShowSaveFilter = useCallback(() => {
     let values = formRef.current?.getFieldsValue();
-    console.log("values", values);
+
     if (values) {
       values.services = services;
       if (values.price_min && values.price_max) {
@@ -565,6 +565,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         case "expired_at":
           onFilter && onFilter({ ...params, expired_at: undefined });
           break;
+        case "returned_store":
+          onFilter && onFilter({ ...params, returned_store_ids: undefined });
+          break;
         default:
           break;
       }
@@ -653,6 +656,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         ? params.delivery_types
         : [params.delivery_types],
       services: Array.isArray(params.services) ? params.services : [params.services],
+      returned_store_ids: params.returned_store_ids
+        ? Array.isArray(params.returned_store_ids)
+          ? params.returned_store_ids.map((p) => Number(p))
+          : [Number(params.returned_store_ids)]
+        : [],
+
       is_expired_payment: params.is_expired_payment === "true" ? true : undefined,
       uniform: params.uniform === "true" ? true : undefined,
 
@@ -678,6 +687,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   }, [params]);
 
   const [filterTagFormatted, setFilterTagFormatted] = useState<any>(null);
+
   useEffect(() => {
     setFilterTagFormatted({
       ...initialValues,
@@ -685,6 +695,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         data: initialValues.store_ids,
         isShorten: isShortenFilterTag,
         isCanShorten: initialValues.store_ids.length > numberTagShorten,
+      },
+      returned_store_ids: {
+        data: initialValues.returned_store_ids,
+        isShorten: isShortenFilterTag,
+        isCanShorten: initialValues.returned_store_ids.length > numberTagShorten,
       },
       source_ids: {
         data: initialValues.source_ids,
@@ -1513,6 +1528,28 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         value: <React.Fragment>Có</React.Fragment>,
       });
     }
+    if (
+      filterTagFormatted?.returned_store_ids?.data &&
+      filterTagFormatted.returned_store_ids?.data?.length > 0
+    ) {
+      let mappedStores = listStore?.filter((store) =>
+        filterTagFormatted.returned_store_ids.data?.some((single: number) => single === store.id),
+      );
+      let text = getFilterString(
+        mappedStores,
+        "name",
+        UrlConfig.STORE,
+        "id",
+        "returned_store_ids",
+        filterTagFormatted.returned_store_ids.isCanShorten,
+        filterTagFormatted.returned_store_ids.isShorten,
+      );
+      list.push({
+        key: "returned_store",
+        name: "Kho nhận hàng hoàn",
+        value: text,
+      });
+    }
     return list;
   }, [
     filterTagFormatted,
@@ -1631,7 +1668,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
   const handleExpiresPayment = useCallback(() => {
     const isExpires = isExpiresPayment === true ? undefined : true;
-    console.log("isExpires", isExpires);
     setIsExpiresPayment(isExpires);
   }, [isExpiresPayment]);
 
@@ -2524,6 +2560,17 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                         Đơn đồng phục
                       </Button>
                     </div>
+                  </Item>
+                </Col>
+                <Col span={8} xxl={8} hidden={orderType !== ORDER_TYPES.online}>
+                  <Item name="returned_store_ids" label="Kho nhận hàng hoàn:">
+                    <TreeStore
+                      name="returned_store_ids"
+                      placeholder="Cửa hàng"
+                      listStore={listStore}
+                      style={{ width: "100%" }}
+                      autoClearSearchValue={false}
+                    />
                   </Item>
                 </Col>
               </Row>

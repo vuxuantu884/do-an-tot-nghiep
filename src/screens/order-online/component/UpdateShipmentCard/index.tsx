@@ -786,13 +786,26 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
       >
         {/* xét trường hợp nữa đơn hàng từ POS */}
         {newFulfillments.map(
-          (fulfillment) =>
+          (fulfillment, index) =>
             (fulfillment.shipment || isOrderFromPOS(OrderDetailAllFulfillment)) && (
               <React.Fragment>
                 <div key={fulfillment.id} className="fulfillmentWrapper">
                   <Collapse
-                    className="saleorder_shipment_order_colapse payment_success"
-                    defaultActiveKey={[checkIfFulfillmentCancelled(fulfillment) ? "0" : "1"]}
+                    // className="saleorder_shipment_order_colapse payment_success"
+                    className={`saleorder_shipment_order_colapse payment_success ${index}`}
+                    defaultActiveKey={[
+                      !newFulfillments[newFulfillments.length - 1].shipment
+                        ? index === newFulfillments.length - 2
+                          ? "1"
+                          : checkIfFulfillmentCancelled(fulfillment)
+                          ? "0"
+                          : "1"
+                        : checkIfFulfillmentCancelled(fulfillment)
+                        ? index === newFulfillments.length - 1
+                          ? "1"
+                          : "0"
+                        : "1",
+                    ]}
                     expandIcon={({ isActive }) => (
                       <div className="saleorder-header-arrow 2">
                         <img
