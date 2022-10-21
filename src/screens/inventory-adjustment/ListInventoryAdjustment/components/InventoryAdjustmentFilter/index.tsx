@@ -18,10 +18,10 @@ import "./styles.scss";
 import ButtonSetting from "component/table/ButtonSetting";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
-import CustomFilterDatePicker from "../../../../../component/custom/filter-date-picker.custom";
-import { searchAccountPublicAction } from "../../../../../domain/actions/account/account.action";
+import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { useDispatch } from "react-redux";
-import { PageResponse } from "../../../../../model/base/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 
 type InventoryAdjustmentFilterProps = {
   params: any;
@@ -571,7 +571,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                       >
                         <InputNumber
                           onChange={validateFromQuality}
-                          className="price_min"
+                          className={`price_min ${messageErrorQuality !== '' && 'error-border'}`}
                           placeholder="Từ"
                           min="0"
                           max="100000000"
@@ -585,14 +585,14 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                       >
                         <InputNumber
                           onChange={validateToQuality}
-                          className="site-input-right price_max"
+                          className={`site-input-right price_max ${messageErrorQuality !== '' && 'error-border'}`}
                           placeholder="Đến"
                           min="0"
                           max="1000000000"
                         />
                       </Item>
                     </Input.Group>
-                    <div style={{ color: "#e24343" }}>{messageErrorQuality}</div>
+                    <div style={{ color: "#ff4d4f" }}>{messageErrorQuality}</div>
                   </Col>
                 </Row>
               </>
