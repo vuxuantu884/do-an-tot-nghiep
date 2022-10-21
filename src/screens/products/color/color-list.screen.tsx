@@ -191,8 +191,11 @@ const ColorListScreen: React.FC = () => {
         return !isUndefinedOrNull(value) && value !== "" ? (
           <Image
             width={40}
+            height={40}
             src={value}
+            className=""
             style={{ fontSize: 10, textAlign: "center" }}
+            alt="preview"
             placeholder={<img alt="preview" src={imgDefault} />}
           />
         ) : (

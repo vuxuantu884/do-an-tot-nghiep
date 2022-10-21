@@ -684,6 +684,7 @@ const TabProduct: React.FC<any> = (props) => {
         isRowSelection
         isLoading={tableLoading}
         // scroll={{ x: 100 }}
+        isShowPaginationAtHeader
         scroll={{ x: "max-content" }}
         sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         pagination={{

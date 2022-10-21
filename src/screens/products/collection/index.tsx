@@ -272,20 +272,19 @@ const Collection = () => {
         <CustomTable
           isRowSelection={false}
           isLoading={loading}
-          pagination={false}
           dataSource={data.items}
           columns={columns}
           rowKey={(item: CollectionResponse) => item.id}
-        />
-        <CustomPagination
+          isShowPaginationAtHeader
           pagination={{
-            showSizeChanger: true,
             pageSize: data.metadata.limit,
-            current: data.metadata.page,
             total: data.metadata.total,
+            current: data.metadata.page,
+            showSizeChanger: true,
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          sticky={{ offsetHeader: 55 }}
         />
       </Card>
       <ModalDeleteConfirm

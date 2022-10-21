@@ -1288,6 +1288,7 @@ const AllTab: React.FC<any> = (props) => {
       />
       <CustomTable
         isLoading={loading}
+        isShowPaginationAtHeader
         className="small-padding"
         bordered
         dataSource={data.items}
