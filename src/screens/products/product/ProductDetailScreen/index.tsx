@@ -45,7 +45,6 @@ import Slider from "react-slick";
 import { Products } from "utils/AppUtils";
 import { getFirstProductAvatarByVariantResponse } from "utils/ProductUtils";
 import { showSuccess } from "utils/ToastUtils";
-import { careInformation } from "../component/CareInformation/care-value";
 import RowDetail from "../component/RowDetail";
 import VariantList from "../component/VariantList";
 import TabProductHistory from "../tab/TabProductHistory";
@@ -60,6 +59,7 @@ import ProductSteps from "../component/ProductSteps";
 import { fullTextSearch } from "utils/StringUtils";
 import { SupplierResponse } from "model/core/supplier.model";
 import TabAdvertisingHistory from "../tab/TabAdvertisingHistory";
+import { careInformation } from "screens/products/Component/CareInformation/care-value";
 export interface ProductParams {
   id: string;
   variantId: string;

@@ -92,14 +92,14 @@ const ImportFileProducts: React.FC = () => {
           return false;
         }}
       >
-        <Button size="middle" icon={<UploadOutlined className="btn-view-icon"/>}>
+        <Button size="middle" type="text" icon={<UploadOutlined className="btn-view-icon"/>}>
           Nhập file mã vạch
         </Button>
       </Upload>
       <div style={{ marginTop: 20 }}>
         <Button
-          type="default"
           className="light"
+          type="text"
           size="middle"
           icon={<DownloadOutlined className="btn-view-icon"/>}
           loading={loading}
