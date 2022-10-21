@@ -33,7 +33,7 @@ function KeyDriverOnlineCounter() {
     const selectedDate: Moment = form.getFieldValue("date");
 
     const selectedShopIndex: number = form.getFieldValue("shop");
-    if (shopList.length > 0 && selectedShopIndex) {
+    if (shopList.length > 0 && selectedShopIndex !== undefined) {
       const departmentLv1 = shopList[selectedShopIndex].department_lv1;
       const departmentLv2 = shopList[selectedShopIndex].department_lv2;
       const departmentLv3 = shopList[selectedShopIndex].department_lv3;
@@ -47,6 +47,14 @@ function KeyDriverOnlineCounter() {
         dispatch,
       );
       setColumns(columnByDate);
+    }
+    const currentDayEle = document.querySelector(".current-day");
+    if (currentDayEle) {
+      currentDayEle.scrollIntoView({
+        block: "center",
+        behavior: "auto",
+        inline: "center",
+      });
     }
   };
 
@@ -100,10 +108,7 @@ function KeyDriverOnlineCounter() {
 
   useEffectOnce(() => {
     const initShopList = async () => {
-      const response = await getShopListByDate(
-        dispatch,
-        moment("2022-07-31", DATE_FORMAT.YYYYMMDD),
-      ); // draft date
+      const response = await getShopListByDate(dispatch, moment().subtract(1, "month")); // draft date
       setShopList(response);
     };
     initShopList();
@@ -116,10 +121,10 @@ function KeyDriverOnlineCounter() {
 
   return (
     <ContentContainer
-      title="Nhập chỉ số báo cao doanh thu online"
+      title="Nhập chỉ số báo cáo doanh thu Online"
       breadcrumb={[
         { name: "Báo cáo kinh doanh online", path: UrlConfig.KEY_DRIVER_ONLINE },
-        { name: "Nhập chỉ số báo cao kinh doanh online" },
+        { name: "Nhập chỉ số báo cao kinh doanh Online" },
       ]}
     >
       <KeyDriverOnlineCounterStyled>
