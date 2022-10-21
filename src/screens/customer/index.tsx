@@ -76,6 +76,7 @@ const Customer = () => {
       gender: null,
       customer_group_ids: [],
       customer_level_ids: [],
+      characteristics: [],
       responsible_staff_codes: null,
       customer_type_ids: [],
       assign_store_ids: [],
