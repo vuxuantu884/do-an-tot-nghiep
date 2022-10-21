@@ -14,7 +14,7 @@ import { KeyDriverDimension, KeyDriverField, KeyDriverTarget, LocalStorageKey } 
 import moment from "moment";
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useHistory, useLocation, useRouteMatch } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { formatCurrency, generateQuery, replaceFormatString } from "utils/AppUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
@@ -28,13 +28,13 @@ import {
   calculateMonthRateUtil,
   nonAccentVietnameseKD,
   updateTargetDayUtil,
-  updateTargetMonthUtil
+  updateTargetMonthUtil,
 } from "utils/KeyDriverOfflineUtils";
 import {
   ASM_LIST,
   kdNumber,
   kdOfflineTemplateData,
-  loadingMessage
+  loadingMessage,
 } from "./constant/kd-offline-template";
 import useFetchProfit from "./hooks/profit/useFetchProfit";
 import useFetchStorePerformance from "./hooks/store-performance/useFetchStorePerformance";
@@ -155,7 +155,6 @@ function KeyDriverOffline() {
     ? moment(date).format(DATE_FORMAT.DDMMYYY)
     : moment().format(DATE_FORMAT.DDMMYYY);
   const { Asm } = KeyDriverDimension;
-  const { path: matchPath } = useRouteMatch();
   const [finalColumns, setFinalColumns] = useState<ColumnsType<any>>([]);
   const [loadingPage, setLoadingPage] = useState<boolean | undefined>();
   const { isFetchingKeyDriverTarget, refetch } = useFetchKeyDriverTarget(Asm);
@@ -679,7 +678,9 @@ function KeyDriverOffline() {
         rightComponent={
           <>
             <Button type="primary">
-              <Link to={`${matchPath}/potential-importing`}>Nhập file khách hàng tiềm năng</Link>
+              <Link to={`/key-driver-offline/potential-importing`}>
+                Nhập file khách hàng tiềm năng
+              </Link>
             </Button>
           </>
         }

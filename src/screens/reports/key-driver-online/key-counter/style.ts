@@ -14,4 +14,7 @@ export const KeyDriverOnlineCounterStyled = styled.div`
       text-align: right;
     }
   }
+  .text-primary {
+    color: #fcaf17;
+  }
 `;

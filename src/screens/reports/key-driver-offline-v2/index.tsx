@@ -3,6 +3,7 @@ import { CheckOutlined, CloseOutlined, SettingOutlined } from "@ant-design/icons
 import { Button, Card, Form, Table, Tooltip } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
+import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
@@ -749,6 +750,17 @@ function KeyDriverOffline() {
           />
         </Card>
       </KeyDriverStyle>
+      <BottomBarContainer
+        rightComponent={
+          <>
+            <Button type="primary">
+              <Link to={`/key-driver-offline/potential-importing`}>
+                Nhập file khách hàng tiềm năng
+              </Link>
+            </Button>
+          </>
+        }
+      />
     </ContentContainer>
   );
 }

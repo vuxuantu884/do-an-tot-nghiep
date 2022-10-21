@@ -105,6 +105,11 @@ export const getColumnByDate = (
       key: month + keyDriver + i,
       width: 100,
       align: "center",
+      className:
+        `${date.year()}-${date.month() + 1}-${i.toString().padStart(2, "0")}` ===
+        moment().format(DATE_FORMAT.YYYYMMDD)
+          ? "text-primary"
+          : "",
       render: (text: number, record: any, index: number) => {
         const inputId = `${record.account_code}-${month + keyDriver + i}-month-target`;
         let newValue = text ? Number(text) : 0;
@@ -115,7 +120,12 @@ export const getColumnByDate = (
               id={inputId}
               value={text}
               key={month + keyDriver + record.account_code + i}
-              className="hide-control-input-number"
+              className={
+                `${date.year()}-${date.month() + 1}-${i.toString().padStart(2, "0")}` ===
+                moment().format(DATE_FORMAT.YYYYMMDD)
+                  ? "current-day hide-control-input-number"
+                  : "hide-control-input-number"
+              }
               onPressEnter={(e: any) => {
                 const input: any = document.getElementById(inputId);
                 input.blur();
@@ -128,9 +138,7 @@ export const getColumnByDate = (
               onBlur={(e) => {
                 setTimeout(async () => {
                   const input: any = document.getElementById(inputId);
-                  const value = input.value
-                    ? parseLocaleNumber(input.value)
-                    : parseLocaleNumber(newValue);
+                  const value = input.value ? parseLocaleNumber(input.value) : 0;
                   console.log("value, newValue", value, newValue);
 
                   // eslint-disable-next-line eqeqeq
@@ -245,8 +253,7 @@ export const getDepartmentLevel4ByShop = async (
   departmentLv3: string,
   dispatch: Dispatch<any>,
 ) => {
-  // const dateString = moment().format(DATE_FORMAT.YYYYMMDD);
-  const dateString = "2022-07-31";
+  const dateString = moment().subtract(1, "month").format(DATE_FORMAT.YYYYMMDD);
   const metadata = await callApiNative(
     { notifyAction: "SHOW_ALL" },
     dispatch,
