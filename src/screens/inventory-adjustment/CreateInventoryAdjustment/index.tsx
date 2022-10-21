@@ -35,7 +35,6 @@ import NumberInput from "component/custom/number-input.custom";
 import _, { parseInt } from "lodash";
 import {
   createInventoryAdjustmentAction,
-  getVariantHasOnHandByStoreAction,
 } from "domain/actions/inventory/inventory-adjustment.action";
 import { Link } from "react-router-dom";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
@@ -47,10 +46,10 @@ import { DATE_FORMAT } from "utils/DateUtils";
 import moment from "moment";
 import TextEllipsis from "component/table/TextEllipsis";
 import debounce from "lodash/debounce";
-import AccountSearchPaging from "../../../component/custom/select-search/account-select-paging";
-import { RootReducerType } from "../../../model/reducers/RootReducerType";
-import { fullTextSearch } from "../../../utils/StringUtils";
-import { AccountStoreResponse } from "../../../model/account/account.model";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { fullTextSearch } from "utils/StringUtils";
+import { AccountStoreResponse } from "model/account/account.model";
 
 const { Option } = Select;
 
@@ -780,8 +779,6 @@ const CreateInventoryAdjustment: FC = () => {
       drawColumns([]);
       setSearchVariant([]);
       onSearchProduct(keySearchProduct);
-    } else {
-      dispatch(getVariantHasOnHandByStoreAction({ store_adj: storeId }, onResultGetVariant));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form, query, auditType, drawColumns, keySearchProduct, dispatch, onResultGetVariant]);
