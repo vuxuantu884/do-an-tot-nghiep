@@ -1003,6 +1003,19 @@ function OrderCreateProduct(props: PropTypes) {
       return;
     }
     let _items = [...items];
+    let itemLength = _items.length;
+    for (let i = 0; i < itemLength; i++) {
+      const item = _items[i];
+      const position = i + 1;
+      if (item.position !== position) {
+        item.position = position;
+      }
+      item.gifts.forEach((gift) => {
+        if (gift.position !== position) {
+          gift.position = position;
+        }
+      });
+    }
     _items.splice(index, 1);
     if (isAutomaticDiscount && _items.length > 0) {
       handleApplyDiscount(_items);
