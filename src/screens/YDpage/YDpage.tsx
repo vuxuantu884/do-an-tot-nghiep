@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import ContentContainer from "component/container/content.container";
 
 import { StyledYDpage } from "screens/YDpage/StyledYDpage";
-import YDpageConnect from "assets/img/ydpage-connect.svg";
+import YDpageConnect from "assets/img/ydpage-connect.png";
 import FacebookIcon from "assets/icon/facebook.svg";
 import InstagramIcon from "assets/icon/instagram.svg";
 import ZaloIcon from "assets/icon/zalo.svg";
