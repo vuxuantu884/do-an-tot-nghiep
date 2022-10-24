@@ -514,3 +514,12 @@ export const DAILY_REVENUE_IMPORT = {
   OTHER_PAYMENT: "other_payment",
   CONFIRM_PAYMENT: "confirm_payment",
 };
+
+export const DATE_OPTION_VALUE = {
+  today: "today",
+  yesterday: "yesterday",
+  thisWeek: "thisWeek",
+  lastWeek: "lastWeek",
+  thisMonth: "thisMonth",
+  lastMonth: "lastMonth",
+};

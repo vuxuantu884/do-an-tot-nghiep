@@ -11,14 +11,16 @@ import { PageResponse } from "model/base/base-metadata.response";
 import {
   MESSAGE_STATUS_LIST,
   CHANNEL_LIST,
-  DATE_LIST_FORMAT,
   CAMPAIGN_STATUS_LIST,
 } from "screens/marketing/campaign/campaign-helper";
 import { AdvanceFilterStyled, CampaignListFilterStyled } from "screens/marketing/campaign/campaign-styled";
 import filterIcon from "assets/icon/filter.svg";
 import { convertItemToArray } from "utils/AppUtils";
 import { CampaignSearchQuery } from "model/marketing/marketing.model";
-import FilterDateCustomerCustom from "component/filter/FilterDateCustomerCustom";
+import SelectRangeDateCustom, {
+  convertSelectedDateOption,
+  handleSelectedDate,
+} from "component/filter/SelectRangeDateCustom";
 import BaseFilter from "component/filter/base.filter";
 import moment from "moment";
 import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
@@ -94,7 +96,7 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
 
     handleSenderFilterParam(initialValues.sender_code);
 
-    handleDateFilterParam(
+    handleSelectedDate(
       initialValues?.created_date_from,
       initialValues?.created_date_to,
       setCreatedDateClick,
@@ -102,7 +104,7 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
     setCreatedDateFrom(initialValues?.created_date_from);
     setCreatedDateTo(initialValues?.created_date_to);
 
-    handleDateFilterParam(
+    handleSelectedDate(
       initialValues?.send_date_from,
       initialValues?.send_date_to,
       setSendDateClick,
@@ -303,42 +305,6 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
   //end send date
 
   // handle select date by filter param
-  const handleDateFilterParam = (date_from: any, date_to: any, setDate: any) => {
-    const dateFrom = formatDateFilter(date_from)?.format(DATE_FORMAT.DD_MM_YYYY);
-    const dateTo = formatDateFilter(date_to)?.format(DATE_FORMAT.DD_MM_YYYY);
-
-    if (dateFrom === DATE_LIST_FORMAT.todayFrom && dateTo === DATE_LIST_FORMAT.todayTo) {
-      setDate("today");
-    } else if (
-      dateFrom === DATE_LIST_FORMAT.yesterdayFrom &&
-      dateTo === DATE_LIST_FORMAT.yesterdayTo
-    ) {
-      setDate("yesterday");
-    } else if (
-      dateFrom === DATE_LIST_FORMAT.thisWeekFrom &&
-      dateTo === DATE_LIST_FORMAT.thisWeekTo
-    ) {
-      setDate("thisWeek");
-    } else if (
-      dateFrom === DATE_LIST_FORMAT.lastWeekFrom &&
-      dateTo === DATE_LIST_FORMAT.lastWeekTo
-    ) {
-      setDate("lastWeek");
-    } else if (
-      dateFrom === DATE_LIST_FORMAT.thisMonthFrom &&
-      dateTo === DATE_LIST_FORMAT.thisMonthTo
-    ) {
-      setDate("thisMonth");
-    } else if (
-      dateFrom === DATE_LIST_FORMAT.lastMonthFrom &&
-      dateTo === DATE_LIST_FORMAT.lastMonthTo
-    ) {
-      setDate("lastMonth");
-    } else {
-      setDate("");
-    }
-  };
-  
   const clearCreatedDate = () => {
     setCreatedDateClick("");
     setCreatedDateFrom(null);
@@ -352,37 +318,8 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
   };
   const clickOptionDate = useCallback(
     (type, value) => {
-      let startDateValue = null;
-      let endDateValue = null;
-
-      switch (value) {
-        case "today":
-          startDateValue = moment().utc().startOf("day");
-          endDateValue = moment().utc().endOf("day");
-          break;
-        case "yesterday":
-          startDateValue = moment().utc().startOf("day").subtract(1, "days");
-          endDateValue = moment().utc().endOf("day").subtract(1, "days");
-          break;
-        case "thisWeek":
-          startDateValue = moment().utc().startOf("week");
-          endDateValue = moment().utc().endOf("week");
-          break;
-        case "lastWeek":
-          startDateValue = moment().utc().startOf("week").subtract(1, "weeks");
-          endDateValue = moment().utc().endOf("week").subtract(1, "weeks");
-          break;
-        case "thisMonth":
-          startDateValue = moment().utc().startOf("month");
-          endDateValue = moment().utc().endOf("month");
-          break;
-        case "lastMonth":
-          startDateValue = moment().utc().subtract(1, "months").startOf("month");
-          endDateValue = moment().utc().subtract(1, "months").endOf("month");
-          break;
-        default:
-          break;
-      }
+      const selectedDateOption = convertSelectedDateOption(value);
+      const { startDateValue, endDateValue } = selectedDateOption;
 
       switch (type) {
         case "createdDate":
@@ -598,7 +535,7 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
             <Row gutter={24} className={"advance-filter"}>
               <Col xs={24} lg={12} className={"col-advance-filter"}>
                 <div style={{ marginBottom: "8px"}}><b>Thời gian tạo</b></div>
-                <FilterDateCustomerCustom
+                <SelectRangeDateCustom
                   fieldNameFrom="created_date_from"
                   fieldNameTo="created_date_to"
                   dateType="createdDate"
@@ -613,7 +550,7 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
 
               <Col xs={24} lg={12} className={"col-advance-filter"}>
                 <div style={{ marginBottom: "8px"}}><b>Thời gian gửi</b></div>
-                <FilterDateCustomerCustom
+                <SelectRangeDateCustom
                   fieldNameFrom="send_date_from"
                   fieldNameTo="send_date_to"
                   dateType="sendDate"

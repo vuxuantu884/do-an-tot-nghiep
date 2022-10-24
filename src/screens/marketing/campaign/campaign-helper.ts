@@ -1,7 +1,6 @@
 import FacebookIcon from "assets/icon/facebook.svg";
 import ZaloIcon from "assets/icon/zalo.svg";
 import SmsIcon from "assets/icon/sms.svg";
-import moment from "moment";
 
 export const CAMPAIGN_STATUS_LIST = [
   {
@@ -139,23 +138,3 @@ export const KEYWORD_LIST = [
     value: "{points_consumed}",
   },
 ];
-
-export const DATE_LIST_FORMAT = {
-  todayFrom: moment().startOf("day").format("DD-MM-YYYY"),
-  todayTo: moment().endOf("day").format("DD-MM-YYYY"),
-
-  yesterdayFrom: moment().startOf("day").subtract(1, "days").format("DD-MM-YYYY"),
-  yesterdayTo: moment().endOf("day").subtract(1, "days").format("DD-MM-YYYY"),
-
-  thisWeekFrom: moment().startOf("week").format("DD-MM-YYYY"),
-  thisWeekTo: moment().endOf("week").format("DD-MM-YYYY"),
-
-  lastWeekFrom: moment().startOf("week").subtract(1, "weeks").format("DD-MM-YYYY"),
-  lastWeekTo: moment().endOf("week").subtract(1, "weeks").format("DD-MM-YYYY"),
-
-  thisMonthFrom: moment().startOf("month").format("DD-MM-YYYY"),
-  thisMonthTo: moment().endOf("month").format("DD-MM-YYYY"),
-
-  lastMonthFrom: moment().subtract(1, "months").startOf("month").format("DD-MM-YYYY"),
-  lastMonthTo: moment().subtract(1, "months").endOf("month").format("DD-MM-YYYY"),
-};
