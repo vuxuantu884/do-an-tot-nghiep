@@ -17,16 +17,10 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import { DISCOUNT_STATUS } from "../constants";
 import DatePromotionColumn from "screens/promotion/shared/date-column";
-import { StoreResponse } from "model/core/store.model";
-import { StoreGetListAction } from "domain/actions/core/store.action";
 import { generateQuery } from "utils/AppUtils";
 import queryString from "query-string";
 import { FiCheckCircle } from "react-icons/fi";
 import { RiDeleteBin2Fill } from "react-icons/ri";
-import { SourceResponse } from "model/response/order/source.response";
-import { getListAllSourceRequest } from "domain/actions/product/source.action";
-import { ChannelResponse } from "model/response/product/channel.response";
-import { getListChannelRequest } from "domain/actions/order/order.action";
 import {
   disablePromotionGiftAction,
   enablePromotionGiftAction,
@@ -42,7 +36,6 @@ const GiftList = () => {
     variant_id: null,
     product_id: null,
     states: [],
-    priorities: [],
     entitled_methods: [],
     creators: [],
     store_ids: [],
@@ -72,10 +65,6 @@ const GiftList = () => {
 
   const [params, setParams] = useState<GiftSearchQuery>(initQuery);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
-
-  const [listStore, setStore] = useState<Array<StoreResponse>>([]);
-  const [channelList, setChannelList] = useState<Array<ChannelResponse>>([]);
-  const [sourceList, setSourceList] = useState<Array<SourceResponse>>([]);
 
   //phân quyền
   const [allowUpdateGift] = useAuthorization({
@@ -109,14 +98,6 @@ const GiftList = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, location.search]);
   /** end handle get promotion gift list */
-
-  useEffect(() => {
-    return; //Tạm thời k gọi do chưa dùng bộ lọc nâng cao
-    // eslint-disable-next-line no-unreachable
-    dispatch(StoreGetListAction(setStore));
-    dispatch(getListChannelRequest(setChannelList));
-    dispatch(getListAllSourceRequest(setSourceList));
-  }, [dispatch]);
 
   const onChangePromotionGiftStatus = (successNumber: number) => {
     if (successNumber) {
@@ -286,9 +267,6 @@ const GiftList = () => {
           initQuery={initQuery}
           params={params}
           onFilter={onFilter}
-          listStore={listStore}
-          channelList={channelList}
-          sourceList={sourceList}
         />
         <CustomTable
           bordered={true}
