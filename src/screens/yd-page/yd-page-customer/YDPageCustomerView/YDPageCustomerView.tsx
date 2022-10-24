@@ -27,6 +27,7 @@ import editIcon from "assets/icon/edit.svg";
 import { StyledComponent } from "./styles";
 import { getOrderHistoryService } from "service/order/order.service";
 import { CustomerOrderHistoryResponse } from "model/response/order/order.response";
+import { ORDER_SUB_STATUS } from "utils/Order.constants";
 
 const YDPageCustomerView = (props: any) => {
   const {
@@ -178,7 +179,17 @@ const YDPageCustomerView = (props: any) => {
       color: "#ae2727",
       background: "rgba(230, 171, 171, 0.1)",
     },
+    {
+      name: "Đơn trả",
+      value: ORDER_SUB_STATUS.returned,
+      color: "#E24343",
+      background: "rgba(226, 67, 67, 0.1)",
+    },
   ];
+
+  const checkIfOrderReturn = (record: CustomerOrderHistoryResponse) => {
+    return !!record.order_id;
+  };
 
   const purchaseHistoryColumn: any = [
     {
@@ -190,12 +201,19 @@ const YDPageCustomerView = (props: any) => {
     {
       title: "Tổng thu",
       align: "right",
-      render: (value: any, row: any) => {
+      render: (value: any, item: any) => {
+        const isOrderReturn = checkIfOrderReturn(item);
         return (
           <div style={{ textAlign: "right" }}>
-            <Link target="_blank" to={`${UrlConfig.ORDER}/${row.id}`}>
-              {formatCurrency(row.total_line_amount_after_line_discount)}
-            </Link>
+            {isOrderReturn ? (
+              <Link to={`${UrlConfig.ORDERS_RETURN}/${item.id}`} target="_blank">
+                {formatCurrency(item.total_line_amount_after_line_discount)}
+              </Link>
+            ) : (
+              <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank">
+                {formatCurrency(item.total_line_amount_after_line_discount)}
+              </Link>
+            )}
           </div>
         );
       },
@@ -205,6 +223,11 @@ const YDPageCustomerView = (props: any) => {
       dataIndex: "status",
       align: "center",
       render: (value: any, row: any) => {
+        const isOrderReturn = checkIfOrderReturn(row);
+        if (isOrderReturn) {
+          row.status = ORDER_SUB_STATUS.returned;
+          row.sub_status = "Đơn trả";
+        }
         const statusTag = status_order.find((status) => status.value === row.status);
         return (
           <div>
