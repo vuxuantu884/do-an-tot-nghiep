@@ -7,16 +7,14 @@ import {
   AnalyticResult,
   ArrayAny,
   KeyDriverDataSourceType,
-  KeyDriverOnlineParams
+  KeyDriverDimension,
+  KeyDriverOnlineParams,
 } from "model/report";
 import moment from "moment";
 import queryString from "query-string";
 import { Dispatch } from "redux";
 import { MigrateKDOfflineUrl } from "routes/menu/reports.route";
-import {
-  getKeyDriverOnlineApi,
-  onlineCounterService
-} from "service/report/key-driver.service";
+import { getKeyDriverOnlineApi, onlineCounterService } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -81,6 +79,7 @@ export async function fetchQuery(params: KeyDriverOnlineParams, dispatch: Dispat
 export const convertDataToFlatTableKeyDriver = (
   analyticResult: any,
   attributeOrdered: string[],
+  dimension: KeyDriverDimension,
 ) => {
   const keyDriverResult = analyticResult.result as AnalyticResult;
   const keyDriverData = analyticResult.key_drivers as AnalyticResult;
@@ -149,7 +148,32 @@ export const convertDataToFlatTableKeyDriver = (
       data[data.length - 1] = newRow;
     }
   });
-  return buildSchemas(data);
+  let filterData = data;
+  const { Store, Staff } = KeyDriverDimension;
+  switch (dimension) {
+    case Staff:
+      filterData = data.filter((item) => {
+        return (
+          !item.key.includes("OF.DT.FB.02") &&
+          !item.key.includes("OF.LN.") &&
+          !item.key.includes("OF.NS.") &&
+          !item.key.includes("OF.HS.")
+        );
+      });
+      break;
+    case Store:
+      const storePerformanceKeys: string[] = [];
+      for (let i = 0; i <= 60; ++i) {
+        storePerformanceKeys.push(`OF.HS.01.${i.toString().padStart(2, "0")}`);
+      }
+      filterData = data.filter((item) => {
+        return !storePerformanceKeys.includes(item.key);
+      });
+      break;
+    default:
+      break;
+  }
+  return buildSchemas(filterData);
 };
 
 const sliceGroups = (schema: any) => {
@@ -164,7 +188,7 @@ const sliceGroups = (schema: any) => {
   return groups.filter((_group) => !!_group);
 };
 
-const findParent: any = (groups: any, prev_schema: any) => {  
+const findParent: any = (groups: any, prev_schema: any) => {
   if (!groups || !prev_schema) {
     return {
       _parent: null,
@@ -216,7 +240,7 @@ const buildSchemas = (_input: any) => {
     },
     [],
   );
-  
+
   _schemas.forEach((_schema: any) => {
     delete _schema["_parent"];
     delete _schema["_grouped"];

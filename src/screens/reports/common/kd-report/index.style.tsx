@@ -5,7 +5,6 @@ export const KeyDriverStyle = styled.div`
   .ant-table-thead > tr > th {
     border-bottom: unset;
     white-space: pre-line;
-    padding: 4px 16px;
   }
 
   .department-name {
@@ -126,7 +125,7 @@ export const KeyDriverStyle = styled.div`
   .ant-table-row-expand-icon:before {
     color: ${color.primary};
   }
-  
+
   .ant-table-row-level {
     &-0 {
       td,
@@ -212,8 +211,8 @@ export const KeyDriverStyle = styled.div`
   tbody > tr:hover {
     td,
     input,
-      .input-number,
-      .ant-input-affix-wrapper  {
+    .input-number,
+    .ant-input-affix-wrapper {
       background: rgba(245, 245, 245, 1) !important;
     }
   }
