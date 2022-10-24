@@ -606,7 +606,8 @@ function CardShowOrderPayments(props: PropTypes) {
           stepsStatusValue === FulFillmentStatus.SHIPPED ||
           disabledBottomActions ||
           OrderDetail.sub_status_code === ORDER_SUB_STATUS.returning ||
-          OrderDetail.sub_status_code === ORDER_SUB_STATUS.confirm_returned)
+          OrderDetail.sub_status_code === ORDER_SUB_STATUS.confirm_returned ||
+          OrderDetail.sub_status_code === ORDER_SUB_STATUS.delivery_service_cancelled)
       );
     };
     if (!checkIfOrderHasPaidAllMoneyAmountIncludeCod(OrderDetail) && !isShowPaymentPartialPayment) {
