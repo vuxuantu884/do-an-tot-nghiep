@@ -1,4 +1,4 @@
-import { Button, Card, Dropdown, Form, Input, Menu } from "antd";
+import { Button, Card, Dropdown, Form, Input, Menu, Space, Tag } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import search from "assets/img/search.svg";
@@ -14,7 +14,6 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { showSuccess } from "utils/ToastUtils";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import CustomFilter from "component/table/custom.filter";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -28,6 +27,8 @@ import TextShowMore from "component/container/show-more/text-show-more";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { EditOutlined, EllipsisOutlined } from "@ant-design/icons";
+import { ColumnsType } from "antd/lib/table";
+import currency from "currency.js";
 
 const { Item } = Form;
 const ListMaterial: React.FC = () => {
@@ -95,7 +96,7 @@ const ListMaterial: React.FC = () => {
     );
   };
 
-  const columns = [
+  const columns: ColumnsType<any> = [
     {
       title: "ID chất liệu",
       width: 140,
@@ -103,26 +104,31 @@ const ListMaterial: React.FC = () => {
       key: "code",
       render: (value: string, item: MaterialResponse) => {
         return (
-          <Link
-            style={{ fontSize: 16, fontWeight: "bold" }}
-            to={`${UrlConfig.MATERIALS}/${item.id}`}
-          >
-            {value}
-          </Link>
+          <div>
+            <Link
+              style={{ fontSize: 16, fontWeight: "bold" }}
+              to={`${UrlConfig.MATERIALS}/${item.id}`}
+            >
+              {value}
+            </Link>
+            <div>{ConvertUtcToLocalDate(item.created_date, DATE_FORMAT.DDMMYYY)}</div>
+          </div>
         );
       },
     },
     {
-      title: <div className="text-center">Chất liệu</div>,
+      title: <div>Chất liệu</div>,
       dataIndex: "name",
       key: "name",
       width: 160,
       render: (value: string, item: MaterialResponse) => {
         return (
-          <div className="text-center">
-            <TextShowMore maxLength={100}>{value}</TextShowMore>
+          <div>
             <div>
-              <span style={{ color: "#666666" }}>{item.fabric_code}</span>
+              Tên: <span className="font-weight-500">{value}</span>
+            </div>
+            <div>
+              Mã: <span className="font-weight-500">{item.fabric_code}</span>
             </div>
           </div>
         );
@@ -140,13 +146,15 @@ const ListMaterial: React.FC = () => {
     {
       title: "Trạng thái",
       dataIndex: "status",
-      width: 120,
+      width: 150,
       render: (value: string, item: MaterialResponse) => {
         const marterial = marterialStatusList?.find((e: any) => e.value === value);
         let statusName = "";
         if (marterial) statusName = marterial.name;
         return (
-          <label className={value === "active" ? "text-success" : "text-error"}>{statusName}</label>
+          <Tag className="material-status" color={value === "active" ? "green" : "red"}>
+            {statusName}
+          </Tag>
         );
       },
     },
@@ -154,27 +162,30 @@ const ListMaterial: React.FC = () => {
       title: "Thông tin vải",
       dataIndex: "fabric_size",
       key: "fabric_size",
-      width: 150,
+      width: 200,
       render: (value: string, item: MaterialResponse) => {
         return (
           <div>
             <div>
               Khổ vải:{" "}
               <span className="font-weight-500">
-                {formatCurrency(value)} {value ? item.fabric_size_unit : ""}
+                {value ? `${value} ${item.fabric_size_unit}` : ""}
               </span>
             </div>
             <div>
               Trọng lượng:{" "}
               <span className="font-weight-500">
-                {formatCurrency(item.weight)} {item.weight ? item.weight_unit : ""}
+                {item.weight ? `${item.weight} ${item.weight_unit}` : ""}
               </span>
             </div>
             <div>
               Giá:{" "}
               <span className="font-weight-500">
-                {formatCurrency(item.price)} {item.price ? item.price_unit : ""}
-                {item.price_measure_unit ? `/${item.price_measure_unit}` : ""}
+                {item.price
+                  ? `${currency(item.price).format({ symbol: "", separator: "," })} ${
+                      item.price_unit
+                    }/${item.price_measure_unit}`
+                  : ""}
               </span>
             </div>
           </div>
@@ -227,12 +238,6 @@ const ListMaterial: React.FC = () => {
       },
     },
     {
-      title: "Ngày tạo",
-      width: 140,
-      dataIndex: "created_date",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
-    },
-    {
       title: "Ghi chú",
       width: 140,
       dataIndex: "description",
@@ -255,6 +260,7 @@ const ListMaterial: React.FC = () => {
     {
       title: "",
       width: 50,
+      fixed: "right",
       dataIndex: "action",
       render: (value: string, item: MaterialResponse, idx: number) =>
         RenderActionColumn(value, item, idx),
@@ -332,32 +338,42 @@ const ListMaterial: React.FC = () => {
     >
       <Card>
         <div className="custom-filter">
-          <CustomFilter menu={[]}>
-            <Form onFinish={onFinish} initialValues={params} layout="inline">
-              <Item name="info" className="input-search">
-                <Input prefix={<img src={search} alt="" />} placeholder="Tên / Mã chất liệu" />
-              </Item>
-              <Item name="component">
-                <Input
-                  prefix={<img src={search} alt="" />}
-                  style={{ width: 200 }}
-                  placeholder="Thành phần"
-                />
-              </Item>
-              <Item name="description">
-                <Input
-                  prefix={<img src={search} alt="" />}
-                  style={{ width: 200 }}
-                  placeholder="Ghi chú"
-                />
-              </Item>
-              <Item>
-                <Button type="primary" htmlType="submit">
-                  Lọc
-                </Button>
-              </Item>
-            </Form>
-          </CustomFilter>
+          <div className="page-filter">
+            <div className="page-filter-heading">
+              {/* <div className="page-filter-left"></div> */}
+              <div className="page-filter-right">
+                <Space size={12}>
+                  <Form onFinish={onFinish} initialValues={params} layout="inline">
+                    <Item name="info" className="input-search">
+                      <Input
+                        prefix={<img src={search} alt="" />}
+                        placeholder="Tên / Mã chất liệu"
+                      />
+                    </Item>
+                    <Item name="component">
+                      <Input
+                        prefix={<img src={search} alt="" />}
+                        style={{ width: 200 }}
+                        placeholder="Thành phần"
+                      />
+                    </Item>
+                    <Item name="description">
+                      <Input
+                        prefix={<img src={search} alt="" />}
+                        style={{ width: 200 }}
+                        placeholder="Ghi chú"
+                      />
+                    </Item>
+                    <Item>
+                      <Button type="primary" htmlType="submit">
+                        Lọc
+                      </Button>
+                    </Item>
+                  </Form>
+                </Space>
+              </div>
+            </div>
+          </div>
         </div>
         <CustomTable
           bordered
