@@ -9,7 +9,7 @@ import CustomDatePicker from "component/custom/new-date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
 import ModalSettingColumnData from "component/table/ModalSettingColumnData";
 // import { KeyboardKey } from "model/other/keyboard/keyboard.model";
-import { KeyDriverDataSourceType, LocalStorageKey } from "model/report";
+import { KeyDriverDataSourceType, KeyDriverDimension, LocalStorageKey } from "model/report";
 import moment from "moment";
 import queryString from "query-string";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
@@ -231,7 +231,9 @@ function KeyDriverOffline() {
               const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-month-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
-              return (
+              return ["OF.HS.S1.01", "OF.SP.S1.01"].includes(record.key) ? (
+                <span>-</span>
+              ) : (
                 <VerifyCell row={record} value={text} type="edit">
                   <div style={{ position: "relative" }}>
                     <NumberInput
@@ -337,7 +339,7 @@ function KeyDriverOffline() {
           },
           {
             title: "LUỸ KẾ",
-            width: 130,
+            width: 100,
             align: "right",
             dataIndex: `${departmentKey}_monthly_actual`,
             className: "non-input-cell",
@@ -351,7 +353,7 @@ function KeyDriverOffline() {
           },
           {
             title: "TỶ LỆ",
-            width: 80,
+            width: 50,
             align: "right",
             dataIndex: `${departmentKey}_monthly_progress`,
             className: "non-input-cell",
@@ -365,12 +367,14 @@ function KeyDriverOffline() {
           },
           {
             title: "DỰ KIẾN ĐẠT",
-            width: 130,
+            width: 100,
             align: "right",
             dataIndex: `${departmentKey}_monthly_forecasted`,
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              return (
+              return ["OF.DT.FB.02"].includes(record.key) ? (
+                <span>-</span>
+              ) : (
                 <div
                   className={
                     Number(text) / record[`${departmentKey}_monthly_target`] >= 1
@@ -389,7 +393,7 @@ function KeyDriverOffline() {
           },
           {
             title: "TỶ LỆ",
-            width: 80,
+            width: 50,
             align: "right",
             dataIndex: `${departmentKey}_monthly_forecasted_progress`,
             className: "non-input-cell",
@@ -418,7 +422,9 @@ function KeyDriverOffline() {
               const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-day-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
-              return (
+              return ["OF.HS.S1.01", "OF.SP.S1.01", "OF.DT.FB.02"].includes(record.key) ? (
+                <span>-</span>
+              ) : (
                 <VerifyCell row={record} value={text} type="edit">
                   <div style={{ position: "relative" }}>
                     <NumberInput
@@ -529,12 +535,14 @@ function KeyDriverOffline() {
           },
           {
             title: "THỰC ĐẠT",
-            width: 120,
+            width: 100,
             align: "right",
             dataIndex: `${departmentKey}_daily_actual`,
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              return (
+              return ["OF.DT.FB.02"].includes(record.key) ? (
+                <span>-</span>
+              ) : (
                 <VerifyCell row={record} value={text}>
                   {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
                 </VerifyCell>
@@ -543,7 +551,7 @@ function KeyDriverOffline() {
           },
           {
             title: "TỶ LỆ",
-            width: 80,
+            width: 50,
             align: "right",
             dataIndex: `${departmentKey}_daily_progress`,
             className: "non-input-cell",
@@ -571,6 +579,15 @@ function KeyDriverOffline() {
       setLoadingPage(true);
       let allDepartment: { groupedBy: string; drillingLevel: number }[] = [];
       try {
+        let dimension: KeyDriverDimension;
+        const { Asm, Store, Staff } = KeyDriverDimension;
+        if (departmentLv3) {
+          dimension = Staff;
+        } else if (departmentLv2) {
+          dimension = Store;
+        } else if (keyDriverGroupLv1) {
+          dimension = Asm;
+        }
         const response = await callApiNative(
           { isShowError: true },
           dispatch,
@@ -582,8 +599,9 @@ function KeyDriverOffline() {
             departmentLv3,
           },
         );
-
-        setData(convertDataToFlatTableKeyDriver(response, COLUMN_ORDER_LIST));
+        setData(() => {
+          return convertDataToFlatTableKeyDriver(response, COLUMN_ORDER_LIST, dimension);
+        });
         allDepartment = getAllDepartmentByAnalyticResult(response.result.data, COLUMN_ORDER_LIST);
 
         const temp = [...baseColumns];
