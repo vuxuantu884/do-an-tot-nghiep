@@ -39,6 +39,8 @@ function PosOrders(props: PropTypes) {
     finalized_on_min: null,
     finalized_on_max: null,
     finalized_on_predefined: null,
+    last_coordinator_confirm_on_min: null,
+    last_coordinator_confirm_on_max: null,
     ship_on_min: null,
     ship_on_max: null,
     ship_on_predefined: null,
