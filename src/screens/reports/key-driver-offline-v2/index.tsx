@@ -372,7 +372,9 @@ function KeyDriverOffline() {
             dataIndex: `${departmentKey}_monthly_forecasted`,
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              return (
+              return ["OF.DT.FB.02"].includes(record.key) ? (
+                <span>-</span>
+              ) : (
                 <div
                   className={
                     Number(text) / record[`${departmentKey}_monthly_target`] >= 1
@@ -420,7 +422,7 @@ function KeyDriverOffline() {
               const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-day-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
-              return ["OF.HS.S1.01", "OF.SP.S1.01"].includes(record.key) ? (
+              return ["OF.HS.S1.01", "OF.SP.S1.01", "OF.DT.FB.02"].includes(record.key) ? (
                 <span>-</span>
               ) : (
                 <VerifyCell row={record} value={text} type="edit">
@@ -538,7 +540,9 @@ function KeyDriverOffline() {
             dataIndex: `${departmentKey}_daily_actual`,
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              return (
+              return ["OF.DT.FB.02"].includes(record.key) ? (
+                <span>-</span>
+              ) : (
                 <VerifyCell row={record} value={text}>
                   {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
                 </VerifyCell>
