@@ -20,6 +20,7 @@ import { CustomerGroups } from "domain/actions/customer/customer.action";
 import CreateCustomer from "./CreateCustomer";
 import { StyleComponent } from "./ExtraCardCustomer/style";
 import UpdateCustomer from "./UpdateCustomer";
+import { ChangeShippingFeeApplyOrderSettingParamModel } from "model/order/order.model";
 
 type CardCustomerProps = {
   handleCustomer: (items: CustomerResponse | null) => void;
@@ -47,6 +48,9 @@ type CardCustomerProps = {
   customerChange: boolean;
   setCustomerChange: (value: boolean) => void;
   isOrderUpdate?: boolean;
+  handleChangeShippingFeeApplyOrderSettings: (
+    value: ChangeShippingFeeApplyOrderSettingParamModel,
+  ) => void;
 };
 
 const CardCustomer: React.FC<CardCustomerProps> = (props: CardCustomerProps) => {
@@ -76,6 +80,7 @@ const CardCustomer: React.FC<CardCustomerProps> = (props: CardCustomerProps) => 
     isOrderUpdate,
     ShippingAddressChange,
     updateOrder,
+    handleChangeShippingFeeApplyOrderSettings,
   } = props;
 
   const dispatch = useDispatch();
@@ -154,15 +159,10 @@ const CardCustomer: React.FC<CardCustomerProps> = (props: CardCustomerProps) => 
   const CustomerDeleteInfo = () => {
     handleUpdateCustomer(null);
     if (setVisibleCustomer) setVisibleCustomer(false);
-    handleCalculateShippingFeeApplyOrderSetting(
-      null,
-      orderAmount,
-      shippingServiceConfig,
-      transportService,
-      form,
-      setShippingFeeInformedToCustomer,
-      isOrderUpdate,
-    );
+
+    handleChangeShippingFeeApplyOrderSettings({
+      customerShippingAddressCityId: null,
+    });
     setKeySearchCustomer("");
     if (setShippingAddressesSecondPhone) setShippingAddressesSecondPhone("");
   };

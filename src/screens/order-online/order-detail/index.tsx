@@ -107,10 +107,11 @@ import CardReturnMoney from "../component/order-detail/CardReturnMoney";
 import CardShowOrderPayments from "../component/order-detail/CardShowOrderPayments";
 import UpdateCustomerCard from "../component/update-customer-card";
 import UpdateShipmentCard from "../component/UpdateShipmentCard";
+import useCalculateShippingFee from "../hooks/useCalculateShippingFee";
 import useGetDefaultReturnOrderReceivedStore from "../hooks/useGetDefaultReturnOrderReceivedStore";
 import CancelOrderModal from "../modal/cancel-order.modal";
 import CardReturnReceiveProducts from "../order-return/components/CardReturnReceiveProducts";
-import {StyledComponent, UniformText} from "./styles";
+import { StyledComponent, UniformText } from "./styles";
 
 type PropTypes = {
   id?: string;
@@ -131,7 +132,7 @@ const OrderDetail = (props: PropTypes) => {
   if (!id && props.id) {
     id = props.id;
   }
-  const {setTitle} = props;
+  const { setTitle } = props;
   // let OrderId = parseInt(id);
   const isFirstLoad = useRef(true);
   const isEcommerceOrder = useRef(false);
@@ -222,7 +223,9 @@ const OrderDetail = (props: PropTypes) => {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
 
-  const [shippingServiceConfig, setShippingServiceConfig] = useState<ShippingServiceConfigDetailResponseModel[]>([]);
+  const [shippingServiceConfig, setShippingServiceConfig] = useState<
+    ShippingServiceConfigDetailResponseModel[]
+  >([]);
 
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
   // xác nhận đơn
@@ -404,7 +407,7 @@ const OrderDetail = (props: PropTypes) => {
             f.status !== FulFillmentStatus.RETURNED &&
             f.status !== FulFillmentStatus.RETURNING,
         );
-        setTitle(`Đơn hàng ${_data.code}`)
+        setTitle(`Đơn hàng ${_data.code}`);
         setOrderDetail(_data);
         setShippingFeeInformedCustomer(
           _data.shipping_fee_informed_to_customer ? _data.shipping_fee_informed_to_customer : 0,
@@ -727,6 +730,12 @@ const OrderDetail = (props: PropTypes) => {
     numberReloadGetMomoLink = 1;
   };
 
+  // shipping fee
+  // const { handleChangeShippingFeeApplyOrderSettings, setIsShippingFeeAlreadyChanged } =
+  //   useCalculateShippingFee(totalOrderAmount, form, setShippingFeeInformedToCustomer, false);
+
+  const handleChangeShippingFeeApplyOrderSettings = () => {};
+
   useEffect(() => {
     if (isFirstLoad.current || reload) {
       if (id) {
@@ -1028,18 +1037,29 @@ const OrderDetail = (props: PropTypes) => {
         breadcrumb={
           OrderDetail
             ? [
-              {
-                name: isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`,
-                path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
-              },
-              {
-                name: `Danh sách đơn hàng ${isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
-                path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
-              },
-              {
-                name: <span>{OrderDetail?.code ? <>Đơn hàng {OrderDetail?.code} {OrderDetail?.uniform && <UniformText>(ĐƠN ĐỒNG PHỤC)</UniformText>}</> : "Đang tải dữ liệu..."}</span>,
-              },
-            ]
+                {
+                  name: isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`,
+                  path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
+                },
+                {
+                  name: `Danh sách đơn hàng ${isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
+                  path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
+                },
+                {
+                  name: (
+                    <span>
+                      {OrderDetail?.code ? (
+                        <>
+                          Đơn hàng {OrderDetail?.code}{" "}
+                          {OrderDetail?.uniform && <UniformText>(ĐƠN ĐỒNG PHỤC)</UniformText>}
+                        </>
+                      ) : (
+                        "Đang tải dữ liệu..."
+                      )}
+                    </span>
+                  ),
+                },
+              ]
             : undefined
         }
         extra={
@@ -1153,6 +1173,9 @@ const OrderDetail = (props: PropTypes) => {
                   isShowReceiveProductConfirmModal={isShowReceiveProductConfirmModal}
                   setIsShowReceiveProductConfirmModal={setIsShowReceiveProductConfirmModal}
                   defaultReceiveReturnStore={defaultReceiveReturnStore}
+                  handleChangeShippingFeeApplyOrderSettings={
+                    handleChangeShippingFeeApplyOrderSettings
+                  }
                 />
                 {/*--- end shipment ---*/}
 

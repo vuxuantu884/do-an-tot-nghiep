@@ -1,7 +1,10 @@
 import { Col, Form, FormInstance, Row } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import { changeOrderThirdPLAction } from "domain/actions/order/order.action";
-import { OrderPageTypeModel } from "model/order/order.model";
+import {
+  ChangeShippingFeeApplyOrderSettingParamModel,
+  OrderPageTypeModel,
+} from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { DeliveryServiceResponse, FeesResponse } from "model/response/order/order.response";
@@ -33,6 +36,9 @@ type PropTypes = {
   setShippingFeeInformedToCustomer: (value: number) => void;
   renderButtonCreateActionHtml: () => JSX.Element | null;
   orderPageType: OrderPageTypeModel;
+  handleChangeShippingFeeApplyOrderSettings: (
+    value: ChangeShippingFeeApplyOrderSettingParamModel,
+  ) => void;
 };
 
 interface DeliveryServiceWithFeeModel extends DeliveryServiceResponse {
@@ -55,6 +61,7 @@ function ShipmentMethodDeliverPartner(props: PropTypes) {
     setShippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
     orderPageType,
+    handleChangeShippingFeeApplyOrderSettings,
   } = props;
 
   const isOrderUpdatePage = checkIfOrderPageType.isOrderUpdatePage(orderPageType);
@@ -83,15 +90,10 @@ function ShipmentMethodDeliverPartner(props: PropTypes) {
     serviceFee: DeliveryServiceWithFeeModel,
     fee: FeesResponse,
   ) => {
-    handleCalculateShippingFeeApplyOrderSetting(
-      shippingAddress?.city_id,
-      orderProductsAmount,
-      shippingServiceConfig,
-      fee.transport_type,
-      form,
-      setShippingFeeInformedToCustomer,
-      isOrderUpdatePage,
-    );
+    handleChangeShippingFeeApplyOrderSettings({
+      customerShippingAddressCityId: shippingAddress?.city_id,
+      transportService: fee.transport_type,
+    });
     const thirdPLResult = {
       delivery_service_provider_id: serviceFee.id,
       delivery_service_provider_code: serviceFee.code,
