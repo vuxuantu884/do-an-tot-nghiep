@@ -1,6 +1,6 @@
 /* eslint-disable eqeqeq */
 import { CheckOutlined, CloseOutlined, SettingOutlined } from "@ant-design/icons";
-import { Button, Card, Form, Table, Tooltip } from "antd";
+import { Button, Card, Col, Form, Select, Table, Tooltip } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
 import BottomBarContainer from "component/container/bottom-bar.container";
@@ -22,7 +22,9 @@ import { formatCurrency, parseLocaleNumber, replaceFormatString } from "utils/Ap
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
+import { strForSearch } from "utils/StringUtils";
 import { KeyDriverStyle } from "../common/kd-report/index.style";
+import { storeStaffNumberKD } from "../common/kd-report/kd-report-constant";
 import {
   COLUMN_ORDER_LIST,
   convertDataToFlatTableKeyDriver,
@@ -36,6 +38,8 @@ import {
 import KeyDriverOfflineProvider, {
   KeyDriverOfflineContext,
 } from "./provider/key-driver-offline-provider";
+
+const { Option } = Select;
 
 type VerifyCellProps = {
   row: KeyDriverDataSourceType;
@@ -75,8 +79,7 @@ const inputTargetDefaultProps: any = {
 
 function VerifyCell(props: VerifyCellProps) {
   const { row, children, value, type = "display" } = props;
-  if (row.key.endsWith(".L")) {
-    // Kết thúc bằng .L là những trường không có giá trị. TO bảo thế
+  if (["OF.HS.S1.01", "OF.SP.S1.01"].includes(row.key)) {
     return <></>;
   } else if (!value && typeof value !== "number" && type === "display") {
     return <div>-</div>;
@@ -179,6 +182,7 @@ function KeyDriverOffline() {
           },
         ],
   );
+  const [allItemInDim, setAllItemInDim] = useState<any[]>([]);
 
   const newFinalColumns = useMemo(() => {
     return finalColumns.map((columnDetails: any) => {
@@ -231,8 +235,8 @@ function KeyDriverOffline() {
               const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-month-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
-              return ["OF.HS.S1.01", "OF.SP.S1.01"].includes(record.key) ? (
-                <span>-</span>
+              return storeStaffNumberKD.includes(record.key) ? (
+                <span>- </span>
               ) : (
                 <VerifyCell row={record} value={text} type="edit">
                   <div style={{ position: "relative" }}>
@@ -422,8 +426,8 @@ function KeyDriverOffline() {
               const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-day-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
-              return ["OF.HS.S1.01", "OF.SP.S1.01", "OF.DT.FB.02"].includes(record.key) ? (
-                <span>-</span>
+              return ["OF.DT.FB.02", ...storeStaffNumberKD].includes(record.key) ? (
+                <span>- </span>
               ) : (
                 <VerifyCell row={record} value={text} type="edit">
                   <div style={{ position: "relative" }}>
@@ -575,18 +579,23 @@ function KeyDriverOffline() {
       keyDriverGroupLv1: string,
       departmentLv2: string | null,
       departmentLv3: string | null,
+      selectedItemsInDim?: string[],
     ) => {
       setLoadingPage(true);
       let allDepartment: { groupedBy: string; drillingLevel: number }[] = [];
       try {
         let dimension: KeyDriverDimension;
+        let currentDrillingLevel: number;
         const { Asm, Store, Staff } = KeyDriverDimension;
         if (departmentLv3) {
           dimension = Staff;
+          currentDrillingLevel = 3;
         } else if (departmentLv2) {
           dimension = Store;
+          currentDrillingLevel = 2;
         } else if (keyDriverGroupLv1) {
           dimension = Asm;
+          currentDrillingLevel = 1;
         }
         const response = await callApiNative(
           { isShowError: true },
@@ -606,42 +615,64 @@ function KeyDriverOffline() {
 
         const temp = [...baseColumns];
 
-        allDepartment.forEach(({ groupedBy, drillingLevel }, index: number) => {
-          let link = "";
-          if (index !== 0 && drillingLevel <= SHOP_LEVEL) {
-            const defaultDate = date ? date : moment().format(DATE_FORMAT.YYYYMMDD);
-            const columnDepartmentLv2 = drillingLevel === 2 ? groupedBy : departmentLv2;
-            const columnDepartmentLv3 = drillingLevel === 3 ? groupedBy : departmentLv3;
+        allDepartment
+          .filter(
+            (item) =>
+              !selectedItemsInDim?.length ||
+              selectedItemsInDim?.includes(item.groupedBy) ||
+              item.drillingLevel === currentDrillingLevel,
+          )
+          .forEach(({ groupedBy, drillingLevel }, index: number) => {
+            let link = "";
+            if (index !== 0 && drillingLevel <= SHOP_LEVEL) {
+              const defaultDate = date ? date : moment().format(DATE_FORMAT.YYYYMMDD);
+              const columnDepartmentLv2 = drillingLevel === 2 ? groupedBy : departmentLv2;
+              const columnDepartmentLv3 = drillingLevel === 3 ? groupedBy : departmentLv3;
 
-            const params = {
-              date: defaultDate,
-              keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
-              departmentLv2: columnDepartmentLv2,
-              departmentLv3: columnDepartmentLv3,
-            };
+              const params = {
+                date: defaultDate,
+                keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
+                departmentLv2: columnDepartmentLv2,
+                departmentLv3: columnDepartmentLv3,
+              };
 
-            link = `${MigrateKDOfflineUrl}?${queryString.stringify(params)}`;
-          }
+              link = `${MigrateKDOfflineUrl}?${queryString.stringify(params)}`;
+            }
 
-          temp.push(
-            setObjectiveColumns(
-              nonAccentVietnamese(groupedBy),
-              groupedBy.toUpperCase(),
-              index,
-              drillingLevel,
-              index === 0 ? "department-name--primary" : undefined,
-              link,
-            ),
-          );
-        });
+            temp.push(
+              setObjectiveColumns(
+                nonAccentVietnamese(groupedBy),
+                groupedBy.toUpperCase(),
+                index,
+                drillingLevel,
+                index === 0 ? "department-name--primary" : undefined,
+                link,
+              ),
+            );
+          });
         setFinalColumns(temp);
         setLoadingPage(false);
+        setAllItemInDim(
+          allDepartment.filter((item) => {
+            if (departmentLv3) {
+              return item.drillingLevel === 4;
+            } else if (departmentLv2) {
+              return item.drillingLevel === 3;
+            } else if (keyDriverGroupLv1) {
+              return item.drillingLevel === 2;
+            }
+            return [];
+          }),
+        );
       } catch (error) {}
     },
     [dispatch, setData, setObjectiveColumns],
   );
 
   useEffect(() => {
+    setTimeout(() => {
+      form.setFieldsValue({ itemsInDim: undefined });
+    }, 1000);
     if (keyDriverGroupLv1 && date) {
       initTable(
         moment(date).format(DATE_FORMAT.YYYYMMDD),
@@ -683,6 +714,16 @@ function KeyDriverOffline() {
     };
     history.push({ search: queryString.stringify(newQueries) });
   }, [form, history]);
+
+  const onChangeItemInDim = (items: string[]) => {
+    initTable(
+      moment(date).format(DATE_FORMAT.YYYYMMDD),
+      keyDriverGroupLv1,
+      departmentLv2,
+      departmentLv3,
+      items,
+    );
+  };
   return (
     <ContentContainer
       title={"Báo cáo kết quả kinh doanh Offline v2"}
@@ -702,15 +743,44 @@ function KeyDriverOffline() {
                 : moment().format(DATE_FORMAT.DDMMYYY),
             }}
           >
-            <Form.Item name="date" style={{ width: 300 }}>
-              <CustomDatePicker
-                format={DATE_FORMAT.DDMMYYY}
-                placeholder="Chọn ngày"
-                style={{ width: "100%" }}
-                onChange={() => onFinish()}
-                showToday={false}
-              />
-            </Form.Item>
+            <Col xs={24} md={8}>
+              <Form.Item name="date">
+                <CustomDatePicker
+                  format={DATE_FORMAT.DDMMYYY}
+                  placeholder="Chọn ngày"
+                  style={{ width: "100%" }}
+                  onChange={() => onFinish()}
+                  showToday={false}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item name="itemsInDim">
+                <Select
+                  disabled={loadingPage}
+                  mode="multiple"
+                  placeholder="Tuỳ chọn hiển thị"
+                  showArrow
+                  showSearch
+                  optionFilterProp="children"
+                  style={{ width: "100%" }}
+                  maxTagCount={"responsive"}
+                  filterOption={(input: String, option: any) => {
+                    if (option.props.value) {
+                      return strForSearch(option.props.children).includes(strForSearch(input));
+                    }
+                    return false;
+                  }}
+                  onChange={onChangeItemInDim}
+                >
+                  {allItemInDim.map((item, index) => (
+                    <Option key={"dimFilter" + index} value={item.groupedBy}>
+                      {item.groupedBy}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
             {/* <Button htmlType="submit" type="primary" loading={loadingPage}>
             Lọc
           </Button> */}
@@ -740,7 +810,7 @@ function KeyDriverOffline() {
             }}
             expandedRowKeys={expandRowKeys}
             expandable={{
-              defaultExpandAllRows: true,
+              defaultExpandAllRows: false,
               onExpandedRowsChange: (rowKeys: any) => {
                 setExpandRowKeys(rowKeys);
                 // localStorage.setItem(LocalStorageKey.KDOfflineRowkeysExpanded, JSON.stringify(rowKeys));

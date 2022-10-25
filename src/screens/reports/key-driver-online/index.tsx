@@ -1,6 +1,6 @@
 /* eslint-disable eqeqeq */
 import { CheckOutlined, CloseOutlined, SettingOutlined } from "@ant-design/icons";
-import { Button, Card, Form, Table, Tooltip } from "antd";
+import { Button, Card, Col, Form, Select, Table, Tooltip } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
 import BottomBarContainer from "component/container/bottom-bar.container";
@@ -22,6 +22,7 @@ import { formatCurrency, parseLocaleNumber, replaceFormatString } from "utils/Ap
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
+import { strForSearch } from "utils/StringUtils";
 import { KeyDriverStyle } from "../common/kd-report/index.style";
 import {
   COLUMN_ORDER_LIST,
@@ -36,6 +37,8 @@ import {
 import KeyDriverOnlineProvider, {
   KeyDriverOfflineContext,
 } from "./provider/key-driver-online-provider";
+
+const { Option } = Select;
 
 type VerifyCellProps = {
   row: KeyDriverDataSourceType;
@@ -178,6 +181,7 @@ function KeyDriverOnline() {
           },
         ],
   );
+  const [allItemInDim, setAllItemInDim] = useState<any[]>([]);
 
   const newFinalColumns = useMemo(() => {
     return finalColumns.map((columnDetails: any) => {
@@ -572,9 +576,18 @@ function KeyDriverOnline() {
       keyDriverGroupLv1: string,
       departmentLv2: string | null,
       departmentLv3: string | null,
+      selectedItemsInDim?: string[],
     ) => {
       setLoadingPage(true);
       let allDepartment: { groupedBy: string; drillingLevel: number }[] = [];
+      let currentDrillingLevel: number;
+      if (departmentLv3) {
+        currentDrillingLevel = 3;
+      } else if (departmentLv2) {
+        currentDrillingLevel = 2;
+      } else if (keyDriverGroupLv1) {
+        currentDrillingLevel = 1;
+      }
       try {
         const response = await callApiNative(
           { isShowError: true },
@@ -593,42 +606,64 @@ function KeyDriverOnline() {
 
         const temp = [...baseColumns];
 
-        allDepartment.forEach(({ groupedBy, drillingLevel }, index: number) => {
-          let link = "";
-          if (index !== 0 && drillingLevel <= SHOP_LEVEL) {
-            const defaultDate = date ? date : moment().format(DATE_FORMAT.YYYYMMDD);
-            const columnDepartmentLv2 = drillingLevel === 2 ? groupedBy : departmentLv2;
-            const columnDepartmentLv3 = drillingLevel === 3 ? groupedBy : departmentLv3;
+        allDepartment
+          .filter(
+            (item) =>
+              !selectedItemsInDim?.length ||
+              selectedItemsInDim?.includes(item.groupedBy) ||
+              item.drillingLevel === currentDrillingLevel,
+          )
+          .forEach(({ groupedBy, drillingLevel }, index: number) => {
+            let link = "";
+            if (index !== 0 && drillingLevel <= SHOP_LEVEL) {
+              const defaultDate = date ? date : moment().format(DATE_FORMAT.YYYYMMDD);
+              const columnDepartmentLv2 = drillingLevel === 2 ? groupedBy : departmentLv2;
+              const columnDepartmentLv3 = drillingLevel === 3 ? groupedBy : departmentLv3;
 
-            const params = {
-              date: defaultDate,
-              keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
-              departmentLv2: columnDepartmentLv2,
-              departmentLv3: columnDepartmentLv3,
-            };
+              const params = {
+                date: defaultDate,
+                keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
+                departmentLv2: columnDepartmentLv2,
+                departmentLv3: columnDepartmentLv3,
+              };
 
-            link = `${UrlConfig.KEY_DRIVER_ONLINE}?${queryString.stringify(params)}`;
-          }
+              link = `${UrlConfig.KEY_DRIVER_ONLINE}?${queryString.stringify(params)}`;
+            }
 
-          temp.push(
-            setObjectiveColumns(
-              nonAccentVietnamese(groupedBy),
-              groupedBy.toUpperCase(),
-              index,
-              drillingLevel,
-              index === 0 ? "department-name--primary" : undefined,
-              link,
-            ),
-          );
-        });
+            temp.push(
+              setObjectiveColumns(
+                nonAccentVietnamese(groupedBy),
+                groupedBy.toUpperCase(),
+                index,
+                drillingLevel,
+                index === 0 ? "department-name--primary" : undefined,
+                link,
+              ),
+            );
+          });
         setFinalColumns(temp);
         setLoadingPage(false);
+        setAllItemInDim(
+          allDepartment.filter((item) => {
+            if (departmentLv3) {
+              return item.drillingLevel === 4;
+            } else if (departmentLv2) {
+              return item.drillingLevel === 3;
+            } else if (keyDriverGroupLv1) {
+              return item.drillingLevel === 2;
+            }
+            return [];
+          }),
+        );
       } catch (error) {}
     },
     [dispatch, setData, setObjectiveColumns],
   );
 
   useEffect(() => {
+    setTimeout(() => {
+      form.setFieldsValue({ itemsInDim: undefined });
+    }, 1000);
     if (keyDriverGroupLv1 && date) {
       initTable(
         moment(date).format(DATE_FORMAT.YYYYMMDD),
@@ -672,6 +707,16 @@ function KeyDriverOnline() {
     };
     history.push({ search: queryString.stringify(newQueries) });
   }, [form, history]);
+
+  const onChangeItemInDim = (items: string[]) => {
+    initTable(
+      moment(date).format(DATE_FORMAT.YYYYMMDD),
+      keyDriverGroupLv1,
+      departmentLv2,
+      departmentLv3,
+      items,
+    );
+  };
   return (
     <ContentContainer
       title={"Báo cáo kết quả kinh doanh Online"}
@@ -691,15 +736,44 @@ function KeyDriverOnline() {
                 : moment().format(DATE_FORMAT.DDMMYYY),
             }}
           >
-            <Form.Item name="date" style={{ width: 300 }}>
-              <CustomDatePicker
-                format={DATE_FORMAT.DDMMYYY}
-                placeholder="Chọn ngày"
-                style={{ width: "100%" }}
-                onChange={() => onFinish()}
-                showToday={false}
-              />
-            </Form.Item>
+            <Col xs={24} md={8}>
+              <Form.Item name="date">
+                <CustomDatePicker
+                  format={DATE_FORMAT.DDMMYYY}
+                  placeholder="Chọn ngày"
+                  style={{ width: "100%" }}
+                  onChange={() => onFinish()}
+                  showToday={false}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item name="itemsInDim">
+                <Select
+                  disabled={loadingPage}
+                  mode="multiple"
+                  placeholder="Tuỳ chọn hiển thị"
+                  showArrow
+                  showSearch
+                  optionFilterProp="children"
+                  style={{ width: "100%" }}
+                  maxTagCount={"responsive"}
+                  filterOption={(input: String, option: any) => {
+                    if (option.props.value) {
+                      return strForSearch(option.props.children).includes(strForSearch(input));
+                    }
+                    return false;
+                  }}
+                  onChange={onChangeItemInDim}
+                >
+                  {allItemInDim.map((item, index) => (
+                    <Option key={"dimFilter" + index} value={item.groupedBy}>
+                      {item.groupedBy}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
             {/* <Button htmlType="submit" type="primary" loading={loadingPage}>
             Lọc
           </Button> */}
