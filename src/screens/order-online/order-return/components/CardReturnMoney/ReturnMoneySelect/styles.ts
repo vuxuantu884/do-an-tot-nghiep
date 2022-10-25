@@ -1,11 +1,11 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
-  .btnReturnMoney {
+  .returnMoneyButton {
     margin-top: 32px;
     float: right;
   }
   .note {
-    margin-top: 10px;
+    margin-top: 15px;
   }
 `;

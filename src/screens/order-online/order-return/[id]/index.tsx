@@ -63,7 +63,7 @@ type OrderParam = {
 
 const ScreenReturnDetail = (props: PropTypes) => {
   let { id } = useParams<OrderParam>();
-  const {setTitle} = props;
+  const { setTitle } = props;
   let returnOrderId = parseInt(id);
   const dispatch = useDispatch();
   const [form] = Form.useForm();
@@ -101,8 +101,8 @@ const ScreenReturnDetail = (props: PropTypes) => {
 
   const currentStores = useFetchStores();
 
-  const isFullAccessStore = useCheckIfFullAccessStore()
-  console.log('isFullAccessStore', isFullAccessStore)
+  const isFullAccessStore = useCheckIfFullAccessStore();
+  console.log("isFullAccessStore", isFullAccessStore);
 
   console.log("currentStores", currentStores);
   const defaultReceiveReturnStore = useGetDefaultReturnOrderReceivedStore({
@@ -189,7 +189,15 @@ const ScreenReturnDetail = (props: PropTypes) => {
         );
       }),
     );
-  }, [OrderDetail, allowReceiveReturn, countChangeSubStatus, currentStores, dispatch, form]);
+  }, [
+    OrderDetail,
+    allowReceiveReturn,
+    countChangeSubStatus,
+    currentStores,
+    dispatch,
+    form,
+    isFullAccessStore,
+  ]);
 
   const handleDeleteOrderReturn = useCallback(() => {
     if (!OrderDetail) {
@@ -359,17 +367,22 @@ const ScreenReturnDetail = (props: PropTypes) => {
         single.status === ORDER_PAYMENT_STATUS.paid &&
         single.payment_method_code !== PaymentMethodCode.POINT_REFUND
       ) {
-        result = result + single.paid_amount;
+        result = result + single.amount;
       }
     });
-    return result;
+    return Math.round(result);
   }, [OrderDetail?.payments]);
 
   const totalAmountReturnToCustomerLeft = useMemo(() => {
     return totalAmountReturnToCustomer - totalAmountHasPaidToCustomerWithoutPointRefund;
   }, [totalAmountHasPaidToCustomerWithoutPointRefund, totalAmountReturnToCustomer]);
 
-  // console.log('totalAmountReturnToCustomerLeft', totalAmountReturnToCustomerLeft)
+  console.log("totalAmountReturnToCustomerLeft", totalAmountReturnToCustomerLeft);
+  console.log("totalAmountReturnToCustomer", totalAmountReturnToCustomer);
+  console.log(
+    "totalAmountHasPaidToCustomerWithoutPointRefund",
+    totalAmountHasPaidToCustomerWithoutPointRefund,
+  );
 
   useEffect(() => {
     form.setFieldsValue({
@@ -520,7 +533,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
                     f.status !== FulFillmentStatus.RETURNING,
                 );
                 setOrderDetail(_data);
-                setTitle(`Đơn trả hàng ${_data.code}`)
+                setTitle(`Đơn trả hàng ${_data.code}`);
                 if (_data.items) {
                   let returnProductFormatted: ReturnProductModel[] = _data.items.map((single) => {
                     return {
@@ -556,7 +569,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
         }
       }),
     );
-  }, [calculateRefund, dispatch, id]);
+  }, [calculateRefund, dispatch, id, setTitle]);
 
   useEffect(() => {
     if (OrderDetail != null) {
