@@ -19,10 +19,10 @@ import { Link, useHistory, useLocation } from "react-router-dom";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
-import { PROMOTION_RELEASE_ACTIONS } from "../constants";
+import { PROMOTION_RELEASE_ACTIONS, STATE_LIST } from "screens/promotion/constants";
 import DatePromotionColumn from "../shared/date-column";
 import actionColumn from "./actions/action.column";
-import { generateQuery } from "utils/AppUtils";
+import { convertItemToArray, generateQuery } from "utils/AppUtils";
 import queryString from "query-string";
 import "./promo-code.scss";
 import {
@@ -44,7 +44,7 @@ const PromotionCode = () => {
       type: "",
       query: "",
       coupon: "",
-      state: null,
+      states: [],
     }),
     [],
   );
@@ -113,6 +113,14 @@ const PromotionCode = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, location.search]);
   // end handle get coupon release
+
+  /** handle form value */
+  const initialValues = useMemo(() => {
+    return {
+      ...params,
+      states: convertItemToArray(params.states),
+    };
+  }, [params]);
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -308,34 +316,40 @@ const PromotionCode = () => {
   // handle tag filter
   let filters = useMemo(() => {
     let list = [];
-    if (params.query) {
+    if (initialValues.query) {
       list.push({
         key: "query",
         name: "Mã, tên đợt phát hành",
-        value: params.query,
+        value: initialValues.query,
       });
     }
 
-    if (params.state) {
-      const status = statuses?.find(
-        (item: any) => item.code?.toString() === params.state?.toString(),
-      );
+    if (initialValues.states?.length) {
+      let statesFiltered = "";
+      initialValues.states.forEach((stateValue: string) => {
+        const state = STATE_LIST.find(
+          (item: any) => item.value === stateValue?.toUpperCase()
+        );
+        statesFiltered = state
+          ? statesFiltered + state.name + "; "
+          : statesFiltered + stateValue + "; ";
+      });
       list.push({
-        key: "state",
+        key: "states",
         name: "Trạng thái",
-        value: status?.value || params.state,
+        value: statesFiltered,
       });
     }
 
-    if (params.coupon) {
+    if (initialValues.coupon) {
       list.push({
         key: "coupon",
         name: "Mã giảm giá",
-        value: params.coupon,
+        value: initialValues.coupon,
       });
     }
     return list;
-  }, [params.coupon, params.query, params.state, statuses]);
+  }, [initialValues.coupon, initialValues.query, initialValues.states]);
 
   // close tag filter
   const onCloseTag = useCallback(
@@ -345,8 +359,8 @@ const PromotionCode = () => {
         case "query":
           onFilter && onFilter({ ...params, query: "" });
           break;
-        case "state":
-          onFilter && onFilter({ ...params, state: "" });
+        case "states":
+          onFilter && onFilter({ ...params, states: [] });
           break;
         case "coupon":
           onFilter && onFilter({ ...params, coupon: "" });
@@ -402,18 +416,19 @@ const PromotionCode = () => {
                   }}
                 />
               </Item>
-              <Item name="state">
+              <Item name="states">
                 <Select
                   showArrow
-                  showSearch
-                  style={{ minWidth: "200px" }}
+                  allowClear
+                  mode="multiple"
+                  maxTagCount="responsive"
                   optionFilterProp="children"
                   placeholder="Chọn trạng thái"
-                  allowClear={true}
+                  style={{ minWidth: "200px" }}
                 >
-                  {statuses?.map((item: any) => (
-                    <Option key={item.code} value={item.code}>
-                      {item.value}
+                  {STATE_LIST?.map((item) => (
+                    <Option key={item.value} value={item.value}>
+                      {item.name}
                     </Option>
                   ))}
                 </Select>
