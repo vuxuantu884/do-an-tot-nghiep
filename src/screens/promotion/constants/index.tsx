@@ -353,7 +353,7 @@ export const DISCOUNT_STATUS = [
   },
 ];
 
-export const columnFixedPrice = [
+export const columnDiscountQuantity = [
   {
     title: "STT",
     align: "center",
@@ -373,7 +373,7 @@ export const columnFixedPrice = [
       }
       return (
         <div>
-          <Link to={url}>{sku}</Link>
+          <Link to={url} target="_blank">{sku}</Link>
           <div>{item.title}</div>
         </div>
       );
@@ -383,7 +383,7 @@ export const columnFixedPrice = [
     title: "Giá bán",
     align: "center",
     visible: false,
-    dataIndex: "cost",
+    dataIndex: "retail_price",
     render: (value: number) => (value >= 0 ? formatCurrency(value) : "-"),
   },
   {
@@ -407,13 +407,13 @@ export const columnFixedPrice = [
       if (
         Array.isArray(entitlement?.prerequisite_quantity_ranges) &&
         entitlement.prerequisite_quantity_ranges?.length > 0 &&
-        record.cost >= 0
+        record.retail_price >= 0
       ) {
         const { value, value_type } = entitlement.prerequisite_quantity_ranges[0];
 
         return (
           <span style={{ color: "#E24343" }}>
-            {renderTotalBill(record.cost, value || 0, value_type || "")}
+            {renderTotalBill(record.retail_price, value || 0, value_type || "")}
           </span>
         );
       } else {
@@ -436,7 +436,7 @@ export const columnFixedPrice = [
   },
 ];
 
-export const columnDiscountQuantity = [
+export const columnFixedPrice = [
   {
     title: "STT",
     align: "center",
@@ -456,7 +456,7 @@ export const columnDiscountQuantity = [
       }
       return (
         <div>
-          <Link to={url}>{sku}</Link>
+          <Link to={url} target="_blank">{sku}</Link>
           <br />
           <div>{item.title}</div>
         </div>
@@ -467,14 +467,8 @@ export const columnDiscountQuantity = [
     title: "Giá bán",
     align: "center",
     visible: false,
-    dataIndex: "cost",
-    render: (cost: number) => {
-      if (cost >= 0) {
-        return formatCurrency(cost);
-      } else {
-        return "-";
-      }
-    },
+    dataIndex: "retail_price",
+    render: (value: number) => (value >= 0 ? formatCurrency(value) : "-"),
   },
   {
     title: "Giá cố định",

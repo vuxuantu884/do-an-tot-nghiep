@@ -279,7 +279,7 @@ const PromotionDetailScreen: React.FC = () => {
     // }
 
     setQuantityColumn(
-      dataDiscount?.entitled_method !== PriceRuleMethod.FIXED_PRICE
+      dataDiscount?.entitled_method === PriceRuleMethod.FIXED_PRICE
         ? columnFixedPrice
         : columnDiscountQuantity,
     );
