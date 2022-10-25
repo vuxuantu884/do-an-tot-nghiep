@@ -41,6 +41,7 @@ const DiscountReplicate = () => {
   const [isAllChannel, setIsAllChannel] = useState(true);
   const [isAllSource, setIsAllSource] = useState(true);
   const [isUnlimitQuantity, setIsUnlimitQuantity] = useState(false);
+  const [isUsageLimitPerCustomer, setIsUsageLimitPerCustomer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const discountUpdateContext = useContext(DiscountContext);
   const { setDiscountMethod, setDiscountData, discountData } = discountUpdateContext;
@@ -105,6 +106,7 @@ const DiscountReplicate = () => {
       setDiscountMethod(result.entitled_method);
       //set default checked Loại khuyến mãi
       setIsUnlimitQuantity(typeof result.quantity_limit !== "number");
+      setIsUsageLimitPerCustomer(typeof result.usage_limit_per_customer !== "number");
 
       //   //set default checked Bộ lọc
       setIsAllStore(result.prerequisite_store_ids?.length === 0);
@@ -236,7 +238,11 @@ const DiscountReplicate = () => {
         >
           <Row gutter={24}>
             <Col span={18}>
-              <DiscountUpdateForm unlimitedUsageProps={isUnlimitQuantity} form={form} />
+              <DiscountUpdateForm
+                unlimitedUsageProps={isUnlimitQuantity}
+                usageLimitPerCustomerProps={isUsageLimitPerCustomer}
+                form={form}
+              />
             </Col>
             <Col span={6}>
               <GeneralConditionForm
