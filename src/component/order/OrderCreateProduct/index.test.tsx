@@ -48,11 +48,11 @@ const setup = (orderDetail: OrderResponse) => {
           orderConfig={null}
           orderSourceId={null}
           loyaltyPoint={null}
-          setShippingFeeInformedToCustomer={jest.fn}
           countFinishingUpdateCustomer={0}
           shipmentMethod={0}
           stores={[]}
           orderDetail={orderDetail}
+          setPromotionTitle={jest.fn}
         />
       </Router>
     </Provider>,
