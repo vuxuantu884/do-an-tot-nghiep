@@ -109,6 +109,7 @@ type PropTypes = {
   handleChangeShippingFeeApplyOrderSettings: (
     value: ChangeShippingFeeApplyOrderSettingParamModel,
   ) => void;
+  setIsShippingFeeAlreadyChanged: (value: boolean) => void;
 };
 
 const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
@@ -135,6 +136,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
     setIsShowReceiveProductConfirmModal,
     defaultReceiveReturnStore,
     handleChangeShippingFeeApplyOrderSettings,
+    setIsShippingFeeAlreadyChanged,
   } = props;
 
   console.log("customerNeedToPayValue", customerNeedToPayValue);
@@ -926,6 +928,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                 handleChangeShippingFeeApplyOrderSettings={
                   handleChangeShippingFeeApplyOrderSettings
                 }
+                setIsShippingFeeAlreadyChanged={setIsShippingFeeAlreadyChanged}
               />
             </Form>
             {/*--- Giao hàng sau ----*/}

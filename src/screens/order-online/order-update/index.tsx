@@ -1726,6 +1726,7 @@ export default function Order(props: PropTypes) {
                         handleChangeShippingFeeApplyOrderSettings={
                           handleChangeShippingFeeApplyOrderSettings
                         }
+                        setIsShippingFeeAlreadyChanged={setIsShippingFeeAlreadyChanged}
                       />
                     )}
                   </Card>

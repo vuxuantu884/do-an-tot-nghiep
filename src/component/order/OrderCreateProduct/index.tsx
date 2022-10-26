@@ -1905,7 +1905,9 @@ function OrderCreateProduct(props: PropTypes) {
       !(checkIfEcommerceByOrderChannelCode(orderDetail?.channel_code) && props.isPageOrderUpdate) &&
       !isPageOrderDetail
     ) {
+      const orderProductsAmount = totalAmount(_items);
       handleChangeShippingFeeApplyOrderSettings({
+        orderProductsAmount: orderProductsAmount,
         customerShippingAddressCityId: shippingAddress?.city_id,
       });
     }

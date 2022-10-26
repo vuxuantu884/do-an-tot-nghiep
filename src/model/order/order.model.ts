@@ -389,4 +389,5 @@ export enum OrderPageTypeModel {
 export interface ChangeShippingFeeApplyOrderSettingParamModel {
   customerShippingAddressCityId?: number | null;
   transportService?: string | null | undefined;
+  orderProductsAmount?: number;
 }

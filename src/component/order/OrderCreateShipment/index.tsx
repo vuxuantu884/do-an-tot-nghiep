@@ -81,6 +81,7 @@ type PropTypes = {
   handleChangeShippingFeeApplyOrderSettings: (
     value: ChangeShippingFeeApplyOrderSettingParamModel,
   ) => void;
+  setIsShippingFeeAlreadyChanged: (value: boolean) => void;
 };
 
 /**
@@ -147,6 +148,7 @@ function OrderCreateShipment(props: PropTypes) {
     isOrderReturnOffline,
     orderPageType,
     handleChangeShippingFeeApplyOrderSettings,
+    setIsShippingFeeAlreadyChanged,
   } = props;
 
   const dateFormat = DATE_FORMAT.DDMMYYY;
@@ -260,7 +262,8 @@ function OrderCreateShipment(props: PropTypes) {
                     if (button.value === ShipmentMethodOption.PICK_AT_STORE) {
                       if (shippingFeeInformedToCustomer) {
                         setShippingFeeInformedToCustomer(0);
-                        showSuccess("Phí ship đã được thay đổi!");
+                        setIsShippingFeeAlreadyChanged(false); // reset lại
+                        showSuccess("Chú ý: Phí ship báo khách đã được thay đổi!");
                       }
                     }
                   }}
