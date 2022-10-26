@@ -5,6 +5,7 @@ import NumberInput from "component/custom/number-input.custom";
 import ModalConfirm from "component/modal/ModalConfirm";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
+import { promotionUtils } from "component/order/promotion.utils";
 import CreateOrderSidebarOrderExtraInformation from "component/order/Sidebar/CreateOrderSidebarOrderExtraInformation";
 import CreateOrderSidebarOrderInformation from "component/order/Sidebar/CreateOrderSidebarOrderInformation";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
@@ -252,6 +253,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
+  const [promotionTitle, setPromotionTitle] = useState("");
 
   const [isShowSelectOrderSources, setIsShowSelectOrderSources] = useState(false);
 
@@ -353,7 +355,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
       assignee_code: isExchange ? recentAccountCode.accountCode : OrderDetail?.assignee_code,
       marketer_code: OrderDetail?.marketer_code || null,
       coordinator_code: OrderDetail?.coordinator_code,
-      note: OrderDetail?.note,
+      // note: OrderDetail?.note,
+      note: promotionUtils.getPromotionText(OrderDetail?.note || ""),
       customer_note: OrderDetail?.customer_note,
       orderReturn_receive_return_store_id: defaultReceiveReturnStore?.id,
     };
@@ -1340,26 +1343,32 @@ const ScreenReturnCreate = (props: PropTypes) => {
       values.url = OrderDetail ? OrderDetail.url : null;
       values.reference_code = OrderDetail ? OrderDetail.reference_code : null;
 
+      values.note = promotionUtils.combinePrivateNoteAndPromotionTitle(
+        values.note || "",
+        promotionTitle,
+      );
+
       return values;
     },
 
     [
-      OrderDetail,
-      billingAddress,
-      createDiscountRequest,
       createFulFillmentRequest,
-      customer?.id,
-      form,
-      getOrderSource,
-      itemGifts,
+      createDiscountRequest,
       listExchangeProducts,
-      orderReturnType,
-      payments,
-      promotion?.amount,
+      totalOrderAmount,
+      tags,
+      itemGifts,
       shippingAddress,
       shippingAddressesSecondPhone,
-      tags,
-      totalOrderAmount,
+      billingAddress,
+      customer?.id,
+      promotion?.amount,
+      OrderDetail,
+      getOrderSource,
+      form,
+      orderReturnType,
+      promotionTitle,
+      payments,
       totalAmountReturnProducts,
     ],
   );
@@ -1789,6 +1798,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   shipmentMethod={shipmentMethod}
                   stores={stores}
                   isReturnOffline={orderReturnType === RETURN_TYPE_VALUES.offline}
+                  setPromotionTitle={setPromotionTitle}
                 />
                 {/* hiện tại đang ẩn cái hoàn tiền khi trả */}
                 {/* {!isExchange && ( */}
@@ -1897,7 +1907,10 @@ const ScreenReturnCreate = (props: PropTypes) => {
               </Col>
 
               <Col md={6}>
-                <SidebarOrderDetailInformation OrderDetail={OrderDetail} currentStores={currentStores}/>
+                <SidebarOrderDetailInformation
+                  OrderDetail={OrderDetail}
+                  currentStores={currentStores}
+                />
                 <CreateOrderSidebarOrderInformation
                   form={form}
                   orderDetail={OrderDetail}
@@ -1917,6 +1930,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     tags={tags}
                     isExchange={isExchange}
                     isReturn
+                    promotionTitle={promotionTitle}
+                    setPromotionTitle={setPromotionTitle}
                   />
                 </Card>
               </Col>

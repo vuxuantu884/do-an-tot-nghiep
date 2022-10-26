@@ -151,6 +151,7 @@ type PropTypes = {
   isExchange?: boolean;
   stores: StoreResponse[];
   isReturnOffline?: boolean;
+  setPromotionTitle: (value: string) => void;
 };
 
 var barcode = "";
@@ -242,6 +243,7 @@ function OrderCreateProduct(props: PropTypes) {
     isExchange,
     isPageOrderDetail,
     isReturnOffline,
+    setPromotionTitle,
   } = props;
 
   // console.log('items', items)
@@ -1340,10 +1342,12 @@ function OrderCreateProduct(props: PropTypes) {
                   return single;
                 });
                 let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemove);
-                if (promotionResult && isShouldUpdatePrivateNote) {
-                  form.setFieldsValue({
-                    note: `(${promotionResult.reason})`,
-                  });
+                console.log("promotionResult", promotionResult);
+                if (promotionResult) {
+                  // form.setFieldsValue({
+                  //   note: `(${promotionResult.reason})`,
+                  // });
+                  setPromotionTitle(promotionResult.reason || "");
                 }
                 calculateChangeMoney(items, promotionResult);
               }
@@ -1356,10 +1360,11 @@ function OrderCreateProduct(props: PropTypes) {
                 return single;
               });
               let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemove);
-              if (promotionResult && isShouldUpdatePrivateNote) {
-                form.setFieldsValue({
-                  note: `(${promotionResult.reason})`,
-                });
+              if (promotionResult) {
+                // form.setFieldsValue({
+                //   note: `(${promotionResult.reason})`,
+                // });
+                setPromotionTitle(promotionResult.reason || "");
               }
               calculateChangeMoney(items, promotionResult);
             } else {
@@ -1370,16 +1375,21 @@ function OrderCreateProduct(props: PropTypes) {
               handleApplyDiscountOrder(response, itemsAfterRemoveAutomaticDiscount);
               calculateChangeMoney(items);
               if (isShouldUpdatePrivateNote) {
-                form.setFieldsValue({
-                  note: ``,
-                });
+                // form.setFieldsValue({
+                //   note: ``,
+                // });
               }
+              setPromotionTitle("");
             }
           } else {
             if (isShouldUpdatePrivateNote) {
-              form.setFieldsValue({
-                note: "",
-              });
+              // form.setFieldsValue({
+              //   note: "",
+              // });
+            }
+            setPromotionTitle("");
+            if (setPromotion) {
+              setPromotion(null);
             }
             showError("Có lỗi khi áp dụng chiết khấu!");
             calculateChangeMoney(items);
@@ -1577,10 +1587,11 @@ function OrderCreateProduct(props: PropTypes) {
                   break;
               }
               if (isShouldUpdatePrivateNote) {
-                form.setFieldsValue({
-                  note: `(${applyDiscountResponse.code}-${applyDiscountResponse.title})`,
-                });
+                // form.setFieldsValue({
+                //   note: `(${applyDiscountResponse.code}-${applyDiscountResponse.title})`,
+                // });
               }
+              setPromotionTitle(`(${applyDiscountResponse.code}-${applyDiscountResponse.title})`);
               calculateChangeMoney(_items, promotionResult);
             }
           } else {
@@ -1818,10 +1829,12 @@ function OrderCreateProduct(props: PropTypes) {
       })
     ) {
       let discountTitleArr: string[] = [];
+      let promotion: OrderDiscountRequest[] = [];
       items.forEach((item) => {
         let reason =
           item?.discount_items && item?.discount_items[0] && item?.discount_items[0]?.reason;
         if (reason) {
+          promotion.push(item.discount_items[0]);
           return discountTitleArr.push(reason);
         }
       });
@@ -1832,14 +1845,15 @@ function OrderCreateProduct(props: PropTypes) {
           if (i < discountTitleArr.length - 1) {
             title = title + discountTitleArr[i] + ", ";
           } else {
-            title = title + discountTitleArr[i] + ".";
+            title = title + discountTitleArr[i];
           }
         }
         if (isShouldUpdatePrivateNote) {
-          form.setFieldsValue({
-            note: `(${title})`,
-          });
+          // form.setFieldsValue({
+          //   note: `(${title})`,
+          // });
         }
+        setPromotionTitle(title);
       }
     }
   };
@@ -2012,10 +2026,11 @@ function OrderCreateProduct(props: PropTypes) {
       }
     });
     if (isShouldUpdatePrivateNote) {
-      form.setFieldsValue({
-        note: undefined,
-      });
+      // form.setFieldsValue({
+      //   note: undefined,
+      // });
     }
+    setPromotionTitle("");
     // calculateChangeMoney(_items, autoPromotionRate , autoPromotionValue);
   };
 
@@ -2229,14 +2244,14 @@ function OrderCreateProduct(props: PropTypes) {
 
   useEffect(() => {
     if (items && items.length === 0) {
-      if (isShouldUpdatePrivateNote) {
-        form.setFieldsValue({
-          note: "",
-        });
-      }
-      setPromotion && setPromotion(null);
+      // if (isShouldUpdatePrivateNote) {
+      //   form.setFieldsValue({
+      //     note: "",
+      //   });
+      // }
+      setPromotionTitle("");
     }
-  }, [form, isShouldUpdatePrivateNote, items, setPromotion]);
+  }, [form, items, setPromotionTitle]);
 
   useEffect(() => {
     if (coupon) {

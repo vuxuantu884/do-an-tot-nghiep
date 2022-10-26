@@ -6,6 +6,7 @@ import CreateBillStep from "component/header/create-bill-step";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
+import { promotionUtils } from "component/order/promotion.utils";
 import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
@@ -202,6 +203,8 @@ export default function Order() {
 
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
+  const [promotionTitle, setPromotionTitle] = useState("");
+  console.log("promotion111", promotion);
 
   const shippingServiceConfig = useFetchShippingServiceConfig();
 
@@ -550,6 +553,10 @@ export default function Order() {
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
     values.export_bill = billingAddress?.tax_code ? true : false;
     values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
+    values.note = promotionUtils.combinePrivateNoteAndPromotionTitle(
+      values.note || "",
+      promotionTitle,
+    );
     // values.bill = orderBillRequest;
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
@@ -1315,6 +1322,7 @@ export default function Order() {
                       countFinishingUpdateCustomer={countFinishingUpdateCustomer}
                       shipmentMethod={shipmentMethod}
                       stores={stores}
+                      setPromotionTitle={setPromotionTitle}
                     />
                     <Card title="THANH TOÁN">
                       <OrderCreatePayments
@@ -1386,6 +1394,8 @@ export default function Order() {
                       form={form}
                       storeId={storeId}
                       setReload={() => {}}
+                      promotionTitle={promotionTitle}
+                      setPromotionTitle={setPromotionTitle}
                     />
                   </Col>
                 </Row>

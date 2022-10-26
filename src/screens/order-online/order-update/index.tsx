@@ -7,6 +7,7 @@ import NumberInput from "component/custom/number-input.custom";
 import CreateBillStep from "component/header/create-bill-step";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
+import { promotionUtils } from "component/order/promotion.utils";
 import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
@@ -186,6 +187,7 @@ export default function Order(props: PropTypes) {
 
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
+  const [promotionTitle, setPromotionTitle] = useState("");
   // console.log('promotion33', promotion)
   // console.log('coupon', coupon)
   const stores = useFetchStores();
@@ -666,6 +668,10 @@ export default function Order(props: PropTypes) {
     values.company_id = DEFAULT_COMPANY.company_id;
 
     values.export_bill = billingAddress?.tax_code ? true : false;
+    values.note = promotionUtils.combinePrivateNoteAndPromotionTitle(
+      values.note || "",
+      promotionTitle,
+    );
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
@@ -1032,7 +1038,8 @@ export default function Order(props: PropTypes) {
             payments: new_payments,
             reference_code: response.reference_code,
             url: response.url,
-            note: response.note,
+            // note: response.note,ggg
+            note: promotionUtils.getPrivateNoteFromResponse(response.note || ""),
             tags: response.tags,
             marketer_code: response.marketer_code ? response.marketer_code : null,
             coordinator_code: response.coordinator_code ? response.coordinator_code : null,
@@ -1042,6 +1049,7 @@ export default function Order(props: PropTypes) {
             uniform:response.uniform,
           });
           setShippingFeeInformedToCustomer(response.shipping_fee_informed_to_customer);
+          setPromotionTitle(promotionUtils.getPromotionText(response.note || ""));
 
           if (!canCreateShipment(response.fulfillments)) {
             setShipmentMethod(0);
@@ -1526,6 +1534,7 @@ export default function Order(props: PropTypes) {
                     shipmentMethod={shipmentMethod}
                     stores={stores}
                     isPageOrderUpdate
+                    setPromotionTitle={setPromotionTitle}
                   />
                   <CardShowOrderPayments
                     OrderDetail={OrderDetail}
@@ -1720,6 +1729,8 @@ export default function Order(props: PropTypes) {
                     orderDetail={OrderDetail}
                     updateOrder
                     setReload={setReload}
+                    promotionTitle={promotionTitle}
+                    setPromotionTitle={setPromotionTitle}
                   />
                 </Col>
               </Row>

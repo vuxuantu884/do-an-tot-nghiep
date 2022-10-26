@@ -5,4 +5,7 @@ export const StyledComponent = styled.div`
   textarea {
     min-height: 80px;
   }
+  .noteTooltip {
+    margin-left: 5px;
+  }
 `;
