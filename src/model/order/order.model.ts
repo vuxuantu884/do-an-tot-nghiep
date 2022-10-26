@@ -1,4 +1,3 @@
-import { HandoverResponse } from "./../handover/handover.response";
 import { BaseObject } from "model/base/base.response";
 import {
   BillingAddressResponseModel,
@@ -13,8 +12,8 @@ import {
   ShippingAddress,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
-import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { ORDER_TYPES } from "utils/Order.constants";
+import { HandoverResponse } from "./../handover/handover.response";
 
 export interface OrderItemModel {
   product_id: number;
@@ -385,4 +384,9 @@ export enum OrderPageTypeModel {
   orderUpdate = "orderUpdate",
   orderReturnCreate = "orderReturnCreate",
   other = "other",
+}
+
+export interface ChangeShippingFeeApplyOrderSettingParamModel {
+  customerShippingAddressCityId?: number | null;
+  transportService?: string | null | undefined;
 }

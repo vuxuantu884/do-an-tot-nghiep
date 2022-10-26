@@ -30,7 +30,6 @@ import {
 import {
   changeOrderCustomerAction,
   changeSelectedStoreBankAccountAction,
-  changeShippingServiceConfigAction,
   changeStoreDetailAction,
   getStoreBankAccountNumbersAction,
   orderConfigSaga,
@@ -38,7 +37,6 @@ import {
   PaymentMethodGetList,
   setIsShouldSetDefaultStoreBankAccountAction,
 } from "domain/actions/order/order.action";
-import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import purify from "dompurify";
 import useCheckIfCanCreateMoneyRefund from "hook/order/useCheckIfCanCreateMoneyRefund";
 import useFetchStores from "hook/useFetchStores";
@@ -73,16 +71,14 @@ import {
   StoreCustomResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import {
-  OrderConfigResponseModel,
-  ShippingServiceConfigDetailResponseModel,
-} from "model/response/settings/order-settings.response";
+import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TiWarningOutline } from "react-icons/ti";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useReactToPrint } from "react-to-print";
 import CardCustomer from "screens/order-online/component/CardCustomer";
+import useCalculateShippingFee from "screens/order-online/hooks/useCalculateShippingFee";
 import useGetDefaultReturnOrderReceivedStore from "screens/order-online/hooks/useGetDefaultReturnOrderReceivedStore";
 import useGetOrderDetail from "screens/order-online/hooks/useGetOrderDetail";
 import useHandleMomoCreateShipment from "screens/order-online/hooks/useHandleMomoCreateShipment";
@@ -260,9 +256,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
   const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone] = useState<string>();
   // const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
-  const [shippingServiceConfig, setShippingServiceConfig] = useState<
-    ShippingServiceConfigDetailResponseModel[]
-  >([]);
 
   const printElementRef = useRef(null);
   const [printContent, setPrintContent] = useState("");
@@ -1737,7 +1730,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     OrderDetail={OrderDetail}
                     shippingAddressesSecondPhone={shippingAddressesSecondPhone}
                     setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
-                    form={form}
                     // setOrderSourceId={setOrderSourceId}
                     //isDisableSelectSource={true}
                     initialForm={initialForm}
@@ -1748,6 +1740,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     setCustomerChange={setCustomerChange}
                     // handleOrderBillRequest={()=>{}}
                     // initOrderBillRequest={undefined}
+                    handleChangeShippingFeeApplyOrderSettings={
+                      handleChangeShippingFeeApplyOrderSettings
+                    }
                   />
                 )}
 
@@ -1799,6 +1794,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   stores={stores}
                   isReturnOffline={orderReturnType === RETURN_TYPE_VALUES.offline}
                   setPromotionTitle={setPromotionTitle}
+                  handleChangeShippingFeeApplyOrderSettings={
+                    handleChangeShippingFeeApplyOrderSettings
+                  }
                 />
                 {/* hiện tại đang ẩn cái hoàn tiền khi trả */}
                 {/* {!isExchange && ( */}
@@ -1854,11 +1852,13 @@ const ScreenReturnCreate = (props: PropTypes) => {
                           maxLength={9}
                           minLength={0}
                           onChange={(value) => {
+                            setIsShippingFeeAlreadyChanged(true);
                             if (value) {
                               setShippingFeeInformedToCustomer(value);
                             } else {
                               setShippingFeeInformedToCustomer(0);
                             }
+                            setIsShippingFeeAlreadyChanged(true);
                           }}
                           disabled={shipmentMethod === ShipmentMethodOption.PICK_AT_STORE}
                         />
@@ -1888,6 +1888,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
                       isOrderReturnOffline={orderReturnType === RETURN_TYPE_VALUES.offline}
                       payments={payments}
                       orderPageType={OrderPageTypeModel.orderReturnCreate}
+                      handleChangeShippingFeeApplyOrderSettings={
+                        handleChangeShippingFeeApplyOrderSettings
+                      }
                     />
                   </Card>
                 )}
@@ -2136,6 +2139,13 @@ const ScreenReturnCreate = (props: PropTypes) => {
   //xử lý shipment khi có momo
   useHandleMomoCreateShipment(setShipmentMethod, payments);
 
+  // shipping fee
+  const {
+    handleChangeShippingFeeApplyOrderSettings,
+    setIsShippingFeeAlreadyChanged,
+    shippingServiceConfig,
+  } = useCalculateShippingFee(totalOrderAmount, form, setShippingFeeInformedToCustomer, false);
+
   useEffect(() => {
     if (storeId != null) {
       dispatch(
@@ -2321,14 +2331,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
   //     cauHinhInNhieuLienHoaDon: 3,
   //   });
   // }, []);
-  useEffect(() => {
-    dispatch(
-      actionListConfigurationShippingServiceAndShippingFee((response) => {
-        setShippingServiceConfig(response);
-        dispatch(changeShippingServiceConfigAction(response));
-      }),
-    );
-  }, [dispatch]);
 
   useEffect(() => {
     dispatch(

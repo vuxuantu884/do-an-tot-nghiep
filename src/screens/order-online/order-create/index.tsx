@@ -65,7 +65,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import useFetchOrderConfig from "screens/order-online/hooks/useFetchOrderConfig";
 import useFetchPaymentMethods from "screens/order-online/hooks/useFetchPaymentMethods";
-import useFetchShippingServiceConfig from "screens/order-online/hooks/useFetchShippingServiceConfig";
 import { getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
   formatCurrency,
@@ -97,6 +96,7 @@ import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import CardCustomer from "../component/CardCustomer";
 import OrderDetailBottomBar from "../component/order-detail/BottomBar";
+import useCalculateShippingFee from "../hooks/useCalculateShippingFee";
 import useHandleMomoCreateShipment from "../hooks/useHandleMomoCreateShipment";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import { StyledComponent } from "./styles";
@@ -204,8 +204,6 @@ export default function Order() {
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
   const [promotionTitle, setPromotionTitle] = useState("");
   console.log("promotion111", promotion);
-
-  const shippingServiceConfig = useFetchShippingServiceConfig();
 
   const stores = useFetchStores();
 
@@ -807,6 +805,13 @@ export default function Order() {
   //xử lý shipment khi có momo
   useHandleMomoCreateShipment(setShipmentMethod, payments);
 
+  // shipping fee
+  const {
+    handleChangeShippingFeeApplyOrderSettings,
+    setIsShippingFeeAlreadyChanged,
+    shippingServiceConfig,
+  } = useCalculateShippingFee(totalOrderAmount, form, setShippingFeeInformedToCustomer, false);
+
   useEffect(() => {
     if (storeId) {
       dispatch(
@@ -1283,14 +1288,15 @@ export default function Order() {
                       setOrderSourceId={setOrderSourceId}
                       shippingAddressesSecondPhone={shippingAddressesSecondPhone}
                       setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
-                      form={form}
                       initialForm={initialForm}
                       updateOrder
-                      setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
                       customerChange={customerChange}
                       setCustomerChange={setCustomerChange}
                       // handleOrderBillRequest={setOrderBillRequest}
                       // initOrderBillRequest = {orderBillRequest}
+                      handleChangeShippingFeeApplyOrderSettings={
+                        handleChangeShippingFeeApplyOrderSettings
+                      }
                     />
                     <OrderCreateProduct
                       orderProductsAmount={orderProductsAmount}
@@ -1317,11 +1323,13 @@ export default function Order() {
                       orderConfig={orderConfig}
                       orderSourceId={orderSourceId}
                       loyaltyPoint={loyaltyPoint}
-                      setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
                       countFinishingUpdateCustomer={countFinishingUpdateCustomer}
                       shipmentMethod={shipmentMethod}
                       stores={stores}
                       setPromotionTitle={setPromotionTitle}
+                      handleChangeShippingFeeApplyOrderSettings={
+                        handleChangeShippingFeeApplyOrderSettings
+                      }
                     />
                     <Card title="THANH TOÁN">
                       <OrderCreatePayments
@@ -1353,6 +1361,7 @@ export default function Order() {
                             maxLength={9}
                             minLength={0}
                             onChange={(value) => {
+                              setIsShippingFeeAlreadyChanged(true);
                               if (value) {
                                 setShippingFeeInformedToCustomer(value);
                               } else {
@@ -1382,6 +1391,9 @@ export default function Order() {
                         orderConfig={orderConfig}
                         payments={payments}
                         orderPageType={OrderPageTypeModel.orderCreate}
+                        handleChangeShippingFeeApplyOrderSettings={
+                          handleChangeShippingFeeApplyOrderSettings
+                        }
                       />
                     </Card>
                   </Col>

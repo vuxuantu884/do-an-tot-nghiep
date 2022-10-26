@@ -1,31 +1,4 @@
 import {
-  Form,
-  Col,
-  Input,
-  Row,
-  Select,
-  DatePicker,
-  Button,
-  Divider,
-  Popover,
-  FormInstance,
-} from "antd";
-import { useDispatch } from "react-redux";
-import React, { createRef, useCallback, useEffect } from "react";
-import { CustomerResponse } from "model/response/customer/customer.response";
-import { showSuccess } from "utils/ToastUtils";
-import {
-  CustomerContactClass,
-  CustomerModel,
-  CustomerShippingAddress,
-} from "model/request/customer.request";
-import {
-  CustomerCreateAction,
-  CustomerUpdateAction,
-} from "domain/actions/customer/customer.action";
-import * as CONSTANTS from "utils/Constants";
-import moment from "moment";
-import {
   BarcodeOutlined,
   CalendarOutlined,
   DownOutlined,
@@ -36,7 +9,35 @@ import {
   TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import {
+  Button,
+  Col,
+  DatePicker,
+  Divider,
+  Form,
+  FormInstance,
+  Input,
+  Popover,
+  Row,
+  Select,
+} from "antd";
+import {
+  CustomerCreateAction,
+  CustomerUpdateAction,
+} from "domain/actions/customer/customer.action";
+import {
+  CustomerContactClass,
+  CustomerModel,
+  CustomerShippingAddress,
+} from "model/request/customer.request";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import moment from "moment";
+import React, { createRef, useCallback, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import * as CONSTANTS from "utils/Constants";
+import { showSuccess } from "utils/ToastUtils";
 
+import { ChangeShippingFeeApplyOrderSettingParamModel } from "model/order/order.model";
 import CustomerShippingAddressOrder from "../component/order-detail/CardCustomer/customer-shipping";
 
 type EditCustomerModalProps = {
@@ -58,6 +59,9 @@ type EditCustomerModalProps = {
   setVisibleBtnUpdate: (item: boolean) => void;
   ShippingAddressChange: (items: any) => void;
   isOrderUpdate?: boolean;
+  handleChangeShippingFeeApplyOrderSettings: (
+    value: ChangeShippingFeeApplyOrderSettingParamModel,
+  ) => void;
 };
 
 type FormValueType = {
@@ -94,6 +98,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (props: EditCustomer
     setVisibleBtnUpdate,
     ShippingAddressChange,
     isOrderUpdate,
+    handleChangeShippingFeeApplyOrderSettings,
     //onOk,
   } = props;
   const dispatch = useDispatch();
@@ -464,6 +469,9 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (props: EditCustomer
                       handleSingleShippingAddress={setSingleShippingAddress}
                       handleShippingAddress={ShippingAddressChange}
                       isOrderUpdate={isOrderUpdate}
+                      handleChangeShippingFeeApplyOrderSettings={
+                        handleChangeShippingFeeApplyOrderSettings
+                      }
                     />
                   }
                   trigger="click"
@@ -514,6 +522,9 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (props: EditCustomer
                     handleShippingDelete={showAddressModalDelete}
                     handleSingleShippingAddress={setSingleShippingAddress}
                     isOrderUpdate={isOrderUpdate}
+                    handleChangeShippingFeeApplyOrderSettings={
+                      handleChangeShippingFeeApplyOrderSettings
+                    }
                   />
                 }
                 trigger="click"

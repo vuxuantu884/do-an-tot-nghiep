@@ -43,6 +43,7 @@ import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
+import { ChangeShippingFeeApplyOrderSettingParamModel } from "model/order/order.model";
 import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -90,7 +91,6 @@ import {
   getTotalAmountAfterDiscount,
   getTotalDiscount,
   getTotalQuantity,
-  handleCalculateShippingFeeApplyOrderSetting,
   handleDelayActionWhenInsertTextInSearchInput,
   handleFetchApiError,
   haveAccess,
@@ -145,13 +145,15 @@ type PropTypes = {
     totalAmountReturn: number;
     totalAmountExchangePlusShippingFee: number;
   };
-  setShippingFeeInformedToCustomer?: (value: number | null) => void;
   countFinishingUpdateCustomer: number; // load xong api chi tiết KH và hạng KH
   shipmentMethod: number;
   isExchange?: boolean;
   stores: StoreResponse[];
   isReturnOffline?: boolean;
   setPromotionTitle: (value: string) => void;
+  handleChangeShippingFeeApplyOrderSettings: (
+    value: ChangeShippingFeeApplyOrderSettingParamModel,
+  ) => void;
 };
 
 var barcode = "";
@@ -235,7 +237,6 @@ function OrderCreateProduct(props: PropTypes) {
     setItems,
     setCoupon,
     setPromotion,
-    setShippingFeeInformedToCustomer,
     countFinishingUpdateCustomer,
     isCreateReturn,
     shipmentMethod,
@@ -244,20 +245,13 @@ function OrderCreateProduct(props: PropTypes) {
     isPageOrderDetail,
     isReturnOffline,
     setPromotionTitle,
+    handleChangeShippingFeeApplyOrderSettings,
   } = props;
 
   // console.log('items', items)
   // console.log('promotion', promotion)
   const orderCustomer = useSelector(
     (state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer,
-  );
-
-  const shippingServiceConfig = useSelector(
-    (state: RootReducerType) => state.orderReducer.shippingServiceConfig,
-  );
-
-  const transportService = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service,
   );
   const dispatch = useDispatch();
   const [loadingAutomaticDiscount] = useState(false);
@@ -1904,7 +1898,6 @@ function OrderCreateProduct(props: PropTypes) {
     props.changeInfo(_items, _promotion);
     fillCustomNote(_items);
     dispatch(changeOrderLineItemsAction(_items));
-    const orderProductsAmount = totalAmount(_items);
     const shippingAddress = orderCustomer ? getCustomerShippingAddress(orderCustomer) : null;
     if (
       _items.length > 0 &&
@@ -1912,15 +1905,9 @@ function OrderCreateProduct(props: PropTypes) {
       !(checkIfEcommerceByOrderChannelCode(orderDetail?.channel_code) && props.isPageOrderUpdate) &&
       !isPageOrderDetail
     ) {
-      handleCalculateShippingFeeApplyOrderSetting(
-        shippingAddress?.city_id,
-        orderProductsAmount,
-        shippingServiceConfig,
-        transportService,
-        form,
-        setShippingFeeInformedToCustomer,
-        props.isPageOrderUpdate,
-      );
+      handleChangeShippingFeeApplyOrderSettings({
+        customerShippingAddressCityId: shippingAddress?.city_id,
+      });
     }
     setIsLineItemChanging(false);
     setIsFinishedCalculateItem(true);

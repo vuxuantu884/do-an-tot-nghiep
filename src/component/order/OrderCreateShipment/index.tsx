@@ -6,7 +6,10 @@ import WallClockOutline from "component/icon/WallClockOutline";
 import ShipmentMethodEcommerce from "component/order/OrderCreateShipment/ShipmentMethodEcommerce";
 import ShipmentMethodReceiveAtStore from "component/order/OrderCreateShipment/ShipmentMethodReceiveAtStore";
 import { getFeesAction } from "domain/actions/order/order.action";
-import { OrderPageTypeModel } from "model/order/order.model";
+import {
+  ChangeShippingFeeApplyOrderSettingParamModel,
+  OrderPageTypeModel,
+} from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
@@ -25,12 +28,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import useFetchExternalShippers from "screens/order-online/hooks/useFetchExternalShippers";
-import {
-  getShippingAddressDefault,
-  handleCalculateShippingFeeApplyOrderSetting,
-  isOrderFinishedOrCancel,
-  SumWeight,
-} from "utils/AppUtils";
+import { getShippingAddressDefault, isOrderFinishedOrCancel, SumWeight } from "utils/AppUtils";
 import { ShipmentMethodOption, SHIPPING_REQUIREMENT } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { primaryColor } from "utils/global-styles/variables";
@@ -80,6 +78,9 @@ type PropTypes = {
   orderConfig: OrderConfigResponseModel | null;
   payments?: OrderPaymentRequest[];
   orderPageType: OrderPageTypeModel;
+  handleChangeShippingFeeApplyOrderSettings: (
+    value: ChangeShippingFeeApplyOrderSettingParamModel,
+  ) => void;
 };
 
 /**
@@ -145,6 +146,7 @@ function OrderCreateShipment(props: PropTypes) {
     payments,
     isOrderReturnOffline,
     orderPageType,
+    handleChangeShippingFeeApplyOrderSettings,
   } = props;
 
   const dateFormat = DATE_FORMAT.DDMMYYY;
@@ -158,7 +160,7 @@ function OrderCreateShipment(props: PropTypes) {
 
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
-  const [addressError, setAddressError] = useState<string>("");
+  const [addressError, setAddressError] = useState("");
 
   const externalShippers = useFetchExternalShippers();
 
@@ -251,15 +253,9 @@ function OrderCreateShipment(props: PropTypes) {
                       button.value === 2 &&
                       !isOrderDetailPage
                     ) {
-                      handleCalculateShippingFeeApplyOrderSetting(
-                        shippingAddressDefault?.city_id,
-                        orderProductsAmount,
-                        shippingServiceConfig,
-                        undefined,
-                        form,
-                        setShippingFeeInformedToCustomer,
-                        isOrderUpdatePage,
-                      );
+                      handleChangeShippingFeeApplyOrderSettings({
+                        customerShippingAddressCityId: shippingAddressDefault?.city_id,
+                      });
                     }
                     if (button.value === ShipmentMethodOption.PICK_AT_STORE) {
                       if (shippingFeeInformedToCustomer) {
@@ -410,6 +406,7 @@ function OrderCreateShipment(props: PropTypes) {
           form={form}
           renderButtonCreateActionHtml={renderButtonCreateActionHtml}
           orderPageType={orderPageType}
+          handleChangeShippingFeeApplyOrderSettings={handleChangeShippingFeeApplyOrderSettings}
         />
       ),
       // Tự vận chuyển

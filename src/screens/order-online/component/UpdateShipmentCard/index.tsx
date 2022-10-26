@@ -14,7 +14,10 @@ import {
 } from "domain/actions/order/order.action";
 import useAuthorization from "hook/useAuthorization";
 import { StoreResponse } from "model/core/store.model";
-import { OrderPageTypeModel } from "model/order/order.model";
+import {
+  ChangeShippingFeeApplyOrderSettingParamModel,
+  OrderPageTypeModel,
+} from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -103,6 +106,9 @@ type PropTypes = {
   isShowReceiveProductConfirmModal: boolean;
   setIsShowReceiveProductConfirmModal: (value: boolean) => void;
   defaultReceiveReturnStore?: StoreResponse;
+  handleChangeShippingFeeApplyOrderSettings: (
+    value: ChangeShippingFeeApplyOrderSettingParamModel,
+  ) => void;
 };
 
 const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
@@ -128,6 +134,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
     isShowReceiveProductConfirmModal,
     setIsShowReceiveProductConfirmModal,
     defaultReceiveReturnStore,
+    handleChangeShippingFeeApplyOrderSettings,
   } = props;
 
   console.log("customerNeedToPayValue", customerNeedToPayValue);
@@ -916,6 +923,9 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                 shippingServiceConfig={shippingServiceConfig}
                 orderConfig={orderConfig}
                 orderPageType={orderPageType}
+                handleChangeShippingFeeApplyOrderSettings={
+                  handleChangeShippingFeeApplyOrderSettings
+                }
               />
             </Form>
             {/*--- Giao hàng sau ----*/}
