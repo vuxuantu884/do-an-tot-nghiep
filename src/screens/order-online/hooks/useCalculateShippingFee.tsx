@@ -42,7 +42,6 @@ function useCalculateShippingFee(
       form,
       setShippingFeeInformedToCustomer,
       isOrderUpdatePage,
-      false,
     );
   };
 
