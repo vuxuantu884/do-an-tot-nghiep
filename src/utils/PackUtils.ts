@@ -1,5 +1,7 @@
 import { FulFillmentResponse } from "model/response/order/order.response";
 import { FulFillmentStatus } from "utils/Constants";
+import audioError from "assets/audio/am-bao-tra-loi-sai.wav";
+import { showModalError } from "./ToastUtils";
 
 /*
  *lấy dữ liệu ffm đã đóng gói
@@ -62,4 +64,11 @@ export const isFullfilmentReturned = (fulfillment: FulFillmentResponse | any) =>
   //&& fullfilment.status_before_cancellation === FulFillmentStatus.SHIPPING;
 
   return fulfillmentBol;
+};
+
+export const showModalErrorAudio = (msg: React.ReactNode, title?: string | undefined) => {
+  const AudioErrorPlay = new Audio(audioError);
+  AudioErrorPlay.play();
+  AudioErrorPlay.currentTime = 1;
+  showModalError(msg, title);
 };
