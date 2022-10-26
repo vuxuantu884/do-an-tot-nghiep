@@ -53,6 +53,7 @@ const setup = (orderDetail: OrderResponse) => {
           shipmentMethod={0}
           stores={[]}
           orderDetail={orderDetail}
+          setPromotionTitle={jest.fn}
         />
       </Router>
     </Provider>,
