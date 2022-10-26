@@ -28,6 +28,7 @@ import {
   checkIfFinishedPayment,
   checkIfFulfillmentCancelled,
   checkIfMomoPayment,
+  checkIfMomoTypePayment,
   checkIfOrderHasNoPayment,
   checkIfOrderPageType,
 } from "utils/OrderUtils";
@@ -249,8 +250,8 @@ function CardShowOrderPayments(props: PropTypes) {
 
     renderTitleNotMomo(payment: OrderPaymentResponse) {
       if (!checkIfMomoPayment(payment)) {
-        if (payment.type.toLowerCase() === "momo") {
-          return `${payment.payment_method} (MOMO)`;
+        if (checkIfMomoTypePayment(payment)) {
+          return `Momo QR`;
         }
         return payment.payment_method;
       }

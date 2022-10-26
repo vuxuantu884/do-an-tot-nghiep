@@ -482,3 +482,10 @@ export const getDefaultReceiveReturnStoreIdFormValue = (
       undefined
     : undefined;
 };
+
+export const checkIfMomoTypePayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
+  return (
+    payment.type.toLowerCase() === "momo" &&
+    payment.payment_method_code === PaymentMethodCode.QR_CODE
+  );
+};

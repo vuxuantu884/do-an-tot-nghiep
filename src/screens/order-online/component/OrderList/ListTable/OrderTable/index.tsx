@@ -83,11 +83,11 @@ import {
 } from "utils/Order.constants";
 import {
   checkIfFulfillmentCancelled,
+  checkIfMomoTypePayment,
   checkIfOrderHasNotFinishedPaymentMomo,
   getFulfillmentActive,
   getLink,
   getTotalAmountBeforeDiscount,
-  isDeliveryOrderReturned,
 } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
@@ -347,6 +347,9 @@ function OrdersTable(props: PropTypes) {
           return single.payment_method_code === payment.payment_method_code;
         }
       });
+      if (checkIfMomoTypePayment(payment) && selectedPayment?.tooltip) {
+        selectedPayment.tooltip = "Momo QR";
+      }
       if (payment.status !== ORDER_PAYMENT_STATUS.paid) {
         return null;
       }
@@ -687,9 +690,11 @@ function OrdersTable(props: PropTypes) {
               <div className="textSmall single">
                 <strong>Tổng SP: {getTotalQuantity(i.items)}</strong>
               </div>
-              {i?.uniform && <div className="single uniformText">
-                <strong>Đơn đồng phục</strong>
-              </div>}
+              {i?.uniform && (
+                <div className="single uniformText">
+                  <strong>Đơn đồng phục</strong>
+                </div>
+              )}
 
               {renderTypeIfOrderReturn(i)}
             </React.Fragment>
