@@ -93,7 +93,6 @@ import {
   TaxTreatment,
 } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
-import { checkIfOrderHasNotFinishedPaymentMomo } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import CardCustomer from "../component/CardCustomer";
@@ -929,7 +928,7 @@ export default function Order() {
     ) => {
       if (
         response.payments?.some((payment) => {
-          return payment.paid_amount > 0 && checkIfOrderHasNotFinishedPaymentMomo(response);
+          return payment.paid_amount > 0;
         })
       ) {
         setShipmentMethod(ShipmentMethodOption.DELIVER_LATER);
@@ -1070,7 +1069,7 @@ export default function Order() {
           tags: response.tags,
           channel_id: response.channel_id,
           automatic_discount: response.automatic_discount,
-          uniform: response.uniform
+          uniform: response.uniform,
         });
         form.resetFields();
         // load lại form sau khi set initialValue
