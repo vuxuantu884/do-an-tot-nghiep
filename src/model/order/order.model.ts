@@ -1,5 +1,5 @@
-import {HandoverResponse} from "./../handover/handover.response";
-import {BaseObject} from "model/base/base.response";
+import { HandoverResponse } from "./../handover/handover.response";
+import { BaseObject } from "model/base/base.response";
 import {
   BillingAddressResponseModel,
   FulFillmentResponse,
@@ -13,8 +13,8 @@ import {
   ShippingAddress,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
-import {GoodsReceiptsResponse} from "model/response/pack/pack.response";
-import {ORDER_TYPES} from "utils/Order.constants";
+import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
+import { ORDER_TYPES } from "utils/Order.constants";
 
 export interface OrderItemModel {
   product_id: number;
@@ -159,6 +159,8 @@ export interface OrderSearchQuery {
   issued_on_predefined: string | null;
   finalized_on_min: string | null;
   finalized_on_max: string | null;
+  last_coordinator_confirm_on_min?: string | null;
+  last_coordinator_confirm_on_max?: string | null;
   finalized_on_predefined: string | null;
   ship_on_min: string | null;
   ship_on_max: string | null;
