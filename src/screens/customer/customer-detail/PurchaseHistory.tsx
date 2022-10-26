@@ -48,6 +48,7 @@ import IconStore from "screens/order-online/component/OrderList/ListTable/images
 import { getVariantApi, searchVariantsApi } from "service/product/product.service";
 import { ORDER_SUB_STATUS, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
 import {
+  checkIfMomoTypePayment,
   getFulfillmentActive,
   getLink,
   getReturnMoneyStatusColor,
@@ -362,6 +363,9 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           return single.payment_method_code === payment.payment_method_code;
         }
       });
+      if (checkIfMomoTypePayment(payment) && selectedPayment?.tooltip) {
+        selectedPayment.tooltip = "Momo QR";
+      }
       return (
         <div
           className={`singlePayment ${

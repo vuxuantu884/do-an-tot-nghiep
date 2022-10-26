@@ -41,10 +41,9 @@ import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
 import {
+  checkIfMomoTypePayment,
   getFulfillmentActive,
   getLink,
-  getReturnMoneyStatusColor,
-  getReturnMoneyStatusText,
   getTotalAmountBeforeDiscount,
 } from "utils/OrderUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -225,6 +224,9 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
           return single.payment_method_code === payment.payment_method_code;
         }
       });
+      if (checkIfMomoTypePayment(payment) && selectedPayment?.tooltip) {
+        selectedPayment.tooltip = "Momo QR";
+      }
       return (
         <div
           className={`singlePayment ${
