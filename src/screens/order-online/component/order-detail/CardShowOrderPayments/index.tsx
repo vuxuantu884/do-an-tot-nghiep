@@ -136,7 +136,11 @@ function CardShowOrderPayments(props: PropTypes) {
     if (!OrderDetail) {
       return false;
     }
-    if (checkIfOrderHasNoPayment(OrderDetail) && !sortedFulfillments[0]?.shipment?.cod) {
+    if (
+      checkIfOrderHasNoPayment(OrderDetail) &&
+      !sortedFulfillments[0]?.shipment?.cod &&
+      OrderDetail.total > 0
+    ) {
       result = true;
     } else {
       result = false;
@@ -697,7 +701,7 @@ function CardShowOrderPayments(props: PropTypes) {
     <StyledComponent>
       {checkIfNotShowPaymentDetail()
         ? renderUpdatePayment(OrderDetail)
-        : OrderDetail && OrderDetail?.total > 0
+        : OrderDetail && OrderDetail?.total >= 0
         ? renderShowPaymentDetail()
         : null}
     </StyledComponent>
