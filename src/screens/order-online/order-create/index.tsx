@@ -1282,10 +1282,8 @@ export default function Order() {
                       setOrderSourceId={setOrderSourceId}
                       shippingAddressesSecondPhone={shippingAddressesSecondPhone}
                       setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
-                      form={form}
                       initialForm={initialForm}
                       updateOrder
-                      setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
                       customerChange={customerChange}
                       setCustomerChange={setCustomerChange}
                       // handleOrderBillRequest={setOrderBillRequest}

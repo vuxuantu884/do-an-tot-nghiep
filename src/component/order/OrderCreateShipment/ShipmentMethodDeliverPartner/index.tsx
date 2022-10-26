@@ -12,12 +12,7 @@ import { ShippingServiceConfigDetailResponseModel } from "model/response/setting
 import React, { useMemo } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch } from "react-redux";
-import {
-  formatCurrency,
-  getShippingAddressDefault,
-  handleCalculateShippingFeeApplyOrderSetting,
-  replaceFormatString,
-} from "utils/AppUtils";
+import { formatCurrency, getShippingAddressDefault, replaceFormatString } from "utils/AppUtils";
 import { checkIfOrderPageType } from "utils/OrderUtils";
 import { StyledComponent } from "./styles";
 

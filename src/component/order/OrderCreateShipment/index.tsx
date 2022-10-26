@@ -28,12 +28,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import useFetchExternalShippers from "screens/order-online/hooks/useFetchExternalShippers";
-import {
-  getShippingAddressDefault,
-  handleCalculateShippingFeeApplyOrderSetting,
-  isOrderFinishedOrCancel,
-  SumWeight,
-} from "utils/AppUtils";
+import { getShippingAddressDefault, isOrderFinishedOrCancel, SumWeight } from "utils/AppUtils";
 import { ShipmentMethodOption, SHIPPING_REQUIREMENT } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { primaryColor } from "utils/global-styles/variables";

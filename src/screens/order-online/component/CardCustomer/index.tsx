@@ -1,26 +1,24 @@
-import { CustomerResponse, ShippingAddress } from "model/response/customer/customer.response";
-import { BillingAddressRequestModel, OrderRequest } from "model/request/order.request";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-import { modalActionType } from "model/modal/modal.model";
-import { OrderResponse } from "model/response/order/order.response";
-import { Card, FormInstance } from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import React, { useCallback, useEffect, useState } from "react";
-import { CustomerShippingAddress } from "model/request/customer.request";
-import ExtraCardCustomer from "./ExtraCardCustomer";
-import SearchCustomer from "./SearchCustomer";
-import { changeOrderCustomerAction } from "domain/actions/order/order.action";
-import { MODAL_ACTION_TYPE } from "utils/Constants";
-import InfoCustomer from "./InfoCustomer";
-import { handleCalculateShippingFeeApplyOrderSetting, totalAmount } from "utils/AppUtils";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import { Card } from "antd";
 import { DistrictGetByCountryAction } from "domain/actions/content/content.action";
 import { CustomerGroups } from "domain/actions/customer/customer.action";
-import CreateCustomer from "./CreateCustomer";
-import { StyleComponent } from "./ExtraCardCustomer/style";
-import UpdateCustomer from "./UpdateCustomer";
+import { changeOrderCustomerAction } from "domain/actions/order/order.action";
+import { modalActionType } from "model/modal/modal.model";
 import { ChangeShippingFeeApplyOrderSettingParamModel } from "model/order/order.model";
+import { CustomerShippingAddress } from "model/request/customer.request";
+import { BillingAddressRequestModel, OrderRequest } from "model/request/order.request";
+import { CustomerResponse, ShippingAddress } from "model/response/customer/customer.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
+import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import { OrderResponse } from "model/response/order/order.response";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { MODAL_ACTION_TYPE } from "utils/Constants";
+import CreateCustomer from "./CreateCustomer";
+import ExtraCardCustomer from "./ExtraCardCustomer";
+import { StyleComponent } from "./ExtraCardCustomer/style";
+import InfoCustomer from "./InfoCustomer";
+import SearchCustomer from "./SearchCustomer";
+import UpdateCustomer from "./UpdateCustomer";
 
 type CardCustomerProps = {
   handleCustomer: (items: CustomerResponse | null) => void;
@@ -43,11 +41,8 @@ type CardCustomerProps = {
   shippingAddressesSecondPhone?: string;
   setShippingAddressesSecondPhone?: (value: string) => void;
   initialForm?: OrderRequest;
-  form: FormInstance<any>;
-  setShippingFeeInformedToCustomer?: (value: number | null) => void;
   customerChange: boolean;
   setCustomerChange: (value: boolean) => void;
-  isOrderUpdate?: boolean;
   handleChangeShippingFeeApplyOrderSettings: (
     value: ChangeShippingFeeApplyOrderSettingParamModel,
   ) => void;
@@ -71,13 +66,10 @@ const CardCustomer: React.FC<CardCustomerProps> = (props: CardCustomerProps) => 
     shippingAddressesSecondPhone,
     setShippingAddressesSecondPhone,
     initialForm,
-    setShippingFeeInformedToCustomer,
-    form,
     customerChange,
     setCustomerChange,
     billingAddress,
     setBillingAddress,
-    isOrderUpdate,
     ShippingAddressChange,
     updateOrder,
     handleChangeShippingFeeApplyOrderSettings,
@@ -90,20 +82,6 @@ const CardCustomer: React.FC<CardCustomerProps> = (props: CardCustomerProps) => 
   const [groups, setGroups] = React.useState<Array<any>>([]);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   useState<CustomerShippingAddress | null>(null);
-
-  const orderLineItems = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems,
-  );
-
-  const shippingServiceConfig = useSelector(
-    (state: RootReducerType) => state.orderReducer.shippingServiceConfig,
-  );
-
-  const transportService = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service,
-  );
-
-  const orderAmount = totalAmount(orderLineItems);
 
   const handleUpdateCustomer = useCallback(
     (customers: CustomerResponse | null) => {
@@ -234,12 +212,10 @@ const CardCustomer: React.FC<CardCustomerProps> = (props: CardCustomerProps) => 
             setCustomerChange={setCustomerChange}
             levelOrder={levelOrder}
             handleChangeCustomer={handleChangeCustomer}
-            form={form}
-            setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
-            isOrderUpdate={isOrderUpdate}
             isPageOrderUpdate={OrderDetail ? true : false}
             billingAddress={billingAddress}
             setBillingAddress={setBillingAddress}
+            handleChangeShippingFeeApplyOrderSettings={handleChangeShippingFeeApplyOrderSettings}
           />
         )}
       </Card>

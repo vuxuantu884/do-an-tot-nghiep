@@ -1490,11 +1490,8 @@ export default function Order(props: PropTypes) {
                     OrderDetail={OrderDetail}
                     shippingAddressesSecondPhone={shippingAddressesSecondPhone}
                     setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
-                    form={form}
-                    setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
                     customerChange={customerChange}
                     setCustomerChange={setCustomerChange}
-                    isOrderUpdate
                     // handleOrderBillRequest = {handleOrderBillRequest}
                     // initOrderBillRequest={undefined}
                     handleChangeShippingFeeApplyOrderSettings={

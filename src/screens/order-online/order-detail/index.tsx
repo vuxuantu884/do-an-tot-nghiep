@@ -432,7 +432,7 @@ const OrderDetail = (props: PropTypes) => {
         }
       }
     },
-    [form],
+    [form, setTitle],
   );
 
   const handleUpdateSubStatus = () => {

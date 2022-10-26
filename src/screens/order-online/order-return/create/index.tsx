@@ -1721,7 +1721,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     OrderDetail={OrderDetail}
                     shippingAddressesSecondPhone={shippingAddressesSecondPhone}
                     setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
-                    form={form}
                     // setOrderSourceId={setOrderSourceId}
                     //isDisableSelectSource={true}
                     initialForm={initialForm}

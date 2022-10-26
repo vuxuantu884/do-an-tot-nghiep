@@ -1,16 +1,16 @@
+import { LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 import { AutoComplete, Button, Input } from "antd";
-import { CustomerResponse, ShippingAddress } from "model/response/customer/customer.response";
-import { StyleComponent } from "./style";
+import imageDefault from "assets/icon/img-default.svg";
+import { CustomerSearchSo, getCustomerDetailAction } from "domain/actions/customer/customer.action";
+import { CustomerSearchQuery } from "model/query/customer.query";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import { RefSelectProps } from "rc-select";
 import { createRef, useCallback, useMemo, useState } from "react";
-import { LoadingOutlined, SearchOutlined } from "@ant-design/icons";
+import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch } from "react-redux";
-import { CustomerSearchQuery } from "model/query/customer.query";
-import { CustomerSearchSo, getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 import { showError } from "utils/ToastUtils";
-import imageDefault from "assets/icon/img-default.svg";
-import { AiOutlinePlusCircle } from "react-icons/ai";
+import { StyleComponent } from "./style";
 type Props = {
   keySearch: string;
   setKeySearch: (v: string) => void;

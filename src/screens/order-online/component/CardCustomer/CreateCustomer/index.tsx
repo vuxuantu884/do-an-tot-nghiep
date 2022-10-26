@@ -1,14 +1,13 @@
 import {
   BarcodeOutlined,
   CalendarOutlined,
-  DownOutlined,
   EnvironmentOutlined,
   ManOutlined,
   PhoneOutlined,
   TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Button, Checkbox, Col, DatePicker, Divider, Form, Input, Row, Select } from "antd";
+import { Checkbox, Col, DatePicker, Form, Input, Row, Select } from "antd";
 import CustomSelect from "component/custom/select.custom";
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import { CustomerCreateAction } from "domain/actions/customer/customer.action";
