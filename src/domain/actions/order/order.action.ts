@@ -426,15 +426,21 @@ export const orderConfigSaga = (setData: (data: OrderConfigResponseModel) => voi
 export const getFulfillments = (
   request: FulfillmentsOrderPackQuery,
   setData?: (data: Array<any>) => void,
+  handleError?: (str: string[]) => void,
 ) => {
   return BaseAction(OrderType.GET_FULFILLMENTS, {
     request,
     setData,
+    handleError,
   });
 };
 
-export const getFulfillmentsPack = (request: any, setData: (data: any) => void) => {
-  return BaseAction(OrderType.GET_FULFILLMENTS_PACK, { request, setData });
+export const getFulfillmentsPack = (
+  request: any,
+  setData: (data: any) => void,
+  handleError?: (str: string[]) => void,
+) => {
+  return BaseAction(OrderType.GET_FULFILLMENTS_PACK, { request, setData, handleError });
 };
 
 export const getFulfillmentsPackedSaga = (

@@ -92,7 +92,7 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
                 </Col>
                 <Col span={3}>
                   <Form.Item name="query">
-                    <Input type="text" placeholder="ID phiếu bảo hành, tên, SĐT khách hàng" />
+                    <Input type="text" placeholder="Tên, SĐT khách hàng, Id phiếu" />
                   </Form.Item>
                 </Col>
                 <Col span={3} className="colSelectDate">
