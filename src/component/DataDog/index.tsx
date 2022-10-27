@@ -22,7 +22,7 @@ export default function DataDog() {
       // Specify a version number to identify the deployed version of your application in Datadog
       version: packageJson.version,
       sampleRate: 100,
-      sessionReplaySampleRate: 100, // if not included, the default is 100
+      sessionReplaySampleRate: 0, // if not included, the default is 100
       trackResources: false,
       trackLongTasks: false,
       trackInteractions: true,
