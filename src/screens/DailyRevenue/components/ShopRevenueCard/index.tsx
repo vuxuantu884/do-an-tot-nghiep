@@ -80,18 +80,28 @@ function ShopRevenueCard(props: PropTypes) {
       },
       visible: true,
       align: "right",
-      width: "25%",
+      // width: "25%",
     },
     {
-      title: "QRPay",
-      dataIndex: "qrpay_payment",
-      key: "qrpay_payment",
+      title: " QR Momo",
+      dataIndex: "momo_payment",
+      key: "momo_payment",
       render: (value: string) => {
         return <span className="noWrap">{formatCurrency(value)}</span>;
       },
       visible: true,
       align: "right",
-      width: "25%",
+    },
+    {
+      title: "QR VNPay",
+      dataIndex: "vnpay_payment",
+      key: "vnpay_payment",
+      render: (value: string) => {
+        return <span className="noWrap">{formatCurrency(value)}</span>;
+      },
+      visible: true,
+      align: "right",
+      // width: "25%",
     },
     {
       title: "Chuyển khoản",
@@ -102,28 +112,9 @@ function ShopRevenueCard(props: PropTypes) {
       },
       visible: true,
       align: "right",
-      width: "25%",
+      // width: "25%",
     },
-    {
-      title: "VNPay",
-      dataIndex: "vnpay_payment",
-      key: "vnpay_payment",
-      render: (value: string) => {
-        return <span className="noWrap">{formatCurrency(value)}</span>;
-      },
-      visible: false,
-      align: "right",
-    },
-    {
-      title: "Momo",
-      dataIndex: "momo_payment",
-      key: "momo_payment",
-      render: (value: string) => {
-        return <span className="noWrap">{formatCurrency(value)}</span>;
-      },
-      visible: false,
-      align: "right",
-    },
+
     {
       title: "Quẹt thẻ",
       dataIndex: "card_payment",
@@ -133,7 +124,7 @@ function ShopRevenueCard(props: PropTypes) {
       },
       visible: true,
       align: "right",
-      width: "25%",
+      // width: "25%",
     },
     {
       title: "MPOS",
