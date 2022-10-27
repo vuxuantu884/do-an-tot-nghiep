@@ -137,7 +137,7 @@ function ReturnMoneySelect(props: PropTypes) {
                         {isShowButtonReturnMoney && (
                           <Col span={12}>
                             <Button
-                              className="btnReturnMoney"
+                              className="returnMoneyButton"
                               onClick={() => {
                                 handleReturnMoney();
                               }}

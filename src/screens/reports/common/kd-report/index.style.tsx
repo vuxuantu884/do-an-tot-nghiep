@@ -190,7 +190,7 @@ export const KeyDriverStyle = styled.div`
   }
 
   .background-red {
-    color: red;
+    color: #e24343;
   }
   .background-green {
     color: #27ae60;

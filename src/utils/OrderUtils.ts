@@ -378,7 +378,9 @@ export const checkIfExpiredPayment = (payment: OrderPaymentResponse | OrderPayme
   if (!payment.expired_at) {
     return false;
   }
-  return moment(payment.expired_at).isBefore(moment()) || payment.status ===ORDER_PAYMENT_STATUS.failure;
+  return (
+    moment(payment.expired_at).isBefore(moment()) || payment.status === ORDER_PAYMENT_STATUS.failure
+  );
 };
 
 export const checkIfNotFinishedAndExpiredPaymentMomo = (payment: OrderPaymentResponse) => {
@@ -485,7 +487,7 @@ export const getDefaultReceiveReturnStoreIdFormValue = (
 
 export const checkIfMomoTypePayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
   return (
-    payment.type.toLowerCase() === "momo" &&
+    payment?.type?.toLowerCase() === "momo" &&
     payment.payment_method_code === PaymentMethodCode.QR_CODE
   );
 };
