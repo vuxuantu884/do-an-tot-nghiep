@@ -375,11 +375,9 @@ export const checkIfOrderHasNotFinishPaymentMomo = (
 };
 
 export const checkIfExpiredPayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
-  if (!payment.expired_at) {
-    return false;
-  }
   return (
-    moment(payment.expired_at).isBefore(moment()) || payment.status === ORDER_PAYMENT_STATUS.failure
+    payment.status === ORDER_PAYMENT_STATUS.expired ||
+    payment.status === ORDER_PAYMENT_STATUS.failure
   );
 };
 
