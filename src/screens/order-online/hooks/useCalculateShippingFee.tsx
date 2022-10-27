@@ -9,11 +9,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { handleCalculateShippingFeeApplyOrderSetting } from "utils/AppUtils";
 
 function useCalculateShippingFee(
-  totalOrderAmount: number,
+  orderProductsAmount: number,
   form: FormInstance<any>,
   setShippingFeeInformedToCustomer: (value: number | null) => void,
   isOrderUpdatePage: boolean,
-  transportService?: string | null | undefined,
 ) {
   const transportServiceFromReducer = useSelector(
     (state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service,
@@ -24,8 +23,6 @@ function useCalculateShippingFee(
   >([]);
   const dispatch = useDispatch();
 
-  const resultTransportService = transportService ? transportService : transportServiceFromReducer;
-
   const [isShippingFeeAlreadyChanged, setIsShippingFeeAlreadyChanged] = useState(false);
 
   const handleChangeShippingFeeApplyOrderSettings = (
@@ -34,9 +31,19 @@ function useCalculateShippingFee(
     if (isShippingFeeAlreadyChanged) {
       return;
     }
+    // nếu có truyền orderProductsAmount ở value thì lấy, ko thì lấy giá trị ở file ngoài
+    const resultOrderProductsAmount = value.orderProductsAmount
+      ? value.orderProductsAmount
+      : orderProductsAmount;
+
+    // nếu có truyền resultTransportService ở value thì lấy, ko thì lấy giá trị ở reducer
+    const resultTransportService = value.transportService
+      ? value.transportService
+      : transportServiceFromReducer;
+
     handleCalculateShippingFeeApplyOrderSetting(
       value.customerShippingAddressCityId,
-      totalOrderAmount,
+      resultOrderProductsAmount,
       shippingServiceConfig,
       resultTransportService,
       form,

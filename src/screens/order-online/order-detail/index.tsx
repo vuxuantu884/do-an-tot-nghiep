@@ -1176,6 +1176,7 @@ const OrderDetail = (props: PropTypes) => {
                   handleChangeShippingFeeApplyOrderSettings={
                     handleChangeShippingFeeApplyOrderSettings
                   }
+                  setIsShippingFeeAlreadyChanged={() => {}}
                 />
                 {/*--- end shipment ---*/}
 

@@ -1891,6 +1891,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                       handleChangeShippingFeeApplyOrderSettings={
                         handleChangeShippingFeeApplyOrderSettings
                       }
+                      setIsShippingFeeAlreadyChanged={setIsShippingFeeAlreadyChanged}
                     />
                   </Card>
                 )}

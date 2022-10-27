@@ -1973,13 +1973,13 @@ function OrderCreateProduct(props: PropType) {
     props.changeInfo(_items, _promotion);
     fillCustomNote(_items);
     dispatch(changeOrderLineItemsAction(_items));
-    const orderAmount = totalAmount(_items);
+    const orderProductsAmount = totalAmount(_items);
     const shippingAddress = customer ? getCustomerShippingAddress(customer) : null;
     if (_items.length > 0) {
       if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && checkIfItemChange(_items)) {
         handleCalculateShippingFeeApplyOrderSetting(
           shippingAddress?.city_id,
-          orderAmount,
+          orderProductsAmount,
           shippingServiceConfig,
           transportService,
           form,

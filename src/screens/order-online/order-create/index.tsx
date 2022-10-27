@@ -810,7 +810,7 @@ export default function Order() {
     handleChangeShippingFeeApplyOrderSettings,
     setIsShippingFeeAlreadyChanged,
     shippingServiceConfig,
-  } = useCalculateShippingFee(totalOrderAmount, form, setShippingFeeInformedToCustomer, false);
+  } = useCalculateShippingFee(orderProductsAmount, form, setShippingFeeInformedToCustomer, false);
 
   useEffect(() => {
     if (storeId) {
@@ -1394,6 +1394,7 @@ export default function Order() {
                         handleChangeShippingFeeApplyOrderSettings={
                           handleChangeShippingFeeApplyOrderSettings
                         }
+                        setIsShippingFeeAlreadyChanged={setIsShippingFeeAlreadyChanged}
                       />
                     </Card>
                   </Col>
