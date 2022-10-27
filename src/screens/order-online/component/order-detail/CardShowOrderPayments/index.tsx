@@ -249,7 +249,7 @@ function CardShowOrderPayments(props: PropTypes) {
 
     renderTitleNotMomo(payment: OrderPaymentResponse) {
       if (!checkIfMomoPayment(payment)) {
-        if (payment.type.toLowerCase() === "momo") {
+        if (payment?.type?.toLowerCase() === "momo") {
           return `${payment.payment_method} (MOMO)`;
         }
         return payment.payment_method;
