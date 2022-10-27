@@ -175,7 +175,7 @@ function OrderCreateShipment(props: PropType) {
       // setShippingFeeInformedToCustomer(0);
       if (value === ShipmentMethodOption.PICK_AT_STORE) {
         setShippingFeeInformedToCustomer(0);
-        showSuccess("Phí ship đã được thay đổi!");
+        showSuccess("Chú ý: Phí ship báo khách đã được thay đổi!");
       }
       if (value === ShipmentMethodOption.DELIVER_PARTNER) {
         setThirdPL({

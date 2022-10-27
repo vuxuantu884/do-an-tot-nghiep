@@ -290,6 +290,7 @@ const SizeListScreen: React.FC = () => {
         <CustomTable
           className="tr-hover"
           isRowSelection
+          isShowPaginationAtHeader
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,

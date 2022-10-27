@@ -38,6 +38,7 @@ const DiscountUpdate = () => {
   const [isAllChannel, setIsAllChannel] = useState(true);
   const [isAllSource, setIsAllSource] = useState(true);
   const [isUnlimitQuantity, setIsUnlimitQuantity] = useState(false);
+  const [isUsageLimitPerCustomer, setIsUsageLimitPerCustomer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const discountUpdateContext = useContext(DiscountContext);
@@ -106,6 +107,7 @@ const DiscountUpdate = () => {
       setDiscountMethod(result.entitled_method);
       //set default checked Loại khuyến mãi
       setIsUnlimitQuantity(typeof result.quantity_limit !== "number");
+      setIsUsageLimitPerCustomer(typeof result.usage_limit_per_customer !== "number");
 
       //   //set default checked Bộ lọc
       setIsAllStore(result.prerequisite_store_ids?.length === 0);
@@ -241,6 +243,7 @@ const DiscountUpdate = () => {
             <Col span={18}>
               <DiscountUpdateForm
                 unlimitedUsageProps={isUnlimitQuantity}
+                usageLimitPerCustomerProps={isUsageLimitPerCustomer}
                 form={form}
                 idNumber={idNumber}
                 originalEntitlements={originalEntitlements}

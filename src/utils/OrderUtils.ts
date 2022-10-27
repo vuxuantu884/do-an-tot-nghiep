@@ -375,10 +375,10 @@ export const checkIfOrderHasNotFinishPaymentMomo = (
 };
 
 export const checkIfExpiredPayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
-  if (!payment.expired_at) {
-    return false;
-  }
-  return moment(payment.expired_at).isBefore(moment());
+  return (
+    payment.status === ORDER_PAYMENT_STATUS.expired ||
+    payment.status === ORDER_PAYMENT_STATUS.failure
+  );
 };
 
 export const checkIfNotFinishedAndExpiredPaymentMomo = (payment: OrderPaymentResponse) => {
@@ -481,4 +481,11 @@ export const getDefaultReceiveReturnStoreIdFormValue = (
     ? currentStores?.find((single) => single.store_id === OrderDetail?.store_id)?.store_id ||
       undefined
     : undefined;
+};
+
+export const checkIfMomoTypePayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
+  return (
+    payment?.type?.toLowerCase() === "momo" &&
+    payment.payment_method_code === PaymentMethodCode.QR_CODE
+  );
 };

@@ -1,5 +1,11 @@
-import { CloseOutlined } from "@ant-design/icons";
-import { Avatar, Divider, Row, Space, Tag, Typography } from "antd";
+import {
+  CloseOutlined,
+  DownOutlined,
+  EyeOutlined,
+  PhoneOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import { Avatar, Button, Divider, Popover, Row, Space, Tag, Typography } from "antd";
 import UrlConfig from "config/url.config";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
@@ -10,6 +16,9 @@ import birthdayIcon from "assets/img/bithday.svg";
 import callIcon from "assets/img/call.svg";
 import pointIcon from "assets/img/point.svg";
 import moment from "moment";
+
+import search from "assets/img/search.svg";
+import { ORDER_TYPES } from "utils/Order.constants";
 
 type Props = {
   customer: CustomerResponse;
@@ -38,6 +47,13 @@ const InfoCustomer: React.FC<Props> = (props: Props) => {
     (x) =>
       x.rank_id === (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id),
   )?.rank_name;
+
+  const onFilterPhoneCustomer = (orderTypes: string) => {
+    const orderLink =
+      orderTypes === ORDER_TYPES.offline ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER;
+    let pathname = `${process.env.PUBLIC_URL}${orderLink}?search_term=${customer.phone}`;
+    window.open(pathname, "_blank");
+  };
   return (
     <StyleComponent>
       <Row
@@ -72,6 +88,71 @@ const InfoCustomer: React.FC<Props> = (props: Props) => {
             {" "}
             {customer?.phone === undefined ? "0987654321" : customer?.phone}
           </a>
+
+          <Popover
+            placement="bottom"
+            content={
+              <StyleComponent>
+                <div className="poppver-to-fast">
+                  <Button
+                    className="btn-to-fast"
+                    type="link"
+                    icon={<img src={search} alt="" />}
+                    onClick={() => onFilterPhoneCustomer(ORDER_TYPES.offline)}
+                  >
+                    Lọc đơn offline của khách
+                  </Button>
+                  <Button
+                    className="btn-to-fast"
+                    type="link"
+                    icon={<img src={search} alt="" />}
+                    onClick={() => onFilterPhoneCustomer(ORDER_TYPES.online)}
+                  >
+                    Lọc đơn online của khách
+                  </Button>
+                  <Button
+                    className="btn-to-fast"
+                    type="link"
+                    icon={<EyeOutlined />}
+                    onClick={() => {
+                      let pathname = `${process.env.PUBLIC_URL}${UrlConfig.CUSTOMER}/${customer.id}`;
+                      window.open(pathname, "_blank");
+                    }}
+                  >
+                    Thông tin khách hàng
+                  </Button>
+                  <Button
+                    className="btn-to-fast"
+                    type="link"
+                    icon={<PlusOutlined />}
+                    onClick={() => {
+                      let pathname = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/create?customer=${customer.id}`;
+                      window.open(pathname, "_blank");
+                    }}
+                  >
+                    Tạo đơn cho khách
+                  </Button>
+                  <Button
+                    className="btn-to-fast"
+                    type="link"
+                    icon={<PhoneOutlined />}
+                    onClick={() => {
+                      window.location.href = `tel:${customer.phone}`;
+                    }}
+                  >
+                    Gọi điện cho khách
+                  </Button>
+                </div>
+              </StyleComponent>
+            }
+            trigger="click"
+          >
+            <Button
+              type="link"
+              className="view_more_button"
+              icon={<DownOutlined className="view_more_icon" />}
+            ></Button>
+          </Popover>
         </Space>
 
         <Space className="customer-detail-point">

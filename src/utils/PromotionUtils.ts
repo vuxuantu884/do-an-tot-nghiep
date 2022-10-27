@@ -14,7 +14,7 @@ import moment from "moment";
 import { Dispatch } from "redux";
 import { DiscountUnitType } from "screens/promotion/constants";
 import { CustomerFilterField } from "screens/promotion/shared/cusomer-condition.form";
-import { formatCurrency, scrollAndFocusToDomElement } from "utils/AppUtils";
+import { formatCurrency, isNullOrUndefined, scrollAndFocusToDomElement } from "utils/AppUtils";
 import { PROMO_TYPE } from "./Constants";
 import { DATE_FORMAT } from "./DateUtils";
 import { showError } from "./ToastUtils";
@@ -96,7 +96,8 @@ export const insertProduct = (
 
   const itemParseFromFileToDisplay = {
     ...importItem,
-    cost: importItem.price,
+    cost: 0,    // nhập file chưa trả về giá vốn
+    retail_price: importItem.price,
     open_quantity: importItem.quantity,
     variant_title: importItem.variant_title,
     product_id: importItem.product_id,
@@ -321,7 +322,7 @@ export const renderDiscountValue = (value: number, valueType: string) => {
   return result;
 };
 
-export const renderTotalBill = (cost: number, value: number, valueType: string) => {
+export const renderTotalBill = (retail_price: number, value: number, valueType: string) => {
   let result = "";
 
   switch (valueType) {
@@ -329,12 +330,12 @@ export const renderTotalBill = (cost: number, value: number, valueType: string) 
       result = formatCurrency(Math.round(value));
       break;
     case "FIXED_AMOUNT":
-      if (!cost) result = "";
-      else result = `${formatCurrency(Math.round(cost - value))}`;
+      if (!retail_price) result = "";
+      else result = `${formatCurrency(Math.round(retail_price - value))}`;
       break;
     case "PERCENTAGE":
-      if (!cost) result = "";
-      else result = `${formatCurrency(Math.round(cost - (cost * value) / 100))}`;
+      if (!retail_price) result = "";
+      else result = `${formatCurrency(Math.round(retail_price - (retail_price * value) / 100))}`;
       break;
   }
   return result;
@@ -467,6 +468,7 @@ export const onSelectVariantOfDiscount = (
 export const parseSelectProductToTableData = (selectedItem: ProductResponse) => {
   return {
     cost: 0,
+    retail_price: 0,
     open_quantity: selectedItem.on_hand || 0,
     variant_title: selectedItem.name,
     product_id: selectedItem.id, // id của sp cha
@@ -479,6 +481,10 @@ export const parseSelectVariantToTableData = (selectedItem: VariantResponse) => 
     cost:
       Array(selectedItem.variant_prices) && selectedItem.variant_prices?.length > 0
         ? selectedItem.variant_prices[0]?.import_price
+        : 0,
+    retail_price:
+      Array(selectedItem.variant_prices) && selectedItem.variant_prices?.length > 0
+        ? selectedItem.variant_prices[0]?.retail_price
         : 0,
     open_quantity: selectedItem.on_hand || 0,
     variant_title: selectedItem.name,
@@ -514,6 +520,7 @@ export const addProductFromSelectToForm = (
     variant_title: selectedItem.name,
     open_quantity: selectedItem.on_hand,
     cost: selectedItem.variant_prices[0]?.import_price ?? 0,
+    retail_price: selectedItem.variant_prices[0]?.retail_price ?? 0,
     price_rule_id: 0,
     limit: 0,
     sku: selectedItem.sku,
@@ -564,27 +571,26 @@ export const getEntilementValue = (
   }
 };
 
-
-// const checkingCustomerCondition = (body: any) => {
-//   if (!isNullOrUndefined(body.prerequisite_total_money_spend_to) &&
-//     Number(body.prerequisite_total_money_spend_from) > Number(body.prerequisite_total_money_spend_to)) {
-//     const element: any = document.getElementById(CustomerConditionField.prerequisite_total_money_spend_from);
-//     scrollAndFocusToDomElement(element);
-//     throw new Error("Tiền tích lũy bắt đầu lớn hơn kết thúc.");
-//   }
-//   if (!isNullOrUndefined(body.prerequisite_total_finished_order_to) &&
-//     Number(body.prerequisite_total_finished_order_from) > Number(body.prerequisite_total_finished_order_to)) {
-//     const element: any = document.getElementById(CustomerConditionField.prerequisite_total_finished_order_from);
-//     scrollAndFocusToDomElement(element);
-//     throw new Error("Tổng đơn hàng bắt đầu lớn hơn kết thúc.");
-//   }
-// }
+const checkCustomerCondition = (body: any) => {
+  if (!isNullOrUndefined(body.prerequisite_total_money_spend_to) &&
+    Number(body.prerequisite_total_money_spend_from) > Number(body.prerequisite_total_money_spend_to)) {
+    const element: any = document.getElementById(CustomerConditionField.prerequisite_total_money_spend_from);
+    scrollAndFocusToDomElement(element);
+    throw new Error("Tiền tích lũy bắt đầu lớn hơn kết thúc.");
+  }
+  if (!isNullOrUndefined(body.prerequisite_total_finished_order_to) &&
+    Number(body.prerequisite_total_finished_order_from) > Number(body.prerequisite_total_finished_order_to)) {
+    const element: any = document.getElementById(CustomerConditionField.prerequisite_total_finished_order_from);
+    scrollAndFocusToDomElement(element);
+    throw new Error("Tổng đơn hàng bắt đầu lớn hơn kết thúc.");
+  }
+}
 
 export const transformData = (values: any, priceRuleType = PROMO_TYPE.AUTOMATIC) => {
   let body: any = values;
   body.entitlements = getEntilementValue(values.entitlements, values.entitled_method);
 
-  // checkingCustomerCondition(body);
+  //checkCustomerCondition(body);
 
   body.type = priceRuleType;
   body.starts_date = values.starts_date?.format();
@@ -778,19 +784,6 @@ export const getGiftEntitlementValue = (
     });
   }
 };
-
-const checkCustomerCondition = (body: any) => {
-  if (body.prerequisite_total_money_spend_from > body.prerequisite_total_money_spend_to) {
-    const element: any = document.getElementById(CustomerConditionField.prerequisite_total_money_spend_from);
-    scrollAndFocusToDomElement(element);
-    throw new Error("Tiền tích lũy bắt đầu lớn hơn kết thúc.");
-  }
-  if (body.prerequisite_total_finished_order_from > body.prerequisite_total_finished_order_to) {
-    const element: any = document.getElementById(CustomerConditionField.prerequisite_total_finished_order_from);
-    scrollAndFocusToDomElement(element);
-    throw new Error("Tổng đơn hàng bắt đầu lớn hơn kết thúc.");
-  }
-}
 
 export const transformGiftRequest = (values: any) => {
   let body: any = values;

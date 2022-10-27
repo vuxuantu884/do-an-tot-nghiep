@@ -65,8 +65,6 @@ import {
 } from "utils/AppUtils";
 import { handleChangeMaterial } from "utils/ProductUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import { careInformation } from "../component/CareInformation/care-value";
-import CareModal from "../component/CareInformation/CareModal";
 import ModalConfirmPrice from "../component/ModalConfirmPrice";
 import ModalPickAvatar from "../component/ModalPickAvatar";
 import ModalUpdatePrice from "../component/ModalUpdatePrice";
@@ -80,7 +78,8 @@ import TreeCategory from "../component/TreeCategory";
 import SupplierSearchSelect from "component/custom/select-search/supplier-select";
 import { callApiNative } from "utils/ApiUtils";
 import { productUpdateApi } from "service/product/product.service";
-import { SupplierResponse } from "model/core/supplier.model";
+import { careInformation } from "screens/products/Component/CareInformation/care-value";
+import CareModal from "screens/products/Component/CareInformation"
 
 const { Item } = Form;
 let tempActive: number = 0;

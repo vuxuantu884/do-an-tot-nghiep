@@ -11,7 +11,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import ModalCares from "../Component/CareInformation";
-import { careInformation } from "../product/component/CareInformation/care-value";
 import "./style.scss";
 import { UploadFile } from "antd/es/upload/interface";
 import { UploadRequestOption } from "rc-upload/lib/interface";
@@ -21,6 +20,7 @@ import { uploadFileApi } from "service/core/import.service";
 import { createMaterialApi } from "service/product/material.service";
 import SupplierSearchSelect from "component/filter/component/supplier-select";
 import { validateNumberValue } from "utils/Material.util";
+import { careInformation } from "../Component/CareInformation/care-value";
 
 let initialRequest: MaterialCreateRequest = {
   fabric_code: "",
@@ -527,7 +527,7 @@ const AddMaterial: React.FC = () => {
                     <Input.Group compact>
                       <Form.Item name="weight" noStyle>
                         <Input
-                          placeholder="Khổ vải"
+                          placeholder="Trọng lượng"
                           type="number"
                           style={{ width: "calc(100% - 100px)", textAlign: "right" }}
                           onChange={() => handleNumberInputChange("weight")}

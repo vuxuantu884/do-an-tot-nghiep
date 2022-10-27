@@ -75,8 +75,6 @@ import { ArrDefects, DEFAULT_COMPANY, VietNamId } from "utils/Constants";
 import { handleChangeMaterial, findPathTreeById } from "utils/ProductUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import { careInformation } from "../component/CareInformation/care-value";
-import CareModal from "../component/CareInformation/CareModal";
 import ImageProduct from "../component/image-product.component";
 import ModalPickAvatar from "../component/ModalPickAvatar";
 import UploadImageModal, { VariantImageModel } from "../component/upload-image.modal";
@@ -85,6 +83,8 @@ import BaseSelectPaging from "component/base/BaseSelect/BaseSelectPaging";
 import BaseSelectMerchans from "component/base/BaseSelect/BaseSelectMerchans";
 import { useFetchMerchans } from "hook/useFetchMerchans";
 import BaseSelect from "component/base/BaseSelect/BaseSelect";
+import { careInformation } from "screens/products/Component/CareInformation/care-value";
+import CareModal from "screens/products/Component/CareInformation"
 const { TreeNode } = TreeSelect;
 const { Item, List } = Form;
 const { Option } = Select;

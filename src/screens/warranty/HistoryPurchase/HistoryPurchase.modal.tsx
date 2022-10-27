@@ -4,14 +4,18 @@ import UrlConfig from "config/url.config";
 import { getCustomerOrderHistoryAction } from "domain/actions/customer/customer.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
-import { OrderLineItemResponse } from "model/response/order/order.response";
+import {
+  CustomerOrderHistoryResponse,
+  OrderLineItemResponse,
+} from "model/response/order/order.response";
 import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import NumberFormat from "react-number-format";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { formatNumber } from "utils/AppUtils";
+import { getOrderHistoryService } from "service/order/order.service";
+import { formatNumber, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { HistoryPurchaseStyled } from "./HistoryPurchase.styles";
 // import { fields_order, fields_shipment, fields_return} from "../common/fields.export";
@@ -28,7 +32,9 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
   const { visible, customerID, onOk, onClick } = props;
   const dispatch = useDispatch();
   const [tableLoading, setTableLoading] = useState(false);
-  const [orderHistoryData, setOrderHistoryData] = useState<PageResponse<OrderModel>>({
+  const [orderHistoryData, setOrderHistoryData] = useState<
+    PageResponse<CustomerOrderHistoryResponse>
+  >({
     metadata: {
       limit: 10,
       page: 1,
@@ -37,128 +43,134 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
     items: [],
   });
 
-  const columnsOrderHistory: Array<ICustomTableColumType<OrderModel>> = React.useMemo(
-    () => [
-      {
-        title: "ID đơn hàng",
-        dataIndex: "code",
-        visible: true,
-        fixed: "left",
-        className: "custom-shadow-td",
-        width: 200,
-        render: (value: string, item: any) => {
-          return (
-            <div>
-              {!item.code_order_return ? (
-                <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank">
-                  {value}
-                </Link>
-              ) : (
-                <Link to={`${UrlConfig.ORDERS_RETURN}/${item.id}`} target="_blank">
-                  {value}
-                </Link>
-              )}
-              <div style={{ fontSize: "12px", color: "#666666" }}>
-                <div>
-                  {moment(item.created_date).format(DATE_FORMAT.HHmm_DDMMYYYY)}
-                  <Tooltip title="Cửa hàng">
-                    <div>{item.store}</div>
-                  </Tooltip>
-                </div>
-                {item.source && (
-                  <div style={{ fontSize: "12px" }}>
-                    <strong style={{ color: "#000000" }}>Nguồn: </strong>
-                    <span style={{ color: "#222222", wordBreak: "break-all" }}>{item.source}</span>
-                  </div>
+  const checkIfOrderReturn = (record: CustomerOrderHistoryResponse) => {
+    return record.order_id ? true : false;
+  };
+
+  const columnsOrderHistory: Array<ICustomTableColumType<CustomerOrderHistoryResponse>> =
+    React.useMemo(
+      () => [
+        {
+          title: "ID đơn hàng",
+          dataIndex: "code",
+          visible: true,
+          fixed: "left",
+          className: "custom-shadow-td",
+          width: 200,
+          render: (value: string, item: CustomerOrderHistoryResponse) => {
+            const isOrderReturn = checkIfOrderReturn(item);
+            return (
+              <div>
+                {!isOrderReturn ? (
+                  <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank">
+                    {value}
+                  </Link>
+                ) : (
+                  <Link to={`${UrlConfig.ORDERS_RETURN}/${item.id}`} target="_blank">
+                    {value}
+                  </Link>
                 )}
-                {/* {renderReturn(item)} */}
+                <div style={{ fontSize: "12px", color: "#666666" }}>
+                  <div>
+                    {moment(item.created_date).format(DATE_FORMAT.HHmm_DDMMYYYY)}
+                    <Tooltip title="Cửa hàng">
+                      <div>{item.store}</div>
+                    </Tooltip>
+                  </div>
+                  {item.source && (
+                    <div style={{ fontSize: "12px" }}>
+                      <strong style={{ color: "#000000" }}>Nguồn: </strong>
+                      <span style={{ color: "#222222", wordBreak: "break-all" }}>
+                        {item.source}
+                      </span>
+                    </div>
+                  )}
+                  {/* {renderReturn(item)} */}
+                </div>
+                {isOrderReturn && <span style={{ color: "red" }}>Trả hàng</span>}
               </div>
-              {item.code_order_return !== undefined && (
-                <span style={{ color: "red" }}>Trả hàng</span>
-              )}
-            </div>
-          );
+            );
+          },
         },
-      },
-      {
-        title: (
-          <div className="productNameQuantityPriceHeader">
-            <span className="productNameWidth">
-              Sản phẩm
-              <span className="separator">, </span>
-            </span>
-            <span className="quantity quantityWidth">
-              <span>
-                SL
+        {
+          title: (
+            <div className="productNameQuantityPriceHeader">
+              <span className="productNameWidth">
+                Sản phẩm
                 <span className="separator">, </span>
               </span>
-            </span>
-            <span className="price priceWidth">
-              <span>Bảo hành</span>
-            </span>
-          </div>
-        ),
-        dataIndex: "items",
-        key: "productNameQuantityPrice",
-        className: "productNameQuantityPrice",
-        render: (items: Array<OrderLineItemResponse>, record) => {
-          return (
-            <div className="items">
-              {items.map((item, i) => {
-                return (
-                  <div className="custom-td" key={item.variant_id}>
-                    <div className="product productNameWidth 2">
-                      <div className="inner">
-                        <Link
-                          target="_blank"
-                          to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
-                        >
-                          {item.sku}
-                        </Link>
-                        <br />
-                        <div className="productNameText" title={item.variant}>
-                          {item.variant}
+              <span className="quantity quantityWidth">
+                <span>
+                  SL
+                  <span className="separator">, </span>
+                </span>
+              </span>
+              <span className="price priceWidth">
+                <span>Bảo hành</span>
+              </span>
+            </div>
+          ),
+          dataIndex: "items",
+          key: "productNameQuantityPrice",
+          className: "productNameQuantityPrice",
+          render: (items: Array<OrderLineItemResponse>, record: CustomerOrderHistoryResponse) => {
+            return (
+              <div className="items">
+                {items.map((item, i) => {
+                  return (
+                    <div className="custom-td" key={item.variant_id}>
+                      <div className="product productNameWidth 2">
+                        <div className="inner">
+                          <Link
+                            target="_blank"
+                            to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                          >
+                            {item.sku}
+                          </Link>
+                          <br />
+                          <div className="productNameText" title={item.variant}>
+                            {item.variant}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="quantity quantityWidth">
-                      <NumberFormat value={formatNumber(item.quantity)} displayType={"text"} />
-                    </div>
-                    <div className="price priceWidth">
-                      <Tooltip
-                        title={
-                          record.status !== "finished"
-                            ? "Sản phẩm chưa được bán hoặc đã đổi trả"
-                            : "Thêm sản phẩm bảo hành"
-                        }
-                      >
-                        <Button
-                          icon={<AiOutlinePlusCircle size={24} />}
-                          type="link"
-                          disabled={record.status !== "finished"}
-                          onClick={() =>
-                            onClick({
-                              ...item,
-                              finished_on: record.finished_on,
-                              finalized_on: record.finalized_on,
-                            })
+                      <div className="quantity quantityWidth">
+                        <NumberFormat value={formatNumber(item.quantity)} displayType={"text"} />
+                      </div>
+                      <div className="price priceWidth">
+                        <Tooltip
+                          title={
+                            record.status !== "finished"
+                              ? "Sản phẩm chưa được bán hoặc đã đổi trả"
+                              : "Thêm sản phẩm bảo hành"
                           }
-                        />
-                      </Tooltip>
+                        >
+                          <Button
+                            icon={<AiOutlinePlusCircle size={24} />}
+                            type="link"
+                            disabled={record.status !== "finished"}
+                            onClick={() =>
+                              onClick({
+                                ...item,
+                                finished_on: record.finished_on,
+                                finalized_on: record.finalized_on,
+                              })
+                            }
+                          />
+                        </Tooltip>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          );
+                  );
+                })}
+              </div>
+            );
+          },
+          visible: true,
+          align: "center",
+          width: 500,
         },
-        visible: true,
-        align: "center",
-        width: 500,
-      },
-    ],
-    [onClick],
-  );
+      ],
+      [onClick],
+    );
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -182,16 +194,26 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
   );
 
   useEffect(() => {
-    customerID &&
-      dispatch(
-        getCustomerOrderHistoryAction({ customer_id: customerID }, (data) => {
-          setTableLoading(false);
-          if (data) {
-            setOrderHistoryData(data);
+    if (customerID && visible) {
+      const query: any = {
+        customer_ids: customerID,
+      };
+      getOrderHistoryService(query)
+        .then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            setOrderHistoryData(response.data);
+          } else {
+            handleFetchApiError(response, "Danh sách lịch sử đơn hàng", dispatch);
           }
-        }),
-      );
-  }, [customerID, dispatch]);
+        })
+        .catch((error) => {
+          console.log("error", error);
+        })
+        .finally(() => {
+          setTableLoading(false);
+        });
+    }
+  }, [customerID, visible, dispatch]);
 
   return (
     <Modal
@@ -210,7 +232,7 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
       <HistoryPurchaseStyled>
         <CustomTable
           bordered
-          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 10, offsetHeader: 0 }}
           isLoading={tableLoading}
           pagination={{
             pageSize: orderHistoryData.metadata.limit,

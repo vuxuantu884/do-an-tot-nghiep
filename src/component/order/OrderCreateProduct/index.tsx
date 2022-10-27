@@ -43,6 +43,7 @@ import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
+import { ChangeShippingFeeApplyOrderSettingParamModel } from "model/order/order.model";
 import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -90,7 +91,6 @@ import {
   getTotalAmountAfterDiscount,
   getTotalDiscount,
   getTotalQuantity,
-  handleCalculateShippingFeeApplyOrderSetting,
   handleDelayActionWhenInsertTextInSearchInput,
   handleFetchApiError,
   haveAccess,
@@ -145,12 +145,15 @@ type PropTypes = {
     totalAmountReturn: number;
     totalAmountExchangePlusShippingFee: number;
   };
-  setShippingFeeInformedToCustomer?: (value: number | null) => void;
   countFinishingUpdateCustomer: number; // load xong api chi tiết KH và hạng KH
   shipmentMethod: number;
   isExchange?: boolean;
   stores: StoreResponse[];
   isReturnOffline?: boolean;
+  setPromotionTitle: (value: string) => void;
+  handleChangeShippingFeeApplyOrderSettings: (
+    value: ChangeShippingFeeApplyOrderSettingParamModel,
+  ) => void;
 };
 
 var barcode = "";
@@ -234,7 +237,6 @@ function OrderCreateProduct(props: PropTypes) {
     setItems,
     setCoupon,
     setPromotion,
-    setShippingFeeInformedToCustomer,
     countFinishingUpdateCustomer,
     isCreateReturn,
     shipmentMethod,
@@ -242,20 +244,14 @@ function OrderCreateProduct(props: PropTypes) {
     isExchange,
     isPageOrderDetail,
     isReturnOffline,
+    setPromotionTitle,
+    handleChangeShippingFeeApplyOrderSettings,
   } = props;
 
   // console.log('items', items)
   // console.log('promotion', promotion)
   const orderCustomer = useSelector(
     (state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer,
-  );
-
-  const shippingServiceConfig = useSelector(
-    (state: RootReducerType) => state.orderReducer.shippingServiceConfig,
-  );
-
-  const transportService = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service,
   );
   const dispatch = useDispatch();
   const [loadingAutomaticDiscount] = useState(false);
@@ -1003,6 +999,19 @@ function OrderCreateProduct(props: PropTypes) {
       return;
     }
     let _items = [...items];
+    let itemLength = _items.length;
+    for (let i = 0; i < itemLength; i++) {
+      const item = _items[i];
+      const position = i + 1;
+      if (item.position !== position) {
+        item.position = position;
+      }
+      item.gifts.forEach((gift) => {
+        if (gift.position !== position) {
+          gift.position = position;
+        }
+      });
+    }
     _items.splice(index, 1);
     if (isAutomaticDiscount && _items.length > 0) {
       handleApplyDiscount(_items);
@@ -1327,10 +1336,12 @@ function OrderCreateProduct(props: PropTypes) {
                   return single;
                 });
                 let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemove);
-                if (promotionResult && isShouldUpdatePrivateNote) {
-                  form.setFieldsValue({
-                    note: `(${promotionResult.reason})`,
-                  });
+                console.log("promotionResult", promotionResult);
+                if (promotionResult) {
+                  // form.setFieldsValue({
+                  //   note: `(${promotionResult.reason})`,
+                  // });
+                  setPromotionTitle(promotionResult.reason || "");
                 }
                 calculateChangeMoney(items, promotionResult);
               }
@@ -1343,10 +1354,11 @@ function OrderCreateProduct(props: PropTypes) {
                 return single;
               });
               let promotionResult = handleApplyDiscountOrder(response, itemsAfterRemove);
-              if (promotionResult && isShouldUpdatePrivateNote) {
-                form.setFieldsValue({
-                  note: `(${promotionResult.reason})`,
-                });
+              if (promotionResult) {
+                // form.setFieldsValue({
+                //   note: `(${promotionResult.reason})`,
+                // });
+                setPromotionTitle(promotionResult.reason || "");
               }
               calculateChangeMoney(items, promotionResult);
             } else {
@@ -1357,16 +1369,21 @@ function OrderCreateProduct(props: PropTypes) {
               handleApplyDiscountOrder(response, itemsAfterRemoveAutomaticDiscount);
               calculateChangeMoney(items);
               if (isShouldUpdatePrivateNote) {
-                form.setFieldsValue({
-                  note: ``,
-                });
+                // form.setFieldsValue({
+                //   note: ``,
+                // });
               }
+              setPromotionTitle("");
             }
           } else {
             if (isShouldUpdatePrivateNote) {
-              form.setFieldsValue({
-                note: "",
-              });
+              // form.setFieldsValue({
+              //   note: "",
+              // });
+            }
+            setPromotionTitle("");
+            if (setPromotion) {
+              setPromotion(null);
             }
             showError("Có lỗi khi áp dụng chiết khấu!");
             calculateChangeMoney(items);
@@ -1564,10 +1581,11 @@ function OrderCreateProduct(props: PropTypes) {
                   break;
               }
               if (isShouldUpdatePrivateNote) {
-                form.setFieldsValue({
-                  note: `(${applyDiscountResponse.code}-${applyDiscountResponse.title})`,
-                });
+                // form.setFieldsValue({
+                //   note: `(${applyDiscountResponse.code}-${applyDiscountResponse.title})`,
+                // });
               }
+              setPromotionTitle(`(${applyDiscountResponse.code}-${applyDiscountResponse.title})`);
               calculateChangeMoney(_items, promotionResult);
             }
           } else {
@@ -1805,10 +1823,12 @@ function OrderCreateProduct(props: PropTypes) {
       })
     ) {
       let discountTitleArr: string[] = [];
+      let promotion: OrderDiscountRequest[] = [];
       items.forEach((item) => {
         let reason =
           item?.discount_items && item?.discount_items[0] && item?.discount_items[0]?.reason;
         if (reason) {
+          promotion.push(item.discount_items[0]);
           return discountTitleArr.push(reason);
         }
       });
@@ -1819,14 +1839,15 @@ function OrderCreateProduct(props: PropTypes) {
           if (i < discountTitleArr.length - 1) {
             title = title + discountTitleArr[i] + ", ";
           } else {
-            title = title + discountTitleArr[i] + ".";
+            title = title + discountTitleArr[i];
           }
         }
         if (isShouldUpdatePrivateNote) {
-          form.setFieldsValue({
-            note: `(${title})`,
-          });
+          // form.setFieldsValue({
+          //   note: `(${title})`,
+          // });
         }
+        setPromotionTitle(title);
       }
     }
   };
@@ -1877,7 +1898,6 @@ function OrderCreateProduct(props: PropTypes) {
     props.changeInfo(_items, _promotion);
     fillCustomNote(_items);
     dispatch(changeOrderLineItemsAction(_items));
-    const orderProductsAmount = totalAmount(_items);
     const shippingAddress = orderCustomer ? getCustomerShippingAddress(orderCustomer) : null;
     if (
       _items.length > 0 &&
@@ -1885,15 +1905,11 @@ function OrderCreateProduct(props: PropTypes) {
       !(checkIfEcommerceByOrderChannelCode(orderDetail?.channel_code) && props.isPageOrderUpdate) &&
       !isPageOrderDetail
     ) {
-      handleCalculateShippingFeeApplyOrderSetting(
-        shippingAddress?.city_id,
-        orderProductsAmount,
-        shippingServiceConfig,
-        transportService,
-        form,
-        setShippingFeeInformedToCustomer,
-        props.isPageOrderUpdate,
-      );
+      const orderProductsAmount = totalAmount(_items);
+      handleChangeShippingFeeApplyOrderSettings({
+        orderProductsAmount: orderProductsAmount,
+        customerShippingAddressCityId: shippingAddress?.city_id,
+      });
     }
     setIsLineItemChanging(false);
     setIsFinishedCalculateItem(true);
@@ -1999,10 +2015,11 @@ function OrderCreateProduct(props: PropTypes) {
       }
     });
     if (isShouldUpdatePrivateNote) {
-      form.setFieldsValue({
-        note: undefined,
-      });
+      // form.setFieldsValue({
+      //   note: undefined,
+      // });
     }
+    setPromotionTitle("");
     // calculateChangeMoney(_items, autoPromotionRate , autoPromotionValue);
   };
 
@@ -2216,14 +2233,14 @@ function OrderCreateProduct(props: PropTypes) {
 
   useEffect(() => {
     if (items && items.length === 0) {
-      if (isShouldUpdatePrivateNote) {
-        form.setFieldsValue({
-          note: "",
-        });
-      }
-      setPromotion && setPromotion(null);
+      // if (isShouldUpdatePrivateNote) {
+      //   form.setFieldsValue({
+      //     note: "",
+      //   });
+      // }
+      setPromotionTitle("");
     }
-  }, [form, isShouldUpdatePrivateNote, items, setPromotion]);
+  }, [form, items, setPromotionTitle]);
 
   useEffect(() => {
     if (coupon) {

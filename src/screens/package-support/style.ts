@@ -17,7 +17,6 @@ export const StyledComponent = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     .ant-form-item {
       box-sizing: border-box;
       padding: 0;
@@ -29,6 +28,18 @@ export const StyledComponent = styled.div`
       font-feature-settings: "tnum";
       margin: 0px;
       vertical-align: top;
+    }
+    .ant-btn {
+      border-radius: 2px;
+      height: 38px;
+      line-height: 36px;
+      padding: 0 20px;
+      font-size: 1rem;
+      font-weight: normal;
+      color: inherit;
+      border-color: #ddd;
+      background-color: #e24343;
+      color: white;
     }
   }
   .pack-row-bottom {

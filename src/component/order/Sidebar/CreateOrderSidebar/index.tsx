@@ -18,6 +18,8 @@ type PropTypes = {
   listOrderSubStatus?: OrderSubStatusResponse[];
   onChangeTag: (value: []) => void;
   setReload: (value: boolean) => void;
+  promotionTitle: string;
+  setPromotionTitle: (value: string) => void;
 };
 
 /**
@@ -44,6 +46,8 @@ function CreateOrderSidebar(props: PropTypes): JSX.Element {
     storeId,
     updateOrder,
     setReload,
+    promotionTitle,
+    setPromotionTitle,
   } = props;
 
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
@@ -71,7 +75,12 @@ function CreateOrderSidebar(props: PropTypes): JSX.Element {
         />
       )}
       <Card title="THÔNG TIN BỔ SUNG">
-        <CreateOrderSidebarOrderExtraInformation onChangeTag={onChangeTag} tags={tags} />
+        <CreateOrderSidebarOrderExtraInformation
+          onChangeTag={onChangeTag}
+          tags={tags}
+          promotionTitle={promotionTitle}
+          setPromotionTitle={setPromotionTitle}
+        />
       </Card>
       {customerId && <SidebarOrderHistory customerId={customerId} />}
     </StyledComponent>

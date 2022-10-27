@@ -8,59 +8,46 @@ import {
   TeamOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import {
-  Button,
-  Col,
-  DatePicker,
-  Form,
-  FormInstance,
-  Input,
-  Popover,
-  Row,
-  Select,
-  Spin,
-} from "antd";
+import { Button, Col, DatePicker, Form, Input, Popover, Row, Select, Spin } from "antd";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
   CustomerUpdateAction,
-  getCustomerDetailAction,
   DeleteShippingAddress,
+  getCustomerDetailAction,
 } from "domain/actions/customer/customer.action";
 import { WardResponse } from "model/content/ward.model";
 import { modalActionType } from "model/modal/modal.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import { ChangeShippingFeeApplyOrderSettingParamModel } from "model/order/order.model";
 import {
   CustomerModel,
   CustomerRequest,
   CustomerShippingAddress,
 } from "model/request/customer.request";
+import { BillingAddressRequestModel, OrderBillRequestFormModel } from "model/request/order.request";
 import { CustomerResponse, ShippingAddress } from "model/response/customer/customer.response";
 import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
+import { useDispatch } from "react-redux";
 import AddAddressModal from "screens/order-online/modal/add-address.modal";
+import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import {
   findWard,
   getCustomerShippingAddress,
-  handleCalculateShippingFeeApplyOrderSetting,
   handleDelayActionWhenInsertTextInSearchInput,
   handleFindArea,
-  totalAmount,
 } from "utils/AppUtils";
 import { GENDER_OPTIONS, VietNamId } from "utils/Constants";
 import { textBodyColor } from "utils/global-styles/variables";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
+import DeleteOrderBillRequestConfirmModal from "../../OrderBillRequest/DeleteOrderBillRequestConfirmModal";
+import OrderBillRequestButton from "../../OrderBillRequest/OrderBillRequestButton";
+import OrderBillRequestModal from "../../OrderBillRequest/OrderBillRequestModal";
 import CustomerShippingAddressOrder from "./customerShipping";
 import DividerCustom from "./dividerCustom";
 import { StyleComponent } from "./style";
-import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-import { BillingAddressRequestModel, OrderBillRequestFormModel } from "model/request/order.request";
-import DeleteOrderBillRequestConfirmModal from "../../OrderBillRequest/DeleteOrderBillRequestConfirmModal";
-import OrderBillRequestModal from "../../OrderBillRequest/OrderBillRequestModal";
-import OrderBillRequestButton from "../../OrderBillRequest/OrderBillRequestButton";
 
 type Props = {
   areas: Array<any>;
@@ -74,12 +61,12 @@ type Props = {
   levelOrder?: number;
   setShippingAddressesSecondPhone?: (value: string) => void;
   handleChangeCustomer: (v: CustomerResponse | null) => void;
-  form: FormInstance<any>;
-  setShippingFeeInformedToCustomer: ((value: number | null) => void) | undefined;
-  isOrderUpdate?: boolean;
   isPageOrderUpdate: boolean;
   billingAddress: BillingAddressRequestModel | null;
   setBillingAddress: (items: BillingAddressRequestModel | null) => void;
+  handleChangeShippingFeeApplyOrderSettings: (
+    value: ChangeShippingFeeApplyOrderSettingParamModel,
+  ) => void;
 };
 
 const UpdateCustomer: React.FC<Props> = (props: Props) => {
@@ -95,12 +82,10 @@ const UpdateCustomer: React.FC<Props> = (props: Props) => {
     setCustomerChange,
     levelOrder = 0,
     handleChangeCustomer,
-    setShippingFeeInformedToCustomer,
-    form,
-    isOrderUpdate,
     isPageOrderUpdate,
     billingAddress,
     setBillingAddress,
+    handleChangeShippingFeeApplyOrderSettings,
   } = props;
   const dispatch = useDispatch();
   const [customerForm] = Form.useForm();
@@ -122,18 +107,6 @@ const UpdateCustomer: React.FC<Props> = (props: Props) => {
     isVisibleConfirmDeleteOrderBillRequestModal,
     setIsVisibleConfirmDeleteOrderBillRequestModal,
   ] = useState(false);
-
-  const orderLineItems = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems,
-  );
-
-  const shippingServiceConfig = useSelector(
-    (state: RootReducerType) => state.orderReducer.shippingServiceConfig,
-  );
-
-  const transportService = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service,
-  );
 
   const disableInput = levelOrder >= 4 ? true : false;
   const initialFormValueShippingAddress = useMemo(() => {
@@ -441,16 +414,9 @@ const UpdateCustomer: React.FC<Props> = (props: Props) => {
             setCustomerChange(false);
             handleChangeCustomer(data);
             const shippingAddress = getCustomerShippingAddress(data);
-            const orderAmount = totalAmount(orderLineItems);
-            handleCalculateShippingFeeApplyOrderSetting(
-              shippingAddress?.city_id,
-              orderAmount,
-              shippingServiceConfig,
-              transportService,
-              form,
-              setShippingFeeInformedToCustomer,
-              isOrderUpdate,
-            );
+            handleChangeShippingFeeApplyOrderSettings({
+              customerShippingAddressCityId: shippingAddress?.city_id,
+            });
           } else {
             dispatch(
               getCustomerDetailAction(customer.id, (data_i: CustomerResponse | null) => {
@@ -467,17 +433,12 @@ const UpdateCustomer: React.FC<Props> = (props: Props) => {
       areas,
       customer,
       dispatch,
-      form,
       handleChangeCustomer,
-      isOrderUpdate,
+      handleChangeShippingFeeApplyOrderSettings,
       isVisibleCollapseCustomer,
-      orderLineItems,
       setCustomerChange,
-      setShippingFeeInformedToCustomer,
       shippingAddress,
-      shippingServiceConfig,
       shippingWards,
-      transportService,
       wards,
     ],
   );
@@ -783,6 +744,9 @@ const UpdateCustomer: React.FC<Props> = (props: Props) => {
                         handleShippingEdit={ShowAddressModalEdit}
                         handleShippingDelete={showAddressModalDelete}
                         handleSingleShippingAddress={setSingleShippingAddress}
+                        handleChangeShippingFeeApplyOrderSettings={
+                          handleChangeShippingFeeApplyOrderSettings
+                        }
                       />
                     }
                     trigger="click"
@@ -1088,8 +1052,7 @@ const UpdateCustomer: React.FC<Props> = (props: Props) => {
         modalAction={modalActionShipping}
         onCancel={() => setVisibleAddress(false)}
         onOk={() => setVisibleAddress(false)}
-        setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
-        isOrderUpdate={isOrderUpdate}
+        handleChangeShippingFeeApplyOrderSettings={handleChangeShippingFeeApplyOrderSettings}
       />
 
       <SaveAndConfirmOrder

@@ -13,15 +13,14 @@ import {
   updateMaterialOtherAction,
 } from "domain/actions/product/material.action";
 import { MaterialResponse } from "model/product/material.model";
-import { careInformation } from "../product/component/CareInformation/care-value";
 import "./material-detail.styles.scss";
 import { Player } from "video-react";
 import "video-react/dist/video-react.css";
 import { EditOutlined } from "@ant-design/icons";
 import { showSuccess } from "utils/ToastUtils";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
-import { formatCurrency } from "../../../utils/AppUtils";
 import useAuthorization from "hook/useAuthorization";
+import { careInformation } from "../Component/CareInformation/care-value";
 
 type MaterialPamram = {
   id: string;

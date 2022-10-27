@@ -1,4 +1,5 @@
 import { Card, Col, Row, Tag } from "antd";
+import { promotionUtils } from "component/order/promotion.utils";
 import { OrderResponse } from "model/response/order/order.response";
 import EditOrderNote from "screens/order-online/component/EditOrderNote";
 import TextWithLineBreak from "screens/order-online/component/TextWithLineBreak";
@@ -48,17 +49,22 @@ function SidebarOrderDetailExtraInformation(props: PropTypes) {
             editNote && editNote(values?.note, values?.customer_note, OrderDetail?.id);
           }}
           noteFormValue={{
-            note: OrderDetail?.note,
+            // note: OrderDetail?.note,
+            note: promotionUtils.getPrivateNoteFromResponse(OrderDetail?.note || ""),
             customer_note: OrderDetail?.customer_note,
           }}
         />
       ),
       value:
         OrderDetail?.note !== "" ? (
-          <TextWithLineBreak note={OrderDetail?.note} />
+          <TextWithLineBreak note={promotionUtils.getPrivateNoteFromResponse(OrderDetail?.note || "")} />
         ) : (
           "Không có ghi chú"
         ),
+    },
+    {
+      title: "Tên CTKM: ",
+      value: promotionUtils.getPromotionText(OrderDetail?.note || "")
     },
     {
       title: "Nhãn: ",

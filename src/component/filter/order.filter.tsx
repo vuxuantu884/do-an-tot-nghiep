@@ -403,6 +403,15 @@ function OrdersFilter(props: PropTypes): JSX.Element {
               finalized_on_max: null,
             });
           break;
+        case "last_coordinator_confirm":
+          setFinalizedClick("");
+          onFilter &&
+            onFilter({
+              ...params,
+              last_coordinator_confirm_on_min: null,
+              last_coordinator_confirm_on_max: null,
+            });
+          break;
         case "completed":
           setCompletedClick("");
           onFilter &&
@@ -669,6 +678,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       issued_on_max: formatDateFilter(params.issued_on_max || undefined),
       finalized_on_min: formatDateFilter(params.finalized_on_min || undefined),
       finalized_on_max: formatDateFilter(params.finalized_on_max || undefined),
+      last_coordinator_confirm_on_min: formatDateFilter(
+        params.last_coordinator_confirm_on_min || undefined,
+      ),
+      last_coordinator_confirm_on_max: formatDateFilter(
+        params.last_coordinator_confirm_on_max || undefined,
+      ),
       cancelled_on_min: formatDateFilter(params.cancelled_on_min || undefined),
       cancelled_on_max: formatDateFilter(params.cancelled_on_max || undefined),
       completed_on_min: formatDateFilter(params.completed_on_min || undefined),
@@ -742,6 +757,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         "issued_on_max",
         "finalized_on_min",
         "finalized_on_max",
+        "last_coordinator_confirm_on_min",
+        "last_coordinator_confirm_on_max",
         "completed_on_min",
         "completed_on_max",
         "cancelled_on_min",
@@ -785,6 +802,14 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       values.issued_on_max = formatDateTimeOrderFilter(values.issued_on_max, dateFormat);
       values.finalized_on_min = formatDateTimeOrderFilter(values.finalized_on_min, dateFormat);
       values.finalized_on_max = formatDateTimeOrderFilter(values.finalized_on_max, dateFormat);
+      values.last_coordinator_confirm_on_min = formatDateTimeOrderFilter(
+        values.last_coordinator_confirm_on_min,
+        dateFormat,
+      );
+      values.last_coordinator_confirm_on_max = formatDateTimeOrderFilter(
+        values.last_coordinator_confirm_on_max,
+        dateFormat,
+      );
       values.cancelled_on_min = formatDateTimeOrderFilter(values.cancelled_on_min, dateFormat);
       values.cancelled_on_max = formatDateTimeOrderFilter(values.cancelled_on_max, dateFormat);
       values.completed_on_min = formatDateTimeOrderFilter(values.completed_on_min, dateFormat);
@@ -820,6 +845,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         });
       setRerender(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dateFormat,
     formRef,
@@ -1026,6 +1052,24 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         key: "finalized",
         name: "Ngày duyệt đơn",
         value: <React.Fragment>{textOrderFinalizedDate}</React.Fragment>,
+      });
+    }
+    if (
+      initialValues.last_coordinator_confirm_on_min ||
+      initialValues.last_coordinator_confirm_on_max
+    ) {
+      let textOrderLastCoordinatorDate =
+        (initialValues.last_coordinator_confirm_on_min
+          ? getTimeFormatOrderFilterTag(initialValues.last_coordinator_confirm_on_min, dateFormat)
+          : "??") +
+        " ~ " +
+        (initialValues.last_coordinator_confirm_on_max
+          ? getTimeFormatOrderFilterTag(initialValues.last_coordinator_confirm_on_max, dateFormat)
+          : "??");
+      list.push({
+        key: "last_coordinator_confirm",
+        name: "Ngày xác nhận",
+        value: <React.Fragment>{textOrderLastCoordinatorDate}</React.Fragment>,
       });
     }
     if (initialValues.completed_on_min || initialValues.completed_on_max) {
@@ -1557,6 +1601,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     initialValues.issued_on_max,
     initialValues.finalized_on_min,
     initialValues.finalized_on_max,
+    initialValues.last_coordinator_confirm_on_min,
+    initialValues.last_coordinator_confirm_on_max,
     initialValues.completed_on_min,
     initialValues.completed_on_max,
     initialValues.cancelled_on_min,
@@ -2068,11 +2114,27 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                 {orderType === ORDER_TYPES.online && (
                   <Col span={8} xxl={8}>
                     <div className="ant-form-item-label">
-                      <label>Ngày xác nhận</label>
+                      <label>Ngày duyệt đơn</label>
                     </div>
                     <CustomFilterDatePicker
                       fieldNameFrom="finalized_on_min"
                       fieldNameTo="finalized_on_max"
+                      activeButton={finalizedClick}
+                      setActiveButton={setFinalizedClick}
+                      format={dateFormat}
+                      formRef={formRef}
+                      showTime={{ format: timeFormat }}
+                    />
+                  </Col>
+                )}
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <div className="ant-form-item-label">
+                      <label>Ngày xác nhận</label>
+                    </div>
+                    <CustomFilterDatePicker
+                      fieldNameFrom="last_coordinator_confirm_on_min"
+                      fieldNameTo="last_coordinator_confirm_on_max"
                       activeButton={finalizedClick}
                       setActiveButton={setFinalizedClick}
                       format={dateFormat}

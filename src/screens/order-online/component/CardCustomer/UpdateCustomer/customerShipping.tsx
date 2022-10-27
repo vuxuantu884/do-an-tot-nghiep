@@ -1,17 +1,15 @@
-import { Row, Col, Checkbox } from "antd";
+import { Checkbox, Col, Row } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import { CustomerResponse, ShippingAddress } from "model/response/customer/customer.response";
-import actionColumn from "../../../common/action.column";
-import { CustomerShippingAddress } from "model/request/customer.request";
-import React from "react";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { useDispatch, useSelector } from "react-redux";
 import {
   getCustomerDetailAction,
   UpdateShippingAddress,
 } from "domain/actions/customer/customer.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { handleCalculateShippingFeeApplyOrderSetting, totalAmount } from "utils/AppUtils";
+import { CustomerShippingAddress } from "model/request/customer.request";
+import { CustomerResponse, ShippingAddress } from "model/response/customer/customer.response";
+import React from "react";
+import { useDispatch } from "react-redux";
+import { showError, showSuccess } from "utils/ToastUtils";
+import actionColumn from "../../../common/action.column";
 
 function CustomerShippingAddressOrder(props: any) {
   const {
@@ -21,23 +19,9 @@ function CustomerShippingAddressOrder(props: any) {
     handleShippingDelete,
     handleSingleShippingAddress,
     handleShippingAddress,
-    form,
-    setShippingFeeInformedToCustomer,
-    isOrderUpdate,
+    handleChangeShippingFeeApplyOrderSettings,
   } = props;
   const dispatch = useDispatch();
-
-  const orderLineItems = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems,
-  );
-
-  const shippingServiceConfig = useSelector(
-    (state: RootReducerType) => state.orderReducer.shippingServiceConfig,
-  );
-
-  const transportService = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service,
-  );
 
   const handleShippingDefault = (value: any, item: any) => {
     let _item = { ...item };
@@ -53,17 +37,9 @@ function CustomerShippingAddressOrder(props: any) {
                 handleChangeCustomer(datas);
               }),
             );
-            const orderAmount = totalAmount(orderLineItems);
-            console.log("isOrderUpdate6", isOrderUpdate);
-            handleCalculateShippingFeeApplyOrderSetting(
-              data.city_id,
-              orderAmount,
-              shippingServiceConfig,
-              transportService,
-              form,
-              setShippingFeeInformedToCustomer,
-              isOrderUpdate,
-            );
+            handleChangeShippingFeeApplyOrderSettings({
+              customerShippingAddressCityId: data.city_id,
+            });
             showSuccess("Đặt mặc định thành công");
             handleShippingAddress(data);
           } else {

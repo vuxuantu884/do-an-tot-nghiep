@@ -153,8 +153,6 @@ const Category = () => {
   );
   const onGetSuccess = useCallback((results: Array<CategoryResponse>) => {
     let newData: Array<CategoryView> = convertCategory(results);
-    console.log("newData", newData);
-
     setData(newData);
   }, []);
   const onDeleteSuccess = useCallback(async () => {

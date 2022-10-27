@@ -1,5 +1,4 @@
-import {HandoverResponse} from "./../handover/handover.response";
-import {BaseObject} from "model/base/base.response";
+import { BaseObject } from "model/base/base.response";
 import {
   BillingAddressResponseModel,
   FulFillmentResponse,
@@ -13,8 +12,8 @@ import {
   ShippingAddress,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
-import {GoodsReceiptsResponse} from "model/response/pack/pack.response";
-import {ORDER_TYPES} from "utils/Order.constants";
+import { ORDER_TYPES } from "utils/Order.constants";
+import { HandoverResponse } from "./../handover/handover.response";
 
 export interface OrderItemModel {
   product_id: number;
@@ -159,6 +158,8 @@ export interface OrderSearchQuery {
   issued_on_predefined: string | null;
   finalized_on_min: string | null;
   finalized_on_max: string | null;
+  last_coordinator_confirm_on_min?: string | null;
+  last_coordinator_confirm_on_max?: string | null;
   finalized_on_predefined: string | null;
   ship_on_min: string | null;
   ship_on_max: string | null;
@@ -383,4 +384,10 @@ export enum OrderPageTypeModel {
   orderUpdate = "orderUpdate",
   orderReturnCreate = "orderReturnCreate",
   other = "other",
+}
+
+export interface ChangeShippingFeeApplyOrderSettingParamModel {
+  customerShippingAddressCityId?: number | null;
+  transportService?: string | null | undefined;
+  orderProductsAmount?: number;
 }

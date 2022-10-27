@@ -1717,7 +1717,7 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
     if (!shippingServiceConfig || !customerShippingAddressCityId || orderPrice === undefined) {
       form?.setFieldsValue({ shipping_fee_informed_to_customer: 0 });
       setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(0);
-      showSuccess("Phí ship đã được thay đổi!");
+      showSuccess("Chú ý: Phí ship báo khách đã được thay đổi!");
       return;
     }
   }
@@ -1810,7 +1810,7 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
   }
   form?.setFieldsValue({ shipping_fee_informed_to_customer: result });
   setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(result);
-  showSuccess("Phí ship đã được thay đổi!");
+  showSuccess("Chú ý: Phí ship báo khách đã được thay đổi!");
 };
 
 export const getCustomerShippingAddress = (customer: CustomerResponse) => {

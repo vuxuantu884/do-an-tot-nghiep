@@ -7,6 +7,7 @@ import NumberInput from "component/custom/number-input.custom";
 import CreateBillStep from "component/header/create-bill-step";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
+import { promotionUtils } from "component/order/promotion.utils";
 import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
@@ -57,7 +58,6 @@ import OrderFulfillmentHeader from "screens/order-online/component/OrderPackingA
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import useFetchOrderConfig from "screens/order-online/hooks/useFetchOrderConfig";
 import useFetchPaymentMethods from "screens/order-online/hooks/useFetchPaymentMethods";
-import useFetchShippingServiceConfig from "screens/order-online/hooks/useFetchShippingServiceConfig";
 import { deleteOrderService, getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
   formatCurrency,
@@ -101,6 +101,7 @@ import OrderFulfillmentCancelledShowDate from "../component/OrderPackingAndShipp
 import OrderFulfillmentDetail from "../component/OrderPackingAndShippingDetail/OrderFulfillmentDetail";
 import OrderFulfillmentShowFulfillment from "../component/OrderPackingAndShippingDetail/OrderFulfillmentShowFulfillment";
 import OrderFulfillmentShowProduct from "../component/OrderPackingAndShippingDetail/OrderFulfillmentShowProduct";
+import useCalculateShippingFee from "../hooks/useCalculateShippingFee";
 import useHandleMomoCreateShipment from "../hooks/useHandleMomoCreateShipment";
 import { StyledComponent } from "./styles";
 
@@ -182,10 +183,9 @@ export default function Order(props: PropTypes) {
     setBillingAddress(_objBillingAddress);
   };
 
-  const shippingServiceConfig = useFetchShippingServiceConfig();
-
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
+  const [promotionTitle, setPromotionTitle] = useState("");
   // console.log('promotion33', promotion)
   // console.log('coupon', coupon)
   const stores = useFetchStores();
@@ -335,7 +335,7 @@ export default function Order(props: PropTypes) {
       payments: [],
       channel_id: null,
       finalized: false,
-      uniform:false,
+      uniform: false,
       // automatic_discount: true,
       automatic_discount: false, // sửa đơn hàng ko mặc định bật chiết khấu tự động
     };
@@ -666,6 +666,10 @@ export default function Order(props: PropTypes) {
     values.company_id = DEFAULT_COMPANY.company_id;
 
     values.export_bill = billingAddress?.tax_code ? true : false;
+    values.note = promotionUtils.combinePrivateNoteAndPromotionTitle(
+      values.note || "",
+      promotionTitle,
+    );
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
@@ -1032,16 +1036,18 @@ export default function Order(props: PropTypes) {
             payments: new_payments,
             reference_code: response.reference_code,
             url: response.url,
-            note: response.note,
+            // note: response.note,ggg
+            note: promotionUtils.getPrivateNoteFromResponse(response.note || ""),
             tags: response.tags,
             marketer_code: response.marketer_code ? response.marketer_code : null,
             coordinator_code: response.coordinator_code ? response.coordinator_code : null,
             sub_status_code: response.sub_status_code,
             // automatic_discount: response.automatic_discount,
             automatic_discount: false, // sửa đơn hàng ko mặc định bật chiết khấu tự động
-            uniform:response.uniform,
+            uniform: response.uniform,
           });
           setShippingFeeInformedToCustomer(response.shipping_fee_informed_to_customer);
+          setPromotionTitle(promotionUtils.getPromotionText(response.note || ""));
 
           if (!canCreateShipment(response.fulfillments)) {
             setShipmentMethod(0);
@@ -1228,6 +1234,13 @@ export default function Order(props: PropTypes) {
 
   //xử lý shipment khi có momo
   useHandleMomoCreateShipment(setShipmentMethod, totalPaymentsIncludePaymentUpdate);
+
+  // shipping fee
+  const {
+    handleChangeShippingFeeApplyOrderSettings,
+    setIsShippingFeeAlreadyChanged,
+    shippingServiceConfig,
+  } = useCalculateShippingFee(totalOrderAmount, form, setShippingFeeInformedToCustomer, true);
 
   useEffect(() => {
     if (storeId != null) {
@@ -1485,13 +1498,13 @@ export default function Order(props: PropTypes) {
                     OrderDetail={OrderDetail}
                     shippingAddressesSecondPhone={shippingAddressesSecondPhone}
                     setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
-                    form={form}
-                    setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
                     customerChange={customerChange}
                     setCustomerChange={setCustomerChange}
-                    isOrderUpdate
                     // handleOrderBillRequest = {handleOrderBillRequest}
                     // initOrderBillRequest={undefined}
+                    handleChangeShippingFeeApplyOrderSettings={
+                      handleChangeShippingFeeApplyOrderSettings
+                    }
                   />
 
                   <OrderCreateProduct
@@ -1521,11 +1534,14 @@ export default function Order(props: PropTypes) {
                     orderDetail={OrderDetail}
                     orderConfig={orderConfig}
                     loyaltyPoint={loyaltyPoint}
-                    setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
                     countFinishingUpdateCustomer={countFinishingUpdateCustomer}
                     shipmentMethod={shipmentMethod}
                     stores={stores}
                     isPageOrderUpdate
+                    setPromotionTitle={setPromotionTitle}
+                    handleChangeShippingFeeApplyOrderSettings={
+                      handleChangeShippingFeeApplyOrderSettings
+                    }
                   />
                   <CardShowOrderPayments
                     OrderDetail={OrderDetail}
@@ -1605,6 +1621,7 @@ export default function Order(props: PropTypes) {
                             maxLength={9}
                             minLength={0}
                             onChange={(value) => {
+                              setIsShippingFeeAlreadyChanged(true);
                               if (value) {
                                 setShippingFeeInformedToCustomer(value);
                               } else {
@@ -1706,6 +1723,10 @@ export default function Order(props: PropTypes) {
                         ecommerceShipment={ecommerceShipment}
                         payments={totalPaymentsIncludePaymentUpdate}
                         orderPageType={OrderPageTypeModel.orderUpdate}
+                        handleChangeShippingFeeApplyOrderSettings={
+                          handleChangeShippingFeeApplyOrderSettings
+                        }
+                        setIsShippingFeeAlreadyChanged={setIsShippingFeeAlreadyChanged}
                       />
                     )}
                   </Card>
@@ -1720,6 +1741,8 @@ export default function Order(props: PropTypes) {
                     orderDetail={OrderDetail}
                     updateOrder
                     setReload={setReload}
+                    promotionTitle={promotionTitle}
+                    setPromotionTitle={setPromotionTitle}
                   />
                 </Col>
               </Row>

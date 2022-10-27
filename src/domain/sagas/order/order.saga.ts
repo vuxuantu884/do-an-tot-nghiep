@@ -689,35 +689,52 @@ function* orderConfigSaga(action: YodyAction) {
 }
 
 function* getFulfillmentsSaga(action: YodyAction) {
-  const { request, setData } = action.payload;
+  const { request, setData, handleError } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<any> = yield call(getFulfillmentsApi, request);
     if (isFetchApiSuccessful(response)) {
       setData(response.data);
     } else {
-      yield put(fetchApiErrorAction(response, "Danh sách fulfillment"));
+      let textApiInformation = [];
+      if (response?.message) {
+        textApiInformation.push(response?.message);
+      }
+      if (response?.errors && response?.errors.length > 0) {
+        response?.errors?.forEach((e: any) => textApiInformation.push(e));
+      }
+      handleError(textApiInformation);
+
+      //yield put(fetchApiErrorAction(response, "Danh sách fulfillment"));
     }
   } catch (error) {
-    showError("Có lỗi khi lấy danh sách fulfillment! Vui lòng thử lại sau! 11");
+    handleError();
+    showError(["Có lỗi khi lấy danh sách fulfillment! Vui lòng thử lại sau! 11"]);
   } finally {
     yield put(hideLoading());
   }
 }
 
 function* putFulfillmentsSagaPack(action: YodyAction) {
-  const { request, setData } = action.payload;
+  const { request, setData, handleError } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<any> = yield call(putFulfillmentsPackApi, request);
     if (isFetchApiSuccessful(response)) {
       setData(response);
     } else {
-      yield put(fetchApiErrorAction(response, "Cập nhật fulfillment"));
+      let textApiInformation = [];
+      if (response?.message) {
+        textApiInformation.push(response?.message);
+      }
+      if (response?.errors && response?.errors.length > 0) {
+        response?.errors?.forEach((e: any) => textApiInformation.push(e));
+      }
+      handleError(textApiInformation);
     }
   } catch (error) {
     console.log(error);
-    showError("Có lỗi khi cập nhật fulfillment! Vui lòng thử lại sau!");
+    handleError(["Có lỗi khi cập nhật fulfillment! Vui lòng thử lại sau!"]);
   } finally {
     yield put(hideLoading());
   }

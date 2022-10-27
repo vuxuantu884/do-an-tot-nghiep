@@ -6,10 +6,6 @@ import { DiscountSearchQuery } from "model/query/discount.query";
 import { Button, Col, Form, Input, Row, Select, Spin, Tag } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
-import {
-  SearchVariantField,
-  SearchVariantMapping,
-} from "model/promotion/promotion-mapping";
 import BaseFilter from "component/filter/base.filter";
 import { FilterOutlined } from "@ant-design/icons";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
@@ -23,7 +19,11 @@ import {
 } from "service/product/product.service";
 import debounce from "lodash/debounce";
 import FilterDateCustomerCustom from "component/filter/FilterDateCustomerCustom";
-import { GIFT_METHOD_ENUM } from "model/promotion/gift.model";
+import {
+  GiftFilterFieldMapping,
+  GiftFilterField,
+  GIFT_METHOD_LIST,
+} from "model/promotion/gift.model";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import { AccountResponse } from "model/account/account.model";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
@@ -32,85 +32,25 @@ import TreeSource from "component/treeSource";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { cloneDeep } from "lodash";
 import { GiftListFilterStyled } from "screens/promotion/gift/gift.style";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { getListChannelRequest } from "domain/actions/order/order.action";
+import { getListAllSourceRequest } from "domain/actions/product/source.action";
+import { STATE_LIST, DATE_LIST_FORMAT } from "screens/promotion/constants";
+
+
+const { Item } = Form;
+const { Option } = Select;
 
 type DiscountFilterProps = {
   initQuery: DiscountSearchQuery;
   params: DiscountSearchQuery;
-  listStore: Array<StoreResponse>;
-  channelList: Array<ChannelResponse>;
-  sourceList: Array<SourceResponse>;
   onFilter?: (value: DiscountSearchQuery | Object) => void;
 };
-
-
-const PRIORITY_LIST = [
-  { value: 1 },
-  { value: 2 },
-  { value: 3 },
-  { value: 4 },
-  { value: 5 },
-];
-
-const STATE_LIST = [
-  {
-    value: "DRAFT",
-    name: "Chờ áp dụng",
-  },
-  {
-    value: "ACTIVE",
-    name: "Đang áp dụng",
-  },
-  {
-    value: "DISABLED",
-    name: "Tạm ngừng",
-  },
-  {
-    value: "CANCELLED",
-    name: "Đã huỷ",
-  },
-];
-
-const GIFT_METHOD_LIST = [
-  {
-    name: "Quà tặng theo sản phẩm",
-    value: GIFT_METHOD_ENUM.QUANTITY,
-  },
-  {
-    name: "Quà tặng theo đơn hàng",
-    value: GIFT_METHOD_ENUM.ORDER_THRESHOLD,
-  },
-];
-
-const DATE_LIST_FORMAT = {
-  todayFrom: moment().startOf("day").format("DD-MM-YYYY"),
-  todayTo: moment().endOf("day").format("DD-MM-YYYY"),
-
-  yesterdayFrom: moment().startOf("day").subtract(1, "days").format("DD-MM-YYYY"),
-  yesterdayTo: moment().endOf("day").subtract(1, "days").format("DD-MM-YYYY"),
-
-  thisWeekFrom: moment().startOf("week").format("DD-MM-YYYY"),
-  thisWeekTo: moment().endOf("week").format("DD-MM-YYYY"),
-
-  lastWeekFrom: moment().startOf("week").subtract(1, "weeks").format("DD-MM-YYYY"),
-  lastWeekTo: moment().endOf("week").subtract(1, "weeks").format("DD-MM-YYYY"),
-
-  thisMonthFrom: moment().startOf("month").format("DD-MM-YYYY"),
-  thisMonthTo: moment().endOf("month").format("DD-MM-YYYY"),
-
-  lastMonthFrom: moment().subtract(1, "months").startOf("month").format("DD-MM-YYYY"),
-  lastMonthTo: moment().subtract(1, "months").endOf("month").format("DD-MM-YYYY"),
-};
-
-const { Item } = Form;
-const { Option } = Select;
 
 const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProps) => {
   const {
     initQuery,
     params,
-    listStore,
-    channelList,
-    sourceList,
     onFilter,
   } = props;
 
@@ -136,8 +76,11 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
   const [accountDataFiltered, setAccountDataFiltered] = useState<Array<AccountResponse>>([]);
 
+  const [listStore, setStore] = useState<Array<StoreResponse>>([]);
+  const [channelList, setChannelList] = useState<Array<ChannelResponse>>([]);
+  const [sourceList, setSourceList] = useState<Array<SourceResponse>>([]);
 
-  /** get init account */
+  /** get account, store, channel, source  */
   useEffect(() => {
     dispatch(
       searchAccountPublicAction({ limit: 30 }, (data: PageResponse<AccountResponse> | false) => {
@@ -148,6 +91,9 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
         setAccountData(data.items);
       }),
     );
+    dispatch(StoreGetListAction(setStore));
+    dispatch(getListChannelRequest(setChannelList));
+    dispatch(getListAllSourceRequest(setSourceList));
   }, [dispatch]);
 
   /** handle form value */
@@ -155,7 +101,6 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     return {
       ...params,
       states: convertItemToArray(params.states),
-      priorities: convertItemToArray(params.priorities, "number"),
       entitled_methods: convertItemToArray(params.entitled_methods),
       creators: convertItemToArray(params.creators),
       store_ids: convertItemToArray(params.store_ids, "number"),
@@ -298,9 +243,9 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
 
   useEffect(() => {
     if (initialValues.variant_id) {
-      getVariantDetailById(initialValues.variant_id);
+      getVariantDetailById(initialValues.variant_id).then();
     } else if (initialValues.product_id) {
-      getProductDetailById(Number(initialValues.product_id));
+      getProductDetailById(Number(initialValues.product_id)).then();
     }
 
     getAccountByParams(initialValues.creators);
@@ -655,33 +600,21 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
       });
     }
 
-    if (initialValues.priorities?.length) {
-      let priorityFiltered = "";
-      initialValues.priorities.forEach((priorityValue: number) => {
-        priorityFiltered = priorityFiltered + priorityValue.toString() + "; ";
-      });
-      list.push({
-        key: "priorities",
-        name: "Mức độ ưu tiên",
-        value: priorityFiltered,
-      });
-    }
-
     if (initialValues.entitled_methods?.length) {
-      let discountMethodFiltered = "";
-      initialValues.entitled_methods.forEach((discountMethodValue: string) => {
+      let giftMethodFiltered = "";
+      initialValues.entitled_methods.forEach((giftMethodValue: string) => {
         const giftMethod = GIFT_METHOD_LIST.find(
-          (item: any) => item.value?.toString() === discountMethodValue?.toString(),
+          (item: any) => item.value?.toString() === giftMethodValue?.toString(),
         );
-        discountMethodFiltered = giftMethod
-          ? discountMethodFiltered + giftMethod.name + "; "
-          : discountMethodFiltered + discountMethodValue + "; ";
+        giftMethodFiltered = giftMethod
+          ? giftMethodFiltered + giftMethod.label + "; "
+          : giftMethodFiltered + giftMethodValue + "; ";
       });
-      if (discountMethodFiltered) {
+      if (giftMethodFiltered) {
         list.push({
           key: "entitled_methods",
           name: "Loại khuyến mại",
-          value: discountMethodFiltered,
+          value: giftMethodFiltered,
         });
       }
     }
@@ -699,7 +632,7 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
       if (createdByFiltered) {
         list.push({
           key: "creators",
-          name: "Người tạo chiết khấu",
+          name: "Người tạo chương trình",
           value: createdByFiltered,
         });
       }
@@ -793,7 +726,6 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     initialValues.variant_id,
     initialValues.product_id,
     initialValues.states,
-    initialValues.priorities,
     initialValues.entitled_methods,
     initialValues.creators,
     initialValues.store_ids,
@@ -824,9 +756,6 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
           break;
         case "states":
           onFilter && onFilter({ ...params, states: [] });
-          break;
-        case "priorities":
-          onFilter && onFilter({ ...params, priorities: [] });
           break;
         case "entitled_methods":
           onFilter && onFilter({ ...params, entitled_methods: [] });
@@ -910,7 +839,7 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
             />
           </Form.Item>
 
-          <Item style={{ display: "none" }} name="states" className="select-state">
+          <Item name="states" className="select-state">
             <Select
               showArrow
               allowClear
@@ -931,8 +860,7 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
               Lọc
             </Button>
           </Item>
-          {/*@Todo Thái tạm thời ẩn*/}
-          <Item style={{ display: "none" }}>
+          <Item>
             <Button icon={<FilterOutlined />} onClick={openFilter}>
               Thêm bộ lọc
             </Button>
@@ -964,10 +892,10 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
       >
         <Form onFinish={onFinish} form={form} initialValues={params} layout="vertical">
           <Row gutter={24}>
-            {Object.keys(SearchVariantMapping).map((key) => {
+            {Object.keys(GiftFilterFieldMapping).map((key) => {
               let component: any = null;
               switch (key) {
-                case SearchVariantField.priorities:
+                case GiftFilterField.entitled_methods:
                   component = (
                     <Select
                       showArrow
@@ -975,39 +903,19 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                       optionFilterProp="children"
                       mode="multiple"
                       maxTagCount={"responsive"}
-                      placeholder="Chọn 1 hoặc nhiều mức độ"
+                      placeholder="Chọn 1 hoặc nhiều loại"
                       getPopupContainer={(trigger: any) => trigger.parentElement}
-                      notFoundContent="Không tìm thấy mức độ phù hợp"
-                    >
-                      {PRIORITY_LIST?.map((item) => (
-                        <Option key={item.value} value={item.value}>
-                          {item.value}
-                        </Option>
-                      ))}
-                    </Select>
-                  );
-                  break;
-                case SearchVariantField.entitled_methods:
-                  component = (
-                    <Select
-                      showArrow
-                      allowClear
-                      optionFilterProp="children"
-                      mode="multiple"
-                      maxTagCount={"responsive"}
-                      placeholder="Chọn 1 hoặc nhiều phương thức"
-                      getPopupContainer={(trigger: any) => trigger.parentElement}
-                      notFoundContent="Không tìm thấy phương thức phù hợp"
+                      notFoundContent="Không tìm thấy loại khuyến mại phù hợp"
                     >
                       {GIFT_METHOD_LIST?.map((item) => (
                         <Option key={item.value} value={item.value}>
-                          {item.name}
+                          {item.label}
                         </Option>
                       ))}
                     </Select>
                   );
                   break;
-                case SearchVariantField.creators:
+                case GiftFilterField.creators:
                   component = (
                     <AccountCustomSearchSelect
                       placeholder="Tìm kiếm theo tên, mã nhân viên"
@@ -1020,8 +928,7 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                     />
                   );
                   break;
-
-                case SearchVariantField.store_ids:
+                case GiftFilterField.store_ids:
                   component = (
                     <TreeStore
                       name="store_ids"
@@ -1031,7 +938,7 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                     />
                   );
                   break;
-                case SearchVariantField.channels:
+                case GiftFilterField.channels:
                   component = (
                     <Select
                       mode="multiple"
@@ -1051,7 +958,7 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                     </Select>
                   );
                   break;
-                case SearchVariantField.source_ids:
+                case GiftFilterField.source_ids:
                   component = (
                     <TreeSource
                       placeholder="Chọn nguồn"
@@ -1060,7 +967,7 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                     />
                   );
                   break;
-                case SearchVariantField.starts_date:
+                case GiftFilterField.starts_date:
                   component = (
                     <FilterDateCustomerCustom
                       fieldNameFrom="starts_date_min"
@@ -1075,7 +982,7 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                     />
                   );
                   break;
-                case SearchVariantField.ends_date:
+                case GiftFilterField.ends_date:
                   component = (
                     <FilterDateCustomerCustom
                       fieldNameFrom="ends_date_min"
@@ -1094,7 +1001,7 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
               return (
                 <Col span={12} key={key}>
                   <div style={{ marginBottom: 5 }}>
-                    <b>{SearchVariantMapping[key]}</b>
+                    <b>{GiftFilterFieldMapping[key]}</b>
                   </div>
                   <Item name={key}>{component}</Item>
                 </Col>

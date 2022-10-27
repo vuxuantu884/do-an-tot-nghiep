@@ -28,6 +28,7 @@ import {
   checkIfFinishedPayment,
   checkIfFulfillmentCancelled,
   checkIfMomoPayment,
+  checkIfMomoTypePayment,
   checkIfOrderHasNoPayment,
   checkIfOrderPageType,
 } from "utils/OrderUtils";
@@ -135,7 +136,11 @@ function CardShowOrderPayments(props: PropTypes) {
     if (!OrderDetail) {
       return false;
     }
-    if (checkIfOrderHasNoPayment(OrderDetail) && !sortedFulfillments[0]?.shipment?.cod) {
+    if (
+      checkIfOrderHasNoPayment(OrderDetail) &&
+      !sortedFulfillments[0]?.shipment?.cod &&
+      OrderDetail.total > 0
+    ) {
       result = true;
     } else {
       result = false;
@@ -249,8 +254,8 @@ function CardShowOrderPayments(props: PropTypes) {
 
     renderTitleNotMomo(payment: OrderPaymentResponse) {
       if (!checkIfMomoPayment(payment)) {
-        if (payment?.type?.toLowerCase() === "momo") {
-          return `${payment.payment_method} (MOMO)`;
+        if (checkIfMomoTypePayment(payment)) {
+          return `Momo QR`;
         }
         return payment.payment_method;
       }
@@ -606,7 +611,8 @@ function CardShowOrderPayments(props: PropTypes) {
           stepsStatusValue === FulFillmentStatus.SHIPPED ||
           disabledBottomActions ||
           OrderDetail.sub_status_code === ORDER_SUB_STATUS.returning ||
-          OrderDetail.sub_status_code === ORDER_SUB_STATUS.confirm_returned)
+          OrderDetail.sub_status_code === ORDER_SUB_STATUS.confirm_returned ||
+          OrderDetail.sub_status_code === ORDER_SUB_STATUS.delivery_service_cancelled)
       );
     };
     if (!checkIfOrderHasPaidAllMoneyAmountIncludeCod(OrderDetail) && !isShowPaymentPartialPayment) {
@@ -695,7 +701,7 @@ function CardShowOrderPayments(props: PropTypes) {
     <StyledComponent>
       {checkIfNotShowPaymentDetail()
         ? renderUpdatePayment(OrderDetail)
-        : OrderDetail && OrderDetail?.total > 0
+        : OrderDetail && OrderDetail?.total >= 0
         ? renderShowPaymentDetail()
         : null}
     </StyledComponent>

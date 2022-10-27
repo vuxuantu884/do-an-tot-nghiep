@@ -12,7 +12,7 @@ import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { getListReasonRequest, getReturnsAction } from "domain/actions/order/order.action";
+import { getReturnsAction } from "domain/actions/order/order.action";
 import { getAllSourcesRequestAction } from "domain/actions/product/source.action";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
@@ -50,16 +50,16 @@ import { StyledComponent } from "./styles";
 import IconFacebook from "assets/icon/channel/facebook.svg";
 import IconShopee from "assets/icon/channel/shopee.svg";
 import IconStore from "assets/icon/channel/store.svg";
+import IconPaymentReturn from "assets/icon/payment/tien-hoan.svg";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import useAuthorization from "hook/useAuthorization";
 import CopyIcon from "screens/order-online/component/CopyIcon";
+import useFetchOrderReturnReasons from "screens/order-online/hooks/useFetchOrderReturnReasons";
 import {
   deleteOrderReturnService,
   updateNoteOrderReturnService,
 } from "service/order/return.service";
 import EditNote from "../EditOrderNote";
-import IconPaymentReturn from "assets/icon/payment/tien-hoan.svg";
-import useFetchOrderReturnReasons from "screens/order-online/hooks/useFetchOrderReturnReasons";
 
 type PropTypes = {
   initQuery: ReturnSearchQuery;
@@ -882,7 +882,7 @@ function OrderReturnList(props: PropTypes) {
       // let hiddenFields = [];
       switch (optionExport) {
         case 1:
-          newParams = {is_online: orderType === ORDER_TYPES.online};
+          newParams = { is_online: orderType === ORDER_TYPES.online };
           break;
         case 2:
           break;
