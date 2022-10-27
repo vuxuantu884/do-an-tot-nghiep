@@ -845,6 +845,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         });
       setRerender(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dateFormat,
     formRef,
@@ -1600,6 +1601,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     initialValues.issued_on_max,
     initialValues.finalized_on_min,
     initialValues.finalized_on_max,
+    initialValues.last_coordinator_confirm_on_min,
+    initialValues.last_coordinator_confirm_on_max,
     initialValues.completed_on_min,
     initialValues.completed_on_max,
     initialValues.cancelled_on_min,
