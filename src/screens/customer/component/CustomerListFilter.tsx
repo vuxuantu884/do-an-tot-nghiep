@@ -54,6 +54,8 @@ import UserCustomFilterTag from "component/filter/UserCustomFilterTag";
 import FilterConfigModal from "component/modal/FilterConfigModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import useHandleFilterConfigs from "./useHandleFilterConfigs";
+import { cloneDeep } from "lodash";
+import { CHARACTERISTICS_LIST } from "screens/customer/helper";
 
 type CustomerListFilterProps = {
   isLoading?: boolean;
@@ -106,8 +108,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
 
   const dispatch = useDispatch();
   const [formCustomerFilter] = Form.useForm();
-  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
-  const LIST_GENDER = bootstrapReducer.data?.gender;
+  const listGenderEnum = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.gender);
 
   const [formSearchValuesToSave, setFormSearchValuesToSave] = useState({});
   const [tagActive, setTagActive] = useState<number | null>();
@@ -129,6 +130,24 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
   const [lastDateStart, setLastDateStart] = useState<any>(params.last_order_time_from);
   const [lastDateEnd, setLastDateEnd] = useState<any>(params.last_order_time_to);
 
+  // thêm các điều kiện lọc bổ sung
+  const LIST_GENDER = useMemo(() => {
+    const cloneListGenderEnum = cloneDeep(listGenderEnum);
+    cloneListGenderEnum?.push({name: "Chưa có giới tính", value: "undefine"});
+    return cloneListGenderEnum
+  }, [listGenderEnum]);
+
+  const customerGroupList = useMemo(() => {
+    const cloneGroups = cloneDeep(groups);
+    cloneGroups?.push({name: "Chưa thuộc nhóm KH", id: -1});
+    return cloneGroups
+  }, [groups]);
+
+  const customerLevelList = useMemo(() => {
+    const cloneLoyaltyUsageRules = cloneDeep(loyaltyUsageRules);
+    cloneLoyaltyUsageRules?.push({rank_name: "Chưa có hạng KH", rank_id: -1});
+    return cloneLoyaltyUsageRules
+  }, [loyaltyUsageRules]);
 
   // lưu bộ lọc
   const onShowSaveFilter = useCallback(() => {
@@ -274,6 +293,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
 
       customer_group_ids: convertItemToArray(params.customer_group_ids),
       customer_level_ids: convertItemToArray(params.customer_level_ids),
+      characteristics: convertItemToArray(params.characteristics),
       customer_type_ids: convertItemToArray(params.customer_type_ids),
       assign_store_ids: convertItemToArray(params.assign_store_ids, "number"),
       channel_ids: convertItemToArray(params.channel_ids),
@@ -745,7 +765,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     if (initialValues.customer_group_ids?.length) {
       let customerGroupFiltered = "";
       initialValues.customer_group_ids.forEach((customer_group_id: any) => {
-        const customerGroup = groups?.find(
+        const customerGroup = customerGroupList?.find(
           (item: any) => item.id?.toString() === customer_group_id?.toString(),
         );
         customerGroupFiltered = customerGroup
@@ -762,7 +782,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     if (initialValues.customer_level_ids?.length) {
       let customerLevelFiltered = "";
       initialValues.customer_level_ids.forEach((customer_level_id: any) => {
-        const customerLevel = loyaltyUsageRules?.find(
+        const customerLevel = customerLevelList?.find(
           (item: any) => item.rank_id?.toString() === customer_level_id?.toString(),
         );
         customerLevelFiltered = customerLevel
@@ -1257,6 +1277,23 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
       });
     }
 
+    if (initialValues.characteristics?.length) {
+      let customerCharacteristics = "";
+      initialValues.characteristics.forEach((characteristicValue: string) => {
+        const characteristic = CHARACTERISTICS_LIST?.find(
+          (item: any) => item.value === characteristicValue
+        );
+        customerCharacteristics = characteristic
+          ? customerCharacteristics + characteristic.label + "; "
+          : customerCharacteristics;
+      });
+      list.push({
+        key: "characteristics",
+        name: "Đặc điểm",
+        value: customerCharacteristics,
+      });
+    }
+
     /**
      * Web/App customer
      */
@@ -1309,6 +1346,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     initialValues.gender,
     initialValues.customer_group_ids,
     initialValues.customer_level_ids,
+    initialValues.characteristics,
     initialValues.responsible_staff_codes,
     initialValues.customer_type_ids,
     initialValues.assign_store_ids,
@@ -1365,8 +1403,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     initialValues.utm_source,
     initialValues.utm_term,
     LIST_GENDER,
-    groups,
-    loyaltyUsageRules,
+    customerGroupList,
+    customerLevelList,
     accountDataFiltered,
     types,
     listStore,
@@ -1393,6 +1431,10 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
         case "customer_level_ids":
           onFilter && onFilter({ ...params, customer_level_ids: [] });
           formCustomerFilter?.setFieldsValue({ customer_level_ids: [] });
+          break;
+        case "characteristics":
+          onFilter && onFilter({ ...params, characteristics: [] });
+          formCustomerFilter?.setFieldsValue({ characteristics: [] });
           break;
         case "responsible_staff_codes":
           onFilter && onFilter({ ...params, responsible_staff_codes: null });
@@ -2166,7 +2208,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                     onMouseLeave={handleOnMouseLeaveSelect}
                     optionFilterProp="children"
                   >
-                    {groups.map((group: any) => (
+                    {customerGroupList.map((group: any) => (
                       <Option key={group.id} value={group.id?.toString()}>
                         {group.name}
                       </Option>
@@ -2193,7 +2235,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                     onMouseLeave={handleOnMouseLeaveSelect}
                     placeholder="Chọn hạng thẻ"
                   >
-                    {loyaltyUsageRules?.map((loyalty: any) => (
+                    {customerLevelList?.map((loyalty: any) => (
                       <Option key={loyalty.id} value={loyalty.rank_id?.toString()}>
                         {loyalty.rank_name}
                       </Option>
@@ -3236,6 +3278,33 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                       />
                     </Form.Item>
                   </div>
+
+                  <Form.Item
+                    name="characteristics"
+                    label={<b>Đặc điểm:</b>}
+                  >
+                    <Select
+                      mode="multiple"
+                      maxTagCount="responsive"
+                      showSearch
+                      showArrow
+                      allowClear
+                      placeholder="Chọn đặc điểm của khách hàng"
+                      getPopupContainer={(trigger: any) => trigger.parentElement}
+                      onFocus={onInputSelectFocus}
+                      onBlur={onInputSelectBlur}
+                      onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                      onPopupScroll={handleOnSelectPopupScroll}
+                      onMouseLeave={handleOnMouseLeaveSelect}
+                      optionFilterProp="children"
+                    >
+                      {CHARACTERISTICS_LIST.map((characteristic: any) => (
+                        <Option key={characteristic.value} value={characteristic.value}>
+                          {characteristic.label}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
                 </div>
               </div>
 
