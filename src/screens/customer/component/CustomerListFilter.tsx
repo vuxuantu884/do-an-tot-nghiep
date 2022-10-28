@@ -5,7 +5,10 @@ import rightArrow from "assets/icon/right-arrow.svg";
 import settingGearIcon from "assets/icon/setting-gear-icon.svg";
 import CustomNumberInput from "component/custom/customNumberInput";
 import BaseFilter from "component/filter/base.filter";
-import FilterDateCustomerCustom from "component/filter/FilterDateCustomerCustom";
+import SelectRangeDateCustom, {
+  convertSelectedDateOption,
+  handleSelectedDate,
+} from "component/filter/SelectRangeDateCustom";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
@@ -78,26 +81,6 @@ const START_DAY = 1;
 const END_DAY = 31;
 const THIS_MONTH_VALUE = today.getMonth() + 1;
 const TODAY_VALUE = today.getDate();
-
-const DATE_LIST_FORMAT = {
-  todayFrom: moment().startOf("day").format("DD-MM-YYYY"),
-  todayTo: moment().endOf("day").format("DD-MM-YYYY"),
-
-  yesterdayFrom: moment().startOf("day").subtract(1, "days").format("DD-MM-YYYY"),
-  yesterdayTo: moment().endOf("day").subtract(1, "days").format("DD-MM-YYYY"),
-
-  thisWeekFrom: moment().startOf("week").format("DD-MM-YYYY"),
-  thisWeekTo: moment().endOf("week").format("DD-MM-YYYY"),
-
-  lastWeekFrom: moment().startOf("week").subtract(1, "weeks").format("DD-MM-YYYY"),
-  lastWeekTo: moment().endOf("week").subtract(1, "weeks").format("DD-MM-YYYY"),
-
-  thisMonthFrom: moment().startOf("month").format("DD-MM-YYYY"),
-  thisMonthTo: moment().endOf("month").format("DD-MM-YYYY"),
-
-  lastMonthFrom: moment().subtract(1, "months").startOf("month").format("DD-MM-YYYY"),
-  lastMonthTo: moment().subtract(1, "months").endOf("month").format("DD-MM-YYYY"),
-};
 
 // select area
 let tempWardList: any[] = [];
@@ -380,43 +363,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
   };
   //end handle change the last purchase date filter
 
-  // handle select date by filter param
-  const handleDateFilterParam = (date_from: any, date_to: any, setDate: any) => {
-    const dateFrom = formatDateFilter(date_from)?.format(DATE_FORMAT.DD_MM_YYYY);
-    const dateTo = formatDateFilter(date_to)?.format(DATE_FORMAT.DD_MM_YYYY);
-
-    if (dateFrom === DATE_LIST_FORMAT.todayFrom && dateTo === DATE_LIST_FORMAT.todayTo) {
-      setDate("today");
-    } else if (
-      dateFrom === DATE_LIST_FORMAT.yesterdayFrom &&
-      dateTo === DATE_LIST_FORMAT.yesterdayTo
-    ) {
-      setDate("yesterday");
-    } else if (
-      dateFrom === DATE_LIST_FORMAT.thisWeekFrom &&
-      dateTo === DATE_LIST_FORMAT.thisWeekTo
-    ) {
-      setDate("thisWeek");
-    } else if (
-      dateFrom === DATE_LIST_FORMAT.lastWeekFrom &&
-      dateTo === DATE_LIST_FORMAT.lastWeekTo
-    ) {
-      setDate("lastWeek");
-    } else if (
-      dateFrom === DATE_LIST_FORMAT.thisMonthFrom &&
-      dateTo === DATE_LIST_FORMAT.thisMonthTo
-    ) {
-      setDate("thisMonth");
-    } else if (
-      dateFrom === DATE_LIST_FORMAT.lastMonthFrom &&
-      dateTo === DATE_LIST_FORMAT.lastMonthTo
-    ) {
-      setDate("lastMonth");
-    } else {
-      setDate("");
-    }
-  };
-
   useEffect(() => {
     formCustomerFilter.setFieldsValue({
       ...initialValues,
@@ -424,14 +370,14 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
 
     handleStaffCodesFilterParam(initialValues.responsible_staff_codes);
 
-    handleDateFilterParam(
+    handleSelectedDate(
       initialValues?.first_order_time_from,
       initialValues?.first_order_time_to,
       setFirstOrderDateClick,
     );
     setFirstDateStart(initialValues?.first_order_time_from);
     setFirstDateEnd(initialValues?.first_order_time_to);
-    handleDateFilterParam(
+    handleSelectedDate(
       initialValues?.last_order_time_from,
       initialValues?.last_order_time_to,
       setLastOrderDateClick,
@@ -453,7 +399,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     }
   }, [formCustomerFilter, handleStaffCodesFilterParam, initialValues]);
 
-  // initialization birth day
+  // initialization birthday
   const initDateList = () => {
     const dateList: Array<any> = [];
     for (let i = 1; i < 32; i++) {
@@ -481,7 +427,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
       disable: true,
     },
   ].concat(initDateList());
-  // end initialization birth day
+  // end initialization birthday
 
   // initialization birth month
   const initMonthList = () => {
@@ -584,39 +530,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     setLastDateStart(null);
     setLastDateEnd(null);
   };
+
+  // handle select date
   const clickOptionDate = useCallback(
     (type, value) => {
-      let startDateValue = null;
-      let endDateValue = null;
-
-      switch (value) {
-        case "today":
-          startDateValue = moment().utc().startOf("day");
-          endDateValue = moment().utc().endOf("day");
-          break;
-        case "yesterday":
-          startDateValue = moment().utc().startOf("day").subtract(1, "days");
-          endDateValue = moment().utc().endOf("day").subtract(1, "days");
-          break;
-        case "thisWeek":
-          startDateValue = moment().utc().startOf("week");
-          endDateValue = moment().utc().endOf("week");
-          break;
-        case "lastWeek":
-          startDateValue = moment().utc().startOf("week").subtract(1, "weeks");
-          endDateValue = moment().utc().endOf("week").subtract(1, "weeks");
-          break;
-        case "thisMonth":
-          startDateValue = moment().utc().startOf("month");
-          endDateValue = moment().utc().endOf("month");
-          break;
-        case "lastMonth":
-          startDateValue = moment().utc().subtract(1, "months").startOf("month");
-          endDateValue = moment().utc().subtract(1, "months").endOf("month");
-          break;
-        default:
-          break;
-      }
+      const selectedDateOption = convertSelectedDateOption(value);
+      const { startDateValue, endDateValue } = selectedDateOption;
 
       switch (type) {
         case "firstOrderDate":
@@ -643,7 +562,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     },
     [firstOrderDateClick, lastOrderDateClick],
   );
-
   // end handle select date
 
   //---------------handle filter by area---------------\\
@@ -3208,7 +3126,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
               <div className="base-filter-row">
                 <div className="left-filter">
                   <div style={{ marginBottom: "8px"}}><b>Ngày mua đầu</b></div>
-                  <FilterDateCustomerCustom
+                  <SelectRangeDateCustom
                     fieldNameFrom="first_order_time_from"
                     fieldNameTo="first_order_time_to"
                     dateType="firstOrderDate"
@@ -3223,7 +3141,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
 
                 <div className="center-filter">
                   <div style={{ marginBottom: "8px"}}><b>Ngày mua cuối</b></div>
-                  <FilterDateCustomerCustom
+                  <SelectRangeDateCustom
                     fieldNameFrom="last_order_time_from"
                     fieldNameTo="last_order_time_to"
                     dateType="lastOrderDate"
