@@ -592,7 +592,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         if (orderReturnType === RETURN_TYPE_VALUES.offline) {
           return POS.channel_id;
         } else {
-          return OrderDetail.channel_id;
+          return ADMIN_ORDER.channel_id;
         }
       }
     },
