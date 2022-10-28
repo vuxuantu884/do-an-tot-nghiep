@@ -27,11 +27,14 @@ export const promotionUtils = {
     return "";
   },
   getPrivateNoteFromResponse: (orderPrivateNoteIncludePromotionTitle: string) => {
-    const promotionTitle =
+    let promotionTitle =
       promotionUtils.findTextPromotionTitleFromResponse(orderPrivateNoteIncludePromotionTitle) +
       PromotionConstants.promotionTitleEndText;
-    const regexFunction = new RegExp(promotionTitle, "g");
-    return orderPrivateNoteIncludePromotionTitle.replace(regexFunction, "");
+    // promotionTitle = promotionTitle.replace(".", "/");
+    // console.log("promotionTitle", promotionTitle);
+    // const regexFunction = new RegExp(promotionTitle, "g");
+    // return orderPrivateNoteIncludePromotionTitle;
+    return orderPrivateNoteIncludePromotionTitle.replace(promotionTitle, "");
   },
   getPromotionText: (orderPrivateNoteIncludePromotionTitle: string) => {
     // return orderPrivateNoteIncludePromotionTitle.replace(regexFunction, "");
