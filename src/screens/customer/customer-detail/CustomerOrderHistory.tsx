@@ -61,6 +61,7 @@ import IconPaymentVNPay from "assets/icon/payment/vnpay.svg";
 import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
 import search from "assets/img/search.svg";
 import DeliveryProgress from "component/order/DeliveryProgress";
+import { promotionUtils } from "component/order/promotion.utils";
 import iconShippingFeeInformedToCustomer from "screens/order-online/component/OrderList/ListTable/OrderTable/images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "screens/order-online/component/OrderList/ListTable/OrderTable/images/iconShippingFeePay3PL.svg";
 import iconWeight from "screens/order-online/component/OrderList/ListTable/OrderTable/images/iconWeight.svg";
@@ -376,9 +377,13 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
   }, []);
 
   const editNote = useCallback(
-    (newNote, noteType, orderID) => {
+    (newNote, noteType, orderID, record: CustomerOrderHistoryResponse) => {
       let params: any = {};
       if (noteType === "note") {
+        if (promotionUtils.checkIfPrivateNoteHasPromotionText(record.note || "")) {
+          let promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
+          newNote = promotionUtils.combinePrivateNoteAndPromotionTitle(newNote, promotionText);
+        }
         params.note = newNote;
       }
       if (noteType === "customer_note") {
@@ -933,18 +938,18 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
                         title="Khách hàng: "
                         color={primaryColor}
                         onOk={(newNote) => {
-                          editNote(newNote, "customer_note", record.id);
+                          editNote(newNote, "customer_note", record.id, record);
                         }}
                         isDisable={record.status === OrderStatus.FINISHED}
                       />
                     </div>
                     <div className="single order-note">
                       <EditNote
-                        note={record.note}
+                        note={promotionUtils.getPrivateNoteFromResponse(record.note || "")}
                         title="Nội bộ: "
                         color={primaryColor}
                         onOk={(newNote) => {
-                          editNote(newNote, "note", record.id);
+                          editNote(newNote, "note", record.id, record);
                         }}
                         isDisable={record.status === OrderStatus.FINISHED}
                       />

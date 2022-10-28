@@ -19,7 +19,7 @@ import useSetTableColumns from "hook/table/useSetTableColumns";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
-import { OrderTypeModel } from "model/order/order.model";
+import { OrderModel, OrderTypeModel } from "model/order/order.model";
 import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
 import { OrderLineItemResponse } from "model/response/order/order.response";
 import { SourceResponse } from "model/response/order/source.response";
@@ -51,6 +51,7 @@ import IconFacebook from "assets/icon/channel/facebook.svg";
 import IconShopee from "assets/icon/channel/shopee.svg";
 import IconStore from "assets/icon/channel/store.svg";
 import IconPaymentReturn from "assets/icon/payment/tien-hoan.svg";
+import { promotionUtils } from "component/order/promotion.utils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import useAuthorization from "hook/useAuthorization";
 import CopyIcon from "screens/order-online/component/CopyIcon";
@@ -705,7 +706,7 @@ function OrderReturnList(props: PropTypes) {
                   title="Khách hàng: "
                   color={primaryColor}
                   onOk={(values) => {
-                    editNote(record.id, values.note, values.customer_note);
+                    editNote(record.id, values.note, values.customer_note, record);
                   }}
                   noteFormValue={{
                     note: record.note,
@@ -715,11 +716,12 @@ function OrderReturnList(props: PropTypes) {
               </div>
               <div className="single text-left">
                 <EditNote
-                  note={record.note}
+                  // note={record.note}
+                  note={promotionUtils.getPrivateNoteFromResponse(record.note || "")}
                   title="Nội bộ: "
                   color={primaryColor}
                   onOk={(values) => {
-                    editNote(record.id, values.note, values.customer_note);
+                    editNote(record.id, values.note, values.customer_note, record);
                   }}
                   noteFormValue={{
                     note: record.note,
@@ -765,7 +767,11 @@ function OrderReturnList(props: PropTypes) {
   );
 
   const editNote = useCallback(
-    (orderReturnID, note, customer_note) => {
+    (orderReturnID, note, customer_note, record: OrderModel) => {
+      if (promotionUtils.checkIfPrivateNoteHasPromotionText(record.note || "")) {
+        let promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
+        note = promotionUtils.combinePrivateNoteAndPromotionTitle(note, promotionText);
+      }
       updateNoteOrderReturnService(orderReturnID, note, customer_note).then((response) => {
         if (isFetchApiSuccessful(response)) {
           onSuccessEditNote(orderReturnID, note, customer_note);

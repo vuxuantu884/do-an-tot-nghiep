@@ -2,9 +2,17 @@ import { PromotionConstants } from "./promotion.constant";
 
 export const promotionUtils = {
   combinePrivateNoteAndPromotionTitle: (privateNote: string, promotionTitle: string) => {
-    return `${PromotionConstants.combinePromotionTextAndPrivateNote}:${promotionTitle}${PromotionConstants.promotionTitleEndText}${privateNote} `;
+    if (promotionTitle.trim()) {
+      return `${PromotionConstants.combinePromotionTextAndPrivateNote}${promotionTitle}${PromotionConstants.promotionTitleEndText}${privateNote}`;
+
+    } else {
+      return privateNote;
+    }
   },
-  findTextPromotionTitleFromResponse: (orderPrivateNoteIncludePromotionTitle: string) => {
+  checkIfPrivateNoteHasPromotionText: (note: string) => {
+    return note.includes(PromotionConstants.combinePromotionTextAndPrivateNote);
+  },
+  getPromotionTextFromResponse: (orderPrivateNoteIncludePromotionTitle: string) => {
     const indexStart = orderPrivateNoteIncludePromotionTitle.indexOf(
       PromotionConstants.combinePromotionTextAndPrivateNote,
     );
@@ -14,40 +22,26 @@ export const promotionUtils = {
     );
     console.log("indexStart", indexStart);
     // const indexEnd =PromotionConstants.combinePromotionTextAndPrivateNote.indexOf(afterRemoveStart);
-    const indexEnd = afterRemoveStart.indexOf(PromotionConstants.promotionTitleEndText);
-    console.log("indexEnd", indexEnd);
+    const end = afterRemoveStart.indexOf(PromotionConstants.promotionTitleEndText);
+    console.log("end", end);
     console.log("afterRemoveStart", afterRemoveStart);
-    if (indexStart > -1 && indexEnd > -1) {
-      const abc = indexEnd + PromotionConstants.combinePromotionTextAndPrivateNote.length + 1;
-      console.log("abc", abc);
+    if (indexStart > -1 && end > -1) {
+      const indexEnd = end + PromotionConstants.combinePromotionTextAndPrivateNote.length;
+      console.log("indexEnd", indexEnd);
       return orderPrivateNoteIncludePromotionTitle
-        .substring(indexStart, abc)
+        .substring(indexStart, indexEnd)
+        .replace(PromotionConstants.combinePromotionTextAndPrivateNote, "")
         .replace(PromotionConstants.promotionTitleEndText, "");
     }
     return "";
   },
   getPrivateNoteFromResponse: (orderPrivateNoteIncludePromotionTitle: string) => {
-    let promotionTitle =
-      promotionUtils.findTextPromotionTitleFromResponse(orderPrivateNoteIncludePromotionTitle) +
-      PromotionConstants.promotionTitleEndText;
-    // promotionTitle = promotionTitle.replace(".", "/");
-    // console.log("promotionTitle", promotionTitle);
-    // const regexFunction = new RegExp(promotionTitle, "g");
-    // return orderPrivateNoteIncludePromotionTitle;
-    return orderPrivateNoteIncludePromotionTitle.replace(promotionTitle, "");
-  },
-  getPromotionText: (orderPrivateNoteIncludePromotionTitle: string) => {
-    // return orderPrivateNoteIncludePromotionTitle.replace(regexFunction, "");
-    const result2 = promotionUtils.findTextPromotionTitleFromResponse(
+    let promotionTitle = promotionUtils.getPromotionTextFromResponse(
       orderPrivateNoteIncludePromotionTitle,
     );
-    const replaceText =
-      PromotionConstants.combinePromotionTextAndPrivateNote +
-      "|/" +
-      PromotionConstants.promotionTitleEndText +
-      "|:";
-    const regexFunction = new RegExp(replaceText, "g");
-    const result = result2.replace(regexFunction, "");
-    return result;
+    return orderPrivateNoteIncludePromotionTitle
+      .replace(promotionTitle, "")
+      .replace(PromotionConstants.combinePromotionTextAndPrivateNote, "")
+      .replace(PromotionConstants.promotionTitleEndText, "");
   },
 };
