@@ -606,14 +606,14 @@ const AllTab: React.FC<any> = (props) => {
         align: "center",
         width: 80,
         render: (value, record) => {
-          return (
+          return value ? (
             <Link
               target="_blank"
               to={goDocument(EInventoryStatus.SHIPPING, variantSKU, record.name, record.store_id)}
             >
-              {formatCurrencyForProduct(value)}
+              {value}
             </Link>
-          );
+          ) : null;
         },
       },
     ];
@@ -1035,6 +1035,11 @@ const AllTab: React.FC<any> = (props) => {
 
                     setColumns(isValidColumns ? newColumns : defaultColumns);
                     setColumnsDrill(isValidColumnsDrill ? newColumnsDrill : defaultColumnsDrill);
+
+                    // if config is fetched and set successfully, indicate to skip next time
+                    if (isValidColumns && isValidColumnsDrill) {
+                      setIsColumnConfigFetched(true);
+                    }
                   }
                 }
               }
@@ -1263,13 +1268,14 @@ const AllTab: React.FC<any> = (props) => {
     return () => clearInterval(getFileInterval);
   }, [listExportFileDetail, checkExportFileDetail, statusExportDetail]);
 
-  useEffect(() => {
-    getConfigColumnInventory();
-  }, [getConfigColumnInventory]);
+  // lock to skip column display config re-fetching
+  const [isColumnConfigFetchSucceed, setIsColumnConfigFetched] = useState(false);
 
   useEffect(() => {
-    setColumns(defaultColumns);
-  }, [params, defaultColumns, selected, objSummaryTable]);
+    if (!isColumnConfigFetchSucceed) {
+      getConfigColumnInventory();
+    }
+  }, [getConfigColumnInventory, isColumnConfigFetchSucceed]);
 
   return (
     <div>
