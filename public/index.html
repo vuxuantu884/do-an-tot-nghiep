@@ -2,13 +2,17 @@
 <html lang="en" translate="no">
   <head>
     <meta charset="utf-8" />
-    <link href="https://np-cdn.yody.io/images/variant/2022-10-14-09-58-59_85e208ba-30f1-44dc-a7dc-4d6c3632e0e3.png" rel="shortcut icon" type="image/vnd.microsoft.icon">
-		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Yody-Admin-App"
+    <link
+      href="https://np-cdn.yody.io/images/variant/2022-10-14-09-58-59_85e208ba-30f1-44dc-a7dc-4d6c3632e0e3.png"
+      rel="shortcut icon"
+      type="image/vnd.microsoft.icon"
     />
+    <meta
+      name="viewport"
+      content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Yody-Admin-App" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -17,9 +21,9 @@
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
     <!-- cài đặt new relic -->
-    <script src="%PUBLIC_URL%/%REACT_APP_NEW_RELIC_FILE_URL%"></script>
+    <!-- <script src="%PUBLIC_URL%/%REACT_APP_NEW_RELIC_FILE_URL%"></script> -->
     <!-- end cài đặt new relic -->
-    
+
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
@@ -48,14 +52,19 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
   </body>
-  
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=%REACT_APP_GOOGLE_ANALYTICS_TRACKING_ID%"></script>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script
+    async
+    src="https://www.googletagmanager.com/gtag/js?id=%REACT_APP_GOOGLE_ANALYTICS_TRACKING_ID%"
+  ></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag("js", new Date());
 
-    gtag('config', "%REACT_APP_GOOGLE_ANALYTICS_TRACKING_ID%");
+    gtag("config", "%REACT_APP_GOOGLE_ANALYTICS_TRACKING_ID%");
   </script>
 </html>

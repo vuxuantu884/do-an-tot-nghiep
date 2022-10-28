@@ -1,4 +1,4 @@
 export const PromotionConstants = {
-  combinePromotionTextAndPrivateNote: "YODYCTKM",
-  promotionTitleEndText: ".",
+  combinePromotionTextAndPrivateNote: "<YODYCTKM>",
+  promotionTitleEndText: "</YODYCTKM>",
 };

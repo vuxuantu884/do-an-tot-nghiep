@@ -57,14 +57,16 @@ function SidebarOrderDetailExtraInformation(props: PropTypes) {
       ),
       value:
         OrderDetail?.note !== "" ? (
-          <TextWithLineBreak note={promotionUtils.getPrivateNoteFromResponse(OrderDetail?.note || "")} />
+          <TextWithLineBreak
+            note={promotionUtils.getPrivateNoteFromResponse(OrderDetail?.note || "")}
+          />
         ) : (
           "Không có ghi chú"
         ),
     },
     {
       title: "Tên CTKM: ",
-      value: promotionUtils.getPromotionText(OrderDetail?.note || "")
+      value: promotionUtils.getPromotionTextFromResponse(OrderDetail?.note || ""),
     },
     {
       title: "Nhãn: ",
@@ -80,7 +82,10 @@ function SidebarOrderDetailExtraInformation(props: PropTypes) {
 
   return (
     <StyledComponent>
-      <Card className='orderDetailExtraSidebar' title={<span className="78">THÔNG TIN BỔ SUNG</span>}>
+      <Card
+        className="orderDetailExtraSidebar"
+        title={<span className="78">THÔNG TIN BỔ SUNG</span>}
+      >
         {detailArr.map((single, index) => {
           return (
             <Row gutter={5} className="singleRow" key={index}>

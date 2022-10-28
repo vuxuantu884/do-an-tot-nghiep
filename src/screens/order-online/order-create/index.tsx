@@ -1046,6 +1046,13 @@ export default function Order() {
 
         handleResponsePayments(response, new_payments);
 
+        const promotionTitle = promotionUtils
+          .getPromotionTextFromResponse(response.note || "")
+          .trim();
+        if (promotionTitle) {
+          setPromotionTitle(promotionTitle);
+        }
+
         await setInitialForm({
           ...initialForm,
           account_code: userReducer?.account?.code,
@@ -1070,7 +1077,7 @@ export default function Order() {
               ? ""
               : response.reference_code,
           url: response.url,
-          note: response.note,
+          note: promotionUtils.getPrivateNoteFromResponse(response.note || ""),
           tags: response.tags,
           channel_id: response.channel_id,
           automatic_discount: response.automatic_discount,

@@ -72,6 +72,7 @@ import IconPaymentReturn from "assets/icon/payment/tien-hoan.svg";
 import IconPaymentCash from "assets/icon/payment/tien-mat.svg";
 import IconPaymentVNPay from "assets/icon/payment/vnpay.svg";
 import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
+import { promotionUtils } from "component/order/promotion.utils";
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 
 const PAYMENT_ICON = [
@@ -1094,7 +1095,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         visible: true,
         align: "left",
         width: 110,
-        render: (data: any) => {
+        render: (data: any, record: OrderModel) => {
           const orderReturnReason = data.return_reason?.name || data.reason || ""; // cập nhật lại khi BE thay đổi theo SO
           return (
             <div className="orderNotes">
@@ -1118,7 +1119,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                   </div>
                   <div className="single order-note">
                     <EditNote
-                      note={data.note}
+                      note={promotionUtils.getPrivateNoteFromResponse(record.note || "")}
                       title="Nội bộ: "
                       color={primaryColor}
                       onOk={(newNote) => {

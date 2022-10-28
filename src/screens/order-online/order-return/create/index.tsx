@@ -349,7 +349,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       marketer_code: OrderDetail?.marketer_code || null,
       coordinator_code: OrderDetail?.coordinator_code,
       // note: OrderDetail?.note,
-      note: promotionUtils.getPromotionText(OrderDetail?.note || ""),
+      note: promotionUtils.getPrivateNoteFromResponse(OrderDetail?.note || ""),
       customer_note: OrderDetail?.customer_note,
       orderReturn_receive_return_store_id: defaultReceiveReturnStore?.id,
     };
@@ -592,7 +592,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         if (orderReturnType === RETURN_TYPE_VALUES.offline) {
           return POS.channel_id;
         } else {
-          return OrderDetail.channel_id;
+          return ADMIN_ORDER.channel_id;
         }
       }
     },

@@ -2,6 +2,7 @@ import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Col, Form, Modal, Row } from "antd";
 import "assets/css/_modal-confirm.scss";
 import ContentContainer from "component/container/content.container";
+import { promotionUtils } from "component/order/promotion.utils";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
@@ -493,6 +494,10 @@ const ScreenReturnDetail = (props: PropTypes) => {
 
   const editNote = useCallback(
     (note, customerNote, orderID) => {
+      if (promotionUtils.checkIfPrivateNoteHasPromotionText(OrderDetail?.note || "")) {
+        let promotionText = promotionUtils.getPromotionTextFromResponse(OrderDetail?.note || "");
+        note = promotionUtils.combinePrivateNoteAndPromotionTitle(note, promotionText);
+      }
       updateNoteOrderReturnService(orderID, note, customerNote).then((response) => {
         if (isFetchApiSuccessful(response)) {
           let orderDetailCopy: any = { ...OrderDetail };

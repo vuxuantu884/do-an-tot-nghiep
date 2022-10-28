@@ -20,6 +20,7 @@ import iconPrint from "assets/icon/Print.svg";
 // import iconDeliveryProgress from 'assets/icon/delivery/tientrinhgiaohang.svg';
 import search from "assets/img/search.svg";
 import DeliveryProgress from "component/order/DeliveryProgress";
+import { promotionUtils } from "component/order/promotion.utils";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
@@ -268,6 +269,10 @@ function OrdersTable(props: PropTypes) {
 
   const editNote = useCallback(
     (note, customer_note, orderID, record: OrderModel) => {
+      if (promotionUtils.checkIfPrivateNoteHasPromotionText(record.note || "")) {
+        let promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
+        note = promotionUtils.combinePrivateNoteAndPromotionTitle(note, promotionText);
+      }
       let params: any = {
         note,
         customer_note,
@@ -1322,14 +1327,15 @@ function OrdersTable(props: PropTypes) {
                 </div>
                 <div className="single">
                   <EditNote
-                    note={record.note}
+                    // note={record.note}
+                    note={promotionUtils.getPrivateNoteFromResponse(record.note || "")}
                     title="Nội bộ: "
                     color={primaryColor}
                     onOk={(values) => {
                       editNote(values.note, values.customer_note, record.id, record);
                     }}
                     noteFormValue={{
-                      note: record.note,
+                      note: promotionUtils.getPrivateNoteFromResponse(record.note || ""),
                       customer_note: record.customer_note,
                     }}
                   />

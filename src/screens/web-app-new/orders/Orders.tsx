@@ -1,52 +1,52 @@
 import { Card, Divider, Tabs } from "antd";
+import queryString from "query-string";
 import { useEffect, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
-import queryString from "query-string";
 import { Link, useHistory, useLocation } from "react-router-dom";
 
 import { FileExcelOutlined, PrinterOutlined } from "@ant-design/icons";
-import AuthWrapper from "component/authorization/AuthWrapper";
-import ContentContainer from "component/container/content.container";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import { EcommerceOrderPermission } from "config/permissions/ecommerce.permission";
-import UrlConfig from "config/url.config";
-import { PageResponse } from "model/base/base-metadata.response";
-import { EcommerceOrderSearchQuery, OrderModel } from "model/order/order.model";
-import NoPermission from "screens/no-permission.screen";
-import EditNote from "screens/order-online/component/edit-note";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { primaryColor } from "utils/global-styles/variables";
-import { OrderStatus } from "utils/Order.constants";
-import { getParamsFromQuery } from "utils/useQuery";
-import OrderFilter from "./OrderFilter";
-import { nameQuantityWidth, StyledComponent } from "./style";
+import CircleEmptyIcon from "assets/icon/circle_empty.svg";
+import CircleFullIcon from "assets/icon/circle_full.svg";
+import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
 import CustomerIcon from "assets/icon/customer-icon.svg";
 import DeliveryrIcon from "assets/icon/gray-delivery.svg";
-import { StyledStatus } from "../order-sync/style";
-import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
-import CircleFullIcon from "assets/icon/circle_full.svg";
-import CircleEmptyIcon from "assets/icon/circle_empty.svg";
-import { updateOrderPartial } from "domain/actions/order/order.action";
-import { getListOrderAction } from "domain/actions/order/order.action";
-import { generateQuery, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import ContentContainer from "component/container/content.container";
 import ExportFileModal, { ResultLimitModel } from "component/modal/ExportFileModal/ExportFileModal";
-import { ExportFileName, ExportFileStatus, ExportFileType } from "utils/ExportFileConstants";
-import { exportFile, getFile } from "service/other/export.service";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { HttpStatus } from "config/http-status.config";
-import { DownloadFile } from "utils/DownloadFile";
-import { OrderResponse } from "model/response/order/order.response";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { changeOrderStatusToPickedService } from "service/order/order.service";
-import { getSaveSearchLocalStorage, setSaveSearchhLocalStorage } from "utils/LocalStorageUtils";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { SaveSearchType } from "utils/SaveSearchType";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import React from "react";
+import { promotionUtils } from "component/order/promotion.utils";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import { HttpStatus } from "config/http-status.config";
+import { EcommerceOrderPermission } from "config/permissions/ecommerce.permission";
+import UrlConfig from "config/url.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { getListOrderAction, updateOrderPartial } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { EcommerceOrderSearchQuery, OrderModel } from "model/order/order.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
+import React from "react";
+import NoPermission from "screens/no-permission.screen";
+import EditNote from "screens/order-online/component/edit-note";
+import { changeOrderStatusToPickedService } from "service/order/order.service";
+import { exportFile, getFile } from "service/other/export.service";
+import { generateQuery, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { DownloadFile } from "utils/DownloadFile";
+import { ExportFileName, ExportFileStatus, ExportFileType } from "utils/ExportFileConstants";
+import { primaryColor } from "utils/global-styles/variables";
+import { getSaveSearchLocalStorage, setSaveSearchhLocalStorage } from "utils/LocalStorageUtils";
+import { OrderStatus } from "utils/Order.constants";
+import { SaveSearchType } from "utils/SaveSearchType";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { getParamsFromQuery } from "utils/useQuery";
+import { StyledStatus } from "../order-sync/style";
+import OrderFilter from "./OrderFilter";
+import { nameQuantityWidth, StyledComponent } from "./style";
 
 const WebAppOrders: React.FC = () => {
   const dispatch = useDispatch();
@@ -357,9 +357,13 @@ const WebAppOrders: React.FC = () => {
   };
 
   //handle edit note
-  const editNote = (newNote: string, noteType: string, orderID: number) => {
+  const editNote = (newNote: string, noteType: string, orderID: number, record: OrderModel) => {
     let params: any = {};
     if (noteType === "note") {
+      if (promotionUtils.checkIfPrivateNoteHasPromotionText(record.note || "")) {
+        let promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
+        newNote = promotionUtils.combinePrivateNoteAndPromotionTitle(newNote, promotionText);
+      }
       params.note = newNote;
     }
     if (noteType === "customer_note") {
@@ -732,7 +736,7 @@ const WebAppOrders: React.FC = () => {
                 title="Khách hàng: "
                 color={primaryColor}
                 onOk={(newNote) => {
-                  editNote(newNote, "customer_note", record.id);
+                  editNote(newNote, "customer_note", record.id, record);
                 }}
                 isDisable={record.status === OrderStatus.FINISHED}
               />
@@ -740,11 +744,11 @@ const WebAppOrders: React.FC = () => {
             <Divider />
             <div className="single">
               <EditNote
-                note={record.note}
+                note={promotionUtils.getPrivateNoteFromResponse(record.note || "")}
                 title="Nội bộ: "
                 color={primaryColor}
                 onOk={(newNote) => {
-                  editNote(newNote, "note", record.id);
+                  editNote(newNote, "note", record.id, record);
                 }}
                 isDisable={record.status === OrderStatus.FINISHED}
               />
