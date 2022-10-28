@@ -55,6 +55,12 @@
       display: flex;
       align-items: center;
     }
+
+    @include sm-mobile() {
+      .sub-feature-button {
+        display: none;
+      }
+    }
   }
   @include sm-mobile() {
     height: auto;
