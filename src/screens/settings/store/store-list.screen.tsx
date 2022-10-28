@@ -1,15 +1,10 @@
-import { Card, Tooltip } from "antd";
+import { Button, Card, Row, Space, Tooltip } from "antd";
 import StoreFilter from "component/filter/store.filter";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import {
-  StoreRankAction,
-  StoreSearchAction,
-  StoreGetTypeAction,
-} from "domain/actions/core/store.action";
-import { StoreQuery, StoreTypeRequest } from "model/core/store.model";
-import { StoreResponse } from "model/core/store.model";
+import { StoreGetTypeAction, StoreRankAction, StoreSearchAction } from "domain/actions/core/store.action";
+import { StoreQuery, StoreResponse, StoreTypeRequest } from "model/core/store.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,14 +20,23 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
-import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
-import { EditOutlined } from "@ant-design/icons";
+import { OFFSET_HEADER_UNDER_NAVBAR, STATUS_IMPORT_EXPORT } from "utils/Constants";
+import { DownloadOutlined, EditOutlined } from "@ant-design/icons";
 import useAuthorization from "hook/useAuthorization";
 import { StorePermissions } from "config/permissions/setting.permisssion";
 import NoPermission from "screens/no-permission.screen";
 import { DepartmentResponse } from "model/account/department.model";
 import { departmentDetailAction } from "domain/actions/account/department.action";
 import { AppConfig } from "config/app.config";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { TYPE_EXPORT } from "../../products/constants";
+import { callApiNative } from "utils/ApiUtils";
+import { showWarning } from "utils/ToastUtils";
+import * as XLSX from "xlsx";
+import moment from "moment";
+import { storeGetApi } from "service/core/store.services";
+import StoreExportModal from "./exportProduct";
+import CustomPagination from "component/table/CustomPagination";
 
 const ACTIONS_INDEX = {
   UPDATE: 1,
@@ -67,7 +71,6 @@ const StoreListScreen: React.FC = () => {
   const history = useHistory();
   //end hook
   //master data
-  const [rowKey, setRowKey] = useState<Array<any>>([]);
   const storeStatusList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.store_status,
   );
@@ -76,8 +79,13 @@ const StoreListScreen: React.FC = () => {
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [type, setType] = useState<Array<StoreTypeRequest>>([]);
   //end master data
+  const [exportStore, setExportStore] = useState(false);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [statusExport, setStatusExport] = useState<number>(0);
   let dataQuery: StoreQuery = { ...initQuery, ...getQueryParams(query) };
   const [params, setPrams] = useState<StoreQuery>(dataQuery);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
+  const [selectedRowData, setSelectedRowData] = useState<Array<StoreResponse>>([]);
   const [data, setData] = useState<PageResponse<StoreResponse>>({
     metadata: {
       limit: 30,
@@ -86,7 +94,6 @@ const StoreListScreen: React.FC = () => {
     },
     items: [],
   });
-  const [selected, setSelected] = useState<Array<StoreResponse>>([]);
   const [listDepartment, setDepartment] = useState<any>();
 
   //phân quyền
@@ -111,16 +118,16 @@ const StoreListScreen: React.FC = () => {
 
   const menuFilter = useMemo(() => {
     return actions.filter((item) => {
-      if (selected.length === 0) {
+      if (selectedRowData.length === 0) {
         return item.id !== 1 && item.id !== 2;
       }
-      if (selected.length > 1) {
+      if (selectedRowData.length > 1) {
         return item.id !== 1;
       }
 
       return true;
     });
-  }, [selected, actions]);
+  }, [selectedRowData, actions]);
 
   const findParent = useCallback((list: any, departmentId: number, parent = null) => {
     if (!list) return;
@@ -403,21 +410,14 @@ const StoreListScreen: React.FC = () => {
 
   const onMenuClick = useCallback(
     (index: number) => {
-      if (index === actions[0].id && selected.length === 1) {
-        history.push(`${UrlConfig.STORE}/${selected[0].id}/update`);
+      if (index === actions[0].id && selectedRowData.length === 1) {
+        history.push(`${UrlConfig.STORE}/${selectedRowData[0].id}/update`);
       }
     },
-    [selected, history, actions],
+    [selectedRowData, history, actions],
   );
 
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
-  const onSelect = useCallback((selectedRow: Array<StoreResponse>) => {
-    setSelected(
-      selectedRow.filter(function (el) {
-        return el !== undefined;
-      }),
-    );
-  }, []);
 
   useEffect(() => {
     if (isFirstLoad.current) {
@@ -436,6 +436,180 @@ const StoreListScreen: React.FC = () => {
     setLoading(true);
     dispatch(StoreSearchAction(params, onGetDataSuccess));
   }, [dispatch, onGetDataSuccess, onResDepartment, params]);
+
+  const getItemsByCondition = useCallback(
+    async (type: string) => {
+      let res: any;
+      let items: Array<StoreResponse> = [];
+      const limit = 30;
+      let times = 0;
+
+      setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+      switch (type) {
+        case TYPE_EXPORT.page:
+          res = await callApiNative(
+            { isShowLoading: false },
+            dispatch,
+            storeGetApi,
+            { ...params, limit: params.limit ?? 30 },
+          );
+          if (res) {
+            items = items.concat(res.items);
+          }
+          break;
+        case TYPE_EXPORT.selected:
+          items = [...selectedRowData];
+          break;
+        case TYPE_EXPORT.all:
+          const roundAll = Math.round(data.metadata.total / limit);
+          times = roundAll < data.metadata.total / limit ? roundAll + 1 : roundAll;
+
+          for (let index = 1; index <= times; index++) {
+            const res = await callApiNative(
+              { isShowLoading: false },
+              dispatch,
+              storeGetApi,
+              { ...params, page: index, limit: limit },
+            );
+            if (res) {
+              items = items.concat(res.items);
+            }
+            const percent = Math.round(Number.parseFloat((index / times).toFixed(2)) * 100);
+            setExportProgress(percent);
+          }
+
+          break;
+        case TYPE_EXPORT.allin:
+          if (!data.metadata.total || data.metadata.total === 0) {
+            break;
+          }
+
+          let index = 1;
+          let itemsTemp = [1];
+
+          while (itemsTemp.length !== 0) {
+            res = await callApiNative(
+              { isShowError: true },
+              dispatch,
+              storeGetApi,
+              { ...initQuery, page: index, limit: limit },
+            );
+            if (res) {
+              items = items.concat(res.items);
+              itemsTemp = res.items;
+            }
+            const percent = Math.round(Number.parseFloat((index / times).toFixed(2)) * 100);
+            setExportProgress(percent);
+            index++;
+          }
+          break;
+        default:
+          break;
+      }
+      setExportProgress(100);
+      return items;
+    },
+    [dispatch, params, data.metadata.total, selectedRowData],
+  );
+
+  const convertItemExport = (item: StoreResponse) => {
+    return {
+      [`Mã cửa hàng`]: item.code,
+      [`Tên cửa hàng`]: item.name,
+      [`Trực thuộc`]: item.departmentParentName,
+      [`Mã bưu điện`]: item.zip_code,
+      [`Mã tham chiếu`]: item.reference_id,
+      [`Email`]: item.mail,
+      [`Loại`]: item.type_name,
+      [`Số điện thoại`]: item.hotline,
+      [`Thành phố`]: item.city_name,
+      [`Địa chỉ`]: item.address,
+      [`Phân cấp`]: item.rank_name,
+      [`Trạng thái`]: item.status_name,
+      [`Cho phép bán`]: item.is_saleable ? "Có" : "Không",
+      [`Đang kiểm kho`]: item.is_stocktaking ? "Có" : "Không",
+      [`VM trực thuộc`]: item.vm,
+      [`Ngày mở cửa`]: ConvertUtcToLocalDate(item.begin_date),
+      [`Diện tích`]: item.square ? `${item.square} m2` : '',
+      [`Link google`]: item.link_google_map,
+    };
+  };
+
+  const actionExport = {
+    Ok: async (typeExport: string) => {
+      setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
+      let dataExport: any = [];
+      if (typeExport === TYPE_EXPORT.selected && selectedRowData && selectedRowData.length === 0) {
+        setStatusExport(0);
+        showWarning("Bạn chưa chọn bản ghi nào để xuất file");
+        setExportStore(false);
+        return;
+      }
+      const res = await getItemsByCondition(typeExport);
+      if (!res || res.length === 0) {
+        setStatusExport(0);
+        showWarning("Không có bản ghi nào đủ điều kiện");
+        return;
+      }
+
+      const workbook = XLSX.utils.book_new();
+      for (let i = 0; i < res.length; i++) {
+        const e: StoreResponse = res[i];
+        const item = convertItemExport(e);
+        dataExport.push(item);
+      }
+
+      let worksheet = XLSX.utils.json_to_sheet(dataExport);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "data");
+
+      setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
+      const today = moment(new Date(), "YYYY/MM/DD");
+      const month = today.format("M");
+      const day = today.format("D");
+      const year = today.format("YYYY");
+      XLSX.writeFile(workbook, `store_${day}_${month}_${year}.xlsx`);
+      setExportStore(false);
+      setExportProgress(0);
+      setStatusExport(0);
+    },
+    Cancel: () => {
+      setExportStore(false);
+      setExportProgress(0);
+      setStatusExport(0);
+    },
+  };
+
+  const onSelectedChange = useCallback((selectedRow: Array<StoreResponse>, selected: boolean | undefined, changeRow: any) => {
+    const newSelectedRowKeys = changeRow.map((row: any) => row.id);
+
+    if (selected) {
+      setSelectedRowKeys([
+        ...selectedRowKeys,
+        ...newSelectedRowKeys
+      ]);
+      setSelectedRowData([
+        ...selectedRowData,
+        ...changeRow
+      ]);
+      return;
+    }
+
+    const newSelectedRowKeysByDeselected = selectedRowKeys.filter((item) => {
+      const findIndex = changeRow.findIndex((row: any) => row.id === item);
+
+      return findIndex === -1
+    });
+
+    const newSelectedRowByDeselected = selectedRowData.filter((item) => {
+      const findIndex = changeRow.findIndex((row: any) => row.id === item.id);
+
+      return findIndex === -1
+    });
+
+    setSelectedRowKeys(newSelectedRowKeysByDeselected);
+    setSelectedRowData(newSelectedRowByDeselected);
+  }, [selectedRowData, selectedRowKeys]);
+
   return (
     <>
       {allowReadStore ? (
@@ -451,9 +625,25 @@ const StoreListScreen: React.FC = () => {
             },
           ]}
           extra={
-            allowCreateStore && (
-              <ButtonCreate child="Thêm cửa hàng" path={`${UrlConfig.STORE}/create`} />
-            )
+            <Row>
+              <Space>
+                <AuthWrapper acceptPermissions={[StorePermissions.READ]}>
+                  <Button
+                    className="btn-view"
+                    size="large"
+                    icon={<DownloadOutlined className="btn-view-icon"/>}
+                    onClick={() => {
+                      setExportStore(true);
+                    }}
+                  >
+                    Xuất file
+                  </Button>
+                </AuthWrapper>
+                {allowCreateStore && (
+                  <ButtonCreate child="Thêm cửa hàng" path={`${UrlConfig.STORE}/create`} />
+                )}
+              </Space>
+            </Row>
           }
         >
           <Card>
@@ -470,13 +660,7 @@ const StoreListScreen: React.FC = () => {
               type={type}
               onClickOpen={() => setShowSettingColumn(true)}
             />
-            <CustomTable
-              selectedRowKey={rowKey}
-              onChangeRowKey={(rowKey) => setRowKey(rowKey)}
-              isRowSelection
-              showColumnSetting={true}
-              isLoading={loading}
-              scroll={{ x: 'max-content' }}
+            <CustomPagination
               pagination={{
                 pageSize: data.metadata.limit,
                 total: data.metadata.total,
@@ -485,8 +669,15 @@ const StoreListScreen: React.FC = () => {
                 onChange: onPageChange,
                 onShowSizeChange: onPageChange,
               }}
-              onSelectedChange={onSelect}
-              // scroll={{x: 1080}}
+            />
+            <CustomTable
+              selectedRowKey={selectedRowKeys}
+              onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
+              isRowSelection
+              showColumnSetting={true}
+              isLoading={loading}
+              scroll={{ x: 'max-content' }}
+              pagination={false}
               sticky={{
                 offsetScroll: 5,
                 offsetHeader: OFFSET_HEADER_UNDER_NAVBAR,
@@ -494,13 +685,6 @@ const StoreListScreen: React.FC = () => {
               dataSource={data.items}
               columns={columnFinal}
               rowKey={(item: StoreResponse) => item.id}
-              // onRow={(record: StoreResponse) => {
-              //   return {
-              //     onClick: (event) => {
-              //       history.push(`${UrlConfig.STORE}/${record.id}`);
-              //     },
-              //   };
-              // }}
             />
             <ModalSettingColumn
               visible={showSettingColumn}
@@ -516,6 +700,14 @@ const StoreListScreen: React.FC = () => {
       ) : (
         <NoPermission />
       )}
+
+      <StoreExportModal
+        onCancel={actionExport.Cancel}
+        onOk={actionExport.Ok}
+        visible={exportStore}
+        exportProgress={exportProgress}
+        statusExport={statusExport}
+      />
     </>
   );
 };
