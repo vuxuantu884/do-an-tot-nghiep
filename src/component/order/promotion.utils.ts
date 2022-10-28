@@ -4,7 +4,6 @@ export const promotionUtils = {
   combinePrivateNoteAndPromotionTitle: (privateNote: string, promotionTitle: string) => {
     if (promotionTitle.trim()) {
       return `${PromotionConstants.combinePromotionTextAndPrivateNote}${promotionTitle}${PromotionConstants.promotionTitleEndText}${privateNote}`;
-
     } else {
       return privateNote;
     }
@@ -40,8 +39,8 @@ export const promotionUtils = {
       orderPrivateNoteIncludePromotionTitle,
     );
     return orderPrivateNoteIncludePromotionTitle
-      .replace(promotionTitle, "")
       .replace(PromotionConstants.combinePromotionTextAndPrivateNote, "")
+      .replace(promotionTitle, "")
       .replace(PromotionConstants.promotionTitleEndText, "");
   },
 };
