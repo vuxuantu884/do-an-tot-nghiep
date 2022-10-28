@@ -349,7 +349,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       marketer_code: OrderDetail?.marketer_code || null,
       coordinator_code: OrderDetail?.coordinator_code,
       // note: OrderDetail?.note,
-      note: promotionUtils.getPromotionText(OrderDetail?.note || ""),
+      note: promotionUtils.getPrivateNoteFromResponse(OrderDetail?.note || ""),
       customer_note: OrderDetail?.customer_note,
       orderReturn_receive_return_store_id: defaultReceiveReturnStore?.id,
     };

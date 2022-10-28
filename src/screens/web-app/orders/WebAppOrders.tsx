@@ -1,29 +1,29 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useHistory, useLocation } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import NumberFormat from "react-number-format";
-import { Button, Card, Divider, Tabs } from "antd";
 import { DownloadOutlined, FileExcelOutlined, PrinterOutlined } from "@ant-design/icons";
+import { Button, Card, Divider, Tabs } from "antd";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import NumberFormat from "react-number-format";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useHistory, useLocation } from "react-router-dom";
 
 import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { primaryColor } from "utils/global-styles/variables";
 import { getQueryParams, getQueryParamsFromQueryString, useQuery } from "utils/useQuery";
 
-import { StoreResponse } from "model/core/store.model";
-import { OrderModel, EcommerceOrderSearchQuery } from "model/order/order.model";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
+import { StoreResponse } from "model/core/store.model";
+import { EcommerceOrderSearchQuery, OrderModel } from "model/order/order.model";
 
-import {
-  DeliveryServicesGetList,
-  getListOrderAction,
-  PaymentMethodGetList,
-} from "domain/actions/order/order.action";
 import {
   AccountSearchAction,
   ExternalShipperGetListAction,
 } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
+import {
+  DeliveryServicesGetList,
+  getListOrderAction,
+  PaymentMethodGetList,
+} from "domain/actions/order/order.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 
 import { PageResponse } from "model/base/base-metadata.response";
@@ -33,65 +33,66 @@ import {
 } from "model/response/order-processing-status.response";
 
 import ContentContainer from "component/container/content.container";
-import ModalSettingColumn from "component/table/ModalSettingColumn";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
+import EcommerceOrderFilter from "screens/web-app/orders/component/EcommerceOrderFilter";
 import GetOrderDataModal from "screens/web-app/orders/component/GetOrderDataModal";
 import ProgressDownloadOrdersModal from "screens/web-app/orders/component/ProgressDownloadOrdersModal";
-import EcommerceOrderFilter from "screens/web-app/orders/component/EcommerceOrderFilter";
 
 import { updateOrderPartial } from "domain/actions/order/order.action";
 
 import AuthWrapper from "component/authorization/AuthWrapper";
-import NoPermission from "screens/no-permission.screen";
 import { EcommerceOrderPermission } from "config/permissions/ecommerce.permission";
+import NoPermission from "screens/no-permission.screen";
 
 import CircleEmptyIcon from "assets/icon/circle_empty.svg";
-import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
 import CircleFullIcon from "assets/icon/circle_full.svg";
+import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
 import CustomerIcon from "assets/icon/customer-icon.svg";
 import DeliveryrIcon from "assets/icon/gray-delivery.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
-import { nameQuantityWidth, StyledComponent } from "screens/web-app/orders/orderStyles";
-import useAuthorization from "hook/useAuthorization";
-import { SourceResponse } from "model/response/order/source.response";
-import { getListSourceRequest } from "domain/actions/product/source.action";
-import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
-import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
-import { FulFillmentStatus, OrderStatus } from "utils/Constants";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { getListSourceRequest } from "domain/actions/product/source.action";
 import {
-  downloadWebAppPrintForm,
   downloadWebAppOrderAction,
+  downloadWebAppPrintForm,
   exitWebAppJobsAction,
   getWebAppShopList,
 } from "domain/actions/web-app/web-app.actions";
+import useAuthorization from "hook/useAuthorization";
+import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { SourceResponse } from "model/response/order/source.response";
+import { nameQuantityWidth, StyledComponent } from "screens/web-app/orders/orderStyles";
+import { getProgressDownloadEcommerceApi, getWebAppJobsApi } from "service/web-app/web-app.service";
 import {
   generateQuery,
   handleFetchApiError,
   isFetchApiSuccessful,
   isNullOrUndefined,
 } from "utils/AppUtils";
-import BaseResponse from "base/base.response";
-import { getWebAppJobsApi, getProgressDownloadEcommerceApi } from "service/web-app/web-app.service";
+import { FulFillmentStatus, OrderStatus } from "utils/Constants";
+import { showError, showSuccess } from "utils/ToastUtils";
 
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import { promotionUtils } from "component/order/promotion.utils";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import queryString from "query-string";
+import EditNote from "screens/order-online/component/edit-note";
+import ExportModal from "screens/order-online/modal/export.modal";
+import { getEcommerceIdByChannelId } from "screens/web-app/common/commonAction";
+import { StyledStatus } from "screens/web-app/common/commonStyle";
 import ConflictDownloadModal from "screens/web-app/common/ConflictDownloadModal";
 import ExitDownloadOrdersModal from "screens/web-app/orders/component/ExitDownloadOrdersModal";
-import { StyledStatus } from "screens/web-app/common/commonStyle";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { changeOrderStatusToPickedService } from "service/order/order.service";
-import { exportFile, getFile } from "service/other/export.service";
-import ExportModal from "screens/order-online/modal/export.modal";
-import EditNote from "screens/order-online/component/edit-note";
-import { getEcommerceIdByChannelId } from "screens/web-app/common/commonAction";
 import ExitProgressModal from "screens/web-app/orders/component/ExitProgressModal";
 import PrintEcommerceDeliveryNoteProcess from "screens/web-app/orders/process-modal/print-ecommerce-delivery-note/PrintEcommerceDeliveryNoteProcess";
-import queryString from "query-string";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import { changeOrderStatusToPickedService } from "service/order/order.service";
+import { exportFile, getFile } from "service/other/export.service";
 import { getSaveSearchLocalStorage, setSaveSearchhLocalStorage } from "utils/LocalStorageUtils";
 import { SaveSearchType } from "utils/SaveSearchType";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 
 const initQuery: EcommerceOrderSearchQuery = {
   page: 1,
@@ -385,9 +386,13 @@ const WebAppOrders: React.FC = () => {
   }, [dispatch, params, setSearchResult]);
 
   const editNote = useCallback(
-    (newNote, noteType, orderID) => {
+    (newNote, noteType, orderID, record: OrderModel) => {
       let params: any = {};
       if (noteType === "note") {
+        if (promotionUtils.checkIfPrivateNoteHasPromotionText(record.note || "")) {
+          let promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
+          newNote = promotionUtils.combinePrivateNoteAndPromotionTitle(newNote, promotionText);
+        }
         params.note = newNote;
       }
       if (noteType === "customer_note") {
@@ -578,7 +583,7 @@ const WebAppOrders: React.FC = () => {
                 title="Khách hàng: "
                 color={primaryColor}
                 onOk={(newNote) => {
-                  editNote(newNote, "customer_note", record.id);
+                  editNote(newNote, "customer_note", record.id, record);
                 }}
                 isDisable={record.status === OrderStatus.FINISHED}
               />
@@ -590,7 +595,7 @@ const WebAppOrders: React.FC = () => {
                 title="Nội bộ: "
                 color={primaryColor}
                 onOk={(newNote) => {
-                  editNote(newNote, "note", record.id);
+                  editNote(newNote, "note", record.id, record);
                 }}
                 isDisable={record.status === OrderStatus.FINISHED}
               />

@@ -72,10 +72,10 @@ import {
   OrderProcessingStatusResponseModel,
 } from "model/response/order-processing-status.response";
 
-import GetOrderDataModal from "screens/ecommerce/orders/component/GetOrderDataModal";
-import ProgressDownloadOrdersModal from "screens/ecommerce/orders/component/ProgressDownloadOrdersModal";
 import EcommerceChangeOrderStatusModal from "screens/ecommerce/orders/component/EcommerceChangeOrderStatusModal";
 import EcommerceOrderFilter from "screens/ecommerce/orders/component/EcommerceOrderFilter";
+import GetOrderDataModal from "screens/ecommerce/orders/component/GetOrderDataModal";
+import ProgressDownloadOrdersModal from "screens/ecommerce/orders/component/ProgressDownloadOrdersModal";
 
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
@@ -83,16 +83,12 @@ import NoPermission from "screens/no-permission.screen";
 import DeliveryIcon from "assets/icon/gray-delivery.svg";
 
 import {
-  nameQuantityWidth,
-  StyledComponentEcommerceOrder,
-} from "screens/ecommerce/orders/orderStyles";
-import { SourceResponse } from "model/response/order/source.response";
-import {
   DeliveryServiceResponse,
   FulFillmentResponse,
   OrderResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { SourceResponse } from "model/response/order/source.response";
 import queryString from "query-string";
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
@@ -105,6 +101,10 @@ import {
 import ConflictDownloadModal from "screens/ecommerce/common/ConflictDownloadModal";
 import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDownloadOrdersModal";
 import ExitProgressModal from "screens/ecommerce/orders/component/ExitProgressModal";
+import {
+  nameQuantityWidth,
+  StyledComponentEcommerceOrder,
+} from "screens/ecommerce/orders/orderStyles";
 import EditNote from "screens/order-online/component/EditOrderNote";
 import InventoryTable from "screens/order-online/component/OrderList/ListTable/InventoryTable";
 import ChangeOrderStatusModal from "screens/order-online/modal/change-order-status.modal";
@@ -134,14 +134,15 @@ import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParams, getQueryParamsFromQueryString, useQuery } from "utils/useQuery";
 
-import PrintEcommerceDeliveryNoteProcess from "screens/ecommerce/orders/process-modal/print-ecommerce-delivery-note/PrintEcommerceDeliveryNoteProcess";
-import ReportPreparationShopeeProductModal from "./component/ReportPreparationShopeeProductModal";
-import PreparationShopeeProductModal from "./component/PreparationShopeeProductModal";
-import ConfirmPreparationShopeeProductModal from "./component/ConfirmPreparationShopeeProductModal";
-import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
+import shopeeIcon from "assets/icon/e-shopee.svg";
 import tikiIcon from "assets/icon/e-tiki.svg";
 import tiktokIcon from "assets/icon/e-tiktok.svg";
+import { promotionUtils } from "component/order/promotion.utils";
+import PrintEcommerceDeliveryNoteProcess from "screens/ecommerce/orders/process-modal/print-ecommerce-delivery-note/PrintEcommerceDeliveryNoteProcess";
+import ConfirmPreparationShopeeProductModal from "./component/ConfirmPreparationShopeeProductModal";
+import PreparationShopeeProductModal from "./component/PreparationShopeeProductModal";
+import ReportPreparationShopeeProductModal from "./component/ReportPreparationShopeeProductModal";
 
 const BATCHING_SHIPPING_TYPE = {
   SELECTED: "SELECTED",
@@ -584,6 +585,10 @@ const EcommerceOrders: React.FC = () => {
 
   const editNote = useCallback(
     (note, customer_note, orderID, record: OrderModel) => {
+      if (promotionUtils.checkIfPrivateNoteHasPromotionText(record.note || "")) {
+        let promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
+        note = promotionUtils.combinePrivateNoteAndPromotionTitle(note, promotionText);
+      }
       let params: any = {
         note,
         customer_note,
@@ -1129,14 +1134,15 @@ const EcommerceOrders: React.FC = () => {
                 </div>
                 <div className="single">
                   <EditNote
-                    note={record.note}
+                    // note={record.note}
+                    note={promotionUtils.getPrivateNoteFromResponse(record.note || "")}
                     title="NB: "
                     color={primaryColor}
                     onOk={(values) => {
                       editNote(values.note, values.customer_note, record.id, record);
                     }}
                     noteFormValue={{
-                      note: record.note,
+                      note: promotionUtils.getPrivateNoteFromResponse(record.note || ""),
                       customer_note: record.customer_note,
                     }}
                     isDisable={record.status === OrderStatus.CANCELLED}

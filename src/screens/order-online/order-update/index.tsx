@@ -1047,7 +1047,7 @@ export default function Order(props: PropTypes) {
             uniform: response.uniform,
           });
           setShippingFeeInformedToCustomer(response.shipping_fee_informed_to_customer);
-          setPromotionTitle(promotionUtils.getPromotionText(response.note || ""));
+          setPromotionTitle(promotionUtils.getPromotionTextFromResponse(response.note || ""));
 
           if (!canCreateShipment(response.fulfillments)) {
             setShipmentMethod(0);

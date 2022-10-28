@@ -3,6 +3,7 @@ import { Col, Form, Modal, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
+import { promotionUtils } from "component/order/promotion.utils";
 import ActionHistory from "component/order/Sidebar/ActionHistory";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
 import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
@@ -937,6 +938,10 @@ const OrderDetail = (props: PropTypes) => {
 
   const editNote = useCallback(
     (note, customer_note, orderID) => {
+      if (promotionUtils.checkIfPrivateNoteHasPromotionText(OrderDetail?.note || "")) {
+        let promotionText = promotionUtils.getPromotionTextFromResponse(OrderDetail?.note || "");
+        note = promotionUtils.combinePrivateNoteAndPromotionTitle(note, promotionText);
+      }
       let params: any = {
         note,
         customer_note,
