@@ -110,9 +110,7 @@ export const KeyDriverStyle = styled.div`
 
     .ant-table-row-expand-icon,
     .ant-table-row-expand-icon-expanded {
-      margin-right: 10px;
-      margin-left: 4px;
-      margin-top: 0px;
+      margin: 0px;
       min-width: 18px;
     }
     // position: absolute !important;
@@ -190,10 +188,14 @@ export const KeyDriverStyle = styled.div`
   }
 
   .background-red {
-    color: #e24343;
+    background-color: #cf1322;
+    color: #fff;
+    border-radius: 3px;
   }
   .background-green {
-    color: #27ae60;
+    background-color: #5b8c01;
+    color: #fff;
+    border-radius: 3px;
   }
   .columns-setting {
     right: 20px;
@@ -224,5 +226,9 @@ export const KeyDriverStyle = styled.div`
 
   .ant-input-affix-wrapper {
     padding-right: 2px;
+  }
+
+  .padding-left-5 {
+    padding-left: 5px;
   }
 `;
