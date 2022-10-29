@@ -632,7 +632,7 @@ function KeyDriverOffline() {
             departmentLv3,
           },
         );
-        if (response.code !== HttpStatus.SUCCESS) {
+        if (response.code && response.code !== HttpStatus.SUCCESS) {
           if (response.code === HttpStatus.FORBIDDEN) {
             setHavePermission(false);
           } else {
