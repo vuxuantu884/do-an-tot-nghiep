@@ -7,6 +7,7 @@ const HttpStatus = {
   NOT_FOUND: 40400000,
   SERVER_ERROR: 50000000,
   BAD_GATEWAY: 50200000,
+  FORBIDDEN_REPORT: 403000,
 };
 
 export { HttpStatus };
