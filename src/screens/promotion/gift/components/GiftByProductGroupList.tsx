@@ -1,7 +1,6 @@
 import React, {
   createRef,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -32,13 +31,15 @@ import { GiftEntitlementForm, GiftProductEntitlements } from "model/promotion/gi
 import { useDispatch } from "react-redux";
 import { RiUpload2Line } from "react-icons/ri";
 import { VscError } from "react-icons/vsc";
-import { parseSelectVariantToTableData, shareDiscountImportedProduct } from "utils/PromotionUtils";
+import {
+  parseSelectVariantToTableData,
+} from "utils/PromotionUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { AppConfig } from "config/app.config";
 import { getToken } from "utils/LocalStorageUtils";
 import PickManyProductModal from "screens/purchase-order/modal/pick-many-product.modal";
 import { newGiftEntitlements } from "screens/promotion/constants";
-import { DiscountDetailListStyled, ImportFileDiscountStyled } from "screens/promotion/gift/gift.style";
+import { GiftProductGroupListStyled, ImportFileDiscountStyled } from "screens/promotion/gift/gift.style";
 import GiftByProductGroup from "screens/promotion/gift/components/GiftByProductGroup";
 import { getPromotionGiftProductApplyAction } from "domain/actions/promotion/gift/gift.action";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -48,14 +49,13 @@ import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 import search from "assets/img/search.svg";
 import importIcon from "assets/icon/import.svg";
 import { VariantEntitlementsFileImport } from "model/promotion/price-rules.model";
+import { handleImportProductApplyGift } from "screens/promotion/gift/gift.helper";
 
 type UploadStatus = "error" | "success" | "done" | "uploading" | "removed" | undefined;
 enum EnumUploadStatus {
   error = "error",
-  success = "success",
   done = "done",
   uploading = "uploading",
-  removed = "removed",
 }
 const initQueryVariant: VariantSearchQuery = {
   // limit: 10,
@@ -76,7 +76,7 @@ const GiftByProductGroupList = (props: Props) => {
   const token = getToken() || "";
   const dispatch = useDispatch();
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
-  const [entitlementsImported, setEntitlementsImported] = useState<
+  const [productImportedList, setProductImportedList] = useState<
     Array<VariantEntitlementsFileImport>
   >([]);
   const [entitlementErrorsResponse, setEntitlementErrorsResponse] = useState<Array<any>>([]);
@@ -94,16 +94,15 @@ const GiftByProductGroupList = (props: Props) => {
     setIsImportingFile(true);
     let formEntitlements: Array<GiftEntitlementForm> = form.getFieldValue("entitlements");
     // remove init item in  entitlements
-    if (
-      formEntitlements.length === 1 &&
-      (formEntitlements[0]?.entitled_variant_ids.length === 0 ||
-        formEntitlements[0]?.entitled_product_ids.length === 0)
+    if (formEntitlements.length === 1 &&
+      formEntitlements[0]?.entitled_variant_ids.length === 0 &&
+      formEntitlements[0]?.entitled_product_ids.length === 0
     ) {
       formEntitlements = [];
     }
 
-    // phân bổ các variant trong file import vào các discount có sẵn hoặc thêm mới discount
-    shareDiscountImportedProduct(formEntitlements, entitlementsImported, form);
+    // phân bổ các variant trong file import vào chương trình quà tặng
+    handleImportProductApplyGift(formEntitlements, productImportedList, form);
 
     setUploadStatus(undefined);
     setShowImportModal(false);
@@ -388,124 +387,126 @@ const GiftByProductGroupList = (props: Props) => {
   /** end handle scroll page */
 
   return (
-    <Col span={24}>
-      <Form.List name="entitlements">
-        {(
-          fields: FormListFieldData[],
-          { add, remove }: FormListOperation,
-          {
-            errors,
-          }: {
-            errors: React.ReactNode[];
-          },
-        ) => {
-          let initValue = { ...newGiftEntitlements };
-          const addBlankEntitlement = () => {
-            initValue.prerequisite_quantity_ranges[0].greater_than_or_equal_to = 1;
-            initValue.selectedProducts = [];
-            initValue.entitled_variant_ids = [];
-            initValue.entitled_product_ids = [];
+    <>
+      <Col span={12}  style={{ margin: "auto" }}>
+        <Button
+          icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+          onClick={() => setShowImportModal(true)}
+          style={{ float: "right" }}
+        >
+          Nhập file
+        </Button>
+      </Col>
 
-            add(initValue, 0);
-          };
+      <Col span={24}>
+        <Form.List name="entitlements">
+          {(
+            fields: FormListFieldData[],
+            { add, remove }: FormListOperation,
+            {
+              errors,
+            }: {
+              errors: React.ReactNode[];
+            },
+          ) => {
+            let initValue = { ...newGiftEntitlements };
+            const addBlankEntitlement = () => {
+              initValue.prerequisite_quantity_ranges[0].greater_than_or_equal_to = 1;
+              initValue.selectedProducts = [];
+              initValue.entitled_variant_ids = [];
+              initValue.entitled_product_ids = [];
 
-          const removeEntitlementItem = (index: number) => {
-            remove(index);
-            setGetIndexRemoveDiscount?.(index);
-          };
+              add(initValue, 0);
+            };
 
-          return (
-            <DiscountDetailListStyled>
-              {/*Tạm thời chưa dùng*/}
-              <Row style={{ display: "none" }}>
-                <Col span={16}>
-                  {idNumber && (
-                    <div className={"input-search-product"}>
+            const removeEntitlementItem = (index: number) => {
+              remove(index);
+              setGetIndexRemoveDiscount?.(index);
+            };
+
+            return (
+              <GiftProductGroupListStyled>
+                {/*Tạm thời chưa dùng*/}
+                <Row style={{ display: "none" }}>
+                  <Col span={16}>
+                    {idNumber && (
+                      <div className={"input-search-product"}>
                       <span className={"label-search-product"}>
                         Tìm kiếm sản phẩm trong chương trình chiết khấu
                       </span>
-                      <AutoComplete
-                        notFoundContent={
-                          isSearchingProducts ? <Spin size="small" /> : "Không tìm thấy sản phẩm"
-                        }
-                        id="search_variant"
-                        ref={autoCompleteRef}
-                        value={keySearchVariant}
-                        onSelect={onSearchVariantSelect}
-                        allowClear
-                        onClear={onClearVariantSelect}
-                        dropdownClassName="search-layout dropdown-search-header"
-                        dropdownMatchSelectWidth={360}
-                        style={{ width: "100%" }}
-                        onSearch={handleOnSearchProduct}
-                        options={renderVariantOptions}
-                        maxLength={255}
-                        getPopupContainer={(trigger: any) => trigger.parentElement}
-                        onFocus={onInputSelectFocus}
-                        onBlur={onInputSelectBlur}
-                        onPopupScroll={handleOnSelectPopupScroll}
-                        onMouseLeave={handleOnMouseLeaveSelect}
-                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
-                      >
-                        <Input
-                          placeholder="Tìm kiếm sản phẩm"
-                          prefix={
-                            isSearchingProducts ? (
-                              <LoadingOutlined style={{ color: "#2a2a86" }} />
-                            ) : (
-                              <img alt="" src={search} style={{ cursor: "default" }} />
-                            )
+                        <AutoComplete
+                          notFoundContent={
+                            isSearchingProducts ? <Spin size="small" /> : "Không tìm thấy sản phẩm"
                           }
-                        />
-                      </AutoComplete>
-                    </div>
-                  )}
-                </Col>
-
-                <Col span={8}>
-                  <Row justify="end">
-                    <Space size={16}>
-                      <Form.Item>
-                        <Button
-                          onClick={() => setShowImportModal(true)}
-                          icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+                          id="search_variant"
+                          ref={autoCompleteRef}
+                          value={keySearchVariant}
+                          onSelect={onSearchVariantSelect}
+                          allowClear
+                          onClear={onClearVariantSelect}
+                          dropdownClassName="search-layout dropdown-search-header"
+                          dropdownMatchSelectWidth={360}
+                          style={{ width: "100%" }}
+                          onSearch={handleOnSearchProduct}
+                          options={renderVariantOptions}
+                          maxLength={255}
+                          getPopupContainer={(trigger: any) => trigger.parentElement}
+                          onFocus={onInputSelectFocus}
+                          onBlur={onInputSelectBlur}
+                          onPopupScroll={handleOnSelectPopupScroll}
+                          onMouseLeave={handleOnMouseLeaveSelect}
+                          onDropdownVisibleChange={handleOnDropdownVisibleChange}
                         >
-                          Nhập file
-                        </Button>
-                      </Form.Item>
-                      <Form.Item>
-                        <Button onClick={addBlankEntitlement} icon={<PlusOutlined />}>
-                          Thêm chiết khấu
-                        </Button>
-                      </Form.Item>
-                    </Space>
-                  </Row>
-                </Col>
-              </Row>
+                          <Input
+                            placeholder="Tìm kiếm sản phẩm"
+                            prefix={
+                              isSearchingProducts ? (
+                                <LoadingOutlined style={{ color: "#2a2a86" }} />
+                              ) : (
+                                <img alt="" src={search} style={{ cursor: "default" }} />
+                              )
+                            }
+                          />
+                        </AutoComplete>
+                      </div>
+                    )}
+                  </Col>
 
-              {fields.map(({ key, name, fieldKey, ...restField }) => {
-                return (
-                  <>
-                    <GiftByProductGroup
-                      key={key}
-                      name={name}
-                      remove={removeEntitlementItem}
-                      fieldKey={fieldKey}
-                      form={form}
-                      handleVisibleManyProduct={handleVisibleManyProduct}
-                      setShowImportModal={setShowImportModal}
-                    />
-                  </>
-                );
-              })}
-            </DiscountDetailListStyled>
-          );
-        }}
-      </Form.List>
+                  <Col span={8}>
+                    <Row justify="end">
+                      <Space size={16}>
+                        <Form.Item>
+                          <Button onClick={addBlankEntitlement} icon={<PlusOutlined />}>
+                            Thêm chiết khấu
+                          </Button>
+                        </Form.Item>
+                      </Space>
+                    </Row>
+                  </Col>
+                </Row>
+
+                {fields.map(({ key, name, fieldKey, ...restField }) => {
+                  return (
+                    <>
+                      <GiftByProductGroup
+                        key={key}
+                        name={name}
+                        remove={removeEntitlementItem}
+                        fieldKey={fieldKey}
+                        form={form}
+                        handleVisibleManyProduct={handleVisibleManyProduct}
+                      />
+                    </>
+                  );
+                })}
+              </GiftProductGroupListStyled>
+            );
+          }}
+        </Form.List>
+      </Col>
 
       <Modal
         onCancel={() => {
-          setSuccessCount(0);
           setSuccessCount(0);
           setUploadStatus(undefined);
           setShowImportModal(false);
@@ -518,7 +519,6 @@ const GiftByProductGroupList = (props: Props) => {
             key="back"
             onClick={() => {
               setSuccessCount(0);
-              setSuccessCount(0);
               setUploadStatus(undefined);
               setShowImportModal(false);
             }}
@@ -530,29 +530,22 @@ const GiftByProductGroupList = (props: Props) => {
             type="primary"
             loading={isImportingFile}
             onClick={() => handleImportEntitlements()}
-            disabled={uploadStatus === "error"}
+            disabled={uploadStatus !== EnumUploadStatus.done}
           >
             Nhập file
           </Button>,
         ]}
       >
         <ImportFileDiscountStyled>
-          <div
-            style={{
-              display:
-                uploadStatus === undefined || uploadStatus === EnumUploadStatus.removed
-                  ? ""
-                  : "none",
-            }}
-          >
+          <div style={{ display: uploadStatus === undefined ? "" : "none" }}>
             <Row gutter={12}>
               <Col span={3}>Chú ý:</Col>
               <Col span={19}>
                 <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
-                <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
+                <p>- Chuyển đổi file dưới dạng <b>.xlsx</b> trước khi tải dữ liệu</p>
                 <p>
                   - Tải file mẫu{" "}
-                  <a href={PROMOTION_CDN.PROMOTION_QUANTITY_TEMPLATE_URL}>
+                  <a href={PROMOTION_CDN.GIFT_IMPORT_FILE_TEMPLATE_URL}>
                     tại đây
                   </a>
                 </p>
@@ -572,22 +565,18 @@ const GiftByProductGroupList = (props: Props) => {
                       file.type !==
                       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     ) {
-                      setUploadStatus("error");
+                      setUploadStatus(EnumUploadStatus.error);
                       setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"]);
-                      setEntitlementsImported([]);
+                      setProductImportedList([]);
                       return false;
                     }
-                    setUploadStatus("uploading");
+                    setUploadStatus(EnumUploadStatus.uploading);
                     setUploadError([]);
                     return true;
                   }}
                   multiple={false}
                   showUploadList={false}
-                  action={`${
-                    AppConfig.baseUrl
-                  }promotion-service/price-rules/entitlements/read-file?type=${form.getFieldValue(
-                    "entitled_method",
-                  )}`}
+                  action={`${AppConfig.baseUrl}promotion-service/price-rule-gifts/read-file`}
                   headers={{ Authorization: `Bearer ${token}` }}
                   onChange={(info) => {
                     const { status } = info.file;
@@ -595,7 +584,7 @@ const GiftByProductGroupList = (props: Props) => {
                       const response = info.file.response;
                       if (response.code === HttpStatus.SUCCESS) {
                         if (response.data.data.length > 0) {
-                          setEntitlementsImported(response.data.data);
+                          setProductImportedList(response.data.data);
                         }
                         if (response.data.errors.length > 0) {
                           const errors: Array<any> = _.uniqBy(response.data.errors, "index").sort(
@@ -607,16 +596,16 @@ const GiftByProductGroupList = (props: Props) => {
                         }
                         setImportTotal(response.data.total);
                         setSuccessCount(response.data.success_count);
-                        setUploadStatus(status);
+                        setUploadStatus(EnumUploadStatus.done);
                       } else {
-                        setUploadStatus("error");
+                        setUploadStatus(EnumUploadStatus.error);
                         setUploadError(response.errors);
-                        setEntitlementsImported([]);
+                        setProductImportedList([]);
                       }
                     } else if (status === EnumUploadStatus.error) {
                       message.error(`${info.file.name} file upload failed.`);
-                      setUploadStatus(status);
-                      setEntitlementsImported([]);
+                      setUploadStatus(EnumUploadStatus.error);
+                      setProductImportedList([]);
                     }
                   }}
                 >
@@ -628,12 +617,12 @@ const GiftByProductGroupList = (props: Props) => {
               </div>
             </Row>
           </div>
+
           <div
             style={{
               display:
                 uploadStatus === EnumUploadStatus.done ||
                 uploadStatus === EnumUploadStatus.uploading ||
-                uploadStatus === EnumUploadStatus.success ||
                 uploadStatus === EnumUploadStatus.error
                   ? ""
                   : "none",
@@ -666,8 +655,7 @@ const GiftByProductGroupList = (props: Props) => {
               ) : (
                 ""
               )}
-              {uploadStatus === EnumUploadStatus.done ||
-              uploadStatus === EnumUploadStatus.success ? (
+              {uploadStatus === EnumUploadStatus.done ? (
                 <Col span={24}>
                   <Row justify={"center"}>
                     <CheckCircleOutlined className="error-import-file__circel-check" />
@@ -720,7 +708,8 @@ const GiftByProductGroupList = (props: Props) => {
         visible={visibleManyProduct}
         emptyText={"Không tìm thấy sản phẩm"}
       />
-    </Col>
+    </>
+
   );
 };
 
