@@ -24,6 +24,7 @@ import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
 import { strForSearch } from "utils/StringUtils";
+import { kdOffNeedLowValue } from "../common/constant/kd-need-low-value";
 import { KeyDriverStyle } from "../common/kd-report/index.style";
 import { storeStaffNumberKD } from "../common/kd-report/kd-report-constant";
 import {
@@ -393,10 +394,14 @@ function KeyDriverOffline() {
               ) : (
                 <div
                   className={
-                    Number(text) / record[`${departmentKey}_monthly_target`] >= 1
-                      ? "background-green"
-                      : Number(text) / record[`${departmentKey}_monthly_target`] < 1 / 2
-                      ? "background-red"
+                    text
+                      ? (
+                          kdOffNeedLowValue.includes(record.key)
+                            ? Number(text) - record[`${departmentKey}_monthly_target`] <= 0
+                            : Number(text) - record[`${departmentKey}_monthly_target`] >= 0
+                        )
+                        ? "background-green"
+                        : "background-red"
                       : ""
                   }
                 >
@@ -419,7 +424,11 @@ function KeyDriverOffline() {
               return (
                 <div
                   className={
-                    text >= 100 ? "background-green" : text && text < 50 ? "background-red" : ""
+                    text
+                      ? (kdOffNeedLowValue.includes(record.key) ? text <= 100 : text >= 100)
+                        ? "background-green"
+                        : "background-red"
+                      : ""
                   }
                 >
                   <VerifyCell row={record} value={text}>
@@ -632,11 +641,31 @@ function KeyDriverOffline() {
             departmentLv3,
           },
         );
-        if (response.code && response.code !== HttpStatus.SUCCESS) {
-          if (response.code === HttpStatus.FORBIDDEN) {
-            setHavePermission(false);
-          } else {
-            setLoadingPage(false);
+        const { FORBIDDEN, FORBIDDEN_REPORT, SUCCESS } = HttpStatus;
+        if (response.data?.code === FORBIDDEN) {
+          setHavePermission(false);
+          return;
+        }
+        if (response.code && response.code !== SUCCESS) {
+          const { department_lv2, department_lv3 } = response;
+          const queryParams = queryString.parse(history.location.search);
+          switch (response.code) {
+            case FORBIDDEN_REPORT:
+              let newQueries: any = {
+                ...queryParams,
+                keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
+              };
+              if (department_lv2) {
+                newQueries = { ...newQueries, departmentLv2: department_lv2.toUpperCase() };
+              }
+              if (department_lv3) {
+                newQueries = { ...newQueries, departmentLv3: department_lv3.toUpperCase() };
+              }
+              history.push({ search: queryString.stringify(newQueries) });
+              break;
+            default:
+              setLoadingPage(false);
+              break;
           }
           return;
         }
@@ -698,6 +727,7 @@ function KeyDriverOffline() {
         );
       } catch (error) {}
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, setData, setObjectiveColumns],
   );
 
@@ -828,7 +858,7 @@ function KeyDriverOffline() {
               loading={loadingPage}
               onClick={onChangeItemInDim}
             >
-              Áp dụng tuỳ chọn hiển thị
+              Áp dụng hiển thị
             </Button>
           </Form>
           <Button
