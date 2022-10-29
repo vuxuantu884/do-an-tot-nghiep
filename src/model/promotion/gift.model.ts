@@ -34,12 +34,10 @@ export const GIFT_METHOD_LIST = [
 ];
 
 export interface GiftEntitlementForm {
-  entitled_category_ids?: Array<number>;
   entitled_product_ids: Array<number>;
-  entitled_gift_ids?: Array<number>;
+  entitled_gift_ids: Array<number>;
   entitled_variant_ids: Array<number>;
-  prerequisite_quantity_ranges: Array<EntitleRange>;
-  prerequisite_variant_ids?: Array<number>;
+  prerequisite_quantity_ranges: Array<GiftEntitleRange>;
   selectedProducts?: Array<GiftProductEntitlements>; // dùng trong local, không dùng để gửi lên server
   selectedGifts?: Array<GiftProductEntitlements>; // dùng trong local, không dùng để gửi lên server
 }
@@ -69,7 +67,7 @@ export interface GiftRule {
 export interface GiftProductEntitlements {
   //là variant phải có cả variant_id & product_id
   limit?: number;
-  cost: number;
+  cost?: number;
   sku: string;
   variant_id?: number;
   product_id: number;
@@ -88,7 +86,7 @@ export interface DataType {
   variant_id: number | null;
 }
 
-export interface EntitleRange {
+export interface GiftEntitleRange {
   greater_than_or_equal_to: number | null;
 }
 
