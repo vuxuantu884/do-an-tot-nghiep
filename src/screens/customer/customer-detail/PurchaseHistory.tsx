@@ -1126,6 +1126,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                         editNote(newNote, "note", data.id);
                       }}
                       isDisable={data.status === OrderStatus.FINISHED}
+                      promotionText={promotionUtils.getPromotionTextFromResponse(record.note || "")}
                     />
                   </div>
                 </>
