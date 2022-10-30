@@ -727,6 +727,7 @@ function OrderReturnList(props: PropTypes) {
                     note: record.note,
                     customer_note: record.customer_note,
                   }}
+                  promotionText={promotionUtils.getPromotionTextFromResponse(record.note || "")}
                 />
               </div>
             </div>

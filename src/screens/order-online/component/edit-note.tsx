@@ -1,6 +1,9 @@
 import { EditOutlined } from "@ant-design/icons";
 import { Button, Input, Popover } from "antd";
+import giftIcon from "assets/icon/gift.svg";
 import React, { ReactNode, useState } from "react";
+import { primaryColor } from "utils/global-styles/variables";
+import TextWithLineBreak from "./TextWithLineBreak";
 
 type EditNoteProps = {
   note: any;
@@ -11,6 +14,7 @@ type EditNoteProps = {
   isHaveEditPermission?: boolean;
   defaultNote?: ReactNode;
   onOk: (newNote: string) => void;
+  promotionText?: string;
 };
 const EditNote: React.FC<EditNoteProps> = (props: EditNoteProps) => {
   const {
@@ -21,6 +25,7 @@ const EditNote: React.FC<EditNoteProps> = (props: EditNoteProps) => {
     isDisable = false,
     isGroupButton = false,
     isHaveEditPermission = true,
+    promotionText,
   } = props;
   const [visible, setVisible] = useState(false);
   const [newNote, setNewNote] = useState(note);
@@ -101,7 +106,34 @@ const EditNote: React.FC<EditNoteProps> = (props: EditNoteProps) => {
       {!isGroupButton && (
         <span>
           {title && <strong>{title}</strong>}
-          <span className="noteText">{note}</span>
+          <span className="noteText">
+            {promotionText ? (
+              <span
+                className="promotionText"
+                style={{
+                  color: primaryColor,
+                  fontSize: "0.93rem",
+                  fontWeight: 500,
+                  marginRight: 3,
+                  fontStyle: "italic",
+                }}
+                title="Chương trình khuyến mại"
+              >
+                <img
+                  src={giftIcon}
+                  alt=""
+                  className="iconGift"
+                  style={{
+                    marginRight: 2,
+                    position: "relative",
+                    marginTop: -3,
+                  }}
+                />
+                {promotionText}.
+              </span>
+            ) : null}
+            <TextWithLineBreak note={note} />
+          </span>
         </span>
       )}
     </div>

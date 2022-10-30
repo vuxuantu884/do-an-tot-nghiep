@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { primaryColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   .ant-form-item-label > label {
@@ -24,5 +25,17 @@ export const StyledComponent = styled.div`
   }
   .noteText {
     text-align: left;
+  }
+  .promotionText {
+    color: ${primaryColor};
+    font-size: 0.93rem;
+    font-weight: 500;
+    margin-right: 3px;
+    font-style: italic;
+  }
+  .iconGift {
+    margin-right: 3px;
+    position: relative;
+    margin-top: -3px;
   }
 `;
