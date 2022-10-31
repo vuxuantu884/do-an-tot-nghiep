@@ -138,6 +138,11 @@ function* getCustomerByPhone(action: YodyAction) {
 
 function* CustomerDetail(action: YodyAction) {
   const { id, setData } = action.payload;
+  if (isNaN(id)) {
+    showError("Mã khách hàng không hợp lệ. Vui lòng kiểm tra lại");
+    setData(null);
+    return ;
+  }
   yield put(showLoading());
   try {
     const response: BaseResponse<CustomerResponse> = yield call(getDetailCustomer, id);
