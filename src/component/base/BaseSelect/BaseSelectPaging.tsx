@@ -9,6 +9,7 @@ function BaseSelectPaging<T>({
   metadata,
   fetchData,
   valueSearch,
+  onDeselect,
   ...props
 }: BaseSelectPagingType<T>) {
   const totalPage = metadata ? Math.ceil((metadata.total || 1) / (metadata.limit || 1)) : 1;
@@ -32,6 +33,7 @@ function BaseSelectPaging<T>({
       onSearch={debounce(onSearchValue, AppConfig.TYPING_TIME_REQUEST)}
       filterOption={false}
       {...props}
+      onDeselect={onDeselect}
       dropdownRender={(menu) => (
         <BaseSelectPagination
           page={metadata?.page}

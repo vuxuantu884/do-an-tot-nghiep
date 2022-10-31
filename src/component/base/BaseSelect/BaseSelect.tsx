@@ -7,6 +7,7 @@ function BaseSelect<T>({
   children,
   data = [],
   renderItem = () => {},
+  onDeselect,
   ...props
 }: BaseSelectType<T>) {
   return (
@@ -19,6 +20,7 @@ function BaseSelect<T>({
       maxTagCount="responsive"
       notFoundContent="Không có dữ liệu"
       {...props}
+      onDeselect={onDeselect}
     >
       {data.map(renderItem)}
     </Select>
