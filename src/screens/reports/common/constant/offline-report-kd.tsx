@@ -1,4 +1,4 @@
-export const storeStaffNumberKD = [
+export const numberOfStoreStaffKD = [
   "OF.HS.01.03",
   "OF.HS.01.06",
   "OF.HS.01.09",
@@ -26,3 +26,5 @@ export const storeStaffNumberKD = [
   "OF.HS.01.75",
   "OF.HS.01.78",
 ];
+
+export const npsKD = ["OF.NS.01.01", "OF.NS.01.02", "OF.NS.01.03", "OF.NS.01.04"];

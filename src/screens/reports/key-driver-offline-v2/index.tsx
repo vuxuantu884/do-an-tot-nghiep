@@ -25,8 +25,8 @@ import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
 import { strForSearch } from "utils/StringUtils";
 import { kdOffNeedLowValue } from "../common/constant/kd-need-low-value";
+import { npsKD, numberOfStoreStaffKD } from "../common/constant/offline-report-kd";
 import { KeyDriverStyle } from "../common/kd-report/index.style";
-import { storeStaffNumberKD } from "../common/kd-report/kd-report-constant";
 import {
   COLUMN_ORDER_LIST,
   convertDataToFlatTableKeyDriver,
@@ -234,7 +234,7 @@ function KeyDriverOffline() {
               const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-month-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
-              return storeStaffNumberKD.includes(record.key) ? (
+              return numberOfStoreStaffKD.includes(record.key) ? (
                 <span>- </span>
               ) : (
                 <VerifyCell row={record} value={text} type="edit">
@@ -389,7 +389,7 @@ function KeyDriverOffline() {
             dataIndex: `${departmentKey}_monthly_forecasted`,
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              return ["OF.DT.FB.02"].includes(record.key) ? (
+              return ["OF.DT.FB.02", ...npsKD].includes(record.key) ? (
                 <span>-</span>
               ) : (
                 <div
@@ -421,7 +421,9 @@ function KeyDriverOffline() {
             dataIndex: `${departmentKey}_monthly_forecasted_progress`,
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType) => {
-              return (
+              return ["OF.DT.FB.02", ...npsKD].includes(record.key) ? (
+                <span>-</span>
+              ) : (
                 <div
                   className={
                     text
@@ -455,7 +457,7 @@ function KeyDriverOffline() {
               const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-day-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
-              return ["OF.DT.FB.02", ...storeStaffNumberKD].includes(record.key) ? (
+              return ["OF.DT.FB.02", ...numberOfStoreStaffKD, ...npsKD].includes(record.key) ? (
                 <span>- </span>
               ) : (
                 <VerifyCell row={record} value={text} type="edit">
@@ -575,7 +577,7 @@ function KeyDriverOffline() {
             dataIndex: `${departmentKey}_daily_actual`,
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              return ["OF.DT.FB.02"].includes(record.key) ? (
+              return ["OF.DT.FB.02", ...npsKD].includes(record.key) ? (
                 <span>-</span>
               ) : (
                 <VerifyCell row={record} value={text}>
