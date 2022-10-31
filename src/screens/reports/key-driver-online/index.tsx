@@ -22,7 +22,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { formatCurrency, parseLocaleNumber, replaceFormatString } from "utils/AppUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { nonAccentVietnamese } from "utils/PromotionUtils";
+import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { strForSearch } from "utils/StringUtils";
 import { kdOnNeedLowValue } from "../common/constant/kd-need-low-value";
 import { KeyDriverStyle } from "../common/kd-report/index.style";
@@ -692,7 +692,7 @@ function KeyDriverOnline() {
 
             temp.push(
               setObjectiveColumns(
-                nonAccentVietnamese(groupedBy),
+                nonAccentVietnameseKD(groupedBy),
                 groupedBy.toUpperCase(),
                 index,
                 drillingLevel,

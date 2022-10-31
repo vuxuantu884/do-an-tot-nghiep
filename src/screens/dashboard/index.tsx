@@ -3,7 +3,7 @@ import { ReportPermissions } from "config/permissions/report.permisstion";
 import useAuthorization from "hook/useAuthorization";
 import { useCallback, useMemo } from "react";
 import { useHistory } from "react-router-dom";
-import KeyDriverOffline from "screens/reports/key-driver-offline";
+import KeyDriverOfflineV2 from "screens/reports/key-driver-offline-v2";
 import KeyDriverOnline from "screens/reports/key-driver-online";
 import { generateQuery } from "utils/AppUtils";
 import { useQuery } from "utils/useQuery";
@@ -58,7 +58,7 @@ const NewDashboard = (props: any) => {
         defaultScreenQuery !== "key-driver-offline" && <DashboardWithProvider />}
       {allowViewReportOnline && defaultScreenQuery === "key-driver-online" && <KeyDriverOnline />}
       {allowViewReportOffline && defaultScreenQuery === "key-driver-offline" && (
-        <KeyDriverOffline />
+        <KeyDriverOfflineV2 />
       )}
     </StyledComponent>
   );
