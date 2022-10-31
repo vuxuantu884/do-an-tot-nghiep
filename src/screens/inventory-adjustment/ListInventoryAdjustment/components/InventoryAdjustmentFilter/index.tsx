@@ -22,11 +22,13 @@ import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { useDispatch } from "react-redux";
 import { PageResponse } from "model/base/base-metadata.response";
+import CustomFilter from "component/table/custom.filter";
 
 type InventoryAdjustmentFilterProps = {
   params: any;
   actions: Array<MenuAction>;
   isLoading?: Boolean;
+  isLoadingAction?: boolean;
   accounts: Array<AccountResponse>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery | Object) => void;
@@ -47,10 +49,13 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     isLoading,
     onClearFilter,
     onFilter,
+    isLoadingAction,
     onShowColumnSetting,
     stores,
+    actions,
     accounts,
     setAccounts,
+    onMenuClick
   } = props;
   const [dateClick, setDateClick] = useState("");
   const [messageErrorQuality, setMessageErrorQuality] = useState("");
@@ -393,60 +398,70 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     setMessageErrorQuality("");
   }
 
+  const onActionClick = useCallback(
+    (index: number) => {
+      onMenuClick && onMenuClick(index);
+    },
+    [onMenuClick],
+  );
+
   return (
     <>
       <div className="adjustment-filter">
-        <Form
-          form={form}
-          onFinish={onFinish}
-          ref={formSearchRef}
-          initialValues={initialValues}
-          layout="inline"
-        >
-          <Item style={{ flex: 1 }} name="code" className="input-search">
-            <Input
-              prefix={<img src={search} alt="" />}
-              placeholder="Tìm kiếm theo mã phiếu kiểm"
-              onBlur={(e) => {
-                formSearchRef?.current?.setFieldsValue({
-                  code: e.target.value.trim(),
-                });
-              }}
-            />
-          </Item>
-          <Item name="adjusted_store_id">
-            <CustomSelect
-              style={{
-                width: 300,
-              }}
-              allowClear={true}
-              placeholder="Chọn kho kiểm"
-              showArrow
-              showSearch
-              optionFilterProp="children"
-              onClear={() => formSearchRef?.current?.submit()}
-            >
-              {Array.isArray(stores) &&
-                stores.length > 0 &&
-                stores.map((item, index) => (
-                  <Option key={"adjusted_store_id" + index} value={item.id.toString()}>
-                    {item.name}
-                  </Option>
-                ))}
-            </CustomSelect>
-          </Item>
-          <Item>
-            <Button type="primary" loading={loadingFilter} htmlType="submit">
-              Lọc
-            </Button>
-          </Item>
-          <Item>
-            <Button icon={<FilterOutlined />} onClick={openFilter}>
-              Thêm bộ lọc
-            </Button>
-          </Item>
-          <ButtonSetting onClick={onShowColumnSetting} />
-        </Form>
+        <CustomFilter onMenuClick={onActionClick} menu={actions} actionDisable={isLoadingAction}>
+          <Form
+            form={form}
+            onFinish={onFinish}
+            ref={formSearchRef}
+            initialValues={initialValues}
+            layout="inline"
+          >
+            <Item style={{ flex: 1 }} name="code" className="input-search">
+              <Input
+                className="input-search"
+                prefix={<img src={search} alt="" />}
+                placeholder="Tìm kiếm theo mã phiếu kiểm"
+                onBlur={(e) => {
+                  formSearchRef?.current?.setFieldsValue({
+                    code: e.target.value.trim(),
+                  });
+                }}
+              />
+            </Item>
+            <Item name="adjusted_store_id">
+              <CustomSelect
+                style={{
+                  width: 300,
+                }}
+                allowClear={true}
+                placeholder="Chọn kho kiểm"
+                showArrow
+                showSearch
+                optionFilterProp="children"
+                onClear={() => formSearchRef?.current?.submit()}
+              >
+                {Array.isArray(stores) &&
+                  stores.length > 0 &&
+                  stores.map((item, index) => (
+                    <Option key={"adjusted_store_id" + index} value={item.id.toString()}>
+                      {item.name}
+                    </Option>
+                  ))}
+              </CustomSelect>
+            </Item>
+            <Item>
+              <Button type="primary" loading={loadingFilter} htmlType="submit">
+                Lọc
+              </Button>
+            </Item>
+            <Item>
+              <Button icon={<FilterOutlined />} onClick={openFilter}>
+                Thêm bộ lọc
+              </Button>
+            </Item>
+            <ButtonSetting onClick={onShowColumnSetting} />
+          </Form>
+        </CustomFilter>
 
         <BaseFilter
           onClearFilter={onClearFilterClick}
