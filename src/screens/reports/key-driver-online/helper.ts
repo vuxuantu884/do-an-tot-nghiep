@@ -19,7 +19,7 @@ import {
   onlineCounterService,
 } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
-import { nonAccentVietnamese } from "utils/PromotionUtils";
+import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 // import { parseLocaleNumber } from "utils/AppUtils";
 
@@ -108,16 +108,17 @@ export const convertDataToFlatTableKeyDriver = (
     const drillingLevel = Number(row[drillingLevelDataIndex]);
     const departmentLevelIndex = attributeOrdered.indexOf(`department_lv${drillingLevel}`);
 
-    const department = nonAccentVietnamese(row[departmentLevelIndex]);
+    const department = nonAccentVietnameseKD(row[departmentLevelIndex]);
     const objValue = {} as any;
 
     ATTRIBUTE_VALUE.forEach((attr) => {
-      objValue[nonAccentVietnamese(department) + "_" + attr] = row[attributeOrdered.indexOf(attr)];
+      objValue[nonAccentVietnameseKD(department) + "_" + attr] =
+        row[attributeOrdered.indexOf(attr)];
     });
 
     const otherValue = {} as any;
     attributeOrdered.forEach((attr) => {
-      otherValue[nonAccentVietnamese(department) + "_" + attr] =
+      otherValue[nonAccentVietnameseKD(department) + "_" + attr] =
         row[attributeOrdered.indexOf(attr)];
       otherValue[attr] = row[attributeOrdered.indexOf(attr)];
     });

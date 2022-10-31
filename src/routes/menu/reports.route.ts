@@ -32,7 +32,7 @@ const PotentialImporting = React.lazy(
 
 const KeyDriverOfflineV2 = React.lazy(() => import("screens/reports/key-driver-offline-v2"));
 
-export const MigrateKDOfflineUrl = '/migrate-kd-offline';
+export const KDOfflineV1Url = "/kd-offline-v1";
 
 const reports: Array<RouteMenu> = [
   {
@@ -167,7 +167,7 @@ const reports: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.KEY_DRIVER_OFFLINE}`,
+        path: KDOfflineV1Url,
         exact: true,
         title: "Báo cáo Kết quả kinh doanh offline",
         icon: "icon-dot",
@@ -175,10 +175,10 @@ const reports: Array<RouteMenu> = [
         key: "menureport05",
         isShow: true,
         header: null,
-        // permissions: [ReportPermissions.reports_view_report_offline],
+        permissions: [ReportPermissions.reports_view_report_offline],
         subMenu: [
           {
-            path: `${UrlConfig.KEY_DRIVER_OFFLINE}/:asmName`,
+            path: `${KDOfflineV1Url}/:asmName`,
             exact: true,
             title: "Báo cáo Kết quả kinh doanh offline các cửa hàng",
             icon: "icon-dot",
@@ -189,7 +189,7 @@ const reports: Array<RouteMenu> = [
             subMenu: [],
           },
           {
-            path: `${UrlConfig.KEY_DRIVER_OFFLINE}/:asmName/:storeName`,
+            path: `${KDOfflineV1Url}/:asmName/:storeName`,
             exact: true,
             title: "Báo cáo Kết quả kinh doanh offline các NV cửa hàng",
             icon: "icon-dot",
@@ -199,6 +199,19 @@ const reports: Array<RouteMenu> = [
             header: null,
             subMenu: [],
           },
+        ],
+      },
+      {
+        path: `${UrlConfig.KEY_DRIVER_OFFLINE}`,
+        exact: true,
+        title: "Báo cáo Kết quả kinh doanh offline v2",
+        icon: "icon-dot",
+        component: KeyDriverOfflineV2,
+        key: "menureport052",
+        isShow: true,
+        header: null,
+        permissions: [ReportPermissions.reports_view_report_offline],
+        subMenu: [
           {
             path: `${UrlConfig.KEY_DRIVER_OFFLINE}/potential-importing`,
             exact: true,
@@ -208,21 +221,10 @@ const reports: Array<RouteMenu> = [
             key: "submenureport053",
             isShow: true,
             header: null,
+            permissions: [ReportPermissions.reports_view_report_offline],
             subMenu: [],
           },
         ],
-      },
-      {
-        path: MigrateKDOfflineUrl,
-        exact: true,
-        title: "Báo cáo Kết quả kinh doanh offline v2",
-        icon: "icon-dot",
-        component: KeyDriverOfflineV2,
-        key: "menureport052",
-        isShow: true,
-        header: null,
-        // permissions: [ReportPermissions.reports_view_report_offline],
-        subMenu: [],
       },
       {
         path: `${UrlConfig.KEY_DRIVER_ONLINE}`,
@@ -233,19 +235,21 @@ const reports: Array<RouteMenu> = [
         key: "menureport6",
         isShow: true,
         header: null,
-        // permissions: [ReportPermissions.reports_view_report_online],
-        subMenu: [],
-      },
-      {
-        path: `${UrlConfig.KEY_DRIVER_ONLINE}/key-counter`,
-        exact: true,
-        title: "Nhập kết quả kinh doanh online",
-        icon: "icon-dot",
-        component: KeyDriverOnlineCounter,
-        key: "menureport7",
-        isShow: true,
-        header: null,
-        subMenu: [],
+        permissions: [ReportPermissions.reports_view_report_online],
+        subMenu: [
+          {
+            path: `${UrlConfig.KEY_DRIVER_ONLINE}/key-counter`,
+            exact: true,
+            title: "Nhập kết quả kinh doanh online",
+            icon: "icon-dot",
+            component: KeyDriverOnlineCounter,
+            key: "menureport7",
+            isShow: true,
+            header: null,
+            permissions: [ReportPermissions.reports_view_report_online],
+            subMenu: [],
+          },
+        ],
       },
     ],
   },

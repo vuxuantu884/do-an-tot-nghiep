@@ -8,6 +8,7 @@ import CustomDatePicker from "component/custom/new-date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
 import ModalSettingColumnData from "component/table/ModalSettingColumnData";
 import { HttpStatus } from "config/http-status.config";
+import UrlConfig from "config/url.config";
 // import { KeyboardKey } from "model/other/keyboard/keyboard.model";
 import { KeyDriverDataSourceType, KeyDriverDimension, LocalStorageKey } from "model/report";
 import moment from "moment";
@@ -15,14 +16,13 @@ import queryString from "query-string";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
-import { MigrateKDOfflineUrl } from "routes/menu/reports.route";
 import NoPermission from "screens/no-permission.screen";
 import { getKeyDriverOnlineApi } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { formatCurrency, parseLocaleNumber, replaceFormatString } from "utils/AppUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { nonAccentVietnamese } from "utils/PromotionUtils";
+import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { strForSearch } from "utils/StringUtils";
 import { kdOffNeedLowValue } from "../common/constant/kd-need-low-value";
 import { npsKD, numberOfStoreStaffKD } from "../common/constant/offline-report-kd";
@@ -699,12 +699,12 @@ function KeyDriverOffline() {
                 departmentLv3: columnDepartmentLv3,
               };
 
-              link = `${MigrateKDOfflineUrl}?${queryString.stringify(params)}`;
+              link = `${UrlConfig.KEY_DRIVER_OFFLINE}?${queryString.stringify(params)}`;
             }
 
             temp.push(
               setObjectiveColumns(
-                nonAccentVietnamese(groupedBy),
+                nonAccentVietnameseKD(groupedBy),
                 groupedBy.toUpperCase(),
                 index,
                 drillingLevel,
@@ -791,7 +791,7 @@ function KeyDriverOffline() {
   };
   return havePermission ? (
     <ContentContainer
-      title={"Báo cáo kết quả kinh doanh Offline v2"}
+      title={"Báo cáo kết quả kinh doanh Offline"}
       breadcrumb={getBreadcrumbByLevel(departmentLv2, departmentLv3)}
       extra={
         <>
