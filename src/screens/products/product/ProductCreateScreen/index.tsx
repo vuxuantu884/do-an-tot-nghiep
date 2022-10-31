@@ -318,7 +318,7 @@ const ProductCreateScreen: React.FC = () => {
               color: null,
               size_id: size.id,
               size: size.code,
-              sku: `${code}-${size.color}`,
+              sku: `${code}-${size.code}`,
               variant_images: [],
               quantity: 0,
             });
