@@ -1,5 +1,4 @@
 import React from "react";
-import { keyDriverOnlineTemplateData } from "../constant/key-driver-online-template-data";
 
 type KeyDriverOnlineProviderValue = {
   data: any;
@@ -11,7 +10,7 @@ export const KeyDriverOfflineContext = React.createContext<KeyDriverOnlineProvid
 );
 
 function KeyDriverOnlineProvider(props: { children: React.ReactNode }) {
-  const [data, setData] = React.useState<any>(keyDriverOnlineTemplateData);
+  const [data, setData] = React.useState<any>([]);
   return (
     <KeyDriverOfflineContext.Provider
       {...props}

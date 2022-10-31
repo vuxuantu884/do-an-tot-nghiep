@@ -19,6 +19,7 @@ type PropTypes = {
   receivedStoreName?: string;
   OrderDetail: OrderResponse | null;
   defaultReceiveReturnStore?: StoreResponse;
+  isDisableToggleReceiveProduct?: boolean;
 };
 function CardReturnReceiveProducts(props: PropTypes) {
   const {
@@ -33,6 +34,7 @@ function CardReturnReceiveProducts(props: PropTypes) {
     receivedStoreName,
     OrderDetail,
     defaultReceiveReturnStore,
+    isDisableToggleReceiveProduct,
   } = props;
 
   const [storeName, setStoreName] = useState<string | undefined>("");
@@ -79,6 +81,7 @@ function CardReturnReceiveProducts(props: PropTypes) {
             setIsReceivedReturnProducts && setIsReceivedReturnProducts(e.target.checked);
           }}
           defaultChecked={isReceivedReturnProducts}
+          disabled={isDisableToggleReceiveProduct}
         >
           Đã nhận hàng trả lại
         </Checkbox>

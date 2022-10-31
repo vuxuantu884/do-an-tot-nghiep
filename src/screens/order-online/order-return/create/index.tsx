@@ -1906,6 +1906,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     setIsShowReceiveProductConfirmModal={setIsShowReceiveProductConfirmModal}
                     form={form}
                     OrderDetail={OrderDetail}
+                    isDisableToggleReceiveProduct
                   />
                 )}
               </Col>

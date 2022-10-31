@@ -110,9 +110,7 @@ export const KeyDriverStyle = styled.div`
 
     .ant-table-row-expand-icon,
     .ant-table-row-expand-icon-expanded {
-      margin-right: 10px;
-      margin-left: 4px;
-      margin-top: 0px;
+      margin: 0px;
       min-width: 18px;
     }
     // position: absolute !important;
@@ -128,59 +126,38 @@ export const KeyDriverStyle = styled.div`
 
   .ant-table-row-level {
     &-0 {
-      td,
-      input,
-      .input-number,
-      .ant-input-affix-wrapper {
+      td:first-child {
         background-color: #ffd978 !important;
       }
     }
     &-1 {
-      td,
-      input,
-      .input-number,
-      .ant-input-affix-wrapper {
+      td:first-child {
         background-color: #ffe5a4 !important;
       }
     }
     &-2 {
-      td,
-      input,
-      .input-number,
-      .ant-input-affix-wrapper {
+      td:first-child {
         background-color: #fff0c5 !important;
       }
     }
     &-3 {
-      td,
-      input,
-      .input-number,
-      .ant-input-affix-wrapper {
+      td:first-child {
         background-color: #fff8e2 !important;
       }
     }
     &-4 {
-      td,
-      input,
-      .input-number,
-      .ant-input-affix-wrapper {
+      td:first-child {
         background-color: #fffdf5 !important;
       }
     }
     &-5 {
-      td,
-      input,
-      .input-number,
-      .ant-input-affix-wrapper {
+      td:first-child {
         background-color: #ffffff !important;
       }
     }
   }
   .expand-parent {
-    td,
-    input,
-    .input-number,
-    .ant-input-affix-wrapper {
+    td:first-child {
       background-color: #fff !important;
     }
   }
@@ -190,10 +167,14 @@ export const KeyDriverStyle = styled.div`
   }
 
   .background-red {
-    color: #e24343;
+    background-color: #fff1f0;
+    color: #cf1322;
+    border-radius: 2px;
   }
   .background-green {
-    color: #27ae60;
+    background-color: #f6ffed;
+    color: #389e0d;
+    border-radius: 2px;
   }
   .columns-setting {
     right: 20px;
@@ -210,6 +191,7 @@ export const KeyDriverStyle = styled.div`
 
   tbody > tr:hover {
     td,
+    td:first-child,
     input,
     .input-number,
     .ant-input-affix-wrapper {
@@ -224,5 +206,9 @@ export const KeyDriverStyle = styled.div`
 
   .ant-input-affix-wrapper {
     padding-right: 2px;
+  }
+
+  .padding-left-5 {
+    padding-left: 5px;
   }
 `;

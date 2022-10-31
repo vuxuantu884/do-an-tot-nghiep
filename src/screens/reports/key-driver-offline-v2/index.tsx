@@ -3,11 +3,11 @@ import { CheckOutlined, CloseOutlined, SettingOutlined } from "@ant-design/icons
 import { Button, Card, Col, Form, Select, Table, Tooltip } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
-import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
 import ModalSettingColumnData from "component/table/ModalSettingColumnData";
+import { HttpStatus } from "config/http-status.config";
 // import { KeyboardKey } from "model/other/keyboard/keyboard.model";
 import { KeyDriverDataSourceType, KeyDriverDimension, LocalStorageKey } from "model/report";
 import moment from "moment";
@@ -16,6 +16,7 @@ import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { MigrateKDOfflineUrl } from "routes/menu/reports.route";
+import NoPermission from "screens/no-permission.screen";
 import { getKeyDriverOnlineApi } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { formatCurrency, parseLocaleNumber, replaceFormatString } from "utils/AppUtils";
@@ -23,6 +24,7 @@ import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
 import { strForSearch } from "utils/StringUtils";
+import { kdOffNeedLowValue } from "../common/constant/kd-need-low-value";
 import { KeyDriverStyle } from "../common/kd-report/index.style";
 import { storeStaffNumberKD } from "../common/kd-report/kd-report-constant";
 import {
@@ -52,11 +54,11 @@ const baseColumns: any = [
     title: "CHỈ SỐ KEY",
     key: "name",
     dataIndex: "title",
-    width: 220,
+    width: 180,
     fixed: "left",
     render: (text: string, record: any) => {
       return (
-        <Tooltip className="text-truncate-2 key-cell padding-left-10" title={record.method}>
+        <Tooltip className="text-truncate-2 key-cell padding-left-5" title={record.method}>
           {text}
         </Tooltip>
       );
@@ -183,6 +185,7 @@ function KeyDriverOffline() {
         ],
   );
   const [allItemInDim, setAllItemInDim] = useState<any[]>([]);
+  const [havePermission, setHavePermission] = useState<boolean>(true);
 
   const newFinalColumns = useMemo(() => {
     return finalColumns.map((columnDetails: any) => {
@@ -220,13 +223,9 @@ function KeyDriverOffline() {
         children: [
           {
             title: () => {
-              return (
-                <div>
-                  <span>MỤC TIÊU THÁNG</span>
-                </div>
-              );
+              return <Tooltip title="Cho phép người dùng nhập vào.">MỤC TIÊU THÁNG</Tooltip>;
             },
-            width: 130,
+            width: 120,
             align: "right",
             dataIndex: `${departmentKey}_monthly_target`,
             className: "input-cell",
@@ -342,8 +341,14 @@ function KeyDriverOffline() {
             },
           },
           {
-            title: "LUỸ KẾ",
-            width: 100,
+            title: () => {
+              return (
+                <Tooltip title="Dữ liệu cập nhật từ đầu tháng đến hết ngày hôm qua(TH ngày chọn là ngày hiện tại). Dữ liệu cập nhật từ đầu tháng đến ngày được chọn(TH ngày được chọn là ngày quá khứ)">
+                  LUỸ KẾ
+                </Tooltip>
+              );
+            },
+            width: 45,
             align: "right",
             dataIndex: `${departmentKey}_monthly_actual`,
             className: "non-input-cell",
@@ -356,8 +361,10 @@ function KeyDriverOffline() {
             },
           },
           {
-            title: "TỶ LỆ",
-            width: 50,
+            title: () => {
+              return <Tooltip title="Luỹ kế/Mục tiêu tháng">TỶ LỆ</Tooltip>;
+            },
+            width: 45,
             align: "right",
             dataIndex: `${departmentKey}_monthly_progress`,
             className: "non-input-cell",
@@ -370,8 +377,14 @@ function KeyDriverOffline() {
             },
           },
           {
-            title: "DỰ KIẾN ĐẠT",
-            width: 100,
+            title: () => {
+              return (
+                <Tooltip title="=Lũy kế/(Ngày được chọn - 1) * Số ngày trong tháng(TH ngày dược chọn là ngày hiện tại). =Lũy kế/Ngày được chọn * Số ngày trong tháng(TH ngày được chọn là ngày quá khứ)">
+                  DỰ KIẾN ĐẠT
+                </Tooltip>
+              );
+            },
+            width: 90,
             align: "right",
             dataIndex: `${departmentKey}_monthly_forecasted`,
             className: "non-input-cell",
@@ -381,10 +394,14 @@ function KeyDriverOffline() {
               ) : (
                 <div
                   className={
-                    Number(text) / record[`${departmentKey}_monthly_target`] >= 1
-                      ? "background-green"
-                      : Number(text) / record[`${departmentKey}_monthly_target`] < 1 / 2
-                      ? "background-red"
+                    text
+                      ? (
+                          kdOffNeedLowValue.includes(record.key)
+                            ? Number(text) - record[`${departmentKey}_monthly_target`] <= 0
+                            : Number(text) - record[`${departmentKey}_monthly_target`] >= 0
+                        )
+                        ? "background-green"
+                        : "background-red"
                       : ""
                   }
                 >
@@ -396,8 +413,10 @@ function KeyDriverOffline() {
             },
           },
           {
-            title: "TỶ LỆ",
-            width: 50,
+            title: () => {
+              return <Tooltip title="Dự kiến đạt/Mục tiêu tháng">TỶ LỆ</Tooltip>;
+            },
+            width: 45,
             align: "right",
             dataIndex: `${departmentKey}_monthly_forecasted_progress`,
             className: "non-input-cell",
@@ -405,7 +424,11 @@ function KeyDriverOffline() {
               return (
                 <div
                   className={
-                    text >= 100 ? "background-green" : text && text < 50 ? "background-red" : ""
+                    text
+                      ? (kdOffNeedLowValue.includes(record.key) ? text <= 100 : text >= 100)
+                        ? "background-green"
+                        : "background-red"
+                      : ""
                   }
                 >
                   <VerifyCell row={record} value={text}>
@@ -416,8 +439,14 @@ function KeyDriverOffline() {
             },
           },
           {
-            title: "MỤC TIÊU NGÀY",
-            width: 120,
+            title: () => {
+              return (
+                <Tooltip title="=(Mục tiêu tháng - Lũy kế) / [Số ngày trong tháng - (Ngày hiện tại - 1)]. Người dùng vẫn có thể nhập mục tiêu ngày cho riêng phòng ban. Xoá mục tiêu ngày đã nhập -> Unicorn sẽ tự tính lại mục tiêu ngày theo công thức trên">
+                  MỤC TIÊU NGÀY
+                </Tooltip>
+              );
+            },
+            width: 110,
             align: "right",
             dataIndex: `${departmentKey}_daily_target`,
             className: "input-cell",
@@ -538,8 +567,10 @@ function KeyDriverOffline() {
             },
           },
           {
-            title: "THỰC ĐẠT",
-            width: 100,
+            title: () => {
+              return <Tooltip title="Dữ liệu trong ngày hôm nay">THỰC ĐẠT</Tooltip>;
+            },
+            width: 75,
             align: "right",
             dataIndex: `${departmentKey}_daily_actual`,
             className: "non-input-cell",
@@ -554,7 +585,9 @@ function KeyDriverOffline() {
             },
           },
           {
-            title: "TỶ LỆ",
+            title: () => {
+              return <Tooltip title="Thực đạt/Mục tiêu ngày">TỶ LỆ</Tooltip>;
+            },
             width: 50,
             align: "right",
             dataIndex: `${departmentKey}_daily_progress`,
@@ -608,6 +641,34 @@ function KeyDriverOffline() {
             departmentLv3,
           },
         );
+        const { FORBIDDEN, FORBIDDEN_REPORT, SUCCESS } = HttpStatus;
+        if (response.data?.code === FORBIDDEN) {
+          setHavePermission(false);
+          return;
+        }
+        if (response.code && response.code !== SUCCESS) {
+          const { department_lv2, department_lv3 } = response;
+          const queryParams = queryString.parse(history.location.search);
+          switch (response.code) {
+            case FORBIDDEN_REPORT:
+              let newQueries: any = {
+                ...queryParams,
+                keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
+              };
+              if (department_lv2) {
+                newQueries = { ...newQueries, departmentLv2: department_lv2.toUpperCase() };
+              }
+              if (department_lv3) {
+                newQueries = { ...newQueries, departmentLv3: department_lv3.toUpperCase() };
+              }
+              history.push({ search: queryString.stringify(newQueries) });
+              break;
+            default:
+              setLoadingPage(false);
+              break;
+          }
+          return;
+        }
         setData(() => {
           return convertDataToFlatTableKeyDriver(response, COLUMN_ORDER_LIST, dimension);
         });
@@ -666,6 +727,7 @@ function KeyDriverOffline() {
         );
       } catch (error) {}
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, setData, setObjectiveColumns],
   );
 
@@ -715,7 +777,8 @@ function KeyDriverOffline() {
     history.push({ search: queryString.stringify(newQueries) });
   }, [form, history]);
 
-  const onChangeItemInDim = (items: string[]) => {
+  const onChangeItemInDim = () => {
+    const items = form.getFieldsValue(true)["itemsInDim"];
     initTable(
       moment(date).format(DATE_FORMAT.YYYYMMDD),
       keyDriverGroupLv1,
@@ -724,10 +787,19 @@ function KeyDriverOffline() {
       items,
     );
   };
-  return (
+  return havePermission ? (
     <ContentContainer
       title={"Báo cáo kết quả kinh doanh Offline v2"}
       breadcrumb={getBreadcrumbByLevel(departmentLv2, departmentLv3)}
+      extra={
+        <>
+          <Button className="sub-feature-button" type="primary">
+            <Link to={`/key-driver-offline/potential-importing`}>
+              Nhập file khách hàng tiềm năng
+            </Link>
+          </Button>
+        </>
+      }
     >
       <KeyDriverStyle>
         <Card>
@@ -771,7 +843,6 @@ function KeyDriverOffline() {
                     }
                     return false;
                   }}
-                  onChange={onChangeItemInDim}
                 >
                   {allItemInDim.map((item, index) => (
                     <Option key={"dimFilter" + index} value={item.groupedBy}>
@@ -781,9 +852,14 @@ function KeyDriverOffline() {
                 </Select>
               </Form.Item>
             </Col>
-            {/* <Button htmlType="submit" type="primary" loading={loadingPage}>
-            Lọc
-          </Button> */}
+            <Button
+              htmlType="submit"
+              type="primary"
+              loading={loadingPage}
+              onClick={onChangeItemInDim}
+            >
+              Áp dụng hiển thị
+            </Button>
           </Form>
           <Button
             className="columns-setting"
@@ -799,6 +875,7 @@ function KeyDriverOffline() {
               offsetHeader: OFFSET_HEADER_UNDER_NAVBAR,
               offsetScroll: 5,
             }}
+            indentSize={6}
             bordered
             pagination={false}
             onRow={(record: any) => {
@@ -838,18 +915,9 @@ function KeyDriverOffline() {
           />
         </Card>
       </KeyDriverStyle>
-      <BottomBarContainer
-        rightComponent={
-          <>
-            <Button type="primary">
-              <Link to={`/key-driver-offline/potential-importing`}>
-                Nhập file khách hàng tiềm năng
-              </Link>
-            </Button>
-          </>
-        }
-      />
     </ContentContainer>
+  ) : (
+    <NoPermission></NoPermission>
   );
 }
 

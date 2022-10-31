@@ -751,6 +751,7 @@ const WebAppOrders: React.FC = () => {
                   editNote(newNote, "note", record.id, record);
                 }}
                 isDisable={record.status === OrderStatus.FINISHED}
+                promotionText={promotionUtils.getPromotionTextFromResponse(record.note || "")}
               />
             </div>
           </div>

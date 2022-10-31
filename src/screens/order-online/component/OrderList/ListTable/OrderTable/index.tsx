@@ -1338,6 +1338,7 @@ function OrdersTable(props: PropTypes) {
                       note: promotionUtils.getPrivateNoteFromResponse(record.note || ""),
                       customer_note: record.customer_note,
                     }}
+                    promotionText={promotionUtils.getPromotionTextFromResponse(record.note || "")}
                   />
                 </div>
               </div>
