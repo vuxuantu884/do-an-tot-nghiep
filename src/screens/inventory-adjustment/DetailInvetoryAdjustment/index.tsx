@@ -995,7 +995,7 @@ const DetailInventoryAdjustment: FC = () => {
                         })}
 
                       <Form.Item>
-                        {data.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED && (
+                        {data.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED && isPermissionAudit && isHaveEditPermission && (
                           <Upload
                             beforeUpload={onBeforeUpload}
                             multiple={true}
@@ -1049,40 +1049,38 @@ const DetailInventoryAdjustment: FC = () => {
                         tab={`Thừa/Thiếu (${formatCurrency(dataLinesItem.metadata.total) ?? 0})`}
                         key="1"
                       >
-                        <AuthWrapper acceptPermissions={[InventoryAdjustmentPermission.update]}>
-                          <Input.Group style={{ paddingTop: 16 }} className="display-flex">
-                            {isHaveEditPermission && data.status !== STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status
-                            && data.status !== STATUS_INVENTORY_ADJUSTMENT.AUDITED.status
-                            && renderSearchComponent()}
-                            <Input
-                              name="key_search"
-                              onChange={(e) => {
-                                onChangeKeySearch(e.target.value);
-                              }}
-                              onKeyPress={(e) => e.key === 'Enter' && setIsReSearch(!isReSearch)}
-                              style={{ marginLeft: 8 }}
-                              placeholder="Tìm kiếm sản phẩm trong phiếu"
-                              addonAfter={
-                                <SearchOutlined
+                        <Input.Group style={{ paddingTop: 16 }} className="display-flex">
+                          {isHaveEditPermission && data.status !== STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status
+                              && data.status !== STATUS_INVENTORY_ADJUSTMENT.AUDITED.status
+                              && renderSearchComponent()}
+                          <Input
+                            name="key_search"
+                            onChange={(e) => {
+                              onChangeKeySearch(e.target.value);
+                            }}
+                            onKeyPress={(e) => e.key === 'Enter' && setIsReSearch(!isReSearch)}
+                            style={{ marginLeft: 8 }}
+                            placeholder="Tìm kiếm sản phẩm trong phiếu"
+                            addonAfter={
+                              <SearchOutlined
                                   onClick={() => {
                                     setIsReSearch(!isReSearch);
                                   }}
                                   style={{ color: "#2A2A86" }}
-                                />
-                              }
-                            />
-                            <Button
-                              loading={isLoadingBtnPrint}
-                              disabled={isLoadingBtnPrint}
-                              onClick={() => onPrintProductAction('deviant')}
-                              type="primary"
-                              ghost
-                              style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
-                            >
-                              <img src={IconPrint} alt="" style={{ paddingRight: "10px" }} /> In danh sách
-                            </Button>
-                          </Input.Group>
-                        </AuthWrapper>
+                              />
+                            }
+                          />
+                          <Button
+                            loading={isLoadingBtnPrint}
+                            disabled={isLoadingBtnPrint}
+                            onClick={() => onPrintProductAction('deviant')}
+                            type="primary"
+                            ghost
+                            style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                          >
+                            <img src={IconPrint} alt="" style={{ paddingRight: "10px" }} /> In danh sách
+                          </Button>
+                        </Input.Group>
                         {activeTab === "1" && (
                           <InventoryAdjustmentListAll
                             isPermissionEdit={isHaveEditPermission}
@@ -1105,38 +1103,36 @@ const DetailInventoryAdjustment: FC = () => {
                         )}
                       </TabPane>
                       <TabPane tab={`Tất cả (${total})`} key="2">
-                        <AuthWrapper acceptPermissions={[InventoryAdjustmentPermission.update]}>
-                          <Input.Group style={{ paddingTop: 16 }} className="display-flex">
-                            {isHaveEditPermission && renderSearchComponent()}
-                            <Input
-                              name="key_search"
-                              onChange={(e) => {
-                                onChangeKeySearch(e.target.value);
-                              }}
-                              onKeyPress={(e) => e.key === 'Enter' && setIsReSearch(!isReSearch)}
-                              style={{ marginLeft: 8 }}
-                              placeholder="Tìm kiếm sản phẩm trong phiếu"
-                              addonAfter={
-                                <SearchOutlined
-                                  onClick={() => {
-                                    setIsReSearch(!isReSearch);
-                                  }}
-                                  style={{ color: "#2A2A86" }}
-                                />
-                              }
-                            />
-                            <Button
-                              loading={isLoadingBtnPrint}
-                              disabled={isLoadingBtnPrint}
-                              onClick={() => onPrintProductAction('total')}
-                              type="primary"
-                              ghost
-                              style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
-                            >
-                              <img src={IconPrint} alt="" style={{ paddingRight: "10px" }} /> In danh sách
-                            </Button>
-                          </Input.Group>
-                        </AuthWrapper>
+                        <Input.Group style={{ paddingTop: 16 }} className="display-flex">
+                          {isHaveEditPermission && renderSearchComponent()}
+                          <Input
+                            name="key_search"
+                            onChange={(e) => {
+                              onChangeKeySearch(e.target.value);
+                            }}
+                            onKeyPress={(e) => e.key === 'Enter' && setIsReSearch(!isReSearch)}
+                            style={{ marginLeft: 8 }}
+                            placeholder="Tìm kiếm sản phẩm trong phiếu"
+                            addonAfter={
+                              <SearchOutlined
+                                onClick={() => {
+                                  setIsReSearch(!isReSearch);
+                                }}
+                                style={{ color: "#2A2A86" }}
+                              />
+                            }
+                          />
+                          <Button
+                            loading={isLoadingBtnPrint}
+                            disabled={isLoadingBtnPrint}
+                            onClick={() => onPrintProductAction('total')}
+                            type="primary"
+                            ghost
+                            style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                          >
+                            <img src={IconPrint} alt="" style={{ paddingRight: "10px" }} /> In danh sách
+                          </Button>
+                        </Input.Group>
                         {activeTab === "2" && (
                           <InventoryAdjustmentListAll
                             isPermissionEdit={isHaveEditPermission}
