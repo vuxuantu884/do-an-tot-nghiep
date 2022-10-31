@@ -8,7 +8,7 @@ import {
   AnalyticResult,
   ArrayAny,
   KeyDriverDataSourceType,
-  KeyDriverOnlineParams
+  KeyDriverOnlineParams,
 } from "model/report";
 import moment from "moment";
 import queryString from "query-string";
@@ -16,7 +16,7 @@ import { Dispatch } from "redux";
 import {
   actualDayUpdateApi,
   getKeyDriverOnlineApi,
-  onlineCounterService
+  onlineCounterService,
 } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
@@ -52,6 +52,7 @@ const ATTRIBUTE_TITLE = [
   "key_driver_group_lv2",
   "key_driver_group_lv3",
   "key_driver_group_lv4",
+  "key_driver_group_lv5",
   "drilling_level",
 ];
 
@@ -175,13 +176,19 @@ export const convertDataToFlatTableKeyDriver = (
 };
 
 const sliceGroups = (schema: any) => {
-  const { key_driver_group_lv1, key_driver_group_lv2, key_driver_group_lv3, key_driver_group_lv4 } =
-    schema;
+  const {
+    key_driver_group_lv1,
+    key_driver_group_lv2,
+    key_driver_group_lv3,
+    key_driver_group_lv4,
+    key_driver_group_lv5,
+  } = schema;
   const groups = [
     key_driver_group_lv1,
     key_driver_group_lv2,
     key_driver_group_lv3,
     key_driver_group_lv4,
+    key_driver_group_lv5,
   ];
   return groups.filter((_group) => !!_group);
 };
