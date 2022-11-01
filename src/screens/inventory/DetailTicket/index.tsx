@@ -673,6 +673,7 @@ const DetailTicket: FC = () => {
         setKeySearch("");
 
         let res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, {
+          status: "active",
           barcode: code,
           store_ids: data?.from_store_id ?? null,
         });
