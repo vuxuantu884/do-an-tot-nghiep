@@ -552,6 +552,7 @@ const CreateTicket: FC = () => {
         let res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, {
           barcode: code,
           store_ids: storeId ?? null,
+          status: "active",
         });
         if (res && res.items && res.items.length > 0) {
           onSelectProduct(res.items[0].id.toString(), res.items[0]);

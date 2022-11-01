@@ -168,6 +168,7 @@ const ImportExcel: React.FC<ModalImportProps> = (props: ModalImportProps) => {
               barcode: barcodes.join(","),
               store_ids: null,
               limit: 1000,
+              status: "active"
             });
 
             if (res.items.length === 0) return;
