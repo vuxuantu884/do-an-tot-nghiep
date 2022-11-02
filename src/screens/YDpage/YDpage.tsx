@@ -10,7 +10,7 @@ import ZaloIcon from "assets/icon/zalo.svg";
 
 import { AppConfig } from "config/app.config";
 import { useQuery } from "utils/useQuery";
-import { getYdpageSource, setYdpageSource } from "utils/LocalStorageUtils";
+import { getToken, getYdpageSource, setYdpageSource } from "utils/LocalStorageUtils";
 import { useEffect } from "react";
 import SplashScreen from "screens/splash.screen";
 
@@ -19,6 +19,13 @@ const allSource = {
   FACEBOOK: "facebook",
 };
 const YDpage: React.FC = () => {
+  const queryString = useQuery();
+  const fbCode = queryString.get("code");
+
+  const [source, setSource] = useState<String | null>(getYdpageSource());
+  const [loadingYdpage, setLoadingYdpage] = useState<Boolean | null>(false);
+  const [isLogining, setIsLogining] = useState<Boolean | null>(false);
+
   const goToFacebookYDpage = () => {
     setSource(allSource.FACEBOOK);
     setYdpageSource(allSource.FACEBOOK);
@@ -35,8 +42,9 @@ const YDpage: React.FC = () => {
   function getYdPageUrl() {
     const pathParam = new URLSearchParams(window.location.search).get("path");
     const path = pathParam ? pathParam : "/chat";
-    return new URL(YDPAGE_URL || "").origin + "/#" + path;
+    return new URL(YDPAGE_URL || "").origin + "/#";
   }
+
   useEffect(() => {
     function handleEvent(event: any) {
       const { data } = event;
@@ -66,12 +74,22 @@ const YDpage: React.FC = () => {
     };
   }, []);
 
-  const queryString = useQuery();
-  const fbCode = queryString.get("code");
-
-  const [source, setSource] = useState<String | null>(getYdpageSource());
-  const [loadingYdpage, setLoadingYdpage] = useState<Boolean | null>(false);
-  const [isLogining, setIsLogining] = useState<Boolean | null>(false);
+  useEffect(() => {
+    if (loadingYdpage === false) {
+      const token = getToken();
+      const iframe: HTMLIFrameElement | null = document.querySelector('[name="ydpage-iframe"]');
+      const ydpageWindow = iframe?.contentWindow;
+      ydpageWindow?.postMessage(
+        {
+          service: "token",
+          params: {
+            token,
+          },
+        },
+        "*",
+      );
+    }
+  }, [loadingYdpage]);
 
   useEffect(() => {
     const iframe: HTMLIFrameElement | null = document.querySelector(
@@ -143,6 +161,7 @@ const YDpage: React.FC = () => {
       {loadingYdpage && <SplashScreen />}
       {source === allSource.FACEBOOK && !fbCode && !isLogining && (
         <iframe
+          name="ydpage-iframe"
           className="ydpage-iframe"
           title="ydpage"
           src={getYdPageUrl()}
