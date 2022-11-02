@@ -539,6 +539,7 @@ export default function Order() {
     values.discounts = lstDiscount;
     let _shippingAddressRequest: any = {
       ...shippingAddress,
+      id: null,
       second_phone: shippingAddressesSecondPhone,
     };
     values.shipping_address = _shippingAddressRequest;
