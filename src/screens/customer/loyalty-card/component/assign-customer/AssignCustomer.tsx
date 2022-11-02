@@ -49,7 +49,7 @@ const AssignCustomer = (props: ModalProps) => {
 
   const assignmentCallback = useCallback(
     (data: any) => {
-      if (onSaveSuccess) {
+      if (data) {
         onSaveSuccess && onSaveSuccess(data);
         showSuccess("Gán thẻ khách hàng thành công!");
         onClose && onClose();
@@ -69,6 +69,8 @@ const AssignCustomer = (props: ModalProps) => {
           card.id,
           {
             customer_id: selectedCustomer.customer.id,
+            customer_name: selectedCustomer.customer.full_name,
+            release_id: card.release_id,
             card_number: card.card_number,
           },
           assignmentCallback,
