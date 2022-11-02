@@ -19,9 +19,9 @@ export const CustomerGroupPermission = {
   groups_delete: `${Customers}_groups_delete`,
 };
 
-export const CustomerLevelPermission = {
-  levels_read: `${Customers}_levels_read`,
-  levels_create: `${Customers}_levels_create`,
-  levels_update: `${Customers}_levels_update`,
-  levels_delete: `${Customers}_levels_delete`,
+export const CUSTOMER_LEVEL_PERMISSIONS = {
+  READ: "customers_levels_read",
+  CREATE: "customers_levels_create",
+  UPDATE: "customers_levels_update",
+  DELETE: "customers_levels_delete",
 };

@@ -27,7 +27,7 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import ButtonCreate from "component/header/ButtonCreate";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
-import { CustomerLevelPermission } from "config/permissions/customer.permission";
+import { CUSTOMER_LEVEL_PERMISSIONS } from "config/permissions/customer.permission";
 import useAuthorization from "hook/useAuthorization";
 import ProgressRankingCustomerModal from "screens/customer/ranking/ProgressRankingCustomerModal";
 import warningIcon from "assets/icon/warning-icon.svg";
@@ -38,14 +38,22 @@ import { EnumJobStatus } from "config/enum.config";
 import ExitUpdateRankingCustomerModal from "./ExitUpdateRankingCustomerModal";
 import { showSuccess, showError } from "utils/ToastUtils";
 
-const viewCustomerLevelPermission = [CustomerLevelPermission.levels_read];
-const createCustomerLevelPermission = [CustomerLevelPermission.levels_create];
-const updateCustomerLevelPermission = [CustomerLevelPermission.levels_update];
-const deleteCustomerLevelPermission = [CustomerLevelPermission.levels_delete];
+const viewCustomerLevelPermission = [CUSTOMER_LEVEL_PERMISSIONS.READ];
+const createCustomerLevelPermission = [CUSTOMER_LEVEL_PERMISSIONS.CREATE];
+const updateCustomerLevelPermission = [CUSTOMER_LEVEL_PERMISSIONS.UPDATE];
+const deleteCustomerLevelPermission = [CUSTOMER_LEVEL_PERMISSIONS.DELETE];
 
 const CustomerRanking = () => {
   const [allowCreateCustomerLevel] = useAuthorization({
     acceptPermissions: createCustomerLevelPermission,
+    not: false,
+  });
+  const [allowUpdateCustomerLevel] = useAuthorization({
+    acceptPermissions: updateCustomerLevelPermission,
+    not: false,
+  });
+  const [allowDeleteCustomerLevel] = useAuthorization({
+    acceptPermissions: deleteCustomerLevelPermission,
     not: false,
   });
 
@@ -70,16 +78,6 @@ const CustomerRanking = () => {
   const [processCode, setProcessCode] = useState<any>(null);
   const [progressData, setProgressData] = useState<any>();
   const RenderActionColumn = (value: any, row: any) => {
-    const [allowUpdateCustomerLevel] = useAuthorization({
-      acceptPermissions: updateCustomerLevelPermission,
-      not: false,
-    });
-
-    const [allowDeleteCustomerLevel] = useAuthorization({
-      acceptPermissions: deleteCustomerLevelPermission,
-      not: false,
-    });
-
     const isShowAction = allowUpdateCustomerLevel || allowDeleteCustomerLevel;
 
     const menu = (
@@ -410,20 +408,22 @@ const CustomerRanking = () => {
         }
       </AuthWrapper>
 
-      <Card title={<span className="card-title">CẬP NHẬP HẠNG KHÁCH HÀNG</span>}>
-        <div className="update_ranking-customer">
-          <p className="update_ranking-customer-last-date">{`Cập nhật lần cuối: ${moment(
-            new Date(Math.max(...dateUpdateRankingCustomer)),
-          ).format(DATE_FORMAT.DDMMYYY)}`}</p>
-          <Button
-            type="primary"
-            className="update_ranking-customer-btn"
-            onClick={handleUpdateRankingCustomer}
-          >
-            Cập nhập hạng khách hàng
-          </Button>
-        </div>
-      </Card>
+      {allowUpdateCustomerLevel &&
+        <Card title={<span className="card-title">CẬP NHẬP HẠNG KHÁCH HÀNG</span>}>
+          <div className="update_ranking-customer">
+            <p className="update_ranking-customer-last-date">{`Cập nhật lần cuối: ${moment(
+              new Date(Math.max(...dateUpdateRankingCustomer)),
+            ).format(DATE_FORMAT.DDMMYYY)}`}</p>
+            <Button
+              type="primary"
+              className="update_ranking-customer-btn"
+              onClick={handleUpdateRankingCustomer}
+            >
+              Cập nhập hạng khách hàng
+            </Button>
+          </div>
+        </Card>
+      }
 
       <ModalDeleteConfirm
         visible={isShowConfirmDelete}
