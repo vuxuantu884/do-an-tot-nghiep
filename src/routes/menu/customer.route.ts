@@ -7,7 +7,7 @@ import {
   CustomerListPermission,
 } from "config/permissions/customer.permission";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import { LoyaltyPermission } from "config/permissions/loyalty.permission";
+import { LOYALTY_ADJUSTMENT_PERMISSIONS, LoyaltyPermission } from "config/permissions/loyalty.permission";
 
 const customer = React.lazy(() => import("screens/customer/index"));
 const CustomerCreate = React.lazy(() => import("screens/customer/customer-create/CustomerCreate"));
@@ -161,6 +161,7 @@ const customers: Array<RouteMenu> = [
     key: "submenu158",
     isShow: true,
     header: null,
+    permissions: [LOYALTY_ADJUSTMENT_PERMISSIONS.READ],
     subMenu: [
       {
         path: `${UrlConfig.CUSTOMER2}-adjustments/create`,
@@ -171,7 +172,7 @@ const customers: Array<RouteMenu> = [
         key: "create_point_adjustment",
         isShow: true,
         header: null,
-        permissions: [LoyaltyPermission.points_update],
+        permissions: [LOYALTY_ADJUSTMENT_PERMISSIONS.CREATE],
         subMenu: [],
       },
       {
@@ -183,6 +184,7 @@ const customers: Array<RouteMenu> = [
         key: "point_adjustment_detail",
         isShow: true,
         header: null,
+        permissions: [LOYALTY_ADJUSTMENT_PERMISSIONS.READ],
         subMenu: [],
       },
     ],
