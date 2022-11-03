@@ -21,20 +21,20 @@ function SearchedVariant(props: PropTypes): JSX.Element {
         </Col>
         <Col span={15} className="variant-columns-2">
           <span
-            className="searchDropdown__productTitle yody-text-ellipsis"
+            className="searchDropdown__productTitle text-ellipsis"
             style={{ color: "#37394D" }}
             title={item.name}
           >
             {item.name}
           </span>
-          <div className="variant-info-color-sku yody-text-ellipsis">{item.sku}</div>
+          <div className="variant-info-color-sku text-ellipsis">{item.sku}</div>
         </Col>
         <Col span={6} className="variant-columns-3">
           <Col className="black-color">
             {`${findPrice(item.variant_prices, AppConfig.currency)} `}
             <span className="gray-color price">đ</span>
           </Col>
-          <div className="gray-color yody-text-ellipsis">
+          <div className="gray-color text-ellipsis">
             <span>Có thể bán:</span>
             <span
               style={{

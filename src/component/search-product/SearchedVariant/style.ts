@@ -34,4 +34,7 @@ export const StyledComponent = styled.div`
   .gray-color {
     color: #737373;
   }
+  .text-ellipsis {
+    display: block;
+  }
 `;
