@@ -109,6 +109,7 @@ import CardReturnMoney from "../component/order-detail/CardReturnMoney";
 import CardShowOrderPayments from "../component/order-detail/CardShowOrderPayments";
 import UpdateCustomerCard from "../component/update-customer-card";
 import UpdateShipmentCard from "../component/UpdateShipmentCard";
+import useCalculateShippingFee from "../hooks/useCalculateShippingFee";
 import useGetDefaultReturnOrderReceivedStore from "../hooks/useGetDefaultReturnOrderReceivedStore";
 import CancelOrderModal from "../modal/cancel-order.modal";
 import CardReturnReceiveProducts from "../order-return/components/CardReturnReceiveProducts";
@@ -151,8 +152,6 @@ const OrderDetail = (props: PropTypes) => {
   const [isError, setError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
-
-  const stores = useFetchStores();
 
   const showOrderDetailUtm = useMemo(() => {
     return (
@@ -1174,11 +1173,11 @@ const OrderDetail = (props: PropTypes) => {
                   orderConfig={orderConfig}
                   ref={updateShipmentCardRef}
                   orderPageType={OrderPageTypeModel.orderDetail}
-                  // currentStores={currentStores}
+                  currentStores={currentStores}
                   form={form}
-                  // isShowReceiveProductConfirmModal={isShowReceiveProductConfirmModal}
-                  // setIsShowReceiveProductConfirmModal={setIsShowReceiveProductConfirmModal}
-                  // defaultReceiveReturnStore={defaultReceiveReturnStore}
+                  isShowReceiveProductConfirmModal={isShowReceiveProductConfirmModal}
+                  setIsShowReceiveProductConfirmModal={setIsShowReceiveProductConfirmModal}
+                  defaultReceiveReturnStore={defaultReceiveReturnStore}
                   handleChangeShippingFeeApplyOrderSettings={
                     handleChangeShippingFeeApplyOrderSettings
                   }
@@ -1220,8 +1219,7 @@ const OrderDetail = (props: PropTypes) => {
                   handleUpdateSubStatus={handleUpdateSubStatus}
                   setReload={setReload}
                   OrderDetailAllFulfillment={OrderDetailAllFulfillment}
-                  stores={stores}
-                  defaultReceiveReturnStore={defaultReceiveReturnStore}
+                  currentStores={currentStores}
                 />
                 <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} editNote={editNote}/>
                 <ActionHistory

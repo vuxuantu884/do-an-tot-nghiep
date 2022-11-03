@@ -1,5 +1,4 @@
 import { AccountStoreResponse } from "model/account/account.model";
-import { StoreResponse } from "model/core/store.model";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
 import {
@@ -489,25 +488,4 @@ export const checkIfMomoTypePayment = (payment: OrderPaymentResponse | OrderPaym
     payment?.type?.toLowerCase() === "momo" &&
     payment.payment_method_code === PaymentMethodCode.QR_CODE
   );
-};
-
-export const getReturnStoreFromOrderActiveFulfillment = (
-  fulfillments: FulFillmentResponse[] | null | undefined,
-  currentStores: StoreResponse[],
-) => {
-  if (currentStores?.length === 1) {
-    return currentStores[0];
-  }
-  const getStoreFromOrderActiveFulfillment = () => {
-    let result = undefined;
-    const activeFulfillment = getFulfillmentActive(fulfillments);
-    if (activeFulfillment) {
-      const activeFulfillmentStoreId = activeFulfillment.returned_store_id;
-      if (activeFulfillmentStoreId) {
-        result = currentStores?.find((single) => single.id === activeFulfillmentStoreId);
-      }
-    }
-    return result;
-  };
-  return getStoreFromOrderActiveFulfillment();
 };

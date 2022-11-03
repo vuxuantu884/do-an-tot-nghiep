@@ -16,16 +16,17 @@ import {
   ExternalShipperGetListAction,
   searchAccountPublicAction,
 } from "domain/actions/account/account.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getListOrderAction, PaymentMethodGetList } from "domain/actions/order/order.action";
 import { getAllSourcesRequestAction } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useAuthorization from "hook/useAuthorization";
-import useFetchStores from "hook/useFetchStores";
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
 import { HandoverSearchRequest } from "model/handover/handover.search";
 import {
   ChangeOrderStatusHtmlModel,
@@ -139,7 +140,7 @@ function OrderList(props: PropTypes) {
   useState<Array<AccountResponse>>();
   let [params, setPrams] = useState<OrderSearchQuery>(initQuery);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  const stores = useFetchStores();
+  const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [shippers, setShippers] = useState<Array<DeliverPartnerResponse>>([]);
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
@@ -264,8 +265,6 @@ function OrderList(props: PropTypes) {
   const selectedRowCodes = selectedRows.map((row) => row.code);
 
   const [changeOrderStatusHtml, setChangeOrderStatusHtml] = useState<JSX.Element>();
-
-  const currentStores = useFetchStores();
 
   const actions: Array<MenuAction> = useMemo(
     () => [
@@ -837,6 +836,7 @@ function OrderList(props: PropTypes) {
     );
     // dispatch(getListAllSourceRequest(setListSource));
     dispatch(getAllSourcesRequestAction(setListSource));
+    dispatch(StoreGetListAction(setStore));
     dispatch(
       PaymentMethodGetList((data) => {
         data.push({
@@ -958,7 +958,7 @@ function OrderList(props: PropTypes) {
             isLoading={isFilter}
             params={params}
             listSource={listSource}
-            listStore={stores}
+            listStore={listStore}
             accounts={accounts}
             shippers={shippers}
             deliveryService={deliveryServices}
@@ -989,11 +989,10 @@ function OrderList(props: PropTypes) {
               deliveryServices={deliveryServices}
               selectedRowKeys={selectedRowKeys}
               onFilterPhoneCustomer={onFilterPhoneCustomer}
-              stores={stores}
+              listStore={listStore}
               orderType={orderType}
               tableColumnConfigs={tableColumnConfigs}
               subStatuses={subStatuses}
-              currentStores={currentStores}
             />
           ) : (
             <span>Đang tải dữ liệu...</span>
