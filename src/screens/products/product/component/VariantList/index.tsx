@@ -5,7 +5,12 @@ import classNames from "classnames";
 import ActionButton from "component/table/ActionButton";
 import { ProductResponse, VariantResponse } from "model/product/product.model";
 import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
-import { formatCurrency, Products } from "utils/AppUtils";
+import {
+  formatCurrency,
+  formatCurrencyValue,
+  Products,
+  SupportedCurrencyType,
+} from "utils/AppUtils";
 import { StyledComponent } from "./style";
 
 interface VariantListProps {
@@ -150,7 +155,12 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                                 item &&
                                 item.variant_prices != null &&
                                 item.variant_prices[0]?.retail_price
-                                  ? formatCurrency(item.variant_prices[0].retail_price)
+                                  ? formatCurrencyValue(
+                                      item.variant_prices[0].retail_price,
+                                      ".",
+                                      ",",
+                                      item.variant_prices[0].currency_code.toUpperCase() as SupportedCurrencyType,
+                                    )
                                   : "-"
                               }`}
                             </div>

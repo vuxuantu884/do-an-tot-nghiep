@@ -30,7 +30,14 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { TYPE_EXPORT } from "screens/products/constants";
-import { formatCurrencyForProduct, generateQuery, Products, splitEllipsis } from "utils/AppUtils";
+import {
+  formatCurrencyForProduct,
+  formatCurrencyValue,
+  generateQuery,
+  Products,
+  splitEllipsis,
+  SupportedCurrencyType,
+} from "utils/AppUtils";
 import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE, STATUS_IMPORT_EXPORT } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
@@ -45,6 +52,7 @@ import { HttpStatus } from "config/http-status.config";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
+import currency from "currency.js";
 
 const ACTIONS_INDEX = {
   PRINT_BAR_CODE: 2,
@@ -369,11 +377,15 @@ const TabProduct: React.FC<any> = (props) => {
       visible: ckeckPermissionReadCostPrice(),
       width: 110,
       render: (value) => {
-        let prices: VariantPricesResponse | null = Products.findPrice(value, AppConfig.currency); //cần phải xem lại đơn vị tiền tệ
-        if (prices !== null) {
-          return formatCurrencyForProduct(prices.cost_price);
-        }
-        return "";
+        let prices: VariantPricesResponse | null = Products.findPrice(value, AppConfig.currency);
+        return prices && prices.cost_price
+          ? formatCurrencyValue(
+              prices.cost_price,
+              ".",
+              ",",
+              prices.currency_code.toUpperCase() as SupportedCurrencyType,
+            )
+          : "";
       },
     },
     {
@@ -385,10 +397,14 @@ const TabProduct: React.FC<any> = (props) => {
       width: 110,
       render: (value) => {
         let prices: VariantPricesResponse | null = Products.findPrice(value, AppConfig.currency);
-        if (prices !== null) {
-          return formatCurrencyForProduct(prices.import_price);
-        }
-        return "";
+        return prices && prices.import_price
+          ? formatCurrencyValue(
+              prices.import_price,
+              ".",
+              ",",
+              prices.currency_code.toUpperCase() as SupportedCurrencyType,
+            )
+          : "";
       },
     },
     {
@@ -400,10 +416,14 @@ const TabProduct: React.FC<any> = (props) => {
       width: 110,
       render: (value) => {
         let prices: VariantPricesResponse | null = Products.findPrice(value, AppConfig.currency);
-        if (prices !== null) {
-          return formatCurrencyForProduct(prices.retail_price);
-        }
-        return "";
+        return prices && prices.retail_price
+          ? formatCurrencyValue(
+              prices.retail_price,
+              ".",
+              ",",
+              prices.currency_code.toUpperCase() as SupportedCurrencyType,
+            )
+          : "";
       },
     },
     {
@@ -500,7 +520,10 @@ const TabProduct: React.FC<any> = (props) => {
     setColumn,
   );
 
-  const columnFinal = useMemo(() => {
+  /**
+   * finalColumns is list of products that are visible to current user
+   */
+  const finalColumns = useMemo(() => {
     return columns.filter((item) => item.visible === true);
   }, [columns]);
 
@@ -698,7 +721,7 @@ const TabProduct: React.FC<any> = (props) => {
         onSelectedChange={onSelect}
         onShowColumnSetting={() => setShowSettingColumn(true)}
         dataSource={data.items}
-        columns={columnFinal}
+        columns={finalColumns}
         rowKey={(item: VariantResponse) => item.id}
       />
       <AuthWrapper acceptPermissions={[ProductPermission.upload_image]}>
