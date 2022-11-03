@@ -47,12 +47,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation, useParams } from "react-router";
 import { Link } from "react-router-dom";
 import Slider from "react-slick";
-import {
-  formatCurrency,
-  formatCurrencyValue,
-  Products,
-  SupportedCurrencyType,
-} from "utils/AppUtils";
+import { formatCurrencyValue, Products, SupportedCurrencyType } from "utils/AppUtils";
 import { getFirstProductAvatarByVariantResponse } from "utils/ProductUtils";
 import { showSuccess } from "utils/ToastUtils";
 import RowDetail from "../component/RowDetail";
@@ -70,7 +65,6 @@ import { fullTextSearch } from "utils/StringUtils";
 import { SupplierResponse } from "model/core/supplier.model";
 import TabAdvertisingHistory from "../tab/TabAdvertisingHistory";
 import { careInformation } from "screens/products/Component/CareInformation/care-value";
-import { isTypeNode } from "typescript";
 export interface ProductParams {
   id: string;
   variantId: string;
@@ -546,11 +540,6 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
       setTitle(`${data?.name}`);
     }
   }, [data?.name, setTitle]);
-
-  const [readCost, readImport] = useAuthorization({
-    acceptPermissions: [ProductPermission.read_cost, ProductPermission.read_import],
-  });
-  console.log(readCost, readImport);
 
   return (
     <StyledComponent className="product-detail">
