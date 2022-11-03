@@ -129,12 +129,7 @@ import { COLUMN_CONFIG_TYPE, FulFillmentStatus, OrderStatus } from "utils/Consta
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { dangerColor, primaryColor, successColor } from "utils/global-styles/variables";
 import { ORDER_EXPORT_TYPE, ORDER_SUB_STATUS } from "utils/Order.constants";
-import {
-  checkIfFulfillmentCancelled,
-  getFulfillmentActive,
-  getReturnStoreFromOrderActiveFulfillment,
-  getTrackingCodeFulfillment,
-} from "utils/OrderUtils";
+import { checkIfFulfillmentCancelled, getTrackingCodeFulfillment } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParams, getQueryParamsFromQueryString, useQuery } from "utils/useQuery";
@@ -148,7 +143,6 @@ import PrintEcommerceDeliveryNoteProcess from "screens/ecommerce/orders/process-
 import ConfirmPreparationShopeeProductModal from "./component/ConfirmPreparationShopeeProductModal";
 import PreparationShopeeProductModal from "./component/PreparationShopeeProductModal";
 import ReportPreparationShopeeProductModal from "./component/ReportPreparationShopeeProductModal";
-import useFetchStores from "hook/useFetchStores";
 
 const BATCHING_SHIPPING_TYPE = {
   SELECTED: "SELECTED",
@@ -270,8 +264,6 @@ const EcommerceOrders: React.FC = () => {
   const subStatuses = useGetOrderSubStatuses();
   const [typeAPi, setTypeAPi] = useState("");
   const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(undefined);
-  const [defaultReceiveReturnStore, setDefaultReceiveReturnStore] =
-    useState<StoreResponse | null>();
   const [selectedOrder, setSelectedOrder] = useState<OrderModel | null>(null);
   const status_order = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.order_status,
@@ -343,8 +335,6 @@ const EcommerceOrders: React.FC = () => {
   const [subReasonRequireWarehouseChange, setSubReasonRequireWarehouseChange] = useState<
     number | undefined
   >(undefined);
-
-  const currentStores = useFetchStores();
 
   useEffect(() => {
     dispatch(
@@ -1048,15 +1038,6 @@ const EcommerceOrders: React.FC = () => {
                         // if (!isChange) {
                         //   return;
                         // }
-                        // const returnedStoreData = listStore?.find(
-                        //   (p) =>
-                        //     p.id === getFulfillmentActive(record?.fulfillments)?.returned_store_id,
-                        // );
-                        let defaultReceiveReturnStore = getReturnStoreFromOrderActiveFulfillment(
-                          record?.fulfillments,
-                          currentStores,
-                        );
-                        setDefaultReceiveReturnStore(defaultReceiveReturnStore);
                         setToSubStatusCode(value);
                       }}
                     >
@@ -2370,8 +2351,6 @@ const EcommerceOrders: React.FC = () => {
                   subReasonRequireWarehouseChange={subReasonRequireWarehouseChange}
                   setToSubStatusCode={setToSubStatusCode}
                   changeSubStatusCallback={changeSubStatusCallback}
-                  stores={listStore}
-                  defaultReceiveReturnStore={defaultReceiveReturnStore}
                 />
               </Card>
             ) : (

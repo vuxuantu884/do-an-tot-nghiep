@@ -74,7 +74,6 @@ import IconPaymentVNPay from "assets/icon/payment/vnpay.svg";
 import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
 import { promotionUtils } from "component/order/promotion.utils";
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
-import useFetchStores from "hook/useFetchStores";
 
 const PAYMENT_ICON = [
   {
@@ -145,8 +144,6 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     (state: RootReducerType) => state.bootstrapReducer.data?.order_status,
   );
   const [formOrderHistoryFilter] = Form.useForm();
-
-  const stores = useFetchStores();
 
   const dispatch = useDispatch();
 
@@ -1532,7 +1529,6 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         toSubStatus={toSubStatusCode}
         setToSubStatusCode={setToSubStatusCode}
         changeSubStatusCallback={changeSubStatusCallback}
-        stores={stores}
       />
     </StyledPurchaseHistory>
   );
