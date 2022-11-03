@@ -11,6 +11,7 @@ export const HeaderSummary = (
   field: string,
   onSortASC?: (sortColumn: string) => void,
   onSortDESC?: (sortColumn: string) => void,
+  tooltip?: string,
 ) => {
   let SortComponent = () => (
     <div className="block-sort">
@@ -42,13 +43,14 @@ export const HeaderSummary = (
     <div
       className={fieldActive === field ? "field-active" : ""}
       style={{ display: "inline-flex", wordBreak: "initial" }}
+      title={tooltip ? tooltip : ""}
     >
       {header} <SortComponent />
     </div>
   );
   if (total) {
     Component = () => (
-      <>
+      <div title={tooltip ? tooltip : ""}>
         <div
           className={fieldActive === field ? "field-active" : ""}
           style={{
@@ -70,8 +72,9 @@ export const HeaderSummary = (
             }}
           >{`${formatCurrencyForProduct(total, ".")}`}</div>
         </div>
-      </>
+      </div>
     );
   }
+
   return Component;
 };
