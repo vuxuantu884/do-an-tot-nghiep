@@ -13,7 +13,6 @@ type PropTypes = {
   handleConfirmOk: (status: string | undefined) => void;
   listOrderProcessingStatus: OrderProcessingStatusModel[];
   changeOrderStatusHtml: JSX.Element | undefined;
-  setIsShowChangeOrderStatusModal?: (value: boolean) => void;
 };
 
 function ChangeOrderStatusModal(props: PropTypes) {
@@ -24,16 +23,12 @@ function ChangeOrderStatusModal(props: PropTypes) {
     listOrderProcessingStatus,
     handleConfirmOk,
     changeOrderStatusHtml,
-    setIsShowChangeOrderStatusModal,
   } = props;
 
   const [form] = Form.useForm();
 
   const onFinish = (values: any) => {
     handleConfirmOk(values.selected_status);
-    if (setIsShowChangeOrderStatusModal) {
-      setIsShowChangeOrderStatusModal(false);
-    }
   };
 
   return (
@@ -84,9 +79,6 @@ function ChangeOrderStatusModal(props: PropTypes) {
             <Button
               type="primary"
               onClick={() => {
-                if (setIsShowChangeOrderStatusModal) {
-                  setIsShowChangeOrderStatusModal(false);
-                }
                 form.submit();
               }}
             >

@@ -1038,7 +1038,6 @@ function OrderList(props: PropTypes) {
           }}
           listOrderProcessingStatus={listOrderProcessingStatus}
           handleConfirmOk={handleConfirmOk}
-          setIsShowChangeOrderStatusModal={setIsShowChangeOrderStatusModal}
           changeOrderStatusHtml={changeOrderStatusHtml}
         />
       </ContentContainer>

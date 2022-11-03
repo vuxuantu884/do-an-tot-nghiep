@@ -2543,7 +2543,6 @@ const EcommerceOrders: React.FC = () => {
           listOrderProcessingStatus={listOrderProcessingStatus}
           handleConfirmOk={handleConfirmOk}
           changeOrderStatusHtml={changeOrderStatusHtml}
-          setIsShowChangeOrderStatusModal={setIsShowChangeOrderStatusModal}
         />
       </ContentContainer>
     </StyledComponentEcommerceOrder>

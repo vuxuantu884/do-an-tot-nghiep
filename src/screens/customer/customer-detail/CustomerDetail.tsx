@@ -84,7 +84,7 @@ const CustomerDetail = () => {
     acceptPermissions: updateCustomerPermission,
     not: false,
   });
-  
+
   const [allowRecalculateMoneyPoint] = useAuthorization({
     acceptPermissions: recalculateMoneyPointPermission,
     not: false,
@@ -116,7 +116,7 @@ const CustomerDetail = () => {
 
   const actions: Array<MenuAction> = useMemo(() => {
     let _actions = allowCreateLoyaltyAdjustment ? cloneDeep(defaultActions) : [];
-      
+
     if (allowRecalculateMoneyPoint) {
       _actions.push(
         {
@@ -127,9 +127,9 @@ const CustomerDetail = () => {
           id: 6,
           name: "Tính lại tiền tích lũy",
         },
-      )
+      );
     }
-    
+
     return _actions;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allowCreateLoyaltyAdjustment, allowRecalculateMoneyPoint]);
@@ -504,11 +504,13 @@ const CustomerDetail = () => {
 
   return (
     <StyledCustomerDetail>
-      {customer ?
+      {customer ? (
         <ContentContainer
           title="Thông tin chi tiết"
-          extra={actions?.length > 0 &&
-            <ActionButton type="default" menu={actions} onMenuClick={onMenuClick} />
+          extra={
+            actions?.length > 0 && (
+              <ActionButton type="default" menu={actions} onMenuClick={onMenuClick} />
+            )
           }
         >
           <AuthWrapper acceptPermissions={viewCustomerDetailPermission} passThrough>
@@ -574,7 +576,9 @@ const CustomerDetail = () => {
                       </TabPane>
 
                       <TabPane tab="Lịch sử thao tác" key="activity-log">
-                        {activeTab === "activity-log" && <CustomerActivityLog customer={customer} />}
+                        {activeTab === "activity-log" && (
+                          <CustomerActivityLog customer={customer} />
+                        )}
                       </TabPane>
 
                       <TabPane tab="Ghi chú" key="notes">
@@ -624,9 +628,7 @@ const CustomerDetail = () => {
                       </TabPane>
 
                       <TabPane tab="Thông tin người thân" key="family">
-                        <CustomerFamily
-                          customer={customer}
-                        />
+                        <CustomerFamily customer={customer} />
                       </TabPane>
 
                       {allowUpdateCustomer && isShowAddBtn && (
@@ -643,12 +645,12 @@ const CustomerDetail = () => {
                     </Tabs>
                   </Card>
 
-                  <BottomBarContainer
+                  {/* <BottomBarContainer
                     back={"Quay lại danh sách khách hàng"}
                     backAction={() => {
                       history.push(`${UrlConfig.CUSTOMER}`)
                     }}
-                  />
+                  /> */}
                 </>
               ) : (
                 <NoPermission />
@@ -656,21 +658,17 @@ const CustomerDetail = () => {
             }
           </AuthWrapper>
         </ContentContainer>
-        :
-        <ContentContainer
-          title="Thông tin chi tiết"
-        >
-          <Card
-            title={<span className="card-title">KHÔNG CÓ THÔNG TIN KHÁCH HÀNG</span>}
-          />
+      ) : (
+        <ContentContainer title="Thông tin chi tiết">
+          <Card title={<span className="card-title">KHÔNG CÓ THÔNG TIN KHÁCH HÀNG</span>} />
           <BottomBarContainer
             back={"Quay lại danh sách khách hàng"}
             backAction={() => {
-              history.push(`${UrlConfig.CUSTOMER}`)
+              history.push(`${UrlConfig.CUSTOMER}`);
             }}
           />
         </ContentContainer>
-      }
+      )}
     </StyledCustomerDetail>
   );
 };
