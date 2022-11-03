@@ -1,5 +1,6 @@
 import { Modal, ModalProps } from "antd";
 import { TiWarningOutline } from "react-icons/ti";
+import { borderColor } from "utils/global-styles/variables";
 
 export interface ModalConfirmProps extends ModalProps {
   visible?: boolean;
@@ -11,10 +12,22 @@ export interface ModalConfirmProps extends ModalProps {
   cancelText?: string;
   bgIcon?: string;
   loading?: boolean;
+  children?: React.ReactNode;
 }
 
 const ModalConfirm: React.FC<ModalConfirmProps> = (props: ModalConfirmProps) => {
-  const { visible, onOk, onCancel, title, subTitle, okText, cancelText, loading, ...rest } = props;
+  const {
+    visible,
+    onOk,
+    onCancel,
+    title,
+    subTitle,
+    okText,
+    cancelText,
+    loading,
+    children,
+    ...rest
+  } = props;
 
   return (
     <Modal
@@ -47,6 +60,18 @@ const ModalConfirm: React.FC<ModalConfirmProps> = (props: ModalConfirmProps) => 
           {subTitle !== "" && <div className="modal-confirm-sub-title">{subTitle}</div>}
         </div>
       </div>
+      {children ? (
+        <div
+          className="modalContent"
+          style={{
+            marginTop: 25,
+            borderTop: `1px solid ${borderColor}`,
+            paddingTop: 25,
+          }}
+        >
+          {children}
+        </div>
+      ) : null}
     </Modal>
   );
 };
