@@ -528,7 +528,7 @@ const DetailHandoverScreen: React.FC = () => {
                         <Link
                           target="_blank"
                           to={`${UrlConfig.PRODUCT}/${item.product_id}${UrlConfig.VARIANTS}/${item.variant_id}`}
-                          className="yody-text-ellipsis"
+                          className="text-ellipsis"
                           title={item.variant}
                         >
                           {item.variant}

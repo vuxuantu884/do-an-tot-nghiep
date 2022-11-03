@@ -44,7 +44,7 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
       setResultSearchVariant([{ ...result[index] }]);
       if (onSelect) {
         onSelect({ ...result[index] }, dataSource);
-        setKeySearch('');
+        setKeySearch("");
       }
     },
     [resultSearchVariant, setKeySearch, onSelect, dataSource],
@@ -157,17 +157,8 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
 
   const eventKeydownProduct = useCallback(
     (event: any) => {
-      //console.log("dataSourceeventKeydownProduct", dataSource);
-
-      //console.log("1 event",event);
-      //if (event.key !== "Enter") barCode = barCode + event.key;
-      //   console.log("2 barCode",barCode);
-      //   console.log("3 event.key",event.key);
       if (event.key === "Enter") {
         isBarcode = true;
-        //console.log("4 success",event.key,isBarcode,barCode);
-        // setKeySearch("");
-
         if (barCode !== "" && event) {
           let barCodeCopy = barCode;
           handleBarcodeProduct(barCodeCopy);

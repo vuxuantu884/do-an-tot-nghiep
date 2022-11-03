@@ -357,7 +357,7 @@ const TabProduct: React.FC<any> = (props) => {
           <div>
             <Link
               to={`${UrlConfig.PRODUCT}/${i.product_id}/variants/${i.id}`}
-              className="yody-text-ellipsis"
+              className="text-ellipsis"
             >
               {value}
             </Link>

@@ -4,7 +4,7 @@ import { ICustomTableColumType } from "screens/ecommerce/table/CustomTable";
 import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 
 function useSetTableColumns(
-  columnType: string,
+  columnType: COLUMN_CONFIG_TYPE,
   tableColumnConfigs: FilterConfig[],
   initColumns: ICustomTableColumType<any>[],
   setColumns: (columns: ICustomTableColumType<any>[]) => void,
