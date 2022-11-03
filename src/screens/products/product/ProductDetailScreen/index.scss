@@ -14,3 +14,24 @@
 #tab .card .ant-card-body {
   padding-top: 0px;
 }
+
+.variant-prices {
+  margin-right: 15px;
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+
+.variant-price-container {
+  display: flex;
+  flex-shrink: 1;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.variant-price-title {
+  font-weight: bold;
+}
+
+.variant-price-title {
+  margin-bottom: 10px;
+}
