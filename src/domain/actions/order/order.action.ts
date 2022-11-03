@@ -39,7 +39,7 @@ import {
   ErrorLogResponse,
   GHNFeeResponse,
   OrderResponse,
-  OrderSubStatusResponse,
+  OrderSubStatusResponse, ParamPromotion, PromotionResponse,
   ShippingGHTKResponse,
   StoreCustomResponse,
   TrackingLogFulfillmentResponse,
@@ -53,6 +53,7 @@ import {
   ShippingServiceConfigDetailResponseModel,
 } from "model/response/settings/order-settings.response";
 import { OrderType } from "../../types/order.type";
+import {ListDataModel} from "../../../model/order/ListDataModel";
 
 export const orderCreateAction = (
   request: OrderRequest,
@@ -630,4 +631,10 @@ export const changeIfPaymentAlreadyChangedAction = (isAlreadyChangedPayment: boo
       isAlreadyChangedPayment,
     },
   };
+};
+export const PromotionGetList = (
+  setData: (response: ListDataModel<PromotionResponse>) => void,
+  params: ParamPromotion
+) => {
+  return BaseAction(OrderType.GET_LIST_PROMOTION, {setData,params});
 };

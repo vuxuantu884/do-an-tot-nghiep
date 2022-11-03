@@ -1,20 +1,20 @@
-import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { Col, Form, Modal, Row } from "antd";
+import {ExclamationCircleOutlined} from "@ant-design/icons";
+import {Col, Form, Modal, Row} from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
-import { promotionUtils } from "component/order/promotion.utils";
+import {promotionUtils} from "component/order/promotion.utils";
 import ActionHistory from "component/order/Sidebar/ActionHistory";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
 import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
 import SidebarOrderDetailUtm from "component/order/Sidebar/SidebarOrderDetailUtm";
 import SidebarOrderHistory from "component/order/Sidebar/SidebarOrderHistory";
 import UrlConfig from "config/url.config";
-import { StoreDetailAction } from "domain/actions/core/store.action";
-import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
-import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
+import {StoreDetailAction} from "domain/actions/core/store.action";
+import {getCustomerDetailAction} from "domain/actions/customer/customer.action";
+import {hideLoading, showLoading} from "domain/actions/loading.action";
+import {getLoyaltyPoint, getLoyaltyUsage} from "domain/actions/loyalty/loyalty.action";
+import {actionSetIsReceivedOrderReturn} from "domain/actions/order/order-return.action";
 import {
   cancelOrderRequest,
   changeOrderCustomerAction,
@@ -29,40 +29,41 @@ import {
   updateOrderPartial,
   UpdatePaymentAction,
 } from "domain/actions/order/order.action";
-import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
+import {actionListConfigurationShippingServiceAndShippingFee} from "domain/actions/settings/order-settings.action";
 import useCheckIfCanCreateMoneyRefund from "hook/order/useCheckIfCanCreateMoneyRefund";
 import useFetchStores from "hook/useFetchStores";
-import { HandoverResponse } from "model/handover/handover.response";
-import { OrderPageTypeModel } from "model/order/order.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {HandoverResponse} from "model/handover/handover.response";
+import {OrderPageTypeModel} from "model/order/order.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import {
   EcommerceId,
   EcommerceOrderList,
   EcommerceOrderStatus,
   EcommerceOrderStatusRequest,
 } from "model/request/ecommerce.request";
-import { UpdateOrderPaymentRequest } from "model/request/order.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
-import { EcommerceChangeOrderStatusReponse } from "model/response/ecommerce/ecommerce.response";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import {UpdateOrderPaymentRequest} from "model/request/order.request";
+import {CustomerResponse} from "model/response/customer/customer.response";
+import {EcommerceChangeOrderStatusReponse} from "model/response/ecommerce/ecommerce.response";
+import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
+import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
 import {
   OrderReasonModel,
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
-import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
 import {
   OrderConfigResponseModel,
   ShippingServiceConfigDetailResponseModel,
 } from "model/response/settings/order-settings.response";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
-import { ECOMMERCE_CHANNEL } from "screens/ecommerce/common/commonAction";
-import CannotUpdateOrderWithWalletWarningInformation from "screens/order-online/component/CannotUpdateOrderWithWalletWarningInformation";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory, useParams} from "react-router-dom";
+import {ECOMMERCE_CHANNEL} from "screens/ecommerce/common/commonAction";
+import CannotUpdateOrderWithWalletWarningInformation
+  from "screens/order-online/component/CannotUpdateOrderWithWalletWarningInformation";
 import CardShowReturnProducts from "screens/order-online/order-return/components/CardShowReturnProducts";
-import { searchHandoverService } from "service/handover/handover.service";
+import {searchHandoverService} from "service/handover/handover.service";
 import {
   deleteOrderService,
   getOrderDetail,
@@ -84,7 +85,7 @@ import {
   POS,
   ShipmentMethodOption,
 } from "utils/Constants";
-import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
+import {ORDER_PAYMENT_STATUS} from "utils/Order.constants";
 import {
   checkIfExpiredOrCancelledPayment,
   checkIfFinishedPayment,
@@ -92,7 +93,7 @@ import {
   checkIfOrderHasNotFinishPaymentMomo,
   isDeliveryOrderReturned,
 } from "utils/OrderUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
+import {showError, showSuccess} from "utils/ToastUtils";
 import {
   changeEcommerceOrderStatus,
   getEcommerceStoreAddress,
@@ -111,7 +112,8 @@ import UpdateShipmentCard from "../component/UpdateShipmentCard";
 import useGetDefaultReturnOrderReceivedStore from "../hooks/useGetDefaultReturnOrderReceivedStore";
 import CancelOrderModal from "../modal/cancel-order.modal";
 import CardReturnReceiveProducts from "../order-return/components/CardReturnReceiveProducts";
-import { StyledComponent, UniformText } from "./styles";
+import {StyledComponent, UniformText} from "./styles";
+import useGetGiftPromotions, {PromotionType} from "../hooks/useGetGiftPromotions";
 
 type PropTypes = {
   id?: string;
@@ -127,21 +129,20 @@ let maxNumberReload = 10;
 let isRequest = true;
 
 const OrderDetail = (props: PropTypes) => {
-  let { id } = useParams<OrderParam>();
+  let {id} = useParams<OrderParam>();
   const history = useHistory();
   if (!id && props.id) {
     id = props.id;
   }
-  const { setTitle } = props;
+  const {setTitle} = props;
   // let OrderId = parseInt(id);
   const isFirstLoad = useRef(true);
   const isEcommerceOrder = useRef(false);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-
   const dispatch = useDispatch();
   const [form] = Form.useForm();
-
   const [paymentMethod, setPaymentMethod] = useState<number>(3);
+
   const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
 
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
@@ -225,9 +226,7 @@ const OrderDetail = (props: PropTypes) => {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
 
-  const [shippingServiceConfig, setShippingServiceConfig] = useState<
-    ShippingServiceConfigDetailResponseModel[]
-  >([]);
+  const [shippingServiceConfig, setShippingServiceConfig] = useState<ShippingServiceConfigDetailResponseModel[]>([]);
 
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
   // xác nhận đơn
@@ -257,11 +256,6 @@ const OrderDetail = (props: PropTypes) => {
   const totalAmountCustomerNeedToPay = useMemo(() => {
     return totalOrderAmount - totalAmountPayment;
   }, [totalOrderAmount, totalAmountPayment]);
-
-  console.log("OrderDetailAllFulfillment", OrderDetailAllFulfillment);
-  console.log("totalOrderAmount", totalOrderAmount);
-  console.log("totalAmountPayment", totalAmountPayment);
-  console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
 
   const onPaymentSelect = (paymentMethod: number) => {
     if (paymentMethod === 1) {
@@ -470,7 +464,8 @@ const OrderDetail = (props: PropTypes) => {
     [OrderDetail?.id, dispatch],
   );
 
-  const handleConfirmToEcommerce = () => {};
+  const handleConfirmToEcommerce = () => {
+  };
 
   const cancelPrepareGoodsModal = () => {
     setVisibleLogisticConfirmModal(false);
@@ -518,8 +513,8 @@ const OrderDetail = (props: PropTypes) => {
                 status === EcommerceOrderStatus.PACKED
                   ? "Có lỗi xảy ra khi tạo gói hàng Lazada"
                   : status === EcommerceOrderStatus.READY_TO_SHIP
-                  ? "Có lỗi xảy ra khi báo Lazada sẵn sàng giao"
-                  : "Có lỗi xảy ra khi chuyển trạng thái";
+                    ? "Có lỗi xảy ra khi báo Lazada sẵn sàng giao"
+                    : "Có lỗi xảy ra khi chuyển trạng thái";
               showError(errorMessage);
             } else {
               if (data.success_list && data.success_list.length > 0) {
@@ -527,8 +522,8 @@ const OrderDetail = (props: PropTypes) => {
                   status === EcommerceOrderStatus.PACKED
                     ? "Tạo gói hàng Lazada thành công"
                     : status === EcommerceOrderStatus.READY_TO_SHIP
-                    ? "Báo Lazada sẵn sàng giao thành công"
-                    : "Chuyển trạng thái thành công";
+                      ? "Báo Lazada sẵn sàng giao thành công"
+                      : "Chuyển trạng thái thành công";
                 showSuccess(successMessage);
               } else if (data.error_list && data.error_list.length > 0) {
                 showError(data.error_list[0].error_message);
@@ -668,7 +663,7 @@ const OrderDetail = (props: PropTypes) => {
 
     Modal.confirm({
       title: "Xác nhận xóa",
-      icon: <ExclamationCircleOutlined />,
+      icon: <ExclamationCircleOutlined/>,
       content: (
         <StyledComponent>
           <div className="yody-modal-confirm-list-code">
@@ -693,7 +688,7 @@ const OrderDetail = (props: PropTypes) => {
   const handleStatusOrder = useCallback(
     (data: OrderResponse | null) => {
       if (!OrderDetail || !data) return;
-      let orderDetailCopy = { ...OrderDetail };
+      let orderDetailCopy = {...OrderDetail};
       orderDetailCopy.sub_status = data.sub_status;
       orderDetailCopy.sub_status_code = data.sub_status_code;
       orderDetailCopy.sub_status_id = data.sub_status_id;
@@ -736,9 +731,11 @@ const OrderDetail = (props: PropTypes) => {
   // const { handleChangeShippingFeeApplyOrderSettings, setIsShippingFeeAlreadyChanged } =
   //   useCalculateShippingFee(totalOrderAmount, form, setShippingFeeInformedToCustomer, false);
 
-  const handleChangeShippingFeeApplyOrderSettings = () => {};
+  const handleChangeShippingFeeApplyOrderSettings = () => {
+  };
 
   useEffect(() => {
+
     if (isFirstLoad.current || reload) {
       if (id) {
         dispatch(OrderDetailAction(id, onGetDetailSuccess));
@@ -752,6 +749,7 @@ const OrderDetail = (props: PropTypes) => {
     setShowPaymentPartialPayment(false);
     setPaymentMethod(2);
   }, [dispatch, onGetDetailSuccess, reload, OrderDetail, id]);
+
 
   // mã vận đơn: đối với ghtk, đến bước đóng gói sẽ load lại để lấy mã vận đơn
   useEffect(() => {
@@ -920,7 +918,7 @@ const OrderDetail = (props: PropTypes) => {
   // end
 
   const initialFormValue = {
-    returnMoneyField: [{ returnMoneyMethod: undefined, returnMoneyNote: undefined }],
+    returnMoneyField: [{returnMoneyMethod: undefined, returnMoneyNote: undefined}],
     orderReturn_receive_return_store_id: defaultReceiveReturnStore?.id,
     ffm_receive_return_store_id: undefined,
   };
@@ -950,7 +948,7 @@ const OrderDetail = (props: PropTypes) => {
       dispatch(
         updateOrderPartial(params, orderID, (success?: boolean) => {
           if (success && OrderDetail) {
-            let orderDetailCopy = { ...OrderDetail };
+            let orderDetailCopy = {...OrderDetail};
             orderDetailCopy.note = note;
             orderDetailCopy.customer_note = customer_note;
             // console.log("orderDetailCopy",orderDetailCopy)
@@ -1043,17 +1041,17 @@ const OrderDetail = (props: PropTypes) => {
         breadcrumb={
           OrderDetail
             ? [
-                {
-                  name: isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`,
-                  path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
-                },
-                {
-                  name: `Danh sách đơn hàng ${isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
-                  path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
-                },
-                {
-                  name: (
-                    <span>
+              {
+                name: isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`,
+                path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
+              },
+              {
+                name: `Danh sách đơn hàng ${isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
+                path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
+              },
+              {
+                name: (
+                  <span>
                       {OrderDetail?.code ? (
                         <>
                           Đơn hàng {OrderDetail?.code}{" "}
@@ -1063,14 +1061,14 @@ const OrderDetail = (props: PropTypes) => {
                         "Đang tải dữ liệu..."
                       )}
                     </span>
-                  ),
-                },
-              ]
+                ),
+              },
+            ]
             : undefined
         }
         extra={
           isOrderFromPOS(OrderDetail) ? undefined : (
-            <CreateBillStep orderDetail={OrderDetailAllFulfillment} status={stepsStatusValue} />
+            <CreateBillStep orderDetail={OrderDetailAllFulfillment} status={stepsStatusValue}/>
           )
         }
       >
@@ -1114,7 +1112,8 @@ const OrderDetail = (props: PropTypes) => {
                       payments={[]}
                       returnMoneyAmount={customerNeedToPayValue}
                       isShowPaymentMethod={true}
-                      setIsShowPaymentMethod={() => {}}
+                      setIsShowPaymentMethod={() => {
+                      }}
                       handleReturnMoney={handleReturnMoney}
                       returnPaymentMethodCode={returnPaymentMethodCode}
                       setReturnPaymentMethodCode={setReturnPaymentMethodCode}
@@ -1142,7 +1141,8 @@ const OrderDetail = (props: PropTypes) => {
                   createPaymentCallback={createPaymentCallback}
                   totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                   payments={OrderDetail?.payments}
-                  setExtraPayments={() => {}} //chú ý phải set
+                  setExtraPayments={() => {
+                  }} //chú ý phải set
                   orderPageType={OrderPageTypeModel.orderDetail}
                 />
 
@@ -1182,7 +1182,8 @@ const OrderDetail = (props: PropTypes) => {
                   handleChangeShippingFeeApplyOrderSettings={
                     handleChangeShippingFeeApplyOrderSettings
                   }
-                  setIsShippingFeeAlreadyChanged={() => {}}
+                  setIsShippingFeeAlreadyChanged={() => {
+                  }}
                 />
                 {/*--- end shipment ---*/}
 
@@ -1201,12 +1202,12 @@ const OrderDetail = (props: PropTypes) => {
                 {/*--- end product ---*/}
 
                 {checkIfOrderHasNotFinishPaymentMomo(OrderDetailAllFulfillment) && (
-                  <CannotUpdateOrderWithWalletWarningInformation />
+                  <CannotUpdateOrderWithWalletWarningInformation/>
                 )}
               </Col>
 
               <Col md={6}>
-                {showOrderDetailUtm && <SidebarOrderDetailUtm OrderDetail={OrderDetail} />}
+                {showOrderDetailUtm && <SidebarOrderDetailUtm OrderDetail={OrderDetail}/>}
                 <SidebarOrderDetailInformation
                   OrderDetail={OrderDetailAllFulfillment}
                   orderDetailHandover={orderDetailHandover}
@@ -1222,13 +1223,13 @@ const OrderDetail = (props: PropTypes) => {
                   stores={stores}
                   defaultReceiveReturnStore={defaultReceiveReturnStore}
                 />
-                <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} editNote={editNote} />
+                <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} editNote={editNote}/>
                 <ActionHistory
                   orderId={OrderDetail?.id}
                   countChangeSubStatus={countChangeSubStatus}
                   reload={reload}
                 />
-                {customerDetail?.id && <SidebarOrderHistory customerId={customerDetail?.id} />}
+                {customerDetail?.id && <SidebarOrderHistory customerId={customerDetail?.id}/>}
               </Col>
             </Row>
             <OrderDetailBottomBar

@@ -2,6 +2,7 @@ import {BaseObject} from "model/base/base.response";
 import {StoreResponse} from "model/core/store.model";
 import {ReasonReturn} from "model/order/return.model";
 import {GoodsReceiptsResponse} from "../pack/pack.response";
+import {OrderItemDiscountRequest} from "../../request/order.request";
 
 export interface OrderResponse extends BaseObject {
   ecommerce_shop_id: null;
@@ -217,11 +218,14 @@ export interface EcommerceDeliveryResponse {
 export interface OrderDiscountResponse {
   rate: number | null;
   value: number | null;
-  amount: number | null;
-  promotion_id: number | null;
-  reason: string | null;
-  source: string | null;
-  discount_code: string | null;
+  amount: number;
+  promotion_id?: number | null;
+  promotion_title?: string | null;
+  order_id: number | null;
+  discount_code: string|null;
+  reason: string|null;
+  source: string;
+  type: string;
 }
 
 // export interface OrderItemDiscountResponse {
@@ -236,8 +240,13 @@ export interface OrderItemDiscountResponse {
   rate: number;
   value: number;
   amount: number;
-  promotion_id?: number;
+  promotion_id?: number | null;
+  promotion_title?: string | null;
+  order_id?: number | null;
+  discount_code?: string | null;
   reason: string | null;
+  source?: string | null;
+  type?: string;
 }
 
 export interface OrderPaymentResponse extends BaseObject {
@@ -654,4 +663,39 @@ export interface CustomerOrderHistoryResponse extends BaseObject {
   received?: boolean | null;
   is_show_tracking_log?: boolean;
   tracking_log?: Array<TrackingLogFulfillmentResponse> | null;
+}
+
+export interface PromotionResponse extends BaseObject {
+  type: string,
+  title: string,
+  priority: number,
+  usage_limit: any,
+  usage_limit_per_customer: any,
+  quantity_limit: number,
+  starts_date: Date,
+  ends_date: Date,
+  entitled_method: string,
+  number_of_entitlements: number,
+  number_of_discount_codes: number,
+  total_usage_count: number,
+  async_usage_count: number,
+  async_allocation_count: number,
+  state: string,
+  activated_by: string,
+  activated_name: string,
+  activated_date: Date,
+  disabled_by: string,
+  disabled_name: string,
+  disabled_date: Date,
+  cancelled_by: any,
+  cancelled_name: any,
+  cancelled_date: any,
+  suggested_discounts: any,
+  prerequisite_quantity_gte: any
+}
+
+export interface ParamPromotion {
+  query?: string,
+  states: string,
+  page: number
 }

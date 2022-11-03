@@ -8,11 +8,16 @@ export interface OrderDiscountModel {
 }
 
 export interface OrderItemDiscountModel {
-  rate: number;
-  value: number;
+  rate: number | null;
+  value: number | null;
   amount: number;
-  promotion_id?: number;
+  promotion_id?: number | null;
+  promotion_title?: string | null;
+  order_id: number | null;
+  discount_code: string;
   reason: string;
+  source: string;
+  type: string;
 }
 
 export interface OrderItemModel {
@@ -42,6 +47,7 @@ export interface OrderItemModel {
   discount_value: number;
   discount_amount: number;
   gifts: Array<OrderItemModel>;
+
 }
 
 export interface OrderSettingsModel {

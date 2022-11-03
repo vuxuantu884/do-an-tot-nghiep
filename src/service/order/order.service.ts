@@ -19,7 +19,7 @@ import {
   GetFeesRequest,
   GHNFeeRequest,
   OrderBillRequestModel,
-  OrderRequest,
+  OrderRequest, PromotionQuery,
   ShippingGHTKRequest,
   SplitOrderRequest,
   UpdateFulFillmentStatusRequest,
@@ -49,7 +49,7 @@ import {
   GHNFeeResponse,
   OrderBillResponseModel,
   OrderResponse,
-  OrderReturnResponse,
+  OrderReturnResponse, PromotionResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
   VTPFeeResponse,
@@ -560,4 +560,9 @@ export const getOrderHistoryService = (
 ): Promise<BaseResponse<PageResponse<CustomerOrderHistoryResponse>>> => {
   let param = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/order-histories?${param}`);
+};
+
+export const getListPriceRuleGiftService = (query: PromotionQuery): Promise<BaseResponse<PageResponse<PromotionResponse>>> => {
+  let params = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.PROMOTION}/price-rule-gifts?${params}`)
 };

@@ -1,4 +1,4 @@
-import { Card, Col, Form, FormInstance, Input, Row } from "antd";
+import {Card, Col, Form, FormInstance, Input, Row} from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import NumberInput from "component/custom/number-input.custom";
@@ -6,15 +6,15 @@ import CreateBillStep from "component/header/create-bill-step";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
-import { promotionUtils } from "component/order/promotion.utils";
+import {promotionUtils} from "component/order/promotion.utils";
 import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
-import { AppConfig } from "config/app.config";
-import { Type } from "config/type.config";
+import {AppConfig} from "config/app.config";
+import {Type} from "config/type.config";
 import UrlConfig from "config/url.config";
-import { StoreDetailCustomAction } from "domain/actions/core/store.action";
-import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
-import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
+import {StoreDetailCustomAction} from "domain/actions/core/store.action";
+import {getCustomerDetailAction} from "domain/actions/customer/customer.action";
+import {inventoryGetDetailVariantIdsExt} from "domain/actions/inventory/inventory.action";
+import {hideLoading, showLoading} from "domain/actions/loading.action";
 import {
   getLoyaltyPoint,
   getLoyaltyRate,
@@ -33,11 +33,11 @@ import {
   setIsShouldSetDefaultStoreBankAccountAction,
 } from "domain/actions/order/order.action";
 import useFetchStores from "hook/useFetchStores";
-import { InventoryResponse } from "model/inventory";
-import { modalActionType } from "model/modal/modal.model";
-import { OrderPageTypeModel } from "model/order/order.model";
-import { thirdPLModel } from "model/order/shipment.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {InventoryResponse} from "model/inventory";
+import {modalActionType} from "model/modal/modal.model";
+import {OrderPageTypeModel} from "model/order/order.model";
+import {thirdPLModel} from "model/order/shipment.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import {
   BillingAddressRequestModel,
   FulFillmentRequest,
@@ -48,10 +48,10 @@ import {
   ShipmentRequest,
   ShippingAddress,
 } from "model/request/order.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
-import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import {CustomerResponse} from "model/response/customer/customer.response";
+import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
+import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
+import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
 import {
   FulFillmentResponse,
   OrderLineItemResponse,
@@ -60,12 +60,12 @@ import {
   StoreCustomResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
+import React, {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory} from "react-router-dom";
 import useFetchOrderConfig from "screens/order-online/hooks/useFetchOrderConfig";
 import useFetchPaymentMethods from "screens/order-online/hooks/useFetchPaymentMethods";
-import { getStoreBankAccountNumbersService } from "service/order/order.service";
+import {getStoreBankAccountNumbersService} from "service/order/order.service";
 import {
   formatCurrency,
   getAmountPaymentRequest,
@@ -91,15 +91,16 @@ import {
   ShipmentMethodOption,
   TaxTreatment,
 } from "utils/Constants";
-import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import { useQuery } from "utils/useQuery";
+import {ORDER_PAYMENT_STATUS} from "utils/Order.constants";
+import {showError, showSuccess, showWarning} from "utils/ToastUtils";
+import {useQuery} from "utils/useQuery";
 import CardCustomer from "../component/CardCustomer";
 import OrderDetailBottomBar from "../component/order-detail/BottomBar";
 import useCalculateShippingFee from "../hooks/useCalculateShippingFee";
 import useHandleMomoCreateShipment from "../hooks/useHandleMomoCreateShipment";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
-import { StyledComponent } from "./styles";
+import {StyledComponent} from "./styles";
+import useGetGiftPromotions from "../hooks/useGetGiftPromotions";
 
 let typeButton = "";
 
@@ -196,7 +197,7 @@ export default function Order() {
   };
 
   const ChangeShippingFeeCustomer = (value: number | null) => {
-    form.setFieldsValue({ shipping_fee_informed_to_customer: value });
+    form.setFieldsValue({shipping_fee_informed_to_customer: value});
     setShippingFeeInformedToCustomer(value);
   };
 
@@ -484,8 +485,8 @@ export default function Order() {
   const totalOrderAmount = useMemo(() => {
     return Math.round(
       orderProductsAmount +
-        (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-        (promotion?.value || 0),
+      (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
+      (promotion?.value || 0),
     );
   }, [orderProductsAmount, promotion?.value, shippingFeeInformedToCustomer]);
   /**
@@ -720,8 +721,8 @@ export default function Order() {
       let limitOrderPercent = !rank
         ? 0
         : !rank.limit_order_percent
-        ? 100
-        : rank.limit_order_percent; // % tối đa giá trị đơn hàng.
+          ? 100
+          : rank.limit_order_percent; // % tối đa giá trị đơn hàng.
 
       let limitAmount = point * usageRate;
 
@@ -813,6 +814,10 @@ export default function Order() {
     shippingServiceConfig,
   } = useCalculateShippingFee(orderProductsAmount, form, setShippingFeeInformedToCustomer, false);
 
+
+  //Get danh sach promotion qua tang
+
+
   useEffect(() => {
     if (storeId) {
       dispatch(
@@ -889,7 +894,6 @@ export default function Order() {
             gifts: getGiftResponse(item),
           };
         });
-      // console.log('responseItems', responseItems)
       setItems(responseItems);
       dispatch(changeOrderLineItemsAction(responseItems));
       return responseItems;
@@ -1005,8 +1009,8 @@ export default function Order() {
             },
           };
           handleShipmentMethod[
-            sortedFulfillments[0]?.shipment?.delivery_service_provider_type || "default"
-          ]();
+          sortedFulfillments[0]?.shipment?.delivery_service_provider_type || "default"
+            ]();
           console.log("newShipmentMethod", newShipmentMethod);
           setShipmentMethod(newShipmentMethod);
         }
@@ -1075,8 +1079,8 @@ export default function Order() {
             typeParam === "split-order"
               ? response.code || ""
               : isFBOrder
-              ? ""
-              : response.reference_code,
+                ? ""
+                : response.reference_code,
           url: response.url,
           note: promotionUtils.getPrivateNoteFromResponse(response.note || ""),
           tags: response.tags,
@@ -1141,7 +1145,7 @@ export default function Order() {
               setIsCloneOrderFromPOS(true);
               return;
             }
-            const { customer_id } = response;
+            const {customer_id} = response;
 
             if (customer_id) {
               dispatch(
@@ -1247,7 +1251,7 @@ export default function Order() {
             name: "Tạo đơn Online",
           },
         ]}
-        extra={<CreateBillStep orderDetail={null} />}
+        extra={<CreateBillStep orderDetail={null}/>}
       >
         <React.Fragment>
           <div className="orders">
@@ -1257,26 +1261,26 @@ export default function Order() {
                 initialValues={initialForm}
                 ref={formRef}
                 form={form}
-                onFinishFailed={({ errorFields }: any) => {
+                onFinishFailed={({errorFields}: any) => {
                   const element: any = document.getElementById(errorFields[0].name.join(""));
                   scrollAndFocusToDomElement(element);
                 }}
                 onFinish={onFinish}
               >
                 <Form.Item noStyle hidden name="action">
-                  <Input />
+                  <Input/>
                 </Form.Item>
                 <Form.Item noStyle hidden name="currency">
-                  <Input />
+                  <Input/>
                 </Form.Item>
                 <Form.Item noStyle hidden name="account_code">
-                  <Input />
+                  <Input/>
                 </Form.Item>
                 <Form.Item noStyle hidden name="tax_treatment">
-                  <Input />
+                  <Input/>
                 </Form.Item>
                 <Form.Item noStyle hidden name="tags">
-                  <Input />
+                  <Input/>
                 </Form.Item>
                 <Row gutter={20} className="mainSection">
                   <Col md={18}>
@@ -1312,7 +1316,7 @@ export default function Order() {
                       changeInfo={onChangeInfoProduct}
                       setStoreId={(value) => {
                         setStoreId(value);
-                        form.setFieldsValue({ store_id: value });
+                        form.setFieldsValue({store_id: value});
                       }}
                       storeId={storeId}
                       shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
@@ -1413,7 +1417,8 @@ export default function Order() {
                       customerId={customer?.id}
                       form={form}
                       storeId={storeId}
-                      setReload={() => {}}
+                      setReload={() => {
+                      }}
                       promotionTitle={promotionTitle}
                       setPromotionTitle={setPromotionTitle}
                     />
