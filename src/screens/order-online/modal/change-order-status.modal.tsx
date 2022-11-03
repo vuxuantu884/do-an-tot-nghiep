@@ -13,6 +13,7 @@ type PropTypes = {
   handleConfirmOk: (status: string | undefined) => void;
   listOrderProcessingStatus: OrderProcessingStatusModel[];
   changeOrderStatusHtml: JSX.Element | undefined;
+  setIsShowChangeOrderStatusModal?: (value: boolean) => void;
 };
 
 function ChangeOrderStatusModal(props: PropTypes) {
@@ -23,12 +24,16 @@ function ChangeOrderStatusModal(props: PropTypes) {
     listOrderProcessingStatus,
     handleConfirmOk,
     changeOrderStatusHtml,
+    setIsShowChangeOrderStatusModal,
   } = props;
 
   const [form] = Form.useForm();
 
   const onFinish = (values: any) => {
     handleConfirmOk(values.selected_status);
+    if (setIsShowChangeOrderStatusModal) {
+      setIsShowChangeOrderStatusModal(false);
+    }
   };
 
   return (
@@ -50,6 +55,12 @@ function ChangeOrderStatusModal(props: PropTypes) {
                     return Promise.reject(
                       new Error("Trạng thái đổi kho hàng cần vào chi tiết đơn để thực hiện!"),
                     );
+                  } else if (value === ORDER_SUB_STATUS.returned) {
+                    return Promise.reject(
+                      new Error(
+                        "Trạng thái đã hoàn không thể thực hiện khi chọn đơn hàng do cần chọn kho nhận, có thể thay đổi ở từng đơn riêng biệt!",
+                      ),
+                    );
                   }
                 },
               },
@@ -70,7 +81,15 @@ function ChangeOrderStatusModal(props: PropTypes) {
             </CustomSelect>
           </Form.Item>
           <div style={{ textAlign: "right", marginTop: 10, marginBottom: 10 }}>
-            <Button type="primary" onClick={() => form.submit()}>
+            <Button
+              type="primary"
+              onClick={() => {
+                if (setIsShowChangeOrderStatusModal) {
+                  setIsShowChangeOrderStatusModal(false);
+                }
+                form.submit();
+              }}
+            >
               Xác nhận
             </Button>
           </div>

@@ -308,6 +308,7 @@ export const setSubStatusService = (
   // action: string,
   reason_id?: number | null,
   sub_reason_id?: number | null,
+  returned_store_id?: number | null,
 ): Promise<BaseResponse<SourceResponse>> => {
   if (!reason_id) {
     reason_id = null;
@@ -318,6 +319,7 @@ export const setSubStatusService = (
   const queryParams = {
     reason_id,
     sub_reason_id,
+    returned_store_id,
   };
   return BaseAxios.put(
     `${ApiConfig.ORDER}/orders/${order_id}/sub_status/${statusCode}`,

@@ -102,6 +102,7 @@ import OrderFulfillmentDetail from "../component/OrderPackingAndShippingDetail/O
 import OrderFulfillmentShowFulfillment from "../component/OrderPackingAndShippingDetail/OrderFulfillmentShowFulfillment";
 import OrderFulfillmentShowProduct from "../component/OrderPackingAndShippingDetail/OrderFulfillmentShowProduct";
 import useCalculateShippingFee from "../hooks/useCalculateShippingFee";
+import useGetDefaultReturnOrderReceivedStore from "../hooks/useGetDefaultReturnOrderReceivedStore";
 import useHandleMomoCreateShipment from "../hooks/useHandleMomoCreateShipment";
 import { StyledComponent } from "./styles";
 
@@ -219,6 +220,14 @@ export default function Order(props: PropTypes) {
   const activeSortedFulfillments = sortedFulfillments.filter(
     (fulfillment) => !checkIfFulfillmentCancelled(fulfillment),
   );
+
+  const currentStores = useFetchStores();
+
+  const defaultReceiveReturnStore = useGetDefaultReturnOrderReceivedStore({
+    currentStores,
+    OrderDetail,
+    fulfillments: OrderDetail?.fulfillments,
+  });
 
   const stepsStatusValue = useMemo(() => {
     switch (OrderDetail?.status) {
@@ -1743,6 +1752,7 @@ export default function Order(props: PropTypes) {
                     setReload={setReload}
                     promotionTitle={promotionTitle}
                     setPromotionTitle={setPromotionTitle}
+                    defaultReceiveReturnStore={defaultReceiveReturnStore}
                   />
                 </Col>
               </Row>
