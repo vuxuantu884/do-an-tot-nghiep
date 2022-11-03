@@ -14,7 +14,7 @@ import {
   FeesResponse,
   OrderConfig,
   OrderResponse,
-  OrderSubStatusResponse,
+  OrderSubStatusResponse, PromotionResponse,
   StoreCustomResponse,
   // OrderSubStatusResponse,
   TrackingLogFulfillmentResponse,
@@ -37,7 +37,7 @@ import {
   getDetailOrderApi,
   getFulFillmentDetailAction,
   getFulfillmentsApi,
-  getInfoDeliveryFees,
+  getInfoDeliveryFees, getListPriceRuleGiftService,
   getOrderConfig,
   getPaymentMethod,
   getReasonsApi,
@@ -903,6 +903,25 @@ function* orderChangeStoreSaga(action: YodyAction) {
   }
 }
 
+function* getListPromotionSaga(action: YodyAction) {
+  let {setData, params} = action.payload;
+  try {
+    let response: BaseResponse<Array<PromotionResponse>> = yield call(getListPriceRuleGiftService, params);
+    yield put(hideLoading())
+    if (isFetchApiSuccessful(response)) {
+      setData(response.data);
+    } else {
+      yield put(
+        fetchApiErrorAction(response, "")
+      );
+    }
+  } catch (error) {
+    showError(
+      ""
+    );
+  }
+}
+
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_DETAIL_ORDER_REQUEST, getDetailOrderSaga);
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
@@ -953,4 +972,5 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_CHANNELS, getChannelsSaga);
   yield takeLatest(OrderType.UPDATE_ORDER_PARTIAL_REQUEST, updateOrderPartial);
   yield takeLatest(OrderType.ORDER_CHANGE_STORE, orderChangeStoreSaga);
+  yield takeLatest(OrderType.GET_LIST_PROMOTION, getListPromotionSaga);
 }

@@ -1,4 +1,4 @@
-import { EditOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
+import {EditOutlined, LoadingOutlined, SearchOutlined} from "@ant-design/icons";
 import {
   AutoComplete,
   Button,
@@ -13,10 +13,10 @@ import {
   Row,
   Select,
   Space,
-  Table,
+  Table, Tag,
   Tooltip,
 } from "antd";
-import { RefSelectProps } from "antd/lib/select";
+import {RefSelectProps} from "antd/lib/select";
 import giftIcon from "assets/icon/gift.svg";
 import XCloseBtn from "assets/icon/X_close.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
@@ -24,11 +24,11 @@ import BaseResponse from "base/base.response";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
 import SearchedVariant from "component/search-product/SearchedVariant";
-import { AppConfig } from "config/app.config";
-import { Type } from "config/type.config";
+import {AppConfig} from "config/app.config";
+import {Type} from "config/type.config";
 import UrlConfig from "config/url.config";
-import { StoreSearchListAction } from "domain/actions/core/store.action";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
+import {StoreSearchListAction} from "domain/actions/core/store.action";
+import {hideLoading, showLoading} from "domain/actions/loading.action";
 import {
   changeIsLoadingDiscountAction,
   changeOrderLineItemsAction,
@@ -40,26 +40,26 @@ import {
 } from "domain/actions/product/products.action";
 import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 import _ from "lodash";
-import { PageResponse } from "model/base/base-metadata.response";
-import { StoreResponse } from "model/core/store.model";
-import { InventoryResponse } from "model/inventory";
-import { ChangeShippingFeeApplyOrderSettingParamModel } from "model/order/order.model";
-import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {PageResponse} from "model/base/base-metadata.response";
+import {StoreResponse} from "model/core/store.model";
+import {InventoryResponse} from "model/inventory";
+import {ChangeShippingFeeApplyOrderSettingParamModel} from "model/order/order.model";
+import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import {
   OrderDiscountRequest,
   OrderItemDiscountRequest,
   OrderLineItemRequest,
 } from "model/request/order.request";
-import { DiscountRequestModel } from "model/request/promotion.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { OrderResponse } from "model/response/order/order.response";
+import {DiscountRequestModel} from "model/request/promotion.request";
+import {CustomerResponse} from "model/response/customer/customer.response";
+import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
+import {OrderResponse} from "model/response/order/order.response";
 import {
   ApplyCouponResponseModel,
   SuggestDiscountResponseModel,
 } from "model/response/order/promotion.response";
-import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
+import {OrderConfigResponseModel} from "model/response/settings/order-settings.response";
 import React, {
   createRef,
   MutableRefObject,
@@ -69,14 +69,14 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
+import {Link} from "react-router-dom";
 import DiscountGroup from "screens/order-online/component/discount-group";
-import AddGiftModal from "screens/order-online/modal/add-gift.modal";
+import AddGiftModal from "screens/order-online/modal/AddGiftModal/add-gift.modal";
 import InventoryModal from "screens/order-online/modal/inventory.modal";
 import PickCouponModal from "screens/order-online/modal/pick-coupon.modal";
 import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
-import { applyDiscountService } from "service/promotion/discount/discount.service";
+import {applyDiscountService} from "service/promotion/discount/discount.service";
 import {
   findAvatar,
   findPriceInVariant,
@@ -107,11 +107,11 @@ import {
   ShipmentMethodOption,
   STORE_TYPE,
 } from "utils/Constants";
-import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
-import { checkIfEcommerceByOrderChannelCode } from "utils/OrderUtils";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import {DISCOUNT_VALUE_TYPE} from "utils/Order.constants";
+import {checkIfEcommerceByOrderChannelCode} from "utils/OrderUtils";
+import {showError, showSuccess, showWarning} from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
-import { StyledComponent } from "./styles";
+import {StyledComponent} from "./styles";
 
 type PropTypes = {
   storeId: number | null;
@@ -267,6 +267,7 @@ function OrderCreateProduct(props: PropTypes) {
     },
     items: [],
   });
+
   const [isVisibleGift, setVisibleGift] = useState(false);
   const [searchProducts, setSearchProducts] = useState(false);
   const [indexItem, setIndexItem] = useState<number>(-1);
@@ -357,7 +358,7 @@ function OrderCreateProduct(props: PropTypes) {
                 variantItems[firstIndex].line_amount_after_line_discount +=
                   variantItems[firstIndex].price -
                   variantItems[firstIndex].discount_items[0]?.amount *
-                    variantItems[firstIndex].quantity;
+                  variantItems[firstIndex].quantity;
                 calculateChangeMoney(_items);
               }
             }
@@ -590,7 +591,7 @@ function OrderCreateProduct(props: PropTypes) {
     let options: any[] = [];
     resultSearchVariant.items.forEach((item: VariantResponse, index: number) => {
       options.push({
-        label: <SearchedVariant item={item} />,
+        label: <SearchedVariant item={item}/>,
         value: item.id ? item.id.toString() : "",
       });
     });
@@ -615,6 +616,7 @@ function OrderCreateProduct(props: PropTypes) {
     width: "34%",
     className: "yody-pos-name 2",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
+      {console.log("==========> LLLLLLLLL", l)}
       return (
         <div className="w-100 columnBody__product">
           <div className="d-flex align-items-center">
@@ -635,11 +637,17 @@ function OrderCreateProduct(props: PropTypes) {
             </div>
           </div>
           <div className="columnBody__product-gift">
+            {l?.gifts.length > 0 && l?.gifts[0].discount_items.length > 0 && l?.gifts[0].discount_items[0]?.promotion_title &&
+              <div className="yody-pos-addition yody-pos-gift 3">
+                <div>
+                  <Tag color="green">{l?.gifts[0].discount_items[0]?.promotion_title}</Tag>
+                </div>
+              </div>}
             {l.gifts &&
               l.gifts.map((a, index1) => (
                 <div key={index1} className="yody-pos-addition yody-pos-gift 3">
                   <div>
-                    <img src={giftIcon} alt="" />
+                    <img src={giftIcon} alt=""/>
                     <i>
                       {a.variant} ({a.quantity})
                     </i>
@@ -649,7 +657,7 @@ function OrderCreateProduct(props: PropTypes) {
           </div>
           <div className="yody-pos-note" hidden={!l.show_note && l.note === ""}>
             <Input
-              addonBefore={<EditOutlined />}
+              addonBefore={<EditOutlined/>}
               maxLength={255}
               allowClear={true}
               onBlur={() => {
@@ -748,7 +756,7 @@ function OrderCreateProduct(props: PropTypes) {
       return (
         <div
           className="columnBody__inventory"
-          style={inventory > 0 ? { color: "#008000" } : { color: "#e24343" }}
+          style={inventory > 0 ? {color: "#008000"} : {color: "#e24343"}}
         >
           {a.available ? a.available : 0}
         </div>
@@ -906,7 +914,7 @@ function OrderCreateProduct(props: PropTypes) {
               disabled={levelOrder > 3}
             >
               <Button type="text" className="p-0 ant-btn-custom columnBody__actions-buttonDropdown">
-                <img src={arrowDownIcon} alt="" />
+                <img src={arrowDownIcon} alt=""/>
               </Button>
             </Dropdown>
             <Button
@@ -915,7 +923,7 @@ function OrderCreateProduct(props: PropTypes) {
               onClick={() => onDeleteItem(index)}
               disabled={levelOrder > 3 || !isFinishedCalculateItem}
             >
-              <img src={XCloseBtn} alt="" />
+              <img src={XCloseBtn} alt=""/>
             </Button>
           </div>
         </div>
@@ -1040,8 +1048,8 @@ function OrderCreateProduct(props: PropTypes) {
   };
   // console.log('items', items)
   const calculateDiscount = (_item: OrderLineItemRequest, _highestValueSuggestDiscount: any) => {
-    let item: OrderLineItemRequest = { ..._item };
-    let highestValueSuggestDiscount = { ..._highestValueSuggestDiscount };
+    let item: OrderLineItemRequest = {..._item};
+    let highestValueSuggestDiscount = {..._highestValueSuggestDiscount};
     let result: OrderLineItemRequest[] = [];
     let value: number = 0;
     if (!highestValueSuggestDiscount) {
@@ -1475,7 +1483,7 @@ function OrderCreateProduct(props: PropTypes) {
                   listDiscountItem.push(single);
                 }
               });
-              let promotionResult = { ...promotion };
+              let promotionResult = {...promotion};
               switch (couponType) {
                 case DISCOUNT_VALUE_TYPE.percentage:
                   if (applyDiscountResponse.value) {
@@ -1571,13 +1579,13 @@ function OrderCreateProduct(props: PropTypes) {
                   });
                   calculateChangeMoney(_items);
                   setPromotion &&
-                    setPromotion({
-                      amount: 0,
-                      discount_code: applyDiscountResponse.code,
-                      promotion_id: null,
-                      rate: 0,
-                      value: 0,
-                    });
+                  setPromotion({
+                    amount: 0,
+                    discount_code: applyDiscountResponse.code,
+                    promotion_id: null,
+                    rate: 0,
+                    value: 0,
+                  });
                   break;
               }
               if (isShouldUpdatePrivateNote) {
@@ -1976,6 +1984,7 @@ function OrderCreateProduct(props: PropTypes) {
     setVisibleGift(false);
   }, []);
 
+
   const onOkConfirm = useCallback(() => {
     if (!items) {
       return;
@@ -1983,8 +1992,10 @@ function OrderCreateProduct(props: PropTypes) {
     setVisibleGift(false);
     let _items = [...items];
     let _itemGifts = [...itemGifts];
+
     _itemGifts.forEach((itemGift) => (itemGift.position = _items[indexItem].position));
     _items[indexItem].gifts = itemGifts;
+
     setItems(_items);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, itemGifts, indexItem]);
@@ -2152,9 +2163,9 @@ function OrderCreateProduct(props: PropTypes) {
         }
         _itemGifts = [..._itemGifts, ...items[i].gifts];
       }
-      // console.log('_itemGifts', _itemGifts);
+      console.log('_itemGifts', _itemGifts);
       _itemGifts.forEach((item) => {
-        item.discount_items = item.discount_items.filter((single) => single.amount && single.value);
+        item.discount_items = item.discount_items.filter((single) => (single.amount && single.value) || single.promotion_id);
       });
 
       props.setItemGift(_itemGifts);
@@ -2317,7 +2328,7 @@ function OrderCreateProduct(props: PropTypes) {
                 className="select-with-search"
                 showSearch
                 allowClear
-                style={{ width: "100%" }}
+                style={{width: "100%"}}
                 placeholder="Chọn cửa hàng"
                 notFoundContent="Không tìm thấy kết quả"
                 onChange={(value?: number) => {
@@ -2368,9 +2379,9 @@ function OrderCreateProduct(props: PropTypes) {
                   placeholder="Tìm sản phẩm mã 7... (F3)"
                   prefix={
                     searchProducts ? (
-                      <LoadingOutlined style={{ color: "#2a2a86" }} />
+                      <LoadingOutlined style={{color: "#2a2a86"}}/>
                     ) : (
-                      <SearchOutlined style={{ color: "#ABB4BD" }} />
+                      <SearchOutlined style={{color: "#ABB4BD"}}/>
                     )
                   }
                   disabled={levelOrder > 3}
@@ -2419,7 +2430,7 @@ function OrderCreateProduct(props: PropTypes) {
                 </div>
               </div>
             ) : (
-              <div />
+              <div/>
             )
           }
         />

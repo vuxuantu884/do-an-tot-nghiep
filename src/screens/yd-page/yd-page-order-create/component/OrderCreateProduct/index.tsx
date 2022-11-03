@@ -2469,45 +2469,6 @@ function OrderCreateProduct(props: PropType) {
           </Col>
         </Row>
 
-        {/*Ẩn tách đơn*/}
-        {/*<Row*/}
-        {/*	gutter={12}*/}
-        {/*	style={{ marginBottom: 10, height: 32, alignItems: "center" }}*/}
-        {/*	hidden={!isSplitOrder || true}*/}
-        {/*>*/}
-        {/*	<Col style={{ width: "100%" }}>*/}
-        {/*		{isSplitOrder && (*/}
-        {/*			<div className="splitOrder" style={{ display: "flex", justifyContent: "space-between" }}>*/}
-        {/*				<Checkbox onChange={(e) => setIsShowSplitOrder(e.target.checked)}>*/}
-        {/*					Tách đơn*/}
-        {/*				</Checkbox>*/}
-        {/*				{isShowSplitOrder && (*/}
-        {/*					<div>*/}
-        {/*						<NumberInput*/}
-        {/*							style={{ width: 50, height: 32, marginRight: 10 }}*/}
-        {/*							value={splitOrderNumber}*/}
-        {/*							onChange={(value) => {*/}
-        {/*								if (value) {*/}
-        {/*									setSplitOrderNumber(value);*/}
-        {/*								} else {*/}
-        {/*									setSplitOrderNumber(0);*/}
-        {/*								}*/}
-        {/*							}}*/}
-        {/*						/>*/}
-        {/*						<Button*/}
-        {/*							type="primary"*/}
-        {/*							onClick={handleSplitOrder}*/}
-        {/*							style={{ padding: "0 10px", height: 32 }}*/}
-        {/*						>*/}
-        {/*							Thực hiện*/}
-        {/*						</Button>*/}
-        {/*					</div>*/}
-        {/*				)}*/}
-        {/*			</div>*/}
-        {/*		)}*/}
-        {/*	</Col>*/}
-        {/*</Row>*/}
-
         <Row>
           <Col span={24}>
             <Form.Item>

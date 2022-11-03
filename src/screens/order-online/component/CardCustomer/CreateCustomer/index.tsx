@@ -178,7 +178,6 @@ const CreateCustomer: React.FC<Props> = (props: Props) => {
   const checkAddress = useCallback(
     (type, value) => {
       const findArea = handleFindArea(value, newAreas);
-      // console.log('findArea', findArea)
       if (findArea) {
         switch (type) {
           case "full_address":
