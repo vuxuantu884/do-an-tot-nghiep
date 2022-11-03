@@ -1,7 +1,7 @@
 import CustomPagination from "component/table/CustomPagination";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { AppConfig, STORE_ID_0 } from "config/app.config";
+import { AppConfig } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
 import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
@@ -11,7 +11,7 @@ import {
 } from "domain/actions/inventory/inventory.action";
 import { hideLoading } from "domain/actions/loading.action";
 import { HeaderSummary } from "hook/filter/HeaderSummary";
-import _ from "lodash";
+import { debounce } from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   AllInventoryResponse,
@@ -333,6 +333,7 @@ const AllTab: React.FC<any> = (props) => {
           (sortColumn: string) => {
             onSortDESC(sortColumn);
           },
+          "Tồn trong kho + Chuyển đi + Đang giao dịch",
         ),
         titleCustom: "Tổng tồn",
         visible: true,
@@ -354,6 +355,7 @@ const AllTab: React.FC<any> = (props) => {
           (sortColumn: string) => {
             onSortDESC(sortColumn);
           },
+          "Số hàng vật lý, hàng trong kho thực tế của cửa hàng",
         ),
         titleCustom: "Tồn trong kho",
         visible: true,
@@ -375,6 +377,7 @@ const AllTab: React.FC<any> = (props) => {
           (sortColumn: string) => {
             onSortDESC(sortColumn);
           },
+          "Tồn kho - Đang giao dịch - Tạm giữ - Hàng lỗi",
         ),
         titleCustom: "Có thể bán",
         visible: true,
@@ -396,6 +399,7 @@ const AllTab: React.FC<any> = (props) => {
           (sortColumn: string) => {
             onSortDESC(sortColumn);
           },
+          "Số lượng sản phẩm trong đơn hàng online đã được xác nhận nhưng chưa giao cho khách",
         ),
         titleCustom: "Đang giao dịch",
         visible: true,
@@ -431,6 +435,7 @@ const AllTab: React.FC<any> = (props) => {
           (sortColumn: string) => {
             onSortDESC(sortColumn);
           },
+          "Số lượng sản phẩm trong phiếu chuyển kho đã được xác nhận nhưng chưa chuyển đi và hàng đang chờ xử lý khi có sai lệch số lượng chuyển - nhận",
         ),
         titleCustom: "Tạm giữ",
         visible: true,
@@ -466,6 +471,7 @@ const AllTab: React.FC<any> = (props) => {
           (sortColumn: string) => {
             onSortDESC(sortColumn);
           },
+          "Số lượng sản phẩm bị lỗi về chất lượng, không bán được, chờ sửa hoặc hủy",
         ),
         titleCustom: "Hàng lỗi",
         visible: true,
@@ -494,6 +500,7 @@ const AllTab: React.FC<any> = (props) => {
           (sortColumn: string) => {
             onSortDESC(sortColumn);
           },
+          "Số lượng sản phẩm chờ nhập từ nhà cung cấp",
         ),
         titleCustom: "Chờ nhập",
         visible: true,
@@ -529,6 +536,7 @@ const AllTab: React.FC<any> = (props) => {
           (sortColumn: string) => {
             onSortDESC(sortColumn);
           },
+          "Số lượng sản phẩm đang trên đường chuyển đến kho của mình",
         ),
         titleCustom: "Chuyển đến",
         visible: true,
@@ -564,6 +572,7 @@ const AllTab: React.FC<any> = (props) => {
           (sortColumn: string) => {
             onSortDESC(sortColumn);
           },
+          "Số lượng sản phẩm đang trên đường chuyển đến kho khác",
         ),
         titleCustom: "Chuyển đi",
         visible: true,
@@ -599,6 +608,7 @@ const AllTab: React.FC<any> = (props) => {
           (sortColumn: string) => {
             onSortDESC(sortColumn);
           },
+          "Số lượng sản phẩm đang trên đường giao cho khách, thuộc quản lý của kho, cửa hàng",
         ),
         titleCustom: "Đang giao",
         visible: true,
@@ -946,7 +956,7 @@ const AllTab: React.FC<any> = (props) => {
 
   const debouncedSearch = React.useMemo(
     () =>
-      _.debounce((keyword: string, filters: any) => {
+      debounce((keyword: string, filters: any) => {
         const newValues = { ...params, info: keyword?.trim(), ...filters };
         const newPrams = { ...params, ...newValues, page: 1 };
         setPrams(newPrams);
