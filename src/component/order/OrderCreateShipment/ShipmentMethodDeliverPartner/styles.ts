@@ -30,7 +30,7 @@ export const StyledComponent = styled.div`
   .cell {
     &__fee {
       text-align: right;
-      padding: 0;
+      /* padding: 0; */
     }
   }
   .tableCell {

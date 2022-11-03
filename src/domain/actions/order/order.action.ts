@@ -39,7 +39,7 @@ import {
   ErrorLogResponse,
   GHNFeeResponse,
   OrderResponse,
-  OrderSubStatusResponse,
+  OrderSubStatusResponse, ParamPromotion, PromotionResponse,
   ShippingGHTKResponse,
   StoreCustomResponse,
   TrackingLogFulfillmentResponse,
@@ -53,6 +53,7 @@ import {
   ShippingServiceConfigDetailResponseModel,
 } from "model/response/settings/order-settings.response";
 import { OrderType } from "../../types/order.type";
+import {ListDataModel} from "../../../model/order/ListDataModel";
 
 export const orderCreateAction = (
   request: OrderRequest,
@@ -292,6 +293,7 @@ export const setSubStatusAction = (
   handleError?: () => void,
   reason_id?: number,
   sub_reason_id?: number,
+  returned_store_id?: number,
   // action: string = "Chuyển trạng thái phụ",
 ) => {
   return {
@@ -304,6 +306,7 @@ export const setSubStatusAction = (
       handleError,
       reason_id,
       sub_reason_id,
+      returned_store_id,
     },
   };
 };
@@ -628,4 +631,10 @@ export const changeIfPaymentAlreadyChangedAction = (isAlreadyChangedPayment: boo
       isAlreadyChangedPayment,
     },
   };
+};
+export const PromotionGetList = (
+  setData: (response: ListDataModel<PromotionResponse>) => void,
+  params: ParamPromotion
+) => {
+  return BaseAction(OrderType.GET_LIST_PROMOTION, {setData,params});
 };

@@ -16,11 +16,12 @@ type ModalSettingColumnType = {
   isSetDefaultColumn?: boolean;
   onOk: (data: Array<ICustomTableColumType<any>>) => void;
   onCancel: () => void;
+  onResetToDefault?: () => void;
   data: Array<ICustomTableColumType<any>>;
 };
 
 const ModalSettingColumn: React.FC<ModalSettingColumnType> = (props: ModalSettingColumnType) => {
-  const { visible, isSetDefaultColumn, onOk, onCancel, data } = props;
+  const { visible, isSetDefaultColumn, onResetToDefault, onOk, onCancel, data } = props;
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<any>>>([]);
   const [isSelectAll, setIsSelectAll] = useState(false);
@@ -68,7 +69,8 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (props: ModalSettin
 
     setColumn(defautlColumns);
     onOk(defautlColumns);
-  }, [columns, onOk]);
+    onResetToDefault && onResetToDefault();
+  }, [columns, onOk, onResetToDefault]);
 
   const onCancelSetColumn = useCallback(() => {
     setColumn(data);

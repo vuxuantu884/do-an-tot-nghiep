@@ -1,6 +1,7 @@
 import {StoreResponse} from "model/core/store.model";
 import {OrderLineItemResponse, OrderResponse} from "model/response/order/order.response";
 import {Moment} from "moment";
+import {BaseQuery} from "../base/base.query";
 
 export interface OrderRequest {
   action: string | null;
@@ -51,7 +52,8 @@ export interface OrderRequest {
   export_bill?: boolean;
   ecommerce_shop_id?: number | null;
   bill?: OrderBillRequestFormModel | null;
-  uniform?: boolean | null | undefined
+  uniform?: boolean | null | undefined;
+  account?: string | null;
 }
 
 export interface ReturnRequest extends OrderRequest {
@@ -305,20 +307,26 @@ export interface OrderItemDiscountRequest {
   rate: number;
   value: number;
   amount: number;
-  promotion_id?: number;
-  discount_code?: string;
+  promotion_id?: number | null;
+  promotion_title?: string | null;
+  order_id?: number | null;
+  discount_code?: string | null;
   reason: string | null;
+  source?: string | null;
+  type?: string;
 }
 
 export interface OrderDiscountRequest {
   rate?: number | null;
   value?: number | null;
-  amount?: number | null;
+  amount?: number;
   promotion_id?: number | null;
+  promotion_title?: string | null;
   order_id?: number | null;
-  reason?: string | null;
   discount_code?: string | null;
+  reason?: string | null;
   source?: string | null;
+  type?: string;
 }
 
 export interface UpdateFulFillmentStatusRequest {
@@ -520,4 +528,13 @@ export interface OrderBillRequestFormModel {
 
 export interface OrderBillRequestModel extends OrderBillRequestFormModel {
   order_id?: number | null;
+}
+
+export interface PromotionQuery extends BaseQuery {
+  variant_id?: number;
+  product_id?: number;
+  type?: string;
+  states?: string;
+  page?: number;
+  limit?: number
 }

@@ -19,7 +19,7 @@ import {
   GetFeesRequest,
   GHNFeeRequest,
   OrderBillRequestModel,
-  OrderRequest,
+  OrderRequest, PromotionQuery,
   ShippingGHTKRequest,
   SplitOrderRequest,
   UpdateFulFillmentStatusRequest,
@@ -49,7 +49,7 @@ import {
   GHNFeeResponse,
   OrderBillResponseModel,
   OrderResponse,
-  OrderReturnResponse,
+  OrderReturnResponse, PromotionResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
   VTPFeeResponse,
@@ -308,6 +308,7 @@ export const setSubStatusService = (
   // action: string,
   reason_id?: number | null,
   sub_reason_id?: number | null,
+  returned_store_id?: number | null,
 ): Promise<BaseResponse<SourceResponse>> => {
   if (!reason_id) {
     reason_id = null;
@@ -318,6 +319,7 @@ export const setSubStatusService = (
   const queryParams = {
     reason_id,
     sub_reason_id,
+    returned_store_id,
   };
   return BaseAxios.put(
     `${ApiConfig.ORDER}/orders/${order_id}/sub_status/${statusCode}`,
@@ -558,4 +560,9 @@ export const getOrderHistoryService = (
 ): Promise<BaseResponse<PageResponse<CustomerOrderHistoryResponse>>> => {
   let param = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/order-histories?${param}`);
+};
+
+export const getListPriceRuleGiftService = (query: PromotionQuery): Promise<BaseResponse<PageResponse<PromotionResponse>>> => {
+  let params = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.PROMOTION}/price-rule-gifts?${params}`)
 };

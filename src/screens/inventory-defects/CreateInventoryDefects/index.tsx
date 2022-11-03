@@ -30,6 +30,7 @@ import { AccountStoreResponse } from "model/account/account.model";
 export interface SummaryDefect {
   total_defect: number;
   total_on_hand: number;
+  total_available: number;
 }
 
 let barCode = "";
@@ -51,6 +52,7 @@ const InventoryDefectCreate: React.FC = () => {
   const [objSummaryTable, setObjSummaryTable] = useState<SummaryDefect>({
     total_defect: 0,
     total_on_hand: 0,
+    total_available: 0,
   });
   const [keySearch, setKeySearch] = useState<string>("");
   const myStores: any = useSelector(
@@ -98,7 +100,9 @@ const InventoryDefectCreate: React.FC = () => {
             </div>
             <div className="product-item-name">
               <span className="product-item-name-detail ant-table-cell" title={record.variant_name}>
-                {record.variant_name.length > 40 ? record.variant_name.slice(0, 40) + "...": record.variant_name}
+                {record.variant_name.length > 40
+                  ? record.variant_name.slice(0, 40) + "..."
+                  : record.variant_name}
               </span>
             </div>
           </div>
@@ -115,6 +119,22 @@ const InventoryDefectCreate: React.FC = () => {
         );
       },
       dataIndex: "on_hand",
+      align: "center",
+      width: 100,
+      render: (value: any) => {
+        return value || 0;
+      },
+    },
+    {
+      title: () => {
+        return (
+          <>
+            <div>Có thể bán</div>
+            <div>{`${objSummaryTable.total_available ?? "0"}`}</div>
+          </>
+        );
+      },
+      dataIndex: "available",
       align: "center",
       width: 100,
       render: (value: any) => {
@@ -226,6 +246,15 @@ const InventoryDefectCreate: React.FC = () => {
       showError("Chưa có sản phẩm nào được chọn");
       return;
     }
+    let error = false;
+    dataTable.forEach((element: LineItemDefect) => {
+      if (element.defect > element.available) {
+        showError(`Mã sản phẩm ${element.sku} có số lỗi nhiều hơn có thể bán`);
+        error = true;
+        return;
+      }
+    });
+    if (error) return;
     if (dataTable.some((el: LineItemDefect) => el.defect <= 0)) {
       showError("Số lượng hàng lỗi không được nhỏ hơn 1");
       return;
@@ -240,6 +269,7 @@ const InventoryDefectCreate: React.FC = () => {
         variant_id: item.variant_id,
         product_id: item.product_id,
         barcode: item.barcode,
+        available: item.available,
       };
     });
     const dataSubmit = {
@@ -267,17 +297,20 @@ const InventoryDefectCreate: React.FC = () => {
 
   const calculatingDefectAndInventory = useCallback((data: Array<LineItemDefect>) => {
     let totalDefect = 0,
-      totalOnHand = 0;
+      totalOnHand = 0,
+      totalAvailable = 0;
 
     data?.forEach((element: LineItemDefect) => {
       totalDefect += element.defect;
       if (element.on_hand === null || element.on_hand === undefined) element.on_hand = 0;
       totalOnHand += element.on_hand * 1;
+      totalAvailable += (element?.available || 0) * 1;
     });
 
     setObjSummaryTable({
       total_defect: totalDefect,
       total_on_hand: totalOnHand,
+      total_available: totalAvailable,
     });
   }, []);
 
@@ -313,6 +346,10 @@ const InventoryDefectCreate: React.FC = () => {
 
   const onSelectProduct = useCallback(
     (selectedItem: VariantResponse | undefined, dataSource: any) => {
+      if (Number(selectedItem?.available) <= 0) {
+        showError(`Mã sản phẩm ${selectedItem?.sku || ""} không đủ SL có thể bán`);
+        return;
+      }
       const storeId = form.getFieldValue("store_id");
       if (!storeId && typeof storeId !== "number") {
         showError("Vui lòng chọn cửa hàng");
@@ -340,6 +377,7 @@ const InventoryDefectCreate: React.FC = () => {
             store_id: store.id,
             product_id: selectedItem.product_id,
             barcode: selectedItem.barcode,
+            available: selectedItem.available || 0,
           };
           calculatingDefectAndInventory(dataTable.concat([{ ...item }]));
           setDataTable((prev: Array<LineItemDefect>) => prev.concat([{ ...item }]));
@@ -374,6 +412,7 @@ const InventoryDefectCreate: React.FC = () => {
     setObjSummaryTable({
       total_defect: 0,
       total_on_hand: 0,
+      total_available: 0,
     });
     setDataTable([]);
   }, [form, stores]);
@@ -431,7 +470,7 @@ const InventoryDefectCreate: React.FC = () => {
     (value: number, option) => {
       if (defectStoreIdBak && value !== defectStoreIdBak && dataTable.length > 0) {
         setIsShowModalChangeStore(true);
-        return
+        return;
       }
       setDefectStoreIdBak(value);
       const store = stores.find((e) => e.id.toString() === value?.toString());

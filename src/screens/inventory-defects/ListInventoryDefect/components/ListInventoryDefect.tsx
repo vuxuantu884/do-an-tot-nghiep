@@ -22,7 +22,6 @@ import {
   deleteInventoryDefect,
   getListInventoryDefect,
 } from "service/inventory/defect/index.service";
-import CustomPagination from "component/table/CustomPagination";
 import { PageResponse } from "model/base/base-metadata.response";
 import UrlConfig from "config/url.config";
 import {
@@ -30,11 +29,11 @@ import {
   formatFieldTag,
   transformParamsToObject,
   splitEllipsis,
-  formatCurrency,
+  formatCurrencyForProduct,
 } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { cloneDeep, debounce, isArray, isEmpty } from "lodash";
+import { cloneDeep, isArray, isEmpty } from "lodash";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import TextEllipsis from "component/table/TextEllipsis";
@@ -50,6 +49,9 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { strForSearch } from "../../../../utils/StringUtils";
 import { Option } from "antd/es/mentions";
+import CopyIcon from "screens/order-online/component/CopyIcon";
+import { COLUMN_CONFIG_TYPE } from "utils/Constants";
+import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 
 const ListInventoryDefect: React.FC = () => {
   const dispatch = useDispatch();
@@ -58,6 +60,10 @@ const ListInventoryDefect: React.FC = () => {
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const query = useQuery();
+
+  const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(
+    COLUMN_CONFIG_TYPE.COLUMN_INVENTORY_DEFECT,
+  );
 
   const currentPermissions: string[] = useSelector(
     (state: RootReducerType) => state.permissionReducer.permissions,
@@ -112,15 +118,9 @@ const ListInventoryDefect: React.FC = () => {
 
   useEffect(() => {
     getInventoryDefects();
-  }, [getInventoryDefects, params]);
-
-  useEffect(() => {
     getStores();
-  }, [getStores]);
+  }, [getInventoryDefects, getStores, params]);
 
-  const isNumeric = (value: any) => {
-    return /^-?\d+$/.test(value);
-  };
   const editItemDefect = useCallback(
     async (value: any, field: string, id: number) => {
       const listDefect = cloneDeep(data.items) ?? [];
@@ -128,7 +128,8 @@ const ListInventoryDefect: React.FC = () => {
       let itemEdit: any = {};
       if (itemObject && !isEmpty(itemObject)) {
         if (InventoryDefectFields.defect === field) {
-          if (!isNumeric(value)) {
+          if (!/^-?\d+$/.test(value)) {
+            // numeric
             showError("Bạn cần nhập số");
             return;
           }
@@ -199,12 +200,12 @@ const ListInventoryDefect: React.FC = () => {
     [dispatch, getInventoryDefects],
   );
 
-  const getTotalDefects: string = useMemo(() => {
-    let total = 0;
-    data.items.forEach((item) => {
-      total += item.defect;
-    });
-    return formatCurrency(total, ".");
+  const getTotalDefects = useCallback(() => {
+    const inventoryDefects = cloneDeep(data.items);
+    const total = inventoryDefects.reduce((value, element) => {
+      return value + element.defect || 0;
+    }, 0);
+    return formatCurrencyForProduct(total);
   }, [data]);
 
   const initColumns: Array<ICustomTableColumType<InventoryDefectResponse>> = useMemo(() => {
@@ -253,14 +254,17 @@ const ListInventoryDefect: React.FC = () => {
               : strName;
           return (
             <>
-              <div>
+              <div style={{ whiteSpace: "nowrap" }}>
                 <Link
-                  className="yody-text-ellipsis"
                   to={`${UrlConfig.PRODUCT}/${item.product_id}${UrlConfig.VARIANTS}/${item.variant_id}`}
                 >
                   {value}
                 </Link>
+                <span title="click to copy">
+                  <CopyIcon copiedText={value} informationText="Đã copy mã sản phẩm!" size={18} />
+                </span>
               </div>
+
               <TextEllipsis value={strName ?? ""} line={1}></TextEllipsis>
             </>
           );
@@ -279,7 +283,7 @@ const ListInventoryDefect: React.FC = () => {
       {
         title: (
           <div>
-            Số lỗi <span style={{ color: "#2A2A86" }}>({getTotalDefects})</span>
+            Số lỗi <span style={{ color: "#2A2A86" }}>({getTotalDefects()})</span>
           </div>
         ),
         dataIndex: "defect",
@@ -296,7 +300,6 @@ const ListInventoryDefect: React.FC = () => {
                 isHaveEditPermission={hasPermission}
                 content={item.defect}
                 title="Sửa số lỗi: "
-                // label="Số lỗi: "
                 color={primaryColor}
                 onOk={(newNote) => {
                   editItemDefect(newNote, InventoryDefectFields.defect, item.id);
@@ -313,7 +316,7 @@ const ListInventoryDefect: React.FC = () => {
         align: "center",
         visible: true,
         render: (text: string, item: InventoryDefectResponse) => {
-          return <span>{text ?? ""}</span>;
+          return <span>{text || 0}</span>;
         },
       },
       {
@@ -330,7 +333,6 @@ const ListInventoryDefect: React.FC = () => {
               <EditNote
                 isHaveEditPermission={hasPermission}
                 note={item.note}
-                // title="Ghi chú: "
                 color={primaryColor}
                 onOk={(newNote) => {
                   editItemDefect(newNote, InventoryDefectFields.note, item.id);
@@ -350,6 +352,7 @@ const ListInventoryDefect: React.FC = () => {
       },
       {
         key: "action",
+        dataIndex: "action",
         render: (value: any, item: InventoryDefectResponse, index: number) => {
           return (
             <AuthWrapper acceptPermissions={[InventoryDefectsPermission.delete]}>
@@ -379,14 +382,63 @@ const ListInventoryDefect: React.FC = () => {
     ];
   }, [currentPermissions, editItemDefect, getTotalDefects]);
 
+  useEffect(() => {
+    if (tableColumnConfigs && tableColumnConfigs.length) {
+      const latestConfig = tableColumnConfigs.reduce(
+        (prev, current) => (prev.id > current.id ? prev : current),
+        { id: -1, json_content: "" },
+      );
+
+      try {
+        const columnsConfig = JSON.parse(latestConfig.json_content);
+        let newColumns = [];
+
+        for (const colConfig of columnsConfig) {
+          const col = initColumns.find((column) => column.dataIndex === colConfig.dataIndex);
+          newColumns.push({ ...col, visible: colConfig.visible });
+        }
+
+        setColumns(newColumns);
+      } catch (err) {
+        showError("Lỗi lấy cài đặt cột");
+      }
+    }
+  }, [initColumns, tableColumnConfigs]);
+
   const [columns, setColumns] =
     useState<Array<ICustomTableColumType<InventoryDefectResponse>>>(initColumns);
 
-  useEffect(() => {
-    setColumns(initColumns);
-  }, [initColumns, setColumns]);
+  const onColumnConfigChange = (
+    newColumnsConfig: Array<ICustomTableColumType<InventoryDefectResponse>>,
+  ) => {
+    const newColumnsOrder = [];
 
-  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
+    // console.log("-----", newColumnsConfig);
+
+    for (const columnConfig of newColumnsConfig) {
+      const column = initColumns.find((col) => col.dataIndex === columnConfig.dataIndex);
+      newColumnsOrder.push({ ...column, visible: columnConfig.visible });
+    }
+
+    newColumnsOrder.push(
+      initColumns.find(
+        (col) => col.dataIndex === "action",
+      ) as ICustomTableColumType<InventoryDefectResponse>,
+    );
+    // saveColumnsConfig(data.map(({ dataIndex, visible }) => ({ dataIndex, visible })));
+    onSaveConfigTableColumn(newColumnsOrder);
+    setColumns(newColumnsOrder);
+  };
+
+  const columnFinal = useMemo(() => {
+    return columns.filter((item) => item.visible === true);
+  }, [columns]);
+
+  /**  the delete button should always be stand in the end */
+  const columnSettingModalColumns = useMemo(
+    () => columns.filter((item) => item.dataIndex !== "action"),
+    [columns],
+  );
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -409,37 +461,39 @@ const ListInventoryDefect: React.FC = () => {
     [history, params],
   );
 
-  const onSearch = debounce((value) => {
-    const newParam = { ...params, [DefectFilterBasicEnum.condition]: value };
-    setParams(newParam);
+  const onSearch = useCallback(() => {
+    const searchValue = form.getFieldValue(DefectFilterBasicEnum.condition);
+    if (typeof searchValue !== "string") return;
+
+    // make sure user enter something, not special characters
+    if (!/[a-zA-Z0-9\s-]{1,}/.test(searchValue)) return;
+
+    const newParam = { ...params, [DefectFilterBasicEnum.condition]: searchValue.trim(), page: 1 };
     const queryParam = generateQuery(newParam);
     history.replace(`${UrlConfig.INVENTORY_DEFECTS}?${queryParam}`);
-  }, 300);
+
+    setParams(newParam);
+
+    setData({ ...data, metadata: { ...data.metadata, page: 1 } }); // change to page 1 before performing search
+  }, [form, history, params, data]);
 
   useEffect(() => {
     if (myStores) {
       form.setFieldsValue({
         [DefectFilterBasicEnum.condition]: params.condition?.toString()?.split(","),
         [DefectFilterBasicEnum.store_ids]: params.store_ids
-          ? params.store_ids
-              ?.toString()
-              ?.split(",")
-              .map((x: string) => String(x))
-          : myStores.length > 1 || myStores.length === 0
-          ? []
-          : myStores[0].store_id.toString(),
+          ? params.store_ids?.toString()?.split(",")
+          : undefined,
       });
     }
   }, [form, myStores, params]);
 
   useEffect(() => {
-    (async () => {
-      if (paramsArray.length < (prevArray?.length || 0)) {
-        let newParams = transformParamsToObject(paramsArray);
-        setParams(newParams);
-        await history.replace(`${history.location.pathname}?${generateQuery(newParams)}`);
-      }
-    })();
+    if (paramsArray.length < (prevArray?.length || 0)) {
+      let newParams = transformParamsToObject(paramsArray);
+      setParams(newParams);
+      history.replace(`${history.location.pathname}?${generateQuery(newParams)}`);
+    }
   }, [paramsArray, history, prevArray]);
 
   useEffect(() => {
@@ -485,16 +539,15 @@ const ListInventoryDefect: React.FC = () => {
           <Input
             allowClear
             prefix={<img src={search} alt="" />}
-            placeholder="Tìm kiếm theo mã vạch, sku, tên sản phẩm"
-            onChange={(e) => {
-              const value: string = e.target.value;
-              onSearch(value);
+            placeholder="Tìm kiếm theo mã vạch, sku, tên sản phẩm. Nhấn Enter để tìm"
+            onKeyDown={(e) => {
+              e.charCode === 13 && onSearch();
             }}
           />
         </Item>
         <Item name={DefectFilterBasicEnum.store_ids} className="select-item">
           <Select
-            style={{ width: "200px" }}
+            style={{ width: "300px" }}
             placeholder="Chọn cửa hàng"
             maxTagCount={"responsive" as const}
             mode="multiple"
@@ -509,21 +562,23 @@ const ListInventoryDefect: React.FC = () => {
               return false;
             }}
           >
-            {Array.isArray(myStores) && myStores.length > 0
-              ? myStores.map((item, index) => (
-                  <Option key={"from_store_id" + index} value={item.store_id.toString()}>
-                    {item.store}
-                  </Option>
-                ))
-              : stores.map((item, index) => (
-                  <Option key={"from_store_id" + index} value={item.id.toString()}>
-                    {item.name}
-                  </Option>
-                ))}
+            {myStores.length || stores.length
+              ? myStores.length
+                ? myStores.map((item: any, index: number) => (
+                    <Option key={"from_store_id" + index} value={item.store_id.toString()}>
+                      {item.store}
+                    </Option>
+                  ))
+                : stores.map((item, index) => (
+                    <Option key={"from_store_id" + index} value={item.id.toString()}>
+                      {item.name}
+                    </Option>
+                  ))
+              : null}
           </Select>
         </Item>
         <Item>
-          <Button htmlType="submit" type="primary">
+          <Button htmlType="submit" type="primary" onClick={onSearch}>
             Lọc
           </Button>
         </Item>
@@ -538,23 +593,12 @@ const ListInventoryDefect: React.FC = () => {
         className="small-padding"
         bordered
         isLoading={loadingTable}
-        pagination={false}
+        isShowPaginationAtHeader
         dataSource={data.items}
         scroll={{ x: "max-content" }}
         sticky={{ offsetScroll: 5, offsetHeader: 55 }}
         columns={columnFinal}
         rowKey={(item: LineItemDefect) => item.id}
-      />
-      <ModalSettingColumn
-        visible={showSettingColumn}
-        onCancel={() => setShowSettingColumn(false)}
-        onOk={(data) => {
-          setShowSettingColumn(false);
-          setColumns(data);
-        }}
-        data={columns}
-      />
-      <CustomPagination
         pagination={{
           showSizeChanger: true,
           pageSize: data.metadata.limit,
@@ -563,6 +607,17 @@ const ListInventoryDefect: React.FC = () => {
           onChange: onPageChange,
           onShowSizeChange: onPageChange,
         }}
+      />
+      <ModalSettingColumn
+        visible={showSettingColumn}
+        onCancel={() => setShowSettingColumn(false)}
+        isSetDefaultColumn
+        onResetToDefault={() => onColumnConfigChange(initColumns)}
+        onOk={(data) => {
+          setShowSettingColumn(false);
+          onColumnConfigChange(data);
+        }}
+        data={columnSettingModalColumns}
       />
       {itemDelete && (
         <ModalDeleteConfirm

@@ -61,8 +61,6 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
-import { colorDetailApi } from "service/product/color.service";
-import { callApiNative } from "utils/ApiUtils";
 import {
   convertCategory,
   formatCurrency,
@@ -71,7 +69,7 @@ import {
   replaceFormatString,
   capitalEachWords,
 } from "utils/AppUtils";
-import { ArrDefects, DEFAULT_COMPANY, VietNamId } from "utils/Constants";
+import { DEFAULT_COMPANY, VietNamId } from "utils/Constants";
 import { handleChangeMaterial, findPathTreeById } from "utils/ProductUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
@@ -85,14 +83,10 @@ import { useFetchMerchans } from "hook/useFetchMerchans";
 import BaseSelect from "component/base/BaseSelect/BaseSelect";
 import { careInformation } from "screens/products/Component/CareInformation/care-value";
 import CareModal from "screens/products/Component/CareInformation"
+import { uniqBy } from "lodash";
 const { TreeNode } = TreeSelect;
 const { Item, List } = Form;
 const { Option } = Select;
-
-type Defect = {
-  code: string;
-  name: string;
-};
 
 const initialRequest: ProductRequestView = {
   goods: null,
@@ -213,7 +207,6 @@ const ProductCreateScreen: React.FC = () => {
   const [sizeLoading, setSizeLoading] = useState(false);
   const [colorLoading, setColorLoading] = useState(false);
   const [isProductCollectionRequired, setIsProductCollectionRequired] = useState(false);
-  const [defects, setDefects] = useState<Array<Defect>>([]);
   const [careLabels, setCareLabels] = useState<any[]>([]);
   const [careLabelsString, setCareLabelsString] = useState("");
   const [collections, setCollections] = useState<PageResponse<CollectionResponse>>({
@@ -243,14 +236,18 @@ const ProductCreateScreen: React.FC = () => {
       if (category && category.child_ids === null) {
 
         let path: any;
-        listCategory.find((categoryItem) => path = findPathTreeById(categoryItem, category.id));
+        listCategory.find((categoryItem) => (path = findPathTreeById(categoryItem, category.id)));
 
         const parents = lstCategoryAll.filter((item) => {
-          return item.child_ids && item.child_ids.split(',')
-            .filter((childItem) => path
-              .filter((pathItem: any) => pathItem === Number(childItem))
-              .length > 0)
-            .length > 0
+          return (
+            item.child_ids &&
+            item.child_ids
+              .split(",")
+              .filter(
+                (childItem) =>
+                  path.filter((pathItem: any) => pathItem === Number(childItem)).length > 0,
+              ).length > 0
+          );
         });
 
         const rootParent = parents.filter((parent) => !parent.parent);
@@ -281,8 +278,11 @@ const ProductCreateScreen: React.FC = () => {
     [form, listCategory, lstCategoryAll],
   );
 
+  /**
+   * generate variants as product code change, selected colors, sizes change
+   */
   const listVariantsFilter = useCallback(
-    (colors: Array<ColorResponse>, sizes: Array<SizeResponse>) => {
+    () => {
       let code = form.getFieldValue("code");
       let name = form.getFieldValue("name");
       name = capitalEachWords(name);
@@ -292,47 +292,47 @@ const ProductCreateScreen: React.FC = () => {
 
       if (name && code) {
         let newVariants: Array<VariantRequestView> = [];
-        if (colors.length > 0 && sizes.length > 0) {
-          colors.forEach((i1) => {
-            sizes.forEach((i2) => {
-              let sku = `${code}-${i1.code}-${i2.code}`;
+        if (colorSelected.length > 0 && sizeSelected.length > 0) {
+          colorSelected.forEach((color) => {
+            sizeSelected.forEach((size) => {
+              let sku = `${code}-${color.code}-${size.code}`;
               newVariants.push({
-                name: `${name} - ${i1.name} - ${i2.code}`,
-                code: i1.code,
-                color_id: i1.id,
-                color: i1.name,
-                size_id: i2.id,
-                size: i2.code,
+                name: `${name} - ${color.name} - ${size.code}`,
+                code: color.code,
+                color_id: color.id,
+                color: color.name,
+                size_id: size.id,
+                size: size.code,
                 sku: sku,
                 variant_images: [],
                 quantity: 0,
               });
             });
           });
-        } else if (colors.length === 0 && sizes.length > 0) {
-          sizes.forEach((i2: any) => {
+        } else if (colorSelected.length === 0 && sizeSelected.length > 0) {
+          sizeSelected.forEach((size) => {
             newVariants.push({
-              name: `${name} - ${i2.code}`,
+              name: `${name} - ${size.code}`,
               code: null,
               color_id: null,
               color: null,
-              size_id: i2.id,
-              size: i2.code,
-              sku: `${code}-${i2.color}`,
+              size_id: size.id,
+              size: size.code,
+              sku: `${code}-${size.code}`,
               variant_images: [],
               quantity: 0,
             });
           });
-        } else if (colors.length >= 0 && sizes.length === 0) {
-          colors.forEach((i1) => {
+        } else if (colorSelected.length >= 0 && sizeSelected.length === 0) {
+          colorSelected.forEach((color) => {
             newVariants.push({
-              name: `${name} - ${i1.name}`,
-              color_id: i1.id,
-              code: i1.code,
-              color: i1.name,
+              name: `${name} - ${color.name}`,
+              color_id: color.id,
+              code: color.code,
+              color: color.name,
               size_id: null,
               size: null,
-              sku: `${code}-${i1.code}`,
+              sku: `${code}-${color.code}`,
               variant_images: [],
               quantity: 0,
             });
@@ -363,60 +363,17 @@ const ProductCreateScreen: React.FC = () => {
             variant_images: [],
           });
 
-          const arrDefectSpecial = ArrDefects.filter((e) => e.isSpecial === 1);
-
-          for (let i = 0; i < arrDefectSpecial.length; i++) {
-            const e = arrDefectSpecial[i];
-
-            newVariants.push({
-              name: `${name} - ${e.name}`,
-              color_id: null,
-              code: null,
-              color: null,
-              size_id: null,
-              size: null,
-              sku: `${code}-${e.code}`,
-              quantity: 0,
-              variant_images: [],
-              saleable: false,
-              defect_code: `${e.code}`,
-              type: 1,
-            });
-          }
-
-          setDefects([...arrDefectSpecial]);
         }
 
-        for (let i = 0; i < defects.length; i++) {
-          const e = defects[i];
-          if (!newVariants.find((v) => v.defect_code === e.code)) {
-            newVariants.push({
-              name: `${name} - ${e.name}`,
-              color_id: null,
-              code: null,
-              color: null,
-              size_id: null,
-              size: null,
-              sku: `${code}-${e.code}`,
-              quantity: 0,
-              variant_images: [],
-              saleable: false,
-              defect_code: `${e.code}`,
-              type: 1,
-            });
-          }
-        }
-
-        let uniqueObjArray = [...new Map(newVariants.map((item) => [item["sku"], item])).values()];
-        setVariants([...uniqueObjArray]);
+        setVariants(uniqBy(newVariants, "sku"));
       }
     },
-    [defects, form],
+    [colorSelected, form, sizeSelected],
   );
 
   const onCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    onNameChange();
+    listVariantsFilter();
     if (value.length === 7)
       dispatch(
         productCheckDuplicateCodeAction(value, (message) => {
@@ -431,10 +388,6 @@ const ProductCreateScreen: React.FC = () => {
         }),
       );
   };
-
-  const onNameChange = useCallback(() => {
-    listVariantsFilter(colorSelected, sizeSelected);
-  }, [colorSelected, listVariantsFilter, sizeSelected]);
 
   const onMaterialChange = useCallback(
     (id: number) => {
@@ -466,39 +419,24 @@ const ProductCreateScreen: React.FC = () => {
         newSize,
       ] as Array<SizeResponse>;
 
-      setSizeSelected([...filter]);
-      listVariantsFilter(colorSelected, filter);
+      setSizeSelected(filter);
     },
-    [colorSelected, listVariantsFilter, variants],
+    [variants],
   );
 
   const onColorSelected = useCallback(
-    async (value: number) => {
-      let colorCode: string = "";
-      let colorName: string = "";
-
-      const res = await callApiNative({ isShowLoading: false }, dispatch, colorDetailApi, value);
-      if (res) {
-        colorCode = res.code;
-        colorName = res.name;
-      }
-
-      const newColor = {
-        id: value,
-        name: colorName,
-        code: colorCode,
-      } as ColorResponse;
-      let filter = [
-        ...variants
-          .filter((e) => e.color !== null)
-          .map((e: any) => ({ id: e.color_id, name: e.color, code: e.code })),
-        newColor,
-      ] as Array<ColorResponse>;
-      setColorSelected([...filter]);
-      listVariantsFilter(filter, sizeSelected);
-    },
-    [listVariantsFilter, sizeSelected, variants, dispatch],
+    (value: number) => {
+      const foundColor = colors.items.find(color => color.id === value);
+      setColorSelected(colorSelected.concat({id: value, name: foundColor?.name || "", code: foundColor?.code || ""} as ColorResponse));
+    }, [colorSelected, colors.items]
   );
+
+  // auto update product variant list as colors selected, sizes selected change
+  useEffect(() => {
+    if (colorSelected.length || sizeSelected.length) {
+      listVariantsFilter();
+    }
+  }, [colorSelected.length, listVariantsFilter, sizeSelected.length]);
 
   const statusValue = useMemo(() => {
     if (!productStatusList) {
@@ -683,16 +621,11 @@ const ProductCreateScreen: React.FC = () => {
   const deleteVariant = useCallback(
     (sku: string) => {
       let index = variants.findIndex((item) => item.sku === sku);
-      if (variants[index].defect_code && variants[index].defect_code !== "") {
-        let lstDefects = [...defects];
-        lstDefects = lstDefects.filter((e) => e.code !== variants[index].defect_code);
-
-        setDefects([...lstDefects]);
-      }
+     
       variants.splice(index, 1);
       setVariants([...variants]);
     },
-    [defects, variants],
+    [variants],
   );
 
   const onPickAvatar = useCallback(() => {
@@ -737,6 +670,19 @@ const ProductCreateScreen: React.FC = () => {
 
     return revertVariants.reverse();
   };
+
+  const getCollections = useCallback(
+    (code: string, page: number) => {
+      setCollectionLoading(true);
+      dispatch(
+        getCollectionRequestAction({ condition: code, page: page }, (res) => {
+          setCollections(res);
+          setCollectionLoading(false);
+        }),
+      );
+    },
+    [dispatch, setCollections],
+  );
 
   const onSaveImage = useCallback(
     (imageId: number) => {
@@ -808,29 +754,17 @@ const ProductCreateScreen: React.FC = () => {
       dispatch(CountryGetAllAction(setListCountry));
       getColors("", 1);
       getSizes("", 1);
-      getSuppliers("", 1);
+      
+      getCollections("", 1);
     }
     isLoadMaterData.current = true;
     return () => {};
-  }, [dispatch, getColors, getSizes, getSuppliers, setDataAccounts, setDataCategory]);
+  }, [dispatch, getCollections, getColors, getSizes, getSuppliers, setDataAccounts, setDataCategory]);
 
   useEffect(() => {
     form.setFieldsValue({ made_in_id: VietNamId });
     form.setFieldsValue({ length_unit: "cm" });
   }, [form]);
-
-  const getCollections = useCallback(
-    (code: string, page: number) => {
-      setCollectionLoading(true);
-      dispatch(
-        getCollectionRequestAction({ condition: code, page: page }, (res) => {
-          setCollections(res);
-          setCollectionLoading(false);
-        }),
-      );
-    },
-    [dispatch, setCollections],
-  );
 
   const onChangeImportPrice = useCallback(
     (e: any) => {
@@ -1004,7 +938,7 @@ const ProductCreateScreen: React.FC = () => {
                     >
                       <Input
                         className=""
-                        onChange={onNameChange}
+                        onChange={listVariantsFilter}
                         maxLength={255}
                         placeholder="Nhập tên sản phẩm"
                       />
@@ -1501,6 +1435,9 @@ const ProductCreateScreen: React.FC = () => {
                           </Option>
                         )}
                         onSelect={onColorSelected}
+                        onDeselect={(colorID, _) => {
+                          setColorSelected(colorSelected.filter(slt => slt.id !== colorID));
+                        }}
                         placeholder="Chọn màu sắc"
                         notFoundContent={"Không có dữ liệu"}
                         mode="multiple"
@@ -1519,6 +1456,9 @@ const ProductCreateScreen: React.FC = () => {
                             {item.code}
                           </Option>
                         )}
+                        onDeselect={(sizeID, _) => {
+                          setSizeSelected(sizeSelected.filter(size => size.id !== sizeID));
+                        }}
                         onSelect={onSizeSelected}
                         placeholder="Chọn kích cỡ"
                         notFoundContent={"Không có dữ liệu"}

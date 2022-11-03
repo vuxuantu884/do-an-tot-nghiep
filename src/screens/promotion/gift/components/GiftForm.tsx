@@ -44,11 +44,9 @@ function GiftForm({
     if (isQuantityMethod) {
       formData.entitlements = [
         {
-          // entitled_category_ids: [],
           entitled_product_ids: [],
           entitled_variant_ids: [],
           entitled_gift_ids: [],
-          // prerequisite_variant_ids: [],
           selectedProducts: [],
           selectedGifts: [],
           prerequisite_quantity_ranges: [
@@ -119,7 +117,7 @@ function GiftForm({
 
       <Card title={"THÔNG TIN SẢN PHẨM, QUÀ TẶNG KHUYẾN MẠI"}>
         <Row gutter={24}>
-          <Col span={24}>
+          <Col span={12}>
             <Form.Item name="entitled_method" label={"Chọn loại khuyến mại"}>
               <Select onSelect={onChangeGiftMethod}>
                 {GIFT_METHOD_LIST?.map((method: any) => (

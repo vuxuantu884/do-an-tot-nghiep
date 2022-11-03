@@ -10,9 +10,10 @@ import {
   updateFilterConfigService,
 } from "service/core/config.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 
 function useHandleFilterColumns(
-  columnType: string,
+  columnType: COLUMN_CONFIG_TYPE,
   onSuccessCallback?: (res: BaseResponse<FilterConfig>) => void,
 ) {
   const [tableColumnConfigs, setTableColumnConfigs] = useState<Array<FilterConfig>>([]);

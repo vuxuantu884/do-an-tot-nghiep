@@ -18,12 +18,15 @@ import {
   searchVariantsApi,
 } from "service/product/product.service";
 import debounce from "lodash/debounce";
-import FilterDateCustomerCustom from "component/filter/FilterDateCustomerCustom";
 import {
   GiftFilterFieldMapping,
   GiftFilterField,
   GIFT_METHOD_LIST,
 } from "model/promotion/gift.model";
+import SelectRangeDateCustom, {
+  convertSelectedDateOption,
+  handleSelectedDate,
+} from "component/filter/SelectRangeDateCustom";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import { AccountResponse } from "model/account/account.model";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
@@ -35,7 +38,7 @@ import { GiftListFilterStyled } from "screens/promotion/gift/gift.style";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 import { getListAllSourceRequest } from "domain/actions/product/source.action";
-import { STATE_LIST, DATE_LIST_FORMAT } from "screens/promotion/constants";
+import { STATE_LIST } from "screens/promotion/constants";
 
 
 const { Item } = Form;
@@ -203,44 +206,6 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
 
   },[dispatch, updateAccountData]);
 
-  // handle select date by filter param
-  const handleDateFilterParam = (date_from: any, date_to: any, setDate: any) => {
-    const dateFrom = formatDateFilter(date_from)?.format(DATE_FORMAT.DD_MM_YYYY);
-    const dateTo = formatDateFilter(date_to)?.format(DATE_FORMAT.DD_MM_YYYY);
-
-    if (dateFrom === DATE_LIST_FORMAT.todayFrom && dateTo === DATE_LIST_FORMAT.todayTo) {
-      setDate("today");
-    } else if (
-      dateFrom === DATE_LIST_FORMAT.yesterdayFrom &&
-      dateTo === DATE_LIST_FORMAT.yesterdayTo
-    ) {
-      setDate("yesterday");
-    } else if (
-      dateFrom === DATE_LIST_FORMAT.thisWeekFrom &&
-      dateTo === DATE_LIST_FORMAT.thisWeekTo
-    ) {
-      setDate("thisWeek");
-    } else if (
-      dateFrom === DATE_LIST_FORMAT.lastWeekFrom &&
-      dateTo === DATE_LIST_FORMAT.lastWeekTo
-    ) {
-      setDate("lastWeek");
-    } else if (
-      dateFrom === DATE_LIST_FORMAT.thisMonthFrom &&
-      dateTo === DATE_LIST_FORMAT.thisMonthTo
-    ) {
-      setDate("thisMonth");
-    } else if (
-      dateFrom === DATE_LIST_FORMAT.lastMonthFrom &&
-      dateTo === DATE_LIST_FORMAT.lastMonthTo
-    ) {
-      setDate("lastMonth");
-    } else {
-      setDate("");
-    }
-  };
-  // end handle select date by filter param
-
   useEffect(() => {
     if (initialValues.variant_id) {
       getVariantDetailById(initialValues.variant_id).then();
@@ -249,8 +214,8 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     }
 
     getAccountByParams(initialValues.creators);
-    
-    handleDateFilterParam(
+
+    handleSelectedDate(
       initialValues?.starts_date_min,
       initialValues?.starts_date_max,
       setStartDateClick,
@@ -258,7 +223,7 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     setStartDateFrom(initialValues?.starts_date_min);
     setStartDateTo(initialValues?.starts_date_max);
 
-    handleDateFilterParam(
+    handleSelectedDate(
       initialValues?.ends_date_min,
       initialValues?.ends_date_max,
       setEndDateClick,
@@ -401,37 +366,8 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
 
   const clickOptionDate = useCallback(
     (type, value) => {
-      let startDateValue = null;
-      let endDateValue = null;
-
-      switch (value) {
-        case "today":
-          startDateValue = moment().utc().startOf("day");
-          endDateValue = moment().utc().endOf("day");
-          break;
-        case "yesterday":
-          startDateValue = moment().utc().startOf("day").subtract(1, "days");
-          endDateValue = moment().utc().endOf("day").subtract(1, "days");
-          break;
-        case "thisWeek":
-          startDateValue = moment().utc().startOf("week");
-          endDateValue = moment().utc().endOf("week");
-          break;
-        case "lastWeek":
-          startDateValue = moment().utc().startOf("week").subtract(1, "weeks");
-          endDateValue = moment().utc().endOf("week").subtract(1, "weeks");
-          break;
-        case "thisMonth":
-          startDateValue = moment().utc().startOf("month");
-          endDateValue = moment().utc().endOf("month");
-          break;
-        case "lastMonth":
-          startDateValue = moment().utc().subtract(1, "months").startOf("month");
-          endDateValue = moment().utc().subtract(1, "months").endOf("month");
-          break;
-        default:
-          break;
-      }
+      const selectedDateOption = convertSelectedDateOption(value);
+      const { startDateValue, endDateValue } = selectedDateOption;
 
       switch (type) {
         case "starts_date":
@@ -969,7 +905,7 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                   break;
                 case GiftFilterField.starts_date:
                   component = (
-                    <FilterDateCustomerCustom
+                    <SelectRangeDateCustom
                       fieldNameFrom="starts_date_min"
                       fieldNameTo="starts_date_max"
                       dateType="starts_date"
@@ -984,7 +920,7 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                   break;
                 case GiftFilterField.ends_date:
                   component = (
-                    <FilterDateCustomerCustom
+                    <SelectRangeDateCustom
                       fieldNameFrom="ends_date_min"
                       fieldNameTo="ends_date_max"
                       dateType="ends_date"

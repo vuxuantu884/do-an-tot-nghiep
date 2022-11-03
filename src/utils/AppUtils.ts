@@ -1,5 +1,6 @@
 import { FormInstance } from "antd/es/form/Form";
 import { UploadFile } from "antd/lib/upload/interface";
+import currencyFormater from "currency.js";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
@@ -331,6 +332,53 @@ export const formatPercentage = (percentage: number | string | boolean): string 
   }
 };
 
+/**
+ * supported currencies and their decimal place.
+ *
+ * Refer to https://en.wikipedia.org/wiki/ISO_4217
+ */
+export const supportedCurrencies = {
+  USD: 2,
+  THB: 2,
+  VND: 0,
+  EUR: 2,
+  RMB: 2,
+  TWD: 2,
+  HKD: 2,
+};
+
+export type SupportedCurrencyType = keyof typeof supportedCurrencies;
+
+/**
+ *
+ * @param amount amount of money
+ * @param separator default to "."
+ * @param currencyCode "USD" | "VND" ...
+ * @param decimal floating point is , or .
+ * @returns E.g: 123 VND, 123.45 USD
+ */
+export const formatCurrencyValue = (
+  amount?: number,
+  separator: string = ".",
+  decimal: string = ",",
+  currencyCode: SupportedCurrencyType = "VND",
+): string => {
+  if (typeof amount !== "number") {
+    return "";
+  }
+
+  return (
+    currencyFormater(amount, {
+      symbol: "",
+      separator,
+      decimal,
+      precision: supportedCurrencies[currencyCode],
+    }).format() +
+    " " +
+    currencyCode
+  );
+};
+
 export const formatCurrencyForProduct = (
   currency: number | string | boolean,
   sep: string = ".",
@@ -627,9 +675,14 @@ export const Products = {
     });
     return image;
   },
+  /**
+   * @param prices
+   * @param currency
+   * @returns
+   */
   findPrice: (
     prices: Array<VariantPricesResponse>,
-    currency: string,
+    currency?: string,
   ): VariantPricesResponse | null => {
     let price: VariantPricesResponse | null = null;
     prices?.forEach((priceResponse) => {

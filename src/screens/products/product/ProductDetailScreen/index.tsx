@@ -1,4 +1,5 @@
 import {
+  EyeInvisibleOutlined,
   Loading3QuartersOutlined,
   MinusCircleOutlined,
   PlusCircleOutlined,
@@ -33,7 +34,11 @@ import {
 } from "domain/actions/inventory/inventory.action";
 import { productGetDetail, productUpdateAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { AdvertisingHistoryResponse, HistoryInventoryResponse, InventoryResponse } from "model/inventory";
+import {
+  AdvertisingHistoryResponse,
+  HistoryInventoryResponse,
+  InventoryResponse,
+} from "model/inventory";
 import { CollectionCreateRequest } from "model/product/collection.model";
 import { ProductResponse, VariantResponse } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -42,7 +47,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation, useParams } from "react-router";
 import { Link } from "react-router-dom";
 import Slider from "react-slick";
-import { Products } from "utils/AppUtils";
+import { formatCurrencyValue, Products, SupportedCurrencyType } from "utils/AppUtils";
 import { getFirstProductAvatarByVariantResponse } from "utils/ProductUtils";
 import { showSuccess } from "utils/ToastUtils";
 import RowDetail from "../component/RowDetail";
@@ -54,7 +59,7 @@ import useAuthorization from "hook/useAuthorization";
 import "./index.scss";
 import { callApiNative } from "utils/ApiUtils";
 import { productUpdateApi } from "service/product/product.service";
-import _ from "lodash";
+import { debounce, cloneDeep } from "lodash";
 import ProductSteps from "../component/ProductSteps";
 import { fullTextSearch } from "utils/StringUtils";
 import { SupplierResponse } from "model/core/supplier.model";
@@ -70,8 +75,8 @@ enum TabName {
   INVENTORY = "inventory",
   ADVERTISING_HISTORY = "advertising history",
 }
-const ProductDetailScreen = (props: {setTitle : (value: string) => void}) => {
-  const {setTitle} = props;
+const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
+  const { setTitle } = props;
   const { TabPane } = Tabs;
   const history = useHistory();
   const dispatch = useDispatch();
@@ -114,7 +119,9 @@ const ProductDetailScreen = (props: {setTitle : (value: string) => void}) => {
     },
   });
 
-  const [dataAdvertisingHistory, setDataAdvertisingHistory] = useState<PageResponse<AdvertisingHistoryResponse>>({
+  const [dataAdvertisingHistory, setDataAdvertisingHistory] = useState<
+    PageResponse<AdvertisingHistoryResponse>
+  >({
     items: [],
     metadata: {
       limit: 30,
@@ -276,7 +283,7 @@ const ProductDetailScreen = (props: {setTitle : (value: string) => void}) => {
   const onAllowSale = useCallback(
     (listSelected: Array<number>) => {
       if (data !== null) {
-        let request = _.cloneDeep(data);
+        let request = cloneDeep(data);
         request?.variants.forEach((item) => {
           if (listSelected.includes(item.id)) {
             item.saleable = true;
@@ -319,7 +326,7 @@ const ProductDetailScreen = (props: {setTitle : (value: string) => void}) => {
   const onChangeChecked = useCallback(
     async (e) => {
       if (data !== null) {
-        let request: any = _.cloneDeep(data);
+        let request: any = cloneDeep(data);
         setLoadingVariantUpdate(true);
         request.variants[active].saleable = e;
         if (e) request.variants[active].status = "active"; //CO-3415
@@ -337,7 +344,7 @@ const ProductDetailScreen = (props: {setTitle : (value: string) => void}) => {
         setLoadingVariantUpdate(false);
 
         if (!res) {
-          setData(_.cloneDeep(data));
+          setData(cloneDeep(data));
         } else {
           setData(res);
           showSuccess("Cập nhật thông tin thành công");
@@ -411,7 +418,14 @@ const ProductDetailScreen = (props: {setTitle : (value: string) => void}) => {
         setLoadingAdvertisingHistory(true);
         dispatch(
           inventoryGetAdvertisingHistoryAction(
-            { variant_id: variantSelect, product_id: data.id, type: 'AUTOMATIC', page, limit: 300, state: 'ACTIVE' },
+            {
+              variant_id: variantSelect,
+              product_id: data.id,
+              type: "AUTOMATIC",
+              page,
+              limit: 300,
+              state: "ACTIVE",
+            },
             onResultAdvertisingHistory,
           ),
         );
@@ -440,7 +454,13 @@ const ProductDetailScreen = (props: {setTitle : (value: string) => void}) => {
       );
       dispatch(
         inventoryGetAdvertisingHistoryAction(
-          { variant_id: variantSelect, product_id: data.id, type: 'AUTOMATIC', limit: 300, state: 'ACTIVE' },
+          {
+            variant_id: variantSelect,
+            product_id: data.id,
+            type: "AUTOMATIC",
+            limit: 300,
+            state: "ACTIVE",
+          },
           onResultAdvertisingHistory,
         ),
       );
@@ -477,9 +497,9 @@ const ProductDetailScreen = (props: {setTitle : (value: string) => void}) => {
 
   const debounceSearch = useMemo(
     () =>
-      _.debounce((code: string) => {
+      debounce((code: string) => {
         if (activeTab === TabName.INVENTORY) {
-          let variantsInv = _.cloneDeep(dataInventoryOrg);
+          let variantsInv = cloneDeep(dataInventoryOrg);
           if (variantsInv.items && variantsInv.items.length === 0) return;
           if (!code || code === "") {
             onChangeDataInventory(1);
@@ -493,7 +513,7 @@ const ProductDetailScreen = (props: {setTitle : (value: string) => void}) => {
           return;
         }
 
-        let variantsHis = _.cloneDeep(dataHistoryOrg);
+        let variantsHis = cloneDeep(dataHistoryOrg);
         if (variantsHis.items && variantsHis.items.length === 0) return;
         if (!code || code === "") {
           onChangeDataHistory(1);
@@ -516,11 +536,11 @@ const ProductDetailScreen = (props: {setTitle : (value: string) => void}) => {
   );
 
   useEffect(() => {
-    if(data?.name) {
-      setTitle(`${data?.name}`)
+    if (data?.name) {
+      setTitle(`${data?.name}`);
     }
-  }, [data?.name, setTitle])
-  
+  }, [data?.name, setTitle]);
+
   return (
     <StyledComponent className="product-detail">
       <ContentContainer
@@ -528,10 +548,6 @@ const ProductDetailScreen = (props: {setTitle : (value: string) => void}) => {
         isLoading={loading}
         title={`${data?.name}`}
         breadcrumb={[
-          // {
-          //   name: "Tổng quan",
-          //   path: UrlConfig.HOME,
-          // },
           {
             name: "Sản phẩm",
           },
@@ -656,7 +672,7 @@ const ProductDetailScreen = (props: {setTitle : (value: string) => void}) => {
                         <div className="row-detail-right data">
                           {careLabels.map((item: any) => (
                             <Popover key={item.value} content={item.name}>
-                              <span className={`care-label ydl-${item.value}`}/>
+                              <span className={`care-label ydl-${item.value}`} />
                             </Popover>
                           ))}
                         </div>
@@ -805,6 +821,40 @@ const ProductDetailScreen = (props: {setTitle : (value: string) => void}) => {
                                         : ""
                                     }
                                   />
+                                  <div className="variant-price-container">
+                                    {[
+                                      { title: "Giá bán", index: "retail_price" },
+                                      { title: "Giá buôn", index: "wholesale_price" },
+                                      { title: "Giá nhập", index: "import_price" },
+                                      { title: "Giá vốn", index: "cost_price" },
+                                      { title: "Thuế", index: "tax_percent" },
+                                    ].map((item, idx) => {
+                                      const prices = currentVariant.variant_prices[0];
+
+                                      return (
+                                        <div key={idx} className="variant-prices">
+                                          <div className="variant-price-title">{item.title}</div>
+                                          <div className="variant-price-value">
+                                            {idx === 4 ? ( // don't format tax
+                                              prices[item.index] + " %"
+                                            ) : prices[item.index] === null ? (
+                                              <EyeInvisibleOutlined
+                                                style={{ color: "red" }}
+                                                title={`Bạn không có quyền xem ${item.title}`}
+                                              />
+                                            ) : (
+                                              formatCurrencyValue(
+                                                prices[item.index],
+                                                ".",
+                                                ",",
+                                                prices.currency_code.toUpperCase() as SupportedCurrencyType,
+                                              )
+                                            )}
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
                                 </Col>
                                 <Col className="view-right" span={24} md={10}>
                                   <div className="image-view">

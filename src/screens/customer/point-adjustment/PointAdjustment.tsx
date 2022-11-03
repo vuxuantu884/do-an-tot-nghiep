@@ -8,7 +8,7 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import { PageResponse } from "model/base/base-metadata.response";
 import { PointAdjustmentListRequest } from "model/request/loyalty/loyalty.request";
 import { getPointAdjustmentListAction } from "domain/actions/loyalty/loyalty.action";
-import { LoyaltyPermission } from "config/permissions/loyalty.permission";
+import { LOYALTY_ADJUSTMENT_PERMISSIONS } from "config/permissions/loyalty.permission";
 import PointAdjustmentFilter from "screens/customer/point-adjustment/PointAdjustmentFilter";
 import ContentContainer from "component/container/content.container";
 
@@ -32,7 +32,7 @@ const initParams: PointAdjustmentListRequest = {
   to: null,
 };
 
-const createPointAdjustmentPermission = [LoyaltyPermission.points_update];
+const createLoyaltyAdjustmentPermission = [LOYALTY_ADJUSTMENT_PERMISSIONS.CREATE];
 
 const PointAdjustment = () => {
   const history = useHistory();
@@ -40,8 +40,8 @@ const PointAdjustment = () => {
 
   const queryParamsParsed: any = queryString.parse(location.search);
 
-  const [allowCreatePointAdjustment] = useAuthorization({
-    acceptPermissions: createPointAdjustmentPermission,
+  const [allowCreateLoyaltyAdjustment] = useAuthorization({
+    acceptPermissions: createLoyaltyAdjustmentPermission,
     not: false,
   });
 
@@ -233,7 +233,7 @@ const PointAdjustment = () => {
         title="Phiếu điều chỉnh"
         extra={
           <>
-            {allowCreatePointAdjustment && (
+            {allowCreateLoyaltyAdjustment && (
               <Link to={`${UrlConfig.CUSTOMER2}-adjustments/create`}>
                 <Button
                   className="ant-btn-outline ant-btn-primary"

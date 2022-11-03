@@ -85,7 +85,7 @@ export const ImportFileDiscountStyled = styled.div`
   }
 `;
 
-export const DiscountDetailListStyled = styled.div`
+export const GiftProductGroupListStyled = styled.div`
   .input-search-product {
     display: flex;
     .label-search-product {

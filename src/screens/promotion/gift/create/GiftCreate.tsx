@@ -67,8 +67,6 @@ function GiftCreate(): ReactElement {
       entitled_gift_ids: [],
       selectedProducts: [],
       selectedGifts: [],
-      prerequisite_variant_ids: [],
-      entitled_category_ids: [],
       prerequisite_quantity_ranges: [
         {
           greater_than_or_equal_to: 1,

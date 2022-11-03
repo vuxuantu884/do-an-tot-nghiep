@@ -346,23 +346,25 @@ export const FILTER_CONFIG_TYPE = {
   FILTER_LIST_CUSTOMER: "filter_list_customer",
 };
 
-export const COLUMN_CONFIG_TYPE = {
-  COLUMN_INVENTORY: "column_inventory",
-  COLUMN_PO: "column_po",
-  orderOnline: "column_order_online",
-  orderOffline: "column_order_offline",
-  orderReturnOnline: "column_order_return_online",
-  orderReturnOffline: "column_order_return_offline",
-  orderDuplicatedOnline: "column_order_duplicated_online",
-  orderDeliveryRecord: "column_order_delivery_record",
-  CUSTOMER_COLUMNS: "customer_columns",
-  COLUMN_INVENTORY_HISTORY: "column_inventory_history",
-  COLUMN_VARIANT: "column_variant",
-  COLUMN_PRODUCT: "column_product",
-  COLUMN_PRODUCT_HISTORY: "column_product_history",
-  COLUMN_PRODUCT_PRICE: "column_product_price",
-  COLUMN_INVENTORY_ADJUSTMENT: "column_inventory_adjustment",
-};
+export enum COLUMN_CONFIG_TYPE {
+  COLUMN_INVENTORY = "column_inventory",
+  COLUMN_PO = "column_po",
+  orderOnline = "column_order_online",
+  orderOffline = "column_order_offline",
+  orderReturnOnline = "column_order_return_online",
+  orderReturnOffline = "column_order_return_offline",
+  orderDuplicatedOnline = "column_order_duplicated_online",
+  orderDeliveryRecord = "column_order_delivery_record",
+  CUSTOMER_COLUMNS = "customer_columns",
+  COLUMN_INVENTORY_HISTORY = "column_inventory_history",
+  COLUMN_VARIANT = "column_variant",
+  COLUMN_PRODUCT = "column_product",
+  COLUMN_PRODUCT_HISTORY = "column_product_history",
+  COLUMN_PRODUCT_PRICE = "column_product_price",
+  COLUMN_INVENTORY_ADJUSTMENT = "column_inventory_adjustment",
+  COLUMN_INVENTORY_DEFECT = "column_inventory_defect",
+  INVENTORY_DEFECTS = "inventory_defects",
+}
 
 export const ACCOUNT_ROLE_ID = {
   admin: 1,
@@ -513,4 +515,13 @@ export const REVENUE_STATE = [
 export const DAILY_REVENUE_IMPORT = {
   OTHER_PAYMENT: "other_payment",
   CONFIRM_PAYMENT: "confirm_payment",
+};
+
+export const DATE_OPTION_VALUE = {
+  today: "today",
+  yesterday: "yesterday",
+  thisWeek: "thisWeek",
+  lastWeek: "lastWeek",
+  thisMonth: "thisMonth",
+  lastMonth: "lastMonth",
 };

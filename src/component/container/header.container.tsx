@@ -189,7 +189,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
                 <Avatar src="" size={36} className="avatar">
                   {firstCharName}
                 </Avatar>
-                <div className="sider-user-info yody-text-ellipsis">{myFullname}</div>
+                <div className="sider-user-info text-ellipsis">{myFullname}</div>
                 <RiArrowDropDownLine size={25} color="#737373" />
               </div>
             </Dropdown>

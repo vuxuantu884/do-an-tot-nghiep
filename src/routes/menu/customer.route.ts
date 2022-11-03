@@ -3,11 +3,11 @@ import { RouteMenu } from "model/other";
 import React from "react";
 import {
   CustomerGroupPermission,
-  CustomerLevelPermission,
+  CUSTOMER_LEVEL_PERMISSIONS,
   CustomerListPermission,
 } from "config/permissions/customer.permission";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import { LoyaltyPermission } from "config/permissions/loyalty.permission";
+import { LOYALTY_ADJUSTMENT_PERMISSIONS, LoyaltyPermission } from "config/permissions/loyalty.permission";
 
 const customer = React.lazy(() => import("screens/customer/index"));
 const CustomerCreate = React.lazy(() => import("screens/customer/customer-create/CustomerCreate"));
@@ -16,7 +16,7 @@ const CustomerDetail = React.lazy(() => import("screens/customer/customer-detail
 const customergroup = React.lazy(() => import("screens/customer/customer-group"));
 const loyaltyCard = React.lazy(() => import("screens/customer/loyalty-card"));
 const uploadLoyaltyCard = React.lazy(() => import("screens/customer/loyalty-card/upload"));
-const rank = React.lazy(() => import("screens/customer/ranking/index"));
+const CustomerRankList = React.lazy(() => import("screens/customer/ranking/index"));
 const createRank = React.lazy(() => import("screens/customer/ranking/component/create/index"));
 const PointAdjustment = React.lazy(
   () => import("screens/customer/point-adjustment/PointAdjustment"),
@@ -120,11 +120,11 @@ const customers: Array<RouteMenu> = [
     exact: true,
     title: "Hạng khách hàng",
     icon: "icon-dot",
-    component: rank,
+    component: CustomerRankList,
     key: "submenu157",
     isShow: true,
     header: null,
-    permissions: [CustomerLevelPermission.levels_read],
+    permissions: [CUSTOMER_LEVEL_PERMISSIONS.READ],
     subMenu: [
       {
         path: `${UrlConfig.CUSTOMER2}-rankings/create`,
@@ -135,7 +135,7 @@ const customers: Array<RouteMenu> = [
         key: "submenu1571",
         isShow: true,
         header: null,
-        permissions: [CustomerLevelPermission.levels_create],
+        permissions: [CUSTOMER_LEVEL_PERMISSIONS.CREATE],
         subMenu: [],
       },
       {
@@ -147,7 +147,7 @@ const customers: Array<RouteMenu> = [
         key: "submenu1572",
         isShow: true,
         header: null,
-        permissions: [CustomerLevelPermission.levels_update],
+        permissions: [CUSTOMER_LEVEL_PERMISSIONS.UPDATE],
         subMenu: [],
       },
     ],
@@ -161,6 +161,7 @@ const customers: Array<RouteMenu> = [
     key: "submenu158",
     isShow: true,
     header: null,
+    permissions: [LOYALTY_ADJUSTMENT_PERMISSIONS.READ],
     subMenu: [
       {
         path: `${UrlConfig.CUSTOMER2}-adjustments/create`,
@@ -171,7 +172,7 @@ const customers: Array<RouteMenu> = [
         key: "create_point_adjustment",
         isShow: true,
         header: null,
-        permissions: [LoyaltyPermission.points_update],
+        permissions: [LOYALTY_ADJUSTMENT_PERMISSIONS.CREATE],
         subMenu: [],
       },
       {
@@ -183,6 +184,7 @@ const customers: Array<RouteMenu> = [
         key: "point_adjustment_detail",
         isShow: true,
         header: null,
+        permissions: [LOYALTY_ADJUSTMENT_PERMISSIONS.READ],
         subMenu: [],
       },
     ],

@@ -20,7 +20,7 @@ const ProductItem: React.FC<ProductItemProps> = (props: ProductItemProps) => {
         </div>
         <div className="product-item-info-right">
           <span className="product-item-price">
-            {data.retail_price ? formatCurrency(data.cost) : 0} <span className="currency">₫</span>
+            {data.retail_price ? formatCurrency(data.retail_price) : 0} <span className="currency">₫</span>
           </span>
         </div>
       </div>

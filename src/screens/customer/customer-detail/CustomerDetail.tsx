@@ -31,6 +31,7 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NoPermission from "screens/no-permission.screen";
 import { CustomerListPermission } from "config/permissions/customer.permission";
+import { LOYALTY_ADJUSTMENT_PERMISSIONS } from "config/permissions/loyalty.permission";
 import useAuthorization from "hook/useAuthorization";
 
 import warningCircleIcon from "assets/icon/warning-circle.svg";
@@ -42,6 +43,7 @@ import CustomerOrderHistory from "./CustomerOrderHistory";
 import { showSuccess } from "utils/ToastUtils";
 import CustomerFamily from "screens/customer/customer-detail/customer-family/CustomerFamily";
 import BottomBarContainer from "component/container/bottom-bar.container";
+import { cloneDeep } from "lodash";
 
 const { TabPane } = Tabs;
 
@@ -70,6 +72,7 @@ const viewCustomerDetailPermission = [
 ];
 const updateCustomerPermission = [CustomerListPermission.customers_update];
 const recalculateMoneyPointPermission = [CustomerListPermission.customers_recalculate_money_point];
+const createLoyaltyAdjustmentPermission = [LOYALTY_ADJUSTMENT_PERMISSIONS.CREATE];
 
 const CustomerDetail = () => {
   const [allowViewCustomerDetail] = useAuthorization({
@@ -81,9 +84,14 @@ const CustomerDetail = () => {
     acceptPermissions: updateCustomerPermission,
     not: false,
   });
-  
+
   const [allowRecalculateMoneyPoint] = useAuthorization({
     acceptPermissions: recalculateMoneyPointPermission,
+    not: false,
+  });
+
+  const [allowCreateLoyaltyAdjustment] = useAuthorization({
+    acceptPermissions: createLoyaltyAdjustmentPermission,
     not: false,
   });
 
@@ -96,7 +104,7 @@ const CustomerDetail = () => {
   const params: any = useParams();
   const dispatch = useDispatch();
   const history = useHistory();
-  const [customer, setCustomer] = React.useState<CustomerResponse>({} as CustomerResponse);
+  const [customer, setCustomer] = React.useState<CustomerResponse>();
   const [customerPointInfo, setCustomerPoint] = React.useState<any>([]);
   const [modalAction, setModalAction] = React.useState<modalActionType>("create");
   const [loyaltyPoint, setLoyaltyPoint] = React.useState<any>(null);
@@ -107,8 +115,8 @@ const CustomerDetail = () => {
   const [customerSpendDetail, setCustomerSpendDetail] = React.useState<any>([]);
 
   const actions: Array<MenuAction> = useMemo(() => {
-    let _actions = defaultActions;
-      
+    let _actions = allowCreateLoyaltyAdjustment ? cloneDeep(defaultActions) : [];
+
     if (allowRecalculateMoneyPoint) {
       _actions.push(
         {
@@ -119,11 +127,12 @@ const CustomerDetail = () => {
           id: 6,
           name: "Tính lại tiền tích lũy",
         },
-      )
+      );
     }
-    
+
     return _actions;
-  }, [allowRecalculateMoneyPoint]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allowCreateLoyaltyAdjustment, allowRecalculateMoneyPoint]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -495,159 +504,171 @@ const CustomerDetail = () => {
 
   return (
     <StyledCustomerDetail>
-      <ContentContainer
-        title="Thông tin chi tiết"
-        extra={
-          allowViewCustomerDetail && (
-            <ActionButton type="default" menu={actions} onMenuClick={onMenuClick} />
-          )
-        }
-      >
-        <AuthWrapper acceptPermissions={viewCustomerDetailPermission} passThrough>
-          {(allowed: boolean) =>
-            allowed ? (
-              <>
-                <div className="customer-info">
-                  <CustomerDetailInfo
-                    customer={customer}
-                    loyaltyCard={loyaltyCard}
-                    regionList={regionList}
-                  />
-
-                  <Card
-                    className="point-info"
-                    title={<span className="card-title">THÔNG TIN TÍCH ĐIỂM</span>}
-                  >
-                    {customerPointInfo &&
-                      customerPointInfo.map((detail: any, index: number) => (
-                        <div className="detail-info" key={index}>
-                          <div className="title">
-                            <span style={{ color: "#666666" }}>{detail.name}</span>
-                            <span style={{ fontWeight: 600 }}>:</span>
-                          </div>
-
-                          <span className="content">{detail.value ? detail.value : "---"}</span>
-                        </div>
-                      ))}
-                  </Card>
-                </div>
-
-                <Card
-                  title={<span className="card-title">THÔNG TIN MUA HÀNG</span>}
-                  className="purchase-info"
-                >
-                  <Row>
-                    {customerSpendDetail &&
-                      customerSpendDetail.map((info: any, index: number) => (
-                        <Col key={index} span={8} className="item-info">
-                          <Col span={11}>
-                            <span>{info.name}</span>
-                          </Col>
-                          <Col span={13}>
-                            <b>: {info.value ? info.value : "---"}</b>
-                          </Col>
-                        </Col>
-                      ))}
-                  </Row>
-                </Card>
-
-                <Card className="extended-info">
-                  <Tabs
-                    activeKey={activeTab}
-                    onChange={(active) => handleChangeTab(active)}
-                    className="tabs-list"
-                  >
-                    <TabPane tab="Lịch sử mua hàng" key="history">
-                      <CustomerOrderHistory customer={customer} />
-                    </TabPane>
-
-                    <TabPane tab="Lịch sử chăm sóc" key="caring-history">
-                      <CustomerCareHistory customer={customer} />
-                    </TabPane>
-
-                    <TabPane tab="Lịch sử thao tác" key="activity-log">
-                      {activeTab === "activity-log" && <CustomerActivityLog customer={customer} />}
-                    </TabPane>
-
-                    <TabPane tab="Ghi chú" key="notes">
-                      <CustomerNoteInfo
-                        customer={customer}
-                        customerDetailState={activeTab}
-                        setModalAction={setModalAction}
-                        modalAction={modalAction}
-                        setIsShowModalNote={setIsShowModalNote}
-                        isShowModalNote={isShowModalNote}
-                      />
-                    </TabPane>
-
-                    <TabPane tab="Đ/c nhận hàng" key="shipping">
-                      <CustomerShippingAddressInfo
-                        isShowModalShipping={isShowModalShipping}
-                        setIsShowModalShipping={setIsShowModalShipping}
-                        customer={customer}
-                        customerDetailState={activeTab}
-                        setModalAction={setModalAction}
-                        modalAction={modalAction}
-                        allowUpdateCustomer={allowUpdateCustomer}
-                      />
-                    </TabPane>
-
-                    <TabPane tab="Đ/c nhận hóa đơn" key="billing">
-                      <CustomerShippingInfo
-                        setIsShowModalBilling={setIsShowModalBilling}
-                        isShowModalBilling={isShowModalBilling}
-                        customer={customer}
-                        customerDetailState={activeTab}
-                        setModalAction={setModalAction}
-                        modalAction={modalAction}
-                        allowUpdateCustomer={allowUpdateCustomer}
-                      />
-                    </TabPane>
-
-                    <TabPane tab="Liên hệ" key="contacts">
-                      <CustomerContactInfo
-                        setIsShowModalContacts={setIsShowModalContacts}
-                        isShowModalContacts={isShowModalContacts}
-                        customer={customer}
-                        customerDetailState={activeTab}
-                        setModalAction={setModalAction}
-                        modalAction={modalAction}
-                      />
-                    </TabPane>
-
-                    <TabPane tab="Thông tin người thân" key="family">
-                      <CustomerFamily
-                        customer={customer}
-                      />
-                    </TabPane>
-
-                    {allowUpdateCustomer && isShowAddBtn && (
-                      <TabPane
-                        tab={
-                          <span>
-                            <PlusOutlined />
-                            {mappingBtnName[history.location.hash]}
-                          </span>
-                        }
-                        key="add"
-                      />
-                    )}
-                  </Tabs>
-                </Card>
-
-                <BottomBarContainer
-                  back={"Quay lại danh sách khách hàng"}
-                  backAction={() => {
-                    history.push(`${UrlConfig.CUSTOMER}`)
-                  }}
-                />
-              </>
-            ) : (
-              <NoPermission />
+      {customer ? (
+        <ContentContainer
+          title="Thông tin chi tiết"
+          extra={
+            actions?.length > 0 && (
+              <ActionButton type="default" menu={actions} onMenuClick={onMenuClick} />
             )
           }
-        </AuthWrapper>
-      </ContentContainer>
+        >
+          <AuthWrapper acceptPermissions={viewCustomerDetailPermission} passThrough>
+            {(allowed: boolean) =>
+              allowed ? (
+                <>
+                  <div className="customer-info">
+                    <CustomerDetailInfo
+                      customer={customer}
+                      loyaltyCard={loyaltyCard}
+                      regionList={regionList}
+                    />
+
+                    <Card
+                      className="point-info"
+                      title={<span className="card-title">THÔNG TIN TÍCH ĐIỂM</span>}
+                    >
+                      {customerPointInfo &&
+                        customerPointInfo.map((detail: any, index: number) => (
+                          <div className="detail-info" key={index}>
+                            <div className="title">
+                              <span style={{ color: "#666666" }}>{detail.name}</span>
+                              <span style={{ fontWeight: 600 }}>:</span>
+                            </div>
+
+                            <span className="content">{detail.value ? detail.value : "---"}</span>
+                          </div>
+                        ))}
+                    </Card>
+                  </div>
+
+                  <Card
+                    title={<span className="card-title">THÔNG TIN MUA HÀNG</span>}
+                    className="purchase-info"
+                  >
+                    <Row>
+                      {customerSpendDetail &&
+                        customerSpendDetail.map((info: any, index: number) => (
+                          <Col key={index} span={8} className="item-info">
+                            <Col span={11}>
+                              <span>{info.name}</span>
+                            </Col>
+                            <Col span={13}>
+                              <b>: {info.value ? info.value : "---"}</b>
+                            </Col>
+                          </Col>
+                        ))}
+                    </Row>
+                  </Card>
+
+                  <Card className="extended-info">
+                    <Tabs
+                      activeKey={activeTab}
+                      onChange={(active) => handleChangeTab(active)}
+                      className="tabs-list"
+                    >
+                      <TabPane tab="Lịch sử mua hàng" key="history">
+                        <CustomerOrderHistory customer={customer} />
+                      </TabPane>
+
+                      <TabPane tab="Lịch sử chăm sóc" key="caring-history">
+                        <CustomerCareHistory customer={customer} />
+                      </TabPane>
+
+                      <TabPane tab="Lịch sử thao tác" key="activity-log">
+                        {activeTab === "activity-log" && (
+                          <CustomerActivityLog customer={customer} />
+                        )}
+                      </TabPane>
+
+                      <TabPane tab="Ghi chú" key="notes">
+                        <CustomerNoteInfo
+                          customer={customer}
+                          customerDetailState={activeTab}
+                          setModalAction={setModalAction}
+                          modalAction={modalAction}
+                          setIsShowModalNote={setIsShowModalNote}
+                          isShowModalNote={isShowModalNote}
+                        />
+                      </TabPane>
+
+                      <TabPane tab="Đ/c nhận hàng" key="shipping">
+                        <CustomerShippingAddressInfo
+                          isShowModalShipping={isShowModalShipping}
+                          setIsShowModalShipping={setIsShowModalShipping}
+                          customer={customer}
+                          customerDetailState={activeTab}
+                          setModalAction={setModalAction}
+                          modalAction={modalAction}
+                          allowUpdateCustomer={allowUpdateCustomer}
+                        />
+                      </TabPane>
+
+                      <TabPane tab="Đ/c nhận hóa đơn" key="billing">
+                        <CustomerShippingInfo
+                          setIsShowModalBilling={setIsShowModalBilling}
+                          isShowModalBilling={isShowModalBilling}
+                          customer={customer}
+                          customerDetailState={activeTab}
+                          setModalAction={setModalAction}
+                          modalAction={modalAction}
+                          allowUpdateCustomer={allowUpdateCustomer}
+                        />
+                      </TabPane>
+
+                      <TabPane tab="Liên hệ" key="contacts">
+                        <CustomerContactInfo
+                          setIsShowModalContacts={setIsShowModalContacts}
+                          isShowModalContacts={isShowModalContacts}
+                          customer={customer}
+                          customerDetailState={activeTab}
+                          setModalAction={setModalAction}
+                          modalAction={modalAction}
+                        />
+                      </TabPane>
+
+                      <TabPane tab="Thông tin người thân" key="family">
+                        <CustomerFamily customer={customer} />
+                      </TabPane>
+
+                      {allowUpdateCustomer && isShowAddBtn && (
+                        <TabPane
+                          tab={
+                            <span>
+                              <PlusOutlined />
+                              {mappingBtnName[history.location.hash]}
+                            </span>
+                          }
+                          key="add"
+                        />
+                      )}
+                    </Tabs>
+                  </Card>
+
+                  {/* <BottomBarContainer
+                    back={"Quay lại danh sách khách hàng"}
+                    backAction={() => {
+                      history.push(`${UrlConfig.CUSTOMER}`)
+                    }}
+                  /> */}
+                </>
+              ) : (
+                <NoPermission />
+              )
+            }
+          </AuthWrapper>
+        </ContentContainer>
+      ) : (
+        <ContentContainer title="Thông tin chi tiết">
+          <Card title={<span className="card-title">KHÔNG CÓ THÔNG TIN KHÁCH HÀNG</span>} />
+          <BottomBarContainer
+            back={"Quay lại danh sách khách hàng"}
+            backAction={() => {
+              history.push(`${UrlConfig.CUSTOMER}`);
+            }}
+          />
+        </ContentContainer>
+      )}
     </StyledCustomerDetail>
   );
 };

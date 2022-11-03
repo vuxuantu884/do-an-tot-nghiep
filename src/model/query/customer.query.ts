@@ -8,6 +8,7 @@ export interface CustomerSearchQuery extends BaseQuery {
   gender?: string | null;
   customer_group_ids?: Array<any> | [];
   customer_level_ids?: Array<any> | [];
+  characteristics?: Array<any> | [];
   responsible_staff_codes?: string | null;
   customer_type_ids?: Array<any> | [];
   assign_store_ids?: Array<any> | [];

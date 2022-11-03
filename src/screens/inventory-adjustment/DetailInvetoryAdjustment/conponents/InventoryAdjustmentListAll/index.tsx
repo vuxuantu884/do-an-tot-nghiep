@@ -171,6 +171,8 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         item.id,
         {
           on_hand: product?.items.length > 0 ? product?.items[0].on_hand : 0,
+          on_way: product?.items.length > 0 ? product?.items[0].on_way : 0,
+          shipping: product?.items.length > 0 ? product?.items[0].shipping : 0,
         },
       );
 

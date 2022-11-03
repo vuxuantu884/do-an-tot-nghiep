@@ -1,8 +1,8 @@
 //#region Import
-import { Button, Card, Col, Divider, Row, Space, Table, Tag, Tooltip, Typography } from "antd";
+import {Button, Card, Col, Divider, Row, Space, Table, Tag, Tooltip, Typography} from "antd";
 import giftIcon from "assets/icon/gift.svg";
 import storeBlueIcon from "assets/img/storeBlue.svg";
-import { Type } from "config/type.config";
+import {Type} from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
   OrderDetailWithCalculatePointVariantModel,
@@ -10,11 +10,11 @@ import {
   OrderLineItemWithCalculateVariantPointModel,
   OrderResponse,
 } from "model/response/order/order.response";
-import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
-import { calculateVariantPointInOrderService } from "service/order/order.service";
+import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
+import React, {useEffect, useState} from "react";
+import {useDispatch} from "react-redux";
+import {Link} from "react-router-dom";
+import {calculateVariantPointInOrderService} from "service/order/order.service";
 import {
   formatCurrency,
   formatPercentage,
@@ -23,7 +23,8 @@ import {
   handleFetchApiError,
   isFetchApiSuccessful,
 } from "utils/AppUtils";
-import { successColor } from "utils/global-styles/variables";
+import {successColor} from "utils/global-styles/variables";
+import useGetGiftPromotions from "../../../hooks/useGetGiftPromotions";
 
 type PropTypes = {
   shippingFeeInformedCustomer: number | null;
@@ -46,16 +47,19 @@ function UpdateProductCard(props: PropTypes) {
   const orderTotal = OrderDetail?.total || 0;
 
   const dispatch = useDispatch();
-
   const productColumn = {
     title: () => (
       <div className="text-center">
-        <div style={{ textAlign: "left" }}>Sản phẩm</div>
+        <div style={{textAlign: "left"}}>Sản phẩm</div>
       </div>
     ),
     width: "35%",
     className: "yody-pos-name",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
+      const gift = props.OrderDetail?.items.filter(
+        (item) =>
+          item.position === l.position && item.type === Type.GIFT && l.type !== Type.SERVICE,
+      ) || []
       return (
         <div
           className="w-100"
@@ -66,7 +70,7 @@ function UpdateProductCard(props: PropTypes) {
           }}
         >
           <div className="d-flex align-items-center">
-            <div style={{ width: "calc(100% - 32px)", float: "left" }}>
+            <div style={{width: "calc(100% - 32px)", float: "left"}}>
               <div className="yody-pos-sku">
                 <Link
                   target="_blank"
@@ -89,20 +93,28 @@ function UpdateProductCard(props: PropTypes) {
               </div>
             </div>
           </div>
+          {gift.length > 0 && gift[0]?.discount_items.length > 0 && gift[0]?.discount_items[0]?.promotion_title  &&
+            <div className="yody-pos-addition yody-pos-gift 2">
+              <div>
+                <Tag color="green">{gift[0]?.discount_items[0]?.promotion_title}</Tag>
+              </div>
+            </div>}
           {props.OrderDetail?.items
             .filter(
               (item) =>
                 item.position === l.position && item.type === Type.GIFT && l.type !== Type.SERVICE,
             )
-            .map((gift) => (
-              <div key={gift.sku} className="yody-pos-addition yody-pos-gift 2">
-                <i>
-                  <img src={giftIcon} alt="" /> {gift.variant} ({gift.quantity})
-                </i>
-              </div>
-            ))}
+            .map((gift) => {
+              return <>
+                <div key={gift.sku} className="yody-pos-addition yody-pos-gift 2">
+                  <i>
+                    <img src={giftIcon} alt=""/> {gift.variant} ({gift.quantity})
+                  </i>
+                </div>
+              </>
+            })}
           {l.note && (
-            <div style={{ fontStyle: "italic", fontSize: "0.93em", marginTop: 5 }}>{l.note}</div>
+            <div style={{fontStyle: "italic", fontSize: "0.93em", marginTop: 5}}>{l.note}</div>
           )}
         </div>
       );
@@ -121,7 +133,6 @@ function UpdateProductCard(props: PropTypes) {
     className: "yody-pos-quantity text-center 55",
     width: "10%",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
-      // console.log('item', item)
       return <div className="yody-pos-qtt">{l.quantity}</div>;
     },
   };
@@ -129,8 +140,8 @@ function UpdateProductCard(props: PropTypes) {
   const priceColumn = {
     title: () => (
       <div>
-        <span style={{ color: "#222222", textAlign: "right" }}>Đơn giá</span>
-        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
+        <span style={{color: "#222222", textAlign: "right"}}>Đơn giá</span>
+        <span style={{color: "#808080", marginLeft: "6px", fontWeight: 400}}>₫</span>
       </div>
     ),
     className: "yody-pos-price text-right 1",
@@ -159,7 +170,7 @@ function UpdateProductCard(props: PropTypes) {
           {l.discount_items[0]?.rate ? (
             <div className="d-flex justify-content-end yody-table-discount-converted">
               <Typography.Text type="danger">
-                <span style={{ fontSize: "0.857rem" }}>
+                <span style={{fontSize: "0.857rem"}}>
                   {formatPercentage(Math.round(l.discount_items[0]?.rate * 100 || 0) / 100)}%
                 </span>
               </Typography.Text>
@@ -188,8 +199,8 @@ function UpdateProductCard(props: PropTypes) {
   const totalPriceColumn = {
     title: () => (
       <div>
-        <span style={{ color: "#222222" }}>Tổng tiền:</span>
-        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
+        <span style={{color: "#222222"}}>Tổng tiền:</span>
+        <span style={{color: "#808080", marginLeft: "6px", fontWeight: 400}}>₫</span>
       </div>
     ),
     align: "right",
@@ -221,7 +232,6 @@ function UpdateProductCard(props: PropTypes) {
         calculateVariantPointInOrderService(customerId, orderId)
           .then((response) => {
             if (isFetchApiSuccessful(response)) {
-              // console.log('response', response);
               let orderDetailResult: OrderDetailWithCalculatePointVariantModel = {
                 ...OrderDetail,
                 items: OrderDetail.items.map((item) => {
@@ -265,9 +275,9 @@ function UpdateProductCard(props: PropTypes) {
         <Row>
           <Space>
             <div className="view-inventory-box">
-              <Button type="link" className="p-0" style={{ color: "#000000" }}>
+              <Button type="link" className="p-0" style={{color: "#000000"}}>
                 <Space>
-                  <img src={storeBlueIcon} alt="" />
+                  <img src={storeBlueIcon} alt=""/>
                   <Link
                     target="_blank"
                     to={`${UrlConfig.ORDER}?page=1&limit=30&store_ids=${OrderDetail?.store_id}`}
@@ -398,7 +408,7 @@ function UpdateProductCard(props: PropTypes) {
                   </div>
                 </div>
               ) : (
-                <div />
+                <div/>
               )
             }
           />
@@ -407,7 +417,7 @@ function UpdateProductCard(props: PropTypes) {
         <Row
           className="sale-product-box-payment"
           gutter={24}
-          style={{ paddingTop: 20, paddingRight: "15px" }}
+          style={{paddingTop: 20, paddingRight: "15px"}}
         >
           <Col xs={24} lg={12}>
             {/* <div className="payment-row">
@@ -466,7 +476,7 @@ function UpdateProductCard(props: PropTypes) {
               <Space align="center">Mã giảm giá:</Space>
               <div
                 className="font-weight-500 "
-                style={{ color: successColor, textTransform: "uppercase" }}
+                style={{color: successColor, textTransform: "uppercase"}}
               >
                 {OrderDetail?.discounts && OrderDetail?.discounts[0]?.discount_code
                   ? handleDisplayCoupon(OrderDetail?.discounts[0]?.discount_code)
@@ -480,7 +490,7 @@ function UpdateProductCard(props: PropTypes) {
                 {formatCurrency(shippingFeeInformedCustomer || 0)}
               </div>
             </Row>
-            <Divider className="margin-top-5 margin-bottom-5" />
+            <Divider className="margin-top-5 margin-bottom-5"/>
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text 67">
                 {totalAmountReturnProducts ? "Tổng tiền hàng mua:" : "Khách cần trả:"}
@@ -497,10 +507,10 @@ function UpdateProductCard(props: PropTypes) {
               <React.Fragment>
                 <Divider
                   className="margin-top-5 margin-bottom-5"
-                  style={{ height: "auto", margin: " 5px 0" }}
+                  style={{height: "auto", margin: " 5px 0"}}
                 />
                 <Row className="payment-row" justify="space-between">
-                  <strong className="font-size-text 55" style={{ fontWeight: "bold" }}>
+                  <strong className="font-size-text 55" style={{fontWeight: "bold"}}>
                     {orderTotal - totalAmountReturnProducts < 0
                       ? "Cần trả khách:"
                       : "Khách cần trả:"}

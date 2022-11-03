@@ -2,18 +2,21 @@
 // Nếu có resource con :  resouces cha [s] + resource con [s] + action => products_categories_create
 // Các action chính : read, update, create, delete, print, ..
 
-const Loyalty = "loyalties";
-
 export const LoyaltyPermission = {
-  points_update: `${Loyalty}_points_update`,
-  cards_read: `${Loyalty}_cards_read`,
-  cards_lock: `${Loyalty}_cards_lock`,
-  cards_assignment: `${Loyalty}_cards_assignment`,
-  cards_release: `${Loyalty}_cards_release`,
-  cards_release_read: `${Loyalty}_cards_release_read`,
-  programs_read: `${Loyalty}_programs_read`,
-  programs_create: `${Loyalty}_programs_create`,
-  programs_update: `${Loyalty}_programs_update`,
-  programs_delete: `${Loyalty}_programs_delete`,
-  loyalties_config: `${Loyalty}_config`,
+  points_update: "loyalties_points_update",
+  cards_read: "loyalties_cards_read",
+  cards_lock: "loyalties_cards_lock",
+  cards_assignment: "loyalties_cards_assignment",
+  cards_release: "loyalties_cards_release",
+  cards_release_read: "loyalties_cards_release_read",
+  programs_read: "loyalties_programs_read",
+  programs_create: "loyalties_programs_create",
+  programs_update: "loyalties_programs_update",
+  programs_delete: "loyalties_programs_delete",
+  loyalties_config: "loyalties_config",
+};
+
+export const LOYALTY_ADJUSTMENT_PERMISSIONS = {
+  CREATE: "loyalties_adjustments_create",
+  READ: "loyalties_adjustments_read",
 };

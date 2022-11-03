@@ -1,5 +1,5 @@
-import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { Card, Col, Collapse, Form, FormInstance, Input, Modal, Row, Space, Tag } from "antd";
+import {ExclamationCircleOutlined} from "@ant-design/icons";
+import {Card, Col, Collapse, Form, FormInstance, Input, Modal, Row, Space, Tag} from "antd";
 import calendarOutlined from "assets/icon/calendar_outline.svg";
 import doubleArrow from "assets/icon/double_arrow.svg";
 import ContentContainer from "component/container/content.container";
@@ -7,16 +7,16 @@ import NumberInput from "component/custom/number-input.custom";
 import CreateBillStep from "component/header/create-bill-step";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
-import { promotionUtils } from "component/order/promotion.utils";
+import {promotionUtils} from "component/order/promotion.utils";
 import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
-import { AppConfig } from "config/app.config";
-import { Type } from "config/type.config";
+import {AppConfig} from "config/app.config";
+import {Type} from "config/type.config";
 import UrlConfig from "config/url.config";
-import { StoreDetailCustomAction } from "domain/actions/core/store.action";
-import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
-import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
+import {StoreDetailCustomAction} from "domain/actions/core/store.action";
+import {getCustomerDetailAction} from "domain/actions/customer/customer.action";
+import {inventoryGetDetailVariantIdsExt} from "domain/actions/inventory/inventory.action";
+import {hideLoading, showLoading} from "domain/actions/loading.action";
+import {getLoyaltyPoint, getLoyaltyUsage} from "domain/actions/loyalty/loyalty.action";
 import {
   changeOrderCustomerAction,
   changeSelectedStoreBankAccountAction,
@@ -27,11 +27,11 @@ import {
   setIsShouldSetDefaultStoreBankAccountAction,
 } from "domain/actions/order/order.action";
 import useFetchStores from "hook/useFetchStores";
-import { InventoryResponse } from "model/inventory";
-import { modalActionType } from "model/modal/modal.model";
-import { OrderPageTypeModel } from "model/order/order.model";
-import { thirdPLModel } from "model/order/shipment.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import {InventoryResponse} from "model/inventory";
+import {modalActionType} from "model/modal/modal.model";
+import {OrderPageTypeModel} from "model/order/order.model";
+import {thirdPLModel} from "model/order/shipment.model";
+import {RootReducerType} from "model/reducers/RootReducerType";
 import {
   BillingAddressRequestModel,
   FulFillmentRequest,
@@ -41,24 +41,26 @@ import {
   OrderRequest,
   ShipmentRequest,
 } from "model/request/order.request";
-import { CustomerResponse, ShippingAddress } from "model/response/customer/customer.response";
-import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
+import {CustomerResponse, ShippingAddress} from "model/response/customer/customer.response";
+import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
+import {LoyaltyUsageResponse} from "model/response/loyalty/loyalty-usage.response";
 import {
   FulFillmentResponse,
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
-import CannotUpdateOrderWithWalletWarningInformation from "screens/order-online/component/CannotUpdateOrderWithWalletWarningInformation";
-import OrderFulfillmentHeader from "screens/order-online/component/OrderPackingAndShippingDetail/OrderFulfillmentHeader";
+import React, {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {useHistory, useParams} from "react-router-dom";
+import CannotUpdateOrderWithWalletWarningInformation
+  from "screens/order-online/component/CannotUpdateOrderWithWalletWarningInformation";
+import OrderFulfillmentHeader
+  from "screens/order-online/component/OrderPackingAndShippingDetail/OrderFulfillmentHeader";
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import useFetchOrderConfig from "screens/order-online/hooks/useFetchOrderConfig";
 import useFetchPaymentMethods from "screens/order-online/hooks/useFetchPaymentMethods";
-import { deleteOrderService, getStoreBankAccountNumbersService } from "service/order/order.service";
+import {deleteOrderService, getStoreBankAccountNumbersService} from "service/order/order.service";
 import {
   formatCurrency,
   getAccountCodeFromCodeAndName,
@@ -81,8 +83,8 @@ import {
   ShipmentMethodOption,
   TaxTreatment,
 } from "utils/Constants";
-import { DATE_FORMAT } from "utils/DateUtils";
-import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
+import {DATE_FORMAT} from "utils/DateUtils";
+import {ORDER_PAYMENT_STATUS} from "utils/Order.constants";
 import {
   canCreateShipment,
   checkIfFulfillmentCancelled,
@@ -91,19 +93,22 @@ import {
   checkIfOrderHasNotFinishPaymentMomo,
   checkIfOrderHasShipmentCod,
 } from "utils/OrderUtils";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import { useQuery } from "utils/useQuery";
-import { ECOMMERCE_CHANNEL } from "../../ecommerce/common/commonAction";
+import {showError, showSuccess, showWarning} from "utils/ToastUtils";
+import {useQuery} from "utils/useQuery";
+import {ECOMMERCE_CHANNEL} from "../../ecommerce/common/commonAction";
 import CardCustomer from "../component/CardCustomer";
 import OrderDetailBottomBar from "../component/order-detail/BottomBar";
 import CardShowOrderPayments from "../component/order-detail/CardShowOrderPayments";
-import OrderFulfillmentCancelledShowDate from "../component/OrderPackingAndShippingDetail/OrderFulfillmentCancelledShowDate";
+import OrderFulfillmentCancelledShowDate
+  from "../component/OrderPackingAndShippingDetail/OrderFulfillmentCancelledShowDate";
 import OrderFulfillmentDetail from "../component/OrderPackingAndShippingDetail/OrderFulfillmentDetail";
-import OrderFulfillmentShowFulfillment from "../component/OrderPackingAndShippingDetail/OrderFulfillmentShowFulfillment";
+import OrderFulfillmentShowFulfillment
+  from "../component/OrderPackingAndShippingDetail/OrderFulfillmentShowFulfillment";
 import OrderFulfillmentShowProduct from "../component/OrderPackingAndShippingDetail/OrderFulfillmentShowProduct";
 import useCalculateShippingFee from "../hooks/useCalculateShippingFee";
+import useGetDefaultReturnOrderReceivedStore from "../hooks/useGetDefaultReturnOrderReceivedStore";
 import useHandleMomoCreateShipment from "../hooks/useHandleMomoCreateShipment";
-import { StyledComponent } from "./styles";
+import {StyledComponent} from "./styles";
 
 type PropTypes = {
   id?: string;
@@ -116,7 +121,7 @@ export default function Order(props: PropTypes) {
   const dispatch = useDispatch();
   const dateFormat = DATE_FORMAT.DDMMYY_HHmm;
   const history = useHistory();
-  let { id } = useParams<OrderParam>();
+  let {id} = useParams<OrderParam>();
   const queryParams = useQuery();
   const isSplit = queryParams.get("isSplit") || null;
   const isShouldSetDefaultStoreBankAccount = useSelector(
@@ -219,6 +224,14 @@ export default function Order(props: PropTypes) {
   const activeSortedFulfillments = sortedFulfillments.filter(
     (fulfillment) => !checkIfFulfillmentCancelled(fulfillment),
   );
+
+  const currentStores = useFetchStores();
+
+  const defaultReceiveReturnStore = useGetDefaultReturnOrderReceivedStore({
+    currentStores,
+    OrderDetail,
+    fulfillments: OrderDetail?.fulfillments,
+  });
 
   const stepsStatusValue = useMemo(() => {
     switch (OrderDetail?.status) {
@@ -649,13 +662,13 @@ export default function Order(props: PropTypes) {
     values.discounts = lstDiscount;
     values.shipping_address =
       shippingAddress && levelOrder <= 3
-        ? { ...shippingAddress, second_phone: shippingAddressesSecondPhone }
+        ? {...shippingAddress, second_phone: shippingAddressesSecondPhone}
         : OrderDetail.shipping_address
-        ? {
+          ? {
             ...OrderDetail.shipping_address,
             second_phone: shippingAddressesSecondPhone,
           }
-        : null;
+          : null;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
     values.customer_ward = customer?.ward;
@@ -746,8 +759,8 @@ export default function Order(props: PropTypes) {
   const totalOrderAmount = useMemo(() => {
     return Math.round(
       orderProductsAmount +
-        (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-        (promotion?.value || 0),
+      (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
+      (promotion?.value || 0),
     );
   }, [orderProductsAmount, promotion?.value, shippingFeeInformedToCustomer]);
 
@@ -832,7 +845,7 @@ export default function Order(props: PropTypes) {
 
     Modal.confirm({
       title: "Xác nhận xóa",
-      icon: <ExclamationCircleOutlined />,
+      icon: <ExclamationCircleOutlined/>,
       content: (
         <React.Fragment>
           <div className="yody-modal-confirm-list-code">
@@ -841,7 +854,7 @@ export default function Order(props: PropTypes) {
               <p>{OrderDetail?.code}</p>
             </div>
           </div>
-          <p style={{ textAlign: "justify", color: "#ff4d4f" }}>
+          <p style={{textAlign: "justify", color: "#ff4d4f"}}>
             Lưu ý: Đối với đơn ở trạng thái Thành công, khi thực hiện xoá, sẽ xoá luôn cả đơn trả
             liên quan. Bạn cần cân nhắc kĩ trước khi thực hiện xoá đơn ở trạng thái Thành công
           </p>
@@ -944,7 +957,7 @@ export default function Order(props: PropTypes) {
   const fetchOrderDetailData = () => {
     dispatch(
       OrderDetailAction(id, async (response) => {
-        const { customer_id } = response;
+        const {customer_id} = response;
         setOrderDetail(response);
         handleEcommerceOrder(response);
         if (customer_id) {
@@ -1118,8 +1131,8 @@ export default function Order(props: PropTypes) {
       let limitAmountPointFocus = !rank
         ? 0
         : !rank.limit_order_percent
-        ? totalAmountPayable
-        : (rank.limit_order_percent * totalAmountPayable) / 100;
+          ? totalAmountPayable
+          : (rank.limit_order_percent * totalAmountPayable) / 100;
       //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
       limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
 
@@ -1423,7 +1436,7 @@ export default function Order(props: PropTypes) {
   }, [sortedFulfillmentsIncludeHideFulfillment, totalAmountCustomerNeedToPay]);
 
   if (checkIfOrderHasNotFinishPaymentMomo(OrderDetail)) {
-    return <CannotUpdateOrderWithWalletWarningInformation />;
+    return <CannotUpdateOrderWithWalletWarningInformation/>;
   }
 
   return (
@@ -1442,7 +1455,7 @@ export default function Order(props: PropTypes) {
             name: `Sửa đơn hàng ${id}`,
           },
         ]}
-        extra={<CreateBillStep orderDetail={OrderDetail} status={stepsStatusValue} />}
+        extra={<CreateBillStep orderDetail={OrderDetail} status={stepsStatusValue}/>}
       >
         <div className="orders">
           {isLoadForm && (
@@ -1451,28 +1464,28 @@ export default function Order(props: PropTypes) {
               initialValues={initialForm}
               ref={formRef}
               form={form}
-              onFinishFailed={({ errorFields }: any) => {
+              onFinishFailed={({errorFields}: any) => {
                 const element: any = document.getElementById(errorFields[0].name.join(""));
                 element?.focus();
                 const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
-                window.scrollTo({ top: y, behavior: "smooth" });
+                window.scrollTo({top: y, behavior: "smooth"});
               }}
               onFinish={onFinish}
             >
               <Form.Item noStyle hidden name="action">
-                <Input />
+                <Input/>
               </Form.Item>
               <Form.Item noStyle hidden name="currency">
-                <Input />
+                <Input/>
               </Form.Item>
               <Form.Item noStyle hidden name="account_code">
-                <Input />
+                <Input/>
               </Form.Item>
               <Form.Item noStyle hidden name="tax_treatment">
-                <Input />
+                <Input/>
               </Form.Item>
               <Form.Item noStyle hidden name="tags">
-                <Input />
+                <Input/>
               </Form.Item>
               <Row gutter={20} className="mainSection">
                 <Col md={18}>
@@ -1513,7 +1526,7 @@ export default function Order(props: PropTypes) {
                     changeInfo={onChangeInfoProduct}
                     setStoreId={(value) => {
                       setStoreId(value);
-                      form.setFieldsValue({ store_id: value });
+                      form.setFieldsValue({store_id: value});
                     }}
                     storeId={storeId}
                     shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
@@ -1547,7 +1560,8 @@ export default function Order(props: PropTypes) {
                     OrderDetail={OrderDetail}
                     setOrderDetail={setOrderDetail}
                     // disabledActions={disabledActions}
-                    disabledActions={() => {}}
+                    disabledActions={() => {
+                    }}
                     // disabledBottomActions={disabledBottomActions}
                     disabledBottomActions={false}
                     form={form}
@@ -1557,14 +1571,16 @@ export default function Order(props: PropTypes) {
                     // isVisibleUpdatePayment={isVisibleUpdatePayment}
                     isVisibleUpdatePayment={false}
                     // onPaymentSelect={onPaymentSelect}
-                    onPaymentSelect={() => {}}
+                    onPaymentSelect={() => {
+                    }}
                     paymentMethod={paymentMethod}
                     paymentMethods={paymentMethods}
                     setReload={setReload}
                     setShowPaymentPartialPayment={setShowPaymentPartialPayment}
                     // setShowPaymentPartialPayment={()=>{}}
                     // setVisibleUpdatePayment={setVisibleUpdatePayment}
-                    setVisibleUpdatePayment={() => {}}
+                    setVisibleUpdatePayment={() => {
+                    }}
                     shipmentMethod={shipmentMethod}
                     stepsStatusValue={stepsStatusValue}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
@@ -1596,9 +1612,9 @@ export default function Order(props: PropTypes) {
                                 <span>
                                   {activeSortedFulfillments[0]?.shipment?.expected_received_date
                                     ? moment(
-                                        activeSortedFulfillments[0]?.shipment
-                                          ?.expected_received_date,
-                                      ).format(dateFormat)
+                                      activeSortedFulfillments[0]?.shipment
+                                        ?.expected_received_date,
+                                    ).format(dateFormat)
                                     : ""}
                                 </span>
                               </React.Fragment>
@@ -1651,8 +1667,9 @@ export default function Order(props: PropTypes) {
                                 defaultActiveKey={[
                                   checkIfFulfillmentCancelled(fulfillment) ? "0" : "1",
                                 ]}
-                                onChange={(e) => {}}
-                                expandIcon={({ isActive }) => (
+                                onChange={(e) => {
+                                }}
+                                expandIcon={({isActive}) => (
                                   <div className="saleorder-header-arrow">
                                     <img
                                       alt=""
@@ -1672,8 +1689,8 @@ export default function Order(props: PropTypes) {
                                     checkIfFulfillmentCancelled(fulfillment)
                                       ? "orders-timeline-custom order-shipment-dot-cancelled"
                                       : fulfillment.status === FulFillmentStatus.SHIPPED
-                                      ? "orders-timeline-custom order-shipment-dot-active"
-                                      : "orders-timeline-custom order-shipment-dot-default"
+                                        ? "orders-timeline-custom order-shipment-dot-active"
+                                        : "orders-timeline-custom order-shipment-dot-default"
                                   }
                                   showArrow={true}
                                   header={
@@ -1691,9 +1708,9 @@ export default function Order(props: PropTypes) {
                                     orderDetail={OrderDetail}
                                     orderPageType={OrderPageTypeModel.orderUpdate}
                                   />
-                                  <OrderFulfillmentShowProduct orderDetail={OrderDetail} />
-                                  <OrderFulfillmentShowFulfillment fulfillment={fulfillment} />
-                                  <OrderFulfillmentCancelledShowDate fulfillment={fulfillment} />
+                                  <OrderFulfillmentShowProduct orderDetail={OrderDetail}/>
+                                  <OrderFulfillmentShowFulfillment fulfillment={fulfillment}/>
+                                  <OrderFulfillmentCancelledShowDate fulfillment={fulfillment}/>
                                 </Collapse.Panel>
                               </Collapse>
                             </div>
@@ -1743,6 +1760,7 @@ export default function Order(props: PropTypes) {
                     setReload={setReload}
                     promotionTitle={promotionTitle}
                     setPromotionTitle={setPromotionTitle}
+                    defaultReceiveReturnStore={defaultReceiveReturnStore}
                   />
                 </Col>
               </Row>
@@ -1754,7 +1772,8 @@ export default function Order(props: PropTypes) {
                 orderDetail={OrderDetail}
                 isVisibleGroupButtons={false}
                 updateCancelClick={updateCancelClick}
-                showSaveAndConfirmModal={() => {}}
+                showSaveAndConfirmModal={() => {
+                }}
                 updating={updating}
                 updatingConfirm={updatingConfirm}
                 deleteOrderClick={handleDeleteOrderClick}

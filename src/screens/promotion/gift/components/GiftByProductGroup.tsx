@@ -45,7 +45,6 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import ProductItem from "screens/purchase-order/component/product-item";
 import { MAX_FIXED_DISCOUNT_VALUE } from "screens/promotion/constants";
 import GiftProduct from "screens/promotion/gift/components/GiftProduct";
-import importIcon from "assets/icon/import.svg";
 import DuplicatePlus from "assets/icon/DuplicatePlus.svg";
 
 
@@ -56,10 +55,9 @@ interface Props {
   key: number;
   fieldKey: number;
   handleVisibleManyProduct: (indexOfEntilement: number) => void;
-  setShowImportModal: (showImportModal: boolean) => void;
 }
 const GiftByProductGroup = (props: Props) => {
-  const { key, name, form, remove, handleVisibleManyProduct, setShowImportModal } = props;
+  const { key, name, form, remove, handleVisibleManyProduct } = props;
   const dispatch = useDispatch();
 
   const [dataSearchVariant, setDataSearchVariant] = useState<Array<VariantResponse>>([]);
@@ -151,7 +149,7 @@ const GiftByProductGroup = (props: Props) => {
         productDataSearch.push(item.product);
       }
       variantOptions.push({
-        label: <ProductItem data={item} key={item.id.toString()} />,
+        label: <ProductItem isTransfer data={item} key={item.id.toString()} />,
         value: JSON.stringify(item),
       });
     });
@@ -405,15 +403,6 @@ const GiftByProductGroup = (props: Props) => {
             style={{ display: "none", width: 132, marginLeft: 10 }}
           >
             Chọn nhiều
-          </Button>
-
-          {/*Tạm ẩn nhập file*/}
-          <Button
-            icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
-            onClick={() => setShowImportModal(true)}
-            style={{ display: "none", marginLeft: 12 }}
-          >
-            Nhập file
           </Button>
         </Input.Group>
 

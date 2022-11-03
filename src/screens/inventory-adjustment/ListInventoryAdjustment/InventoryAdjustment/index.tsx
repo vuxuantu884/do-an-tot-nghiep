@@ -5,7 +5,7 @@ import {
   inventoryGetSenderStoreAction,
   updateInventoryAdjustmentAction,
 } from "domain/actions/inventory/inventory-adjustment.action";
-import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import InventoryAdjustmentFilters from "../components/InventoryAdjustmentFilter";
 import {
@@ -30,8 +30,7 @@ import { StoreResponse } from "model/core/store.model";
 import { useReactToPrint } from "react-to-print";
 import purify from "dompurify";
 import { STATUS_INVENTORY_ADJUSTMENT_CONSTANTS } from "screens/inventory-adjustment/constants";
-import CustomFilter from "component/table/custom.filter";
-import { showError, showSuccess } from "utils/ToastUtils";
+import {showError, showSuccess, showWarning} from "utils/ToastUtils";
 import { exportFile, getFile } from "service/other/import.inventory.service";
 import { STATUS_IMPORT_EXPORT } from "screens/inventory-adjustment/DetailInvetoryAdjustment";
 import InventoryTransferExportModal from "screens/inventory-adjustment/DetailInvetoryAdjustment/conponents/ExportModal";
@@ -145,18 +144,6 @@ const InventoryAdjustment: React.FC = () => {
     [handlePrint],
   );
 
-  const ActionComponent = () => {
-    let Compoment = () => <span>Mã phiếu</span>;
-    if (selectedRowKeys?.length > 0) {
-      Compoment = () => (
-        <CustomFilter onMenuClick={onMenuClick} menu={actions}>
-          <Fragment />
-        </CustomFilter>
-      );
-    }
-    return <Compoment />;
-  };
-
   const editNote = (note: string, row: InventoryAdjustmentDetailItem) => {
     let newData: any = row;
     newData.note = note;
@@ -173,7 +160,7 @@ const InventoryAdjustment: React.FC = () => {
 
   const defaultColumns: Array<ICustomTableColumType<InventoryAdjustmentDetailItem>> = [
     {
-      title: <ActionComponent />,
+      title: "Mã phiếu",
       dataIndex: "code",
       key: "code",
       visible: true,
@@ -496,6 +483,10 @@ const InventoryAdjustment: React.FC = () => {
 
   const onMenuClick = useCallback(
     (index: number) => {
+      if (selectedRowKeys && selectedRowKeys.length === 0) {
+        showWarning("Cần chọn ít nhất một phiếu kiểm.");
+        return;
+      }
       switch (index) {
         case ACTIONS_INDEX.PRINT:
           printTicketAction();

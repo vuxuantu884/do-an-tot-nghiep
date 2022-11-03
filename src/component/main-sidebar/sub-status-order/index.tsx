@@ -5,12 +5,12 @@ import { setSubStatusAction } from "domain/actions/order/order.action";
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import { StoreResponse } from "model/core/store.model";
 import { OrderResponse, OrderReturnReasonDetailModel } from "model/response/order/order.response";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getOrderReasonService } from "service/order/return.service";
 import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel } from "utils/AppUtils";
 import { ORDER_SUB_STATUS } from "utils/Order.constants";
-import { checkIfOrderHasNotFinishPaymentMomo, getFulfillmentActive } from "utils/OrderUtils";
+import { checkIfOrderHasNotFinishPaymentMomo } from "utils/OrderUtils";
 import { showError, showWarning } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
 
@@ -22,7 +22,8 @@ type PropTypes = {
   setReload: (value: boolean) => void;
   OrderDetailAllFulfillment?: OrderResponse | null;
   isDisableUpdate?: boolean;
-  currentStores?: StoreResponse[];
+  stores?: StoreResponse[];
+  defaultReceiveReturnStore: StoreResponse | undefined;
 };
 
 function SubStatusOrder(props: PropTypes): React.ReactElement {
@@ -34,7 +35,8 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
     OrderDetailAllFulfillment,
     setReload,
     isDisableUpdate = false,
-    currentStores,
+    stores,
+    defaultReceiveReturnStore,
   } = props;
   const dispatch = useDispatch();
   const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(undefined);
@@ -51,12 +53,6 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
   const [subReasonsRequireWarehouseChange, setSubReasonsRequireWarehouseChange] = useState<
     OrderReturnReasonDetailModel[]
   >([]);
-
-  const returnedStore = useMemo(() => {
-    const fulfillment = getFulfillmentActive(OrderDetailAllFulfillment?.fulfillments);
-    const result = currentStores?.find((p) => p.id === fulfillment?.returned_store_id);
-    return result;
-  }, [OrderDetailAllFulfillment, currentStores]);
 
   // console.log("OrderDetailAllFulfillment",OrderDetailAllFulfillment)
   const subStatuses = useGetOrderSubStatuses();
@@ -241,7 +237,8 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
           setToSubStatusCode={setToSubStatusCode}
           changeSubStatusCallback={changeSubStatusCallback}
           setOrderDetail={setOrderDetail}
-          returnStore={returnedStore}
+          stores={stores}
+          defaultReceiveReturnStore={defaultReceiveReturnStore}
         />
       </Card>
     </StyledComponent>
