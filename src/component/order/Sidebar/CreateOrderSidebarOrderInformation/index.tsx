@@ -16,13 +16,14 @@ import {
 } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   form: FormInstance<any>;
   storeId?: number | null;
   updateOrder?: boolean;
   orderDetail?: OrderResponse | null;
   isOrderReturn?: boolean;
   isExchange?: boolean;
+  isReturnOffline?: boolean;
 };
 
 /**
@@ -38,8 +39,9 @@ type PropType = {
  *
  * onChangeTag: xử lý khi thay đổi tag
  */
-function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
-  const { orderDetail, form, storeId, updateOrder, isOrderReturn, isExchange } = props;
+function CreateOrderSidebarOrderInformation(props: PropTypes): JSX.Element {
+  const { orderDetail, form, storeId, updateOrder, isOrderReturn, isExchange, isReturnOffline } =
+    props;
 
   const dispatch = useDispatch();
   const [initValueAssigneeCode, setInitValueAssigneeCode] = useState("");
@@ -235,14 +237,14 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
           </Form.Item>
         ) : null}
         <Form.Item
-          label={isOrderFromPOS(orderDetail) ? "Chuyên viên tư vấn" : "Nhân viên bán hàng"}
+          label="Nhân viên bán hàng"
           name="assignee_code"
           rules={[
             {
-              required: !isOrderReturn,
+              required: true,
               message: isOrderFromPOS(orderDetail)
-                ? "Vui lòng chọn nhân viên tư vấn"
-                : "Vui lòng chọn nhân viên bán hàng",
+                ? "Vui lòng chọn nhân viên tư vấn!"
+                : "Vui lòng chọn nhân viên bán hàng!",
             },
           ]}
         >
@@ -258,7 +260,7 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
         </Form.Item>
         {!isOrderFromPOS(orderDetail) ? (
           <Form.Item
-            label="Nhân viên marketing"
+            label={"Nhân viên marketing"}
             name="marketer_code"
             // rules={
             //   // nguồn POS thì không validate

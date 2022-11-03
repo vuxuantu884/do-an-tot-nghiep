@@ -346,7 +346,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       ],
       account_code: recentAccountCode.accountCode,
       assignee_code: isExchange ? recentAccountCode.accountCode : OrderDetail?.assignee_code,
-      marketer_code: OrderDetail?.marketer_code || null,
+      marketer_code: undefined,
       coordinator_code: OrderDetail?.coordinator_code,
       // note: OrderDetail?.note,
       note: promotionUtils.getPrivateNoteFromResponse(OrderDetail?.note || ""),
@@ -357,7 +357,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
     OrderDetail?.assignee_code,
     OrderDetail?.coordinator_code,
     OrderDetail?.customer_note,
-    OrderDetail?.marketer_code,
     OrderDetail?.note,
     defaultReceiveReturnStore?.id,
     initialForm,
@@ -877,6 +876,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         ),
         total_discount: Math.round(getTotalOrderDiscount(discounts)),
         total_line_amount_after_line_discount: Math.round(getTotalAmountAfterDiscount(returnItems)),
+        account: recentAccountCode?.accountFullName,
         account_code: recentAccountCode.accountCode,
         assignee_code: OrderDetail?.assignee_code,
         // clear giá trị
@@ -893,7 +893,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
         currency: AppConfig.currency,
       };
-      // console.log("orderDetailResult", orderDetailResult);
+      console.log("orderDetailResult", orderDetailResult);
       // return;
       dispatch(showLoading());
       dispatch(
@@ -933,6 +933,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     orderReturnType,
     printType.return,
     recentAccountCode.accountCode,
+    recentAccountCode.accountFullName,
     refund.moneyRefund,
     returnItems,
     returnStore,
@@ -944,6 +945,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
   });
 
   const onReturn = useCallback(() => {
+    if (orderReturnType === RETURN_TYPE_VALUES.offline && !isOrderFromPOS(OrderDetail)) {
+      showError(
+        "Trả tại quầy chỉ áp dụng với đơn đổi, tạo đơn trả thẳng xin vui lòng trả theo hình thức “Trả lại chuyển hàng” để ghi nhận doanh thu trả cho chi nhánh Online!",
+      );
+      return;
+    }
     if (!returnStore) {
       showError("Vui lòng chọn cửa hàng để trả!");
       const element: any = document.getElementById("selectStoreReturn");
@@ -972,6 +979,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         }
       });
   }, [
+    OrderDetail,
     checkIfHasReturnProduct,
     form,
     handleSubmitFormReturn,
@@ -986,8 +994,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
       result = form.getFieldValue("source_id")
         ? form.getFieldValue("source_id")
         : OrderDetail
-        ? OrderDetail.source_id
-        : null;
+          ? OrderDetail.source_id
+          : null;
       return result;
     },
     [OrderDetail],
@@ -1116,8 +1124,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
           if (shippingFeeInformedToCustomer !== null) {
             if (
               totalAmountExchange +
-                shippingFeeInformedToCustomer -
-                getAmountPaymentRequest(payments) >
+              shippingFeeInformedToCustomer -
+              getAmountPaymentRequest(payments) >
               0
             ) {
               newCod =
@@ -1466,8 +1474,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
       let discounts = handleRecalculateOriginDiscount(itemsResult);
 
       const origin_order_id = OrderDetail.id;
+      let { account, assignee, coordinator, marketer, ...fieldReturn } = cloneDeep(OrderDetail);
       let orderDetailResult: ReturnRequest = {
-        ...cloneDeep(OrderDetail),
+        ...fieldReturn,
         source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
         store_id: returnStore ? returnStore.id : null,
         store: returnStore ? returnStore.name : "",
@@ -1495,7 +1504,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         received: orderReturnType === RETURN_TYPE_VALUES.online ? true : isReceivedReturnProducts,
         discounts: handleRecalculateOriginDiscount(itemsResult),
         account_code: recentAccountCode.accountCode,
-        assignee_code: OrderDetail.assignee_code || null,
+        assignee_code: form.getFieldValue("assignee_code"),
         total: Math.floor(
           getTotalAmountAfterDiscount(itemsResult) - getTotalOrderDiscount(discounts),
         ),
@@ -1551,7 +1560,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         order_return,
         order_exchange,
       };
-      // console.log("valuesExchange", valuesExchange);
+      console.log("valuesExchange", valuesExchange);
       // return;
       if (checkPointFocus(order_exchange)) {
         if (!order_exchange?.customer_id) {
@@ -1710,7 +1719,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     customerDetail={customer}
                     loyaltyPoint={loyaltyPoint}
                     loyaltyUsageRules={loyaltyUsageRules}
-                    // isShowSelectOrderSources={false}
+                  // isShowSelectOrderSources={false}
                   />
                 )}
 
@@ -1900,7 +1909,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     isDetailPage={false}
                     isReceivedReturnProducts={isReceivedReturnProducts}
                     setIsReceivedReturnProducts={setIsReceivedReturnProducts}
-                    handleReceivedReturnProductsToStore={() => {}}
+                    handleReceivedReturnProductsToStore={() => { }}
                     currentStores={currentStores}
                     isShowReceiveProductConfirmModal={isShowReceiveProductConfirmModal}
                     setIsShowReceiveProductConfirmModal={setIsShowReceiveProductConfirmModal}
@@ -1923,6 +1932,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   updateOrder
                   isOrderReturn
                   isExchange={isExchange}
+                  isReturnOffline={orderReturnType === RETURN_TYPE_VALUES.offline}
                 />
                 <OrderReturnReason
                   orderReturnReasonResponse={orderReturnReasonResponse}
@@ -2394,10 +2404,14 @@ const ScreenReturnCreate = (props: PropTypes) => {
   useEffect(() => {
     if (isExchange) {
       form.setFieldsValue({
-        assignee_codes: initialFormValueWithReturn.assignee_code,
+        assignee_code: undefined,
+      });
+    } else {
+      form.setFieldsValue({
+        assignee_code: initialFormValueWithReturn.assignee_code,
       });
     }
-  }, [form, initialFormValueWithReturn, isExchange]);
+  }, [form, initialFormValueWithReturn.assignee_code, isExchange]);
 
   useEffect(() => {
     window.addEventListener("keydown", eventKeydown);
@@ -2466,8 +2480,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
         {!isFetchData
           ? "Loading ..."
           : isOrderFinished
-          ? renderIfOrderFinished()
-          : renderIfOrderNotFinished()}
+            ? renderIfOrderFinished()
+            : renderIfOrderNotFinished()}
       </ContentContainer>
     </CreateOrderReturnContext.Provider>
   );

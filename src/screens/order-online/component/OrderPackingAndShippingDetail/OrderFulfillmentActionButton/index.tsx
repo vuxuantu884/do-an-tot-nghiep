@@ -90,44 +90,50 @@ function OrderFulfillmentActionButton(props: PropTypes) {
             <React.Fragment>
               {!isOrderFromPOS(OrderDetailAllFulfillment) ? (
                 <React.Fragment>
-                  <Link
-                    to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=online`}
-                  >
-                    <Button
-                      type="primary"
-                      style={{ margin: "0 10px", padding: "0 25px" }}
-                      className="create-button-custom ant-btn-outline fixed-button"
-                      disabled={!isPassed}
+                  <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
+                    <Link
+                      to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=online`}
                     >
-                      Trả lại chuyển hàng
-                    </Button>
-                  </Link>
+                      <Button
+                        type="primary"
+                        style={{ margin: "0 10px", padding: "0 25px" }}
+                        className="create-button-custom ant-btn-outline fixed-button"
+                        disabled={!isPassed}
+                      >
+                        Trả lại chuyển hàng
+                      </Button>
+                    </Link>
+                  </AuthWrapper>
+                  <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
+                    <Link
+                      to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=offline`}
+                    >
+                      <Button
+                        type="primary"
+                        style={{ margin: "0 10px", padding: "0 25px" }}
+                        className="create-button-custom ant-btn-outline fixed-button"
+                        disabled={!isPassed}
+                      >
+                        Trả lại tại quầy
+                      </Button>
+                    </Link>
+                  </AuthWrapper>
+                </React.Fragment>
+              ) : (
+                <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
                   <Link
                     to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=offline`}
                   >
                     <Button
                       type="primary"
-                      style={{ margin: "0 10px", padding: "0 25px" }}
+                      style={{ padding: "0 25px" }}
                       className="create-button-custom ant-btn-outline fixed-button"
                       disabled={!isPassed}
                     >
-                      Trả lại tại quầy
+                      Đổi trả hàng
                     </Button>
                   </Link>
-                </React.Fragment>
-              ) : (
-                <Link
-                  to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=offline`}
-                >
-                  <Button
-                    type="primary"
-                    style={{ padding: "0 25px" }}
-                    className="create-button-custom ant-btn-outline fixed-button"
-                    disabled={!isPassed}
-                  >
-                    Đổi trả hàng
-                  </Button>
-                </Link>
+                </AuthWrapper>
               )}
             </React.Fragment>
           );

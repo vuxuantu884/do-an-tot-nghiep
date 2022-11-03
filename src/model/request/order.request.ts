@@ -1,6 +1,6 @@
-import {StoreResponse} from "model/core/store.model";
-import {OrderLineItemResponse, OrderResponse} from "model/response/order/order.response";
-import {Moment} from "moment";
+import { StoreResponse } from "model/core/store.model";
+import { OrderLineItemResponse, OrderResponse } from "model/response/order/order.response";
+import { Moment } from "moment";
 
 export interface OrderRequest {
   action: string | null;
@@ -51,7 +51,8 @@ export interface OrderRequest {
   export_bill?: boolean;
   ecommerce_shop_id?: number | null;
   bill?: OrderBillRequestFormModel | null;
-  uniform?: boolean | null | undefined
+  uniform?: boolean | null | undefined;
+  account?: string | null;
 }
 
 export interface ReturnRequest extends OrderRequest {
