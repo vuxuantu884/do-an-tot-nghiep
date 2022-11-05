@@ -88,6 +88,7 @@ import {
   checkIfOrderHasNotFinishedPaymentMomo,
   getFulfillmentActive,
   getLink,
+  getReturnStoreFromOrderActiveFulfillment,
   getTotalAmountBeforeDiscount,
 } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
@@ -110,7 +111,7 @@ type PropTypes = {
   columns: ICustomTableColumType<OrderModel>[];
   deliveryServices: DeliveryServiceResponse[];
   selectedRowKeys: number[];
-  listStore: Array<StoreResponse> | undefined;
+  stores: Array<StoreResponse> | undefined;
   setColumns: (columns: ICustomTableColumType<OrderModel>[]) => void;
   setData: (data: PageResponse<OrderModel>) => void;
   onPageChange: (page: any, size: any) => void;
@@ -120,6 +121,7 @@ type PropTypes = {
   orderType: OrderTypeModel;
   tableColumnConfigs: FilterConfig[];
   subStatuses: OrderProcessingStatusModel[];
+  currentStores: StoreResponse[];
 };
 
 type dataExtra = PageResponse<OrderExtraModel>;
@@ -145,7 +147,7 @@ function OrdersTable(props: PropTypes) {
     columns,
     deliveryServices,
     selectedRowKeys,
-    listStore,
+    stores,
     onPageChange,
     onSelectedChange,
     setShowSettingColumn,
@@ -155,6 +157,7 @@ function OrdersTable(props: PropTypes) {
     orderType,
     tableColumnConfigs,
     subStatuses,
+    currentStores,
   } = props;
 
   const copyIconSize = 18;
@@ -173,7 +176,8 @@ function OrdersTable(props: PropTypes) {
   // };
 
   const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(undefined);
-  const [returnStore, setReturnStore] = useState<StoreResponse | null>();
+  const [defaultReceiveReturnStore, setDefaultReceiveReturnStore] =
+    useState<StoreResponse | null>();
 
   const [selectedOrder, setSelectedOrder] = useState<OrderModel | null>(null);
 
@@ -1212,7 +1216,7 @@ function OrdersTable(props: PropTypes) {
               : record.sub_status_code
               ? record.sub_status_code
               : "";
-          const returnedStore = listStore?.find(
+          const returnedStore = stores?.find(
             (p) => p.id === getFulfillmentActive(record?.fulfillments)?.returned_store_id,
           );
           return (
@@ -1255,11 +1259,11 @@ function OrdersTable(props: PropTypes) {
                           showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!");
                           return;
                         }
-                        const returnedStoreData = listStore?.find(
-                          (p) =>
-                            p.id === getFulfillmentActive(record?.fulfillments)?.returned_store_id,
+                        let defaultReceiveReturnStore = getReturnStoreFromOrderActiveFulfillment(
+                          record?.fulfillments,
+                          currentStores,
                         );
-                        setReturnStore(returnedStoreData);
+                        setDefaultReceiveReturnStore(defaultReceiveReturnStore);
                         setToSubStatusCode(value);
                       }}
                     >
@@ -1391,7 +1395,7 @@ function OrdersTable(props: PropTypes) {
       },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items.length, deliveryServices, editNote, status_order, listStore]);
+  }, [items.length, deliveryServices, editNote, status_order, stores]);
 
   const initColumns = useMemo(() => {
     if (orderType === ORDER_TYPES.online) {
@@ -1407,21 +1411,21 @@ function OrdersTable(props: PropTypes) {
 
   const onSearchInventory = useCallback(
     (value: string) => {
-      let _item: StoreResponse[] | any = listStore?.filter(
+      let _item: StoreResponse[] | any = stores?.filter(
         (x) => fullTextSearch(value.toLowerCase().trim(), x.name.toLowerCase()) === true,
       );
       setStoreInventory(_item);
     },
-    [listStore],
+    [stores],
   );
 
   const handleInventoryData = useCallback(
     (variantIds: number[]) => {
-      if (listStore) setStoreInventory([...listStore]);
+      if (stores) setStoreInventory([...stores]);
       let inventoryQuery: InventoryVariantListQuery = {
         is_detail: true,
         variant_ids: variantIds,
-        store_ids: listStore?.map((p) => p.id),
+        store_ids: stores?.map((p) => p.id),
       };
 
       inventoryGetApi(inventoryQuery)
@@ -1438,7 +1442,7 @@ function OrdersTable(props: PropTypes) {
           console.log(e);
         });
     },
-    [dispatch, listStore],
+    [dispatch, stores],
   );
 
   const renderActionButton = (record: OrderModel) => {
@@ -1780,7 +1784,8 @@ function OrdersTable(props: PropTypes) {
         toSubStatus={toSubStatusCode}
         setToSubStatusCode={setToSubStatusCode}
         changeSubStatusCallback={changeSubStatusCallback}
-        returnStore={returnStore}
+        stores={stores}
+        defaultReceiveReturnStore={defaultReceiveReturnStore}
       />
       {/* hiển thị image ảnh sản phẩm */}
       <Image
