@@ -1,6 +1,5 @@
 import { Card, FormInstance } from "antd";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
-import { StoreResponse } from "model/core/store.model";
 import { OrderResponse, OrderSubStatusResponse } from "model/response/order/order.response";
 import React, { useState } from "react";
 import SidebarOrderHistory from "screens/yd-page/yd-page-order-create/component/CreateOrderSidebar/SidebarOrderHistory";
@@ -21,7 +20,6 @@ type PropTypes = {
   setReload: (value: boolean) => void;
   promotionTitle: string;
   setPromotionTitle: (value: string) => void;
-  defaultReceiveReturnStore?: StoreResponse;
 };
 
 /**
@@ -50,7 +48,6 @@ function CreateOrderSidebar(props: PropTypes): JSX.Element {
     setReload,
     promotionTitle,
     setPromotionTitle,
-    defaultReceiveReturnStore,
   } = props;
 
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
@@ -75,7 +72,6 @@ function CreateOrderSidebar(props: PropTypes): JSX.Element {
           OrderDetailAllFulfillment={orderDetail}
           setReload={updateOrder ? () => {} : setReload} // update thì ko load lại
           isDisableUpdate={updateOrder} // update thì ko cho thay đổi subStatus
-          defaultReceiveReturnStore={defaultReceiveReturnStore}
         />
       )}
       <Card title="THÔNG TIN BỔ SUNG">

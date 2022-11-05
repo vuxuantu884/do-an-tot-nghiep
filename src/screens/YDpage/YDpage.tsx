@@ -42,7 +42,7 @@ const YDpage: React.FC = () => {
   function getYdPageUrl() {
     const pathParam = new URLSearchParams(window.location.search).get("path");
     const path = pathParam ? pathParam : "/chat";
-    return new URL(YDPAGE_URL || "").origin + "/#";
+    return new URL(YDPAGE_URL || "").origin + "/#" + path;
   }
 
   useEffect(() => {

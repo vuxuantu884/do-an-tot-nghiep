@@ -1,6 +1,7 @@
 import { Card, Collapse, Form, FormInstance, Row, Space, Tag } from "antd";
 import calendarOutlined from "assets/icon/calendar_outline.svg";
 import doubleArrow from "assets/icon/double_arrow.svg";
+import AlertIcon from "assets/icon/ydAlertIcon.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
@@ -37,6 +38,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import CancelFulfillmentModal from "screens/order-online/modal/cancel-fullfilment.modal";
+import GetGoodsBack from "screens/order-online/modal/get-goods-back.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import { getTrackingLogFulFillment } from "service/order/order.service";
 import {
@@ -62,6 +64,7 @@ import OrderFulfillmentActionButton from "../OrderPackingAndShippingDetail/Order
 import OrderFulfillmentCancelledShowDate from "../OrderPackingAndShippingDetail/OrderFulfillmentCancelledShowDate";
 import OrderFulfillmentDetail from "../OrderPackingAndShippingDetail/OrderFulfillmentDetail";
 import OrderFulfillmentHeader from "../OrderPackingAndShippingDetail/OrderFulfillmentHeader";
+import OrderFulfillmentReceiveGoods from "../OrderPackingAndShippingDetail/OrderFulfillmentReceiveGoods";
 import OrderFulfillmentShowFulfillment from "../OrderPackingAndShippingDetail/OrderFulfillmentShowFulfillment";
 import OrderFulfillmentShowProduct from "../OrderPackingAndShippingDetail/OrderFulfillmentShowProduct";
 import { StyledComponent } from "./styles";
@@ -99,10 +102,10 @@ type PropTypes = {
   ref: React.MutableRefObject<any>;
   form: FormInstance<any>;
   orderPageType: OrderPageTypeModel;
-  // currentStores?: StoreResponse[];
-  // isShowReceiveProductConfirmModal: boolean;
-  // setIsShowReceiveProductConfirmModal: (value: boolean) => void;
-  // defaultReceiveReturnStore?: StoreResponse;
+  currentStores?: StoreResponse[];
+  isShowReceiveProductConfirmModal: boolean;
+  setIsShowReceiveProductConfirmModal: (value: boolean) => void;
+  defaultReceiveReturnStore?: StoreResponse;
   handleChangeShippingFeeApplyOrderSettings: (
     value: ChangeShippingFeeApplyOrderSettingParamModel,
   ) => void;
@@ -128,10 +131,10 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
     customerNeedToPayValue = 0,
     orderPageType,
     form,
-    // currentStores,
-    // isShowReceiveProductConfirmModal,
-    // setIsShowReceiveProductConfirmModal,
-    // defaultReceiveReturnStore,
+    currentStores,
+    isShowReceiveProductConfirmModal,
+    setIsShowReceiveProductConfirmModal,
+    defaultReceiveReturnStore,
     handleChangeShippingFeeApplyOrderSettings,
     setIsShippingFeeAlreadyChanged,
   } = props;
@@ -334,15 +337,15 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
     setCancelShipment(false);
     setIsVisibleShippingConfirm(false);
     setIsVisibleCancelFulfillment(false);
-    // setIsVisibleGoodsReturn(false);
+    setIsVisibleGoodsReturn(false);
     setIsVisibleShippedConfirm(false);
   };
-  // const onReturnSuccess = (value: OrderResponse, fulfillmentIdGoodReturn: number | null) => {
-  //   setCancelShipment(false);
-  //   showSuccess(`Bạn đã nhận hàng trả lại của đơn giao hàng ${fulfillmentIdGoodReturn}`);
-  //   setIsVisibleGoodsReturn(false);
-  //   onReload && onReload();
-  // };
+  const onReturnSuccess = (value: OrderResponse, fulfillmentIdGoodReturn: number | null) => {
+    setCancelShipment(false);
+    showSuccess(`Bạn đã nhận hàng trả lại của đơn giao hàng ${fulfillmentIdGoodReturn}`);
+    setIsVisibleGoodsReturn(false);
+    onReload && onReload();
+  };
 
   //fulfillmentTypeOrderRequest
 
@@ -650,8 +653,8 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
   // Cancel fulfillments
   const [isVisibleCancelFulfillment, setIsVisibleCancelFulfillment] = useState<boolean>(false);
   const [isShipping, setIsShipping] = useState<boolean>(false);
-  // const [isVisibleGoodsReturn, setIsVisibleGoodsReturn] = useState<boolean>(false);
-  // const [fulfillmentIdGoodReturn, setFulfillmentIdGoodReturn] = useState<number | null>(null);
+  const [isVisibleGoodsReturn, setIsVisibleGoodsReturn] = useState<boolean>(false);
+  const [fulfillmentIdGoodReturn, setFulfillmentIdGoodReturn] = useState<number | null>(null);
 
   const cancelFulfillment = useCallback(() => {
     if (
@@ -685,25 +688,25 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
   );
 
   // return goods
-  // const onOKGoodsReturn = (fulfillmentIdGoodReturn: number | null) => {
-  //   setIsVisibleGoodsReturn(false);
-  //   let params: UpdateFulFillmentStatusRequest = {
-  //     order_id: props.OrderDetail?.id,
-  //     fulfillment_id: fulfillmentIdGoodReturn,
-  //     status: FulFillmentStatus.RETURNED,
-  //     returned_store_id: form.getFieldValue("ffm_receive_return_store_id"),
-  //   };
-  //   dispatch(
-  //     UpdateFulFillmentStatusAction(params, (values) =>
-  //       onReturnSuccess(values, fulfillmentIdGoodReturn),
-  //     ),
-  //   );
-  // };
+  const onOKGoodsReturn = (fulfillmentIdGoodReturn: number | null) => {
+    setIsVisibleGoodsReturn(false);
+    let params: UpdateFulFillmentStatusRequest = {
+      order_id: props.OrderDetail?.id,
+      fulfillment_id: fulfillmentIdGoodReturn,
+      status: FulFillmentStatus.RETURNED,
+      returned_store_id: form.getFieldValue("ffm_receive_return_store_id"),
+    };
+    dispatch(
+      UpdateFulFillmentStatusAction(params, (values) =>
+        onReturnSuccess(values, fulfillmentIdGoodReturn),
+      ),
+    );
+  };
 
-  // const goodsReturnCallback = (id: number | null) => {
-  //   setFulfillmentIdGoodReturn(id);
-  //   onOKGoodsReturn(id);
-  // };
+  const goodsReturnCallback = (id: number | null) => {
+    setFulfillmentIdGoodReturn(id);
+    onOKGoodsReturn(id);
+  };
   // end
 
   const onPrint = () => {
@@ -853,7 +856,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                       <OrderFulfillmentShowProduct orderDetail={OrderDetail} />
                       <OrderFulfillmentShowFulfillment fulfillment={fulfillment} />
                       <OrderFulfillmentCancelledShowDate fulfillment={fulfillment} />
-                      {/* <OrderFulfillmentReceiveGoods
+                      <OrderFulfillmentReceiveGoods
                         fulfillment={fulfillment}
                         goodsReturnCallback={goodsReturnCallback}
                         form={form}
@@ -861,7 +864,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                         setIsShowReceiveProductConfirmModal={setIsShowReceiveProductConfirmModal}
                         currentStores={currentStores}
                         defaultReceiveReturnStore={defaultReceiveReturnStore}
-                      /> */}
+                      />
                     </Panel>
                   </Collapse>
                 </div>
@@ -989,7 +992,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
       />
 
       {/* Nhận hàng trả lại */}
-      {/* <GetGoodsBack
+      <GetGoodsBack
         onCancel={() => setIsVisibleGoodsReturn(false)}
         onOk={() => onOKGoodsReturn(fulfillmentIdGoodReturn)}
         visible={isVisibleGoodsReturn}
@@ -998,7 +1001,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
         cancelText="Thoát"
         title=""
         text="Bạn có chắc chắn nhận hàng trả lại của đơn giao hàng này không?"
-      /> */}
+      />
     </StyledComponent>
   );
 });
