@@ -828,6 +828,7 @@ const CreateInventoryAdjustment: FC = () => {
                       labelCol={{ span: 24, offset: 0 }}
                     >
                       <CustomSelect
+                        style={{ width: 150 }}
                         placeholder="Chọn loại kiểm"
                         showArrow
                         optionFilterProp="children"
