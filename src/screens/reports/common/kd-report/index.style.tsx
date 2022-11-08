@@ -211,4 +211,8 @@ export const KeyDriverStyle = styled.div`
   .padding-left-5 {
     padding-left: 5px;
   }
+
+  .border-bottom-none {
+    border-bottom: none !important;
+  }
 `;

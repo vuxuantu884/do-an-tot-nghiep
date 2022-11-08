@@ -6,6 +6,7 @@ import { uniqBy } from "lodash";
 import { DepartmentLevel4, MonthlyCounter } from "model/report";
 import moment, { Moment } from "moment";
 import { Dispatch } from "redux";
+import { DEFAULT_ON_KD_GROUP_LV1 } from "screens/reports/common/constant/kd-report-response-key";
 import {
   getMetadataKeyDriverOnlineApi,
   getOnlineCounterService,
@@ -15,7 +16,6 @@ import { callApiNative } from "utils/ApiUtils";
 import { parseLocaleNumber } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { DEFAULT_KEY_DRIVER_GROUP_LV_1 } from "../helper";
 
 export const getShopListByDate = async (
   dispatch: Dispatch<any>,
@@ -29,7 +29,7 @@ export const getShopListByDate = async (
     dispatch,
     getMetadataKeyDriverOnlineApi,
     {
-      keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
+      keyDriverGroupLv1: DEFAULT_ON_KD_GROUP_LV1,
       date: dateString,
       departmentLv2: "",
       departmentLv3: "",
@@ -259,7 +259,7 @@ export const getDepartmentLevel4ByShop = async (
     dispatch,
     getMetadataKeyDriverOnlineApi,
     {
-      keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
+      keyDriverGroupLv1: DEFAULT_ON_KD_GROUP_LV1,
       date: dateString,
       departmentLv2: departmentLv2,
       departmentLv3: departmentLv3,
