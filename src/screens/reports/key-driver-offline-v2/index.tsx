@@ -54,7 +54,7 @@ const baseColumns: any = [
     title: "CHỈ SỐ KEY",
     key: "name",
     dataIndex: "title",
-    width: 180,
+    width: 220,
     fixed: "left",
     render: (text: string, record: any) => {
       return (
