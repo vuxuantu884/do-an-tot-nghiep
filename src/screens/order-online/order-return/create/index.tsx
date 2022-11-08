@@ -945,12 +945,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
   });
 
   const onReturn = useCallback(() => {
-    if (orderReturnType === RETURN_TYPE_VALUES.offline && !isOrderFromPOS(OrderDetail)) {
-      showError(
-        "Trả tại quầy chỉ áp dụng với đơn đổi, tạo đơn trả thẳng xin vui lòng trả theo hình thức “Trả lại chuyển hàng” để ghi nhận doanh thu trả cho chi nhánh Online!",
-      );
-      return;
-    }
+    // if (orderReturnType === RETURN_TYPE_VALUES.offline && !isOrderFromPOS(OrderDetail)) {
+    //   showError(
+    //     "Trả tại quầy chỉ áp dụng với đơn đổi, tạo đơn trả thẳng xin vui lòng trả theo hình thức “Trả lại chuyển hàng” để ghi nhận doanh thu trả cho chi nhánh Online!",
+    //   );
+    //   return;
+    // }
     if (!returnStore) {
       showError("Vui lòng chọn cửa hàng để trả!");
       const element: any = document.getElementById("selectStoreReturn");
@@ -979,7 +979,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
         }
       });
   }, [
-    OrderDetail,
     checkIfHasReturnProduct,
     form,
     handleSubmitFormReturn,
@@ -994,8 +993,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
       result = form.getFieldValue("source_id")
         ? form.getFieldValue("source_id")
         : OrderDetail
-          ? OrderDetail.source_id
-          : null;
+        ? OrderDetail.source_id
+        : null;
       return result;
     },
     [OrderDetail],
@@ -1124,8 +1123,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
           if (shippingFeeInformedToCustomer !== null) {
             if (
               totalAmountExchange +
-              shippingFeeInformedToCustomer -
-              getAmountPaymentRequest(payments) >
+                shippingFeeInformedToCustomer -
+                getAmountPaymentRequest(payments) >
               0
             ) {
               newCod =
@@ -1719,7 +1718,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     customerDetail={customer}
                     loyaltyPoint={loyaltyPoint}
                     loyaltyUsageRules={loyaltyUsageRules}
-                  // isShowSelectOrderSources={false}
+                    // isShowSelectOrderSources={false}
                   />
                 )}
 
@@ -1909,7 +1908,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     isDetailPage={false}
                     isReceivedReturnProducts={isReceivedReturnProducts}
                     setIsReceivedReturnProducts={setIsReceivedReturnProducts}
-                    handleReceivedReturnProductsToStore={() => { }}
+                    handleReceivedReturnProductsToStore={() => {}}
                     currentStores={currentStores}
                     isShowReceiveProductConfirmModal={isShowReceiveProductConfirmModal}
                     setIsShowReceiveProductConfirmModal={setIsShowReceiveProductConfirmModal}
@@ -2480,8 +2479,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
         {!isFetchData
           ? "Loading ..."
           : isOrderFinished
-            ? renderIfOrderFinished()
-            : renderIfOrderNotFinished()}
+          ? renderIfOrderFinished()
+          : renderIfOrderNotFinished()}
       </ContentContainer>
     </CreateOrderReturnContext.Provider>
   );

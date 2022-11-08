@@ -763,12 +763,13 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
 
   const dataExportCallback = (data: any) => {
     setTableLoading(false);
+    setSelectedRowKeys([]);
+    setSelectedRowData([]);
     if (data.code === HttpStatus.SUCCESS) {
       showSuccess(`Xuất kho thành công`);
       setParams({
         ...params,
       });
-      setSelectedRowKeys([]);
       return;
     }
 
