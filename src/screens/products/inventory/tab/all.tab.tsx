@@ -1248,6 +1248,10 @@ const AllTab: React.FC<any> = (props) => {
     }
   }, [getConfigColumnInventory, isColumnConfigFetchSucceed]);
 
+  useEffect(() => {
+    setColumns(defaultColumns);
+  }, [defaultColumns]);
+
   return (
     <div>
       <AllInventoryFilter
