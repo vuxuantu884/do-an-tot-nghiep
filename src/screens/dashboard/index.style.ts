@@ -34,6 +34,9 @@ export const StyledComponent = styled.div`
       .ant-radio-button-wrapper-checked {
         color: #2a2a86;
         border-bottom: 2px solid #2a2a86;
+        .ant-radio-button-checked {
+          background: #f3f3f7;
+        }
       }
     }
   }
