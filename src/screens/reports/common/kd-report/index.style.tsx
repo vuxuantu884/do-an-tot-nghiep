@@ -113,8 +113,9 @@ export const KeyDriverStyle = styled.div`
       margin: 0px;
       min-width: 18px;
     }
-    // position: absolute !important;
-    // max-width: 220px;
+    position: absolute !important;
+    width: 220px;
+    height: 49px;
   }
 
   .ant-table-row-expand-icon:focus,
@@ -126,31 +127,37 @@ export const KeyDriverStyle = styled.div`
 
   .ant-table-row-level {
     &-0 {
+      height: 49px;
       td:first-child {
         background-color: #ffd978 !important;
       }
     }
     &-1 {
+      height: 49px;
       td:first-child {
         background-color: #ffe5a4 !important;
       }
     }
     &-2 {
+      height: 49px;
       td:first-child {
         background-color: #fff0c5 !important;
       }
     }
     &-3 {
+      height: 49px;
       td:first-child {
         background-color: #fff8e2 !important;
       }
     }
     &-4 {
+      height: 49px;
       td:first-child {
         background-color: #fffdf5 !important;
       }
     }
     &-5 {
+      height: 49px;
       td:first-child {
         background-color: #ffffff !important;
       }
