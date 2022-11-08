@@ -8,7 +8,6 @@ import CustomDatePicker from "component/custom/new-date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
 import ModalSettingColumnData from "component/table/ModalSettingColumnData";
 import { HttpStatus } from "config/http-status.config";
-import UrlConfig from "config/url.config";
 // import { KeyboardKey } from "model/other/keyboard/keyboard.model";
 import { KeyDriverDataSourceType, KeyDriverDimension, LocalStorageKey } from "model/report";
 import moment from "moment";
@@ -25,14 +24,19 @@ import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { strForSearch } from "utils/StringUtils";
 import { kdOffNeedLowValue } from "../common/constant/kd-need-low-value";
-import { npsKD, numberOfStoreStaffKD } from "../common/constant/offline-report-kd";
-import { KeyDriverStyle } from "../common/kd-report/index.style";
 import {
   COLUMN_ORDER_LIST,
+  DEFAULT_OFF_KD_GROUP_LV1,
+} from "../common/constant/kd-report-response-key";
+import { npsKD, numberOfStoreStaffKD } from "../common/constant/offline-report-kd";
+import { KDReportDirection } from "../common/enums/kd-report-direction";
+import { convertDataToFlatTableRotation } from "../common/helpers/convert-data-to-flat-table-rotation";
+import { getBreadcrumbByLevel } from "../common/helpers/get-breadcrumb-by-level";
+import { setTableHorizontalColumns } from "../common/helpers/set-table-horizontal-columns";
+import { KeyDriverStyle } from "../common/kd-report/index.style";
+import {
   convertDataToFlatTableKeyDriver,
-  DEFAULT_KEY_DRIVER_GROUP_LV_1,
   getAllDepartmentByAnalyticResult,
-  getBreadcrumbByLevel,
   // getInputTargetId,
   // handleMoveFocusInput,
   saveMonthTargetKeyDriver,
@@ -96,7 +100,7 @@ function KeyDriverOffline() {
   const query = new URLSearchParams(useLocation().search);
   const date = query.get("date");
   const targetDay = query.get("day");
-  const keyDriverGroupLv1 = query.get("keyDriverGroupLv1") || DEFAULT_KEY_DRIVER_GROUP_LV_1;
+  const keyDriverGroupLv1 = query.get("keyDriverGroupLv1") || DEFAULT_OFF_KD_GROUP_LV1;
   const departmentLv2 = query.get("departmentLv2");
   const departmentLv3 = query.get("departmentLv3");
 
@@ -192,9 +196,16 @@ function KeyDriverOffline() {
       return {
         ...columnDetails,
         children: columnDetails.children
-          ? columnDetails.children.filter((children: any, index: number) =>
-              columns.some((i) => i.visible && i.index === index),
-            )
+          ? columnDetails.children.filter((child: any, index: number) => {
+              if (child.children?.length) {
+                child.children = child.children.filter((_: any, idx: number) => {
+                  return columns.some((i) => i.visible && i.index === idx);
+                });
+                return child;
+              } else {
+                return columns.some((i) => i.visible && i.index === index);
+              }
+            })
           : undefined,
       };
     });
@@ -614,8 +625,8 @@ function KeyDriverOffline() {
       keyDriverGroupLv1: string,
       departmentLv2: string | null,
       departmentLv3: string | null,
-      selectedItemsInDim?: string[],
     ) => {
+      const selectedItemsInDim = form.getFieldsValue(true)["itemsInDim"];
       setLoadingPage(true);
       let allDepartment: { groupedBy: string; drillingLevel: number }[] = [];
       try {
@@ -648,14 +659,22 @@ function KeyDriverOffline() {
           setHavePermission(false);
           return;
         }
+        const queryParams = queryString.parse(history.location.search);
+        const {
+          direction,
+          groupLevel,
+          departmentLv2: departmentLv2Param,
+          departmentLv3: departmentLv3Param,
+        } = queryParams;
+        const { Horizontal } = KDReportDirection;
+        let temp = [...baseColumns];
         if (response.code && response.code !== SUCCESS) {
           const { department_lv2, department_lv3 } = response;
-          const queryParams = queryString.parse(history.location.search);
           switch (response.code) {
             case FORBIDDEN_REPORT:
               let newQueries: any = {
                 ...queryParams,
-                keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
+                keyDriverGroupLv1: DEFAULT_OFF_KD_GROUP_LV1,
               };
               if (department_lv2) {
                 newQueries = { ...newQueries, departmentLv2: department_lv2.toUpperCase() };
@@ -671,48 +690,99 @@ function KeyDriverOffline() {
           }
           return;
         }
-        setData(() => {
-          return convertDataToFlatTableKeyDriver(response, COLUMN_ORDER_LIST, dimension);
-        });
-        allDepartment = getAllDepartmentByAnalyticResult(response.result.data, COLUMN_ORDER_LIST);
-
-        const temp = [...baseColumns];
-
-        allDepartment
-          .filter(
-            (item) =>
-              !selectedItemsInDim?.length ||
-              selectedItemsInDim?.includes(item.groupedBy) ||
-              item.drillingLevel === currentDrillingLevel,
-          )
-          .forEach(({ groupedBy, drillingLevel }, index: number) => {
-            let link = "";
-            if (index !== 0 && drillingLevel <= SHOP_LEVEL) {
-              const defaultDate = date ? date : moment().format(DATE_FORMAT.YYYYMMDD);
-              const columnDepartmentLv2 = drillingLevel === 2 ? groupedBy : departmentLv2;
-              const columnDepartmentLv3 = drillingLevel === 3 ? groupedBy : departmentLv3;
-
-              const params = {
-                date: defaultDate,
-                keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
-                departmentLv2: columnDepartmentLv2,
-                departmentLv3: columnDepartmentLv3,
-              };
-
-              link = `${UrlConfig.KEY_DRIVER_OFFLINE}?${queryString.stringify(params)}`;
-            }
-
-            temp.push(
-              setObjectiveColumns(
-                nonAccentVietnameseKD(groupedBy),
-                groupedBy.toUpperCase(),
-                index,
-                drillingLevel,
-                index === 0 ? "department-name--primary" : undefined,
-                link,
-              ),
+        if (direction === Horizontal) {
+          setData(() => {
+            return convertDataToFlatTableRotation(
+              response,
+              COLUMN_ORDER_LIST,
+              groupLevel as string,
             );
           });
+          const horizontalColumns = setTableHorizontalColumns(
+            response.result.data,
+            setObjectiveColumns,
+            groupLevel as string,
+          );
+          temp = [
+            {
+              title: "CHỈ SỐ KEY",
+              key: "name",
+              dataIndex: "title",
+              width: 220,
+              fixed: "left",
+              render: (text: string, record: any) => {
+                if (!departmentLv2Param) {
+                  return (
+                    <Link
+                      to={`?${queryString.stringify({
+                        ...queryParams,
+                        departmentLv2: text,
+                      })}`}
+                    >
+                      {text}
+                    </Link>
+                  );
+                } else if (!departmentLv3Param) {
+                  return (
+                    <Link
+                      to={`?${queryString.stringify({
+                        ...queryParams,
+                        departmentLv3: text,
+                      })}`}
+                    >
+                      {text}
+                    </Link>
+                  );
+                } else {
+                  return text;
+                }
+              },
+            },
+            ...horizontalColumns,
+          ];
+        } else {
+          setData(() => {
+            return convertDataToFlatTableKeyDriver(response, COLUMN_ORDER_LIST, dimension);
+          });
+          allDepartment = getAllDepartmentByAnalyticResult(response.result.data, COLUMN_ORDER_LIST);
+          allDepartment
+            .filter(
+              (item) =>
+                !selectedItemsInDim?.length ||
+                selectedItemsInDim?.includes(item.groupedBy) ||
+                item.drillingLevel === currentDrillingLevel,
+            )
+            .forEach(({ groupedBy, drillingLevel }, index: number) => {
+              let link = "";
+              if (index !== 0 && drillingLevel <= SHOP_LEVEL) {
+                const defaultDate = date ? date : moment().format(DATE_FORMAT.YYYYMMDD);
+                const columnDepartmentLv2 = drillingLevel === 2 ? groupedBy : departmentLv2;
+                const columnDepartmentLv3 = drillingLevel === 3 ? groupedBy : departmentLv3;
+
+                const params = {
+                  ...queryParams,
+                  date: defaultDate,
+                  keyDriverGroupLv1: DEFAULT_OFF_KD_GROUP_LV1,
+                  departmentLv2: columnDepartmentLv2,
+                  departmentLv3: columnDepartmentLv3,
+                };
+
+                link = `?${queryString.stringify(params)}`;
+              }
+
+              temp.push(
+                setObjectiveColumns(
+                  nonAccentVietnameseKD(groupedBy),
+                  groupedBy.toUpperCase(),
+                  index,
+                  drillingLevel,
+                  index === 0 ? "department-name--primary" : undefined,
+                  link,
+                ),
+              );
+            });
+        }
+
         setFinalColumns(temp);
         setLoadingPage(false);
         setAllItemInDim(
@@ -753,7 +823,7 @@ function KeyDriverOffline() {
       const newQueries = {
         ...queryParams,
         date: today,
-        keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
+        keyDriverGroupLv1: DEFAULT_OFF_KD_GROUP_LV1,
       };
       history.push({ search: queryString.stringify(newQueries) });
     }
@@ -774,25 +844,27 @@ function KeyDriverOffline() {
     const newQueries = {
       ...queryParams,
       date: newDate,
-      keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
+      keyDriverGroupLv1: DEFAULT_OFF_KD_GROUP_LV1,
     };
     history.push({ search: queryString.stringify(newQueries) });
   }, [form, history]);
 
   const onChangeItemInDim = () => {
-    const items = form.getFieldsValue(true)["itemsInDim"];
     initTable(
       moment(date).format(DATE_FORMAT.YYYYMMDD),
       keyDriverGroupLv1,
       departmentLv2,
       departmentLv3,
-      items,
     );
   };
   return havePermission ? (
     <ContentContainer
       title={"Báo cáo kết quả kinh doanh Offline"}
-      breadcrumb={getBreadcrumbByLevel(departmentLv2, departmentLv3)}
+      breadcrumb={getBreadcrumbByLevel(
+        queryString.parse(history.location.search),
+        departmentLv2,
+        departmentLv3,
+      )}
       extra={
         <>
           <Button className="sub-feature-button" type="primary">
