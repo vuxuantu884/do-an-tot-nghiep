@@ -310,16 +310,6 @@ const ListInventoryDefect: React.FC = () => {
         },
       },
       {
-        title: "Số tồn",
-        dataIndex: "on_hand",
-        width: 100,
-        align: "center",
-        visible: true,
-        render: (text: string, item: InventoryDefectResponse) => {
-          return <span>{text || 0}</span>;
-        },
-      },
-      {
         title: "Ghi chú",
         dataIndex: "note",
         width: 200,
@@ -395,7 +385,9 @@ const ListInventoryDefect: React.FC = () => {
 
         for (const colConfig of columnsConfig) {
           const col = initColumns.find((column) => column.dataIndex === colConfig.dataIndex);
-          newColumns.push({ ...col, visible: colConfig.visible });
+          if (col) {
+            newColumns.push({ ...col, visible: colConfig.visible });
+          }
         }
 
         setColumns(newColumns);
@@ -413,19 +405,17 @@ const ListInventoryDefect: React.FC = () => {
   ) => {
     const newColumnsOrder = [];
 
-    // console.log("-----", newColumnsConfig);
-
     for (const columnConfig of newColumnsConfig) {
       const column = initColumns.find((col) => col.dataIndex === columnConfig.dataIndex);
-      newColumnsOrder.push({ ...column, visible: columnConfig.visible });
+      if (column) {
+        newColumnsOrder.push({ ...column, visible: columnConfig.visible });
+      }
     }
-
-    newColumnsOrder.push(
-      initColumns.find(
-        (col) => col.dataIndex === "action",
-      ) as ICustomTableColumType<InventoryDefectResponse>,
-    );
-    // saveColumnsConfig(data.map(({ dataIndex, visible }) => ({ dataIndex, visible })));
+    const action = newColumnsOrder.find((col) => col.dataIndex === "action");
+    const actionInitial = initColumns.find((col) => col.dataIndex === "action");
+    if (!action && actionInitial) {
+      newColumnsOrder.push(actionInitial);
+    }
     onSaveConfigTableColumn(newColumnsOrder);
     setColumns(newColumnsOrder);
   };
@@ -467,13 +457,10 @@ const ListInventoryDefect: React.FC = () => {
 
     // make sure user enter something, not special characters
     if (!/[a-zA-Z0-9\s-]{1,}/.test(searchValue)) return;
-
     const newParam = { ...params, [DefectFilterBasicEnum.condition]: searchValue.trim(), page: 1 };
     const queryParam = generateQuery(newParam);
     history.replace(`${UrlConfig.INVENTORY_DEFECTS}?${queryParam}`);
-
     setParams(newParam);
-
     setData({ ...data, metadata: { ...data.metadata, page: 1 } }); // change to page 1 before performing search
   }, [form, history, params, data]);
 
@@ -531,7 +518,6 @@ const ListInventoryDefect: React.FC = () => {
     },
     [remove],
   );
-
   return (
     <Card>
       <Form onFinish={onFinish} layout="inline" initialValues={{}} form={form}>
