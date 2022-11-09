@@ -2,6 +2,15 @@ import color from "assets/css/export-variable.module.scss";
 import styled from "styled-components";
 
 export const KeyDriverStyle = styled.div`
+  .ant-table {
+    .ant-table-body {
+      border-top: 3px solid #ddd;
+      table > tbody > tr > td {
+        border-right: 2px solid #ddd !important;
+        border-bottom: 2px solid #ddd !important;
+      }
+    }
+  }
   .ant-table-thead > tr > th {
     border-bottom: unset;
     white-space: pre-line;
@@ -69,6 +78,27 @@ export const KeyDriverStyle = styled.div`
       margin-left: -2px;
       z-index: 1;
     }
+    .btn-cancel-input {
+      background-color: #fff;
+      color: #2a2a86;
+      .anticon {
+        vertical-align: 0.25em;
+        font-size: 16px;
+      }
+    }
+    .btn-ok-input {
+      margin-left: 5px;
+      color: #fff;
+      background-color: #2a2a86;
+      .anticon {
+        vertical-align: 0.25em;
+        font-size: 16px;
+      }
+    }
+    .btn-ok-input:hover {
+      color: #fff !important;
+      background-color: #2a2a86 !important;
+    }
   }
 
   .non-input-cell {
@@ -85,7 +115,6 @@ export const KeyDriverStyle = styled.div`
   }
 
   .input-number {
-    border: none;
     width: 100%;
     height: auto;
     .ant-input {
@@ -115,7 +144,8 @@ export const KeyDriverStyle = styled.div`
     }
     position: absolute !important;
     width: 220px;
-    height: 49px;
+    height: 44px;
+    z-index: 99;
   }
 
   .ant-table-row-expand-icon:focus,
@@ -127,37 +157,37 @@ export const KeyDriverStyle = styled.div`
 
   .ant-table-row-level {
     &-0 {
-      height: 49px;
+      height: 44px;
       td:first-child {
         background-color: #ffd978 !important;
       }
     }
     &-1 {
-      height: 49px;
+      height: 44px;
       td:first-child {
         background-color: #ffe5a4 !important;
       }
     }
     &-2 {
-      height: 49px;
+      height: 44px;
       td:first-child {
         background-color: #fff0c5 !important;
       }
     }
     &-3 {
-      height: 49px;
+      height: 44px;
       td:first-child {
         background-color: #fff8e2 !important;
       }
     }
     &-4 {
-      height: 49px;
+      height: 44px;
       td:first-child {
         background-color: #fffdf5 !important;
       }
     }
     &-5 {
-      height: 49px;
+      height: 44px;
       td:first-child {
         background-color: #ffffff !important;
       }
