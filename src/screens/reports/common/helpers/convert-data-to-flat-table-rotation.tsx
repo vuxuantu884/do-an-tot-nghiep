@@ -1,15 +1,15 @@
 import { uniq } from "lodash";
 import { AnalyticResult } from "model/report";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
-import { ATTRIBUTE_VALUE } from "../constant/kd-report-response-key";
+import { ATTRIBUTE_VALUE, COLUMN_ORDER_LIST } from "../constant/kd-report-response-key";
 
 export const convertDataToFlatTableRotation = (
   analyticResult: any,
-  attributeOrdered: string[],
+  currentDrillingLevel: number,
   groupLevel?: string,
 ) => {
   const keyDriverResult = analyticResult.result as AnalyticResult;
-
+  const attributeOrdered = COLUMN_ORDER_LIST;
   const keyDriverDescriptionDataIndex = attributeOrdered.indexOf("key_driver_description");
   const keyDriverIndex = attributeOrdered.indexOf("key_driver");
   const keyDriverTitleIndex = attributeOrdered.indexOf("key_driver_title");
@@ -17,13 +17,27 @@ export const convertDataToFlatTableRotation = (
   const departmentLv1Index = attributeOrdered.indexOf(`department_lv1`);
 
   const data: any[] = [];
+  let keyDriverUpLevel = "";
   keyDriverResult.data
-    .filter((item) => {
+    .filter((item, index) => {
       if (!groupLevel) {
         const kdParentIndex = attributeOrdered.indexOf(`key_driver_group_lv2`);
+        switch (currentDrillingLevel) {
+          case 1:
+            keyDriverUpLevel = "OF.HS.01.01";
+            break;
+          case 2:
+            keyDriverUpLevel = "OF.HS.01.61";
+            break;
+          default:
+            break;
+        }
+
         return (
           (item[kdParentIndex] === item[keyDriverTitleIndex] ||
-            item[kdParentIndex] === "F. Doanh thu theo sản phẩm") &&
+            item[keyDriverIndex].includes("OF.SP.01.") ||
+            item[keyDriverIndex].includes("ON.SP.01.") ||
+            (keyDriverUpLevel && item[keyDriverIndex] === keyDriverUpLevel)) &&
           item[departmentLv1Index]
         );
       }
@@ -67,7 +81,7 @@ const buildSchemas = (data: any[]) => {
   drillingLevels.forEach((_, index) => {
     if (!schemas.length) {
       const dataParent = data.find((item) => item.drillingLevel === drillingLevels[index]);
-      schemas.push(dataParent);
+      schemas.push({ ...dataParent, blockAction: true });
     } else {
       const dataChildren = data.filter((item) => item.drillingLevel === drillingLevels[index]);
       schemas[0].children = dataChildren;

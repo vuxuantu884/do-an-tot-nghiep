@@ -209,6 +209,7 @@ export const KeyDriverStyle = styled.div`
   .overflow-wrap-normal {
     overflow-wrap: normal;
     word-break: normal;
+    min-width: 50px;
   }
 
   .ant-input-affix-wrapper {
@@ -221,5 +222,20 @@ export const KeyDriverStyle = styled.div`
 
   .border-bottom-none {
     border-bottom: none !important;
+  }
+
+  .key-driver-header {
+    cursor: pointer;
+    &:nth-child(odd) {
+      background-color: #fff1b8 !important;
+    }
+    &:nth-child(even) {
+      background-color: #d6d6f8 !important;
+    }
+  }
+
+  .deparment-name-horizontal {
+    color: #000;
+    padding-left: 0.25rem;
   }
 `;
