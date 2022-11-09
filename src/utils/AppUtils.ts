@@ -358,7 +358,7 @@ export type SupportedCurrencyType = keyof typeof supportedCurrencies;
  * @returns E.g: 123 VND, 123.45 USD
  */
 export const formatCurrencyValue = (
-  amount?: number,
+  amount: number,
   separator: string = ".",
   decimal: string = ",",
   currencyCode: SupportedCurrencyType = "VND",

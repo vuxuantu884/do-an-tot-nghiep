@@ -19,6 +19,7 @@ import {
   Switch,
   Tabs,
   Tag,
+  Tooltip,
 } from "antd";
 import variantdefault from "assets/icon/variantdefault.jpg";
 import classNames from "classnames";
@@ -149,6 +150,16 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   const idNumber = parseInt(id);
   const [canUpdateSaleable] = useAuthorization({
     acceptPermissions: [ProductPermission.update_saleable],
+  });
+
+  // kiểm tra người dùng có thể xem giá vốn
+  const [canReadCost] = useAuthorization({
+    acceptPermissions: [ProductPermission.read_cost],
+  });
+
+  // kiểm tra người dùng có thể xem giá nhập
+  const [canReadImportPrice] = useAuthorization({
+    acceptPermissions: [ProductPermission.read_import],
   });
 
   const onEdit = () => {
@@ -823,34 +834,46 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                                   />
                                   <div className="variant-price-container">
                                     {[
-                                      { title: "Giá bán", index: "retail_price" },
                                       { title: "Giá buôn", index: "wholesale_price" },
                                       { title: "Giá nhập", index: "import_price" },
                                       { title: "Giá vốn", index: "cost_price" },
                                       { title: "Thuế", index: "tax_percent" },
                                     ].map((item, idx) => {
                                       const prices = currentVariant.variant_prices[0];
+                                      let priceValue: React.ReactNode = "";
 
+                                      if (prices[item.index] === null) {
+                                        if (
+                                          (idx === 1 && !canReadImportPrice) ||
+                                          (idx === 2 && !canReadCost)
+                                        ) {
+                                          priceValue = (
+                                            <Tooltip
+                                              title={`Bạn không có quyền xem ${item.title}`}
+                                              placement="top"
+                                            >
+                                              <EyeInvisibleOutlined
+                                                style={{ color: "gray", cursor: "pointer" }}
+                                              />
+                                            </Tooltip>
+                                          );
+                                        }
+                                      } else {
+                                        if ([0, 1, 2].includes(idx)) {
+                                          priceValue = formatCurrencyValue(
+                                            prices[item.index],
+                                            ".",
+                                            ",",
+                                            prices.currency_code.toUpperCase() as SupportedCurrencyType,
+                                          );
+                                        } else {
+                                          priceValue = `${prices[item.index]} %`;
+                                        }
+                                      }
                                       return (
                                         <div key={idx} className="variant-prices">
                                           <div className="variant-price-title">{item.title}</div>
-                                          <div className="variant-price-value">
-                                            {idx === 4 ? ( // don't format tax
-                                              prices[item.index] + " %"
-                                            ) : prices[item.index] === null ? (
-                                              <EyeInvisibleOutlined
-                                                style={{ color: "red" }}
-                                                title={`Bạn không có quyền xem ${item.title}`}
-                                              />
-                                            ) : (
-                                              formatCurrencyValue(
-                                                prices[item.index],
-                                                ".",
-                                                ",",
-                                                prices.currency_code.toUpperCase() as SupportedCurrencyType,
-                                              )
-                                            )}
-                                          </div>
+                                          <div className="variant-price-value">{priceValue}</div>
                                         </div>
                                       );
                                     })}
