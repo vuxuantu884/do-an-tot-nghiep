@@ -30,6 +30,7 @@ import {
 } from "../common/constant/kd-report-response-key";
 import { KDReportDirection } from "../common/enums/kd-report-direction";
 import { convertDataToFlatTableRotation } from "../common/helpers/convert-data-to-flat-table-rotation";
+import { filterValueColumns } from "../common/helpers/filter-value-columns";
 import { getBreadcrumbByLevel } from "../common/helpers/get-breadcrumb-by-level";
 import { setTableHorizontalColumns } from "../common/helpers/set-table-horizontal-columns";
 import { KeyDriverStyle } from "../common/kd-report/index.style";
@@ -195,23 +196,7 @@ function KeyDriverOnline() {
   const [havePermission, setHavePermission] = useState<boolean>(true);
 
   const newFinalColumns = useMemo(() => {
-    return finalColumns.map((columnDetails: any) => {
-      return {
-        ...columnDetails,
-        children: columnDetails.children
-          ? columnDetails.children.filter((child: any, index: number) => {
-              if (child.children?.length) {
-                child.children = child.children.filter((_: any, idx: number) => {
-                  return columns.some((i) => i.visible && i.index === idx);
-                });
-                return child;
-              } else {
-                return columns.some((i) => i.visible && i.index === index);
-              }
-            })
-          : undefined,
-      };
-    });
+    return filterValueColumns(finalColumns, columns);
   }, [columns, finalColumns]);
 
   const setObjectiveColumns = useCallback(
@@ -223,6 +208,8 @@ function KeyDriverOnline() {
       className: string = "department-name--secondary",
       link: string,
     ): ColumnGroupType<any> | ColumnType<any> => {
+      const queryParams = queryString.parse(history.location.search);
+      const { direction } = queryParams;
       return {
         title: link ? <Link to={link}>{department}</Link> : department,
         className: classnames("department-name", className),
@@ -277,16 +264,29 @@ function KeyDriverOnline() {
 
                           if (!clickCancel && value != newValue) {
                             newValue = value;
-                            saveMonthTargetKeyDriver(
-                              { total: value },
-                              record,
-                              departmentDrillingLevel,
-                              departmentKey,
-                              inputId,
-                              dispatch,
-                              parseLocaleNumber(newValue),
-                              `day${day.toString().padStart(2, "0")}`,
-                            );
+                            if (direction === KDReportDirection.Horizontal) {
+                              saveMonthTargetKeyDriver(
+                                { total: value },
+                                record,
+                                record.drillingLevel,
+                                nonAccentVietnameseKD(record.title),
+                                inputId,
+                                dispatch,
+                                parseLocaleNumber(newValue),
+                                `day${day.toString().padStart(2, "0")}`,
+                              );
+                            } else {
+                              saveMonthTargetKeyDriver(
+                                { total: value },
+                                record,
+                                departmentDrillingLevel,
+                                departmentKey,
+                                inputId,
+                                dispatch,
+                                parseLocaleNumber(newValue),
+                                `day${day.toString().padStart(2, "0")}`,
+                              );
+                            }
                           } else {
                             clickCancel = false;
                           }
@@ -518,16 +518,29 @@ function KeyDriverOnline() {
                               newTargetDay && newTargetDay > 0 && newTargetDay <= 31
                                 ? newTargetDay
                                 : moment().date();
-                            saveMonthTargetKeyDriver(
-                              { [`day${day.toString().padStart(2, "0")}`]: value },
-                              record,
-                              departmentDrillingLevel,
-                              departmentKey,
-                              inputId,
-                              dispatch,
-                              parseLocaleNumber(newValue),
-                              `day${day.toString().padStart(2, "0")}`,
-                            );
+                            if (direction === KDReportDirection.Horizontal) {
+                              saveMonthTargetKeyDriver(
+                                { [`day${day.toString().padStart(2, "0")}`]: value },
+                                record,
+                                record.drillingLevel,
+                                nonAccentVietnameseKD(record.title),
+                                inputId,
+                                dispatch,
+                                parseLocaleNumber(newValue),
+                                `day${day.toString().padStart(2, "0")}`,
+                              );
+                            } else {
+                              saveMonthTargetKeyDriver(
+                                { [`day${day.toString().padStart(2, "0")}`]: value },
+                                record,
+                                departmentDrillingLevel,
+                                departmentKey,
+                                inputId,
+                                dispatch,
+                                parseLocaleNumber(newValue),
+                                `day${day.toString().padStart(2, "0")}`,
+                              );
+                            }
                           } else {
                             clickCancel = false;
                           }
@@ -705,51 +718,59 @@ function KeyDriverOnline() {
           setData(() => {
             return convertDataToFlatTableRotation(
               response,
-              COLUMN_ORDER_LIST,
+              currentDrillingLevel,
               groupLevel as string,
             );
           });
-          const horizontalColumns = setTableHorizontalColumns(
-            response.result.data,
-            setObjectiveColumns,
-            groupLevel as string,
-          );
+          const horizontalColumns = () => {
+            return setTableHorizontalColumns(
+              response.result.data,
+              setObjectiveColumns,
+              groupLevel as string,
+              currentDrillingLevel,
+            );
+          };
+
           temp = [
             {
-              title: "CHỈ SỐ KEY",
+              title: "Khu vực",
               key: "name",
               dataIndex: "title",
               width: 220,
               fixed: "left",
               render: (text: string, record: any) => {
-                if (!departmentLv2Param) {
-                  return (
-                    <Link
-                      to={`?${queryString.stringify({
-                        ...queryParams,
-                        departmentLv2: text,
-                      })}`}
-                    >
-                      {text}
-                    </Link>
-                  );
-                } else if (!departmentLv3Param) {
-                  return (
-                    <Link
-                      to={`?${queryString.stringify({
-                        ...queryParams,
-                        departmentLv3: text,
-                      })}`}
-                    >
-                      {text}
-                    </Link>
-                  );
+                if (record.blockAction) {
+                  return <span className="deparment-name-horizontal">{text}</span>;
                 } else {
-                  return text;
+                  if (!departmentLv2Param) {
+                    return (
+                      <Link
+                        to={`?${queryString.stringify({
+                          ...queryParams,
+                          departmentLv2: text,
+                        })}`}
+                      >
+                        <span className="deparment-name-horizontal">{text}</span>
+                      </Link>
+                    );
+                  } else if (!departmentLv3Param) {
+                    return (
+                      <Link
+                        to={`?${queryString.stringify({
+                          ...queryParams,
+                          departmentLv3: text,
+                        })}`}
+                      >
+                        <span className="deparment-name-horizontal">{text}</span>
+                      </Link>
+                    );
+                  } else {
+                    return <span className="deparment-name-horizontal">{text}</span>;
+                  }
                 }
               },
             },
-            ...horizontalColumns,
+            ...horizontalColumns(),
           ];
         } else {
           setData(convertDataToFlatTableKeyDriver(response, COLUMN_ORDER_LIST));
