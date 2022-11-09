@@ -209,6 +209,8 @@ function KeyDriverOffline() {
       className: string = "department-name--secondary",
       link: string,
     ): ColumnGroupType<any> | ColumnType<any> => {
+      const queryParams = queryString.parse(history.location.search);
+      const { direction } = queryParams;
       return {
         title: link ? <Link to={link}>{department}</Link> : department,
         className: classnames("department-name", className),
@@ -263,16 +265,29 @@ function KeyDriverOffline() {
 
                           if (!clickCancel && value != newValue) {
                             newValue = value;
-                            saveMonthTargetKeyDriver(
-                              { total: value },
-                              record,
-                              departmentDrillingLevel,
-                              departmentKey,
-                              inputId,
-                              dispatch,
-                              parseLocaleNumber(newValue),
-                              `day${day.toString().padStart(2, "0")}`,
-                            );
+                            if (direction === KDReportDirection.Horizontal) {
+                              saveMonthTargetKeyDriver(
+                                { total: value },
+                                record,
+                                record.drillingLevel,
+                                nonAccentVietnameseKD(record.title),
+                                inputId,
+                                dispatch,
+                                parseLocaleNumber(newValue),
+                                `day${day.toString().padStart(2, "0")}`,
+                              );
+                            } else {
+                              saveMonthTargetKeyDriver(
+                                { total: value },
+                                record,
+                                departmentDrillingLevel,
+                                departmentKey,
+                                inputId,
+                                dispatch,
+                                parseLocaleNumber(newValue),
+                                `day${day.toString().padStart(2, "0")}`,
+                              );
+                            }
                           } else {
                             clickCancel = false;
                           }
@@ -506,16 +521,29 @@ function KeyDriverOffline() {
                               newTargetDay && newTargetDay > 0 && newTargetDay <= 31
                                 ? newTargetDay
                                 : moment().date();
-                            saveMonthTargetKeyDriver(
-                              { [`day${day.toString().padStart(2, "0")}`]: value },
-                              record,
-                              departmentDrillingLevel,
-                              departmentKey,
-                              inputId,
-                              dispatch,
-                              parseLocaleNumber(newValue),
-                              `day${day.toString().padStart(2, "0")}`,
-                            );
+                            if (direction === KDReportDirection.Horizontal) {
+                              saveMonthTargetKeyDriver(
+                                { [`day${day.toString().padStart(2, "0")}`]: value },
+                                record,
+                                record.drillingLevel,
+                                nonAccentVietnameseKD(record.title),
+                                inputId,
+                                dispatch,
+                                parseLocaleNumber(newValue),
+                                `day${day.toString().padStart(2, "0")}`,
+                              );
+                            } else {
+                              saveMonthTargetKeyDriver(
+                                { [`day${day.toString().padStart(2, "0")}`]: value },
+                                record,
+                                departmentDrillingLevel,
+                                departmentKey,
+                                inputId,
+                                dispatch,
+                                parseLocaleNumber(newValue),
+                                `day${day.toString().padStart(2, "0")}`,
+                              );
+                            }
                           } else {
                             clickCancel = false;
                           }

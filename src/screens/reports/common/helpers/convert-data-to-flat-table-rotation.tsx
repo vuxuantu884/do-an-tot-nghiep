@@ -47,12 +47,20 @@ export const convertDataToFlatTableRotation = (
       const keyDriver = nonAccentVietnameseKD(row[keyDriverTitleIndex]);
       const drillingLevel = Number(row[drillingLevelDataIndex]);
       const departmentLevelIndex = attributeOrdered.indexOf(`department_lv${drillingLevel}`);
+      const department = nonAccentVietnameseKD(row[departmentLevelIndex]);
 
       const objValue = {} as any;
 
       ATTRIBUTE_VALUE.forEach((attr) => {
         objValue[nonAccentVietnameseKD(keyDriver) + "_" + attr] =
           row[attributeOrdered.indexOf(attr)];
+      });
+
+      const otherValue = {} as any;
+      attributeOrdered.forEach((attr) => {
+        otherValue[nonAccentVietnameseKD(department) + "_" + attr] =
+          row[attributeOrdered.indexOf(attr)];
+        otherValue[attr] = row[attributeOrdered.indexOf(attr)];
       });
 
       const existedKey = data.findIndex(
@@ -66,10 +74,11 @@ export const convertDataToFlatTableRotation = (
             drillingLevel,
             method: row[keyDriverDescriptionDataIndex],
             ...objValue,
+            ...otherValue,
           });
         }
       } else {
-        data[existedKey] = { ...data[existedKey], ...objValue };
+        data[existedKey] = { ...data[existedKey], ...objValue, ...otherValue };
       }
     });
   return buildSchemas(data);
