@@ -5,6 +5,8 @@ import UrlConfig, { InventoryTabUrl } from "../../config/url.config";
 import { RouteMenu } from "../../model/other";
 import { InventoryDefectsPermission } from "../../config/permissions/inventory-defects.permission";
 import { StockInOutOthersPermission } from "config/permissions/stock-in-out.permission";
+import ImportOneFromStoreMultipleToStore
+  from "../../screens/inventory/ImportInventory/ImportOneFromStoreMultipleToStore";
 const ListInventoryDefect = React.lazy(
   () => import("screens/inventory-defects/ListInventoryDefect"),
 );
@@ -246,6 +248,18 @@ export const inventory: Array<RouteMenu> = [
         title: "Chuyển hàng",
         icon: "icon-dot",
         component: ImportMultipleInventoryScreen,
+        key: "submenu31_12",
+        isShow: true,
+        header: null,
+        permissions: [InventoryTransferPermission.import, InventoryTransferPermission.create],
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/import-multiple-from-store`,
+        exact: true,
+        title: "Chuyển hàng",
+        icon: "icon-dot",
+        component: ImportOneFromStoreMultipleToStore,
         key: "submenu31_12",
         isShow: true,
         header: null,

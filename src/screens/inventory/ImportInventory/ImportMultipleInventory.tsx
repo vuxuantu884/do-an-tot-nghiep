@@ -631,7 +631,7 @@ const ImportMultipleInventory: FC = () => {
             path: `${UrlConfig.INVENTORY_TRANSFERS}`,
           },
           {
-            name: `Nhập file nhiều kho nhận`,
+            name: `Nhập file nhiều kho nhận nhiều file`,
           },
         ]}
       >

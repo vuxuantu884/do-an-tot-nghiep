@@ -57,6 +57,7 @@ export interface ImportResponse extends BaseObject {
   processed: number;
   success: number;
   percent: number;
+  reading_percent?: number;
   error: number;
   url: string;
   message: string[];
