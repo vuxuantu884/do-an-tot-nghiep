@@ -145,7 +145,6 @@ export const KeyDriverStyle = styled.div`
     position: absolute !important;
     width: 220px;
     height: 44px;
-    z-index: 99;
   }
 
   .ant-table-row-expand-icon:focus,
