@@ -61,7 +61,11 @@ const baseColumns: any = [
     fixed: "left",
     render: (text: string, record: any) => {
       return (
-        <Tooltip className="text-truncate-2 key-cell padding-left-10" title={record.method}>
+        <Tooltip
+          className="text-truncate-2 key-cell padding-left-10"
+          title={record.method}
+          placement="leftBottom"
+        >
           {text}
         </Tooltip>
       );
@@ -225,7 +229,7 @@ function KeyDriverOnline() {
         onHeaderCell: (data: any) => {
           return {
             onClick: () => {
-              // console.log("header", data);
+              link && history.push({ search: link });
             },
           };
         },
@@ -233,7 +237,11 @@ function KeyDriverOnline() {
         children: [
           {
             title: () => {
-              return <Tooltip title="Cho phép người dùng nhập vào.">MỤC TIÊU THÁNG</Tooltip>;
+              return (
+                <Tooltip title="Cho phép người dùng nhập vào." placement="top">
+                  MỤC TIÊU THÁNG
+                </Tooltip>
+              );
             },
             width: 130,
             align: "right",
@@ -258,8 +266,6 @@ function KeyDriverOnline() {
                       }}
                       onFocus={(e) => {
                         document.getElementById(`${inputId}-action`)?.removeAttribute("hidden");
-                        const input: any = document.getElementById(inputId);
-                        input.style.border = "solid 1px #ddd";
                       }}
                       onBlur={(e) => {
                         setTimeout(() => {
@@ -284,7 +290,6 @@ function KeyDriverOnline() {
                           } else {
                             clickCancel = false;
                           }
-                          input.style.border = "none";
                           document
                             .getElementById(`${inputId}-action`)
                             ?.setAttribute("hidden", "false");
@@ -317,15 +322,15 @@ function KeyDriverOnline() {
                         display: "flex",
                         justifyContent: "flex-end",
                         position: "absolute",
-                        zIndex: 2,
+                        zIndex: 1,
                         paddingTop: "2px",
                         right: 0,
                       }}
                     >
                       <Button
                         size="small"
-                        icon={<CloseOutlined style={{ verticalAlign: "0.25em" }} />}
-                        style={{ borderColor: "#ddd", backgroundColor: "#fff" }}
+                        icon={<CloseOutlined />}
+                        className="btn-cancel-input"
                         onClick={(e) => {
                           clickCancel = true;
                           const event = new Event("input", { bubbles: true });
@@ -337,8 +342,9 @@ function KeyDriverOnline() {
                       />
                       <Button
                         size="small"
-                        icon={<CheckOutlined style={{ verticalAlign: "0.25em" }} />}
-                        style={{ marginLeft: 5, borderColor: "#ddd", backgroundColor: "#fff" }}
+                        type="primary"
+                        icon={<CheckOutlined />}
+                        className="btn-ok-input"
                         onClick={(e) => {
                           const input: any = document.getElementById(inputId);
                           input.blur();
@@ -353,7 +359,10 @@ function KeyDriverOnline() {
           {
             title: () => {
               return (
-                <Tooltip title="Dữ liệu cập nhật từ đầu tháng đến hết ngày hôm qua(TH ngày chọn là ngày hiện tại). Dữ liệu cập nhật từ đầu tháng đến ngày được chọn(TH ngày được chọn là ngày quá khứ)">
+                <Tooltip
+                  title="Dữ liệu cập nhật từ đầu tháng đến hết ngày hôm qua(TH ngày chọn là ngày hiện tại). Dữ liệu cập nhật từ đầu tháng đến ngày được chọn(TH ngày được chọn là ngày quá khứ)"
+                  placement="top"
+                >
                   LUỸ KẾ
                 </Tooltip>
               );
@@ -373,7 +382,11 @@ function KeyDriverOnline() {
           },
           {
             title: () => {
-              return <Tooltip title="Luỹ kế/Mục tiêu tháng">TỶ LỆ</Tooltip>;
+              return (
+                <Tooltip title="Luỹ kế/Mục tiêu tháng" placement="top">
+                  TỶ LỆ
+                </Tooltip>
+              );
             },
             width: 80,
             align: "right",
@@ -390,7 +403,10 @@ function KeyDriverOnline() {
           {
             title: () => {
               return (
-                <Tooltip title="=Lũy kế/(Ngày được chọn - 1) * Số ngày trong tháng(TH ngày dược chọn là ngày hiện tại). =Lũy kế/Ngày được chọn * Số ngày trong tháng(TH ngày được chọn là ngày quá khứ)">
+                <Tooltip
+                  title="=Lũy kế/(Ngày được chọn - 1) * Số ngày trong tháng(TH ngày dược chọn là ngày hiện tại). =Lũy kế/Ngày được chọn * Số ngày trong tháng(TH ngày được chọn là ngày quá khứ)"
+                  placement="top"
+                >
                   DỰ KIẾN ĐẠT
                 </Tooltip>
               );
@@ -424,7 +440,11 @@ function KeyDriverOnline() {
           },
           {
             title: () => {
-              return <Tooltip title="Dự kiến đạt/Mục tiêu tháng">TỶ LỆ</Tooltip>;
+              return (
+                <Tooltip title="Dự kiến đạt/Mục tiêu tháng" placement="top">
+                  TỶ LỆ
+                </Tooltip>
+              );
             },
             width: 80,
             align: "right",
@@ -451,7 +471,10 @@ function KeyDriverOnline() {
           {
             title: () => {
               return (
-                <Tooltip title="=(Mục tiêu tháng - Lũy kế) / [Số ngày trong tháng - (Ngày hiện tại - 1)]. Người dùng vẫn có thể nhập mục tiêu ngày cho riêng phòng ban. Xoá mục tiêu ngày đã nhập -> Unicorn sẽ tự tính lại mục tiêu ngày theo công thức trên">
+                <Tooltip
+                  title="=(Mục tiêu tháng - Lũy kế) / [Số ngày trong tháng - (Ngày hiện tại - 1)]. Người dùng vẫn có thể nhập mục tiêu ngày cho riêng phòng ban. Xoá mục tiêu ngày đã nhập -> Unicorn sẽ tự tính lại mục tiêu ngày theo công thức trên"
+                  placement="top"
+                >
                   MỤC TIÊU NGÀY
                 </Tooltip>
               );
@@ -479,8 +502,6 @@ function KeyDriverOnline() {
                       }}
                       onFocus={(e) => {
                         document.getElementById(`${inputId}-action`)?.removeAttribute("hidden");
-                        const input: any = document.getElementById(inputId);
-                        input.style.border = "solid 1px #ddd";
                       }}
                       onBlur={(e) => {
                         setTimeout(() => {
@@ -510,7 +531,6 @@ function KeyDriverOnline() {
                           } else {
                             clickCancel = false;
                           }
-                          input.style.border = "none";
                           document
                             .getElementById(`${inputId}-action`)
                             ?.setAttribute("hidden", "false");
@@ -543,15 +563,15 @@ function KeyDriverOnline() {
                         display: "flex",
                         justifyContent: "flex-end",
                         position: "absolute",
-                        zIndex: 2,
+                        zIndex: 1,
                         paddingTop: "2px",
                         right: 0,
                       }}
                     >
                       <Button
                         size="small"
-                        icon={<CloseOutlined style={{ verticalAlign: "0.25em" }} />}
-                        style={{ borderColor: "#ddd", backgroundColor: "#fff" }}
+                        icon={<CloseOutlined />}
+                        className="btn-cancel-input"
                         onClick={(e) => {
                           clickCancel = true;
                           const event = new Event("input", { bubbles: true });
@@ -563,8 +583,9 @@ function KeyDriverOnline() {
                       />
                       <Button
                         size="small"
-                        icon={<CheckOutlined style={{ verticalAlign: "0.25em" }} />}
-                        style={{ marginLeft: 5, borderColor: "#ddd", backgroundColor: "#fff" }}
+                        type="primary"
+                        icon={<CheckOutlined />}
+                        className="btn-ok-input"
                         onClick={(e) => {
                           const input: any = document.getElementById(inputId);
                           input.blur();
@@ -611,7 +632,7 @@ function KeyDriverOnline() {
         ],
       };
     },
-    [day, dispatch, targetDay],
+    [day, dispatch, history, targetDay],
   );
 
   const initTable = useCallback(
