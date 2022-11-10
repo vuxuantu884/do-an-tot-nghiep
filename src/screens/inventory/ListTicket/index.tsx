@@ -123,7 +123,11 @@ const InventoryListScreen: React.FC = () => {
       url: `${UrlConfig.INVENTORY_TRANSFERS}/import-multiple-file-one-store`
     },
     {
-      name: "Nhập file nhiều kho nhận",
+      name: "Nhập file nhiều kho nhận 1 file",
+      url: `${UrlConfig.INVENTORY_TRANSFERS}/import-multiple-from-store`
+    },
+    {
+      name: "Nhập file nhiều kho nhận nhiều file",
       url: `${UrlConfig.INVENTORY_TRANSFERS}/import-multiple`
     },
   ];
