@@ -32,6 +32,7 @@ import { KDReportDirection } from "../common/enums/kd-report-direction";
 import { convertDataToFlatTableRotation } from "../common/helpers/convert-data-to-flat-table-rotation";
 import { filterValueColumns } from "../common/helpers/filter-value-columns";
 import { getBreadcrumbByLevel } from "../common/helpers/get-breadcrumb-by-level";
+import { saveTargetHorizontalReport } from "../common/helpers/save-target-horizontal-report";
 import { setTableHorizontalColumns } from "../common/helpers/set-table-horizontal-columns";
 import { KeyDriverStyle } from "../common/kd-report/index.style";
 import {
@@ -89,7 +90,7 @@ const inputTargetDefaultProps: any = {
 
 function VerifyCell(props: VerifyCellProps) {
   const { row, children, value, type = "display" } = props;
-  if (row.key.endsWith(".L")) {
+  if (row.key?.endsWith(".L")) {
     // Kết thúc bằng .L là những trường không có giá trị. TO bảo thế
     return <></>;
   } else if (!value && typeof value !== "number" && type === "display") {
@@ -265,15 +266,12 @@ function KeyDriverOnline() {
                           if (!clickCancel && value != newValue) {
                             newValue = value;
                             if (direction === KDReportDirection.Horizontal) {
-                              saveMonthTargetKeyDriver(
-                                { total: value },
+                              saveTargetHorizontalReport(
+                                { total: value, currentValue: parseLocaleNumber(newValue) },
                                 record,
-                                record.drillingLevel,
-                                nonAccentVietnameseKD(record.title),
                                 inputId,
                                 dispatch,
-                                parseLocaleNumber(newValue),
-                                `day${day.toString().padStart(2, "0")}`,
+                                departmentKey,
                               );
                             } else {
                               saveMonthTargetKeyDriver(
@@ -519,15 +517,15 @@ function KeyDriverOnline() {
                                 ? newTargetDay
                                 : moment().date();
                             if (direction === KDReportDirection.Horizontal) {
-                              saveMonthTargetKeyDriver(
-                                { [`day${day.toString().padStart(2, "0")}`]: value },
+                              saveTargetHorizontalReport(
+                                {
+                                  [`day${day.toString().padStart(2, "0")}`]: value,
+                                  currentValue: parseLocaleNumber(newValue),
+                                },
                                 record,
-                                record.drillingLevel,
-                                nonAccentVietnameseKD(record.title),
                                 inputId,
                                 dispatch,
-                                parseLocaleNumber(newValue),
-                                `day${day.toString().padStart(2, "0")}`,
+                                departmentKey,
                               );
                             } else {
                               saveMonthTargetKeyDriver(

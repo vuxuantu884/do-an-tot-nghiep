@@ -69,16 +69,22 @@ export const convertDataToFlatTableRotation = (
       if (existedKey === -1) {
         if (row[departmentLevelIndex]) {
           data.push({
-            key: row[keyDriverIndex],
+            [`${keyDriver}_key`]: row[keyDriverIndex],
             title: row[departmentLevelIndex],
             drillingLevel,
-            method: row[keyDriverDescriptionDataIndex],
+            [`${keyDriver}_method`]: row[keyDriverDescriptionDataIndex],
             ...objValue,
             ...otherValue,
           });
         }
       } else {
-        data[existedKey] = { ...data[existedKey], ...objValue, ...otherValue };
+        data[existedKey] = {
+          ...data[existedKey],
+          ...objValue,
+          ...otherValue,
+          [`${keyDriver}_key`]: row[keyDriverIndex],
+          [`${keyDriver}_method`]: row[keyDriverDescriptionDataIndex],
+        };
       }
     });
   return buildSchemas(data);
