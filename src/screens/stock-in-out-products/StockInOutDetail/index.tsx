@@ -40,6 +40,9 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import { DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
 import { useReactToPrint } from "react-to-print";
 import purify from "dompurify";
+import StockInOutAlertPricePermission from "../components/StockInOutAlertPricePermission";
+import { ProductPermission } from "config/permissions/product.permission";
+import useAuthorization from "hook/useAuthorization";
 
 type StockInOutParam = {
   id: string;
@@ -56,7 +59,12 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
   const currentPermissions: string[] = useSelector(
     (state: RootReducerType) => state.permissionReducer.permissions,
   );
-
+  const [allowReadImportPrice] = useAuthorization({
+    acceptPermissions: [ProductPermission.read_import],
+  });
+  const [allowReadCostPrice] = useAuthorization({
+    acceptPermissions: [ProductPermission.read_cost],
+  });
   const history = useHistory();
   const dispatch = useDispatch();
 
@@ -156,9 +164,7 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
             <Col span={18}>
               <Card
                 className="ie-detail"
-                title={`THÔNG TIN ${StockInOutTypeMapping[
-                  stockInOutData.type
-                ].toLocaleUpperCase()} KHO`}
+                title={`THÔNG TIN ${StockInOutTypeMapping[stockInOutData.type].toUpperCase()} KHO`}
                 extra={
                   stockInOutData.status === StockInOutStatus.finalized ? (
                     <>
@@ -174,9 +180,7 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
                       />
                       <span
                         style={{ color: "#27AE60", fontWeight: 600 }}
-                      >{`ĐÃ ${StockInOutTypeMapping[
-                        stockInOutData.type
-                      ].toLocaleUpperCase()}`}</span>
+                      >{`ĐÃ ${StockInOutTypeMapping[stockInOutData.type].toUpperCase()}`}</span>
                     </>
                   ) : (
                     <>
@@ -225,7 +229,12 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
                   </Col>
                 </Row>
               </Card>
-
+              {(!allowReadImportPrice || !allowReadCostPrice) && (
+                <StockInOutAlertPricePermission
+                  allowReadImportPrice={allowReadImportPrice}
+                  allowReadCostPrice={allowReadCostPrice}
+                />
+              )}
               <Card
                 title={`SẢN PHẨM ${StockInOutTypeMapping[stockInOutData.type].toLocaleUpperCase()}`}
                 extra={
@@ -341,7 +350,7 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
                       render: (value, item, index) => {
                         return (
                           <div>
-                            {formatCurrency(Math.round(value || 0), ".")}
+                            {value ? formatCurrency(Math.round(value || 0), ".") : ""}
                             <span
                               style={{
                                 color: "#737373",
@@ -375,7 +384,7 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
                       align: "center",
                       width: "20%",
                       render: (value, item) => (
-                        <div>{formatCurrency(Math.round(value || 0), ".")}</div>
+                        <div>{value ? formatCurrency(Math.round(value || 0), ".") : ""}</div>
                       ),
                     },
                   ]}
@@ -392,14 +401,17 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
                     </div>
                     <div style={{ width: "30%" }}></div>
                     <div style={{ width: "43%" }} className="ie-payment-detail-row-result">
-                      {formatCurrency(
-                        Math.round(
-                          StockInOutProductUtils.getTotalAmountByStockInOutItems(
-                            stockInOutData.stock_in_out_other_items,
-                          ),
-                        ),
-                        ".",
-                      ) ?? "-"}
+                      {StockInOutProductUtils.checkAllAmountIsNull(
+                        stockInOutData.stock_in_out_other_items,
+                      )
+                        ? ""
+                        : formatCurrency(
+                            Math.round(
+                              StockInOutProductUtils.getTotalAmountByStockInOutItems(
+                                stockInOutData.stock_in_out_other_items,
+                              ),
+                            ),
+                          )}
                     </div>
                   </Col>
                 </Row>
