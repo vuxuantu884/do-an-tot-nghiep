@@ -74,7 +74,7 @@ export const setTableHorizontalColumns = (
         parentHeader.children.push(
           setObjectiveColumns(
             nonAccentVietnameseKD(keyDriverChild),
-            keyDriverChild.toUpperCase(),
+            keyDriverChild,
             index,
             1,
             "key-driver-header",
@@ -87,7 +87,7 @@ export const setTableHorizontalColumns = (
       columns.push(
         setObjectiveColumns(
           nonAccentVietnameseKD(keyDriver),
-          keyDriver.toUpperCase(),
+          keyDriver,
           index,
           1,
           "key-driver-header",
