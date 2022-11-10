@@ -167,10 +167,8 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
               showNotification(`Đơn hàng ${data.order.code} không ở trạng thái đóng gói`);
               return;
             }
-            if (type === HandoverReturn && !isFulfillmentReturningOrReturned(data)) {
-              showNotification(
-                `Đơn hàng ${data.order.code} không ở trạng thái đang hoàn hoặc đã hoàn`,
-              );
+            if (type === HandoverReturn && !isFulfillmentReturning(data)) {
+              showNotification(`Đơn hàng ${data.order.code} không ở trạng thái đang hoàn`);
               return;
             }
 
