@@ -45,7 +45,6 @@ import {
 import StockInOutProductUtils from "../util/StockInOutProductUtils";
 import { StockInOutItemsOther } from "model/stock-in-out-other";
 import { showError } from "utils/ToastUtils";
-import { ProductPermission } from "config/permissions/product.permission";
 
 interface IEProductFormProps {
   formMain: FormInstance;
@@ -53,10 +52,19 @@ interface IEProductFormProps {
   title: string;
   typePrice: string;
   setTypePrice: (value: string) => void;
-  readPricePermissions: string[];
+  allowReadImportPrice: boolean;
+  allowReadCostPrice: boolean;
 }
 const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) => {
-  const { formMain, inventoryType, title, typePrice, setTypePrice, readPricePermissions } = props;
+  const {
+    formMain,
+    inventoryType,
+    title,
+    typePrice,
+    setTypePrice,
+    allowReadImportPrice,
+    allowReadCostPrice,
+  } = props;
   const [loadingSearch, setLoadingSearch] = useState(false);
   const productSearchRef = createRef<CustomAutoComplete>();
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
@@ -391,21 +399,19 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
     // }
   };
 
-  const renderFormat = (value: string) => {
+  const renderFormatValue = (value: string) => {
     let text = "";
-    if (value) {
+    if (!isNullOrUndefined(value)) {
       text = formatCurrency(value);
     } else if (
-      !value &&
-      !isEmpty(readPricePermissions) &&
-      readPricePermissions.includes(ProductPermission.read_cost) &&
+      isNullOrUndefined(value) &&
+      allowReadCostPrice &&
       typePrice === StockInOutPolicyPriceField.cost_price
     ) {
       text = "Chưa có giá vốn";
     } else if (
-      !value &&
-      !isEmpty(readPricePermissions) &&
-      readPricePermissions.includes(ProductPermission.read_import) &&
+      isNullOrUndefined(value) &&
+      allowReadImportPrice &&
       typePrice === StockInOutPolicyPriceField.import_price
     ) {
       text = "Chưa có giá nhập";
@@ -685,7 +691,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                       <NumberInput
                         className="hide-number-handle"
                         format={(a: string) => {
-                          return renderFormat(a);
+                          return renderFormatValue(a);
                         }}
                         replace={(a: string) => {
                           return replaceFormatString(a);
@@ -730,7 +736,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                           textAlign: "right",
                         }}
                       >
-                        {isNullOrUndefined(value) ? "-" : formatCurrency(Math.round(value))}
+                        {isNullOrUndefined(value) ? "" : formatCurrency(Math.round(value))}
                       </div>
                     );
                   },
@@ -781,7 +787,9 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                         <b>Tổng tiền:</b>
                       </div>
                       <div className="ie-payment-row-result">
-                        {formatCurrency(Math.round(totalAmount || 0))}
+                        {StockInOutProductUtils.checkAllAmountIsNull(stock_in_out_other_items)
+                          ? ""
+                          : formatCurrency(Math.round(totalAmount || 0))}
                       </div>
                     </div>
                   </div>

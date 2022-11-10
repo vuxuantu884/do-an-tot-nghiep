@@ -90,6 +90,9 @@ const StockInOutProductUtils = {
     data.forEach((item) => (total = total + item.quantity));
     return total;
   },
+  checkAllAmountIsNull: (stockInOutItemsOther: Array<StockInOutItemsOther>) => {
+    return stockInOutItemsOther.every((item: StockInOutItemsOther) => item.amount === null);
+  },
 };
 
 export default StockInOutProductUtils;
