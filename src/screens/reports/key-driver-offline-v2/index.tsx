@@ -105,7 +105,6 @@ function KeyDriverOffline() {
   // get query from url
   const query = new URLSearchParams(useLocation().search);
   const date = query.get("date");
-  const targetDay = query.get("day");
   const keyDriverGroupLv1 = query.get("keyDriverGroupLv1") || DEFAULT_OFF_KD_GROUP_LV1;
   const departmentLv2 = query.get("departmentLv2");
   const departmentLv3 = query.get("departmentLv3");
@@ -211,7 +210,7 @@ function KeyDriverOffline() {
       link: string,
     ): ColumnGroupType<any> | ColumnType<any> => {
       const queryParams = queryString.parse(history.location.search);
-      const { direction } = queryParams;
+      const { direction, date: viewDate } = queryParams;
       return {
         title: link ? <Link to={link}>{department}</Link> : department,
         className: classnames("department-name", className),
@@ -238,7 +237,7 @@ function KeyDriverOffline() {
             className: "input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
               // const inputId = getInputTargetId(index, columnIndex * 2, PREFIX_CELL_TABLE);
-              const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-month-target`;
+              const inputId = `${record.title}-${index}-${columnIndex * 2 + 1}-month-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
               return numberOfStoreStaffKD.includes(record.key) ? (
@@ -486,7 +485,7 @@ function KeyDriverOffline() {
             className: "input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
               // const inputId = getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE);
-              const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-day-target`;
+              const inputId = `${record.title}-${index}-${columnIndex * 2 + 1}-day-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
               return ["OF.DT.FB.02", ...numberOfStoreStaffKD, ...npsKD].includes(record.key) ? (
@@ -514,10 +513,12 @@ function KeyDriverOffline() {
 
                           if (!clickCancel && value != newValue) {
                             newValue = value;
-                            let newTargetDay = Number(targetDay);
+                            let targetDay = viewDate
+                              ? moment(viewDate as string, DATE_FORMAT.YYYYMMDD).date()
+                              : 0;
                             const day =
-                              newTargetDay && newTargetDay > 0 && newTargetDay <= 31
-                                ? newTargetDay
+                              targetDay && targetDay > 0 && targetDay <= 31
+                                ? targetDay
                                 : moment().date();
                             if (direction === KDReportDirection.Horizontal) {
                               saveTargetHorizontalReport(
@@ -656,7 +657,7 @@ function KeyDriverOffline() {
         ],
       };
     },
-    [day, dispatch, history, targetDay],
+    [day, dispatch, history],
   );
 
   const initTable = useCallback(
