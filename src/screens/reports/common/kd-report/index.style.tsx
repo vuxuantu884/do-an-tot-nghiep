@@ -7,7 +7,7 @@ export const KeyDriverStyle = styled.div`
     font-weight: 500;
     font-size: 14px;
     .ant-table-body {
-      border-top: 3px solid #ddd;
+      border-top: 2px solid #ddd;
       padding-bottom: 14px;
       table > tbody > tr > td {
         border-right: 2px solid #ddd !important;
@@ -51,7 +51,6 @@ export const KeyDriverStyle = styled.div`
   }
   .key-cell {
     height: 100%;
-    width: 100%;
     cursor: help;
     // min-height: 30px;
     display: flex;
@@ -140,18 +139,15 @@ export const KeyDriverStyle = styled.div`
   }
 
   .ant-table .ant-table-cell-with-append {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
+    display: table-cell;
+    // flex-direction: row;
+    // justify-content: flex-start;
 
-    .ant-table-row-expand-icon,
-    .ant-table-row-expand-icon-expanded {
-      margin: 0px;
-      min-width: 18px;
-    }
-    position: absolute !important;
-    width: 220px;
-    height: 44px;
+    // .ant-table-row-expand-icon,
+    // .ant-table-row-expand-icon-expanded {
+    //   margin: 0px;
+    //   min-width: 18px;
+    // }
   }
 
   .ant-table-row-expand-icon:focus,
@@ -163,37 +159,31 @@ export const KeyDriverStyle = styled.div`
 
   .ant-table-row-level {
     &-0 {
-      height: 44px;
       td:first-child {
         background-color: #ffd978 !important;
       }
     }
     &-1 {
-      height: 44px;
       td:first-child {
         background-color: #ffe5a4 !important;
       }
     }
     &-2 {
-      height: 44px;
       td:first-child {
         background-color: #fff0c5 !important;
       }
     }
     &-3 {
-      height: 44px;
       td:first-child {
         background-color: #fff8e2 !important;
       }
     }
     &-4 {
-      height: 44px;
       td:first-child {
         background-color: #fffdf5 !important;
       }
     }
     &-5 {
-      height: 44px;
       td:first-child {
         background-color: #ffffff !important;
       }
