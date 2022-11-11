@@ -35,7 +35,8 @@ export const setTableHorizontalColumns = (
               item[keyDriverIndex].includes("OF.SP.01.") ||
               item[keyDriverIndex].includes("ON.SP.01.") ||
               (keyDriverUpLevel && item[keyDriverIndex] === keyDriverUpLevel)) &&
-            item[departmentLv1Index]
+            item[departmentLv1Index] &&
+            !item[keyDriverIndex].endsWith(".L")
           );
         }
         return item;
@@ -66,7 +67,7 @@ export const setTableHorizontalColumns = (
     if (children?.length) {
       const parentHeader = {
         title: keyDriver,
-        className: classnames("key-driver-header border-bottom-none"),
+        className: classnames("key-driver-header"),
         children: [] as any[],
       };
       children.forEach((child: any) => {

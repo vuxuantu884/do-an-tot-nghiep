@@ -256,10 +256,6 @@ export const KeyDriverStyle = styled.div`
     padding-left: 5px;
   }
 
-  .border-bottom-none {
-    border-bottom: none !important;
-  }
-
   .key-driver-header {
     cursor: pointer;
     &:nth-child(odd) {
