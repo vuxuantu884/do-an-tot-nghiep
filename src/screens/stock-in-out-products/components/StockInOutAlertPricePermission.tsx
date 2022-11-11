@@ -25,12 +25,12 @@ function StockInOutAlertPricePermission(props: PropTypes): JSX.Element {
   const { allowReadImportPrice, allowReadCostPrice } = props;
   const renderPricePermissions = () => {
     let text = "";
-    if (!allowReadImportPrice) {
-      text = "Bạn có quyền xem giá vốn";
+    if (!allowReadImportPrice && !allowReadCostPrice) {
+      text = "Bạn không có quyền xem giá";
     } else if (!allowReadCostPrice) {
       text = "Bạn có quyền xem giá nhập";
-    } else if (!allowReadImportPrice && !allowReadCostPrice) {
-      text = "Bạn không có quyền xem giá";
+    } else if (!allowReadImportPrice) {
+      text = "Bạn có quyền xem giá vốn";
     }
     return text;
   };

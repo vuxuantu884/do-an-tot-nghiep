@@ -401,16 +401,16 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
 
   const renderFormatValue = (value: string) => {
     let text = "";
-    if (!isNullOrUndefined(value)) {
+    if (value) {
       text = formatCurrency(value);
     } else if (
-      isNullOrUndefined(value) &&
+      !value &&
       allowReadCostPrice &&
       typePrice === StockInOutPolicyPriceField.cost_price
     ) {
       text = "Chưa có giá vốn";
     } else if (
-      isNullOrUndefined(value) &&
+      !value &&
       allowReadImportPrice &&
       typePrice === StockInOutPolicyPriceField.import_price
     ) {
