@@ -3,8 +3,12 @@ import styled from "styled-components";
 
 export const KeyDriverStyle = styled.div`
   .ant-table {
+    color: #262626;
+    font-weight: 500;
+    font-size: 14px;
     .ant-table-body {
       border-top: 3px solid #ddd;
+      padding-bottom: 14px;
       table > tbody > tr > td {
         border-right: 2px solid #ddd !important;
         border-bottom: 2px solid #ddd !important;
@@ -70,6 +74,9 @@ export const KeyDriverStyle = styled.div`
   .input-cell {
     padding: 0px !important;
     input {
+      color: #262626;
+      font-weight: 500;
+      font-size: 14px;
       text-align: right;
       width: 100%;
       padding: 0 2px 0 0;
