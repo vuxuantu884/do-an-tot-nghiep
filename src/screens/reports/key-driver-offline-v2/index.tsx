@@ -1,6 +1,6 @@
 /* eslint-disable eqeqeq */
 import { CheckOutlined, CloseOutlined, SettingOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Form, Select, Table, Tooltip } from "antd";
+import { Button, Card, Col, Form, Popover, Select, Table } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
 import ContentContainer from "component/container/content.container";
@@ -64,13 +64,14 @@ const baseColumns: any = [
     fixed: "left",
     render: (text: string, record: any) => {
       return (
-        <Tooltip
-          className="text-truncate-2 key-cell padding-left-5"
-          title={record.method}
+        <Popover
+          content={<div style={{ width: 200 }}>{record.method}</div>}
+          title={<div style={{ width: 200 }}>{text}</div>}
           placement="leftBottom"
+          className="text-truncate-2 key-cell padding-left-5"
         >
           {text}
-        </Tooltip>
+        </Popover>
       );
     },
   },
@@ -226,9 +227,13 @@ function KeyDriverOffline() {
           {
             title: () => {
               return (
-                <Tooltip title="Cho phép người dùng nhập vào." placement="top">
+                <Popover
+                  content={<div style={{ width: 200 }}>Cho phép người dùng nhập vào</div>}
+                  title="MỤC TIÊU THÁNG"
+                  placement="bottom"
+                >
                   MỤC TIÊU THÁNG
-                </Tooltip>
+                </Popover>
               );
             },
             width: 120,
@@ -320,7 +325,7 @@ function KeyDriverOffline() {
                         display: "flex",
                         justifyContent: "flex-end",
                         position: "absolute",
-                        zIndex: 2,
+                        zIndex: 1,
                         paddingTop: "2px",
                         right: 0,
                       }}
@@ -357,12 +362,19 @@ function KeyDriverOffline() {
           {
             title: () => {
               return (
-                <Tooltip
-                  title="Dữ liệu cập nhật từ đầu tháng đến hết ngày hôm qua(TH ngày chọn là ngày hiện tại). Dữ liệu cập nhật từ đầu tháng đến ngày được chọn(TH ngày được chọn là ngày quá khứ)"
-                  placement="top"
+                <Popover
+                  content={
+                    <div style={{ width: 200 }}>
+                      Dữ liệu cập nhật từ đầu tháng đến hết ngày hôm qua(TH ngày chọn là ngày hiện
+                      tại). Dữ liệu cập nhật từ đầu tháng đến ngày được chọn(TH ngày được chọn là
+                      ngày quá khứ)
+                    </div>
+                  }
+                  title="LUỸ KẾ"
+                  placement="bottom"
                 >
                   LUỸ KẾ
-                </Tooltip>
+                </Popover>
               );
             },
             width: 45,
@@ -380,9 +392,13 @@ function KeyDriverOffline() {
           {
             title: () => {
               return (
-                <Tooltip title="Luỹ kế/Mục tiêu tháng" placement="top">
+                <Popover
+                  content={<div style={{ width: 200 }}>Luỹ kế/Mục tiêu tháng</div>}
+                  title="TỶ LỆ"
+                  placement="bottom"
+                >
                   TỶ LỆ
-                </Tooltip>
+                </Popover>
               );
             },
             width: 45,
@@ -400,12 +416,17 @@ function KeyDriverOffline() {
           {
             title: () => {
               return (
-                <Tooltip
-                  title="=Lũy kế/(Ngày được chọn - 1) * Số ngày trong tháng(TH ngày dược chọn là ngày hiện tại). =Lũy kế/Ngày được chọn * Số ngày trong tháng(TH ngày được chọn là ngày quá khứ)"
-                  placement="top"
+                <Popover
+                  content={
+                    <div
+                      style={{ width: 200 }}
+                    >{`=Lũy kế/(Ngày được chọn - 1) * Số ngày trong tháng(TH ngày dược chọn là ngày hiện tại). =Lũy kế/Ngày được chọn * Số ngày trong tháng(TH ngày được chọn là ngày quá khứ)`}</div>
+                  }
+                  title="DỰ KIẾN ĐẠT"
+                  placement="bottom"
                 >
                   DỰ KIẾN ĐẠT
-                </Tooltip>
+                </Popover>
               );
             },
             width: 90,
@@ -439,9 +460,13 @@ function KeyDriverOffline() {
           {
             title: () => {
               return (
-                <Tooltip title="Dự kiến đạt/Mục tiêu tháng" placement="top">
+                <Popover
+                  content={<div style={{ width: 200 }}>Dự kiến đạt/Mục tiêu tháng</div>}
+                  title="TỶ LỆ"
+                  placement="bottom"
+                >
                   TỶ LỆ
-                </Tooltip>
+                </Popover>
               );
             },
             width: 45,
@@ -471,12 +496,17 @@ function KeyDriverOffline() {
           {
             title: () => {
               return (
-                <Tooltip
-                  title="=(Mục tiêu tháng - Lũy kế) / [Số ngày trong tháng - (Ngày hiện tại - 1)]. Người dùng vẫn có thể nhập mục tiêu ngày cho riêng phòng ban. Xoá mục tiêu ngày đã nhập -> Unicorn sẽ tự tính lại mục tiêu ngày theo công thức trên"
-                  placement="top"
+                <Popover
+                  content={
+                    <div
+                      style={{ width: 200 }}
+                    >{`=(Mục tiêu tháng - Lũy kế) / [Số ngày trong tháng - (Ngày hiện tại - 1)]. Người dùng vẫn có thể nhập mục tiêu ngày cho riêng phòng ban. Xoá mục tiêu ngày đã nhập -> Unicorn sẽ tự tính lại mục tiêu ngày theo công thức trên`}</div>
+                  }
+                  title="MỤC TIÊU NGÀY"
+                  placement="bottom"
                 >
                   MỤC TIÊU NGÀY
-                </Tooltip>
+                </Popover>
               );
             },
             width: 110,
@@ -578,7 +608,7 @@ function KeyDriverOffline() {
                         display: "flex",
                         justifyContent: "flex-end",
                         position: "absolute",
-                        zIndex: 2,
+                        zIndex: 1,
                         paddingTop: "2px",
                         right: 0,
                       }}
@@ -615,9 +645,13 @@ function KeyDriverOffline() {
           {
             title: () => {
               return (
-                <Tooltip title="Dữ liệu trong ngày hôm nay" placement="top">
+                <Popover
+                  content={<div style={{ width: 200 }}>Dữ liệu trong ngày hôm nay</div>}
+                  title="THỰC ĐẠT"
+                  placement="bottom"
+                >
                   THỰC ĐẠT
-                </Tooltip>
+                </Popover>
               );
             },
             width: 75,
@@ -637,9 +671,13 @@ function KeyDriverOffline() {
           {
             title: () => {
               return (
-                <Tooltip title="Thực đạt/Mục tiêu ngày" placement="top">
+                <Popover
+                  content={<div style={{ width: 200 }}>Thực đạt/Mục tiêu ngày</div>}
+                  title="TỶ LỆ"
+                  placement="bottom"
+                >
                   TỶ LỆ
-                </Tooltip>
+                </Popover>
               );
             },
             width: 50,
