@@ -872,7 +872,9 @@ function KeyDriverOnline() {
             return [];
           }),
         );
-      } catch (error) {}
+      } catch (error) {
+        console.log("error", error);
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, setData, setObjectiveColumns],
