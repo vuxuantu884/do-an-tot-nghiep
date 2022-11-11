@@ -293,6 +293,7 @@ export const setSubStatusAction = (
   handleError?: () => void,
   reason_id?: number,
   sub_reason_id?: number,
+  returned_store_id?: number,
   // action: string = "Chuyển trạng thái phụ",
 ) => {
   return {
@@ -305,6 +306,7 @@ export const setSubStatusAction = (
       handleError,
       reason_id,
       sub_reason_id,
+      returned_store_id,
     },
   };
 };

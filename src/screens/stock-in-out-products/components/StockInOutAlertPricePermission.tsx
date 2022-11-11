@@ -1,10 +1,10 @@
 import { Alert } from "antd";
 import React from "react";
 import styled from "styled-components";
-import { PricePermissionMapping } from "../constant";
 
 type PropTypes = {
-  readPricePermissions: string[];
+  allowReadImportPrice: boolean;
+  allowReadCostPrice: boolean;
 };
 
 const StyledComponent = styled.div`
@@ -22,16 +22,15 @@ const StyledComponent = styled.div`
 `;
 
 function StockInOutAlertPricePermission(props: PropTypes): JSX.Element {
-  const { readPricePermissions } = props;
+  const { allowReadImportPrice, allowReadCostPrice } = props;
   const renderPricePermissions = () => {
     let text = "";
-    if (readPricePermissions.length === 0) {
+    if (!allowReadImportPrice) {
+      text = "Bạn có quyền xem giá vốn";
+    } else if (!allowReadCostPrice) {
+      text = "Bạn có quyền xem giá nhập";
+    } else if (!allowReadImportPrice && !allowReadCostPrice) {
       text = "Bạn không có quyền xem giá";
-    } else {
-      const permissionMapping = readPricePermissions
-        .map((item: string) => PricePermissionMapping[item])
-        .join(",");
-      text = "Bạn có quyền xem " + permissionMapping;
     }
     return text;
   };

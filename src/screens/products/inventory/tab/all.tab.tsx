@@ -1,4 +1,3 @@
-import CustomPagination from "component/table/CustomPagination";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { AppConfig } from "config/app.config";
@@ -10,7 +9,7 @@ import {
   updateConfigInventoryAction,
 } from "domain/actions/inventory/inventory.action";
 import { hideLoading } from "domain/actions/loading.action";
-import { HeaderSummary } from "hook/filter/HeaderSummary";
+import { HeaderSummary, SortType } from "hook/filter/HeaderSummary";
 import { debounce } from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
@@ -228,20 +227,12 @@ const AllTab: React.FC<any> = (props) => {
     [history, params, setConditionFilter, setStoreIds],
   );
 
-  const onSortASC = useCallback(
-    (sortColumn: string) => {
-      const newPrams = { ...params, sort_type: "asc", sort_column: sortColumn };
-      onFilter(newPrams);
-    },
-    [onFilter, params],
-  );
-
-  const onSortDESC = useCallback(
-    (sortColumn: string) => {
+  const onSort = useCallback(
+    (sort_column: string, sort_type: SortType) => {
       const newPrams = {
         ...params,
-        sort_type: "desc",
-        sort_column: sortColumn,
+        sort_type,
+        sort_column,
       };
       onFilter(newPrams);
     },
@@ -327,12 +318,9 @@ const AllTab: React.FC<any> = (props) => {
           objSummaryTable?.Sum_Total,
           "Tổng tồn",
           InventoryColumnField.total_stock,
-          (sortColumn: string) => {
-            onSortASC(sortColumn);
-          },
-          (sortColumn: string) => {
-            onSortDESC(sortColumn);
-          },
+          onSort,
+          params.sort_type,
+          params.sort_column === InventoryColumnField.total_stock,
           "Tồn trong kho + Chuyển đi + Đang giao dịch",
         ),
         titleCustom: "Tổng tồn",
@@ -349,12 +337,9 @@ const AllTab: React.FC<any> = (props) => {
           objSummaryTable?.Sum_On_hand,
           "Tồn trong kho",
           InventoryColumnField.on_hand,
-          (sortColumn: string) => {
-            onSortASC(sortColumn);
-          },
-          (sortColumn: string) => {
-            onSortDESC(sortColumn);
-          },
+          onSort,
+          params.sort_type,
+          params.sort_column === InventoryColumnField.on_hand,
           "Số hàng vật lý, hàng trong kho thực tế của cửa hàng",
         ),
         titleCustom: "Tồn trong kho",
@@ -371,12 +356,9 @@ const AllTab: React.FC<any> = (props) => {
           objSummaryTable?.Sum_Available,
           "Có thể bán",
           InventoryColumnField.available,
-          (sortColumn: string) => {
-            onSortASC(sortColumn);
-          },
-          (sortColumn: string) => {
-            onSortDESC(sortColumn);
-          },
+          onSort,
+          params.sort_type,
+          params.sort_column === InventoryColumnField.available,
           "Tồn kho - Đang giao dịch - Tạm giữ - Hàng lỗi",
         ),
         titleCustom: "Có thể bán",
@@ -393,12 +375,9 @@ const AllTab: React.FC<any> = (props) => {
           objSummaryTable?.Sum_Committed,
           "Đang giao dịch",
           InventoryColumnField.committed,
-          (sortColumn: string) => {
-            onSortASC(sortColumn);
-          },
-          (sortColumn: string) => {
-            onSortDESC(sortColumn);
-          },
+          onSort,
+          params.sort_type,
+          params.sort_column === InventoryColumnField.committed,
           "Số lượng sản phẩm trong đơn hàng online đã được xác nhận nhưng chưa giao cho khách",
         ),
         titleCustom: "Đang giao dịch",
@@ -429,12 +408,9 @@ const AllTab: React.FC<any> = (props) => {
           objSummaryTable?.Sum_On_hold,
           "Tạm giữ",
           InventoryColumnField.on_hold,
-          (sortColumn: string) => {
-            onSortASC(sortColumn);
-          },
-          (sortColumn: string) => {
-            onSortDESC(sortColumn);
-          },
+          onSort,
+          params.sort_type,
+          params.sort_column === InventoryColumnField.on_hold,
           "Số lượng sản phẩm trong phiếu chuyển kho đã được xác nhận nhưng chưa chuyển đi và hàng đang chờ xử lý khi có sai lệch số lượng chuyển - nhận",
         ),
         titleCustom: "Tạm giữ",
@@ -465,12 +441,9 @@ const AllTab: React.FC<any> = (props) => {
           objSummaryTable?.Sum_Defect,
           "Hàng lỗi",
           InventoryColumnField.defect,
-          (sortColumn: string) => {
-            onSortASC(sortColumn);
-          },
-          (sortColumn: string) => {
-            onSortDESC(sortColumn);
-          },
+          onSort,
+          params.sort_type,
+          params.sort_column === InventoryColumnField.defect,
           "Số lượng sản phẩm bị lỗi về chất lượng, không bán được, chờ sửa hoặc hủy",
         ),
         titleCustom: "Hàng lỗi",
@@ -494,12 +467,9 @@ const AllTab: React.FC<any> = (props) => {
           objSummaryTable?.Sum_In_coming,
           "Chờ nhập",
           InventoryColumnField.in_coming,
-          (sortColumn: string) => {
-            onSortASC(sortColumn);
-          },
-          (sortColumn: string) => {
-            onSortDESC(sortColumn);
-          },
+          onSort,
+          params.sort_type,
+          params.sort_column === InventoryColumnField.in_coming,
           "Số lượng sản phẩm chờ nhập từ nhà cung cấp",
         ),
         titleCustom: "Chờ nhập",
@@ -530,12 +500,9 @@ const AllTab: React.FC<any> = (props) => {
           objSummaryTable?.Sum_Transferring,
           "Chuyển đến",
           InventoryColumnField.transferring,
-          (sortColumn: string) => {
-            onSortASC(sortColumn);
-          },
-          (sortColumn: string) => {
-            onSortDESC(sortColumn);
-          },
+          onSort,
+          params.sort_type,
+          params.sort_column === InventoryColumnField.transferring,
           "Số lượng sản phẩm đang trên đường chuyển đến kho của mình",
         ),
         titleCustom: "Chuyển đến",
@@ -566,12 +533,9 @@ const AllTab: React.FC<any> = (props) => {
           objSummaryTable?.Sum_On_way,
           "Chuyển đi",
           InventoryColumnField.on_way,
-          (sortColumn: string) => {
-            onSortASC(sortColumn);
-          },
-          (sortColumn: string) => {
-            onSortDESC(sortColumn);
-          },
+          onSort,
+          params.sort_type,
+          params.sort_column === InventoryColumnField.on_way,
           "Số lượng sản phẩm đang trên đường chuyển đến kho khác",
         ),
         titleCustom: "Chuyển đi",
@@ -602,12 +566,9 @@ const AllTab: React.FC<any> = (props) => {
           objSummaryTable?.Sum_Shipping,
           "Đang giao",
           InventoryColumnField.shipping,
-          (sortColumn: string) => {
-            onSortASC(sortColumn);
-          },
-          (sortColumn: string) => {
-            onSortDESC(sortColumn);
-          },
+          onSort,
+          params.sort_type,
+          params.sort_column === InventoryColumnField.shipping,
           "Số lượng sản phẩm đang trên đường giao cho khách, thuộc quản lý của kho, cửa hàng",
         ),
         titleCustom: "Đang giao",
@@ -627,7 +588,7 @@ const AllTab: React.FC<any> = (props) => {
         },
       },
     ];
-  }, [objSummaryTable, onSortDESC, onSortASC, goDocument]);
+  }, [objSummaryTable, onSort, params.sort_column, params.sort_type, goDocument]);
 
   const defaultColumnsDrill: Array<ICustomTableColumType<InventoryResponse>> = useMemo(() => {
     return [
@@ -1287,6 +1248,10 @@ const AllTab: React.FC<any> = (props) => {
     }
   }, [getConfigColumnInventory, isColumnConfigFetchSucceed]);
 
+  useEffect(() => {
+    setColumns(defaultColumns);
+  }, [defaultColumns]);
+
   return (
     <div>
       <AllInventoryFilter
@@ -1312,7 +1277,15 @@ const AllTab: React.FC<any> = (props) => {
         sticky={{ offsetHeader: OFFSET_HEADER_TABLE, offsetSummary: 10 }}
         expandedRowKeys={expandRow}
         onSelectedChange={onSelect}
-        pagination={false}
+        pagination={{
+          showSizeChanger: true,
+          pageSize: data.metadata.limit,
+          current: data.metadata.page,
+          total: data.metadata.total,
+          onChange: onPageChange,
+          onShowSizeChange: onPageChange,
+          pageSizeOptions: pageSizeOptions,
+        }}
         expandable={{
           expandIcon: (props) => {
             let icon = <HiChevronDoubleRight size={12} />;
@@ -1364,17 +1337,6 @@ const AllTab: React.FC<any> = (props) => {
         }}
         columns={columnsFinal}
         rowKey={(data) => data.id}
-      />
-      <CustomPagination
-        pagination={{
-          showSizeChanger: true,
-          pageSize: data.metadata.limit,
-          current: data.metadata.page,
-          total: data.metadata.total,
-          onChange: onPageChange,
-          onShowSizeChange: onPageChange,
-          pageSizeOptions: pageSizeOptions,
-        }}
       />
       <ModalSettingColumn
         visible={showSettingColumn}
