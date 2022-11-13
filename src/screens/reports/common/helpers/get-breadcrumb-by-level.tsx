@@ -34,5 +34,14 @@ export const getBreadcrumbByLevel = (
       })}`,
     });
   }
+  if (queries.groupLv2) {
+    const { groupLv2, groupLv, groupLvName, ...noGroupLv } = queries;
+    breadcrumb.push({
+      name: groupLv2,
+      path: `?${queryString.stringify({
+        ...noGroupLv,
+      })}`,
+    });
+  }
   return breadcrumb;
 };

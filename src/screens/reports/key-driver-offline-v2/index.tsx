@@ -1,5 +1,5 @@
 /* eslint-disable eqeqeq */
-import { CheckOutlined, CloseOutlined, SettingOutlined } from "@ant-design/icons";
+import { CheckOutlined, CloseOutlined, RightOutlined, SettingOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Form, Popover, Select, Table } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
@@ -67,7 +67,7 @@ const baseColumns: any = [
         <Popover
           content={<div style={{ width: 200 }}>{record.method}</div>}
           title={<div style={{ width: 200 }}>{text}</div>}
-          placement="leftBottom"
+          placement="rightBottom"
           className="text-truncate-2 key-cell padding-left-5"
         >
           {text}
@@ -109,6 +109,7 @@ function KeyDriverOffline() {
   const keyDriverGroupLv1 = query.get("keyDriverGroupLv1") || DEFAULT_OFF_KD_GROUP_LV1;
   const departmentLv2 = query.get("departmentLv2");
   const departmentLv3 = query.get("departmentLv3");
+  const groupLevel = query.get("groupLv");
 
   const [finalColumns, setFinalColumns] = useState<ColumnsType<any>>([]);
   const [loadingPage, setLoadingPage] = useState<boolean | undefined>();
@@ -213,7 +214,14 @@ function KeyDriverOffline() {
       const queryParams = queryString.parse(history.location.search);
       const { direction, date: viewDate } = queryParams;
       return {
-        title: link ? <Link to={link}>{department}</Link> : department,
+        title: link ? (
+          <Link to={link}>
+            <span>{department}</span>{" "}
+            {direction === KDReportDirection.Horizontal ? <RightOutlined /> : ""}
+          </Link>
+        ) : (
+          department
+        ),
         className: classnames("department-name", className),
         onHeaderCell: (data: any) => {
           return {
@@ -741,7 +749,8 @@ function KeyDriverOffline() {
         const queryParams = queryString.parse(history.location.search);
         const {
           direction,
-          groupLevel,
+          groupLv,
+          groupLvName,
           departmentLv2: departmentLv2Param,
           departmentLv3: departmentLv3Param,
         } = queryParams;
@@ -774,15 +783,20 @@ function KeyDriverOffline() {
             return convertDataToFlatTableRotation(
               response,
               currentDrillingLevel,
-              groupLevel as string,
+              groupLv as string,
             );
           });
           const horizontalColumns = () => {
             return setTableHorizontalColumns(
               response.result.data,
               setObjectiveColumns,
-              groupLevel as string,
+
               currentDrillingLevel,
+              {
+                groupLv: groupLv as string,
+                groupLvName: groupLvName as string,
+                queryParams,
+              },
             );
           };
           temp = [
@@ -883,7 +897,9 @@ function KeyDriverOffline() {
             return [];
           }),
         );
-      } catch (error) {}
+      } catch (error) {
+        console.log("error", error);
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, setData, setObjectiveColumns],
@@ -913,7 +929,7 @@ function KeyDriverOffline() {
       };
       history.push({ search: queryString.stringify(newQueries) });
     }
-  }, [initTable, history, date, keyDriverGroupLv1, departmentLv2, departmentLv3, form]);
+  }, [initTable, history, date, keyDriverGroupLv1, departmentLv2, departmentLv3, form, groupLevel]);
 
   const onFinish = useCallback(() => {
     let date = form.getFieldsValue(true)["date"];

@@ -248,6 +248,9 @@ export const KeyDriverStyle = styled.div`
 
   .key-driver-header {
     cursor: pointer;
+    a {
+      color: #000 !important;
+    }
     &:nth-child(odd) {
       background-color: #fff1b8 !important;
     }
