@@ -82,7 +82,7 @@ export const KeyDriverStyle = styled.div`
     }
     .ant-input-suffix {
       margin-left: -2px;
-      z-index: 1;
+      z-index: 0;
     }
     .btn-cancel-input {
       background-color: #fff;
@@ -116,7 +116,7 @@ export const KeyDriverStyle = styled.div`
     }
     .ant-input-suffix {
       margin-left: -2px;
-      z-index: 1;
+      z-index: 0;
     }
   }
 
