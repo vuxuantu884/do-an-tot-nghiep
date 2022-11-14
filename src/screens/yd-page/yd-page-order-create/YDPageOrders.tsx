@@ -358,7 +358,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   }
 
   const onChangeTag = useCallback(
-    (value: []) => {
+    (value: string[]) => {
       const strTag = value.join(",");
       setTags(strTag);
     },
@@ -611,6 +611,24 @@ export default function Order(props: OrdersCreatePermissionProps) {
       !shippingAddress?.full_address
     );
   };
+  
+  const getTagsValue = () => {
+    let mergedTags = tags;
+    if (fbAdsId) {
+      const fbAdsIdTag = mergedTags !== "" ? `,ad_id: ${fbAdsId}` : `ad_id: ${fbAdsId}`;
+      mergedTags = mergedTags + fbAdsIdTag;
+    }
+    if (campaignId) {
+      const campaignIdTag = mergedTags !== "" ? `,campaign_id: ${campaignId}` : `campaign_id: ${campaignId}`;
+      mergedTags = mergedTags + campaignIdTag;
+    }
+    if (fbPageId) {
+      const fbPageIdTag = mergedTags !== "" ? `,page_id: ${fbPageId}` : `page_id: ${fbPageId}`;
+      mergedTags = mergedTags + fbPageIdTag;
+    }
+    
+    return mergedTags;
+  }
 
   const onFinish = (values: OrderRequest) => {
     values.channel_id = FACEBOOK.channel_id;
@@ -622,9 +640,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
 
-    values.tags = fbAdsId ? `ad_id: ${fbAdsId}` : "";
-    if (campaignId) values.tags = values.tags + values.tags != "" ? `,campaign_id: ${campaignId}` : `campaign_id: ${campaignId}`;
-    if (fbPageId) values.tags = values.tags != "" ? values.tags + `,page_id: ${fbPageId}` : `page_id: ${fbPageId}`;
+    values.tags = getTagsValue();
     values.items = items.concat(itemGifts);
     values.discounts = lstDiscount;
     values.shipping_address = shippingAddress;
