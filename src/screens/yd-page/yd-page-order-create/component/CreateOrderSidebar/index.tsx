@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
+import CustomInputTags from "component/custom/custom-input-tags";
 
 type PropType = {
   form: FormInstance<any>;
@@ -257,6 +258,10 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
             </Form.Item>
           </Col>
         </Row>
+
+        <Form.Item className={"input-tags"}>
+          <CustomInputTags onChangeTag={onChangeTag} tags={tags} />
+        </Form.Item>
 
         <Row gutter={20} style={{ marginTop: 8 }}>
           <Col span={12} style={{ padding: "0 5px 0 10px" }}>

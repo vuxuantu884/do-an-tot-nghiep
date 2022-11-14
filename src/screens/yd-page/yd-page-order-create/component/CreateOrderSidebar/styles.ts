@@ -47,4 +47,11 @@ export const StyledComponent = styled.div`
   .note-form-input::placeholder {
     color: #737373;
   }
+  
+  .input-tags {
+    margin: 10px 0;
+    .ant-form-item-control {
+      flex: 0 0 100% !important;
+    }
+  }
 `;
