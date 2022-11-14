@@ -64,7 +64,8 @@ export const convertDataToFlatTableRotation = (
       });
 
       const existedKey = data.findIndex(
-        (item) => item.title && item.title === row[departmentLevelIndex],
+        (item) =>
+          item.title && item.title.toUpperCase() === row[departmentLevelIndex].toUpperCase(),
       );
       if (existedKey === -1) {
         if (row[departmentLevelIndex]) {

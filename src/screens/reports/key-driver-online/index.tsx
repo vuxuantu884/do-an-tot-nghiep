@@ -67,7 +67,7 @@ const baseColumns: any = [
           content={<div style={{ width: 200 }}>{record.method}</div>}
           title={<div style={{ width: 200 }}>{text}</div>}
           placement="rightBottom"
-          className="text-truncate-2 key-cell padding-left-10"
+          className="text-truncate-2 key-cell"
         >
           {text}
         </Popover>
@@ -798,6 +798,7 @@ function KeyDriverOnline() {
               title: "Khu vực",
               key: "name",
               dataIndex: "title",
+              className: "font-size-12px",
               width: 220,
               fixed: "left",
               render: (text: string, record: any) => {
@@ -898,9 +899,7 @@ function KeyDriverOnline() {
   );
 
   useEffect(() => {
-    setTimeout(() => {
-      form.setFieldsValue({ itemsInDim: undefined });
-    }, 1000);
+    form.setFieldsValue({ itemsInDim: [] });
     if (keyDriverGroupLv1 && date) {
       initTable(
         moment(date).format(DATE_FORMAT.YYYYMMDD),
