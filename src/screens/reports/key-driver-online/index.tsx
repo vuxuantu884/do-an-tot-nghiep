@@ -248,9 +248,11 @@ function KeyDriverOnline() {
             dataIndex: `${departmentKey}_monthly_target`,
             className: "input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              const targetDrillingLevel = +record[`target_drilling_level`];
+              // const targetDrillingLevel = +record[`target_drilling_level`];
               // const inputId = getInputTargetId(index, columnIndex * 2, PREFIX_CELL_TABLE);
-              const inputId = `${record.title}-${index}-${columnIndex * 2 + 1}-month-target`;
+              const inputId = `${record[`${departmentKey}_key`] || record.key}-${index}-${
+                columnIndex * 2 + 1
+              }-month-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
               return (
@@ -259,7 +261,7 @@ function KeyDriverOnline() {
                     <NumberInput
                       id={inputId}
                       value={newValue}
-                      disabled={departmentDrillingLevel > targetDrillingLevel}
+                      // disabled={departmentDrillingLevel > targetDrillingLevel}
                       onPressEnter={(e: any) => {
                         const input: any = document.getElementById(inputId);
                         input.blur();
@@ -519,9 +521,11 @@ function KeyDriverOnline() {
             dataIndex: `${departmentKey}_daily_target`,
             className: "input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              const targetDrillingLevel = +record[`target_drilling_level`];
+              // const targetDrillingLevel = +record[`target_drilling_level`];
               // const inputId = getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE);
-              const inputId = `${record.title}-${index}-${columnIndex * 2 + 1}-day-target`;
+              const inputId = `${record[`${departmentKey}_key`] || record.key}-${index}-${
+                columnIndex * 2 + 1
+              }-day-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
               return (
@@ -529,7 +533,7 @@ function KeyDriverOnline() {
                   <div style={{ position: "relative" }}>
                     <NumberInput
                       id={inputId}
-                      disabled={departmentDrillingLevel > targetDrillingLevel}
+                      // disabled={departmentDrillingLevel > targetDrillingLevel}
                       value={newValue}
                       onPressEnter={(e: any) => {
                         const input: any = document.getElementById(inputId);

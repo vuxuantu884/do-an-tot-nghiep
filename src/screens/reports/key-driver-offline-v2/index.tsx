@@ -250,7 +250,9 @@ function KeyDriverOffline() {
             className: "input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
               // const inputId = getInputTargetId(index, columnIndex * 2, PREFIX_CELL_TABLE);
-              const inputId = `${record.title}-${index}-${columnIndex * 2 + 1}-month-target`;
+              const inputId = `${record[`${departmentKey}_key`] || record.key}-${index}-${
+                columnIndex * 2 + 1
+              }-month-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
               return numberOfStoreStaffKD.includes(record.key) ? (
@@ -523,7 +525,9 @@ function KeyDriverOffline() {
             className: "input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
               // const inputId = getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE);
-              const inputId = `${record.title}-${index}-${columnIndex * 2 + 1}-day-target`;
+              const inputId = `${record[`${departmentKey}_key`] || record.key}-${index}-${
+                columnIndex * 2 + 1
+              }-day-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
               return ["OF.DT.FB.02", ...numberOfStoreStaffKD, ...npsKD].includes(record.key) ? (
