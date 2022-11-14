@@ -4,7 +4,7 @@ import { uniqBy } from "lodash";
 import queryString from "query-string";
 import { Link } from "react-router-dom";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
-import { kdOffHaveNotChildren, kdOnHaveNotChildren } from "../constant/kd-have-not-children";
+import { kdOffHaveChildren, kdOnHaveChildren } from "../constant/kd-have-children";
 import { COLUMN_ORDER_LIST } from "../constant/kd-report-response-key";
 
 interface IColumnLink {
@@ -113,6 +113,7 @@ export const setTableHorizontalColumns = (
     const navigateTo = `?${queryString.stringify({
       ...queryParams,
       groupLv2: queryParams.groupLv2 || parent,
+      [`groupLv${nextGroupLv}`]: queryParams.groupLv2 !== keyDriver ? keyDriver : "",
       groupLv: nextGroupLv,
       groupLvName: keyDriver,
     })}`;
@@ -148,9 +149,10 @@ export const setTableHorizontalColumns = (
           index,
           1,
           "key-driver-header",
-          [...kdOffHaveNotChildren, ...kdOnHaveNotChildren].includes(keyDriverCode)
-            ? ""
-            : navigateTo,
+          [...kdOffHaveChildren, ...kdOnHaveChildren].includes(keyDriverCode) &&
+            keyDriver !== currentGroupLvName
+            ? navigateTo
+            : "",
         ),
       );
     }

@@ -263,4 +263,12 @@ export const KeyDriverStyle = styled.div`
     color: #000;
     padding-left: 0.25rem;
   }
+
+  .ant-table-row-expand-icon-spaced {
+    margin-right: 0 !important;
+  }
+
+  // .font-size-12px {
+  //   font-size: 12px;
+  // }
 `;
