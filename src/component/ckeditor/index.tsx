@@ -10,6 +10,8 @@ import { StyledComponent } from "./styles";
  */
 let keyword = "whatever";
 function Editor(props: any) {
+  const CKEDITOR_CDN_URL =
+    "https://cdn.yody.io/ckeditor/ckeditor_4.17.2_standard/ckeditor/ckeditor.js";
   const { initialHtmlContent, onChange, listKeywords, selectedPrintSize, previewHeaderHeight } =
     props;
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -66,8 +68,9 @@ function Editor(props: any) {
       {/* use key to change value */}
       <CKEditor
         // editorUrl={"https://cdn.yody.io/ckeditor.js"}
-        // editorUrl={`${process.env.PUBLIC_URL}/ckeditor/ckeditor.js`}
-        editorUrl={`${process.env.PUBLIC_URL}/ckeditor/ckeditor_4.17.2_standard/ckeditor/ckeditor.js`}
+        // editorUrl={`${process.env.PUBLIC_URL}/ckeditor/ckeditor_4.17.2_standard/ckeditor/ckeditor.js`}
+        // Một số plugin cần download rồi thêm vào folder plugin: https://ckeditor.com/cke4/addons/plugins/all
+        editorUrl={CKEDITOR_CDN_URL}
         key={selectedPrintSize}
         name="editorName"
         // initData={initialHtmlContent}
