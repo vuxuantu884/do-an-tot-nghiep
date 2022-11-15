@@ -5,18 +5,19 @@ export const KeyDriverStyle = styled.div`
   .ant-table {
     color: #262626;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 12px;
     .ant-table-body {
-      border-top: 2px solid #ddd;
+      border-top: 1px solid #d9d9d9;
       padding-bottom: 14px;
       table > tbody > tr > td {
-        border-right: 2px solid #ddd !important;
-        border-bottom: 2px solid #ddd !important;
+        border-right: 1px solid #d9d9d9 !important;
+        border-bottom: 1px solid #d9d9d9 !important;
       }
     }
   }
   .ant-table-thead > tr > th {
-    border-bottom: unset;
+    border-right: 1px solid #d9d9d9 !important;
+    border-bottom: 1px solid #d9d9d9 !important;
     white-space: pre-line;
   }
 
@@ -75,7 +76,7 @@ export const KeyDriverStyle = styled.div`
     input {
       color: #262626;
       font-weight: 500;
-      font-size: 14px;
+      font-size: 12px;
       text-align: right;
       width: 100%;
       padding: 0 2px 0 0;
@@ -228,14 +229,14 @@ export const KeyDriverStyle = styled.div`
     input,
     .input-number,
     .ant-input-affix-wrapper {
-      background: rgba(245, 245, 245, 1) !important;
+      background: #eee !important;
     }
   }
 
   .overflow-wrap-normal {
     overflow-wrap: normal;
     word-break: normal;
-    min-width: 50px;
+    min-width: 40px;
   }
 
   .ant-input-affix-wrapper {
@@ -250,12 +251,6 @@ export const KeyDriverStyle = styled.div`
     cursor: pointer;
     a {
       color: #000 !important;
-    }
-    &:nth-child(odd) {
-      background-color: #fff1b8 !important;
-    }
-    &:nth-child(even) {
-      background-color: #d6d6f8 !important;
     }
   }
 
