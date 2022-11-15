@@ -17,6 +17,7 @@ import {
 } from "utils/AppUtils";
 import { StyleComponent } from "./style";
 import * as CONSTANTS from "utils/Constants";
+import { fullTextSearch } from "utils/StringUtils";
 
 type Props = {
   orderDetail?: OrderResponse | null;
@@ -231,12 +232,7 @@ const ExtraCardCustomer: React.FC<Props> = (props: Props) => {
             onSearch={handleSearchOrderSources}
             placeholder="Nguồn đơn hàng"
             notFoundContent="Không tìm thấy kết quả"
-            filterOption={(input, option) => {
-              if (option) {
-                return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-              }
-              return false;
-            }}
+            filterOption={(input, option: any) => fullTextSearch(input, option?.children)}
             onChange={(value) => {
               setOrderSourceId && setOrderSourceId(value);
             }}
