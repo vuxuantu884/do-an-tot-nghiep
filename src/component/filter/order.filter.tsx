@@ -845,7 +845,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         });
       setRerender(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dateFormat,
     formRef,

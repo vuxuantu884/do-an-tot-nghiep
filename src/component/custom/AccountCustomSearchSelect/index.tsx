@@ -1,4 +1,4 @@
-import { Select, Spin } from "antd";
+import { Select, SelectProps, Spin } from "antd";
 import { AccountResponse } from "model/account/account.model";
 import React, { MutableRefObject, useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -11,7 +11,7 @@ import {
 } from "utils/AppUtils";
 import CustomSelect from "../select.custom";
 
-type PropTypes = {
+type PropTypes = SelectProps<any> & {
   placeholder: string;
   initValue?: string;
   dataToSelect: AccountResponse[];
@@ -19,6 +19,7 @@ type PropTypes = {
   setDataToSelect: (value: AccountResponse[]) => void;
   [res: string]: any;
   isSearchAccountActive?: boolean;
+  isDropdownAlwaysAtBottomLeft?: boolean;
 };
 
 function AccountCustomSearchSelect(props: PropTypes) {
@@ -29,6 +30,7 @@ function AccountCustomSearchSelect(props: PropTypes) {
     initDataToSelect,
     setDataToSelect,
     isSearchAccountActive,
+    isDropdownAlwaysAtBottomLeft,
     ...rest
   } = props;
   const [isLoading, setIsLoading] = useState(false);
@@ -88,6 +90,7 @@ function AccountCustomSearchSelect(props: PropTypes) {
       optionFilterProp="children"
       placeholder={placeholder}
       notFoundContent={isLoading ? <Spin size="small" /> : "Không tìm thấy kết quả"}
+      isDropdownAlwaysAtBottomLeft={isDropdownAlwaysAtBottomLeft}
       {...rest}
     >
       {dataToSelect.length > 0 &&
