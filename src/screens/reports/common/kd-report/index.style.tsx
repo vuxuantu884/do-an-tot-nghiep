@@ -3,16 +3,21 @@ import styled from "styled-components";
 
 export const KeyDriverStyle = styled.div`
   .ant-table {
+    color: #262626;
+    font-weight: 500;
+    font-size: 12px;
     .ant-table-body {
-      border-top: 3px solid #ddd;
+      border-top: 1px solid #d9d9d9;
+      padding-bottom: 14px;
       table > tbody > tr > td {
-        border-right: 2px solid #ddd !important;
-        border-bottom: 2px solid #ddd !important;
+        border-right: 1px solid #d9d9d9 !important;
+        border-bottom: 1px solid #d9d9d9 !important;
       }
     }
   }
   .ant-table-thead > tr > th {
-    border-bottom: unset;
+    border-right: 1px solid #d9d9d9 !important;
+    border-bottom: 1px solid #d9d9d9 !important;
     white-space: pre-line;
   }
 
@@ -47,7 +52,6 @@ export const KeyDriverStyle = styled.div`
   }
   .key-cell {
     height: 100%;
-    width: 100%;
     cursor: help;
     // min-height: 30px;
     display: flex;
@@ -70,13 +74,16 @@ export const KeyDriverStyle = styled.div`
   .input-cell {
     padding: 0px !important;
     input {
+      color: #262626;
+      font-weight: 500;
+      font-size: 12px;
       text-align: right;
       width: 100%;
       padding: 0 2px 0 0;
     }
     .ant-input-suffix {
       margin-left: -2px;
-      z-index: 1;
+      z-index: 0;
     }
     .btn-cancel-input {
       background-color: #fff;
@@ -110,7 +117,7 @@ export const KeyDriverStyle = styled.div`
     }
     .ant-input-suffix {
       margin-left: -2px;
-      z-index: 1;
+      z-index: 0;
     }
   }
 
@@ -133,18 +140,15 @@ export const KeyDriverStyle = styled.div`
   }
 
   .ant-table .ant-table-cell-with-append {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
+    display: table-cell;
+    // flex-direction: row;
+    // justify-content: flex-start;
 
-    .ant-table-row-expand-icon,
-    .ant-table-row-expand-icon-expanded {
-      margin: 0px;
-      min-width: 18px;
-    }
-    position: absolute !important;
-    width: 220px;
-    height: 44px;
+    // .ant-table-row-expand-icon,
+    // .ant-table-row-expand-icon-expanded {
+    //   margin: 0px;
+    //   min-width: 18px;
+    // }
   }
 
   .ant-table-row-expand-icon:focus,
@@ -156,37 +160,31 @@ export const KeyDriverStyle = styled.div`
 
   .ant-table-row-level {
     &-0 {
-      height: 44px;
       td:first-child {
         background-color: #ffd978 !important;
       }
     }
     &-1 {
-      height: 44px;
       td:first-child {
         background-color: #ffe5a4 !important;
       }
     }
     &-2 {
-      height: 44px;
       td:first-child {
         background-color: #fff0c5 !important;
       }
     }
     &-3 {
-      height: 44px;
       td:first-child {
         background-color: #fff8e2 !important;
       }
     }
     &-4 {
-      height: 44px;
       td:first-child {
         background-color: #fffdf5 !important;
       }
     }
     &-5 {
-      height: 44px;
       td:first-child {
         background-color: #ffffff !important;
       }
@@ -231,14 +229,14 @@ export const KeyDriverStyle = styled.div`
     input,
     .input-number,
     .ant-input-affix-wrapper {
-      background: rgba(245, 245, 245, 1) !important;
+      background: #eee !important;
     }
   }
 
   .overflow-wrap-normal {
     overflow-wrap: normal;
     word-break: normal;
-    min-width: 50px;
+    min-width: 40px;
   }
 
   .ant-input-affix-wrapper {
@@ -249,17 +247,10 @@ export const KeyDriverStyle = styled.div`
     padding-left: 5px;
   }
 
-  .border-bottom-none {
-    border-bottom: none !important;
-  }
-
   .key-driver-header {
     cursor: pointer;
-    &:nth-child(odd) {
-      background-color: #fff1b8 !important;
-    }
-    &:nth-child(even) {
-      background-color: #d6d6f8 !important;
+    a {
+      color: #000 !important;
     }
   }
 
@@ -267,4 +258,12 @@ export const KeyDriverStyle = styled.div`
     color: #000;
     padding-left: 0.25rem;
   }
+
+  .ant-table-row-expand-icon-spaced {
+    margin-right: 0 !important;
+  }
+
+  // .font-size-12px {
+  //   font-size: 12px;
+  // }
 `;

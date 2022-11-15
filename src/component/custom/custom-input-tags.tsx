@@ -6,6 +6,8 @@ type PropType = {
   onChangeTag: (value: any) => void;
 };
 
+const INPUT_TAGS_ID = "input-tags-id";
+
 function CustomInputTags(props: PropType) {
   const { tags, onChangeTag } = props;
   const [inputValue, setInputValue] = useState<string>("");
@@ -15,6 +17,15 @@ function CustomInputTags(props: PropType) {
   const handleChange = (e: any) => {
     if (e.target.value === ",") return;
     setInputValue(e.target.value);
+  };
+
+  const handleOnBlur = () => {
+    let _tags = tagsArr ? [...tagsArr] : [];
+    if (inputValue !== "") {
+      _tags.push(inputValue);
+      setInputValue("");
+    }
+    onChangeTag(_tags);
   };
 
   const handleKeyDown = (e: any) => {
@@ -41,6 +52,7 @@ function CustomInputTags(props: PropType) {
       onBlur={() => setBorder(false)}
       className="orders-screen-custom-tags"
       style={border ? { border: "1px solid #2a2a86" } : { border: "1px solid #d9d9d9" }}
+      onClick={() => document.getElementById(INPUT_TAGS_ID)?.focus()}
     >
       {tagsArr &&
         tagsArr?.length > 0 &&
@@ -52,12 +64,14 @@ function CustomInputTags(props: PropType) {
         ))}
 
       <input
+        id={INPUT_TAGS_ID}
         maxLength={250}
         value={inputValue}
         type="text"
         placeholder={tagsArr && tagsArr.length > 0 ? "" : "Thêm nhãn"}
         onChange={(e) => handleChange(e)}
         onKeyDown={(e) => handleKeyDown(e)}
+        onBlur={handleOnBlur}
       />
     </div>
   );

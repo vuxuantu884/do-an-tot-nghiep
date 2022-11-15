@@ -1,6 +1,6 @@
 /* eslint-disable eqeqeq */
-import { CheckOutlined, CloseOutlined, SettingOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Form, Select, Table, Tooltip } from "antd";
+import { CheckOutlined, CloseOutlined, RightOutlined, SettingOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Form, Popover, Select, Table } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
 import ContentContainer from "component/container/content.container";
@@ -56,20 +56,21 @@ type VerifyCellProps = {
 };
 const baseColumns: any = [
   {
-    title: "CHỈ SỐ KEY",
+    title: "Chỉ số key",
     key: "name",
     dataIndex: "title",
     width: 220,
     fixed: "left",
     render: (text: string, record: any) => {
       return (
-        <Tooltip
-          className="text-truncate-2 key-cell padding-left-10"
-          title={record.method}
-          placement="leftBottom"
+        <Popover
+          content={<div style={{ width: 200 }}>{record.method}</div>}
+          title={<div style={{ width: 200 }}>{text}</div>}
+          placement="rightBottom"
+          className="text-truncate-2 key-cell"
         >
           {text}
-        </Tooltip>
+        </Popover>
       );
     },
   },
@@ -105,10 +106,10 @@ function KeyDriverOnline() {
   // get query from url
   const query = new URLSearchParams(useLocation().search);
   const date = query.get("date");
-  const targetDay = query.get("day");
   const keyDriverGroupLv1 = query.get("keyDriverGroupLv1") || DEFAULT_ON_KD_GROUP_LV1;
   const departmentLv2 = query.get("departmentLv2");
   const departmentLv3 = query.get("departmentLv3");
+  const groupLevel = query.get("groupLv");
 
   const [finalColumns, setFinalColumns] = useState<ColumnsType<any>>([]);
   const [loadingPage, setLoadingPage] = useState<boolean | undefined>();
@@ -210,9 +211,16 @@ function KeyDriverOnline() {
       link: string,
     ): ColumnGroupType<any> | ColumnType<any> => {
       const queryParams = queryString.parse(history.location.search);
-      const { direction } = queryParams;
+      const { direction, date: viewDate } = queryParams;
       return {
-        title: link ? <Link to={link}>{department}</Link> : department,
+        title: link ? (
+          <Link to={link}>
+            <span>{department}</span>{" "}
+            {direction === KDReportDirection.Horizontal ? <RightOutlined /> : ""}
+          </Link>
+        ) : (
+          department
+        ),
         className: classnames("department-name", className),
         onHeaderCell: (data: any) => {
           return {
@@ -226,19 +234,25 @@ function KeyDriverOnline() {
           {
             title: () => {
               return (
-                <Tooltip title="Cho phép người dùng nhập vào." placement="top">
-                  MỤC TIÊU THÁNG
-                </Tooltip>
+                <Popover
+                  content={<div style={{ width: 200 }}>Cho phép người dùng nhập vào</div>}
+                  title="Mục tiêu tháng"
+                  placement="bottom"
+                >
+                  Mục tiêu tháng
+                </Popover>
               );
             },
-            width: 130,
+            width: 110,
             align: "right",
             dataIndex: `${departmentKey}_monthly_target`,
             className: "input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              const targetDrillingLevel = +record[`target_drilling_level`];
+              // const targetDrillingLevel = +record[`target_drilling_level`];
               // const inputId = getInputTargetId(index, columnIndex * 2, PREFIX_CELL_TABLE);
-              const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-month-target`;
+              const inputId = `${record[`${departmentKey}_key`] || record.key}-${
+                record.title
+              }-${index}-${columnIndex * 2 + 1}-month-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
               return (
@@ -247,7 +261,7 @@ function KeyDriverOnline() {
                     <NumberInput
                       id={inputId}
                       value={newValue}
-                      disabled={departmentDrillingLevel > targetDrillingLevel}
+                      // disabled={departmentDrillingLevel > targetDrillingLevel}
                       onPressEnter={(e: any) => {
                         const input: any = document.getElementById(inputId);
                         input.blur();
@@ -357,15 +371,22 @@ function KeyDriverOnline() {
           {
             title: () => {
               return (
-                <Tooltip
-                  title="Dữ liệu cập nhật từ đầu tháng đến hết ngày hôm qua(TH ngày chọn là ngày hiện tại). Dữ liệu cập nhật từ đầu tháng đến ngày được chọn(TH ngày được chọn là ngày quá khứ)"
-                  placement="top"
+                <Popover
+                  content={
+                    <div style={{ width: 200 }}>
+                      Dữ liệu cập nhật từ đầu tháng đến hết ngày hôm qua(TH ngày chọn là ngày hiện
+                      tại). Dữ liệu cập nhật từ đầu tháng đến ngày được chọn(TH ngày được chọn là
+                      ngày quá khứ)
+                    </div>
+                  }
+                  title="Luỹ kế"
+                  placement="bottom"
                 >
-                  LUỸ KẾ
-                </Tooltip>
+                  Luỹ kế
+                </Popover>
               );
             },
-            width: 130,
+            width: 45,
             align: "right",
             dataIndex: `${departmentKey}_monthly_actual`,
             className: "non-input-cell",
@@ -381,12 +402,16 @@ function KeyDriverOnline() {
           {
             title: () => {
               return (
-                <Tooltip title="Luỹ kế/Mục tiêu tháng" placement="top">
-                  TỶ LỆ
-                </Tooltip>
+                <Popover
+                  content={<div style={{ width: 200 }}>Luỹ kế/Mục tiêu tháng</div>}
+                  title="Tỷ lệ"
+                  placement="bottom"
+                >
+                  Tỷ lệ
+                </Popover>
               );
             },
-            width: 80,
+            width: 40,
             align: "right",
             dataIndex: `${departmentKey}_monthly_progress`,
             className: "non-input-cell",
@@ -401,15 +426,20 @@ function KeyDriverOnline() {
           {
             title: () => {
               return (
-                <Tooltip
-                  title="=Lũy kế/(Ngày được chọn - 1) * Số ngày trong tháng(TH ngày dược chọn là ngày hiện tại). =Lũy kế/Ngày được chọn * Số ngày trong tháng(TH ngày được chọn là ngày quá khứ)"
-                  placement="top"
+                <Popover
+                  content={
+                    <div
+                      style={{ width: 200 }}
+                    >{`=Lũy kế/(Ngày được chọn - 1) * Số ngày trong tháng(TH ngày dược chọn là ngày hiện tại). =Lũy kế/Ngày được chọn * Số ngày trong tháng(TH ngày được chọn là ngày quá khứ)`}</div>
+                  }
+                  title="Dự kiến đạt"
+                  placement="bottom"
                 >
-                  DỰ KIẾN ĐẠT
-                </Tooltip>
+                  Dự kiến đạt
+                </Popover>
               );
             },
-            width: 130,
+            width: 80,
             align: "right",
             dataIndex: `${departmentKey}_monthly_forecasted`,
             className: "non-input-cell",
@@ -439,12 +469,16 @@ function KeyDriverOnline() {
           {
             title: () => {
               return (
-                <Tooltip title="Dự kiến đạt/Mục tiêu tháng" placement="top">
-                  TỶ LỆ
-                </Tooltip>
+                <Popover
+                  content={<div style={{ width: 200 }}>Dự kiến đạt/Mục tiêu tháng</div>}
+                  title="Tỷ lệ"
+                  placement="bottom"
+                >
+                  Tỷ lệ
+                </Popover>
               );
             },
-            width: 80,
+            width: 40,
             align: "right",
             dataIndex: `${departmentKey}_monthly_forecasted_progress`,
             className: "non-input-cell",
@@ -469,22 +503,29 @@ function KeyDriverOnline() {
           {
             title: () => {
               return (
-                <Tooltip
-                  title="=(Mục tiêu tháng - Lũy kế) / [Số ngày trong tháng - (Ngày hiện tại - 1)]. Người dùng vẫn có thể nhập mục tiêu ngày cho riêng phòng ban. Xoá mục tiêu ngày đã nhập -> Unicorn sẽ tự tính lại mục tiêu ngày theo công thức trên"
-                  placement="top"
+                <Popover
+                  content={
+                    <div
+                      style={{ width: 200 }}
+                    >{`=(Mục tiêu tháng - Lũy kế) / [Số ngày trong tháng - (Ngày hiện tại - 1)]. Người dùng vẫn có thể nhập mục tiêu ngày cho riêng phòng ban. Xoá mục tiêu ngày đã nhập -> Unicorn sẽ tự tính lại mục tiêu ngày theo công thức trên`}</div>
+                  }
+                  title="Mục tiêu ngày"
+                  placement="bottom"
                 >
-                  MỤC TIÊU NGÀY
-                </Tooltip>
+                  Mục tiêu ngày
+                </Popover>
               );
             },
-            width: 120,
+            width: 100,
             align: "right",
             dataIndex: `${departmentKey}_daily_target`,
             className: "input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              const targetDrillingLevel = +record[`target_drilling_level`];
+              // const targetDrillingLevel = +record[`target_drilling_level`];
               // const inputId = getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE);
-              const inputId = `${record.key}-${index}-${columnIndex * 2 + 1}-day-target`;
+              const inputId = `${record[`${departmentKey}_key`] || record.key}-${
+                record.title
+              }-${index}-${columnIndex * 2 + 1}-day-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
               return (
@@ -492,7 +533,7 @@ function KeyDriverOnline() {
                   <div style={{ position: "relative" }}>
                     <NumberInput
                       id={inputId}
-                      disabled={departmentDrillingLevel > targetDrillingLevel}
+                      // disabled={departmentDrillingLevel > targetDrillingLevel}
                       value={newValue}
                       onPressEnter={(e: any) => {
                         const input: any = document.getElementById(inputId);
@@ -511,10 +552,12 @@ function KeyDriverOnline() {
 
                           if (!clickCancel && value != newValue) {
                             newValue = value;
-                            let newTargetDay = Number(targetDay);
+                            let targetDay = viewDate
+                              ? moment(viewDate as string, DATE_FORMAT.YYYYMMDD).date()
+                              : 0;
                             const day =
-                              newTargetDay && newTargetDay > 0 && newTargetDay <= 31
-                                ? newTargetDay
+                              targetDay && targetDay > 0 && targetDay <= 31
+                                ? targetDay
                                 : moment().date();
                             if (direction === KDReportDirection.Horizontal) {
                               saveTargetHorizontalReport(
@@ -610,9 +653,17 @@ function KeyDriverOnline() {
           },
           {
             title: () => {
-              return <Tooltip title="Dữ liệu trong ngày hôm nay">THỰC ĐẠT</Tooltip>;
+              return (
+                <Popover
+                  content={<div style={{ width: 200 }}>Dữ liệu trong ngày hôm nay</div>}
+                  title="Thực đạt"
+                  placement="bottom"
+                >
+                  Thực đạt
+                </Popover>
+              );
             },
-            width: 120,
+            width: 60,
             align: "right",
             dataIndex: `${departmentKey}_daily_actual`,
             className: "non-input-cell",
@@ -626,9 +677,17 @@ function KeyDriverOnline() {
           },
           {
             title: () => {
-              return <Tooltip title="Thực đạt/Mục tiêu ngày">TỶ LỆ</Tooltip>;
+              return (
+                <Popover
+                  content={<div style={{ width: 200 }}>Thực đạt/Mục tiêu ngày</div>}
+                  title="Tỷ lệ"
+                  placement="bottom"
+                >
+                  Tỷ lệ
+                </Popover>
+              );
             },
-            width: 80,
+            width: 40,
             align: "right",
             dataIndex: `${departmentKey}_daily_progress`,
             className: "non-input-cell",
@@ -643,7 +702,7 @@ function KeyDriverOnline() {
         ],
       };
     },
-    [day, dispatch, history, targetDay],
+    [day, dispatch, history],
   );
 
   const initTable = useCallback(
@@ -684,7 +743,8 @@ function KeyDriverOnline() {
         const queryParams = queryString.parse(history.location.search);
         const {
           direction,
-          groupLevel,
+          groupLv,
+          groupLvName,
           departmentLv2: departmentLv2Param,
           departmentLv3: departmentLv3Param,
         } = queryParams;
@@ -717,15 +777,19 @@ function KeyDriverOnline() {
             return convertDataToFlatTableRotation(
               response,
               currentDrillingLevel,
-              groupLevel as string,
+              groupLv as string,
             );
           });
           const horizontalColumns = () => {
             return setTableHorizontalColumns(
               response.result.data,
               setObjectiveColumns,
-              groupLevel as string,
               currentDrillingLevel,
+              {
+                groupLv: groupLv as string,
+                groupLvName: groupLvName as string,
+                queryParams,
+              },
             );
           };
 
@@ -734,6 +798,7 @@ function KeyDriverOnline() {
               title: "Khu vực",
               key: "name",
               dataIndex: "title",
+              className: "font-size-12px",
               width: 220,
               fixed: "left",
               render: (text: string, record: any) => {
@@ -825,16 +890,16 @@ function KeyDriverOnline() {
             return [];
           }),
         );
-      } catch (error) {}
+      } catch (error) {
+        console.log("error", error);
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, setData, setObjectiveColumns],
   );
 
   useEffect(() => {
-    setTimeout(() => {
-      form.setFieldsValue({ itemsInDim: undefined });
-    }, 1000);
+    form.setFieldsValue({ itemsInDim: [] });
     if (keyDriverGroupLv1 && date) {
       initTable(
         moment(date).format(DATE_FORMAT.YYYYMMDD),
@@ -856,7 +921,7 @@ function KeyDriverOnline() {
       };
       history.push({ search: queryString.stringify(newQueries) });
     }
-  }, [initTable, history, date, keyDriverGroupLv1, departmentLv2, departmentLv3, form]);
+  }, [initTable, history, date, keyDriverGroupLv1, departmentLv2, departmentLv3, form, groupLevel]);
 
   const onFinish = useCallback(() => {
     let date = form.getFieldsValue(true)["date"];

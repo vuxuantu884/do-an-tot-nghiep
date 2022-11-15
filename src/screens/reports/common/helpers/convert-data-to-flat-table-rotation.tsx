@@ -15,13 +15,13 @@ export const convertDataToFlatTableRotation = (
   const keyDriverTitleIndex = attributeOrdered.indexOf("key_driver_title");
   const drillingLevelDataIndex = attributeOrdered.indexOf("drilling_level");
   const departmentLv1Index = attributeOrdered.indexOf(`department_lv1`);
+  const kdParentIndex = attributeOrdered.indexOf(`key_driver_group_lv2`);
 
   const data: any[] = [];
   let keyDriverUpLevel = "";
   keyDriverResult.data
     .filter((item, index) => {
       if (!groupLevel) {
-        const kdParentIndex = attributeOrdered.indexOf(`key_driver_group_lv2`);
         switch (currentDrillingLevel) {
           case 1:
             keyDriverUpLevel = "OF.HS.01.01";
@@ -64,7 +64,8 @@ export const convertDataToFlatTableRotation = (
       });
 
       const existedKey = data.findIndex(
-        (item) => item.title && item.title === row[departmentLevelIndex],
+        (item) =>
+          item.title && item.title.toUpperCase() === row[departmentLevelIndex].toUpperCase(),
       );
       if (existedKey === -1) {
         if (row[departmentLevelIndex]) {
