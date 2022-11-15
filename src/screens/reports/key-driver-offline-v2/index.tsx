@@ -57,7 +57,7 @@ type VerifyCellProps = {
 };
 const baseColumns: any = [
   {
-    title: "CHỈ SỐ KEY",
+    title: "Chỉ số key",
     key: "name",
     dataIndex: "title",
     width: 220,
@@ -237,14 +237,14 @@ function KeyDriverOffline() {
               return (
                 <Popover
                   content={<div style={{ width: 200 }}>Cho phép người dùng nhập vào</div>}
-                  title="MỤC TIÊU THÁNG"
+                  title="Mục tiêu tháng"
                   placement="bottom"
                 >
-                  MỤC TIÊU THÁNG
+                  Mục tiêu tháng
                 </Popover>
               );
             },
-            width: 120,
+            width: 110,
             align: "right",
             dataIndex: `${departmentKey}_monthly_target`,
             className: "input-cell",
@@ -380,10 +380,10 @@ function KeyDriverOffline() {
                       ngày quá khứ)
                     </div>
                   }
-                  title="LUỸ KẾ"
+                  title="Luỹ kế"
                   placement="bottom"
                 >
-                  LUỸ KẾ
+                  Luỹ kế
                 </Popover>
               );
             },
@@ -404,14 +404,14 @@ function KeyDriverOffline() {
               return (
                 <Popover
                   content={<div style={{ width: 200 }}>Luỹ kế/Mục tiêu tháng</div>}
-                  title="TỶ LỆ"
+                  title="Tỷ lệ"
                   placement="bottom"
                 >
-                  TỶ LỆ
+                  Tỷ lệ
                 </Popover>
               );
             },
-            width: 45,
+            width: 40,
             align: "right",
             dataIndex: `${departmentKey}_monthly_progress`,
             className: "non-input-cell",
@@ -432,14 +432,14 @@ function KeyDriverOffline() {
                       style={{ width: 200 }}
                     >{`=Lũy kế/(Ngày được chọn - 1) * Số ngày trong tháng(TH ngày dược chọn là ngày hiện tại). =Lũy kế/Ngày được chọn * Số ngày trong tháng(TH ngày được chọn là ngày quá khứ)`}</div>
                   }
-                  title="DỰ KIẾN ĐẠT"
+                  title="Dự kiến đạt"
                   placement="bottom"
                 >
-                  DỰ KIẾN ĐẠT
+                  Dự kiến đạt
                 </Popover>
               );
             },
-            width: 90,
+            width: 80,
             align: "right",
             dataIndex: `${departmentKey}_monthly_forecasted`,
             className: "non-input-cell",
@@ -472,14 +472,14 @@ function KeyDriverOffline() {
               return (
                 <Popover
                   content={<div style={{ width: 200 }}>Dự kiến đạt/Mục tiêu tháng</div>}
-                  title="TỶ LỆ"
+                  title="Tỷ lệ"
                   placement="bottom"
                 >
-                  TỶ LỆ
+                  Tỷ lệ
                 </Popover>
               );
             },
-            width: 45,
+            width: 40,
             align: "right",
             dataIndex: `${departmentKey}_monthly_forecasted_progress`,
             className: "non-input-cell",
@@ -512,14 +512,14 @@ function KeyDriverOffline() {
                       style={{ width: 200 }}
                     >{`=(Mục tiêu tháng - Lũy kế) / [Số ngày trong tháng - (Ngày hiện tại - 1)]. Người dùng vẫn có thể nhập mục tiêu ngày cho riêng phòng ban. Xoá mục tiêu ngày đã nhập -> Unicorn sẽ tự tính lại mục tiêu ngày theo công thức trên`}</div>
                   }
-                  title="MỤC TIÊU NGÀY"
+                  title="Mục tiêu ngày"
                   placement="bottom"
                 >
-                  MỤC TIÊU NGÀY
+                  Mục tiêu ngày
                 </Popover>
               );
             },
-            width: 110,
+            width: 100,
             align: "right",
             dataIndex: `${departmentKey}_daily_target`,
             className: "input-cell",
@@ -659,14 +659,14 @@ function KeyDriverOffline() {
               return (
                 <Popover
                   content={<div style={{ width: 200 }}>Dữ liệu trong ngày hôm nay</div>}
-                  title="THỰC ĐẠT"
+                  title="Thực đạt"
                   placement="bottom"
                 >
-                  THỰC ĐẠT
+                  Thực đạt
                 </Popover>
               );
             },
-            width: 75,
+            width: 60,
             align: "right",
             dataIndex: `${departmentKey}_daily_actual`,
             className: "non-input-cell",
@@ -685,14 +685,14 @@ function KeyDriverOffline() {
               return (
                 <Popover
                   content={<div style={{ width: 200 }}>Thực đạt/Mục tiêu ngày</div>}
-                  title="TỶ LỆ"
+                  title="Tỷ lệ"
                   placement="bottom"
                 >
-                  TỶ LỆ
+                  Tỷ lệ
                 </Popover>
               );
             },
-            width: 50,
+            width: 40,
             align: "right",
             dataIndex: `${departmentKey}_daily_progress`,
             className: "non-input-cell",
