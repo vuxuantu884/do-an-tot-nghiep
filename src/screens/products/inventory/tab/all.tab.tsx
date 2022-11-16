@@ -321,7 +321,7 @@ const AllTab: React.FC<any> = (props) => {
           onSort,
           params.sort_type,
           params.sort_column === InventoryColumnField.total_stock,
-          "Tồn trong kho + Chuyển đi + Đang giao dịch",
+          "Tồn trong kho + Chuyển đi + Đang giao",
         ),
         titleCustom: "Tổng tồn",
         visible: true,
