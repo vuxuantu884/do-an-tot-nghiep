@@ -35,7 +35,7 @@ export const StyledStatus = styled.div`
     color: #27ae60;
     border-radius: 100px;
     padding: 5px 15px;
-    margin: 0px auto;
+    margin: 0 auto;
   }
 
   .red-status {
@@ -43,7 +43,7 @@ export const StyledStatus = styled.div`
     color: #e24343;
     border-radius: 100px;
     padding: 5px 15px;
-    margin: 0px auto;
+    margin: 0 auto;
   }
 
   .yellow-status {
@@ -51,7 +51,7 @@ export const StyledStatus = styled.div`
     color: #fcaf17;
     border-radius: 100px;
     padding: 5px 15px;
-    margin: 0px auto;
+    margin: 0 auto;
   }
 
   .blue-status {
@@ -59,7 +59,7 @@ export const StyledStatus = styled.div`
     color: #2a2a86;
     border-radius: 100px;
     padding: 5px 15px;
-    margin: 0px auto;
+    margin: 0 auto;
   }
 
   .gray-status {
@@ -67,7 +67,7 @@ export const StyledStatus = styled.div`
     color: #666666;
     border-radius: 100px;
     padding: 5px 15px;
-    margin: 0px auto;
+    margin: 0 auto;
   }
 `;
 
@@ -122,6 +122,46 @@ export const StyledProgressDownloadModal = styled.div`
     .error_message {
       max-height: 300px;
       overflow-y: scroll;
+    }
+  }
+
+  .status {
+    margin-top: 20px !important;
+    width: 85%;
+    margin: 0 auto;
+    .ant-col.ant-col-6 {
+      text-align: center;
+    }
+  }
+
+  .ant-upload-text {
+    color: rgba(0, 0, 0, 0.85);
+  }
+
+  .import-info {
+    flex-direction: column;
+    text-align: left;
+    margin-top: 30px;
+    max-width: 100%;
+
+    & .content {
+      padding: 10px 15px;
+      background-color: #f5f5f5;
+
+      ul {
+        list-style: none;
+        li {
+          span {
+            &.danger {
+              color: #ff4d4f;
+            }
+            &.success {
+              color: #52c41a;
+            }
+            margin-right: 10px;
+          }
+        }
+      }
     }
   }
 `;

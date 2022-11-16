@@ -131,6 +131,9 @@ const DetailTicket: FC = () => {
   const [dataTable, setDataTable] = useState<Array<VariantResponse> | any>(
     [] as Array<VariantResponse>,
   );
+  const [originalDataTable, setOriginalDataTable] = useState<Array<VariantResponse> | any>(
+    [] as Array<VariantResponse>,
+  );
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
 
   const [form] = Form.useForm();
@@ -194,6 +197,7 @@ const DetailTicket: FC = () => {
           });
         }
         setDataTable(newDataTable);
+        setOriginalDataTable(newDataTable);
 
         setData(result);
         version = result.version;
@@ -312,42 +316,6 @@ const DetailTicket: FC = () => {
     });
     return options;
   }, [resultSearch]);
-
-  const convertArrItem = (arr: Array<VariantResponse>) => {
-    let newArr = [];
-    for (let i = 0; i < arr.length; i++) {
-      const element = arr[i];
-
-      if (element.id !== null) {
-        newArr.push(arr[i]);
-        continue;
-      }
-      const variantPrice =
-        element &&
-        element.variant_prices &&
-        element.variant_prices[0] &&
-        element.variant_prices[0].retail_price;
-
-      const newResult = {
-        sku: element.sku,
-        barcode: element.barcode,
-        variant_name: element.name,
-        variant_id: element.variant_id,
-        variant_image: findAvatar(element.variant_images ?? []),
-        product_name: element.product.name,
-        product_id: element.product.id,
-        available: element.available ?? 0,
-        amount: variantPrice,
-        price: variantPrice,
-        transfer_quantity: 0,
-        real_quantity: element.real_quantity,
-        weight: element?.weight ? element?.weight : 0,
-        weight_unit: element?.weight_unit ? element?.weight_unit : "",
-      };
-      newArr.push(newResult);
-    }
-    return newArr;
-  };
 
   const onSelectProduct = useCallback(
     (value: string, item: VariantResponse) => {
@@ -935,8 +903,11 @@ const DetailTicket: FC = () => {
       width: 40,
       dataIndex: "transfer_quantity",
       render: (value: string, row: any, index: number) => {
+        const isExistInOriginList = originalDataTable.length > 0 ? originalDataTable.filter((item: VariantResponse) => {
+          return item.code === row.code;
+        }).length > 0 : false;
         if (
-          (parseInt(value) !== 0 && row.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
+          (isExistInOriginList && row.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
             || row.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
           || row?.status === STATUS_INVENTORY_TRANSFER.PENDING.status
         ) {
@@ -1010,8 +981,20 @@ const DetailTicket: FC = () => {
   };
 
   const importRealQuantity = (data: Array<VariantResponse>) => {
-    const newArr = convertArrItem(data);
-    setDataTable([...newArr]);
+    let newDataTable = [...dataTable];
+    const newData = data.map((item: any) => {
+      let realQuantity = item.quantity;
+      const newDataTableFiltered = newDataTable.filter((dataTable) => dataTable.sku === item.sku);
+      if (newDataTableFiltered.length > 0) {
+        realQuantity = realQuantity + newDataTableFiltered[0].real_quantity;
+        newDataTable = newDataTable.filter((i) => i.sku !== item.sku);
+      }
+      return {
+        ...item,
+        real_quantity: realQuantity
+      }
+    });
+    setDataTable([...newDataTable, ...newData]);
     setIsImport(false);
   };
 
