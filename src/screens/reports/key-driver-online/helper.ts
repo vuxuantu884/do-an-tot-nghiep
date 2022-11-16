@@ -122,6 +122,26 @@ export const convertDataToFlatTableKeyDriver = (
       i.key !== "ON.DT.AP.53" &&
       i.key !== "ON.DT.AP.54" &&
       i.key !== "ON.DT.AP.52" &&
+      i.key !== "ON.DT.ZA.32" &&
+      i.key !== "ON.TC.FB.06" &&
+      i.key !== "ON.TC.ZA.32" &&
+      i.key !== "ON.DT.AP.01" &&
+      i.key !== "ON.DT.AP.02" &&
+      i.key !== "ON.DT.AP.51" &&
+      i.key !== "ON.DT.AP.03" &&
+      i.key !== "ON.DT.AP.05" &&
+      i.key !== "ON.TC.AP.01" &&
+      i.key !== "ON.TC.AP.02" &&
+      i.key !== "ON.TC.AP.03" &&
+      i.key !== "ON.TC.AP.05" &&
+      i.key !== "ON.DT.FB.12" &&
+      i.key !== "ON.DT.MK.22" &&
+      i.key !== "ON.DT.WE.43" &&
+      i.key !== "ON.DT.WE.44" &&
+      i.key !== "ON.DT.WE.42" &&
+      i.key !== "ON.TC.FB.12" &&
+      i.key !== "ON.TC.MK.22" &&
+      i.key !== "ON.TC.WE.42" &&
       i.key !== "ON.TC.AP.52",
   );
   return buildSchemas(newData);
@@ -206,7 +226,7 @@ const buildSchemas = (_input: any) => {
       .filter((item) => item.parent_key_driver === key_driver)
       .map((child) => ({ ...child, children: treeData(arr, child.key_driver) }));
   const finalData = removeChildrentEmpty(treeData(_schemas)).filter(
-    (i) => i.key !== "ON.LN.S1.01.L" && i.key !== "ON.HS.S1.01.L",
+    (i) => i.key !== "ON.LN.S1.01.L" && i.key !== "ON.HS.S1.01.L" && i.key !== "ON.SP.S1.01.L",
   );
   return finalData;
 };
