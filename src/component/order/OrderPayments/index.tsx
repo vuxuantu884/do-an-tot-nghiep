@@ -139,6 +139,10 @@ function OrderPayments(props: PropTypes): JSX.Element {
     if (!point) {
       point = 0;
     }
+    let maxPoint = Math.floor(totalOrderAmount / usageRate);
+    if (point > maxPoint) {
+      point = maxPoint;
+    }
     payments[index].point = point;
     payments[index].amount = point * usageRate;
     payments[index].paid_amount = point * usageRate;
