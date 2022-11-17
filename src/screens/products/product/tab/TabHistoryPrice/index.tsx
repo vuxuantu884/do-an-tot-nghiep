@@ -274,10 +274,6 @@ const TabHistoryPrice: React.FC = () => {
       />
       <ModalSettingColumn
         isSetDefaultColumn
-        onResetToDefault={() => {
-          onSaveConfigTableColumn(defaultColumn);
-          setColumns(defaultColumn);
-        }}
         visible={showSettingColumn}
         onCancel={() => setShowSettingColumn(false)}
         onOk={(data) => {
@@ -285,7 +281,7 @@ const TabHistoryPrice: React.FC = () => {
           setColumns(data);
           onSaveConfigTableColumn(data);
         }}
-        data={columns}
+        data={defaultColumn}
       />
     </StyledComponent>
   );
