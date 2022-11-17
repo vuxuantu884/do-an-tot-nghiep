@@ -563,15 +563,24 @@ const ScreenReturnCreate = (props: PropTypes) => {
    * Đơn gốc online: trả tại quầy: POS, còn lại là channel_id gốc
    * Đơn gốc offline: POS
    */
-  const getChannelIdReturn = useCallback(
+  const getReturnChannel = useCallback(
     (OrderDetail: OrderResponse) => {
+      const PosChannel = {
+        channelId: POS.channel_id,
+        channel: POS.channel_name,
+        channelCode: POS.channel_code,
+      };
       if (isOrderFromPOS(OrderDetail)) {
-        return POS.channel_id;
+        return PosChannel;
       } else {
         if (orderReturnType === RETURN_TYPE_VALUES.offline) {
-          return POS.channel_id;
+          return PosChannel;
         } else {
-          return OrderDetail.channel_id;
+          return {
+            channelId: OrderDetail.channel_id,
+            channel: OrderDetail.channel,
+            channelCode: OrderDetail.channel_code,
+          };
         }
       }
     },
@@ -887,7 +896,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
         tags: tags,
         type: orderReturnType,
         //channel
-        channel_id: getChannelIdReturn(OrderDetail),
+        channel_id: getReturnChannel(OrderDetail).channelId,
+        channel: getReturnChannel(OrderDetail).channel,
+        channel_code: getReturnChannel(OrderDetail).channelCode,
         // thêm money refund
         money_refund: Math.round(refund.moneyRefund),
         // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
@@ -921,7 +932,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     OrderDetail,
     dispatch,
     form,
-    getChannelIdReturn,
+    getReturnChannel,
     getPaymentOfReturnInReturn,
     handlePrintOrderReturnOrExchange,
     handleRecalculateOriginDiscount,
@@ -1517,7 +1528,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
         tags: null,
         type: orderReturnType,
         // channel
-        channel_id: getChannelIdReturn(OrderDetail),
+        channel_id: getReturnChannel(OrderDetail).channelId,
+        channel: getReturnChannel(OrderDetail).channel,
+        channel_code: getReturnChannel(OrderDetail).channelCode,
         // thêm money refund
         money_refund: Math.round(refund.moneyRefund),
         currency: AppConfig.currency,
@@ -1601,7 +1614,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     createFulFillmentRequest,
     form,
     getChannelIdExchange,
-    getChannelIdReturn,
+    getReturnChannel,
     getPaymentOfExchangeInExchange,
     getPaymentOfReturnInExchange,
     handleCreateOrderExchangeByValue,
