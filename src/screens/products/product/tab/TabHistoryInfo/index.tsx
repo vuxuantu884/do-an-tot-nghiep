@@ -4,11 +4,10 @@ import TextEllipsis from "component/table/TextEllipsis";
 import UrlConfig, { ProductTabUrl } from "config/url.config";
 import { productGetHistoryAction } from "domain/actions/product/products.action";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
-import useSetTableColumns from "hook/table/useSetTableColumns";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ProductHistoryQuery, ProductHistoryResponse } from "model/product/product.model";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
@@ -19,7 +18,8 @@ import HistoryProductFilter from "../../filter/HistoryProductFilter";
 import { StyledComponent } from "../style";
 import { EyeOutlined } from "@ant-design/icons";
 import { Col, Modal, Row } from "antd";
-const initQuery: ProductHistoryQuery = {};
+import { showError } from "utils/ToastUtils";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 const IS_PRODUCT_TYPE = [
   "ADD_PRODUCT",
@@ -44,6 +44,7 @@ const TabHistoryInfo: React.FC = () => {
     },
     items: [],
   });
+  const userID = useSelector((state: RootReducerType) => state.userReducer.account?.id);
 
   const onResult = useCallback((result: PageResponse<ProductHistoryResponse> | false) => {
     setLoading(false);
@@ -51,11 +52,8 @@ const TabHistoryInfo: React.FC = () => {
       setData(result);
     }
   }, []);
-  let dataQuery: ProductHistoryQuery = {
-    ...initQuery,
-    ...getQueryParams(query),
-  };
-  let [params, setParams] = useState<ProductHistoryQuery>(dataQuery);
+
+  let [params, setParams] = useState<ProductHistoryQuery>(getQueryParams(query));
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
@@ -87,7 +85,7 @@ const TabHistoryInfo: React.FC = () => {
       ...data,
       data_old: JSON.stringify(newOldData),
       data_current: JSON.stringify(newCurrentData),
-    }
+    };
 
     setDataLogSelected(newData);
   };
@@ -96,8 +94,8 @@ const TabHistoryInfo: React.FC = () => {
     return [
       {
         title: "Sản phẩm",
-        dataIndex: "history_type",
-        key: "history_type",
+        dataIndex: "product_code",
+        key: "product_code",
         visible: true,
         fixed: "left",
         render: (value, item) => {
@@ -188,15 +186,44 @@ const TabHistoryInfo: React.FC = () => {
   const [columns, setColumns] =
     useState<Array<ICustomTableColumType<ProductHistoryResponse>>>(defaultColumn);
 
+  // fetch column configuration
   const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(
     COLUMN_CONFIG_TYPE.COLUMN_PRODUCT_HISTORY,
   );
-  useSetTableColumns(
-    COLUMN_CONFIG_TYPE.COLUMN_PRODUCT_HISTORY,
-    tableColumnConfigs,
-    defaultColumn,
-    setColumns,
-  );
+
+  // set column display right after first time render
+  useEffect(() => {
+    /**
+     * Since some accounts have wrong column configurations.
+     * So we need to reset to default config first.
+     * After that every configurations would work properly.
+     */
+    const resettedColumnConfig = localStorage.getItem(
+      COLUMN_CONFIG_TYPE.COLUMN_PRODUCT_HISTORY + userID || "",
+    );
+    if (resettedColumnConfig !== "resetted") {
+      onSaveConfigTableColumn(defaultColumn);
+      localStorage.setItem(COLUMN_CONFIG_TYPE.COLUMN_PRODUCT_HISTORY + userID || "", "resetted");
+      return;
+    }
+
+    if (tableColumnConfigs && tableColumnConfigs.length) {
+      try {
+        const configuration: any[] = JSON.parse(tableColumnConfigs[0].json_content);
+        let newColumnVisibility: any[] = [];
+        configuration.forEach((config) => {
+          const foundCol = defaultColumn.find((col) => col.dataIndex === config.dataIndex);
+          if (foundCol) {
+            newColumnVisibility.push({ ...foundCol, visible: config.visible });
+          }
+        });
+
+        setColumns(newColumnVisibility);
+      } catch (err) {
+        showError("Lỗi lấy cài đặt cột");
+      }
+    }
+  }, [defaultColumn, onSaveConfigTableColumn, tableColumnConfigs, userID]);
 
   const columnFinal = useMemo(() => {
     return columns.filter((item) => item.visible === true);
@@ -254,7 +281,12 @@ const TabHistoryInfo: React.FC = () => {
           setColumns(data);
           onSaveConfigTableColumn(data);
         }}
-        data={defaultColumn}
+        data={columns}
+        isSetDefaultColumn
+        onResetToDefault={() => {
+          setColumns(defaultColumn);
+          onSaveConfigTableColumn(defaultColumn);
+        }}
       />
 
       {isOpenModalLog && (
@@ -267,15 +299,23 @@ const TabHistoryInfo: React.FC = () => {
         >
           <Row gutter={24}>
             <Col span={12} style={{ borderRight: "1px solid #d9d9d9" }}>
-              <div style={{ textAlign: "center" }} className="font-weight-500 mb-20">Trước</div>
+              <div style={{ textAlign: "center" }} className="font-weight-500 mb-20">
+                Trước
+              </div>
               <pre>
-                {dataLogSelected && dataLogSelected.data_old && JSON.stringify(JSON.parse(dataLogSelected.data_old), null, 2)}
+                {dataLogSelected &&
+                  dataLogSelected.data_old &&
+                  JSON.stringify(JSON.parse(dataLogSelected.data_old), null, 2)}
               </pre>
             </Col>
             <Col span={12}>
-              <div style={{ textAlign: "center" }} className="font-weight-500 mb-20">Sau</div>
+              <div style={{ textAlign: "center" }} className="font-weight-500 mb-20">
+                Sau
+              </div>
               <pre>
-                {dataLogSelected && dataLogSelected.data_current && JSON.stringify(JSON.parse(dataLogSelected.data_current), null, 2)}
+                {dataLogSelected &&
+                  dataLogSelected.data_current &&
+                  JSON.stringify(JSON.parse(dataLogSelected.data_current), null, 2)}
               </pre>
             </Col>
           </Row>
