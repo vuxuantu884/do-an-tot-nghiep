@@ -26,6 +26,13 @@ type HistoryPurchaseModalProps = {
   onClick: (item: any) => void;
 };
 
+const orderHistoryDataDefault: any = {
+  limit: 30,
+  page: 1,
+  sort_type: "desc",
+  customer_ids: null,
+};
+
 const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
   props: HistoryPurchaseModalProps,
 ) => {
@@ -36,8 +43,8 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
     PageResponse<CustomerOrderHistoryResponse>
   >({
     metadata: {
-      limit: 10,
-      page: 1,
+      limit: orderHistoryDataDefault.limit,
+      page: orderHistoryDataDefault.page,
       total: 0,
     },
     items: [],
@@ -174,28 +181,34 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
 
   const onPageChange = useCallback(
     (page, limit) => {
-      dispatch(
-        getCustomerOrderHistoryAction(
-          {
-            customer_id: customerID,
-            page,
-            limit,
-          },
-          (data) => {
-            setTableLoading(false);
-            if (data) {
-              setOrderHistoryData(data);
-            }
-          },
-        ),
-      );
+      const query: any = {
+        ...orderHistoryData,
+        limit: limit,
+        page: page,
+        customer_ids: customerID,
+      };
+      getOrderHistoryService(query)
+        .then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            setOrderHistoryData(response.data);
+          } else {
+            handleFetchApiError(response, "Danh sách lịch sử đơn hàng", dispatch);
+          }
+        })
+        .catch((error) => {
+          console.log("error", error);
+        })
+        .finally(() => {
+          setTableLoading(false);
+        });
     },
-    [customerID, dispatch],
+    [orderHistoryData, customerID, dispatch],
   );
 
   useEffect(() => {
     if (customerID && visible) {
       const query: any = {
+        ...orderHistoryDataDefault,
         customer_ids: customerID,
       };
       getOrderHistoryService(query)
