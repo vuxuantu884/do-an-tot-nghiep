@@ -6,7 +6,6 @@ import {
   AnalyticResult,
   ArrayAny,
   KeyDriverDataSourceType,
-  KeyDriverDimension,
   KeyDriverOnlineParams,
 } from "model/report";
 import moment from "moment";
@@ -16,6 +15,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { ATTRIBUTE_VALUE } from "../common/constant/kd-report-response-key";
+import { filterKDOfflineByDim } from "../common/helpers/filter-kd-by-dim";
 // import { parseLocaleNumber } from "utils/AppUtils";
 
 export async function fetchQuery(params: KeyDriverOnlineParams, dispatch: Dispatch<any>) {
@@ -31,7 +31,7 @@ export async function fetchQuery(params: KeyDriverOnlineParams, dispatch: Dispat
 export const convertDataToFlatTableKeyDriver = (
   analyticResult: any,
   attributeOrdered: string[],
-  dimension: KeyDriverDimension,
+  currentDrillingLevel: number,
 ) => {
   const keyDriverResult = analyticResult.result as AnalyticResult;
   const keyDriverData = analyticResult.key_drivers as AnalyticResult;
@@ -102,30 +102,7 @@ export const convertDataToFlatTableKeyDriver = (
     }
   });
   let filterData = data;
-  const { Store, Staff } = KeyDriverDimension;
-  switch (dimension) {
-    case Staff:
-      filterData = data.filter((item) => {
-        return (
-          !item.key.includes("OF.DT.FB.02") &&
-          !item.key.includes("OF.LN.") &&
-          !item.key.includes("OF.NS.") &&
-          !item.key.includes("OF.HS.")
-        );
-      });
-      break;
-    case Store:
-      const storePerformanceKeys: string[] = [];
-      for (let i = 0; i <= 60; ++i) {
-        storePerformanceKeys.push(`OF.HS.01.${i.toString().padStart(2, "0")}`);
-      }
-      filterData = data.filter((item) => {
-        return !storePerformanceKeys.includes(item.key);
-      });
-      break;
-    default:
-      break;
-  }
+  filterData = filterKDOfflineByDim(currentDrillingLevel, data) || data;
   return buildSchemas(filterData);
 };
 

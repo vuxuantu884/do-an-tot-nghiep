@@ -9,7 +9,7 @@ import NumberInput from "component/custom/number-input.custom";
 import ModalSettingColumnData from "component/table/ModalSettingColumnData";
 import { HttpStatus } from "config/http-status.config";
 // import { KeyboardKey } from "model/other/keyboard/keyboard.model";
-import { KeyDriverDataSourceType, KeyDriverDimension, LocalStorageKey } from "model/report";
+import { KeyDriverDataSourceType, LocalStorageKey } from "model/report";
 import moment from "moment";
 import queryString from "query-string";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
@@ -721,17 +721,12 @@ function KeyDriverOffline() {
       setLoadingPage(true);
       let allDepartment: { groupedBy: string; drillingLevel: number }[] = [];
       try {
-        let dimension: KeyDriverDimension;
         let currentDrillingLevel: number;
-        const { Asm, Store, Staff } = KeyDriverDimension;
         if (departmentLv3) {
-          dimension = Staff;
           currentDrillingLevel = 3;
         } else if (departmentLv2) {
-          dimension = Store;
           currentDrillingLevel = 2;
         } else if (keyDriverGroupLv1) {
-          dimension = Asm;
           currentDrillingLevel = 1;
         }
         const response = await callApiNative(
@@ -847,7 +842,11 @@ function KeyDriverOffline() {
           ];
         } else {
           setData(() => {
-            return convertDataToFlatTableKeyDriver(response, COLUMN_ORDER_LIST, dimension);
+            return convertDataToFlatTableKeyDriver(
+              response,
+              COLUMN_ORDER_LIST,
+              currentDrillingLevel,
+            );
           });
           allDepartment = getAllDepartmentByAnalyticResult(response.result.data, COLUMN_ORDER_LIST);
           allDepartment
