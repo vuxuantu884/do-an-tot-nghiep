@@ -991,7 +991,9 @@ const DetailTicket: FC = () => {
       }
       return {
         ...item,
-        real_quantity: realQuantity
+        id: newDataTableFiltered.length > 0 ? newDataTableFiltered[0].id : item.id,
+        real_quantity: realQuantity,
+        transfer_quantity: newDataTableFiltered.length > 0 ? newDataTableFiltered[0].transfer_quantity : item.transfer_quantity
       }
     });
     setDataTable([...newDataTable, ...newData]);
