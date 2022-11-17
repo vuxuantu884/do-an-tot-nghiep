@@ -121,7 +121,7 @@ import {
   RETURN_MONEY_TYPE,
   RETURN_TYPE_VALUES,
 } from "utils/Order.constants";
-import { findPaymentMethodByCode } from "utils/OrderUtils";
+import { changeTypeQrCode, findPaymentMethodByCode } from "utils/OrderUtils";
 import { showError } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -1551,6 +1551,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       order_exchange.fulfillments = createFulFillmentRequest(values);
       order_exchange.items = listExchangeProducts.concat(itemGifts);
       order_exchange.payments = getPaymentOfExchangeInExchange();
+      order_exchange.payments = changeTypeQrCode([...order_exchange.payments], paymentMethods);
 
       // phí ship báo khách truyền trong đơn đổi
       order_exchange.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
@@ -1621,6 +1622,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     shippingFeeInformedToCustomer,
     returnStore,
     thirdPL.service,
+    paymentMethods,
   ]);
 
   const onReturnAndExchange = useCallback(() => {
@@ -2282,17 +2284,17 @@ const ScreenReturnCreate = (props: PropTypes) => {
         // let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
         // update: ko bỏ quẹt thẻ nữa
         // update bỏ momo và vn pay khi đổi trả offline
-        let result = response.filter((single) => {
-          if (orderReturnType === RETURN_TYPE_VALUES.offline) {
-            return (
-              single.code &&
-              single.code !== PaymentMethodCode.MOMO &&
-              single.code !== PaymentMethodCode.VN_PAY
-            );
-          }
-          return single.code;
-        });
-        setListPaymentMethods(result);
+        // let result = response.filter((single) => {
+        //   if (orderReturnType === RETURN_TYPE_VALUES.offline) {
+        //     return (
+        //       single.code &&
+        //       single.code !== PaymentMethodCode.MOMO &&
+        //       single.code !== PaymentMethodCode.VN_PAY
+        //     );
+        //   }
+        //   return single.code;
+        // });
+        setListPaymentMethods(response);
       }),
     );
   }, [customer?.id, dispatch, orderReturnType]);
