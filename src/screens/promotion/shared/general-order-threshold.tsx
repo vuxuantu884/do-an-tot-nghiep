@@ -8,7 +8,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { GoPlus } from "react-icons/go";
 import {
   DiscountUnitType,
-  FIELD_SELECT_OPTIONS,
+  FIELD_SELECT_OPTIONS_ORDER_THRESHOLD,
   OPERATOR_SELECT_OPTIONS,
   PRICE_RULE_FIELDS,
 } from "../constants";
@@ -88,7 +88,10 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
 
   function handleChangeFieldSelect(value: SelectValue, index: number): void {
     // Change input value component
-    const currentValueComponent = _.find(FIELD_SELECT_OPTIONS, ["value", value])?.valueComponent;
+    const currentValueComponent = _.find(FIELD_SELECT_OPTIONS_ORDER_THRESHOLD, [
+      "value",
+      value,
+    ])?.valueComponent;
 
     setValueComponentList((prev) => {
       const temps = _.cloneDeep(prev);
@@ -108,7 +111,10 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
     (operatorOptions: string[], index: number) => {
       const currentField = discountList[index]?.field;
 
-      const acceptTypeOfCurrentField = _.find(FIELD_SELECT_OPTIONS, ["value", currentField])?.type;
+      const acceptTypeOfCurrentField = _.find(FIELD_SELECT_OPTIONS_ORDER_THRESHOLD, [
+        "value",
+        currentField,
+      ])?.type;
 
       const allowUseOptions = operatorOptions.some((operator) => {
         return acceptTypeOfCurrentField?.includes(operator);
@@ -137,9 +143,13 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
     if (priceRuleData?.rule && priceRuleData.rule.conditions?.length > 0) {
       const temp: any[] = [];
       priceRuleData?.rule?.conditions.forEach((element: DiscountConditionRule) => {
-        temp.push(_.find(FIELD_SELECT_OPTIONS, ["value", element.field])?.valueComponent);
+        temp.push(
+          _.find(FIELD_SELECT_OPTIONS_ORDER_THRESHOLD, ["value", element.field])?.valueComponent,
+        );
       });
-      setValueComponentList(temp);
+      if (temp[0]) {
+        setValueComponentList(temp);
+      }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -191,7 +201,7 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
                             ]}
                           >
                             <Select
-                              options={FIELD_SELECT_OPTIONS}
+                              options={FIELD_SELECT_OPTIONS_ORDER_THRESHOLD}
                               onChange={(value) => handleChangeFieldSelect(value, index)}
                             />
                           </Form.Item>

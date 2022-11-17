@@ -7,9 +7,12 @@ import {
 import { PageResponse } from "model/base/base-metadata.response";
 import { PromoCodeType } from "domain/types/promotion.type";
 import { BaseQuery } from "model/base/base.query";
+import { VariantResponse } from "model/product/product.model";
 
-
-export const createPromotionReleaseAction = (body: PriceRule, callback: (response: PriceRule) => void) => {
+export const createPromotionReleaseAction = (
+  body: PriceRule,
+  callback: (response: PriceRule) => void,
+) => {
   return BaseAction(PromoCodeType.CREATE_PROMOTION_RELEASE, { body, callback });
 };
 
@@ -24,21 +27,18 @@ export const getPromotionReleaseListAction = (
   return BaseAction(PromoCodeType.GET_PROMOTION_RELEASE_LIST, { query, setData });
 };
 
-export const getPromotionReleaseDetailAction = (id: number, callback: (response: PriceRule) => void) => {
+export const getPromotionReleaseDetailAction = (
+  id: number,
+  callback: (response: PriceRule) => void,
+) => {
   return BaseAction(PromoCodeType.GET_PROMOTION_RELEASE_DETAIL, { id, callback });
 };
 
-export const activatePromotionReleaseAction = (
-  body: any,
-  callback: (response: any) => void,
-) => {
+export const activatePromotionReleaseAction = (body: any, callback: (response: any) => void) => {
   return BaseAction(PromoCodeType.ENABLE_PROMOTION_RELEASE, { body, callback });
 };
 
-export const deactivatePromotionReleaseAction = (
-  body: any,
-  callback: (response: any) => void,
-) => {
+export const deactivatePromotionReleaseAction = (body: any, callback: (response: any) => void) => {
   return BaseAction(PromoCodeType.DISABLE_PROMOTION_RELEASE, { body, callback });
 };
 
@@ -162,5 +162,17 @@ export const getListPromoCode = (
     priceRuleId,
     query,
     setData,
+  });
+};
+
+export const getPriceRuleVariantExcludePaggingAction = (
+  id: number,
+  params: BaseQuery,
+  onResult: (result: PageResponse<VariantResponse>) => void,
+) => {
+  return BaseAction(PromoCodeType.GET_PRODUCT_QUANTITY_EXCLUDE, {
+    id,
+    params,
+    onResult,
   });
 };

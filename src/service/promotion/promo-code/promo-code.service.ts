@@ -4,7 +4,11 @@ import BaseResponse from "base/base.response";
 import { BaseQuery } from "model/base/base.query";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ApiConfig } from "config/api.config";
-import { DiscountCode, DiscountUsageDetailResponse, PriceRule } from "model/promotion/price-rules.model";
+import {
+  DiscountCode,
+  DiscountUsageDetailResponse,
+  PriceRule,
+} from "model/promotion/price-rules.model";
 
 const END_POINT = "/price-rules/";
 const PROMOTION_RELEASE_END_POINT = "/price-rule-discount-codes";
@@ -120,4 +124,11 @@ export const addPromotionCodeApi = (priceRuleId: number, body: any): Promise<Dis
 // get promotion jobs api
 export const getPromotionJobsApi = (processId: string): Promise<BaseResponse<any>> => {
   return BaseAxios.get(`${ApiConfig.PROMOTION}/jobs/${processId}`);
+};
+
+export const getPriceRuleVariantExcludeApi = (
+  id: number,
+  params?: BaseQuery,
+): Promise<BaseResponse<PageResponse<PriceRule>>> => {
+  return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}${id}/variant-items`, { params });
 };

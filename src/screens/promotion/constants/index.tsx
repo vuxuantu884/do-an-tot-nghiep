@@ -156,7 +156,7 @@ export const OPERATOR_SELECT_OPTIONS = [
   },
 ];
 
-export const FIELD_SELECT_OPTIONS = [
+export const FIELD_SELECT_OPTIONS_ORDER_THRESHOLD = [
   {
     label: "Tên sản phẩm",
     value: "product_name",
@@ -228,6 +228,105 @@ export const FIELD_SELECT_OPTIONS = [
           format={(a: string) => formatCurrency(a)}
           replace={(a: string) => replaceFormatString(a)}
           placeholder="Giá trị đơn hàng"
+          value={Number(defaultValue)}
+          maxLength={11}
+          minLength={0}
+        />
+      </Item>
+    ),
+  },
+  {
+    label: "Số lượng",
+    value: "quantity",
+    type: ["number"],
+    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
+      <Item name={name} rules={rules}>
+        <NumberInput
+          style={{ width: "100%" }}
+          format={(a: string) => formatCurrency(a)}
+          replace={(a: string) => replaceFormatString(a)}
+          placeholder="Số lượng"
+          value={Number(defaultValue)}
+          maxLength={11}
+          minLength={0}
+        />
+      </Item>
+    ),
+  },
+];
+
+export const FIELD_SELECT_OPTIONS_PRODUCT_QUANTITY = [
+  {
+    label: "Tên sản phẩm",
+    value: "product_name",
+    type: ["string"],
+    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
+      <Item name={name} rules={rules}>
+        <Input placeholder="Tên sản phẩm" defaultValue={defaultValue} maxLength={50} />
+      </Item>
+    ),
+  },
+  {
+    label: "Mã SKU",
+    value: "sku",
+    type: ["string"],
+    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
+      <Item name={name} rules={rules}>
+        <Input placeholder="Mã SKU" defaultValue={defaultValue} maxLength={50} />
+      </Item>
+    ),
+  },
+  {
+    label: "Danh mục sản phẩm",
+    value: "category_name",
+    type: ["string"],
+    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
+      <Item name={name} rules={rules}>
+        <Input placeholder="Nhập danh mục" defaultValue={defaultValue} maxLength={50} />
+      </Item>
+    ),
+  },
+  {
+    label: "Tag sản phẩm",
+    value: "product_tag",
+    type: ["string"],
+    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
+      <Item name={name} rules={rules}>
+        <Input placeholder="Nhập tag sản phẩm" defaultValue={defaultValue} maxLength={50} />
+      </Item>
+    ),
+  },
+  {
+    label: "Kích cỡ",
+    value: "product_size",
+    type: ["string", "number"],
+    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
+      <Item name={name} rules={rules}>
+        <Input placeholder="Nhập kích cỡ" defaultValue={defaultValue} maxLength={50} />
+      </Item>
+    ),
+  },
+  {
+    label: "Màu sắc",
+    value: "option_color",
+    type: ["string"],
+    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
+      <Item name={name} rules={rules}>
+        <Input placeholder="Nhập màu sắc" defaultValue={defaultValue} maxLength={50} />
+      </Item>
+    ),
+  },
+  {
+    label: "Giá trị sản phẩm",
+    value: "subtotal",
+    type: ["number"],
+    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
+      <Item name={name} rules={rules}>
+        <NumberInput
+          style={{ width: "100%" }}
+          format={(a: string) => formatCurrency(a)}
+          replace={(a: string) => replaceFormatString(a)}
+          placeholder="Giá trị đơn sản phẩm"
           value={Number(defaultValue)}
           maxLength={11}
           minLength={0}
@@ -371,7 +470,9 @@ export const columnDiscountQuantity = [
       }
       return (
         <div>
-          <Link to={url} target="_blank">{sku}</Link>
+          <Link to={url} target="_blank">
+            {sku}
+          </Link>
           <div>{item.title}</div>
         </div>
       );
@@ -454,7 +555,9 @@ export const columnFixedPrice = [
       }
       return (
         <div>
-          <Link to={url} target="_blank">{sku}</Link>
+          <Link to={url} target="_blank">
+            {sku}
+          </Link>
           <br />
           <div>{item.title}</div>
         </div>
@@ -522,7 +625,45 @@ export const columnDiscountByRule = [
     visible: true,
     width: "20%",
     render: (field: string) => {
-      return FIELD_SELECT_OPTIONS.find((x) => x.value === field)?.label || "";
+      return FIELD_SELECT_OPTIONS_ORDER_THRESHOLD.find((x) => x.value === field)?.label || "";
+    },
+  },
+  {
+    title: "Loại điều kiện",
+    dataIndex: "operator",
+    visible: true,
+    width: "20%",
+    render: (operator: string) => {
+      return OPERATOR_SELECT_OPTIONS.find((x) => x.value === operator)?.label || "";
+    },
+  },
+  {
+    title: "Giá trị",
+    dataIndex: "value",
+    visible: true,
+    width: "20%",
+    render: (value: string, item: DiscountConditionRule) => {
+      if (item.field === "quantity" || item.field === "subtotal") {
+        return formatCurrency(value);
+      }
+      return value;
+    },
+  },
+];
+
+export const columnProductQuantitytByRule = [
+  {
+    title: "STT",
+    width: "5%",
+    render: (value: any, item: DiscountConditionRule, index: number) => index + 1,
+  },
+  {
+    title: "Thuộc tính",
+    dataIndex: "field",
+    visible: true,
+    width: "20%",
+    render: (field: string) => {
+      return FIELD_SELECT_OPTIONS_PRODUCT_QUANTITY.find((x) => x.value === field)?.label || "";
     },
   },
   {
