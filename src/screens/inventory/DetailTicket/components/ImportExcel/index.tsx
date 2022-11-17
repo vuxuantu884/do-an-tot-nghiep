@@ -1,17 +1,19 @@
-import { Button, Modal, Typography, Upload } from "antd";
+import { Button, Col, List, Modal, Progress, Row, Typography, Upload } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
-import { showError } from "utils/ToastUtils";
 import excelIcon from "assets/icon/icon-excel.svg";
-import { UploadOutlined } from "@ant-design/icons";
-import * as XLSX from "xlsx";
-import { callApiNative } from "utils/ApiUtils";
-import { searchVariantsApi } from "service/product/product.service";
+import { DeleteOutlined, PaperClipOutlined, UploadOutlined } from "@ant-design/icons";
 import { VariantResponse } from "model/product/product.model";
-import { useDispatch } from "react-redux";
-import * as FileSaver from "file-saver";
-import NumberFormat from "react-number-format";
-import { isNullOrUndefined } from "utils/AppUtils";
 import { StyledProgressDownloadModal } from "screens/ecommerce/common/commonStyle";
+import { UploadFile } from "antd/lib/upload/interface";
+import { beforeUploadFile, EXCEL_FILE_TYPE_XLS, EXCEL_FILE_TYPE_XLSX, ImportStatuses } from "screens/inventory/helper";
+import { UploadRequestOption } from "rc-upload/lib/interface";
+import { uploadFileApi } from "service/core/import.service";
+import { HttpStatus } from "config/http-status.config";
+import Text from "antd/lib/typography/Text";
+import { ImportResponse } from "model/other/files/export-model";
+import BaseAxios from "base/base.axios";
+import { ApiConfig } from "config/api.config";
+import { showError, showWarning } from "utils/ToastUtils";
 
 export interface ModalImportProps {
   visible?: boolean;
@@ -25,383 +27,325 @@ export interface ModalImportProps {
   dataTable?: Array<VariantResponse>;
 }
 
-type ImportProps = {
-  barcode: string;
-  quantity: number;
-  lineNumber: number | undefined;
-};
-
-type process = {
-  total: number;
-  processed: number;
-  success: number;
-  error: number;
-};
-
-let firstLoad = true;
-
 const ImportExcel: React.FC<ModalImportProps> = (props: ModalImportProps) => {
-  const { visible, onOk, onCancel, title, dataTable } = props;
-  const [fileList, setFileList] = useState<Array<File>>([]);
-  const [data, setData] = useState<Array<VariantResponse>>(dataTable ? [...dataTable] : []);
-  const dispatch = useDispatch();
-  const [errorData, setErrorData] = useState<Array<any>>([]);
-  const [progressData, setProgressData] = useState<process>({
-    processed: 0,
-    success: 0,
-    error: 0,
-    total: 0,
-  });
+  const { visible, onOk, onCancel, title } = props;
+  const [file, setFile] = useState<UploadFile | null>(null);
+  const [url, setUrl] = useState<string>("");
 
-  const resetFile = () => {
-    setFileList([]);
-    setProgressData({
-      processed: 0,
-      success: 0,
-      error: 0,
-      total: 0,
-    });
-    setErrorData([]);
-    firstLoad = true;
-  };
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isCompletedImport, setIsCompletedImport] = useState<boolean>(false);
+  const [dataProcess, setDataProcess] = useState<ImportResponse | null>(null);
+  const [fileId, setFileId] = useState<string | null>(null);
+  const [data, setData] = useState<any>(null);
+  const [dataError, setDataError] = useState<any>(null);
+  const [dataUploadError, setDataUploadError] = useState<any>(null);
+
+  const onChangeFile = useCallback((info) => {
+    setFile(info.file);
+  }, []);
 
   const onRemoveFile = () => {
-    resetFile();
-  };
-  const ActionImport = {
-    Ok: useCallback(() => {
-      resetFile();
-      onOk(data);
-    }, [onOk, data]),
-    Cancel: useCallback(() => {
-      resetFile();
-      onCancel();
-    }, [onCancel]),
+    setFile(null);
+    setUrl("");
   };
 
-  const uploadProps = {
-    beforeUpload: (file: any) => {
-      resetFile();
-      const typeExcel =
-        file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-      if (!typeExcel) {
-        showError("Chỉ chọn file excel");
-      }
-      setFileList([file]);
-      return typeExcel || Upload.LIST_IGNORE;
-    },
-    onChange: useCallback(
-      async (e: any) => {
-        if (!firstLoad || (e.file && e.file.status === "removed")) {
+  const onCustomUpdateRequest = (options: UploadRequestOption) => {
+    const { file } = options;
+    let files: Array<File> = [];
+
+    if (file instanceof File) {
+      files.push(file);
+
+      uploadFileApi(files, "import-transfer").then((res: any) => {
+        if (res.code === HttpStatus.SUCCESS) {
+          setUrl(res.data[0]);
+        }
+      });
+    }
+  };
+
+  const downloadErrorDetail = (dataUploadError: any) => {
+    if (!dataUploadError) return;
+    let newDataUploadError = "";
+
+    dataUploadError.forEach((item: any) => {
+      newDataUploadError = newDataUploadError + item + "\n";
+    });
+    const downloadableLink = document.createElement("a");
+    downloadableLink.setAttribute(
+      "href",
+      "data:text/plain;charset=utf-8," + encodeURIComponent(newDataUploadError),
+    );
+    downloadableLink.download = "Log.txt";
+    document.body.appendChild(downloadableLink);
+    downloadableLink.click();
+    document.body.removeChild(downloadableLink);
+  };
+
+  const checkImportFile = () => {
+    BaseAxios.get(`${ApiConfig.IMPORT_EXPORT}/importing/v2/jobs/${fileId}`).then(
+      (res: any) => {
+        if (res.code !== HttpStatus.SUCCESS) {
+          setFileId(null);
+          if (res.errors?.length > 0) {
+            showError(res.errors[0]);
+          }
+          return;
+        }
+        if (!res.data) {
+          setFileId(null);
           return;
         }
 
-        firstLoad = false;
-        const file = e.file;
-        const dataExcel = await file.originFileObj.arrayBuffer();
-        const workbook = XLSX.read(dataExcel);
+        setData(res.data);
+        setDataProcess(res.data);
 
-        const workSheet = workbook.Sheets[workbook.SheetNames[0]];
-        let jsonData: any = XLSX.utils.sheet_to_json(workSheet);
-
-        let range = XLSX.utils.sheet_to_json(workSheet, {
-          range: workSheet["!ref"],
-          blankrows: true,
-        });
-
-        if (range && range.length > 0) {
-          jsonData = [];
-          let lineNumber = 1;
-          for (let i = 0; i < range.length; i++) {
-            const item: any = range[i];
-
-            if (Object.values(item)[0]) {
-              jsonData.push({
-                barcode: Object.values(item)[0],
-                quantity: Object.values(item)[1] ?? 1,
-                lineNumber: lineNumber,
-              });
-            }
-            lineNumber += 1;
-          }
+        const newDataUpdateError =
+          !res.data.messages || (res.data.messages && res.data.messages.length === 0)
+            ? null
+            : res.data.messages;
+        downloadErrorDetail(newDataUpdateError);
+        setDataUploadError(newDataUpdateError);
+        if (res.data.status === ImportStatuses.ERROR) {
+          setFileId(null);
+          setIsLoading(false);
+          return;
         }
-        let process: process = {
-          processed: 0,
-          success: 0,
-          error: 0,
-          total: 0,
-        };
-        let error = [];
+        if (res.data.status !== ImportStatuses.FINISH) return;
 
-        if (jsonData && data && data.length > 0) {
-          let convertData: Array<ImportProps> = [];
-          process.total = jsonData.length;
-          for (let i = 0; i < jsonData.length; i++) {
-            process.processed += 1;
-            const element = jsonData[i];
-
-            const findIndex = convertData.findIndex(
-              (e) => e.barcode && e.barcode.toString() === element.barcode.toString(),
-            );
-            if (findIndex >= 0) {
-              convertData[findIndex].quantity += element.quantity ?? 1;
-            } else {
-              convertData.push({
-                barcode: element.barcode,
-                quantity: element.quantity ?? 1,
-                lineNumber: element.__rowNum__,
-              });
-            }
-          }
-
-          if (convertData && convertData.length > 0) {
-            for (let i = 0; i < convertData.length; i++) {
-              const element = convertData[i];
-              if (element.quantity && typeof element.quantity !== "number") {
-                error.push(`Dòng ${element.lineNumber}: Số lượng chỉ được nhập kiểu số nguyên`);
-                process.error += 1;
-              }
-            }
-
-            const barcodes: string[] = convertData.map((item) => item.barcode);
-            let res = await callApiNative({ isShowLoading: true }, dispatch, searchVariantsApi, {
-              barcode: barcodes.join(","),
-              store_ids: null,
-              limit: 1000,
-              status: "active"
-            });
-
-            if (res.items.length === 0) return;
-
-            let dataTable = [...res.items];
-
-            for (let i = 0; i < convertData.length; i++) {
-              for (let j = 0; j < dataTable.length; j++) {
-                if (
-                  convertData[i].barcode.toString() === dataTable[j].barcode.toString() ||
-                  (dataTable[j].reference_barcodes &&
-                    convertData[i].barcode.toString() ===
-                      dataTable[j].reference_barcodes.toString())
-                ) {
-                  process.success += 1;
-                  break;
-                }
-
-                if (j === dataTable.length - 1) {
-                  error.push(`${convertData[i].barcode}: Sản phẩm không tồn tại trên hệ thống`);
-                  process.error += 1;
-                }
-              }
-            }
-
-            for (let i = 0; i < dataTable.length; i++) {
-              dataTable[i] = {
-                ...dataTable[i],
-                id: null,
-                variant_id: dataTable[i].id,
-                transfer_quantity: 0,
-                real_quantity: null,
-              };
-              let real_quantity: any = null;
-
-              const findIndex = convertData.findIndex(
-                (e) => e.barcode.toString() === dataTable[i].barcode.toString(),
-              );
-              if (findIndex >= 0) {
-                real_quantity = convertData[findIndex].quantity;
-              }
-
-              if (dataTable[i].reference_barcodes) {
-                const referenceBarcodes = dataTable[i].reference_barcodes.split(",");
-
-                referenceBarcodes.forEach((item: any) => {
-                  let idx: number = convertData.findIndex(
-                    (e) => e.barcode.toString() === item.toString(),
-                  );
-
-                  if (idx >= 0) {
-                    real_quantity = real_quantity + convertData[idx].quantity;
-                  }
-                });
-              }
-
-              dataTable[i].real_quantity = real_quantity;
-            }
-
-            //handle duplicate barcode
-
-            const newData = [...data];
-
-            for (let i = 0; i < data.length; i++) {
-              let findIndex = dataTable.findIndex(
-                (e) => e.sku.toString() === data[i].sku.toString(),
-              );
-              if (findIndex >= 0) {
-                newData[i].real_quantity =
-                  newData[i].real_quantity + dataTable[findIndex].real_quantity;
-                dataTable.splice(findIndex, 1);
-              }
-            }
-
-            setData([...newData, ...dataTable]);
-          }
-        }
-
-        setProgressData({ ...process });
-        setErrorData([...error]);
+        setIsLoading(false);
+        setIsCompletedImport(true);
+        setFileId(null);
       },
-      [data, dispatch],
-    ),
+    );
   };
-
-  const exportTemplate = (e: any) => {
-    let worksheet = XLSX.utils.json_to_sheet([
-      {
-        "Sản phẩm": null,
-        "Số lượng": null,
-      },
-    ]);
-    const fileType =
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
-    const fileExtension = ".xlsx";
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "data");
-    //XLSX.writeFile(workbook, `import_so_luong_thuc_nhan.xlsx`);
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-    const data = new Blob([excelBuffer], { type: fileType });
-    FileSaver.saveAs(data, `import_so_luong_thuc_nhan` + fileExtension);
-    e.preventDefault();
-  };
-
-  const checkDisableOkButton = useCallback(() => {
-    return !fileList.length;
-  }, [fileList.length]);
 
   useEffect(() => {
-    setData(dataTable ? [...dataTable] : []);
-  }, [dataTable]);
+    if (!fileId) return;
+
+    const getFileInterval = setInterval(checkImportFile, 2000);
+    return () => clearInterval(getFileInterval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fileId]);
+
+  const importFile = () => {
+    setIsLoading(true);
+    if (!file) {
+      setIsLoading(false);
+      showWarning("Vui lòng chọn ít nhất một file.");
+      return;
+    }
+    BaseAxios.post(`${ApiConfig.IMPORT_EXPORT}/importing/v2/jobs`, {
+      type: "normal",
+      module: "inventory_transfer",
+      url
+    })
+      .then((res: any) => {
+        if (res) {
+          setDataError(res);
+          setFileId(res.data);
+
+          const newDataUpdateError =
+            !res.data?.errors || (res.data?.errors && res.data?.errors.length === 0)
+              ? null
+              : res.data?.errors;
+
+          downloadErrorDetail(newDataUpdateError);
+          setDataUploadError(newDataUpdateError);
+          setDataUploadError(newDataUpdateError);
+
+          if (res.code !== HttpStatus.SUCCESS) {
+            setIsLoading(false);
+          }
+        }
+      })
+      .catch((err) => {
+        showError(err);
+      });
+  };
+
+  const resetModal = () => {
+    setIsLoading(false);
+    setFile(null);
+    setIsCompletedImport(false);
+    setDataProcess(null);
+    setFileId(null);
+    setData(null);
+    setDataError(null);
+    setDataUploadError(null);
+  };
+
+  const importData = () => {
+    onOk(data.job_data);
+    resetModal();
+  };
 
   return (
     <Modal
-      onCancel={ActionImport.Cancel}
-      onOk={ActionImport.Ok}
+      onCancel={() => {
+        resetModal();
+        onCancel();
+      }}
+      onOk={() => isCompletedImport ? importData() : importFile()}
       width={650}
       centered
       visible={visible}
       title={title}
-      okText="Nhập file"
+      okText={isCompletedImport ? "Xác nhận" : "Nhập file"}
       cancelText="Hủy bỏ"
-      okButtonProps={{ disabled: checkDisableOkButton() }}
+      okButtonProps={{ disabled: isLoading, loading: isLoading }}
     >
       <StyledProgressDownloadModal>
-        <Typography.Text>
-          <img src={excelIcon} alt="" />{" "}
-          <a href="/" onClick={exportTemplate}>
-            file import thực nhận mẫu (.xlsx)
-          </a>
-        </Typography.Text>
-        <div style={{ marginTop: "20px", marginBottom: "5px" }}>
-          <b>Tải file lên</b>
-        </div>
-        <Upload
-          onRemove={onRemoveFile}
-          maxCount={1}
-          {...uploadProps}
-          accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
-        >
-          <Button icon={<UploadOutlined />}>Chọn file</Button>
-        </Upload>
-
-        {fileList.length > 0 && (
-          <div>
-            <div className="progress-body" style={{ marginTop: "30px" }}>
-              <div className="progress-count">
-                <div>
-                  <div>Tổng cộng</div>
-                  <div className="total-count">
-                    {isNullOrUndefined(progressData?.total) ? (
-                      "--"
-                    ) : (
-                      <NumberFormat
-                        value={progressData?.total}
-                        displayType={"text"}
-                        thousandSeparator={true}
-                      />
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <div>Đã xử lý</div>
-                  <div style={{ fontWeight: "bold" }}>
-                    {isNullOrUndefined(progressData?.processed) ? (
-                      "--"
-                    ) : (
-                      <NumberFormat
-                        value={progressData?.processed}
-                        displayType={"text"}
-                        thousandSeparator={true}
-                      />
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <div>Thành công</div>
-                  <div className="total-updated">
-                    {isNullOrUndefined(progressData?.success) ? (
-                      "--"
-                    ) : (
-                      <NumberFormat
-                        value={progressData?.success}
-                        displayType={"text"}
-                        thousandSeparator={true}
-                      />
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <div>Lỗi</div>
-                  <div className="total-error">
-                    {isNullOrUndefined(progressData?.error) ? (
-                      "--"
-                    ) : (
-                      <NumberFormat
-                        value={progressData?.error}
-                        displayType={"text"}
-                        thousandSeparator={true}
-                      />
-                    )}
-                  </div>
-                </div>
-              </div>
+        <Row gutter={24}>
+          <Col span={12}>
+            <div style={{ marginBottom: "5px" }}>
+              <b>Tải file lên</b>
             </div>
-            {errorData?.length ? (
-              <div className="error-orders">
-                <div className="title">Chi tiết lỗi:</div>
-                <div className="error_message">
-                  <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
-                    <ul style={{ color: "#E24343" }}>
-                      {errorData.map((error, index) => (
-                        <li key={index} style={{ marginBottom: "5px" }}>
-                          <span style={{ fontWeight: 500 }}>{error.split(":")[0]}</span>
-                          <span>:</span>
-                          <span>{error.split(":")[1]}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div />
-            )}
+            <Row>
+              <Upload
+                onChange={onChangeFile}
+                multiple={false}
+                showUploadList={false}
+                beforeUpload={beforeUploadFile}
+                customRequest={onCustomUpdateRequest}
+                accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+              >
+                <Button icon={<UploadOutlined />}>Chọn file</Button>
+              </Upload>
+            </Row>
+            {file && (
+              <div className="mt-10">
+                <span className="margin-right-10">
+                  <PaperClipOutlined />
+                </span>
+                <span title={url} className="margin-right-10 file-name">
+                  {file?.name}
+                </span>
+              <span onClick={() => onRemoveFile()}><DeleteOutlined /></span>
+            </div>)}
+          </Col>
+          <Col span={12}>
+            <div className="font-weight-500">File excel mẫu</div>
+            <List>
+              <List.Item>
+                <Typography.Text>
+                  {" "}
+                  <img src={excelIcon} alt="" />{" "}
+                  <a href={EXCEL_FILE_TYPE_XLS} download="Import_Transfer">
+                    Ấn để tải xuống (excel 2003)
+                  </a>{" "}
+                </Typography.Text>
+              </List.Item>
+              <List.Item>
+                <Typography.Text>
+                  {" "}
+                  <img src={excelIcon} alt="" />{" "}
+                  <a href={EXCEL_FILE_TYPE_XLSX} download="Import_Transfer">
+                    Ấn để tải xuống (excel 2007)
+                  </a>{" "}
+                </Typography.Text>
+              </List.Item>
+            </List>
+          </Col>
+        </Row>
+        <Row className="status">
+          <Col span={6}>
+            <div>
+              <Text>Tổng cộng</Text>
+            </div>
+            <div>
+              <b>{dataProcess?.total}</b>
+            </div>
+          </Col>
+          <Col span={6}>
+            <div>
+              <Text>Đã xử lí</Text>
+            </div>
+            <div>
+              <b>{dataProcess?.processed}</b>
+            </div>
+          </Col>
+          <Col span={6}>
+            <div>
+              <Text>Thành công</Text>
+            </div>
+            <div>
+              <Text type="success">
+                <b>{dataProcess?.success}</b>
+              </Text>
+            </div>
+          </Col>
+          <Col span={6}>
+            <div>Lỗi</div>
+            <div>
+              <Text type="danger">
+                <b>{dataProcess?.error}</b>
+              </Text>
+            </div>
+          </Col>
+
+          <Row className="status">
+            <Progress percent={dataProcess?.percent} />
+          </Row>
+        </Row>
+
+        <Row className="import-info">
+          <div className="title">
+            <b>Chi tiết: </b>
           </div>
-        )}
+          <div className="content">
+            <ul>
+              {dataUploadError ? (
+                <li>
+                  <span className="danger">&#8226;</span>
+                  <Text type="danger">Nhập file thất bại</Text>
+                </li>
+              ) : (
+                <>
+                  {!data ? (
+                    <>
+                      {dataError?.errors && dataError?.errors.length > 0 && dataError?.errors.map((i: any) => (
+                        (
+                          <li>
+                            <span className="danger">&#8226;</span>
+                            <Text type="danger">
+                              {i}
+                            </Text>
+                          </li>
+                        )
+                      ))}
+                    </>
+                  ) : (
+                    <li>
+                      <div>
+                        <span className="success">&#8226;</span>
+                        <Text type="success">
+                          Đang đọc file...({dataProcess?.reading_percent}%)
+                        </Text>
+                      </div>
+                      <div>
+                        <span className="success">&#8226;</span>
+                        <Text type="success">
+                          Đang xử lý...({dataProcess?.percent}%)
+                        </Text>
+                      </div>
+                      <div>
+                        {data?.status === ImportStatuses.FINISH && (
+                          <>
+                            <span className="success">&#8226;</span>
+                            <Text type="success">
+                              Thành công
+                            </Text>
+                          </>
+                        )}
+                      </div>
+                    </li>
+                  )}
+                </>
+              )}
+            </ul>
+          </div>
+        </Row>
       </StyledProgressDownloadModal>
     </Modal>
   );

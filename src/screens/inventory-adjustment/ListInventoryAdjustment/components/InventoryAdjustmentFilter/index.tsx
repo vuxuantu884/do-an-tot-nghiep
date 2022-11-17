@@ -227,9 +227,12 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
       values.from_audited_date = getStartOfDayCommon(values.from_audited_date)?.format();
       values.to_audited_date = getEndOfDayCommon(values.to_audited_date)?.format();
 
-      onFilter && onFilter(values);
+      onFilter && onFilter({
+        ...form.getFieldsValue(true),
+        ...values
+      });
     },
-    [formAvd, onFilter],
+    [form, formAvd, onFilter],
   );
 
   const filters = () => {

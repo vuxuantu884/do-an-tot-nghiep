@@ -511,3 +511,32 @@ export const getReturnStoreFromOrderActiveFulfillment = (
   };
   return getStoreFromOrderActiveFulfillment();
 };
+
+export const changeTypeQrCode = (
+  payments: OrderPaymentRequest[],
+  paymentMethods: PaymentMethodResponse[],
+) => {
+  const qrPaymentMethod = paymentMethods.find(
+    (payment) => payment.code === PaymentMethodCode.QR_CODE,
+  );
+
+  const qrPaymentMethodCodes = [PaymentMethodCode.VN_PAY, PaymentMethodCode.MOMO];
+
+  qrPaymentMethodCodes.forEach((qrCode) => {
+    const paymentIndex = payments.findIndex((payment) => payment.payment_method_code === qrCode);
+
+    if (paymentIndex > -1) {
+      if (!qrPaymentMethod) {
+        return payments;
+      }
+      payments[paymentIndex].payment_method_id = qrPaymentMethod.id;
+      payments[paymentIndex].payment_method = qrPaymentMethod.name;
+      payments[paymentIndex].payment_method_code = qrPaymentMethod.code;
+      payments[paymentIndex].code = qrPaymentMethod.code;
+      payments[paymentIndex].name = qrPaymentMethod.name;
+      payments[paymentIndex].type = qrCode;
+    }
+  });
+
+  return payments;
+};
