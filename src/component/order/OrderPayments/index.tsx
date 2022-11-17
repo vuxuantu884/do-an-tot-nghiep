@@ -531,39 +531,40 @@ function OrderPayments(props: PropTypes): JSX.Element {
     return (
       <Col xs={24} lg={24}>
         <Row className="btn-list-method" gutter={5} align="middle">
-          {paymentMethods.map((method, index) => {
-            let icon = getPaymentIcon(method);
-            return (
-              <Col key={method.code} className="btn-payment-method">
-                <Button
-                  type={
-                    payments.some(
-                      (p) =>
-                        p.code === method.code ||
-                        p.payment_method.toLowerCase() === method.code.toLowerCase() ||
-                        p.payment_method_id === method.id,
-                    )
-                      ? "primary"
-                      : "default"
-                  }
-                  value={method.id}
-                  icon={icon}
-                  onClick={() => {
-                    handlePickPaymentMethod(method.id);
-                  }}
-                  className="paymentButton 34"
-                  disabled={
-                    levelOrder > 2 ||
-                    (method.code === PaymentMethodCode.MOMO &&
-                      checkIfOrderHasNotFinishedPaymentMomo(orderDetail)) ||
-                    method.code === PaymentMethodCode.VN_PAY
-                  }
-                >
-                  {method.name}
-                </Button>
-              </Col>
-            );
-          })}
+          {paymentMethods
+            .filter((p) => p.code !== PaymentMethodCode.QR_CODE)
+            .map((method, index) => {
+              let icon = getPaymentIcon(method);
+              return (
+                <Col key={method.code} className="btn-payment-method">
+                  <Button
+                    type={
+                      payments.some(
+                        (p) =>
+                          p.code === method.code ||
+                          p.payment_method.toLowerCase() === method.code.toLowerCase() ||
+                          p.payment_method_id === method.id,
+                      )
+                        ? "primary"
+                        : "default"
+                    }
+                    value={method.id}
+                    icon={icon}
+                    onClick={() => {
+                      handlePickPaymentMethod(method.id);
+                    }}
+                    className="paymentButton 34"
+                    disabled={
+                      levelOrder > 2 ||
+                      (method.code === PaymentMethodCode.MOMO &&
+                        checkIfOrderHasNotFinishedPaymentMomo(orderDetail))
+                    }
+                  >
+                    {method.name}
+                  </Button>
+                </Col>
+              );
+            })}
         </Row>
       </Col>
     );

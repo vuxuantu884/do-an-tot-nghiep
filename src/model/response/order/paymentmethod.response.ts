@@ -9,4 +9,5 @@ export interface PaymentMethodResponse {
   updated_name?: string;
   updated_date?: number;
   name: string;
+  payment_method_code: string;
 }
