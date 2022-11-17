@@ -1058,7 +1058,6 @@ const OrderDuplicate: React.FC = () => {
           name: "COD",
           code: "cod",
           id: 0,
-          payment_method_code: "cod",
         });
         setListPaymentMethod(data);
       }),
