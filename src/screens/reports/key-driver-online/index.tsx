@@ -29,6 +29,7 @@ import {
   DEFAULT_ON_KD_GROUP_LV1,
 } from "../common/constant/kd-report-response-key";
 import { KDReportDirection } from "../common/enums/kd-report-direction";
+import { KDReportName } from "../common/enums/kd-report-name";
 import { convertDataToFlatTableRotation } from "../common/helpers/convert-data-to-flat-table-rotation";
 import { filterValueColumns } from "../common/helpers/filter-value-columns";
 import { getBreadcrumbByLevel } from "../common/helpers/get-breadcrumb-by-level";
@@ -669,9 +670,11 @@ function KeyDriverOnline() {
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
               return (
-                <VerifyCell row={record} value={text}>
-                  {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
-                </VerifyCell>
+                <div className={record[`${departmentKey}_daily_actual_color`]}>
+                  <VerifyCell row={record} value={text}>
+                    {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
+                  </VerifyCell>
+                </div>
               );
             },
           },
@@ -777,6 +780,7 @@ function KeyDriverOnline() {
             return convertDataToFlatTableRotation(
               response,
               currentDrillingLevel,
+              KDReportName.Online,
               groupLv as string,
             );
           });
