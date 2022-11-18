@@ -30,6 +30,7 @@ import {
 } from "../common/constant/kd-report-response-key";
 import { npsKD, numberOfStoreStaffKD } from "../common/constant/offline-report-kd";
 import { KDReportDirection } from "../common/enums/kd-report-direction";
+import { KDReportName } from "../common/enums/kd-report-name";
 import { convertDataToFlatTableRotation } from "../common/helpers/convert-data-to-flat-table-rotation";
 import { filterValueColumns } from "../common/helpers/filter-value-columns";
 import { getBreadcrumbByLevel } from "../common/helpers/get-breadcrumb-by-level";
@@ -674,9 +675,11 @@ function KeyDriverOffline() {
               return ["OF.DT.FB.02", ...npsKD].includes(record.key) ? (
                 <span>-</span>
               ) : (
-                <VerifyCell row={record} value={text}>
-                  {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
-                </VerifyCell>
+                <div className={record[`${departmentKey}_daily_actual_color`]}>
+                  <VerifyCell row={record} value={text}>
+                    {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
+                  </VerifyCell>
+                </div>
               );
             },
           },
@@ -782,6 +785,7 @@ function KeyDriverOffline() {
             return convertDataToFlatTableRotation(
               response,
               currentDrillingLevel,
+              KDReportName.Offline,
               groupLv as string,
             );
           });

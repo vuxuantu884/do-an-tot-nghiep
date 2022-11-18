@@ -1,11 +1,18 @@
 import { uniq } from "lodash";
 import { AnalyticResult } from "model/report";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
-import { ATTRIBUTE_VALUE, COLUMN_ORDER_LIST } from "../constant/kd-report-response-key";
+import {
+  ATTRIBUTE_VALUE,
+  COLUMN_ORDER_LIST,
+  OFF_DRILLING_LEVEL,
+  ONL_DRILLING_LEVEL,
+} from "../constant/kd-report-response-key";
+import { KDReportName } from "../enums/kd-report-name";
 
 export const convertDataToFlatTableRotation = (
   analyticResult: any,
   currentDrillingLevel: number,
+  kdReportName: KDReportName,
   groupLevel?: string,
 ) => {
   const keyDriverResult = analyticResult.result as AnalyticResult;
@@ -98,33 +105,53 @@ export const convertDataToFlatTableRotation = (
       }
     }
     propertyArrDailyActual.forEach((ppt) => {
-      const arrValue = data.map((item, index) => {
-        return item[ppt];
-      });
+      const arrValue = data
+        .filter(
+          (item) =>
+            item.drillingLevel !== ONL_DRILLING_LEVEL.DEPARTMENT &&
+            item.drillingLevel !== OFF_DRILLING_LEVEL.ASM,
+        )
+        .map((item, index) => {
+          return item[ppt];
+        });
       objDailyActual[ppt] = arrValue.sort((a: number, b: number) => b - a);
     });
     // console.log("objDailyActual", objDailyActual);
 
+    const { Offline } = KDReportName;
+    let limitRowFillColor = 3; // kdReportName === Online
+    if (kdReportName === Offline) {
+      limitRowFillColor = 10;
+    }
     propertyArrDailyActual.forEach((ppt) => {
       data = data.map((item, index) => {
+        if (
+          item.drillingLevel === ONL_DRILLING_LEVEL.DEPARTMENT ||
+          item.drillingLevel === OFF_DRILLING_LEVEL.ASM
+        ) {
+          return item;
+        }
         let color = "";
-        const valueArr: any[] = objDailyActual[ppt];
+        const valueArr: any[] = objDailyActual[ppt].filter((value: number | undefined) => value);
         // return item[ppt] ? (!objDailyActual[ppt][3] ? "" : (item[ppt] >= valueArr[3] ? "green" : "")) : "red",
         if (item[ppt]) {
-          if (valueArr[2]) {
-            if (item[ppt] >= valueArr[2]) {
+          if (valueArr[limitRowFillColor - 1]) {
+            if (item[ppt] >= valueArr[limitRowFillColor - 1]) {
               color = "background-green";
             }
           } else {
             color = "background-green";
           }
-          if (valueArr[valueArr.length - 3]) {
-            if (item[ppt] <= valueArr[valueArr.length - 3]) {
+          if (valueArr[valueArr.length - limitRowFillColor]) {
+            if (item[ppt] <= valueArr[valueArr.length - limitRowFillColor]) {
               color = "background-red";
             }
           }
         } else {
-          color = valueArr[valueArr.length - 3] && valueArr[2] ? "background-red" : "";
+          color =
+            valueArr[valueArr.length - limitRowFillColor] && valueArr[limitRowFillColor - 1]
+              ? "background-red"
+              : "";
         }
         return {
           ...item,
