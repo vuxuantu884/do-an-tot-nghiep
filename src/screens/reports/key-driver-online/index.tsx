@@ -669,9 +669,11 @@ function KeyDriverOnline() {
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
               return (
-                <VerifyCell row={record} value={text}>
-                  {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
-                </VerifyCell>
+                <div className={record[`${departmentKey}_daily_actual_color`]}>
+                  <VerifyCell row={record} value={text}>
+                    {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
+                  </VerifyCell>
+                </div>
               );
             },
           },
