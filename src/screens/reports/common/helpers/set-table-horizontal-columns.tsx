@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { kdOffHaveChildren, kdOnHaveChildren } from "../constant/kd-have-children";
 import { COLUMN_ORDER_LIST } from "../constant/kd-report-response-key";
+import { filterKDOfflineHorizontalByDim } from "./filter-kd-by-dim";
 
 interface IColumnLink {
   groupLv: string;
@@ -86,15 +87,18 @@ export const setTableHorizontalColumns = (
       return res;
     }, []);
   } else {
+    const filterData = filterKDOfflineHorizontalByDim(currentDrillingLevel, data) || data;
     allKeyDriverByGroupLevel = uniqBy(
-      data
+      filterData
         .filter((item: any, index: number) => {
           return (
             item[kdParentIndex] === currentGroupLvName &&
             (!item[kdParentIndex + 1] ||
               typeof item[kdParentIndex + 1] !== "string" ||
               (typeof item[kdParentIndex + 1] === "string" &&
-                item[kdParentIndex + 1].includes(item[keyDriverTitleIndex])))
+                item[kdParentIndex + 1].includes(item[keyDriverTitleIndex]))) &&
+            item[departmentLv1Index] &&
+            !item[keyDriverIndex].endsWith(".L")
           );
         })
         .map((item: any) => {
