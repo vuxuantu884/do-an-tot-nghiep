@@ -303,78 +303,72 @@ const PackInfoComponent: React.FC = () => {
   //   [dispatch],
   // );
 
-  const handlePackedFulfillment = useCallback(
-    (itemProducts: OrderLineItemResponseExt[]) => {
-      if (!itemProducts || (itemProducts && itemProducts.length <= 0)) {
-        return;
-      }
+  const handlePackedFulfillment = useCallback(() => {
+    let request = {
+      id: packFulFillmentResponse?.id,
+      code: packFulFillmentResponse?.code,
+      items: packFulFillmentResponse?.items,
+    };
 
-      if (!packFulFillmentResponse) return;
+    let packData: PackModel = {
+      ...new PackModelDefaultValue(),
+      ...singlePack,
+    };
 
-      let inCompleteProduct = itemProducts.filter(
-        (p: OrderLineItemResponseExt) => Number(p.quantity) !== Number(p.pick),
-      );
+    dispatch(
+      getFulfillmentsPack(
+        request,
+        (data: any) => {
+          if (data) {
+            btnClearPackElement?.click();
+            packFulFillmentResponse &&
+              packData.fulfillments.unshift({ ...packFulFillmentResponse });
+            setSinglePack(packData);
+            setPackInfo(packData);
+            orderRequestElement?.focus();
+            showSuccess("Đóng gói đơn hàng thành công");
 
-      if (inCompleteProduct === undefined || inCompleteProduct.length === 0) {
-        let request = {
-          id: packFulFillmentResponse.id,
-          code: packFulFillmentResponse.code,
-          items: packFulFillmentResponse.items,
-        };
-
-        let packData: PackModel = {
-          ...new PackModelDefaultValue(),
-          ...singlePack,
-        };
-
-        dispatch(
-          getFulfillmentsPack(
-            request,
-            (data: any) => {
-              if (data) {
-                btnClearPackElement?.click();
-                packData.fulfillments.unshift({ ...packFulFillmentResponse });
-                setSinglePack(packData);
-                setPackInfo(packData);
-                orderRequestElement?.focus();
-                showSuccess("Đóng gói đơn hàng thành công");
-
-                // setTimeout(() => {
-                //   // handleTrackingConfirm(request.code || "");
-                // }, 3000);
-              }
-            },
-            (error: string[]) => {
-              showModalErrorAudio(
-                <>
-                  {error.map((p) => (
-                    <p>{p}</p>
-                  ))}
-                </>,
-              );
-            },
-          ),
-        );
-      }
-    },
-    [
-      btnClearPackElement,
-      dispatch,
-      orderRequestElement,
-      packFulFillmentResponse,
-      setSinglePack,
-      singlePack,
-      // handleTrackingConfirm,
-    ],
-  );
+            // setTimeout(() => {
+            //   // handleTrackingConfirm(request.code || "");
+            // }, 3000);
+          }
+        },
+        (error: string[]) => {
+          showModalErrorAudio(
+            <>
+              {error.map((p) => (
+                <p>{p}</p>
+              ))}
+            </>,
+          );
+        },
+      ),
+    );
+  }, [
+    btnClearPackElement,
+    dispatch,
+    orderRequestElement,
+    packFulFillmentResponse,
+    setSinglePack,
+    singlePack,
+    // handleTrackingConfirm,
+  ]);
 
   /**
    * nhặt sản phẩm
-   * product_request: sản phẩm đang nhặt
-   * quality_request: số lượng nhặt
+   * productRequest: sản phẩm đang nhặt
+   * qualityRequest: số lượng nhặt
    */
   const ProductPack = useCallback(
-    (product_request: string, quality_request: number) => {
+    (productRequest: string, qualityRequest: number) => {
+      const isItemsQuantityEqualPick = (items: OrderLineItemResponseExt[]) => {
+        return !items.some((p) => Number(p.quantity) !== Number(p.pick));
+      };
+
+      const isQuantityOfPicksNotTrue = (qualityRequest: number, item: OrderLineItemResponseExt) => {
+        return Number(item.pick) + qualityRequest > Number(item.quantity);
+      };
+
       let itemProductListCopy = [...itemProductList];
 
       /**
@@ -382,39 +376,39 @@ const PackInfoComponent: React.FC = () => {
        */
       let indexPack = itemProductListCopy.findIndex(
         (p) =>
-          p.sku === product_request.trim() ||
-          p.variant_barcode === product_request.trim() ||
-          fullTextSearch(product_request.trim(), p.reference_barcode || ""),
+          p.sku === productRequest.trim() ||
+          p.variant_barcode === productRequest.trim() ||
+          fullTextSearch(productRequest.trim(), p.reference_barcode || ""),
       );
-
-      if (indexPack !== -1) {
-        if (
-          Number(itemProductListCopy[indexPack].pick) + quality_request >
-          Number(itemProductListCopy[indexPack].quantity)
-        ) {
-          showModalErrorAudio("Số lượng nhặt không đúng");
-          return;
-        } else {
-          itemProductListCopy[indexPack].pick += Number(quality_request);
-
-          if (itemProductListCopy[indexPack].pick === itemProductListCopy[indexPack].quantity)
-            itemProductListCopy[indexPack].color = "#27AE60";
-
-          setItemProductList([...itemProductListCopy]);
-          if (
-            Number(itemProductListCopy[indexPack].quantity) ===
-            Number(itemProductListCopy[indexPack].pick)
-          )
-            formRef.current?.setFieldsValue({ product_request: "" });
-        }
-        formRef.current?.setFieldsValue({ quality_request: "" });
-
-        /**
-         * nhặt đủ thì cho đóng gói luôn
-         */
-        handlePackedFulfillment(itemProductListCopy);
-      } else {
+      if (indexPack === -1) {
         showModalErrorAudio("Sản phẩm này không có trong đơn hàng");
+        return;
+      }
+
+      if (isQuantityOfPicksNotTrue(qualityRequest, itemProductListCopy[indexPack])) {
+        showModalErrorAudio("Số lượng nhặt không đúng");
+        return;
+      }
+
+      itemProductListCopy[indexPack].pick += Number(qualityRequest);
+
+      if (itemProductListCopy[indexPack].pick === itemProductListCopy[indexPack].quantity)
+        itemProductListCopy[indexPack].color = "#27AE60";
+
+      setItemProductList([...itemProductListCopy]);
+      if (
+        Number(itemProductListCopy[indexPack].quantity) ===
+        Number(itemProductListCopy[indexPack].pick)
+      ) {
+        formRef.current?.setFieldsValue({ product_request: "" });
+      }
+      formRef.current?.setFieldsValue({ qualityRequest: "" });
+
+      /**
+       * nhặt đủ thì cho đóng gói luôn
+       */
+      if (isItemsQuantityEqualPick(itemProductListCopy)) {
+        handlePackedFulfillment();
       }
     },
     [formRef, handlePackedFulfillment, itemProductList],

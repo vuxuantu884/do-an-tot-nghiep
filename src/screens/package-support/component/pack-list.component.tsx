@@ -146,7 +146,10 @@ function PackListComponent() {
       visible: true,
       align: "center",
       render: (value, row, index) => {
-        return <div>{row.items?.length}</div>;
+        const sumQuantity = row.items
+          ?.map((p: any) => p.quantity)
+          ?.reduce((prev: number, next: number) => prev + next);
+        return <div>{sumQuantity}</div>;
       },
     },
     {
