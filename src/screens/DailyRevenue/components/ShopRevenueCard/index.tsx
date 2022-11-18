@@ -92,10 +92,21 @@ function ShopRevenueCard(props: PropTypes) {
       visible: true,
       align: "right",
     },
+    // {
+    //   title: "QR VNPay",
+    //   dataIndex: "vnpay_payment",
+    //   key: "vnpay_payment",
+    //   render: (value: string) => {
+    //     return <span className="noWrap">{formatCurrency(value)}</span>;
+    //   },
+    //   visible: true,
+    //   align: "right",
+    //   // width: "25%",
+    // },
     {
-      title: "QR VNPay",
-      dataIndex: "vnpay_payment",
-      key: "vnpay_payment",
+      title: "QR Pay",
+      dataIndex: "qrpay_payment",
+      key: "qrpay_payment",
       render: (value: string) => {
         return <span className="noWrap">{formatCurrency(value)}</span>;
       },
