@@ -38,7 +38,7 @@ export const getBreadcrumbByLevel = (
     const { groupLv2, groupLv, groupLvName, groupLv3, groupLv4, groupLv5, groupLv6, ...noGroupLv } =
       queries;
     breadcrumb.push({
-      name: "Báo cáo kết quả kinh doanh",
+      name: "Chỉ số tổng quan",
       path: `?${queryString.stringify({
         ...noGroupLv,
       })}`,
