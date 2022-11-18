@@ -1,5 +1,6 @@
 import {
   EyeInvisibleOutlined,
+  InfoCircleOutlined,
   Loading3QuartersOutlined,
   MinusCircleOutlined,
   PlusCircleOutlined,
@@ -1035,7 +1036,23 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
               }
             >
               <div className="des-content">
-                <Tabs defaultActiveKey="1">
+                <Tabs defaultActiveKey="0">
+                  <TabPane
+                    key="0"
+                    tab={
+                      <span>
+                        <InfoCircleOutlined />
+                        Mô tả chung
+                      </span>
+                    }
+                  >
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: data.description,
+                      }}
+                      className="data-content"
+                    ></div>
+                  </TabPane>
                   <TabPane
                     tab={
                       <span>
