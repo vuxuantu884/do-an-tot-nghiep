@@ -1,5 +1,6 @@
 import { Button, Card, Col, Form, FormInstance, Modal, Row } from "antd";
 import { RefSelectProps } from "antd/lib/select";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import NumberInput from "component/custom/number-input.custom";
 import ModalConfirm from "component/modal/ModalConfirm";
@@ -11,6 +12,7 @@ import CreateOrderSidebarOrderInformation from "component/order/Sidebar/CreateOr
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
 import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
 import { AppConfig } from "config/app.config";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import {
@@ -77,11 +79,13 @@ import { TiWarningOutline } from "react-icons/ti";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useReactToPrint } from "react-to-print";
+import NoPermission from "screens/no-permission.screen";
 import CardCustomer from "screens/order-online/component/CardCustomer";
 import useCalculateShippingFee from "screens/order-online/hooks/useCalculateShippingFee";
 import useGetDefaultReturnOrderReceivedStore from "screens/order-online/hooks/useGetDefaultReturnOrderReceivedStore";
 import useGetOrderDetail from "screens/order-online/hooks/useGetOrderDetail";
 import useHandleMomoCreateShipment from "screens/order-online/hooks/useHandleMomoCreateShipment";
+import SplashScreen from "screens/splash.screen";
 import {
   getPrintOrderReturnContentService,
   getStoreBankAccountNumbersService,
@@ -2434,20 +2438,34 @@ const ScreenReturnCreate = (props: PropTypes) => {
     }
   }, [orderReturnType]);
 
+  const permissions = useMemo(() => {
+    if (orderReturnType === RETURN_TYPE_VALUES.online) {
+      return [ORDER_PERMISSIONS.orders_return_online];
+    }
+    if (orderReturnType === RETURN_TYPE_VALUES.offline) {
+      if (isOrderFromPOS(OrderDetail)) {
+        return [ORDER_PERMISSIONS.orders_return_offline];
+      } else {
+        return [ORDER_PERMISSIONS.orders_return_at_the_store];
+      }
+    }
+    return [];
+  }, [OrderDetail, orderReturnType]);
+
   const checkIfWrongPath = () => {
-    const checkIfOnline = () => {
+    const checkIfOnlineOrder = () => {
       return (
         orderReturnType !== RETURN_TYPE_VALUES.online &&
         orderReturnType !== RETURN_TYPE_VALUES.offline
       );
     };
-    const checkIfOffline = () => {
+    const checkIfOfflineOrder = () => {
       return orderReturnType !== RETURN_TYPE_VALUES.offline;
     };
     if (isOrderFromPOS(OrderDetail)) {
-      return checkIfOffline();
+      return checkIfOfflineOrder();
     } else {
-      return checkIfOnline();
+      return checkIfOnlineOrder();
     }
   };
 
@@ -2456,35 +2474,45 @@ const ScreenReturnCreate = (props: PropTypes) => {
   }
 
   return (
-    <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>
-      <ContentContainer
-        isError={isError}
-        title="Trả hàng cho đơn hàng"
-        breadcrumb={[
-          {
-            name: "Tổng quan",
-            path: `${UrlConfig.HOME}`,
-          },
-          {
-            name: isOrderFromPOS(OrderDetail)
-              ? `Danh sách đơn trả hàng offline`
-              : `Danh sách đơn trả hàng online`,
-            path: isOrderFromPOS(OrderDetail)
-              ? `${UrlConfig.OFFLINE_ORDERS}${UrlConfig.ORDERS_RETURN}`
-              : `${UrlConfig.ORDER}${UrlConfig.ORDERS_RETURN}`,
-          },
-          {
-            name: `Tạo đơn trả hàng cho đơn hàng ${orderId}`,
-          },
-        ]}
-      >
-        {!isFetchData
-          ? "Loading ..."
-          : isOrderFinished
-          ? renderIfOrderFinished()
-          : renderIfOrderNotFinished()}
-      </ContentContainer>
-    </CreateOrderReturnContext.Provider>
+    <AuthWrapper acceptPermissions={permissions} passThrough>
+      {(allowed: boolean, isLoadingUserPermission: boolean) =>
+        isLoadingUserPermission ? (
+          <SplashScreen />
+        ) : allowed ? (
+          <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>
+            <ContentContainer
+              isError={isError}
+              title="Trả hàng cho đơn hàng"
+              breadcrumb={[
+                {
+                  name: "Tổng quan",
+                  path: `${UrlConfig.HOME}`,
+                },
+                {
+                  name: isOrderFromPOS(OrderDetail)
+                    ? `Danh sách đơn trả hàng offline`
+                    : `Danh sách đơn trả hàng online`,
+                  path: isOrderFromPOS(OrderDetail)
+                    ? `${UrlConfig.OFFLINE_ORDERS}${UrlConfig.ORDERS_RETURN}`
+                    : `${UrlConfig.ORDER}${UrlConfig.ORDERS_RETURN}`,
+                },
+                {
+                  name: `Tạo đơn trả hàng cho đơn hàng ${orderId}`,
+                },
+              ]}
+            >
+              {!isFetchData
+                ? "Loading ..."
+                : isOrderFinished
+                ? renderIfOrderFinished()
+                : renderIfOrderNotFinished()}
+            </ContentContainer>
+          </CreateOrderReturnContext.Provider>
+        ) : (
+          <NoPermission />
+        )
+      }
+    </AuthWrapper>
   );
 };
 

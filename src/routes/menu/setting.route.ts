@@ -8,7 +8,7 @@ import {
   SourcePermissions,
   StorePermissions,
 } from "config/permissions/setting.permisssion";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import { SMS_CONFIG_PERMISSIONS } from "config/permissions/sms-config.permission";
 
 const AccountMeScreen = React.lazy(() => import("screens/settings/account/account.me.screen"));
@@ -24,7 +24,9 @@ const SmsScreen = React.lazy(() => import("screens/settings/sms/sms.screen"));
 const SmsOrderRetail = React.lazy(() => import("screens/settings/sms/config/SmsOrderRetail"));
 const SmsWebsiteOrder = React.lazy(() => import("screens/settings/sms/config/SmsWebsiteOrder"));
 const SmsOnlineOrder = React.lazy(() => import("screens/settings/sms/config/SmsOnlineOrder"));
-const SmsCustomerBirthday = React.lazy(() => import("screens/settings/sms/config/SmsCustomerBirthday"));
+const SmsCustomerBirthday = React.lazy(
+  () => import("screens/settings/sms/config/SmsCustomerBirthday"),
+);
 
 const ManageUserScreen = React.lazy(() => import("screens/settings/account/AccountList"));
 
@@ -445,7 +447,7 @@ const setting: Array<RouteMenu> = [
     key: UrlConfig.ORDER_SETTINGS,
     isShow: true,
     header: null,
-    permissions: [ODERS_PERMISSIONS.CONFIG_UPDATE],
+    permissions: [ORDER_PERMISSIONS.CONFIG_UPDATE],
     subMenu: [
       {
         path: `${UrlConfig.ORDER_SETTINGS}/create`,

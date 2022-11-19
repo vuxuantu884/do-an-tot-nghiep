@@ -10,7 +10,7 @@ import { MenuAction } from "component/table/ActionButton";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import {
   ExternalShipperGetListAction,
@@ -110,7 +110,7 @@ function OrderList(props: PropTypes) {
   const history = useHistory();
   const dispatch = useDispatch();
   const [allowOrderDelete] = useAuthorization({
-    acceptPermissions: [ODERS_PERMISSIONS.DELETE_ORDER],
+    acceptPermissions: [ORDER_PERMISSIONS.DELETE_ORDER],
     not: false,
   });
 
@@ -893,7 +893,7 @@ function OrderList(props: PropTypes) {
                   </Button>
                 )}
               </AuthWrapper> */}
-              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
+              <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.EXPORT]} passThrough>
                 {(isPassed: boolean) => (
                   <Button
                     type="default"
@@ -911,7 +911,7 @@ function OrderList(props: PropTypes) {
                 )}
               </AuthWrapper>
               {orderType === ORDER_TYPES.online ? (
-                <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
+                <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.CREATE]} passThrough>
                   {(isPassed: boolean) => (
                     <ButtonCreate
                       path={`${UrlConfig.ORDER}/create`}
@@ -921,7 +921,7 @@ function OrderList(props: PropTypes) {
                   )}
                 </AuthWrapper>
               ) : (
-                <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
+                <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.CREATE]} passThrough>
                   {(isPassed: boolean) => (
                     <a
                       href={process.env.REACT_APP_BASE_POS || ""}

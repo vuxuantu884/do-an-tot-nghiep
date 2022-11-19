@@ -1,5 +1,5 @@
 import { AppConfig } from "config/app.config";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
@@ -50,7 +50,7 @@ const bill: Array<RouteMenu> = [
     key: "submenu52",
     isShow: true,
     header: null,
-    permissions: [ODERS_PERMISSIONS.CREATE],
+    permissions: [ORDER_PERMISSIONS.CREATE],
     subMenu: [],
   },
   {
@@ -62,7 +62,7 @@ const bill: Array<RouteMenu> = [
     key: "danh-sách-đơn-hang",
     isShow: true,
     header: null,
-    permissions: [ODERS_PERMISSIONS.READ],
+    permissions: [ORDER_PERMISSIONS.READ],
     subMenu: [
       {
         path: `${UrlConfig.ORDER}/:id`,
@@ -73,7 +73,7 @@ const bill: Array<RouteMenu> = [
         key: "submenu5413",
         isShow: true,
         header: null,
-        permissions: [ODERS_PERMISSIONS.READ],
+        permissions: [ORDER_PERMISSIONS.READ],
         subMenu: [],
       },
       {
@@ -85,7 +85,7 @@ const bill: Array<RouteMenu> = [
         key: "submenu5414",
         isShow: true,
         header: null,
-        permissions: [ODERS_PERMISSIONS.READ],
+        permissions: [ORDER_PERMISSIONS.READ],
         subMenu: [],
       },
       {
@@ -110,7 +110,7 @@ const bill: Array<RouteMenu> = [
     key: "danh-sach-tra-hang-online",
     isShow: true,
     header: null,
-    permissions: [ODERS_PERMISSIONS.READ_RETURNS],
+    permissions: [ORDER_PERMISSIONS.READ_RETURNS],
     subMenu: [
       {
         path: `${UrlConfig.ORDERS_RETURN}/create`,
@@ -121,7 +121,7 @@ const bill: Array<RouteMenu> = [
         key: "create-return",
         isShow: true,
         header: null,
-        permissions: [ODERS_PERMISSIONS.CREATE_RETURN],
+        permissions: undefined,
         subMenu: [],
       },
       {
@@ -133,7 +133,7 @@ const bill: Array<RouteMenu> = [
         key: "single-return",
         isShow: true,
         header: null,
-        permissions: [ODERS_PERMISSIONS.READ_RETURNS],
+        permissions: [ORDER_PERMISSIONS.READ_RETURNS],
         subMenu: [],
       },
     ],
@@ -183,7 +183,7 @@ const bill: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
+    permissions: [ORDER_PERMISSIONS.SUPPORT_PACK],
   },
   {
     path: UrlConfig.DELIVERY_RECORDS,
@@ -205,7 +205,7 @@ const bill: Array<RouteMenu> = [
         isShow: isHiddenMenuEnvPro,
         header: null,
         subMenu: [],
-        permissions: [ODERS_PERMISSIONS.CREATE_GOODS_RECEIPT],
+        permissions: [ORDER_PERMISSIONS.CREATE_GOODS_RECEIPT],
       },
       {
         path: `${UrlConfig.DELIVERY_RECORDS}/:id`,
@@ -230,7 +230,7 @@ const bill: Array<RouteMenu> = [
         subMenu: [],
       },
     ],
-    permissions: [ODERS_PERMISSIONS.READ_GOODS_RECEIPT],
+    permissions: [ORDER_PERMISSIONS.READ_GOODS_RECEIPT],
   },
   {
     path: UrlConfig.HANDOVER,
@@ -252,7 +252,7 @@ const bill: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        permissions: [ODERS_PERMISSIONS.CREATE_GOODS_RECEIPT],
+        permissions: [ORDER_PERMISSIONS.CREATE_GOODS_RECEIPT],
       },
       {
         path: `${UrlConfig.HANDOVER}/:id`,
@@ -277,7 +277,7 @@ const bill: Array<RouteMenu> = [
         subMenu: [],
       },
     ],
-    permissions: [ODERS_PERMISSIONS.READ_GOODS_RECEIPT],
+    permissions: [ORDER_PERMISSIONS.READ_GOODS_RECEIPT],
   },
 ];
 

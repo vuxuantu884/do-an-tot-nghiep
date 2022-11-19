@@ -8,7 +8,7 @@ import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
@@ -77,7 +77,7 @@ function OrderReturnList(props: PropTypes) {
   const dateFormat = DATE_FORMAT.fullDate;
 
   const [allowDeleteOrderReturn] = useAuthorization({
-    acceptPermissions: [ODERS_PERMISSIONS.DELETE_RETURN_ORDER],
+    acceptPermissions: [ORDER_PERMISSIONS.DELETE_RETURN_ORDER],
     not: false,
   });
 
@@ -1166,7 +1166,7 @@ function OrderReturnList(props: PropTypes) {
         extra={
           <Row>
             <Space>
-              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
+              <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.EXPORT]} passThrough>
                 {(isPassed: boolean) => (
                   <Button
                     type="default"

@@ -15,7 +15,7 @@ import PackReportHandOver from "./pack/info/pack-report-hand-over";
 import { useQuery } from "utils/useQuery";
 import { StyledComponent } from "./pack/styles";
 import useAuthorization from "hook/useAuthorization";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import ButtonCreate from "component/header/ButtonCreate";
 import { PackModel } from "model/pack/pack.model";
 import "./pack/styles.scss";
@@ -27,7 +27,7 @@ const PackSupportScreen: React.FC = () => {
   //useState
 
   const [allowCreateGoodsReceipt] = useAuthorization({
-    acceptPermissions: [ODERS_PERMISSIONS.CREATE_GOODS_RECEIPT],
+    acceptPermissions: [ORDER_PERMISSIONS.CREATE_GOODS_RECEIPT],
     not: false,
   });
 

@@ -1,6 +1,6 @@
 import { Button } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { OrderResponse } from "model/response/order/order.response";
 import React from "react";
@@ -84,61 +84,69 @@ function OrderFulfillmentActionButton(props: PropTypes) {
 
   const renderOrderReturnButtons = () => {
     return (
-      <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
-        {(isPassed: boolean) => {
-          return (
-            <React.Fragment>
-              {!isOrderFromPOS(OrderDetailAllFulfillment) ? (
-                <React.Fragment>
-                  <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
-                    <Link
-                      to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=online`}
-                    >
-                      <Button
-                        type="primary"
-                        style={{ margin: "0 10px", padding: "0 25px" }}
-                        className="create-button-custom ant-btn-outline fixed-button"
-                        disabled={!isPassed}
-                      >
-                        Trả lại chuyển hàng
-                      </Button>
-                    </Link>
-                  </AuthWrapper>
-                  <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
-                    <Link
-                      to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=offline`}
-                    >
-                      <Button
-                        type="primary"
-                        style={{ margin: "0 10px", padding: "0 25px" }}
-                        className="create-button-custom ant-btn-outline fixed-button"
-                        disabled={!isPassed}
-                      >
-                        Trả lại tại quầy
-                      </Button>
-                    </Link>
-                  </AuthWrapper>
-                </React.Fragment>
-              ) : (
-                <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
-                  <Link
-                    to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=offline`}
+      <React.Fragment>
+        {!isOrderFromPOS(OrderDetailAllFulfillment) ? (
+          <React.Fragment>
+            <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.orders_return_online]} passThrough>
+              {(isPassed: boolean) => (
+                <Link
+                  to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=online`}
+                  title={
+                    !isPassed ? "Tài khoản không được cấp quyền trả lại chuyển hàng online" : ""
+                  }
+                >
+                  <Button
+                    type="primary"
+                    style={{ margin: "0 10px", padding: "0 25px" }}
+                    className="create-button-custom ant-btn-outline fixed-button"
+                    disabled={!isPassed}
                   >
-                    <Button
-                      type="primary"
-                      style={{ padding: "0 25px" }}
-                      className="create-button-custom ant-btn-outline fixed-button"
-                      disabled={!isPassed}
-                    >
-                      Đổi trả hàng
-                    </Button>
-                  </Link>
-                </AuthWrapper>
+                    Trả lại chuyển hàng
+                  </Button>
+                </Link>
               )}
-            </React.Fragment>
-          );
-        }}
-      </AuthWrapper>
+            </AuthWrapper>
+            <AuthWrapper
+              acceptPermissions={[ORDER_PERMISSIONS.orders_return_at_the_store]}
+              passThrough
+            >
+              {(isPassed: boolean) => (
+                <Link
+                  to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=offline`}
+                  title={!isPassed ? "Tài khoản không được cấp quyền trả tại quầy online" : ""}
+                >
+                  <Button
+                    type="primary"
+                    style={{ margin: "0 10px", padding: "0 25px" }}
+                    className="create-button-custom ant-btn-outline fixed-button"
+                    disabled={!isPassed}
+                  >
+                    Trả lại tại quầy
+                  </Button>
+                </Link>
+              )}
+            </AuthWrapper>
+          </React.Fragment>
+        ) : (
+          <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.orders_return_offline]} passThrough>
+            {(isPassed: boolean) => (
+              <Link
+                to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=offline`}
+                title={!isPassed ? "Tài khoản không được cấp quyền đổi trả hàng offline" : ""}
+              >
+                <Button
+                  type="primary"
+                  style={{ padding: "0 25px" }}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  disabled={!isPassed}
+                >
+                  Đổi trả hàng
+                </Button>
+              </Link>
+            )}
+          </AuthWrapper>
+        )}
+      </React.Fragment>
     );
   };
 

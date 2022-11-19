@@ -4,7 +4,7 @@ import "assets/css/_modal-confirm.scss";
 import ContentContainer from "component/container/content.container";
 import { promotionUtils } from "component/order/promotion.utils";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { OrderReturnSingleContext } from "contexts/order-return/order-return-single-context";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
@@ -118,12 +118,12 @@ const ScreenReturnDetail = (props: PropTypes) => {
   const receivedStoreDetail = useGetStoreDetail(OrderDetail?.returned_store_id);
 
   const [allowDeleteOrderReturn] = useAuthorization({
-    acceptPermissions: [ODERS_PERMISSIONS.DELETE_RETURN_ORDER],
+    acceptPermissions: [ORDER_PERMISSIONS.DELETE_RETURN_ORDER],
     not: false,
   });
 
   const [allowReceiveReturn] = useAuthorization({
-    acceptPermissions: [ODERS_PERMISSIONS.RECEIVE_RETURN],
+    acceptPermissions: [ORDER_PERMISSIONS.RECEIVE_RETURN],
     not: false,
     acceptStoreIds: [OrderDetail?.store_id || 0],
   });

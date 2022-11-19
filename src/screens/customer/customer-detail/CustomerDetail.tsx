@@ -36,7 +36,7 @@ import useAuthorization from "hook/useAuthorization";
 
 import warningCircleIcon from "assets/icon/warning-circle.svg";
 import { StyledCustomerDetail } from "screens/customer/customer-detail/customerDetailStyled";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import { RegionResponse } from "model/content/country.model";
 import { GetRegionAction } from "domain/actions/content/content.action";
 import CustomerOrderHistory from "./CustomerOrderHistory";
@@ -68,7 +68,7 @@ const defaultActions: Array<MenuAction> = [
 
 const viewCustomerDetailPermission = [
   CustomerListPermission.customers_read,
-  ODERS_PERMISSIONS.CREATE,
+  ORDER_PERMISSIONS.CREATE,
 ];
 const updateCustomerPermission = [CustomerListPermission.customers_update];
 const recalculateMoneyPointPermission = [CustomerListPermission.customers_recalculate_money_point];

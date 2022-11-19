@@ -2,7 +2,7 @@ import { DownOutlined } from "@ant-design/icons";
 import { Button, Col, Dropdown, FormInstance, Menu, Row } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import CreateBillStep from "component/header/create-bill-step";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { RootReducerType } from "model/reducers/RootReducerType";
 // import CreateBillStep from "component/header/create-bill-step";
@@ -72,13 +72,13 @@ function OrderDetailBottomBar(props: PropTypes) {
   const acceptPermissionsUpdate = useCallback(() => {
     switch (stepsStatusValue) {
       case "packed":
-        return [ODERS_PERMISSIONS.UPDATE_PACKED];
+        return [ORDER_PERMISSIONS.UPDATE_PACKED];
       case "shipping":
-        return [ODERS_PERMISSIONS.UPDATE_SHIPPING];
+        return [ORDER_PERMISSIONS.UPDATE_SHIPPING];
       case "shipped":
-        return [ODERS_PERMISSIONS.UPDATE_FINISHED];
+        return [ORDER_PERMISSIONS.UPDATE_FINISHED];
       case "finalized":
-        return [ODERS_PERMISSIONS.UPDATE_COMFIRMED];
+        return [ORDER_PERMISSIONS.UPDATE_CONFIRMED];
       default:
         return [];
     }
@@ -86,9 +86,9 @@ function OrderDetailBottomBar(props: PropTypes) {
   const acceptPermissionsCancel = useCallback(() => {
     switch (stepsStatusValue) {
       case "packed":
-        return [ODERS_PERMISSIONS.CANCEL_PACKED];
+        return [ORDER_PERMISSIONS.CANCEL_PACKED];
       case "finalized":
-        return [ODERS_PERMISSIONS.CANCEL_CONFIRMED];
+        return [ORDER_PERMISSIONS.CANCEL_CONFIRMED];
       default:
         return [];
     }
@@ -270,7 +270,7 @@ function OrderDetailBottomBar(props: PropTypes) {
                       </Menu.Item>
                     )}
                   </AuthWrapper>
-                  <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
+                  <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.CREATE]} passThrough>
                     {(isPassed: boolean) => (
                       <Menu.Item
                         key="clone"
@@ -339,7 +339,7 @@ function OrderDetailBottomBar(props: PropTypes) {
                     Tạo bảo hành
                   </Menu.Item>
                   {!checkIsFulfillmentShipping && (
-                    <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.DELETE_ORDER]} passThrough>
+                    <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.DELETE_ORDER]} passThrough>
                       <Menu.Item
                         key="order_delete"
                         id="btn-order-delete"

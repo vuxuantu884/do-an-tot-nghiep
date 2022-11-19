@@ -10,7 +10,7 @@ import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import {
   searchAccountPublicAction,
@@ -1115,7 +1115,7 @@ const OrderDuplicate: React.FC = () => {
                     Nhập file
                   </Button>}
               </AuthWrapper> */}
-              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
+              <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.EXPORT]} passThrough>
                 {(isPassed: boolean) => (
                   <Button
                     type="default"
@@ -1132,7 +1132,7 @@ const OrderDuplicate: React.FC = () => {
                   </Button>
                 )}
               </AuthWrapper>
-              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
+              <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.CREATE]} passThrough>
                 {(isPassed: boolean) => (
                   <ButtonCreate path={`${UrlConfig.ORDER}/create`} disabled={!isPassed} />
                 )}
