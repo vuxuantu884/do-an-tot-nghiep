@@ -37,9 +37,10 @@ export const setTableHorizontalColumns = (
   }
   let keyDriverUpLevel = "";
   let allKeyDriverByGroupLevel = [];
+  const filterData = filterKDOfflineHorizontalByDim(currentDrillingLevel, data);
   if (!groupLv) {
     allKeyDriverByGroupLevel = uniqBy(
-      data
+      filterData
         .filter((item: any, index: number) => {
           switch (currentDrillingLevel) {
             case 1:
@@ -87,7 +88,6 @@ export const setTableHorizontalColumns = (
       return res;
     }, []);
   } else {
-    const filterData = filterKDOfflineHorizontalByDim(currentDrillingLevel, data) || data;
     allKeyDriverByGroupLevel = uniqBy(
       filterData
         .filter((item: any, index: number) => {
