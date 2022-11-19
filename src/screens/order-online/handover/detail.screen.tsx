@@ -23,7 +23,6 @@ import { useDispatch } from "react-redux";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import emptyProduct from "assets/icon/empty_products.svg";
 import PrintComponent from "component/print";
-import { showWarning } from "utils/ToastUtils";
 import { PagingParam, ResultPaging } from "model/paging";
 import { flatDataPaging } from "utils/Paging";
 
@@ -119,11 +118,11 @@ const DetailHandoverScreen: React.FC = () => {
     if (fulfillmentsData.data == null) {
       return [];
     }
-    if (filterKey === "") {
+    if (filterKey?.trim() === "") {
       result = fulfillmentsData.data;
     }
     result = fulfillmentsData.data.filter((value) => {
-      return value.code.includes(filterKey) || value.order_code.includes(filterKey);
+      return value.code.includes(filterKey?.trim()) || value.order_code.includes(filterKey?.trim());
     });
 
     return result.map((p, index) => {
@@ -310,7 +309,7 @@ const DetailHandoverScreen: React.FC = () => {
               <Col span={17}>
                 <DetailHandoverComponent data={handoverData.data} />
                 <Card className="order-list" title="Danh sách đơn hàng">
-                  {fulfillmentsDto.length === 0 ? (
+                  {handoverData.data && handoverData.data.orders.length === 0 ? (
                     <div className="empty-view">
                       <img src={emptyProduct} alt="empty product" />
                       <Button
