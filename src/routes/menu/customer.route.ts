@@ -6,8 +6,11 @@ import {
   CUSTOMER_LEVEL_PERMISSIONS,
   CustomerListPermission,
 } from "config/permissions/customer.permission";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import { LOYALTY_ADJUSTMENT_PERMISSIONS, LoyaltyPermission } from "config/permissions/loyalty.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
+import {
+  LOYALTY_ADJUSTMENT_PERMISSIONS,
+  LoyaltyPermission,
+} from "config/permissions/loyalty.permission";
 
 const customer = React.lazy(() => import("screens/customer/index"));
 const CustomerCreate = React.lazy(() => import("screens/customer/customer-create/CustomerCreate"));
@@ -73,7 +76,7 @@ const customers: Array<RouteMenu> = [
         key: "customers-detail",
         isShow: true,
         header: null,
-        permissions: [CustomerListPermission.customers_read, ODERS_PERMISSIONS.CREATE],
+        permissions: [CustomerListPermission.customers_read, ORDER_PERMISSIONS.CREATE],
         subMenu: [],
       },
     ],

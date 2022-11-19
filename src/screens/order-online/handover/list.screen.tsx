@@ -5,7 +5,7 @@ import ButtonCreate from "component/header/ButtonCreate";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import PrintComponent from "component/print";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -316,7 +316,7 @@ const HandoverScreen: React.FC = () => {
   );
 
   const [allowCreateGoodsReceipt] = useAuthorization({
-    acceptPermissions: [ODERS_PERMISSIONS.CREATE_GOODS_RECEIPT],
+    acceptPermissions: [ORDER_PERMISSIONS.CREATE_GOODS_RECEIPT],
     not: false,
   });
 

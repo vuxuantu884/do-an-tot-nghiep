@@ -1,7 +1,7 @@
 import { Card, Row, Space } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 // import exportIcon from "assets/icon/export.svg";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -281,7 +281,7 @@ const CustomerDuplicate: React.FC = () => {
               )}
             </AuthWrapper> */}
 
-            <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
+            <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.CREATE]} passThrough>
               {(isPassed: boolean) => (
                 <ButtonCreate
                   path={`${UrlConfig.ORDER}/create`}
