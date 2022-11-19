@@ -19,6 +19,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { ATTRIBUTE_VALUE } from "../common/constant/kd-report-response-key";
+import { unusedOnlineKD } from "../common/constant/unused-kd";
 // import { parseLocaleNumber } from "utils/AppUtils";
 
 export async function fetchQuery(params: KeyDriverOnlineParams, dispatch: Dispatch<any>) {
@@ -103,47 +104,7 @@ export const convertDataToFlatTableKeyDriver = (
       data[data.length - 1] = newRow;
     }
   });
-  const newData = data.filter(
-    (i) =>
-      i.key !== "ON.DT.QT.01" &&
-      i.key !== "ON.DT.QT.13" &&
-      i.key !== "ON.DT.QT.14" &&
-      i.key !== "ON.DT.QT.02" &&
-      i.key !== "ON.DT.QT.11" &&
-      i.key !== "ON.DT.QT.03" &&
-      i.key !== "ON.DT.QT.05" &&
-      i.key !== "ON.DT.QT.12" &&
-      i.key !== "ON.TC.QT.01" &&
-      i.key !== "ON.TC.QT.02" &&
-      i.key !== "ON.TC.QT.06" &&
-      i.key !== "ON.TC.QT.03" &&
-      i.key !== "ON.TC.QT.05" &&
-      i.key !== "ON.TC.QT.12" &&
-      i.key !== "ON.DT.AP.53" &&
-      i.key !== "ON.DT.AP.54" &&
-      i.key !== "ON.DT.AP.52" &&
-      i.key !== "ON.DT.ZA.32" &&
-      i.key !== "ON.TC.FB.06" &&
-      i.key !== "ON.TC.ZA.32" &&
-      i.key !== "ON.DT.AP.01" &&
-      i.key !== "ON.DT.AP.02" &&
-      i.key !== "ON.DT.AP.51" &&
-      i.key !== "ON.DT.AP.03" &&
-      i.key !== "ON.DT.AP.05" &&
-      i.key !== "ON.TC.AP.01" &&
-      i.key !== "ON.TC.AP.02" &&
-      i.key !== "ON.TC.AP.03" &&
-      i.key !== "ON.TC.AP.05" &&
-      i.key !== "ON.DT.FB.12" &&
-      i.key !== "ON.DT.MK.22" &&
-      i.key !== "ON.DT.WE.43" &&
-      i.key !== "ON.DT.WE.44" &&
-      i.key !== "ON.DT.WE.42" &&
-      i.key !== "ON.TC.FB.12" &&
-      i.key !== "ON.TC.MK.22" &&
-      i.key !== "ON.TC.WE.42" &&
-      i.key !== "ON.TC.AP.52",
-  );
+  const newData = data.filter((i) => !unusedOnlineKD.includes(i.key));
   return buildSchemas(newData);
 };
 

@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { kdOffHaveChildren, kdOnHaveChildren } from "../constant/kd-have-children";
 import { COLUMN_ORDER_LIST } from "../constant/kd-report-response-key";
+import { unusedOnlineKD } from "../constant/unused-kd";
 import { filterKDOfflineHorizontalByDim } from "./filter-kd-by-dim";
 
 interface IColumnLink {
@@ -37,7 +38,9 @@ export const setTableHorizontalColumns = (
   }
   let keyDriverUpLevel = "";
   let allKeyDriverByGroupLevel = [];
-  const filterData = filterKDOfflineHorizontalByDim(currentDrillingLevel, data);
+  const filterData = filterKDOfflineHorizontalByDim(currentDrillingLevel, data).filter(
+    (item) => !unusedOnlineKD.includes(item[keyDriverIndex]),
+  );
   if (!groupLv) {
     allKeyDriverByGroupLevel = uniqBy(
       filterData
@@ -55,7 +58,6 @@ export const setTableHorizontalColumns = (
           return (
             (item[kdParentIndex] === item[keyDriverTitleIndex] ||
               item[keyDriverIndex].includes("OF.SP.01.") ||
-              item[keyDriverIndex].includes("ON.SP.01.") ||
               (keyDriverUpLevel && item[keyDriverIndex] === keyDriverUpLevel)) &&
             item[departmentLv1Index] &&
             !item[keyDriverIndex].endsWith(".L")
