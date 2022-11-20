@@ -4,8 +4,10 @@ import { uniqBy } from "lodash";
 import queryString from "query-string";
 import { Link } from "react-router-dom";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
+import { showWarning } from "utils/ToastUtils";
 import { kdOffHaveChildren, kdOnHaveChildren } from "../constant/kd-have-children";
 import { COLUMN_ORDER_LIST } from "../constant/kd-report-response-key";
+import { unusedOnlineKD } from "../constant/unused-kd";
 import { filterKDOfflineHorizontalByDim } from "./filter-kd-by-dim";
 
 interface IColumnLink {
@@ -37,9 +39,12 @@ export const setTableHorizontalColumns = (
   }
   let keyDriverUpLevel = "";
   let allKeyDriverByGroupLevel = [];
+  const filterData = filterKDOfflineHorizontalByDim(currentDrillingLevel, data).filter(
+    (item) => !unusedOnlineKD.includes(item[keyDriverIndex]),
+  );
   if (!groupLv) {
     allKeyDriverByGroupLevel = uniqBy(
-      data
+      filterData
         .filter((item: any, index: number) => {
           switch (currentDrillingLevel) {
             case 1:
@@ -54,7 +59,6 @@ export const setTableHorizontalColumns = (
           return (
             (item[kdParentIndex] === item[keyDriverTitleIndex] ||
               item[keyDriverIndex].includes("OF.SP.01.") ||
-              item[keyDriverIndex].includes("ON.SP.01.") ||
               (keyDriverUpLevel && item[keyDriverIndex] === keyDriverUpLevel)) &&
             item[departmentLv1Index] &&
             !item[keyDriverIndex].endsWith(".L")
@@ -87,7 +91,6 @@ export const setTableHorizontalColumns = (
       return res;
     }, []);
   } else {
-    const filterData = filterKDOfflineHorizontalByDim(currentDrillingLevel, data) || data;
     allKeyDriverByGroupLevel = uniqBy(
       filterData
         .filter((item: any, index: number) => {
@@ -110,6 +113,11 @@ export const setTableHorizontalColumns = (
         }),
       "keyDriver",
     );
+  }
+
+  if (!allKeyDriverByGroupLevel.length) {
+    showWarning(`Chỉ số ${groupLvName} không có ở chiều view hiện tại`);
+    return [];
   }
 
   allKeyDriverByGroupLevel.forEach((item: any, index: number) => {
