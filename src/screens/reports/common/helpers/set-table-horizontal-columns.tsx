@@ -4,6 +4,7 @@ import { uniqBy } from "lodash";
 import queryString from "query-string";
 import { Link } from "react-router-dom";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
+import { showWarning } from "utils/ToastUtils";
 import { kdOffHaveChildren, kdOnHaveChildren } from "../constant/kd-have-children";
 import { COLUMN_ORDER_LIST } from "../constant/kd-report-response-key";
 import { unusedOnlineKD } from "../constant/unused-kd";
@@ -112,6 +113,11 @@ export const setTableHorizontalColumns = (
         }),
       "keyDriver",
     );
+  }
+
+  if (!allKeyDriverByGroupLevel.length) {
+    showWarning(`Chỉ số ${groupLvName} không có ở chiều view hiện tại`);
+    return [];
   }
 
   allKeyDriverByGroupLevel.forEach((item: any, index: number) => {
