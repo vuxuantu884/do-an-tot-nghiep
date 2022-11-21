@@ -24,7 +24,7 @@ import { ProcurementStatus, ProcurementStatusName } from "../../../utils/Constan
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import useAuthorization from "hook/useAuthorization";
-import { StyledComponent } from "../../products/procurement/tabs/TabList/styles";
+import { TabListWrapper } from "../../procurement/tabs/TabList/styles";
 import statusDraft from "assets/icon/status-draft-new.svg";
 import statusFinalized from "assets/icon/status-finalized-new.svg";
 import statusStored from "assets/icon/status-finished-new.svg";
@@ -172,10 +172,10 @@ const ProcumentInventoryModal: React.FC<ProcumentInventoryModalProps> = (
           loading={loading}
           isConfirmModal={true}
           title={
-            <StyledComponent>
+            <TabListWrapper>
               {isEdit ? "Sửa phiếu nhập kho " : isDetail ? "Phiếu nhập kho " : "Xác nhận nhập kho "}
               {renderStatusIcon(item)}
-            </StyledComponent>
+            </TabListWrapper>
           }
           okText={isEdit ? "Lưu phiếu nhập kho" : allowConfirm ? "Xác nhận nhập" : ""}
         >

@@ -21,23 +21,23 @@ const PurchaseOrderReturnScreen = React.lazy(
 const PurchaseOrderStampPrinting = React.lazy(() => import("screens/purchase-order/StampPrinting"));
 
 //PR
-const ProcurementScreen = React.lazy(() => import("screens/products/procurement"));
+const ProcurementListScreen = React.lazy(() => import("screens/procurement/ProcurementListScreen"));
 const ProcurementDetailScreen = React.lazy(
-  () => import("screens/products/procurement/detail/ProcurementDetailScreen"),
+  () => import("screens/procurement/ProcurementDetailScreen"),
 );
-const ProcurementCreateScreen = React.lazy(() => import("screens/products/procurement/create"));
+const ProcurementCreateScreen = React.lazy(
+  () => import("screens/procurement/ProcurementAutoCreateScreen"),
+);
 const ProcurementCreateManualScreen = React.lazy(
-  () => import("screens/products/procurement/create-manual"),
+  () => import("screens/procurement/ProcurementCreateManualScreen"),
 );
 
 //SUPPLIER
-const ListSupplier = React.lazy(() => import("screens/products/supplier/supplier-list.screen"));
-const ViewSupplier = React.lazy(() => import("screens/products/supplier/supplier-view.screen"));
+const ListSupplier = React.lazy(() => import("screens/supplier/supplier-list.screen"));
+const ViewSupplier = React.lazy(() => import("screens/supplier/supplier-view.screen"));
 
-const SupplierCreateScreen = React.lazy(() => import("screens/products/supplier/add"));
-const SupplierUpdateScreen = React.lazy(
-  () => import("screens/products/supplier/supplier-update.screen"),
-);
+const SupplierCreateScreen = React.lazy(() => import("screens/supplier/add"));
+const SupplierUpdateScreen = React.lazy(() => import("screens/supplier/supplier-update.screen"));
 const supplierRoutes: Array<RouteMenu> = [
   {
     path: UrlConfig.PURCHASE_ORDERS,
@@ -119,7 +119,7 @@ const supplierRoutes: Array<RouteMenu> = [
     exact: true,
     title: "Nhập kho",
     icon: "icon-dot",
-    component: ProcurementScreen,
+    component: ProcurementListScreen,
     key: "submenu25",
     isShow: true,
     header: null,
@@ -131,7 +131,7 @@ const supplierRoutes: Array<RouteMenu> = [
         title: "Tạo phiếu nhập kho",
         icon: "icon-dot",
         component: ProcurementCreateScreen,
-        key: "submenu251",
+        key: "submenu250",
         isShow: true,
         header: null,
         permissions: [PurchaseOrderPermission.procurements_create],
@@ -143,7 +143,7 @@ const supplierRoutes: Array<RouteMenu> = [
         title: "Tạo phiếu nhập kho",
         icon: "icon-dot",
         component: ProcurementCreateManualScreen,
-        key: "submenu252",
+        key: "submenu251",
         isShow: true,
         header: null,
         permissions: [PurchaseOrderPermission.procurements_create],
@@ -152,10 +152,10 @@ const supplierRoutes: Array<RouteMenu> = [
       {
         path: `${UrlConfig.PURCHASE_ORDERS}/:id/procurements/:prID`,
         exact: true,
-        title: "Nhập kho",
+        title: "Chi tiết phiếu nhập kho",
         icon: "icon-dot",
         component: ProcurementDetailScreen,
-        key: "submenu251",
+        key: "submenu252",
         isShow: true,
         header: null,
         permissions: [PurchaseOrderPermission.procurements_read],
@@ -166,8 +166,8 @@ const supplierRoutes: Array<RouteMenu> = [
         exact: true,
         title: "Nhập kho",
         icon: "icon-dot",
-        component: ProcurementScreen,
-        key: "submenu25",
+        component: ProcurementListScreen,
+        key: "submenu253",
         isShow: true,
         header: null,
         permissions: [PurchaseOrderPermission.procurements_read],
@@ -176,9 +176,9 @@ const supplierRoutes: Array<RouteMenu> = [
       {
         path: `${ProcurementTabUrl.PRODUCTS}`,
         exact: true,
-        title: "Nhập kho",
+        title: "Sản phẩm nhập kho",
         icon: "icon-dot",
-        component: ProcurementScreen,
+        component: ProcurementListScreen,
         key: "submenu254",
         isShow: true,
         header: null,
@@ -188,10 +188,10 @@ const supplierRoutes: Array<RouteMenu> = [
       {
         path: `${ProcurementTabUrl.TODAY}`,
         exact: true,
-        title: "Nhập kho",
+        title: "Nhập kho trong ngày",
         icon: "icon-dot",
-        component: ProcurementScreen,
-        key: "submenu25",
+        component: ProcurementListScreen,
+        key: "submenu255",
         isShow: true,
         header: null,
         permissions: [PurchaseOrderPermission.procurements_read],
@@ -214,8 +214,8 @@ const supplierRoutes: Array<RouteMenu> = [
         exact: true,
         title: "Lịch sử phiếu nhập kho",
         icon: "icon-dot",
-        component: ProcurementScreen,
-        key: "submenu25",
+        component: ProcurementListScreen,
+        key: "submenu256",
         isShow: true,
         header: null,
         permissions: [PurchaseOrderPermission.procurements_read],
