@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, Col, Form, Input, Row } from "antd";
-import { FormFieldItem, IFormControl } from "../../screens/products/supplier/add/supplier-add.type";
+import { FormFieldItem, IFormControl } from "screens/supplier/add/supplier-add.type";
 
 const { Item } = Form;
 

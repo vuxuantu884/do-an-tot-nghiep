@@ -140,9 +140,9 @@ export interface ProcurementItemsReceipt extends PurchaseProcumentLineItem {
   product_id?: number;
 }
 
-export type ProcurementManualCreate = {
+export interface ProcurementManualCreate {
   procurements: Array<PurchaseProcument>;
-};
+}
 
 const POProcumentField = {
   id: "id",
@@ -218,13 +218,13 @@ export interface ProcurementManual {
   procurement_items: Array<PurchaseProcumentLineItem>;
 }
 
-export type ProcurementCancel = {
+export interface ProcurementCancel {
   total: number;
   processed: number;
   success: number;
   errors: number;
   message_errors: Array<string>;
-};
+}
 
 export interface PurchaseProcumentSubmit extends PurchaseProcument {
   is_update_after_receive?: boolean;

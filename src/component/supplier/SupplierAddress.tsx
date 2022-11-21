@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Card, Col, Form, FormInstance, Input, Row, Select } from "antd";
-import { initialSupplierForm } from "../../screens/products/supplier/add/supplier-add.config";
+import { initialSupplierForm } from "../../screens/supplier/add/supplier-add.config";
 import {
   ComponentType,
   FormFieldItem,
   FormFields,
   IFormControl,
-} from "../../screens/products/supplier/add/supplier-add.type";
+} from "../../screens/supplier/add/supplier-add.type";
 import { CountryResponse } from "../../model/content/country.model";
 import { DistrictResponse } from "../../model/content/district.model";
 import {

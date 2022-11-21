@@ -33,9 +33,7 @@ import { RegUtil } from "utils/RegUtils";
 import UrlConfig from "config/url.config";
 import _ from "lodash";
 
-const SupplierAddModal = lazy(
-  () => import("screens/products/supplier/modal/supplier-add-modal.screen"),
-);
+const SupplierAddModal = lazy(() => import("screens/supplier/modal/supplier-add-modal.screen"));
 const EditAddressModal = lazy(() => import("../modal/edit-address"));
 
 type POSupplierFormProps = {

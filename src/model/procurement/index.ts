@@ -13,12 +13,12 @@ export interface ProcurementDataResult {
 }
 
 export interface ProcurementImportResult {
-  purchase_orders: Array<PurchaseOrderImportResult>;
+  purchase_orders: Array<POImportResult>;
   total_po?: number;
   total_pr?: number;
 }
 
-export interface PurchaseOrderImportResult {
+export interface POImportResult {
   id: string;
   pr_ids: string;
 }

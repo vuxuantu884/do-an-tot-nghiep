@@ -23,9 +23,7 @@ import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purchase-order.provider";
 import { enumConvertDate } from "model/purchase-order/purchase-order.model";
 
-const SupplierAddModal = lazy(
-  () => import("screens/products/supplier/modal/supplier-add-modal.screen"),
-);
+const SupplierAddModal = lazy(() => import("screens/supplier/modal/supplier-add-modal.screen"));
 const EditAddressModal = lazy(() => import("../../modal/edit-address"));
 
 type POSupplierFormProps = {

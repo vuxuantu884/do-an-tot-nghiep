@@ -4,7 +4,7 @@ import {
   FormFieldItem,
   FormFields,
   IFormControl,
-} from "../../screens/products/supplier/add/supplier-add.type";
+} from "../../screens/supplier/add/supplier-add.type";
 import { RegUtil } from "utils/RegUtils";
 
 const { Item } = Form;

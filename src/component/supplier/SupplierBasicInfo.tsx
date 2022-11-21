@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Card, Col, Form, Input, Radio, Row, Select, Space, Switch, FormInstance } from "antd";
-import { initialSupplierForm } from "../../screens/products/supplier/add/supplier-add.config";
+import { initialSupplierForm } from "../../screens/supplier/add/supplier-add.config";
 import {
   ComponentType,
   FormFieldItem,
   FormFields,
   IFormControl,
-} from "../../screens/products/supplier/add/supplier-add.type";
+} from "../../screens/supplier/add/supplier-add.type";
 import { RadioChangeEvent } from "antd/lib/radio/interface";
 import { SupplierResponse } from "../../model/core/supplier.model";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,9 +21,9 @@ import BaseSelectMerchans from "../base/BaseSelect/BaseSelectMerchans";
 import { useFetchMerchans } from "../../hook/useFetchMerchans";
 import BaseSelectPaging from "../base/BaseSelect/BaseSelectPaging";
 import BaseSelect from "../base/BaseSelect/BaseSelect";
-import CountryPhoneInput, { ConfigProvider } from 'antd-country-phone-input';
-import en from 'world_countries_lists/data/countries/en/world.json';
-import 'antd-country-phone-input/dist/index.css';
+import CountryPhoneInput, { ConfigProvider } from "antd-country-phone-input";
+import en from "world_countries_lists/data/countries/en/world.json";
+import "antd-country-phone-input/dist/index.css";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -54,9 +54,9 @@ const SupplierBasicInfo = ({
   });
 
   const supplierCategories = [
-    { value: 'material', name: 'Chất liệu' },
-    { value: 'gift', name: 'Quà tặng' },
-    { value: 'good', name: 'Thành phẩm' }
+    { value: "material", name: "Chất liệu" },
+    { value: "gift", name: "Quà tặng" },
+    { value: "good", name: "Thành phẩm" },
   ];
 
   const supplier_types = useSelector(
@@ -123,7 +123,7 @@ const SupplierBasicInfo = ({
       value,
       callback,
       phoneList: listSupplier,
-      type: 'NATIONAL'
+      type: "NATIONAL",
     });
   };
 
@@ -177,7 +177,7 @@ const SupplierBasicInfo = ({
   const getFlag = (short: string) => {
     const data = require(`world_countries_lists/data/flags/24x24/${short.toLowerCase()}.png`);
     // for dumi
-    if (typeof data === 'string') {
+    if (typeof data === "string") {
       return data;
     }
     // for CRA
@@ -227,7 +227,7 @@ const SupplierBasicInfo = ({
               emoji: (
                 <img
                   alt="flag"
-                  style={{ width: 18, height: 18, verticalAlign: 'sub' }}
+                  style={{ width: 18, height: 18, verticalAlign: "sub" }}
                   src={getFlag(area.short)}
                 />
               ),
@@ -244,7 +244,7 @@ const SupplierBasicInfo = ({
               return rule;
             })}
             initialValue={{
-              short: 'vn',
+              short: "vn",
             }}
           >
             <CountryPhoneInput placeholder="Nhập SĐT nhà cung cấp" />
