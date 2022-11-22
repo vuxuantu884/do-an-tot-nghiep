@@ -402,10 +402,12 @@ function KeyDriverOnline() {
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType) => {
               return (
-                <VerifyCell row={record} value={text}>
-                  {formatCurrency(text)}
-                  {record.unit === "percent" ? "%" : ""}
-                </VerifyCell>
+                <div className={record[`${departmentKey}_monthly_actual_color`]}>
+                  <VerifyCell row={record} value={text}>
+                    {formatCurrency(text)}
+                    {record.unit === "percent" ? "%" : ""}
+                  </VerifyCell>
+                </div>
               );
             },
           },
@@ -427,9 +429,11 @@ function KeyDriverOnline() {
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType) => {
               return (
-                <VerifyCell row={record} value={text}>
-                  {`${text}%`}
-                </VerifyCell>
+                <div className={record[`${departmentKey}_monthly_progress_color`]}>
+                  <VerifyCell row={record} value={text}>
+                    {`${text}%`}
+                  </VerifyCell>
+                </div>
               );
             },
           },
