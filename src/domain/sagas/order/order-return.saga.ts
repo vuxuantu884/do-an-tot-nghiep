@@ -159,17 +159,19 @@ function* getOrderReturnLogSaga(action: YodyAction) {
 }
 
 function* getOrderReturnCalculateRefundSaga(action: YodyAction) {
-  const { params, handleData } = action.payload;
+  const { params, handleData, handleError } = action.payload;
   try {
     yield put(showLoading());
     let response: BaseResponse<any> = yield call(getOrderReturnCalculateRefundService, params);
     if (isFetchApiSuccessful(response)) {
       handleData(response.data);
     } else {
+      handleError();
       yield put(fetchApiErrorAction(response, "Dữ liệu điểm tích lũy"));
     }
   } catch (error) {
     console.log("error", error);
+    handleError();
     showError("Có lỗi khi lấy dữ liệu điểm tích lũy! Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
