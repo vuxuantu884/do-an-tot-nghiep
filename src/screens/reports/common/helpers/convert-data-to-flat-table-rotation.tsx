@@ -9,12 +9,19 @@ import {
 } from "../constant/kd-report-response-key";
 import { KDReportName } from "../enums/kd-report-name";
 
+interface IKDGroupLevel {
+  groupLevel: string;
+  groupLevelName: string;
+  selectedObject: string[];
+}
+
 export const convertDataToFlatTableRotation = (
   analyticResult: any,
   currentDrillingLevel: number,
   kdReportName: KDReportName,
-  groupLevel?: string,
+  kdGroupLevel: IKDGroupLevel,
 ) => {
+  const { groupLevel, groupLevelName, selectedObject } = kdGroupLevel;
   const keyDriverResult = analyticResult.result as AnalyticResult;
   const attributeOrdered = COLUMN_ORDER_LIST;
   const keyDriverDescriptionDataIndex = attributeOrdered.indexOf("key_driver_description");
@@ -22,7 +29,7 @@ export const convertDataToFlatTableRotation = (
   const keyDriverTitleIndex = attributeOrdered.indexOf("key_driver_title");
   const drillingLevelDataIndex = attributeOrdered.indexOf("drilling_level");
   const departmentLv1Index = attributeOrdered.indexOf(`department_lv1`);
-  const kdParentIndex = attributeOrdered.indexOf(`key_driver_group_lv2`);
+  const kdParentIndex = attributeOrdered.indexOf(`key_driver_group_lv${groupLevel || 2}`);
 
   let data: any[] = [];
   let keyDriverUpLevel = "";
@@ -47,52 +54,66 @@ export const convertDataToFlatTableRotation = (
             (keyDriverUpLevel && item[keyDriverIndex] === keyDriverUpLevel)) &&
           item[departmentLv1Index]
         );
+      } else {
+        return (
+          item[kdParentIndex] === groupLevelName &&
+          (!item[kdParentIndex + 1] ||
+            typeof item[kdParentIndex + 1] !== "string" ||
+            (typeof item[kdParentIndex + 1] === "string" &&
+              item[kdParentIndex + 1].includes(item[keyDriverTitleIndex]))) &&
+          item[departmentLv1Index] &&
+          !item[keyDriverIndex].endsWith(".L")
+        );
       }
-      return item;
     })
     .forEach((row: Array<string>) => {
       const keyDriver = nonAccentVietnameseKD(row[keyDriverTitleIndex]);
       const drillingLevel = Number(row[drillingLevelDataIndex]);
       const departmentLevelIndex = attributeOrdered.indexOf(`department_lv${drillingLevel}`);
       const department = nonAccentVietnameseKD(row[departmentLevelIndex]);
+      if (
+        !selectedObject.length ||
+        selectedObject.includes(row[departmentLevelIndex].toUpperCase()) ||
+        drillingLevel === currentDrillingLevel
+      ) {
+        const objValue = {} as any;
 
-      const objValue = {} as any;
+        ATTRIBUTE_VALUE.forEach((attr) => {
+          objValue[nonAccentVietnameseKD(keyDriver) + "_" + attr] =
+            row[attributeOrdered.indexOf(attr)];
+        });
 
-      ATTRIBUTE_VALUE.forEach((attr) => {
-        objValue[nonAccentVietnameseKD(keyDriver) + "_" + attr] =
-          row[attributeOrdered.indexOf(attr)];
-      });
+        const otherValue = {} as any;
+        attributeOrdered.forEach((attr) => {
+          otherValue[nonAccentVietnameseKD(department) + "_" + attr] =
+            row[attributeOrdered.indexOf(attr)];
+          otherValue[attr] = row[attributeOrdered.indexOf(attr)];
+        });
 
-      const otherValue = {} as any;
-      attributeOrdered.forEach((attr) => {
-        otherValue[nonAccentVietnameseKD(department) + "_" + attr] =
-          row[attributeOrdered.indexOf(attr)];
-        otherValue[attr] = row[attributeOrdered.indexOf(attr)];
-      });
-
-      const existedKey = data.findIndex(
-        (item) =>
-          item.title && item.title.toUpperCase() === row[departmentLevelIndex].toUpperCase(),
-      );
-      if (existedKey === -1) {
-        if (row[departmentLevelIndex]) {
-          data.push({
-            [`${keyDriver}_key`]: row[keyDriverIndex],
-            title: row[departmentLevelIndex],
-            drillingLevel,
-            [`${keyDriver}_method`]: row[keyDriverDescriptionDataIndex],
+        const existedKey = data.findIndex(
+          (item) =>
+            item.title && item.title.toUpperCase() === row[departmentLevelIndex].toUpperCase(),
+        );
+        if (existedKey === -1) {
+          if (row[departmentLevelIndex]) {
+            data.push({
+              [`${keyDriver}_key`]: row[keyDriverIndex],
+              title: row[departmentLevelIndex],
+              drillingLevel,
+              [`${keyDriver}_method`]: row[keyDriverDescriptionDataIndex],
+              ...objValue,
+              ...otherValue,
+            });
+          }
+        } else {
+          data[existedKey] = {
+            ...data[existedKey],
             ...objValue,
             ...otherValue,
-          });
+            [`${keyDriver}_key`]: row[keyDriverIndex],
+            [`${keyDriver}_method`]: row[keyDriverDescriptionDataIndex],
+          };
         }
-      } else {
-        data[existedKey] = {
-          ...data[existedKey],
-          ...objValue,
-          ...otherValue,
-          [`${keyDriver}_key`]: row[keyDriverIndex],
-          [`${keyDriver}_method`]: row[keyDriverDescriptionDataIndex],
-        };
       }
     });
   if (currentDrillingLevel === 2) {

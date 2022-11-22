@@ -263,7 +263,48 @@ export const KeyDriverStyle = styled.div`
     margin-right: 0 !important;
   }
 
-  // .font-size-12px {
-  //   font-size: 12px;
-  // }
+  .d-flex {
+    display: flex;
+  }
+
+  .justify-content {
+    &-between {
+      justify-content: space-between;
+    }
+  }
+
+  .align-items {
+    &-center {
+      align-items: center;
+    }
+  }
+
+  .btn-setting {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .ant-card-body {
+    padding: 16px 16px;
+  }
+
+  .ant-form-item {
+    margin: 0;
+  }
+
+  .filter-block {
+    &-title {
+      padding-right: 0.5rem;
+      text-align: center;
+    }
+    &-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    &__direction .ant-card-body {
+      line-height: 38px;
+    }
+  }
 `;

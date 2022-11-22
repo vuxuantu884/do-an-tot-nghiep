@@ -16,32 +16,28 @@ interface IColumnLink {
   queryParams: any;
 }
 
-export const setTableHorizontalColumns = (
+export const getAllKeyDriverByGroupLevel = (
   data: any,
-  setObjectiveColumns: any,
   currentDrillingLevel: number,
   link: IColumnLink,
-): any[] => {
-  const { groupLv, groupLvName, queryParams } = link;
-  const columns: any[] = [];
+) => {
+  const { groupLv, groupLvName } = link;
   const keyDriverIndex = COLUMN_ORDER_LIST.indexOf("key_driver");
   const keyDriverTitleIndex = COLUMN_ORDER_LIST.indexOf("key_driver_title");
   const departmentLv1Index = COLUMN_ORDER_LIST.indexOf(`department_lv1`);
   let kdParentIndex = COLUMN_ORDER_LIST.indexOf(`key_driver_group_lv2`);
-  let currentGroupLv = 2;
-  let nextGroupLv = 2;
-  let currentGroupLvName = "";
-  if (groupLv) {
-    currentGroupLv = +groupLv;
-    nextGroupLv = +groupLv + 1;
-    currentGroupLvName = groupLvName;
-    kdParentIndex = COLUMN_ORDER_LIST.indexOf(`key_driver_group_lv${currentGroupLv}`);
-  }
-  let keyDriverUpLevel = "";
   let allKeyDriverByGroupLevel = [];
   const filterData = filterKDOfflineHorizontalByDim(currentDrillingLevel, data).filter(
     (item) => !unusedOnlineKD.includes(item[keyDriverIndex]),
   );
+  let currentGroupLv = 2;
+  let keyDriverUpLevel = "";
+  let currentGroupLvName = "";
+  if (groupLv) {
+    currentGroupLv = +groupLv;
+    currentGroupLvName = groupLvName;
+    kdParentIndex = COLUMN_ORDER_LIST.indexOf(`key_driver_group_lv${currentGroupLv}`);
+  }
   if (!groupLv) {
     allKeyDriverByGroupLevel = uniqBy(
       filterData
@@ -114,8 +110,24 @@ export const setTableHorizontalColumns = (
       "keyDriver",
     );
   }
+  return allKeyDriverByGroupLevel;
+};
 
-  if (!allKeyDriverByGroupLevel.length) {
+export const setTableHorizontalColumns = (
+  allKeyDriverByGroupLevel: any[],
+  setObjectiveColumns: any,
+  link: IColumnLink,
+): any[] => {
+  const { groupLv, groupLvName, queryParams } = link;
+  const columns: any[] = [];
+  let nextGroupLv = 2;
+  let currentGroupLvName = "";
+  if (groupLv) {
+    nextGroupLv = +groupLv + 1;
+    currentGroupLvName = groupLvName;
+  }
+
+  if (!allKeyDriverByGroupLevel.length && groupLvName !== undefined) {
     showWarning(`Chỉ số ${groupLvName} không có ở chiều view hiện tại`);
     return [];
   }

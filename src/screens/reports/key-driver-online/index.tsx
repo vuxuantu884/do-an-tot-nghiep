@@ -1,6 +1,6 @@
 /* eslint-disable eqeqeq */
 import { CheckOutlined, CloseOutlined, RightOutlined, SettingOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Form, Popover, Select, Table } from "antd";
+import { Button, Card, Col, Form, Popover, Radio, Row, Select, Table } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
 import ContentContainer from "component/container/content.container";
@@ -34,7 +34,10 @@ import { convertDataToFlatTableRotation } from "../common/helpers/convert-data-t
 import { filterValueColumns } from "../common/helpers/filter-value-columns";
 import { getBreadcrumbByLevel } from "../common/helpers/get-breadcrumb-by-level";
 import { saveTargetHorizontalReport } from "../common/helpers/save-target-horizontal-report";
-import { setTableHorizontalColumns } from "../common/helpers/set-table-horizontal-columns";
+import {
+  getAllKeyDriverByGroupLevel,
+  setTableHorizontalColumns,
+} from "../common/helpers/set-table-horizontal-columns";
 import { KeyDriverStyle } from "../common/kd-report/index.style";
 import {
   convertDataToFlatTableKeyDriver,
@@ -111,12 +114,14 @@ function KeyDriverOnline() {
   const departmentLv2 = query.get("departmentLv2");
   const departmentLv3 = query.get("departmentLv3");
   const groupLevel = query.get("groupLv");
+  const reportDirection = query.get("direction");
 
   const [finalColumns, setFinalColumns] = useState<ColumnsType<any>>([]);
   const [loadingPage, setLoadingPage] = useState<boolean | undefined>();
   const { data, setData } = useContext(KeyDriverOfflineContext);
   const dispatch = useDispatch();
-  const [form] = Form.useForm();
+  const [timeForm] = Form.useForm();
+  const [filterForm] = Form.useForm();
 
   const day = date
     ? moment(date).format(DATE_FORMAT.DDMMYYY)
@@ -195,7 +200,8 @@ function KeyDriverOnline() {
           },
         ],
   );
-  const [allItemInDim, setAllItemInDim] = useState<any[]>([]);
+  const [allObjectInDim, setAllObjectInDim] = useState<any[]>([]);
+  const [allKDInDim, setAllKDInDim] = useState<any[]>([]);
   const [havePermission, setHavePermission] = useState<boolean>(true);
 
   const newFinalColumns = useMemo(() => {
@@ -236,7 +242,11 @@ function KeyDriverOnline() {
             title: () => {
               return (
                 <Popover
-                  content={<div style={{ width: 200 }}>Cho phép người dùng nhập vào</div>}
+                  content={
+                    <div style={{ width: 200 }}>
+                      Mục tiêu tháng của chỉ số, người dùng nhập hàng tháng
+                    </div>
+                  }
                   title="Mục tiêu tháng"
                   placement="bottom"
                 >
@@ -375,9 +385,8 @@ function KeyDriverOnline() {
                 <Popover
                   content={
                     <div style={{ width: 200 }}>
-                      Dữ liệu cập nhật từ đầu tháng đến hết ngày hôm qua(TH ngày chọn là ngày hiện
-                      tại). Dữ liệu cập nhật từ đầu tháng đến ngày được chọn(TH ngày được chọn là
-                      ngày quá khứ)
+                      <div>Lọc hôm nay: Dữ liệu từ đầu tháng đến hết hôm qua.</div>
+                      <div>Lọc ngày quá khứ: Dữ liệu từ đầu tháng đến ngày được chọn.</div>
                     </div>
                   }
                   title="Luỹ kế"
@@ -404,7 +413,7 @@ function KeyDriverOnline() {
             title: () => {
               return (
                 <Popover
-                  content={<div style={{ width: 200 }}>Luỹ kế/Mục tiêu tháng</div>}
+                  content={<div style={{ width: 200 }}>= Luỹ kế/Mục tiêu tháng</div>}
                   title="Tỷ lệ"
                   placement="bottom"
                 >
@@ -429,9 +438,10 @@ function KeyDriverOnline() {
               return (
                 <Popover
                   content={
-                    <div
-                      style={{ width: 200 }}
-                    >{`=Lũy kế/(Ngày được chọn - 1) * Số ngày trong tháng(TH ngày dược chọn là ngày hiện tại). =Lũy kế/Ngày được chọn * Số ngày trong tháng(TH ngày được chọn là ngày quá khứ)`}</div>
+                    <div style={{ width: 200 }}>
+                      <div>Lọc hôm nay: =Lũy kế/(Ngày được chọn - 1) * Số ngày trong tháng.</div>
+                      <div>Lọc ngày quá khứ: =Lũy kế/Ngày được chọn * Số ngày trong tháng.</div>
+                    </div>
                   }
                   title="Dự kiến đạt"
                   placement="bottom"
@@ -471,7 +481,7 @@ function KeyDriverOnline() {
             title: () => {
               return (
                 <Popover
-                  content={<div style={{ width: 200 }}>Dự kiến đạt/Mục tiêu tháng</div>}
+                  content={<div style={{ width: 200 }}>= Dự kiến đạt/Mục tiêu tháng</div>}
                   title="Tỷ lệ"
                   placement="bottom"
                 >
@@ -506,9 +516,13 @@ function KeyDriverOnline() {
               return (
                 <Popover
                   content={
-                    <div
-                      style={{ width: 200 }}
-                    >{`=(Mục tiêu tháng - Lũy kế) / [Số ngày trong tháng - (Ngày hiện tại - 1)]. Người dùng vẫn có thể nhập mục tiêu ngày cho riêng phòng ban. Xoá mục tiêu ngày đã nhập -> Unicorn sẽ tự tính lại mục tiêu ngày theo công thức trên`}</div>
+                    <div style={{ width: 200 }}>
+                      <div>
+                        = (Mục tiêu tháng - Lũy kế) / [Số ngày trong tháng - (Ngày hiện tại - 1)].
+                      </div>
+                      <div>Người dùng có thể sửa mục tiêu ngày.</div>
+                      <div>{`Xoá mục tiêu ngày đã nhập -> Unicorn sẽ tự tính lại mục tiêu ngày.`}</div>
+                    </div>
                   }
                   title="Mục tiêu ngày"
                   placement="bottom"
@@ -656,7 +670,7 @@ function KeyDriverOnline() {
             title: () => {
               return (
                 <Popover
-                  content={<div style={{ width: 200 }}>Dữ liệu trong ngày hôm nay</div>}
+                  content={<div style={{ width: 200 }}>Dữ liệu ngày hôm nay</div>}
                   title="Thực đạt"
                   placement="bottom"
                 >
@@ -682,7 +696,7 @@ function KeyDriverOnline() {
             title: () => {
               return (
                 <Popover
-                  content={<div style={{ width: 200 }}>Thực đạt/Mục tiêu ngày</div>}
+                  content={<div style={{ width: 200 }}>= Thực đạt/Mục tiêu ngày</div>}
                   title="Tỷ lệ"
                   placement="bottom"
                 >
@@ -714,11 +728,12 @@ function KeyDriverOnline() {
       keyDriverGroupLv1: string,
       departmentLv2: string | null,
       departmentLv3: string | null,
-      selectedItemsInDim?: string[],
     ) => {
+      const selectedObjectInDim = filterForm.getFieldsValue(true)["objectInDim"];
+      const selectedKDInDim = filterForm.getFieldsValue(true)["kdInDim"];
       setLoadingPage(true);
       let allDepartment: { groupedBy: string; drillingLevel: number }[] = [];
-      let currentDrillingLevel: number;
+      let currentDrillingLevel: number = 1;
       if (departmentLv3) {
         currentDrillingLevel = 3;
       } else if (departmentLv2) {
@@ -781,21 +796,38 @@ function KeyDriverOnline() {
               response,
               currentDrillingLevel,
               KDReportName.Online,
-              groupLv as string,
-            );
-          });
-          const horizontalColumns = () => {
-            return setTableHorizontalColumns(
-              response.result.data,
-              setObjectiveColumns,
-              currentDrillingLevel,
               {
-                groupLv: groupLv as string,
-                groupLvName: groupLvName as string,
-                queryParams,
+                groupLevel: groupLv as string,
+                groupLevelName: groupLvName as string,
+                selectedObject: selectedObjectInDim || [],
               },
             );
-          };
+          });
+          const allKeyDriverByGroupLevel = getAllKeyDriverByGroupLevel(
+            response.result.data,
+            currentDrillingLevel,
+            {
+              groupLv: groupLv as string,
+              groupLvName: groupLvName as string,
+              queryParams,
+            },
+          );
+          setAllKDInDim(allKeyDriverByGroupLevel);
+          const horizontalColumns = setTableHorizontalColumns(
+            allKeyDriverByGroupLevel.filter(
+              (item) =>
+                !selectedKDInDim?.length ||
+                selectedKDInDim.findIndex(
+                  (selectedKDCode: string) => selectedKDCode === item.keyDriver,
+                ) !== -1,
+            ),
+            setObjectiveColumns,
+            {
+              groupLv: groupLv as string,
+              groupLvName: groupLvName as string,
+              queryParams,
+            },
+          );
 
           temp = [
             {
@@ -837,8 +869,9 @@ function KeyDriverOnline() {
                 }
               },
             },
-            ...horizontalColumns(),
+            ...horizontalColumns,
           ];
+          allDepartment = getAllDepartmentByAnalyticResult(response.result.data, COLUMN_ORDER_LIST);
         } else {
           setData(convertDataToFlatTableKeyDriver(response, COLUMN_ORDER_LIST));
           allDepartment = getAllDepartmentByAnalyticResult(response.result.data, COLUMN_ORDER_LIST);
@@ -846,8 +879,8 @@ function KeyDriverOnline() {
           allDepartment
             .filter(
               (item) =>
-                !selectedItemsInDim?.length ||
-                selectedItemsInDim?.includes(item.groupedBy) ||
+                !selectedObjectInDim?.length ||
+                selectedObjectInDim?.includes(item.groupedBy) ||
                 item.drillingLevel === currentDrillingLevel,
             )
             .forEach(({ groupedBy, drillingLevel }, index: number) => {
@@ -882,7 +915,7 @@ function KeyDriverOnline() {
         }
         setFinalColumns(temp);
         setLoadingPage(false);
-        setAllItemInDim(
+        setAllObjectInDim(
           allDepartment.filter((item) => {
             if (departmentLv3) {
               return item.drillingLevel === 4;
@@ -903,7 +936,7 @@ function KeyDriverOnline() {
   );
 
   useEffect(() => {
-    form.setFieldsValue({ itemsInDim: [] });
+    filterForm.setFieldsValue({ objectInDim: [], kdInDim: [] });
     if (keyDriverGroupLv1 && date) {
       initTable(
         moment(date).format(DATE_FORMAT.YYYYMMDD),
@@ -914,7 +947,7 @@ function KeyDriverOnline() {
     } else {
       const today = moment().format(DATE_FORMAT.YYYYMMDD);
       setTimeout(() => {
-        form.setFieldsValue({ date: moment() });
+        timeForm.setFieldsValue({ date: moment() });
       }, 1000);
       const queryParams = queryString.parse(history.location.search);
       const newQueries = {
@@ -925,17 +958,28 @@ function KeyDriverOnline() {
       };
       history.push({ search: queryString.stringify(newQueries) });
     }
-  }, [initTable, history, date, keyDriverGroupLv1, departmentLv2, departmentLv3, form, groupLevel]);
+  }, [
+    initTable,
+    history,
+    date,
+    keyDriverGroupLv1,
+    departmentLv2,
+    departmentLv3,
+    timeForm,
+    filterForm,
+    groupLevel,
+    reportDirection,
+  ]);
 
   const onFinish = useCallback(() => {
-    let date = form.getFieldsValue(true)["date"];
+    let date = timeForm.getFieldsValue(true)["date"];
     let newDate = "";
     if (date) {
       newDate = moment(date, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.YYYYMMDD);
     } else {
       newDate = moment().format(DATE_FORMAT.YYYYMMDD);
       setTimeout(() => {
-        form.setFieldsValue({ date: moment() });
+        timeForm.setFieldsValue({ date: moment() });
       }, 1000);
     }
     const queryParams = queryString.parse(history.location.search);
@@ -946,17 +990,38 @@ function KeyDriverOnline() {
       keyDriverGroupLv1: DEFAULT_ON_KD_GROUP_LV1,
     };
     history.push({ search: queryString.stringify(newQueries) });
-  }, [form, history]);
+  }, [history, timeForm]);
 
-  const onChangeItemInDim = () => {
-    const items = form.getFieldsValue(true)["itemsInDim"];
+  const onChangeFilter = () => {
     initTable(
       moment(date).format(DATE_FORMAT.YYYYMMDD),
       keyDriverGroupLv1,
       departmentLv2,
       departmentLv3,
-      items,
     );
+  };
+
+  const onChangeDirection = (direction: KDReportDirection) => {
+    const { Vertical, Horizontal } = KDReportDirection;
+    const queryParams = queryString.parse(history.location.search);
+    setData([]);
+    if (direction === Vertical) {
+      const { date, keyDriverGroupLv1, departmentLv2, departmentLv3 } = queryParams;
+      const newQueries = {
+        "default-screen": "key-driver-online",
+        date,
+        keyDriverGroupLv1,
+        departmentLv2,
+        departmentLv3,
+      };
+      history.push({ search: queryString.stringify(newQueries) });
+    } else if (direction === Horizontal) {
+      const newQueries = {
+        ...queryParams,
+        direction: Horizontal,
+      };
+      history.push({ search: queryString.stringify(newQueries) });
+    }
   };
   return havePermission ? (
     <ContentContainer
@@ -975,71 +1040,140 @@ function KeyDriverOnline() {
       }
     >
       <KeyDriverStyle>
-        <Card>
-          <Form
-            onFinish={onFinish}
-            onFinishFailed={() => {}}
-            form={form}
-            name="report-form-base"
-            layout="inline"
-            initialValues={{
-              date: date
-                ? moment(date).format(DATE_FORMAT.DDMMYYY)
-                : moment().format(DATE_FORMAT.DDMMYYY),
-            }}
-          >
-            <Col xs={24} md={8}>
-              <Form.Item name="date">
-                <CustomDatePicker
-                  format={DATE_FORMAT.DDMMYYY}
-                  placeholder="Chọn ngày"
-                  style={{ width: "100%" }}
-                  onChange={() => onFinish()}
-                  showToday={false}
+        <Row gutter={8}>
+          <Col>
+            <Card className="filter-block__direction">
+              <span className="filter-block-title">Chiều xem</span>
+              <Radio.Group
+                defaultValue={reportDirection || KDReportDirection.Vertical}
+                buttonStyle="solid"
+                onChange={(event: any) => onChangeDirection(event.target.value)}
+              >
+                <Radio.Button value={KDReportDirection.Vertical}>Dọc</Radio.Button>
+                <Radio.Button value={KDReportDirection.Horizontal}>Ngang</Radio.Button>
+              </Radio.Group>
+            </Card>
+          </Col>
+          <Col>
+            <Card>
+              <Form
+                onFinish={onFinish}
+                onFinishFailed={() => {}}
+                form={timeForm}
+                name="report-form-base"
+                layout="inline"
+                initialValues={{
+                  date: date
+                    ? moment(date).format(DATE_FORMAT.DDMMYYY)
+                    : moment().format(DATE_FORMAT.DDMMYYY),
+                }}
+                className="filter-block-item"
+              >
+                <div className="d-flex justify-content-between align-items-center">
+                  <span className="filter-block-title">Ngày</span>
+                  <Form.Item name="date">
+                    <CustomDatePicker
+                      format={DATE_FORMAT.DDMMYYY}
+                      placeholder="Chọn ngày"
+                      style={{ width: "100%" }}
+                      onChange={() => onFinish()}
+                      showToday={false}
+                    />
+                  </Form.Item>
+                </div>
+                <Button
+                  className="btn-setting"
+                  icon={<SettingOutlined />}
+                  onClick={() => setShowSettingColumn(true)}
                 />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={8}>
-              <Form.Item name="itemsInDim">
-                <Select
-                  disabled={loadingPage}
-                  mode="multiple"
-                  placeholder="Tuỳ chọn hiển thị"
-                  showArrow
-                  showSearch
-                  optionFilterProp="children"
-                  style={{ width: "100%" }}
-                  maxTagCount={"responsive"}
-                  filterOption={(input: String, option: any) => {
-                    if (option.props.value) {
-                      return strForSearch(option.props.children).includes(strForSearch(input));
-                    }
-                    return false;
-                  }}
-                >
-                  {allItemInDim.map((item, index) => (
-                    <Option key={"dimFilter" + index} value={item.groupedBy}>
-                      {item.groupedBy}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Button
-              htmlType="submit"
-              type="primary"
-              loading={loadingPage}
-              onClick={onChangeItemInDim}
-            >
-              Áp dụng hiển thị
-            </Button>
-          </Form>
-          <Button
-            className="columns-setting"
-            icon={<SettingOutlined />}
-            onClick={() => setShowSettingColumn(true)}
-          />
-        </Card>
+              </Form>
+            </Card>
+          </Col>
+          <Col>
+            <Card>
+              <Form form={filterForm} className="filter-block-item">
+                <Row gutter={8}>
+                  <Col>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span className="filter-block-title">Khu vực</span>
+                      <div>
+                        <Form.Item name="objectInDim">
+                          <Select
+                            disabled={loadingPage}
+                            mode="multiple"
+                            placeholder="Tuỳ chọn khu vực"
+                            showArrow
+                            showSearch
+                            optionFilterProp="children"
+                            style={{ width: 200 }}
+                            maxTagCount={"responsive"}
+                            filterOption={(input: String, option: any) => {
+                              if (option.props.value) {
+                                return strForSearch(option.props.children).includes(
+                                  strForSearch(input),
+                                );
+                              }
+                              return false;
+                            }}
+                          >
+                            {allObjectInDim.map((item, index) => (
+                              <Option key={"objectFilter" + index} value={item.groupedBy}>
+                                {item.groupedBy}
+                              </Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col>
+                    {reportDirection === KDReportDirection.Horizontal ? (
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span className="filter-block-title">Chỉ số</span>
+                        <Form.Item name="kdInDim">
+                          <Select
+                            disabled={loadingPage}
+                            mode="multiple"
+                            placeholder="Tuỳ chọn chỉ số"
+                            showArrow
+                            showSearch
+                            optionFilterProp="children"
+                            style={{ width: 200 }}
+                            maxTagCount={"responsive"}
+                            filterOption={(input: String, option: any) => {
+                              if (option.props.value) {
+                                return strForSearch(option.props.children).includes(
+                                  strForSearch(input),
+                                );
+                              }
+                              return false;
+                            }}
+                          >
+                            {allKDInDim.map((item, index) => (
+                              <Option key={"dimFilter" + index} value={item.keyDriver}>
+                                {item.keyDriver}
+                              </Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                  </Col>
+                  <Button
+                    htmlType="submit"
+                    type="primary"
+                    loading={loadingPage}
+                    onClick={onChangeFilter}
+                  >
+                    Áp dụng
+                  </Button>
+                </Row>
+              </Form>
+            </Card>
+          </Col>
+        </Row>
         <Card title={`BÁO CÁO NGÀY: ${day}`}>
           <Table
             className="disable-table-style" // để tạm background màu trắng vì chưa group data
