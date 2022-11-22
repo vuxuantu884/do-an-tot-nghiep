@@ -286,25 +286,44 @@ export const KeyDriverStyle = styled.div`
   }
 
   .ant-card-body {
-    padding: 16px 16px;
+    padding: 4px 4px;
   }
 
   .ant-form-item {
     margin: 0;
   }
 
-  .filter-block {
-    &-title {
-      padding-right: 0.5rem;
-      text-align: center;
+  .ant-card {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .filter-block-rotation-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .anticon {
+      font-size: 18px;
     }
-    &-item {
+  }
+
+  .ml-1 {
+    margin-left: 0.25rem;
+  }
+
+  .mr-1 {
+    margin-right: 0.25rem;
+  }
+
+  .filter-block__direction {
+    .ant-card-body {
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    &__direction .ant-card-body {
-      line-height: 38px;
-    }
+  }
+
+  .ant-select-item-option-content {
+    white-space: nowrap !important;
   }
 `;
