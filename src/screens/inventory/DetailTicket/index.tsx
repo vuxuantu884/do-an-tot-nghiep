@@ -904,12 +904,12 @@ const DetailTicket: FC = () => {
       dataIndex: "transfer_quantity",
       render: (value: string, row: any, index: number) => {
         const isExistInOriginList = originalDataTable.length > 0 ? originalDataTable.filter((item: VariantResponse) => {
-          return item.code === row.code;
+          return item.sku === row.sku;
         }).length > 0 : false;
         if (
-          (isExistInOriginList && row.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
-            || row.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
-          || row?.status === STATUS_INVENTORY_TRANSFER.PENDING.status
+          (isExistInOriginList && data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
+            || data?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
+          || data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status
         ) {
           return false;
         }
@@ -993,7 +993,7 @@ const DetailTicket: FC = () => {
         ...item,
         id: newDataTableFiltered.length > 0 ? newDataTableFiltered[0].id : item.id,
         real_quantity: realQuantity,
-        transfer_quantity: newDataTableFiltered.length > 0 ? newDataTableFiltered[0].transfer_quantity : item.transfer_quantity
+        transfer_quantity: newDataTableFiltered.length > 0 ? newDataTableFiltered[0].transfer_quantity : 0
       }
     });
     setDataTable([...newDataTable, ...newData]);
