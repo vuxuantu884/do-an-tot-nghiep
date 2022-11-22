@@ -120,9 +120,19 @@ export const convertDataToFlatTableRotation = (
     // console.log("data data data", data);
     let objDailyActual: any = {};
     let propertyArrDailyActual: string[] = [];
+    let objMonthlyActual: any = {};
+    let propertyArrMonthlyActual: string[] = [];
+    let objMonthlyProgress: any = {};
+    let propertyArrMonthlyProgress: string[] = [];
     for (const property in data[0]) {
       if (property.includes("_daily_actual")) {
         propertyArrDailyActual.push(property);
+      }
+      if (property.includes("_monthly_actual")) {
+        propertyArrMonthlyActual.push(property);
+      }
+      if (property.includes("_monthly_progress")) {
+        propertyArrMonthlyProgress.push(property);
       }
     }
     propertyArrDailyActual.forEach((ppt) => {
@@ -136,6 +146,30 @@ export const convertDataToFlatTableRotation = (
           return item[ppt];
         });
       objDailyActual[ppt] = arrValue.sort((a: number, b: number) => b - a);
+    });
+    propertyArrMonthlyActual.forEach((ppt) => {
+      const arrValue = data
+        .filter(
+          (item) =>
+            item.drillingLevel !== ONL_DRILLING_LEVEL.DEPARTMENT &&
+            item.drillingLevel !== OFF_DRILLING_LEVEL.ASM,
+        )
+        .map((item, index) => {
+          return item[ppt];
+        });
+      objMonthlyActual[ppt] = arrValue.sort((a: number, b: number) => b - a);
+    });
+    propertyArrMonthlyProgress.forEach((ppt) => {
+      const arrValue = data
+        .filter(
+          (item) =>
+            item.drillingLevel !== ONL_DRILLING_LEVEL.DEPARTMENT &&
+            item.drillingLevel !== OFF_DRILLING_LEVEL.ASM,
+        )
+        .map((item, index) => {
+          return item[ppt];
+        });
+      objMonthlyProgress[ppt] = arrValue.sort((a: number, b: number) => b - a);
     });
     // console.log("objDailyActual", objDailyActual);
 
@@ -155,6 +189,80 @@ export const convertDataToFlatTableRotation = (
         let color = "";
         const valueArr: any[] = objDailyActual[ppt].filter((value: number | undefined) => value);
         // return item[ppt] ? (!objDailyActual[ppt][3] ? "" : (item[ppt] >= valueArr[3] ? "green" : "")) : "red",
+        if (item[ppt]) {
+          if (valueArr[limitRowFillColor - 1]) {
+            if (item[ppt] >= valueArr[limitRowFillColor - 1]) {
+              color = "background-green";
+            }
+          } else {
+            color = "background-green";
+          }
+          if (valueArr[valueArr.length - limitRowFillColor]) {
+            if (item[ppt] <= valueArr[valueArr.length - limitRowFillColor]) {
+              color = "background-red";
+            }
+          }
+        } else {
+          color =
+            valueArr[valueArr.length - limitRowFillColor] && valueArr[limitRowFillColor - 1]
+              ? "background-red"
+              : "";
+        }
+        return {
+          ...item,
+          [`${ppt}_color`]: color,
+        };
+      });
+    });
+    propertyArrMonthlyActual.forEach((ppt) => {
+      data = data.map((item, index) => {
+        if (
+          item.drillingLevel === ONL_DRILLING_LEVEL.DEPARTMENT ||
+          item.drillingLevel === OFF_DRILLING_LEVEL.ASM
+        ) {
+          return item;
+        }
+        let color = "";
+        const valueArr: any[] = objMonthlyActual[ppt].filter((value: number | undefined) => value);
+        // return item[ppt] ? (!objMonthlyActual[ppt][3] ? "" : (item[ppt] >= valueArr[3] ? "green" : "")) : "red",
+        if (item[ppt]) {
+          if (valueArr[limitRowFillColor - 1]) {
+            if (item[ppt] >= valueArr[limitRowFillColor - 1]) {
+              color = "background-green";
+            }
+          } else {
+            color = "background-green";
+          }
+          if (valueArr[valueArr.length - limitRowFillColor]) {
+            if (item[ppt] <= valueArr[valueArr.length - limitRowFillColor]) {
+              color = "background-red";
+            }
+          }
+        } else {
+          color =
+            valueArr[valueArr.length - limitRowFillColor] && valueArr[limitRowFillColor - 1]
+              ? "background-red"
+              : "";
+        }
+        return {
+          ...item,
+          [`${ppt}_color`]: color,
+        };
+      });
+    });
+    propertyArrMonthlyProgress.forEach((ppt) => {
+      data = data.map((item, index) => {
+        if (
+          item.drillingLevel === ONL_DRILLING_LEVEL.DEPARTMENT ||
+          item.drillingLevel === OFF_DRILLING_LEVEL.ASM
+        ) {
+          return item;
+        }
+        let color = "";
+        const valueArr: any[] = objMonthlyProgress[ppt].filter(
+          (value: number | undefined) => value,
+        );
+        // return item[ppt] ? (!objmonthly_progress[ppt][3] ? "" : (item[ppt] >= valueArr[3] ? "green" : "")) : "red",
         if (item[ppt]) {
           if (valueArr[limitRowFillColor - 1]) {
             if (item[ppt] >= valueArr[limitRowFillColor - 1]) {
