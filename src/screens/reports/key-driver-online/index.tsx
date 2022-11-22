@@ -1,6 +1,14 @@
 /* eslint-disable eqeqeq */
-import { CheckOutlined, CloseOutlined, RightOutlined, SettingOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Form, Popover, Radio, Row, Select, Table } from "antd";
+import {
+  CheckOutlined,
+  CloseOutlined,
+  PlusOutlined,
+  RightOutlined,
+  RotateLeftOutlined,
+  RotateRightOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
+import { Button, Card, Col, Form, Popover, Row, Select, Table } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
 import ContentContainer from "component/container/content.container";
@@ -1041,7 +1049,12 @@ function KeyDriverOnline() {
       extra={
         <>
           <Button className="sub-feature-button" type="primary">
-            <Link to={`/key-driver-online/key-counter`}>Nhập thực đạt các chỉ số báo cáo</Link>
+            <Link to={`/key-driver-online/key-counter`}>
+              <span style={{ paddingRight: 4 }}>
+                <PlusOutlined />
+              </span>
+              <span>Nhập thực đạt</span>
+            </Link>
           </Button>
         </>
       }
@@ -1050,15 +1063,21 @@ function KeyDriverOnline() {
         <Row gutter={8}>
           <Col>
             <Card className="filter-block__direction">
-              <span className="filter-block-title">Chiều xem</span>
-              <Radio.Group
-                defaultValue={reportDirection || KDReportDirection.Vertical}
-                buttonStyle="solid"
-                onChange={(event: any) => onChangeDirection(event.target.value)}
-              >
-                <Radio.Button value={KDReportDirection.Vertical}>Dọc</Radio.Button>
-                <Radio.Button value={KDReportDirection.Horizontal}>Ngang</Radio.Button>
-              </Radio.Group>
+              {reportDirection === KDReportDirection.Horizontal ? (
+                <Button
+                  icon={<RotateRightOutlined />}
+                  className="filter-block-rotation-btn text-primary"
+                  title="Đảo chiều báo cáo"
+                  onClick={() => onChangeDirection(KDReportDirection.Vertical)}
+                ></Button>
+              ) : (
+                <Button
+                  icon={<RotateLeftOutlined />}
+                  className="filter-block-rotation-btn"
+                  title="Đảo chiều báo cáo"
+                  onClick={() => onChangeDirection(KDReportDirection.Horizontal)}
+                ></Button>
+              )}
             </Card>
           </Col>
           <Col>
@@ -1074,110 +1093,104 @@ function KeyDriverOnline() {
                     ? moment(date).format(DATE_FORMAT.DDMMYYY)
                     : moment().format(DATE_FORMAT.DDMMYYY),
                 }}
-                className="filter-block-item"
               >
-                <div className="d-flex justify-content-between align-items-center">
-                  <span className="filter-block-title">Ngày</span>
-                  <Form.Item name="date">
-                    <CustomDatePicker
-                      format={DATE_FORMAT.DDMMYYY}
-                      placeholder="Chọn ngày"
-                      style={{ width: "100%" }}
-                      onChange={() => onFinish()}
-                      showToday={false}
-                    />
-                  </Form.Item>
-                </div>
-                <Button
-                  className="btn-setting"
-                  icon={<SettingOutlined />}
-                  onClick={() => setShowSettingColumn(true)}
-                />
+                <Form.Item name="date">
+                  <CustomDatePicker
+                    format={DATE_FORMAT.DDMMYYY}
+                    placeholder="Chọn ngày"
+                    style={{ width: "100%" }}
+                    onChange={() => onFinish()}
+                    showToday={false}
+                  />
+                </Form.Item>
               </Form>
             </Card>
           </Col>
           <Col>
             <Card>
-              <Form form={filterForm} className="filter-block-item">
+              <Form form={filterForm}>
                 <Row gutter={8}>
                   <Col>
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span className="filter-block-title">Khu vực</span>
-                      <div>
-                        <Form.Item name="objectInDim">
-                          <Select
-                            disabled={loadingPage}
-                            mode="multiple"
-                            placeholder="Tuỳ chọn khu vực"
-                            showArrow
-                            showSearch
-                            optionFilterProp="children"
-                            style={{ width: 200 }}
-                            maxTagCount={"responsive"}
-                            filterOption={(input: String, option: any) => {
-                              if (option.props.value) {
-                                return strForSearch(option.props.children).includes(
-                                  strForSearch(input),
-                                );
-                              }
-                              return false;
-                            }}
-                          >
-                            {allObjectInDim.map((item, index) => (
-                              <Option key={"objectFilter" + index} value={item.groupedBy}>
-                                {item.groupedBy}
-                              </Option>
-                            ))}
-                          </Select>
-                        </Form.Item>
-                      </div>
-                    </div>
+                    <Form.Item name="objectInDim">
+                      <Select
+                        disabled={loadingPage}
+                        mode="multiple"
+                        placeholder="Chọn đối tượng"
+                        showArrow
+                        showSearch
+                        optionFilterProp="children"
+                        style={{ width: 250 }}
+                        maxTagCount={"responsive"}
+                        filterOption={(input: String, option: any) => {
+                          if (option.props.value) {
+                            return strForSearch(option.props.children).includes(
+                              strForSearch(input),
+                            );
+                          }
+                          return false;
+                        }}
+                      >
+                        {allObjectInDim.map((item, index) => (
+                          <Option key={"objectFilter" + index} value={item.groupedBy}>
+                            {item.groupedBy}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
                   </Col>
-                  <Col>
-                    {reportDirection === KDReportDirection.Horizontal ? (
-                      <div className="d-flex justify-content-between align-items-center">
-                        <span className="filter-block-title">Chỉ số</span>
-                        <Form.Item name="kdInDim">
-                          <Select
-                            disabled={loadingPage}
-                            mode="multiple"
-                            placeholder="Tuỳ chọn chỉ số"
-                            showArrow
-                            showSearch
-                            optionFilterProp="children"
-                            style={{ width: 200 }}
-                            maxTagCount={"responsive"}
-                            filterOption={(input: String, option: any) => {
-                              if (option.props.value) {
-                                return strForSearch(option.props.children).includes(
-                                  strForSearch(input),
-                                );
-                              }
-                              return false;
-                            }}
-                          >
-                            {allKDInDim.map((item, index) => (
-                              <Option key={"dimFilter" + index} value={item.keyDriver}>
-                                {item.keyDriver}
-                              </Option>
-                            ))}
-                          </Select>
-                        </Form.Item>
-                      </div>
-                    ) : (
-                      ""
-                    )}
-                  </Col>
+                  {reportDirection === KDReportDirection.Horizontal ? (
+                    <Col>
+                      <Form.Item name="kdInDim">
+                        <Select
+                          disabled={loadingPage}
+                          mode="multiple"
+                          placeholder="Chọn chỉ số"
+                          showArrow
+                          showSearch
+                          optionFilterProp="children"
+                          style={{ width: 250 }}
+                          maxTagCount={"responsive"}
+                          filterOption={(input: String, option: any) => {
+                            if (option.props.value) {
+                              return strForSearch(option.props.children).includes(
+                                strForSearch(input),
+                              );
+                            }
+                            return false;
+                          }}
+                        >
+                          {allKDInDim.map((item, index) => (
+                            <Option key={"dimFilter" + index} value={item.keyDriver}>
+                              {item.keyDriver}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                  ) : (
+                    ""
+                  )}
                   <Button
                     htmlType="submit"
                     type="primary"
                     loading={loadingPage}
                     onClick={onChangeFilter}
+                    className="ml-1 mr-1"
                   >
                     Áp dụng
                   </Button>
                 </Row>
               </Form>
+            </Card>
+          </Col>
+          <Col>
+            <Card className="filter-block__direction">
+              <Button
+                className="btn-setting"
+                title="Ẩn/hiện cột"
+                icon={<SettingOutlined />}
+                onClick={() => setShowSettingColumn(true)}
+              />
             </Card>
           </Col>
         </Row>
