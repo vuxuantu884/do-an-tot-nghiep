@@ -28,7 +28,9 @@ export const filterKDOfflineByDim = (currentDrillingLevel: number, data: any[]) 
       });
       break;
   }
-  return filterData.filter((item) => !childrenOfCustomerNumberKd.includes(item.key));
+  return filterData.filter(
+    (item) => ![...childrenOfCustomerNumberKd, "OF.DT.FB.02"].includes(item.key),
+  );
 };
 
 export const filterKDOfflineHorizontalByDim = (currentDrillingLevel: number, data: any[]) => {
@@ -57,5 +59,7 @@ export const filterKDOfflineHorizontalByDim = (currentDrillingLevel: number, dat
     default:
       break;
   }
-  return filterData.filter((item) => !childrenOfCustomerNumberKd.includes(item[keyDriverIndex]));
+  return filterData.filter(
+    (item) => ![...childrenOfCustomerNumberKd, "OF.DT.FB.02"].includes(item[keyDriverIndex]),
+  );
 };
