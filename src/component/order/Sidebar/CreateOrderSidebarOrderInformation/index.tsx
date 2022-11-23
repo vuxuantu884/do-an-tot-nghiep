@@ -4,7 +4,7 @@ import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelec
 import UrlConfig from "config/url.config";
 import { AccountResponse } from "model/account/account.model";
 import { OrderResponse } from "model/response/order/order.response";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { searchAccountPublicApi } from "service/accounts/account.service";
@@ -70,6 +70,18 @@ function CreateOrderSidebarOrderInformation(props: PropTypes): JSX.Element {
   const [initCoordinatorAccountData, setInitCoordinatorAccountData] = useState<
     Array<AccountResponse>
   >([]);
+
+  const isDisableReturnAccount = useMemo(() => {
+    if (isReturnOffline) {
+      return false;
+    } else {
+      if (isExchange) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+  }, [isExchange, isReturnOffline]);
 
   const renderSplitOrder = () => {
     const splitCharacter = "-";
@@ -231,7 +243,7 @@ function CreateOrderSidebarOrderInformation(props: PropTypes): JSX.Element {
               dataToSelect={accountCodeAccountData}
               setDataToSelect={setAccountCodeAccountData}
               initDataToSelect={initAccountCodeAccountData}
-              disabled={isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
+              disabled={isOrderFinishedOrCancel(orderDetail) && isDisableReturnAccount}
               isSearchAccountActive
             />
           </Form.Item>
@@ -254,7 +266,7 @@ function CreateOrderSidebarOrderInformation(props: PropTypes): JSX.Element {
             dataToSelect={assigneeAccountData}
             setDataToSelect={setAssigneeAccountData}
             initDataToSelect={initAssigneeAccountData}
-            disabled={isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
+            disabled={isOrderFinishedOrCancel(orderDetail) && isDisableReturnAccount}
             isSearchAccountActive
           />
         </Form.Item>
@@ -286,7 +298,7 @@ function CreateOrderSidebarOrderInformation(props: PropTypes): JSX.Element {
               dataToSelect={marketingAccountData}
               setDataToSelect={setMarketingAccountData}
               initDataToSelect={initMarketingAccountData}
-              disabled={isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
+              disabled={isOrderFinishedOrCancel(orderDetail) && isDisableReturnAccount}
               isSearchAccountActive
             />
           </Form.Item>
@@ -299,7 +311,7 @@ function CreateOrderSidebarOrderInformation(props: PropTypes): JSX.Element {
               dataToSelect={coordinatorAccountData}
               setDataToSelect={setCoordinatorAccountData}
               initDataToSelect={initCoordinatorAccountData}
-              disabled={isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
+              disabled={isOrderFinishedOrCancel(orderDetail) && isDisableReturnAccount}
               isSearchAccountActive
             />
           </Form.Item>
@@ -317,7 +329,7 @@ function CreateOrderSidebarOrderInformation(props: PropTypes): JSX.Element {
           <Input
             placeholder="Điền tham chiếu"
             maxLength={255}
-            disabled={isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
+            disabled={isOrderFinishedOrCancel(orderDetail) && isDisableReturnAccount}
           />
         </Form.Item>
         <Form.Item
@@ -331,7 +343,7 @@ function CreateOrderSidebarOrderInformation(props: PropTypes): JSX.Element {
           <Input
             placeholder="Điền đường dẫn"
             maxLength={255}
-            disabled={isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
+            disabled={isOrderFinishedOrCancel(orderDetail) && isDisableReturnAccount}
           />
         </Form.Item>
         {renderSplitOrder()}

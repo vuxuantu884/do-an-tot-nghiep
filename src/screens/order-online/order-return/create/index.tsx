@@ -348,7 +348,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
           returnMoneyAmount: 0,
         },
       ],
-      account_code: recentAccountCode.accountCode,
+      account_code: undefined,
       assignee_code: isExchange ? recentAccountCode.accountCode : OrderDetail?.assignee_code,
       marketer_code: undefined,
       coordinator_code: OrderDetail?.coordinator_code,
@@ -2420,16 +2420,48 @@ const ScreenReturnCreate = (props: PropTypes) => {
   }, [dispatch, storeIdLogin]);
 
   useEffect(() => {
-    if (isExchange) {
+    const handleIfDisableAccount = () => {
+      form.setFieldsValue({
+        assignee_code: OrderDetail?.assignee_code,
+      });
+    };
+    const handleIfCanChangeAccount = () => {
       form.setFieldsValue({
         assignee_code: undefined,
       });
+    };
+    const handleIfReturnOffline = () => {
+      handleIfCanChangeAccount();
+    };
+
+    const handleIfReturnOnline = () => {
+      const handleIfReturnOnlineAndExchange = () => {
+        handleIfCanChangeAccount();
+      };
+      const handleIfReturnOnlineAndOnlyReturn = () => {
+        handleIfDisableAccount();
+      };
+      if (isExchange) {
+        handleIfReturnOnlineAndExchange();
+      } else {
+        handleIfReturnOnlineAndOnlyReturn();
+      }
+    };
+
+    if (orderReturnType === RETURN_TYPE_VALUES.online) {
+      handleIfReturnOnline();
     } else {
-      form.setFieldsValue({
-        assignee_code: initialFormValueWithReturn.assignee_code,
-      });
+      handleIfReturnOffline();
     }
-  }, [form, initialFormValueWithReturn.assignee_code, isExchange]);
+  }, [
+    OrderDetail?.account_code,
+    OrderDetail?.assignee_code,
+    OrderDetail?.coordinator_code,
+    OrderDetail?.marketer_code,
+    form,
+    isExchange,
+    orderReturnType,
+  ]);
 
   useEffect(() => {
     window.addEventListener("keydown", eventKeydown);
