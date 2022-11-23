@@ -2,7 +2,6 @@
 import {
   CheckOutlined,
   CloseOutlined,
-  PlusOutlined,
   RightOutlined,
   RotateLeftOutlined,
   RotateRightOutlined,
@@ -1046,18 +1045,6 @@ function KeyDriverOnline() {
         departmentLv2,
         departmentLv3,
       )}
-      extra={
-        <>
-          <Button className="sub-feature-button" type="primary">
-            <Link to={`/key-driver-online/key-counter`}>
-              <span style={{ paddingRight: 4 }}>
-                <PlusOutlined />
-              </span>
-              <span>Nhập thực đạt</span>
-            </Link>
-          </Button>
-        </>
-      }
     >
       <KeyDriverStyle>
         <Row gutter={8}>

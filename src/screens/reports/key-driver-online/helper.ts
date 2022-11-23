@@ -19,7 +19,6 @@ import { callApiNative } from "utils/ApiUtils";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { ATTRIBUTE_VALUE } from "../common/constant/kd-report-response-key";
-import { unusedOnlineKD } from "../common/constant/unused-kd";
 // import { parseLocaleNumber } from "utils/AppUtils";
 
 export async function fetchQuery(params: KeyDriverOnlineParams, dispatch: Dispatch<any>) {
@@ -104,8 +103,7 @@ export const convertDataToFlatTableKeyDriver = (
       data[data.length - 1] = newRow;
     }
   });
-  const newData = data.filter((i) => !unusedOnlineKD.includes(i.key));
-  return buildSchemas(newData);
+  return buildSchemas(data);
 };
 
 const sliceGroups = (schema: any) => {
@@ -186,9 +184,7 @@ const buildSchemas = (_input: any) => {
     arr
       .filter((item) => item.parent_key_driver === key_driver)
       .map((child) => ({ ...child, children: treeData(arr, child.key_driver) }));
-  const finalData = removeChildrentEmpty(treeData(_schemas)).filter(
-    (i) => i.key !== "ON.LN.S1.01.L" && i.key !== "ON.HS.S1.01.L" && i.key !== "ON.SP.S1.01.L",
-  );
+  const finalData = removeChildrentEmpty(treeData(_schemas));
   return finalData;
 };
 
