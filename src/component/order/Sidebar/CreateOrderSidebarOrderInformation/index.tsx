@@ -249,7 +249,7 @@ function CreateOrderSidebarOrderInformation(props: PropTypes): JSX.Element {
           </Form.Item>
         ) : null}
         <Form.Item
-          label="Nhân viên bán hàng"
+          label={isReturnOffline ? "Nhân viên tư vấn" : "Nhân viên bán hàng"}
           name="assignee_code"
           rules={[
             {

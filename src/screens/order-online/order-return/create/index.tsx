@@ -289,7 +289,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   const [isShowReceiveProductConfirmModal, setIsShowReceiveProductConfirmModal] = useState(false);
 
-  const recentAccountCode = useMemo(() => {
+  const recentAccount = useMemo(() => {
     return {
       accountCode: userReducer.account?.code,
       accountFullName: userReducer.account?.full_name,
@@ -349,7 +349,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         },
       ],
       account_code: undefined,
-      assignee_code: isExchange ? recentAccountCode.accountCode : OrderDetail?.assignee_code,
+      assignee_code: isExchange ? recentAccount.accountCode : OrderDetail?.assignee_code,
       marketer_code: undefined,
       coordinator_code: OrderDetail?.coordinator_code,
       // note: OrderDetail?.note,
@@ -365,7 +365,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     defaultReceiveReturnStore?.id,
     initialForm,
     isExchange,
-    recentAccountCode.accountCode,
+    recentAccount.accountCode,
     returnPaymentMethodCode,
   ]);
 
@@ -854,9 +854,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
       let discounts = handleRecalculateOriginDiscount(returnItems);
       // console.log('getTotalAmountAfterDiscount(returnItems)', getTotalAmountAfterDiscount(returnItems))
       // console.log('getTotalOrderDiscount(discounts)', getTotalOrderDiscount(discounts))
-
+      const { assignee, ...OrderDetailRest } = OrderDetail;
       let orderDetailResult: ReturnRequest = {
-        ...OrderDetail,
+        ...OrderDetailRest,
         source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
         store_id: returnStore ? returnStore.id : null,
         store: returnStore ? returnStore.name : "",
@@ -889,9 +889,11 @@ const ScreenReturnCreate = (props: PropTypes) => {
         ),
         total_discount: Math.round(getTotalOrderDiscount(discounts)),
         total_line_amount_after_line_discount: Math.round(getTotalAmountAfterDiscount(returnItems)),
-        account: recentAccountCode?.accountFullName,
-        account_code: recentAccountCode.accountCode,
-        assignee_code: OrderDetail?.assignee_code,
+        account: recentAccount?.accountFullName,
+        account_code: recentAccount.accountCode,
+        assignee_code: form.getFieldValue("assignee_code")
+          ? form.getFieldValue("assignee_code")
+          : OrderDetail?.assignee_code,
         // clear giá trị
         reference_code: "",
         customer_note: form.getFieldValue("customer_note"),
@@ -947,8 +949,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
     orderReturnReasonResponse?.sub_reasons,
     orderReturnType,
     printType.return,
-    recentAccountCode.accountCode,
-    recentAccountCode.accountFullName,
+    recentAccount.accountCode,
+    recentAccount.accountFullName,
     refund.moneyRefund,
     returnItems,
     returnStore,
@@ -1517,7 +1519,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         // received: isReceivedReturnProducts,
         received: orderReturnType === RETURN_TYPE_VALUES.online ? true : isReceivedReturnProducts,
         discounts: handleRecalculateOriginDiscount(itemsResult),
-        account_code: recentAccountCode.accountCode,
+        account_code: recentAccount.accountCode,
         assignee_code: form.getFieldValue("assignee_code"),
         total: Math.floor(
           getTotalAmountAfterDiscount(itemsResult) - getTotalOrderDiscount(discounts),
@@ -1559,7 +1561,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       }
       order_exchange.channel_id = getChannelIdExchange(OrderDetail);
       order_exchange.company_id = DEFAULT_COMPANY.company_id;
-      order_exchange.account_code = form.getFieldValue("account_code");
+      order_exchange.account_code = recentAccount.accountCode;
       order_exchange.assignee_code = form.getFieldValue("assignee_code");
       order_exchange.coordinator_code = form.getFieldValue("coordinator_code");
       order_exchange.marketer_code = form.getFieldValue("marketer_code");
@@ -1632,7 +1634,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     orderReturnReasonResponse?.id,
     orderReturnReasonResponse?.sub_reasons,
     orderReturnType,
-    recentAccountCode.accountCode,
+    recentAccount.accountCode,
     refund.moneyRefund,
     shipmentMethod,
     shippingAddress,
@@ -2428,6 +2430,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     const handleIfCanChangeAccount = () => {
       form.setFieldsValue({
         assignee_code: undefined,
+        account_code: recentAccount.accountCode,
       });
     };
     const handleIfReturnOffline = () => {
@@ -2461,6 +2464,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     form,
     isExchange,
     orderReturnType,
+    recentAccount.accountCode,
   ]);
 
   useEffect(() => {
