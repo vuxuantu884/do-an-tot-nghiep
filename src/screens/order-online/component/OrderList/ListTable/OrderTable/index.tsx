@@ -104,6 +104,7 @@ import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
 import OrderMapHandOver from "./order-map-hand-over";
 import { nameQuantityWidth, StyledComponent } from "./styles";
+import EditOrderEspecially from "../../../EditEspeciallyOrder";
 
 type PropTypes = {
   tableLoading: boolean;
@@ -196,10 +197,10 @@ function OrdersTable(props: PropTypes) {
     return data.metadata
       ? data.metadata
       : {
-          limit: 0,
-          page: 0,
-          total: 0,
-        };
+        limit: 0,
+        page: 0,
+        total: 0,
+      };
   }, [data]);
 
   const paymentIcons = [
@@ -942,6 +943,37 @@ function OrdersTable(props: PropTypes) {
         width: 70,
       },
       {
+        title: "Đơn đặc biệt",
+        className: "notes",
+        render: (value: string, record: OrderModel) => {
+          return (
+            <div className="orderNotes">
+              <div className="inner">
+                <div className="single">
+                  aaaaaa
+                  <EditOrderEspecially
+                    note={record.customer_note}
+                    title="Thông tin: "
+                    color={primaryColor}
+                    onOk={(values) => {
+                      editNote(values.note, values.customer_note, record.id, record);
+                    }}
+                    noteFormValue={{
+                      note: record.note,
+                      customer_note: record.customer_note,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        },
+        key: "especially",
+        visible: true,
+        align: "left",
+        width: 120,
+      },
+      {
         title: "Thanh toán",
         dataIndex: "payment_status",
         key: "payment_status",
@@ -1019,7 +1051,7 @@ function OrdersTable(props: PropTypes) {
                               <img src={iconShippingFeePay3PL} alt="" className="iconShipping" />
                               {formatCurrency(
                                 sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls ||
-                                  0,
+                                0,
                               )}
                             </div>
                           </Tooltip>
@@ -1214,8 +1246,8 @@ function OrdersTable(props: PropTypes) {
             record.sub_status_code === ORDER_SUB_STATUS.fourHour_delivery
               ? "fourHour_delivery"
               : record.sub_status_code
-              ? record.sub_status_code
-              : "";
+                ? record.sub_status_code
+                : "";
           const returnedStore = stores?.find(
             (p) => p.id === getFulfillmentActive(record?.fulfillments)?.returned_store_id,
           );
@@ -1706,6 +1738,7 @@ function OrdersTable(props: PropTypes) {
     orderType === ORDER_TYPES.offline
       ? COLUMN_CONFIG_TYPE.orderOffline
       : COLUMN_CONFIG_TYPE.orderOnline;
+
   useSetTableColumns(columnConfigType, tableColumnConfigs, initColumns, setColumns);
 
   useEffect(() => {
@@ -1806,4 +1839,5 @@ function OrdersTable(props: PropTypes) {
     </StyledComponent>
   );
 }
+
 export default OrdersTable;

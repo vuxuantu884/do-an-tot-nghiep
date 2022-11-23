@@ -131,7 +131,7 @@ function OrderList(props: PropTypes) {
       ? COLUMN_CONFIG_TYPE.orderOffline
       : COLUMN_CONFIG_TYPE.orderOnline;
   const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(columnConfigType);
-
+  console.log("KAHSKJADHKASHDKJASHD", tableColumnConfigs[0]?.json_content?JSON.parse(tableColumnConfigs[0]?.json_content):null)
   const [tableLoading, setTableLoading] = useState(true);
   const [isFilter, setIsFilter] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -142,12 +142,8 @@ function OrderList(props: PropTypes) {
   const stores = useFetchStores();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [shippers, setShippers] = useState<Array<DeliverPartnerResponse>>([]);
-  const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
-    OrderProcessingStatusModel[]
-  >([]);
-  const [initListOrderProcessingStatus, setInitListOrderProcessingStatus] = useState<
-    OrderProcessingStatusModel[]
-  >([]);
+  const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<OrderProcessingStatusModel[]>([]);
+  const [initListOrderProcessingStatus, setInitListOrderProcessingStatus] = useState<OrderProcessingStatusModel[]>([]);
 
   const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
 
@@ -225,8 +221,8 @@ function OrderList(props: PropTypes) {
           Number(paramsCopy?.in_goods_receipt) === 1
             ? true
             : Number(paramsCopy?.in_goods_receipt) === 0
-            ? false
-            : undefined;
+              ? false
+              : undefined;
         dispatch(
           getListOrderAction(
             { ...params, in_goods_receipt: inGoodsReceipt },
@@ -491,7 +487,8 @@ function OrderList(props: PropTypes) {
                 window.open(printPreviewOrderUrl);
               }
             },
-            onCancel() {},
+            onCancel() {
+            },
           });
           break;
         case ACTION_ID.changeOrderStatus:
@@ -1044,4 +1041,5 @@ function OrderList(props: PropTypes) {
     </StyledComponent>
   );
 }
+
 export default OrderList;

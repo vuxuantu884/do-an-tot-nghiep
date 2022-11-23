@@ -167,3 +167,42 @@ export const fields_order_offline = [
   { value: "internalNote", name: "Mô tả" },
   { value: "coupon", name: "Mã coupon" },
 ];
+
+export const select_type_especially_order = [
+  {
+    value: 'orders-exchange',
+    label: 'Đơn đổi',
+  },
+  {
+    value: 'orders-recall',
+    label: 'Thu hồi đổi trả',
+  },
+  {
+    value: 'orders-partial',
+    label: 'Giao hàng 1 phần',
+  },
+  {
+    value: 'cod-exchange',
+    label: 'Đổi COD',
+  },
+  {
+    value: 'transfer',
+    label: 'Chuyển khoản/ VNPay/ Momo',
+  },
+  {
+    value: 'collect-support',
+    label: 'Thu, chi hộ',
+  },
+  {
+    value: 'orders-split',
+    label: 'Tách đơn',
+  },
+  {
+    value: 'orders-embroider',
+    label: 'Đơn giao tiếp',
+  },
+  {
+    value: 'orders-cancel',
+    label: 'Đơn hoàn, huỷ',
+  },
+]

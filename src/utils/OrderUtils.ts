@@ -375,6 +375,60 @@ export const checkIfOrderHasNotFinishPaymentMomo = (
   );
 };
 
+export const checkActiveCancelPackOrder = (
+  orderDetail: OrderResponse | null | undefined,
+  permissions: Array<any>
+) => {
+  // console.log('pack_11111', permissions.includes('orders_packed_cancel'))
+  // console.log('pack_22222', orderDetail?.fulfillment_status === 'packed')
+  // console.log('pack_33333', orderDetail?.sub_status_code === 'merchandise_packed')
+  // console.log('pack_44444', orderDetail?.sub_status_code === 'awaiting_shipper')
+  // console.log('pack_permission', permissions)
+  // console.log('pack_total', !(
+  //   permissions.includes('orders_packed_cancel') &&
+  //   orderDetail?.fulfillment_status === 'packed' &&
+  //   (orderDetail?.sub_status_code === 'merchandise_packed' || orderDetail?.sub_status_code === 'awaiting_shipper')
+  // ))
+
+  if (!permissions.includes('orders_packed_cancel')) {
+    return orderDetail?.sub_status_code === 'merchandise_packed' || orderDetail?.sub_status_code === 'awaiting_shipper';
+  }
+  return false
+
+
+  // return !(
+  //   permissions.includes('orders_packed_cancel') &&
+  //   orderDetail?.fulfillment_status === 'packed' &&
+  //   (orderDetail?.sub_status_code === 'merchandise_packed' || orderDetail?.sub_status_code === 'awaiting_shipper')
+  // );
+
+};
+export const checkActiveCancelConfirmOrder = (
+  orderDetail: OrderResponse | null | undefined,
+  permissions: Array<any>
+) => {
+  // console.log('confirm_11111', permissions.includes('orders_confirmed_cancel'))
+  // console.log('confirm_22222', orderDetail?.fulfillment_status === 'picked')
+  // console.log('confirm_33333', orderDetail?.fulfillment_status === 'unshipped')
+  // console.log('confirm_permission', permissions)
+  // console.log('confirm_total', !(
+  //   permissions.includes('orders_confirmed_cancel') &&
+  //   (orderDetail?.fulfillment_status === 'picked' || orderDetail?.fulfillment_status === 'unshipped')))
+
+
+  if (!permissions.includes('orders_confirmed_cancel')) {
+    return orderDetail?.fulfillment_status === 'picked' || orderDetail?.fulfillment_status === 'unshipped';
+  }
+  return false
+
+
+
+  // return !(
+  //   permissions.includes('orders_confirmed_cancel') &&
+  //   (orderDetail?.fulfillment_status === 'picked' || orderDetail?.fulfillment_status === 'unshipped'))
+  //   ;
+};
+
 export const checkIfExpiredPayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
   return (
     payment.status === ORDER_PAYMENT_STATUS.expired ||
@@ -479,9 +533,9 @@ export const getDefaultReceiveReturnStoreIdFormValue = (
   return currentStores?.length === 1
     ? currentStores[0].store_id
     : currentStores && currentStores?.length > 1 && OrderDetail?.store_id
-    ? currentStores?.find((single) => single.store_id === OrderDetail?.store_id)?.store_id ||
+      ? currentStores?.find((single) => single.store_id === OrderDetail?.store_id)?.store_id ||
       undefined
-    : undefined;
+      : undefined;
 };
 
 export const checkIfMomoTypePayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
