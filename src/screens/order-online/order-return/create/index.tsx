@@ -1185,11 +1185,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const checkIfNotHavePaymentsWhenReceiveAtStorePOS = () => {
     const methods = [ShipmentMethodOption.PICK_AT_STORE];
-    if (
-      totalOrderAmountAfterPayments > 0 &&
-      methods.includes(shipmentMethod) &&
-      isOrderFromPOS(OrderDetail)
-    ) {
+    if (totalOrderAmountAfterPayments > 0 && methods.includes(shipmentMethod)) {
       return true;
     }
     return false;
