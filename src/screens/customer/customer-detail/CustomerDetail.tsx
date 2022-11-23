@@ -262,6 +262,17 @@ const CustomerDetail = () => {
           />
         ) : null,
       },
+
+      {
+        name: "Doanh thu",
+        value: loyaltyPoint?.gross_sale ? (
+          <NumberFormat
+            value={loyaltyPoint?.gross_sale}
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+        ) : null,
+      },
       {
         name: "Tiền tích lũy",
         value: (
