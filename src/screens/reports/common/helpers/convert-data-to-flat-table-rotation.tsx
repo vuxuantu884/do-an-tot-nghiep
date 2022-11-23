@@ -30,6 +30,7 @@ export const convertDataToFlatTableRotation = (
   const drillingLevelDataIndex = attributeOrdered.indexOf("drilling_level");
   const departmentLv1Index = attributeOrdered.indexOf(`department_lv1`);
   const kdParentIndex = attributeOrdered.indexOf(`key_driver_group_lv${groupLevel || 2}`);
+  const unitIndex = attributeOrdered.indexOf("unit");
 
   let data: any[] = [];
   let keyDriverUpLevel = "";
@@ -103,6 +104,7 @@ export const convertDataToFlatTableRotation = (
               [`${keyDriver}_method`]: row[keyDriverDescriptionDataIndex],
               ...objValue,
               ...otherValue,
+              [`${keyDriver}_unit`]: row[unitIndex],
             });
           }
         } else {
@@ -112,6 +114,7 @@ export const convertDataToFlatTableRotation = (
             ...otherValue,
             [`${keyDriver}_key`]: row[keyDriverIndex],
             [`${keyDriver}_method`]: row[keyDriverDescriptionDataIndex],
+            [`${keyDriver}_unit`]: row[unitIndex],
           };
         }
       }
