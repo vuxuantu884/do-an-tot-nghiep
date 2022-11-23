@@ -35,7 +35,13 @@ import {
   COLUMN_ORDER_LIST,
   DEFAULT_OFF_KD_GROUP_LV1,
 } from "../common/constant/kd-report-response-key";
-import { npsKD, numberOfStoreStaffKD } from "../common/constant/offline-report-kd";
+import {
+  showDashOnDailyActualKD,
+  showDashOnDailyTargetKD,
+  showDashOnMonthlyForecastedKD,
+  showDashOnMonthlyForecastedProgressKD,
+  showDashOnMonthlyTargetKD,
+} from "../common/constant/offline-report-kd";
 import { KDReportDirection } from "../common/enums/kd-report-direction";
 import { KDReportName } from "../common/enums/kd-report-name";
 import { convertDataToFlatTableRotation } from "../common/helpers/convert-data-to-flat-table-rotation";
@@ -273,7 +279,9 @@ function KeyDriverOffline() {
               }-${index}-${columnIndex * 2 + 1}-month-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
-              return numberOfStoreStaffKD.includes(record.key) ? (
+              return showDashOnMonthlyTargetKD.includes(
+                record[`${departmentKey}_key`] || record.key,
+              ) ? (
                 <span>- </span>
               ) : (
                 <VerifyCell row={record} value={text} type="edit">
@@ -466,7 +474,9 @@ function KeyDriverOffline() {
             dataIndex: `${departmentKey}_monthly_forecasted`,
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              return ["OF.DT.FB.02", ...npsKD].includes(record.key) ? (
+              return showDashOnMonthlyForecastedKD.includes(
+                record[`${departmentKey}_key`] || record.key,
+              ) ? (
                 <span>-</span>
               ) : (
                 <div
@@ -506,7 +516,9 @@ function KeyDriverOffline() {
             dataIndex: `${departmentKey}_monthly_forecasted_progress`,
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType) => {
-              return ["OF.DT.FB.02", ...npsKD].includes(record.key) ? (
+              return showDashOnMonthlyForecastedProgressKD.includes(
+                record[`${departmentKey}_key`] || record.key,
+              ) ? (
                 <span>-</span>
               ) : (
                 <div
@@ -556,7 +568,9 @@ function KeyDriverOffline() {
               }-${index}-${columnIndex * 2 + 1}-day-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
-              return ["OF.DT.FB.02", ...numberOfStoreStaffKD, ...npsKD].includes(record.key) ? (
+              return showDashOnDailyTargetKD.includes(
+                record[`${departmentKey}_key`] || record.key,
+              ) ? (
                 <span>- </span>
               ) : (
                 <VerifyCell row={record} value={text} type="edit">
@@ -697,7 +711,9 @@ function KeyDriverOffline() {
             dataIndex: `${departmentKey}_daily_actual`,
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              return ["OF.DT.FB.02", ...npsKD].includes(record.key) ? (
+              return showDashOnDailyActualKD.includes(
+                record[`${departmentKey}_key`] || record.key,
+              ) ? (
                 <span>-</span>
               ) : (
                 <div className={record[`${departmentKey}_daily_actual_color`]}>
@@ -725,7 +741,11 @@ function KeyDriverOffline() {
             dataIndex: `${departmentKey}_daily_progress`,
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType) => {
-              return (
+              return showDashOnDailyTargetKD.includes(
+                record[`${departmentKey}_key`] || record.key,
+              ) ? (
+                <span>-</span>
+              ) : (
                 <VerifyCell row={record} value={text}>
                   {`${text}%`}
                 </VerifyCell>

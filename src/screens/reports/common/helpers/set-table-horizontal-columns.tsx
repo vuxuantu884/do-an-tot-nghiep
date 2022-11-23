@@ -7,7 +7,6 @@ import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showWarning } from "utils/ToastUtils";
 import { kdOffHaveChildren, kdOnHaveChildren } from "../constant/kd-have-children";
 import { COLUMN_ORDER_LIST } from "../constant/kd-report-response-key";
-import { unusedOnlineKD } from "../constant/unused-kd";
 import { filterKDOfflineHorizontalByDim } from "./filter-kd-by-dim";
 
 interface IColumnLink {
@@ -27,9 +26,7 @@ export const getAllKeyDriverByGroupLevel = (
   const departmentLv1Index = COLUMN_ORDER_LIST.indexOf(`department_lv1`);
   let kdParentIndex = COLUMN_ORDER_LIST.indexOf(`key_driver_group_lv2`);
   let allKeyDriverByGroupLevel = [];
-  const filterData = filterKDOfflineHorizontalByDim(currentDrillingLevel, data).filter(
-    (item) => !unusedOnlineKD.includes(item[keyDriverIndex]),
-  );
+  const filterData = filterKDOfflineHorizontalByDim(currentDrillingLevel, data);
   let currentGroupLv = 2;
   let keyDriverUpLevel = "";
   let currentGroupLvName = "";
