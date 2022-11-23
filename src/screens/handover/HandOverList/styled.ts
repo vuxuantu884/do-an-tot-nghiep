@@ -1,5 +1,4 @@
-import styled  from 'styled-components';
-
+import styled from "styled-components";
 
 const StyledComponent = styled.div`
   .ant-modal-body {
@@ -11,6 +10,6 @@ const StyledComponent = styled.div`
       }
     }
   }
-`
+`;
 
-export {StyledComponent};
+export { StyledComponent };

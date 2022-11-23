@@ -11,7 +11,7 @@ import BaseResponse from "base/base.response";
 import { HandoverResponse } from "model/handover/handover.response";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { HandoverTransfer, HandoverType } from "screens/order-online/handover/handover.config";
+import { HandoverTransfer, HandoverType } from "screens/handover/handover.config";
 const { TextArea } = Input;
 
 type ReportHandOverModalProps = {

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { borderColor } from "utils/global-styles/variables";
 
-const DetailStyle = styled.div`
+const StyledComponent = styled.div`
   .order-list {
     .empty-view {
       display: flex;
@@ -76,4 +76,4 @@ const DetailStyle = styled.div`
   }
 `;
 
-export { DetailStyle };
+export { StyledComponent };

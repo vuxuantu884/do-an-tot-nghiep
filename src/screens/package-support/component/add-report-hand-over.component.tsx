@@ -21,7 +21,7 @@ import {
   updateHandoverService,
 } from "service/handover/handover.service";
 import { HandoverResponse } from "model/handover/handover.response";
-import { HandoverTransfer } from "screens/order-online/handover/handover.config";
+import { HandoverTransfer } from "screens/handover/handover.config";
 import { HandoverOrderRequest, HandoverRequest } from "model/handover/handover.request";
 import BaseResponse from "base/base.response";
 import { fulfillmentListService } from "service/handover/ffm.service";
