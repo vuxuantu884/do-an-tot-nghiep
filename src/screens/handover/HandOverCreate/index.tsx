@@ -15,12 +15,12 @@ import { useHistory } from "react-router-dom";
 import { createHandoverService } from "service/handover/handover.service";
 import { handleFetchApiError, haveAccess, isFetchApiSuccessful } from "utils/AppUtils";
 import { showError } from "utils/ToastUtils";
-import { StyledComponent } from "../pack/styles";
-import AddOrderBottomBar from "./component/bottom-bar/add-order-bottom-bar";
-import FulfillmentComponent from "./component/fulfillment/fulfillment.component";
-import { HandoverReturn, HandoverTransfer, HandoverType } from "./handover.config";
+import { StyledComponent } from "./styled";
+import AddOrderBottomBar from "../component/bottom-bar/add-order-bottom-bar";
+import FulfillmentComponent from "../component/fulfillment/fulfillment.component";
+import { HandoverTransfer, HandoverType } from "../handover.config";
 
-const CreateHandoverScreeen: React.FC<any> = (props: any) => {
+const CreateHandoverScreen: React.FC<any> = (props: any) => {
   const history = useHistory();
   const dispatch = useDispatch();
   const [goodsReceiptsForm] = Form.useForm();
@@ -299,4 +299,4 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
   );
 };
 
-export default CreateHandoverScreeen;
+export default CreateHandoverScreen;

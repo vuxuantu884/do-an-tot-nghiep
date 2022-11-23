@@ -1,5 +1,5 @@
 import { DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Input, List, Row, Space } from "antd";
+import { Button, Card, Col, Input, List, Row, Space, Spin } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import ActionButton from "component/table/ActionButton";
@@ -16,8 +16,7 @@ import {
   printHandOverService,
 } from "service/handover/handover.service";
 import { formatCurrency, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
-import DetailHandoverComponent from "./component/detail/detail.component";
-import { DetailStyle } from "./detail.styles";
+import DetailHandoverComponent from "../component/detail/detail.component";
 import search from "assets/img/search.svg";
 import { useDispatch } from "react-redux";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -25,6 +24,7 @@ import emptyProduct from "assets/icon/empty_products.svg";
 import PrintComponent from "component/print";
 import { PagingParam, ResultPaging } from "model/paging";
 import { flatDataPaging } from "utils/Paging";
+import { StyledComponent } from "./styled";
 
 type HandoverParams = {
   id: string;
@@ -280,9 +280,8 @@ const DetailHandoverScreen: React.FC = () => {
   }, [fulfillmentsData.isLoad, handoverData.isLoad]);
 
   return (
-    <DetailStyle>
+    <StyledComponent>
       <ContentContainer
-        isLoading={isLoading}
         isError={handoverData.isError}
         title="Biên bản bàn giao"
         breadcrumb={[
@@ -358,6 +357,7 @@ const DetailHandoverScreen: React.FC = () => {
                         </div>
                       </div>
                       <CustomTable
+                        isLoading={isLoading}
                         scroll={{ x: 800 }}
                         isRowSelection
                         bordered
@@ -516,32 +516,34 @@ const DetailHandoverScreen: React.FC = () => {
               </Col>
               <Col span={7}>
                 <Card title="Danh sách sản phẩm">
-                  <List
-                    locale={{
-                      emptyText: "Không có sản phẩm",
-                    }}
-                    dataSource={handoverProduct}
-                    rowKey={(handoverProduct) => handoverProduct.variant_id.toString()}
-                    renderItem={(item) => (
-                      <div className="row-product-item">
-                        <Link
-                          target="_blank"
-                          to={`${UrlConfig.PRODUCT}/${item.product_id}${UrlConfig.VARIANTS}/${item.variant_id}`}
-                          className="text-ellipsis"
-                          title={item.variant}
-                        >
-                          {item.variant}
-                        </Link>
-                        <Space className="row-sku">
-                          <div className="sku">{item.sku}</div>
-                          <div className="quantity">
-                            x{` `}
-                            {item.quantity}
-                          </div>
-                        </Space>
-                      </div>
-                    )}
-                  />
+                  <Spin tip="Đang tải..." spinning={isLoading}>
+                    <List
+                      locale={{
+                        emptyText: "Không có sản phẩm",
+                      }}
+                      dataSource={handoverProduct}
+                      rowKey={(handoverProduct) => handoverProduct.variant_id.toString()}
+                      renderItem={(item) => (
+                        <div className="row-product-item">
+                          <Link
+                            target="_blank"
+                            to={`${UrlConfig.PRODUCT}/${item.product_id}${UrlConfig.VARIANTS}/${item.variant_id}`}
+                            className="text-ellipsis"
+                            title={item.variant}
+                          >
+                            {item.variant}
+                          </Link>
+                          <Space className="row-sku">
+                            <div className="sku">{item.sku}</div>
+                            <div className="quantity">
+                              x{` `}
+                              {item.quantity}
+                            </div>
+                          </Space>
+                        </div>
+                      )}
+                    />
+                  </Spin>
                 </Card>
               </Col>
             </Row>
@@ -582,7 +584,7 @@ const DetailHandoverScreen: React.FC = () => {
         />
         <PrintComponent htmlContent={htmlContent} setHtmlContent={setHtmlContent} />
       </ContentContainer>
-    </DetailStyle>
+    </StyledComponent>
   );
 };
 

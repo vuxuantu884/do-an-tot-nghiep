@@ -27,16 +27,10 @@ const ScreenReturnDetail = React.lazy(() => import("screens/order-online/order-r
 
 const YDPageAdmin = React.lazy(() => import("screens/yd-page"));
 //Handover
-const CreateHandoverScreen = React.lazy(
-  () => import("screens/order-online/handover/create.screen"),
-);
-const HandoverScreen = React.lazy(() => import("screens/order-online/handover/list.screen"));
-const DetailHandoverScreen = React.lazy(
-  () => import("screens/order-online/handover/detail.screen"),
-);
-const UpdateHandoverScreen = React.lazy(
-  () => import("screens/order-online/handover/update.screen"),
-);
+const CreateHandoverScreen = React.lazy(() => import("screens/handover/HandOverCreate"));
+const HandoverScreen = React.lazy(() => import("screens/handover/HandOverList"));
+const DetailHandoverScreen = React.lazy(() => import("screens/handover/HandOverDetail"));
+const UpdateHandoverScreen = React.lazy(() => import("screens/handover/HandOverUpdate"));
 
 const isHiddenMenuEnvPro = AppConfig.ENV === "PROD" ? false : true;
 

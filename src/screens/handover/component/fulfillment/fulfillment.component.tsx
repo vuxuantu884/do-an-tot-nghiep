@@ -1,5 +1,5 @@
 import { DeleteOutlined } from "@ant-design/icons";
-import { Button, Card, Form, Input } from "antd";
+import { Button, Card, Form, Input, Spin } from "antd";
 import search from "assets/img/search.svg";
 import ActionButton from "component/table/ActionButton";
 import { FulfillmentDto } from "model/handover/fulfillment.dto";
@@ -9,23 +9,25 @@ import { useDispatch } from "react-redux";
 import { fulfillmentSearchService } from "service/handover/ffm.service";
 import { validateHandoverService } from "service/handover/handover.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
-import { PUSHING_STATUS, ShipmentMethod } from "utils/Constants";
+import { PUSHING_STATUS } from "utils/Constants";
 import { FulfillmentStatus } from "utils/FulfillmentStatus.constant";
 import { isFulfillmentReturned, isFulfillmentReturning } from "utils/OrderUtils";
-import { showError, showModalError, showSuccess } from "utils/ToastUtils";
+import { showModalError, showSuccess } from "utils/ToastUtils";
 import { HandoverReturn, HandoverTransfer } from "../../handover.config";
 import HandoverTable from "../table/handover-table.component";
 import { StyledComponent } from "./styles";
 import audio from "assets/audio/am-bao-tra-loi-sai.wav";
+import { showModalErrorAudio } from "screens/handover/helper";
 
 const { Item } = Form;
 
 export interface FulfillmentComponentType {
   isLoading: boolean;
+  isFulfillmentLoading?: boolean;
   onDelete?: (codes: Array<string>, onSuccess: () => void) => void;
   onUpdate?: (
     request: Array<HandoverOrderRequest>,
-    ordedDisplay: Array<FulfillmentDto>,
+    orderDisplay: Array<FulfillmentDto>,
     handleToggleInput?: () => void,
   ) => void;
 }
@@ -72,7 +74,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
       const response = await validateHandoverService(keySearch, type, id);
       if (isFetchApiSuccessful(response)) {
         if (!response?.data?.success) {
-          showNotification(
+          showModalErrorAudio(
             `Đơn giao ${keySearch} đã nằm trong biên bản ${response?.data?.code_handover}`,
           );
           return false;
@@ -101,12 +103,6 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
       return true;
     }
     return false;
-  };
-
-  const showNotification = (msg: React.ReactNode, title?: string | undefined) => {
-    showModalError(msg, title);
-    AudioPlay.play();
-    AudioPlay.currentTime = 1;
   };
 
   const onSearch = useCallback(
@@ -142,7 +138,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
                   (p: FulfillmentDto) => p.status !== FulfillmentStatus.PACKED,
                 );
                 if (fulfillmentStatusNotPacked && fulfillmentStatusNotPacked.length !== 0) {
-                  showNotification(
+                  showModalErrorAudio(
                     `Đơn hàng ${fulfillmentStatusNotPacked[0].order_code} không ở trạng thái đóng gói`,
                   );
                   return;
@@ -154,7 +150,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
                   (p: FulfillmentDto) => !isFulfillmentReturningOrReturned(p),
                 );
                 if (fulfillmentStatusNotReturn && fulfillmentStatusNotReturn.length !== 0) {
-                  showNotification(
+                  showModalErrorAudio(
                     `Đơn hàng ${fulfillmentStatusNotReturn[0].order_code} không ở trạng thái đang hoàn hoặc đã hoàn`,
                   );
                   return;
@@ -164,17 +160,17 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
             ////////////////////////////////////////////////////////////////////////////////////////////////
 
             if (type === HandoverTransfer && data.status !== FulfillmentStatus.PACKED) {
-              showNotification(`Đơn hàng ${data.order.code} không ở trạng thái đóng gói`);
+              showModalErrorAudio(`Đơn hàng ${data.order.code} không ở trạng thái đóng gói`);
               return;
             }
             if (type === HandoverReturn && !isFulfillmentReturning(data)) {
-              showNotification(`Đơn hàng ${data.order.code} không ở trạng thái đang hoàn`);
+              showModalErrorAudio(`Đơn hàng ${data.order.code} không ở trạng thái đang hoàn`);
               return;
             }
 
             //kiểm tra kho
             if (type === HandoverTransfer && data.stock_location_id !== store_id) {
-              showNotification(`Đơn hàng ${data.order.code} không thuộc kho đóng gói`);
+              showModalErrorAudio(`Đơn hàng ${data.order.code} không thuộc kho đóng gói`);
               return;
             }
             if (
@@ -182,7 +178,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
               data.returned_store_id !== store_id
               //&& data.shipment.delivery_service_provider_type !== ShipmentMethod.EMPLOYEE
             ) {
-              showNotification(`Đơn hàng ${data.order.code} không thuộc kho hoàn về`);
+              showModalErrorAudio(`Đơn hàng ${data.order.code} không thuộc kho hoàn về`);
               return;
             }
             /////////
@@ -192,7 +188,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
             }
 
             if (delivery !== delivery_service_provider_id) {
-              showNotification(`Đơn hàng ${data.order.code} không cùng hãng vận chuyển`);
+              showModalErrorAudio(`Đơn hàng ${data.order.code} không cùng hãng vận chuyển`);
               return;
             }
             if (
@@ -200,18 +196,18 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
               type === HandoverTransfer &&
               data.shipment.pushing_status !== PUSHING_STATUS.COMPLETED
             ) {
-              showNotification(`Đơn hàng ${data.order.code} đẩy sang hãng vận chuyển thất bại`);
+              showModalErrorAudio(`Đơn hàng ${data.order.code} đẩy sang hãng vận chuyển thất bại`);
               return;
             }
 
             if (channel_id !== -1 && channel_id !== data.order.channel_id) {
-              showNotification(`Đơn hàng ${data.order.code} không cùng biên bản sàn`);
+              showModalErrorAudio(`Đơn hàng ${data.order.code} không cùng biên bản sàn`);
               return;
             }
             let orders: Array<HandoverOrderRequest> = getFieldValue("orders");
             let index = orders.findIndex((value) => value.fulfillment_code === data.code);
             if (index !== -1) {
-              showNotification(`Đơn hàng ${data.order.code} đã nằm trong biên bản`);
+              showModalErrorAudio(`Đơn hàng ${data.order.code} đã nằm trong biên bản`);
               return;
             }
 
@@ -236,7 +232,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
           }
         })
         .catch((e) => {
-          showNotification("Có lỗi api tìm kiếm đơn hàng");
+          showModalErrorAudio("Có lỗi api tìm kiếm đơn hàng");
         })
         .finally(() => {
           toggleInput();
@@ -279,137 +275,144 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
       }
     >
       <StyledComponent>
-        <div className="page-filter">
-          <div className="page-filter-heading">
-            <div className="page-filter-left">
-              <Item
-                noStyle
-                shouldUpdate={(prev, current) => prev["order_display"] !== current["order_display"]}
-              >
-                {({ getFieldValue, setFieldsValue }) => {
-                  return (
-                    <ActionButton
-                      disabled={props.isLoading}
-                      menu={[
-                        {
-                          id: 1,
-                          name: "Xóa",
-                          icon: <DeleteOutlined />,
-                          color: "#E24343",
-                          disabled: selected.length === 0,
-                        },
-                      ]}
-                      onMenuClick={(index) => {
-                        if (index === 1) {
-                          onDeleted(setFieldsValue, getFieldValue);
-                        }
-                      }}
-                    />
-                  );
-                }}
-              </Item>
-            </div>
-            <div className="page-filter-right">
-              <Item
-                noStyle
-                shouldUpdate={(prev, current) =>
-                  prev["store_id"] !== current["store_id"] ||
-                  prev["delivery_service_provider_id"] !==
-                    current["delivery_service_provider_id"] ||
-                  prev["type"] !== current["type"] ||
-                  prev["channel_id"] !== current["channel_id"]
-                }
-              >
-                {({ getFieldValue, setFieldsValue }) => {
-                  const id = getFieldValue("id");
-                  const store_id = getFieldValue("store_id");
-                  const type = getFieldValue("type");
-                  const delivery_service_provider_id = getFieldValue(
-                    "delivery_service_provider_id",
-                  );
-                  const channel_id = getFieldValue("channel_id");
-                  const disabled =
-                    store_id === null ||
-                    type === null ||
-                    delivery_service_provider_id === null ||
-                    searching ||
-                    props.isLoading;
-                  return (
-                    <Fragment>
-                      <Input
-                        id="input-search"
-                        value={keySearch}
-                        onChange={(a) => setKeySearch(a.target.value.toUpperCase())}
-                        className="input-search"
-                        style={{ width: "100%" }}
-                        prefix={<img src={search} alt="" />}
-                        placeholder="ID đơn giao/Mã vận đơn"
-                        disabled={disabled}
-                        onPressEnter={(e) => {
-                          e.preventDefault();
-                          onSearch(
-                            id,
-                            store_id,
-                            type,
-                            delivery_service_provider_id,
-                            channel_id,
-                            setFieldsValue,
-                            getFieldValue,
-                          );
+        <Spin
+          tip="Đang tải dữ liệu đơn hàng"
+          spinning={props?.isFulfillmentLoading !== undefined && !props?.isFulfillmentLoading}
+        >
+          <div className="page-filter">
+            <div className="page-filter-heading">
+              <div className="page-filter-left">
+                <Item
+                  noStyle
+                  shouldUpdate={(prev, current) =>
+                    prev["order_display"] !== current["order_display"]
+                  }
+                >
+                  {({ getFieldValue, setFieldsValue }) => {
+                    return (
+                      <ActionButton
+                        disabled={props.isLoading}
+                        menu={[
+                          {
+                            id: 1,
+                            name: "Xóa",
+                            icon: <DeleteOutlined />,
+                            color: "#E24343",
+                            disabled: selected.length === 0,
+                          },
+                        ]}
+                        onMenuClick={(index) => {
+                          if (index === 1) {
+                            onDeleted(setFieldsValue, getFieldValue);
+                          }
                         }}
                       />
+                    );
+                  }}
+                </Item>
+              </div>
+              <div className="page-filter-right">
+                <Item
+                  noStyle
+                  shouldUpdate={(prev, current) =>
+                    prev["store_id"] !== current["store_id"] ||
+                    prev["delivery_service_provider_id"] !==
+                      current["delivery_service_provider_id"] ||
+                    prev["type"] !== current["type"] ||
+                    prev["channel_id"] !== current["channel_id"]
+                  }
+                >
+                  {({ getFieldValue, setFieldsValue }) => {
+                    const id = getFieldValue("id");
+                    const store_id = getFieldValue("store_id");
+                    const type = getFieldValue("type");
+                    const delivery_service_provider_id = getFieldValue(
+                      "delivery_service_provider_id",
+                    );
+                    const channel_id = getFieldValue("channel_id");
+                    const disabled =
+                      store_id === null ||
+                      type === null ||
+                      delivery_service_provider_id === null ||
+                      searching ||
+                      props.isLoading;
+                    return (
+                      <Fragment>
+                        <Input
+                          id="input-search"
+                          value={keySearch}
+                          onChange={(a) => setKeySearch(a.target.value.toUpperCase())}
+                          className="input-search"
+                          style={{ width: "100%" }}
+                          prefix={<img src={search} alt="" />}
+                          placeholder="ID đơn giao/Mã vận đơn"
+                          disabled={disabled}
+                          onPressEnter={(e) => {
+                            e.preventDefault();
+                            onSearch(
+                              id,
+                              store_id,
+                              type,
+                              delivery_service_provider_id,
+                              channel_id,
+                              setFieldsValue,
+                              getFieldValue,
+                            );
+                          }}
+                        />
 
-                      <Button
-                        loading={searching}
-                        disabled={props.isLoading}
-                        type="primary"
-                        onClick={() => {
-                          onSearch(
-                            id,
-                            store_id,
-                            type,
-                            delivery_service_provider_id,
-                            channel_id,
-                            setFieldsValue,
-                            getFieldValue,
-                          );
-                        }}
-                      >
-                        Thêm đơn hàng
-                      </Button>
-                    </Fragment>
-                  );
-                }}
-              </Item>
+                        <Button
+                          loading={searching || props.isLoading}
+                          // disabled={props.isLoading}
+                          type="primary"
+                          onClick={() => {
+                            onSearch(
+                              id,
+                              store_id,
+                              type,
+                              delivery_service_provider_id,
+                              channel_id,
+                              setFieldsValue,
+                              getFieldValue,
+                            );
+                          }}
+                        >
+                          Thêm đơn hàng
+                        </Button>
+                      </Fragment>
+                    );
+                  }}
+                </Item>
+              </div>
             </div>
           </div>
-        </div>
 
-        <Item
-          noStyle
-          shouldUpdate={(prev, current) => prev["order_display"] !== current["order_display"]}
-        >
-          {({ getFieldValue }) => {
-            const order_display: Array<FulfillmentDto> = getFieldValue("order_display");
-            return (
-              order_display &&
-              order_display.length !== 0 && (
-                <div className="view-table">
-                  <HandoverTable
-                    isLoading={props.isLoading}
-                    pagination={false}
-                    selected={selected}
-                    setSelected={(selectedCallback: Array<FulfillmentDto>) => {
-                      let codes = selectedCallback.map((item) => item.code);
-                      setSelected(codes);
-                    }}
-                    data={order_display}
-                  />
-                </div>
-              )
-            );
-          }}
-        </Item>
+          <Item
+            noStyle
+            shouldUpdate={(prev, current) => prev["order_display"] !== current["order_display"]}
+          >
+            {({ getFieldValue }) => {
+              const order_display: Array<FulfillmentDto> = getFieldValue("order_display");
+              return (
+                order_display &&
+                order_display.length !== 0 && (
+                  <div className="view-table">
+                    <HandoverTable
+                      isLoading={props.isLoading}
+                      pagination={false}
+                      selected={selected}
+                      setSelected={(selectedCallback: Array<FulfillmentDto>) => {
+                        let codes = selectedCallback.map((item) => item.code);
+                        setSelected(codes);
+                      }}
+                      data={order_display}
+                    />
+                  </div>
+                )
+              );
+            }}
+          </Item>
+        </Spin>
       </StyledComponent>
     </Card>
   );

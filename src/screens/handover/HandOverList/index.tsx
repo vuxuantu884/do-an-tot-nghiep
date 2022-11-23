@@ -23,6 +23,7 @@ import queryString from "query-string";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
+import EditNote from "screens/order-online/component/edit-note";
 import {
   deleteHandoverService,
   printHandOverService,
@@ -37,11 +38,9 @@ import {
 } from "utils/AppUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import EditNote from "../component/edit-note";
-import "../pack/styles.scss";
-import HandoverFilter from "./component/filter/filter.component";
-import { HandoverTransfer, HandoverType } from "./handover.config";
-import { StyledComponent } from "./list.styles";
+import HandoverFilter from "../component/filter/filter.component";
+import { HandoverTransfer, HandoverType } from "../handover.config";
+import { StyledComponent } from "./styled";
 
 interface MasterDataLoad<T> {
   isLoad: boolean;
