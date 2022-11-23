@@ -14,6 +14,7 @@ import { isOrderFromPOS, sortFulfillments } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import {
+  checkActiveCancelConfirmOrder, checkActiveCancelPackOrder,
   checkIfFulfillmentCancelled,
   checkIfOrderHasNotFinishPaymentMomo,
   isDeliveryOrderReturned,
@@ -67,6 +68,9 @@ function OrderDetailBottomBar(props: PropTypes) {
 
   const isLoadingDiscount = useSelector(
     (state: RootReducerType) => state.orderReducer.isLoadingDiscount,
+  );
+  let permissionsAccount = useSelector(
+    (state: RootReducerType) => state.permissionReducer.permissions,
   );
 
   const acceptPermissionsUpdate = useCallback(() => {
@@ -263,7 +267,9 @@ function OrderDetailBottomBar(props: PropTypes) {
                           stepsStatusValue === FulFillmentStatus.SHIPPING ||
                           !isPassed ||
                           isDeliveryOrderReturned(orderDetail?.fulfillments) ||
-                          isOrderHasNotFinishedAndNotExpiredPaymentMomo
+                          isOrderHasNotFinishedAndNotExpiredPaymentMomo ||
+                          checkActiveCancelConfirmOrder(orderDetail, permissionsAccount) ||
+                          checkActiveCancelPackOrder(orderDetail, permissionsAccount)
                         }
                       >
                         Huỷ đơn hàng
@@ -369,7 +375,13 @@ function OrderDetailBottomBar(props: PropTypes) {
                       orderActionsClick && orderActionsClick("cancelFulfillmentAndUpdate")
                     }
                     className="bottomBarRight__button"
-                    disabled={disabledBottomActions || !isPassed || isLoadingDiscount}
+                    disabled={
+                      disabledBottomActions ||
+                      !isPassed ||
+                      isLoadingDiscount ||
+                      checkActiveCancelConfirmOrder(orderDetail, permissionsAccount) ||
+                      checkActiveCancelPackOrder(orderDetail, permissionsAccount)
+                    }
                   >
                     Hủy đơn giao & sửa đơn hàng
                   </Button>

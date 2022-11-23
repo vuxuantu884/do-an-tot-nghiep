@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { checkIfOrderHasReturnedAll, isOrderFromPOS, sortFulfillments } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus, ShipmentMethod } from "utils/Constants";
 import {
-  canCreateShipment,
+  canCreateShipment, checkActiveCancelConfirmOrder, checkActiveCancelPackOrder,
   checkIfFulfillmentCancelled,
   checkIfFulfillmentReturning,
   checkIfOrderCancelled,
@@ -18,6 +18,8 @@ import {
   checkIfOrderReturned,
 } from "utils/OrderUtils";
 import { StyledComponent } from "./styles";
+import { useSelector } from "react-redux";
+import { RootReducerType } from "../../../../../model/reducers/RootReducerType";
 
 type PropTypes = {
   stepsStatusValue: string | undefined;
@@ -55,32 +57,9 @@ function OrderFulfillmentActionButton(props: PropTypes) {
   } = props;
 
   const sortedFulfillments = sortFulfillments(OrderDetailAllFulfillment?.fulfillments);
-
-  // const checkIfFulfillmentStatusIsCancel = () => {
-  //   return OrderDetailAllFulfillment?.fulfillments?.some(
-  //     (single) => single.status !== FulFillmentStatus.CANCELLED,
-  //   );
-  // };
-
-  // const isShowButtonCancelFulfillment = () => {
-  //   if (checkIfFulfillmentStatusIsCancel()) {
-  //     return true;
-  //   }
-  //   // kiểm tra có phải là đơn đang hoàn
-  //   if (
-  //     sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPING &&
-  //     sortedFulfillments[0]?.return_status !== FulFillmentStatus.RETURNING
-  //   ) {
-  //     return true;
-  //   }
-  //   return false;
-  // };
-
-  // console.log("isShowButtonCancelFulfillment", isShowButtonCancelFulfillment());
-  // console.log(
-  //   "checkIfOrderFinished(OrderDetailAllFulfillment)",
-  //   checkIfOrderFinished(OrderDetailAllFulfillment),
-  // );
+  let permissionsAccount = useSelector(
+    (state: RootReducerType) => state.permissionReducer.permissions,
+  );
 
   const renderOrderReturnButtons = () => {
     return (
@@ -173,7 +152,7 @@ function OrderFulfillmentActionButton(props: PropTypes) {
     }
     if (
       sortedFulfillments[0]?.shipment?.delivery_service_provider_type ===
-        ShipmentMethod.EXTERNAL_SERVICE &&
+      ShipmentMethod.EXTERNAL_SERVICE &&
       OrderDetailAllFulfillment?.fulfillment_status === FulFillmentStatus.SHIPPING
     ) {
       return null;
@@ -182,6 +161,7 @@ function OrderFulfillmentActionButton(props: PropTypes) {
       <Button
         onClick={cancelFulfillment}
         loading={cancelShipment}
+        disabled={checkActiveCancelConfirmOrder(OrderDetailAllFulfillment, permissionsAccount) || checkActiveCancelPackOrder(OrderDetailAllFulfillment, permissionsAccount)}
         type="default"
         className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
         style={{
