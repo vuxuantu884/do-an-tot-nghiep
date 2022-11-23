@@ -104,7 +104,6 @@ import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
 import OrderMapHandOver from "./order-map-hand-over";
 import { nameQuantityWidth, StyledComponent } from "./styles";
-import EditOrderEspecially from "../../../EditEspeciallyOrder";
 
 type PropTypes = {
   tableLoading: boolean;
@@ -941,37 +940,6 @@ function OrdersTable(props: PropTypes) {
         visible: true,
         align: "right",
         width: 70,
-      },
-      {
-        title: "Đơn đặc biệt",
-        className: "notes",
-        render: (value: string, record: OrderModel) => {
-          return (
-            <div className="orderNotes">
-              <div className="inner">
-                <div className="single">
-                  aaaaaa
-                  <EditOrderEspecially
-                    note={record.customer_note}
-                    title="Thông tin: "
-                    color={primaryColor}
-                    onOk={(values) => {
-                      editNote(values.note, values.customer_note, record.id, record);
-                    }}
-                    noteFormValue={{
-                      note: record.note,
-                      customer_note: record.customer_note,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          );
-        },
-        key: "especially",
-        visible: true,
-        align: "left",
-        width: 120,
       },
       {
         title: "Thanh toán",
