@@ -28,6 +28,7 @@ import {
   ORDER_PAYMENT_STATUS,
   ORDER_SUB_STATUS,
 } from "./Order.constants";
+import { ORDER_PERMISSIONS } from "../config/permissions/order.permission";
 
 export const isOrderDetailHasPointPayment = (
   OrderDetail: OrderResponse | null | undefined,
@@ -377,56 +378,21 @@ export const checkIfOrderHasNotFinishPaymentMomo = (
 
 export const checkActiveCancelPackOrder = (
   orderDetail: OrderResponse | null | undefined,
-  permissions: Array<any>
+  permissions: Array<string>
 ) => {
-  // console.log('pack_11111', permissions.includes('orders_packed_cancel'))
-  // console.log('pack_22222', orderDetail?.fulfillment_status === 'packed')
-  // console.log('pack_33333', orderDetail?.sub_status_code === 'merchandise_packed')
-  // console.log('pack_44444', orderDetail?.sub_status_code === 'awaiting_shipper')
-  // console.log('pack_permission', permissions)
-  // console.log('pack_total', !(
-  //   permissions.includes('orders_packed_cancel') &&
-  //   orderDetail?.fulfillment_status === 'packed' &&
-  //   (orderDetail?.sub_status_code === 'merchandise_packed' || orderDetail?.sub_status_code === 'awaiting_shipper')
-  // ))
-
-  if (!permissions.includes('orders_packed_cancel')) {
-    return orderDetail?.sub_status_code === 'merchandise_packed' || orderDetail?.sub_status_code === 'awaiting_shipper';
+  if (!permissions.includes(ORDER_PERMISSIONS.CANCEL_PACKED)) {
+    return orderDetail?.sub_status_code === ORDER_SUB_STATUS.merchandise_packed || orderDetail?.sub_status_code === ORDER_SUB_STATUS.awaiting_shipper;
   }
   return false
-
-
-  // return !(
-  //   permissions.includes('orders_packed_cancel') &&
-  //   orderDetail?.fulfillment_status === 'packed' &&
-  //   (orderDetail?.sub_status_code === 'merchandise_packed' || orderDetail?.sub_status_code === 'awaiting_shipper')
-  // );
-
 };
 export const checkActiveCancelConfirmOrder = (
   orderDetail: OrderResponse | null | undefined,
-  permissions: Array<any>
+  permissions: Array<string>
 ) => {
-  // console.log('confirm_11111', permissions.includes('orders_confirmed_cancel'))
-  // console.log('confirm_22222', orderDetail?.fulfillment_status === 'picked')
-  // console.log('confirm_33333', orderDetail?.fulfillment_status === 'unshipped')
-  // console.log('confirm_permission', permissions)
-  // console.log('confirm_total', !(
-  //   permissions.includes('orders_confirmed_cancel') &&
-  //   (orderDetail?.fulfillment_status === 'picked' || orderDetail?.fulfillment_status === 'unshipped')))
-
-
-  if (!permissions.includes('orders_confirmed_cancel')) {
-    return orderDetail?.fulfillment_status === 'picked' || orderDetail?.fulfillment_status === 'unshipped';
+  if (!permissions.includes(ORDER_PERMISSIONS.CANCEL_CONFIRMED)) {
+    return orderDetail?.fulfillment_status === FulFillmentStatus.PICKED || orderDetail?.fulfillment_status === FulFillmentStatus.UNSHIPPED;
   }
   return false
-
-
-
-  // return !(
-  //   permissions.includes('orders_confirmed_cancel') &&
-  //   (orderDetail?.fulfillment_status === 'picked' || orderDetail?.fulfillment_status === 'unshipped'))
-  //   ;
 };
 
 export const checkIfExpiredPayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
