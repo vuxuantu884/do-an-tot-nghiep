@@ -35,6 +35,7 @@ import {
   COLUMN_ORDER_LIST,
   DEFAULT_ON_KD_GROUP_LV1,
 } from "../common/constant/kd-report-response-key";
+import { showDashOnDailyTargetKD } from "../common/constant/online-report-kd";
 import { KDReportDirection } from "../common/enums/kd-report-direction";
 import { KDReportName } from "../common/enums/kd-report-name";
 import { convertDataToFlatTableRotation } from "../common/helpers/convert-data-to-flat-table-rotation";
@@ -556,7 +557,11 @@ function KeyDriverOnline() {
               }-${index}-${columnIndex * 2 + 1}-day-target`;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
-              return (
+              return showDashOnDailyTargetKD.includes(
+                record[`${departmentKey}_key`] || record.key,
+              ) ? (
+                <span>- </span>
+              ) : (
                 <VerifyCell row={record} value={text} type="edit">
                   <div style={{ position: "relative" }}>
                     <NumberInput
@@ -723,7 +728,11 @@ function KeyDriverOnline() {
             dataIndex: `${departmentKey}_daily_progress`,
             className: "non-input-cell",
             render: (text: any, record: KeyDriverDataSourceType) => {
-              return (
+              return showDashOnDailyTargetKD.includes(
+                record[`${departmentKey}_key`] || record.key,
+              ) ? (
+                <span>- </span>
+              ) : (
                 <VerifyCell row={record} value={text}>
                   {`${text}%`}
                 </VerifyCell>

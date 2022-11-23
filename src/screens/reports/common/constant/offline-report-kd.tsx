@@ -28,3 +28,20 @@ export const numberOfStoreStaffKD = [
 ];
 
 export const npsKD = ["OF.NS.01.01", "OF.NS.01.02", "OF.NS.01.03", "OF.NS.01.04"];
+
+const followFanpageKD = "OF.DT.FB.02";
+
+export const showDashOnMonthlyTargetKD = [...numberOfStoreStaffKD];
+export const showDashOnDailyTargetKD = [
+  followFanpageKD,
+  ...numberOfStoreStaffKD,
+  ...npsKD,
+  "OF.DT.S1.04",
+  "OF.DT.S1.05",
+  "OF.DT.BL.04",
+  "OF.DT.BL.05",
+  "OF.DT.BL.07",
+];
+export const showDashOnMonthlyForecastedKD = [followFanpageKD, ...npsKD];
+export const showDashOnMonthlyForecastedProgressKD = [followFanpageKD, ...npsKD];
+export const showDashOnDailyActualKD = [followFanpageKD, ...npsKD];
