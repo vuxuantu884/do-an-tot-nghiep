@@ -285,6 +285,10 @@ export const KeyDriverStyle = styled.div`
     align-items: center;
   }
 
+  .ant-card-head {
+    padding: 12px 4px;
+  }
+
   .ant-card-body {
     padding: 4px 4px;
   }

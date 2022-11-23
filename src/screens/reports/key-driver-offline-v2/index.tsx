@@ -44,22 +44,20 @@ import {
 } from "../common/constant/offline-report-kd";
 import { KDReportDirection } from "../common/enums/kd-report-direction";
 import { KDReportName } from "../common/enums/kd-report-name";
+import {
+  convertDataToFlatTableKeyDriver,
+  getAllDepartmentByAnalyticResult,
+} from "../common/helpers/convert-data-to-flat-table";
 import { convertDataToFlatTableRotation } from "../common/helpers/convert-data-to-flat-table-rotation";
 import { filterValueColumns } from "../common/helpers/filter-value-columns";
 import { getBreadcrumbByLevel } from "../common/helpers/get-breadcrumb-by-level";
 import { saveTargetHorizontalReport } from "../common/helpers/save-target-horizontal-report";
+import { saveMonthTargetKeyDriver } from "../common/helpers/save-target-kd";
 import {
   getAllKeyDriverByGroupLevel,
   setTableHorizontalColumns,
 } from "../common/helpers/set-table-horizontal-columns";
 import { KeyDriverStyle } from "../common/kd-report/index.style";
-import {
-  convertDataToFlatTableKeyDriver,
-  getAllDepartmentByAnalyticResult,
-  // getInputTargetId,
-  // handleMoveFocusInput,
-  saveMonthTargetKeyDriver,
-} from "./helper";
 import KeyDriverOfflineProvider, {
   KeyDriverOfflineContext,
 } from "./provider/key-driver-offline-provider";
@@ -351,7 +349,9 @@ function KeyDriverOffline() {
                           input.blur();
                         }
                       }}
-                      suffix={record.unit === "percent" ? "%" : null}
+                      suffix={
+                        (record[`${departmentKey}_unit`] || record.unit) === "percent" ? "%" : null
+                      }
                       {...inputTargetDefaultProps}
                     />
                     <div
@@ -420,7 +420,8 @@ function KeyDriverOffline() {
               return (
                 <div className={record[`${departmentKey}_monthly_actual_color`]}>
                   <VerifyCell row={record} value={text}>
-                    {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
+                    {formatCurrency(text)}{" "}
+                    {(record[`${departmentKey}_unit`] || record.unit) === "percent" ? "%" : ""}
                   </VerifyCell>
                 </div>
               );
@@ -493,7 +494,8 @@ function KeyDriverOffline() {
                   }
                 >
                   <VerifyCell row={record} value={text}>
-                    {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
+                    {formatCurrency(text)}{" "}
+                    {(record[`${departmentKey}_unit`] || record.unit) === "percent" ? "%" : ""}
                   </VerifyCell>
                 </div>
               );
@@ -650,7 +652,9 @@ function KeyDriverOffline() {
                           input.blur();
                         }
                       }}
-                      suffix={record.unit === "percent" ? "%" : null}
+                      suffix={
+                        (record[`${departmentKey}_unit`] || record.unit) === "percent" ? "%" : null
+                      }
                       {...inputTargetDefaultProps}
                     />
                     <div
@@ -718,7 +722,8 @@ function KeyDriverOffline() {
               ) : (
                 <div className={record[`${departmentKey}_daily_actual_color`]}>
                   <VerifyCell row={record} value={text}>
-                    {formatCurrency(text)} {record.unit === "percent" ? "%" : ""}
+                    {formatCurrency(text)}{" "}
+                    {(record[`${departmentKey}_unit`] || record.unit) === "percent" ? "%" : ""}
                   </VerifyCell>
                 </div>
               );
@@ -909,11 +914,10 @@ function KeyDriverOffline() {
           allDepartment = getAllDepartmentByAnalyticResult(response.result.data, COLUMN_ORDER_LIST);
         } else {
           setData(() => {
-            return convertDataToFlatTableKeyDriver(
-              response,
-              COLUMN_ORDER_LIST,
+            return convertDataToFlatTableKeyDriver(response, COLUMN_ORDER_LIST, {
               currentDrillingLevel,
-            );
+              name: KDReportName.Offline,
+            });
           });
           allDepartment = getAllDepartmentByAnalyticResult(response.result.data, COLUMN_ORDER_LIST);
           allDepartment
