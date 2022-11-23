@@ -263,7 +263,67 @@ export const KeyDriverStyle = styled.div`
     margin-right: 0 !important;
   }
 
-  // .font-size-12px {
-  //   font-size: 12px;
-  // }
+  .d-flex {
+    display: flex;
+  }
+
+  .justify-content {
+    &-between {
+      justify-content: space-between;
+    }
+  }
+
+  .align-items {
+    &-center {
+      align-items: center;
+    }
+  }
+
+  .btn-setting {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .ant-card-body {
+    padding: 4px 4px;
+  }
+
+  .ant-form-item {
+    margin: 0;
+  }
+
+  .ant-card {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .filter-block-rotation-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .anticon {
+      font-size: 18px;
+    }
+  }
+
+  .ml-1 {
+    margin-left: 0.25rem;
+  }
+
+  .mr-1 {
+    margin-right: 0.25rem;
+  }
+
+  .filter-block__direction {
+    .ant-card-body {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+
+  .ant-select-item-option-content {
+    white-space: nowrap !important;
+  }
 `;

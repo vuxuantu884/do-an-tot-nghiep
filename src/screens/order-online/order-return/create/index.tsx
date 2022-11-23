@@ -135,6 +135,8 @@ import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 import CardReturnProductContainer from "../components/containers/CardReturnProductContainer";
 import ReturnBottomBar from "../components/ReturnBottomBar";
 import OrderReturnReason from "../components/Sidebar/OrderReturnReason";
+import { StyledComponent } from "./styles";
+
 type PropTypes = {
   id?: string;
 };
@@ -231,9 +233,11 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.PRE_PAYMENT);
   const [orderReturnReasonResponse, setOrderReturnReasonResponse] =
     useState<OrderReasonModel | null>(null);
-  const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
-  const [isVisibleModalWarningPointRefund, setIsVisibleModalWarningPointRefund] =
-    useState<boolean>(false);
+  const [isVisibleModalWarning, setIsVisibleModalWarning] = useState(false);
+  const [isVisibleModalWarningPointRefund, setIsVisibleModalWarningPointRefund] = useState(false);
+  const [isVisibleErrorConnectApiRefundModal, setIsVisibleErrorConnectApiRefundModal] =
+    useState(false);
+  console.log("isVisibleErrorConnectApiRefundModal", isVisibleErrorConnectApiRefundModal);
   const [returnMoneyType, setReturnMoneyType] = useState(RETURN_MONEY_TYPE.return_now);
 
   const [refund, setRefund] = useState<RefundModel>({
@@ -1436,6 +1440,10 @@ const ScreenReturnCreate = (props: PropTypes) => {
     );
   };
 
+  const handleIfCalculateMoneyRefundFailed = useCallback(() => {
+    setIsVisibleErrorConnectApiRefundModal(true);
+  }, []);
+
   const handleSubmitFormReturnAndExchange = useCallback(() => {
     let checkIfHasExchangeProduct = listExchangeProducts.some((single) => {
       return single.quantity > 0;
@@ -1784,6 +1792,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   setListOrderProductsResult={setListOrderProductsResult}
                   isAlreadyShowWarningPoint={isAlreadyShowWarningPoint}
                   paymentMethods={paymentMethods}
+                  handleIfCalculateMoneyRefundFailed={handleIfCalculateMoneyRefundFailed}
                 />
 
                 <OrderCreateProduct
@@ -1990,6 +1999,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
           }}
           onCancel={() => handleCancel()}
           isExchange={isExchange}
+          isDisableReturnButton={isVisibleErrorConnectApiRefundModal}
         />
         <ModalConfirm
           onCancel={() => {
@@ -2032,27 +2042,58 @@ const ScreenReturnCreate = (props: PropTypes) => {
             </Button>
           }
         >
-          <div className="modal-confirm-container">
-            <div>
-              <div
-                style={{
-                  color: "#FFFFFF",
-                  backgroundColor: "#FCAF17",
-                  fontSize: "45px",
-                }}
-                className="modal-confirm-icon"
-              >
-                <TiWarningOutline />
+          <StyledComponent>
+            <div className="modal-confirm-container">
+              <div>
+                <div className="modal-confirm-icon">
+                  <TiWarningOutline />
+                </div>
+              </div>
+              <div className="modal-confirm-right margin-left-20">
+                <div className="modal-confirm-title">Chú ý</div>
+                <div className="modal-confirm-sub-title">
+                  Đơn gốc có thể đồng bộ từ nhanh về, có tiêu điểm, nên có thể bị lỗi điểm hoàn và
+                  tiền hoàn lại cho khách!
+                </div>
               </div>
             </div>
-            <div className="modal-confirm-right margin-left-20">
-              <div className="modal-confirm-title">{"Chú ý"}</div>
-              <div className="modal-confirm-sub-title">
-                Đơn gốc có thể đồng bộ từ nhanh về, có tiêu điểm, nên có thể bị lỗi điểm hoàn và
-                tiền hoàn lại cho khách!
+          </StyledComponent>
+        </Modal>
+        <Modal
+          width="35%"
+          className="modal-confirm"
+          okText={"Đồng ý"}
+          visible={isVisibleErrorConnectApiRefundModal}
+          onOk={() => {
+            setIsVisibleErrorConnectApiRefundModal(false);
+          }}
+          footer={
+            <Button
+              type="primary"
+              onClick={() => {
+                setIsVisibleErrorConnectApiRefundModal(false);
+                window.location.reload();
+              }}
+            >
+              Đồng ý
+            </Button>
+          }
+        >
+          <StyledComponent>
+            <div className="modal-confirm-container">
+              <div>
+                <div className="modal-confirm-icon">
+                  <TiWarningOutline />
+                </div>
+              </div>
+              <div className="modal-confirm-right margin-left-20">
+                <div className="modal-confirm-title">Chú ý</div>
+                <div className="modal-confirm-sub-title">
+                  Có lỗi khi kết nối dữ liệu tính tiền hoàn. Trang web sẽ load lại!
+                </div>
               </div>
             </div>
-          </div>
+          </StyledComponent>
         </Modal>
         <div style={{ display: "none" }}>
           <div className="printContent333" ref={printElementRef}>

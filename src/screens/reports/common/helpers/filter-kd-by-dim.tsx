@@ -1,7 +1,7 @@
 import { COLUMN_ORDER_LIST } from "../constant/kd-report-response-key";
 
 export const filterKDOfflineByDim = (currentDrillingLevel: number, data: any[]) => {
-  let filterData: any[] = [];
+  let filterData: any[] = data;
   switch (currentDrillingLevel) {
     case 3:
       filterData = data.filter((item) => {
@@ -12,7 +12,7 @@ export const filterKDOfflineByDim = (currentDrillingLevel: number, data: any[]) 
           !item.key.includes("OF.HS.")
         );
       });
-      return filterData;
+      break;
     case 2:
       const storePerformanceKeys: string[] = [];
       for (let i = 0; i <= 60; ++i) {
@@ -21,15 +21,14 @@ export const filterKDOfflineByDim = (currentDrillingLevel: number, data: any[]) 
       filterData = data.filter((item) => {
         return !storePerformanceKeys.includes(item.key);
       });
-      return filterData;
-    default:
       break;
   }
+  return filterData;
 };
 
 export const filterKDOfflineHorizontalByDim = (currentDrillingLevel: number, data: any[]) => {
   const keyDriverIndex = COLUMN_ORDER_LIST.indexOf("key_driver");
-  let filterData: any[] = [];
+  let filterData: any[] = data;
   switch (currentDrillingLevel) {
     case 3:
       filterData = data.filter((item) => {
@@ -40,7 +39,7 @@ export const filterKDOfflineHorizontalByDim = (currentDrillingLevel: number, dat
           !item[keyDriverIndex].includes("OF.HS.")
         );
       });
-      return filterData;
+      break;
     case 2:
       const storePerformanceKeys: string[] = [];
       for (let i = 0; i <= 60; ++i) {
@@ -53,4 +52,5 @@ export const filterKDOfflineHorizontalByDim = (currentDrillingLevel: number, dat
     default:
       break;
   }
+  return filterData;
 };

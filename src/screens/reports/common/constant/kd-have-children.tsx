@@ -1,7 +1,7 @@
 export const kdOffHaveChildren = [
   "OF.DT.S1.01",
   "OF.DT.BL.01",
-  "OF.DT.BL.03",
+  // "OF.DT.BL.03", // tạm thời ẩn
   "OF.DT.BL.09",
   "OF.DT.BL.12",
   "OF.DT.BL.15",
@@ -10,7 +10,7 @@ export const kdOffHaveChildren = [
   "OF.DT.BL.22",
   "OF.DT.BL.25",
   "OF.DT.BL.28",
-  "OF.DT.FB.01",
+  // "OF.DT.FB.01", // tạm thời ẩn
   "OF.KH.S1.01",
   "OF.LN.S1.01",
   "OF.NS.01.01",

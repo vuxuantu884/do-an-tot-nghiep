@@ -11,6 +11,7 @@ type PropTypes = {
   onReturnAndExchangeAndPrint: () => void;
   onCancel: () => void;
   isExchange: boolean;
+  isDisableReturnButton: boolean;
 };
 
 function ReturnBottomBar(props: PropTypes) {
@@ -21,6 +22,7 @@ function ReturnBottomBar(props: PropTypes) {
     onReturnAndExchangeAndPrint,
     onCancel,
     isExchange,
+    isDisableReturnButton,
   } = props;
 
   const isLoadingDiscount = useSelector(
@@ -38,6 +40,7 @@ function ReturnBottomBar(props: PropTypes) {
               onReturn();
             }}
             id="btn-return"
+            disabled={isDisableReturnButton}
           >
             Trả hàng (F9)
           </Button>
@@ -47,6 +50,7 @@ function ReturnBottomBar(props: PropTypes) {
               onReturnAndPrint();
             }}
             id="btn-return-print"
+            disabled={isDisableReturnButton}
           >
             Trả hàng và in hóa đơn (F10)
           </Button>

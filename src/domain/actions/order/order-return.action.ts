@@ -106,15 +106,17 @@ export const actionGetOrderReturnLog = (
   };
 };
 
-export const actionGetOrderReturnCalculateRefund = (
+export const getOrderReturnCalculateRefundAction = (
   params: OrderReturnCalculateRefundRequestModel,
   handleData: (data: LoyalTyCalCulateRefund) => void,
+  handleError: () => void,
 ) => {
   return {
     type: ORDER_RETURN_TYPES.GET_ORDER_RETURN_CALCULATE_REFUND,
     payload: {
       params,
       handleData,
+      handleError,
     },
   };
 };

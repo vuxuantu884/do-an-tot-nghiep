@@ -4,6 +4,7 @@ import { uniqBy } from "lodash";
 import queryString from "query-string";
 import { Link } from "react-router-dom";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
+import { showWarning } from "utils/ToastUtils";
 import { kdOffHaveChildren, kdOnHaveChildren } from "../constant/kd-have-children";
 import { COLUMN_ORDER_LIST } from "../constant/kd-report-response-key";
 import { filterKDOfflineHorizontalByDim } from "./filter-kd-by-dim";
@@ -14,32 +15,29 @@ interface IColumnLink {
   queryParams: any;
 }
 
-export const setTableHorizontalColumns = (
+export const getAllKeyDriverByGroupLevel = (
   data: any,
-  setObjectiveColumns: any,
   currentDrillingLevel: number,
   link: IColumnLink,
-): any[] => {
-  const { groupLv, groupLvName, queryParams } = link;
-  const columns: any[] = [];
+) => {
+  const { groupLv, groupLvName } = link;
   const keyDriverIndex = COLUMN_ORDER_LIST.indexOf("key_driver");
   const keyDriverTitleIndex = COLUMN_ORDER_LIST.indexOf("key_driver_title");
   const departmentLv1Index = COLUMN_ORDER_LIST.indexOf(`department_lv1`);
   let kdParentIndex = COLUMN_ORDER_LIST.indexOf(`key_driver_group_lv2`);
+  let allKeyDriverByGroupLevel = [];
+  const filterData = filterKDOfflineHorizontalByDim(currentDrillingLevel, data);
   let currentGroupLv = 2;
-  let nextGroupLv = 2;
+  let keyDriverUpLevel = "";
   let currentGroupLvName = "";
   if (groupLv) {
     currentGroupLv = +groupLv;
-    nextGroupLv = +groupLv + 1;
     currentGroupLvName = groupLvName;
     kdParentIndex = COLUMN_ORDER_LIST.indexOf(`key_driver_group_lv${currentGroupLv}`);
   }
-  let keyDriverUpLevel = "";
-  let allKeyDriverByGroupLevel = [];
   if (!groupLv) {
     allKeyDriverByGroupLevel = uniqBy(
-      data
+      filterData
         .filter((item: any, index: number) => {
           switch (currentDrillingLevel) {
             case 1:
@@ -54,7 +52,6 @@ export const setTableHorizontalColumns = (
           return (
             (item[kdParentIndex] === item[keyDriverTitleIndex] ||
               item[keyDriverIndex].includes("OF.SP.01.") ||
-              item[keyDriverIndex].includes("ON.SP.01.") ||
               (keyDriverUpLevel && item[keyDriverIndex] === keyDriverUpLevel)) &&
             item[departmentLv1Index] &&
             !item[keyDriverIndex].endsWith(".L")
@@ -87,7 +84,6 @@ export const setTableHorizontalColumns = (
       return res;
     }, []);
   } else {
-    const filterData = filterKDOfflineHorizontalByDim(currentDrillingLevel, data) || data;
     allKeyDriverByGroupLevel = uniqBy(
       filterData
         .filter((item: any, index: number) => {
@@ -110,6 +106,27 @@ export const setTableHorizontalColumns = (
         }),
       "keyDriver",
     );
+  }
+  return allKeyDriverByGroupLevel;
+};
+
+export const setTableHorizontalColumns = (
+  allKeyDriverByGroupLevel: any[],
+  setObjectiveColumns: any,
+  link: IColumnLink,
+): any[] => {
+  const { groupLv, groupLvName, queryParams } = link;
+  const columns: any[] = [];
+  let nextGroupLv = 2;
+  let currentGroupLvName = "";
+  if (groupLv) {
+    nextGroupLv = +groupLv + 1;
+    currentGroupLvName = groupLvName;
+  }
+
+  if (!allKeyDriverByGroupLevel.length && groupLvName !== undefined) {
+    showWarning(`Chỉ số ${groupLvName} không có ở chiều view hiện tại`);
+    return [];
   }
 
   allKeyDriverByGroupLevel.forEach((item: any, index: number) => {

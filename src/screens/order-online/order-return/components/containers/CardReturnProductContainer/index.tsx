@@ -3,7 +3,7 @@ import { RefSelectProps } from "antd/lib/select";
 import imgDefault from "assets/icon/img-default.svg";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { actionGetOrderReturnCalculateRefund } from "domain/actions/order/order-return.action";
+import { getOrderReturnCalculateRefundAction } from "domain/actions/order/order-return.action";
 import { StoreResponse } from "model/core/store.model";
 import { CalculateMoneyRefundRequestModel } from "model/order/return.model";
 import { OrderReturnCalculateRefundRequestModel } from "model/request/order.request";
@@ -44,6 +44,7 @@ type PropTypes = {
   setListOrderProductsResult: (value: OrderLineItemResponse[]) => void;
   isAlreadyShowWarningPoint: boolean;
   paymentMethods: PaymentMethodResponse[];
+  handleIfCalculateMoneyRefundFailed: () => void;
 };
 
 function CardReturnProductContainer(props: PropTypes) {
@@ -58,6 +59,7 @@ function CardReturnProductContainer(props: PropTypes) {
     stores,
     isAlreadyShowWarningPoint,
     paymentMethods,
+    handleIfCalculateMoneyRefundFailed,
   } = props;
 
   const dispatch = useDispatch();
@@ -434,21 +436,28 @@ function CardReturnProductContainer(props: PropTypes) {
         };
         setTimeout(() => {
           dispatch(
-            actionGetOrderReturnCalculateRefund(params, (response) => {
-              if (!response.point_refund) {
-                if (!isAlreadyShowWarningPoint) {
-                  setIsVisibleModalWarningPointRefund && setIsVisibleModalWarningPointRefund(true);
-                  // setIsAlreadyShowWarningPoint(true)
+            getOrderReturnCalculateRefundAction(
+              params,
+              (response) => {
+                if (!response.point_refund) {
+                  if (!isAlreadyShowWarningPoint) {
+                    setIsVisibleModalWarningPointRefund &&
+                      setIsVisibleModalWarningPointRefund(true);
+                    // setIsAlreadyShowWarningPoint(true)
+                  }
                 }
-              }
-              if (setRefund) {
-                setRefund({
-                  ...refund,
-                  pointRefund: response.point_refund,
-                  moneyRefund: response.money_refund,
-                });
-              }
-            }),
+                if (setRefund) {
+                  setRefund({
+                    ...refund,
+                    pointRefund: response.point_refund,
+                    moneyRefund: response.money_refund,
+                  });
+                }
+              },
+              () => {
+                handleIfCalculateMoneyRefundFailed();
+              },
+            ),
           );
         }, 500);
       } else {
@@ -511,8 +520,12 @@ function CardReturnProductContainer(props: PropTypes) {
                 }
               } else {
                 handleFetchApiError(response, "Tính tiền hoàn lại", dispatch);
+                handleIfCalculateMoneyRefundFailed();
               }
               // console.log('response', response)
+            })
+            .catch(() => {
+              handleIfCalculateMoneyRefundFailed();
             })
             .finally(() => {
               dispatch(hideLoading());
@@ -539,6 +552,7 @@ function CardReturnProductContainer(props: PropTypes) {
     orderId,
     refund?.moneyRefund,
     setTotalAmountReturnProducts,
+    handleIfCalculateMoneyRefundFailed,
   ]);
 
   return (
