@@ -38,22 +38,21 @@ import {
 import { showDashOnDailyTargetKD } from "../common/constant/online-report-kd";
 import { KDReportDirection } from "../common/enums/kd-report-direction";
 import { KDReportName } from "../common/enums/kd-report-name";
+import {
+  convertDataToFlatTableKeyDriver,
+  getAllDepartmentByAnalyticResult,
+} from "../common/helpers/convert-data-to-flat-table";
 import { convertDataToFlatTableRotation } from "../common/helpers/convert-data-to-flat-table-rotation";
 import { filterValueColumns } from "../common/helpers/filter-value-columns";
 import { getBreadcrumbByLevel } from "../common/helpers/get-breadcrumb-by-level";
 import { saveTargetHorizontalReport } from "../common/helpers/save-target-horizontal-report";
+import { saveMonthTargetKeyDriver } from "../common/helpers/save-target-kd";
 import {
   getAllKeyDriverByGroupLevel,
   setTableHorizontalColumns,
 } from "../common/helpers/set-table-horizontal-columns";
 import { KeyDriverStyle } from "../common/kd-report/index.style";
-import {
-  convertDataToFlatTableKeyDriver,
-  getAllDepartmentByAnalyticResult,
-  // getInputTargetId,
-  // handleMoveFocusInput,
-  saveMonthTargetKeyDriver,
-} from "./helper";
+import {} from "./helper";
 import KeyDriverOnlineProvider, {
   KeyDriverOfflineContext,
 } from "./provider/key-driver-online-provider";
