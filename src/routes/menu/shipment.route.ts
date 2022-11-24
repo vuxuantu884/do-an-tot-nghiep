@@ -1,4 +1,4 @@
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
@@ -41,7 +41,7 @@ const shipments: Array<RouteMenu> = [
     key: "submenu66",
     isShow: true,
     header: null,
-    permissions: [ODERS_PERMISSIONS.READ_SHIPMENTS],
+    permissions: [ORDER_PERMISSIONS.READ_SHIPMENTS],
     subMenu: [
       {
         path: `${UrlConfig.SHIPMENTS}/:code`,
@@ -52,7 +52,7 @@ const shipments: Array<RouteMenu> = [
         key: "submenu-shipment-1",
         isShow: true,
         header: null,
-        permissions: [ODERS_PERMISSIONS.READ_SHIPMENTS],
+        permissions: [ORDER_PERMISSIONS.READ_SHIPMENTS],
         subMenu: [],
       },
     ],
@@ -66,7 +66,7 @@ const shipments: Array<RouteMenu> = [
     key: "submenu67",
     isShow: true,
     header: null,
-    permissions: [ODERS_PERMISSIONS.READ_SHIPMENTS],
+    permissions: [ORDER_PERMISSIONS.READ_SHIPMENTS],
     subMenu: [
       {
         path: `${UrlConfig.SHIPMENTS}/:code`,
@@ -77,7 +77,7 @@ const shipments: Array<RouteMenu> = [
         key: "submenu-shipment-1",
         isShow: true,
         header: null,
-        permissions: [ODERS_PERMISSIONS.READ_SHIPMENTS],
+        permissions: [ORDER_PERMISSIONS.READ_SHIPMENTS],
         subMenu: [],
       },
     ],
@@ -92,7 +92,7 @@ const shipments: Array<RouteMenu> = [
     key: "subMenu97",
     isShow: true,
     header: null,
-    permissions: [ODERS_PERMISSIONS.CONNECT_DELIVERY_SERVICE],
+    permissions: [ORDER_PERMISSIONS.CONNECT_DELIVERY_SERVICE],
     subMenu: [
       {
         path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/ghn`,

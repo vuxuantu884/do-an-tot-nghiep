@@ -10,7 +10,7 @@ import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
@@ -744,7 +744,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
         extra={
           <Row>
             <Space>
-              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.IMPORT]} passThrough>
+              <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.IMPORT]} passThrough>
                 {(isPassed: boolean) => (
                   <Button
                     type="default"
@@ -758,7 +758,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
                   </Button>
                 )}
               </AuthWrapper>
-              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
+              <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.EXPORT]} passThrough>
                 {(isPassed: boolean) => (
                   <Button
                     type="default"
@@ -775,7 +775,7 @@ const ShipmentsScreen: React.FC = (props: any) => {
                   </Button>
                 )}
               </AuthWrapper>
-              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
+              <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.CREATE]} passThrough>
                 {(isPassed: boolean) => (
                   <ButtonCreate path={`${UrlConfig.ORDER}/create`} disabled={!isPassed} />
                 )}

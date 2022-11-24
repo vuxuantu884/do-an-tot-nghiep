@@ -1,6 +1,6 @@
 import { Button } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { OrderResponse } from "model/response/order/order.response";
 import React from "react";
@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { checkIfOrderHasReturnedAll, isOrderFromPOS, sortFulfillments } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus, ShipmentMethod } from "utils/Constants";
 import {
-  canCreateShipment,
+  canCreateShipment, checkActiveCancelConfirmOrder, checkActiveCancelPackOrder,
   checkIfFulfillmentCancelled,
   checkIfFulfillmentReturning,
   checkIfOrderCancelled,
@@ -18,6 +18,8 @@ import {
   checkIfOrderReturned,
 } from "utils/OrderUtils";
 import { StyledComponent } from "./styles";
+import { useSelector } from "react-redux";
+import { RootReducerType } from "../../../../../model/reducers/RootReducerType";
 
 type PropTypes = {
   stepsStatusValue: string | undefined;
@@ -55,90 +57,75 @@ function OrderFulfillmentActionButton(props: PropTypes) {
   } = props;
 
   const sortedFulfillments = sortFulfillments(OrderDetailAllFulfillment?.fulfillments);
-
-  // const checkIfFulfillmentStatusIsCancel = () => {
-  //   return OrderDetailAllFulfillment?.fulfillments?.some(
-  //     (single) => single.status !== FulFillmentStatus.CANCELLED,
-  //   );
-  // };
-
-  // const isShowButtonCancelFulfillment = () => {
-  //   if (checkIfFulfillmentStatusIsCancel()) {
-  //     return true;
-  //   }
-  //   // kiểm tra có phải là đơn đang hoàn
-  //   if (
-  //     sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPING &&
-  //     sortedFulfillments[0]?.return_status !== FulFillmentStatus.RETURNING
-  //   ) {
-  //     return true;
-  //   }
-  //   return false;
-  // };
-
-  // console.log("isShowButtonCancelFulfillment", isShowButtonCancelFulfillment());
-  // console.log(
-  //   "checkIfOrderFinished(OrderDetailAllFulfillment)",
-  //   checkIfOrderFinished(OrderDetailAllFulfillment),
-  // );
+  let permissionsAccount = useSelector(
+    (state: RootReducerType) => state.permissionReducer.permissions,
+  );
 
   const renderOrderReturnButtons = () => {
     return (
-      <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
-        {(isPassed: boolean) => {
-          return (
-            <React.Fragment>
-              {!isOrderFromPOS(OrderDetailAllFulfillment) ? (
-                <React.Fragment>
-                  <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
-                    <Link
-                      to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=online`}
-                    >
-                      <Button
-                        type="primary"
-                        style={{ margin: "0 10px", padding: "0 25px" }}
-                        className="create-button-custom ant-btn-outline fixed-button"
-                        disabled={!isPassed}
-                      >
-                        Trả lại chuyển hàng
-                      </Button>
-                    </Link>
-                  </AuthWrapper>
-                  <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
-                    <Link
-                      to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=offline`}
-                    >
-                      <Button
-                        type="primary"
-                        style={{ margin: "0 10px", padding: "0 25px" }}
-                        className="create-button-custom ant-btn-outline fixed-button"
-                        disabled={!isPassed}
-                      >
-                        Trả lại tại quầy
-                      </Button>
-                    </Link>
-                  </AuthWrapper>
-                </React.Fragment>
-              ) : (
-                <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE_RETURN]} passThrough>
-                  <Link
-                    to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=offline`}
+      <React.Fragment>
+        {!isOrderFromPOS(OrderDetailAllFulfillment) ? (
+          <React.Fragment>
+            <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.orders_return_online]} passThrough>
+              {(isPassed: boolean) => (
+                <Link
+                  to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=online`}
+                  title={
+                    !isPassed ? "Tài khoản không được cấp quyền trả lại chuyển hàng online" : ""
+                  }
+                >
+                  <Button
+                    type="primary"
+                    style={{ margin: "0 10px", padding: "0 25px" }}
+                    className="create-button-custom ant-btn-outline fixed-button"
+                    disabled={!isPassed}
                   >
-                    <Button
-                      type="primary"
-                      style={{ padding: "0 25px" }}
-                      className="create-button-custom ant-btn-outline fixed-button"
-                      disabled={!isPassed}
-                    >
-                      Đổi trả hàng
-                    </Button>
-                  </Link>
-                </AuthWrapper>
+                    Trả lại chuyển hàng
+                  </Button>
+                </Link>
               )}
-            </React.Fragment>
-          );
-        }}
-      </AuthWrapper>
+            </AuthWrapper>
+            <AuthWrapper
+              acceptPermissions={[ORDER_PERMISSIONS.orders_return_at_the_store]}
+              passThrough
+            >
+              {(isPassed: boolean) => (
+                <Link
+                  to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=offline`}
+                  title={!isPassed ? "Tài khoản không được cấp quyền trả tại quầy online" : ""}
+                >
+                  <Button
+                    type="primary"
+                    style={{ margin: "0 10px", padding: "0 25px" }}
+                    className="create-button-custom ant-btn-outline fixed-button"
+                    disabled={!isPassed}
+                  >
+                    Trả lại tại quầy
+                  </Button>
+                </Link>
+              )}
+            </AuthWrapper>
+          </React.Fragment>
+        ) : (
+          <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.orders_return_offline]} passThrough>
+            {(isPassed: boolean) => (
+              <Link
+                to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=offline`}
+                title={!isPassed ? "Tài khoản không được cấp quyền đổi trả hàng offline" : ""}
+              >
+                <Button
+                  type="primary"
+                  style={{ padding: "0 25px" }}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  disabled={!isPassed}
+                >
+                  Đổi trả hàng
+                </Button>
+              </Link>
+            )}
+          </AuthWrapper>
+        )}
+      </React.Fragment>
     );
   };
 
@@ -165,7 +152,7 @@ function OrderFulfillmentActionButton(props: PropTypes) {
     }
     if (
       sortedFulfillments[0]?.shipment?.delivery_service_provider_type ===
-        ShipmentMethod.EXTERNAL_SERVICE &&
+      ShipmentMethod.EXTERNAL_SERVICE &&
       OrderDetailAllFulfillment?.fulfillment_status === FulFillmentStatus.SHIPPING
     ) {
       return null;
@@ -174,6 +161,7 @@ function OrderFulfillmentActionButton(props: PropTypes) {
       <Button
         onClick={cancelFulfillment}
         loading={cancelShipment}
+        disabled={checkActiveCancelConfirmOrder(OrderDetailAllFulfillment, permissionsAccount) || checkActiveCancelPackOrder(OrderDetailAllFulfillment, permissionsAccount)}
         type="default"
         className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
         style={{

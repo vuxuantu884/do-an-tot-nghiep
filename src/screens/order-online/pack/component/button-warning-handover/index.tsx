@@ -1,7 +1,7 @@
 import { Button, Modal, Space } from "antd";
 import ButtonCreate from "component/header/ButtonCreate";
 import CustomTable from "component/table/CustomTable";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { getListOrderAction } from "domain/actions/order/order.action";
 import useAuthorization from "hook/useAuthorization";
@@ -32,7 +32,7 @@ const ButtonWarningHandover: React.FC<ButtonCreateProps> = (props: ButtonCreateP
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
   const [allowCreateGoodsReceipt] = useAuthorization({
-    acceptPermissions: [ODERS_PERMISSIONS.CREATE_GOODS_RECEIPT],
+    acceptPermissions: [ORDER_PERMISSIONS.CREATE_GOODS_RECEIPT],
     not: false,
   });
 

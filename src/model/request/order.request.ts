@@ -1,7 +1,7 @@
-import {StoreResponse} from "model/core/store.model";
-import {OrderLineItemResponse, OrderResponse} from "model/response/order/order.response";
-import {Moment} from "moment";
-import {BaseQuery} from "../base/base.query";
+import { StoreResponse } from "model/core/store.model";
+import { OrderLineItemResponse, OrderResponse } from "model/response/order/order.response";
+import { Moment } from "moment";
+import { BaseQuery } from "../base/base.query";
 
 export interface OrderRequest {
   action: string | null;
@@ -69,6 +69,8 @@ export interface ReturnRequest extends OrderRequest {
   store_full_address: string;
   type: string;
   money_refund: number;
+  channel?: string | null;
+  channel_code?: string | null;
 }
 
 export interface ExchangeRequest {
@@ -536,5 +538,5 @@ export interface PromotionQuery extends BaseQuery {
   type?: string;
   states?: string;
   page?: number;
-  limit?: number
+  limit?: number;
 }

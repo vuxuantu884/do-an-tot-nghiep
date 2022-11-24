@@ -10,7 +10,7 @@ import { MenuAction } from "component/table/ActionButton";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import {
   ExternalShipperGetListAction,
@@ -110,7 +110,7 @@ function OrderList(props: PropTypes) {
   const history = useHistory();
   const dispatch = useDispatch();
   const [allowOrderDelete] = useAuthorization({
-    acceptPermissions: [ODERS_PERMISSIONS.DELETE_ORDER],
+    acceptPermissions: [ORDER_PERMISSIONS.DELETE_ORDER],
     not: false,
   });
 
@@ -131,7 +131,7 @@ function OrderList(props: PropTypes) {
       ? COLUMN_CONFIG_TYPE.orderOffline
       : COLUMN_CONFIG_TYPE.orderOnline;
   const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(columnConfigType);
-
+  console.log("KAHSKJADHKASHDKJASHD", tableColumnConfigs[0]?.json_content?JSON.parse(tableColumnConfigs[0]?.json_content):null)
   const [tableLoading, setTableLoading] = useState(true);
   const [isFilter, setIsFilter] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -142,12 +142,8 @@ function OrderList(props: PropTypes) {
   const stores = useFetchStores();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [shippers, setShippers] = useState<Array<DeliverPartnerResponse>>([]);
-  const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
-    OrderProcessingStatusModel[]
-  >([]);
-  const [initListOrderProcessingStatus, setInitListOrderProcessingStatus] = useState<
-    OrderProcessingStatusModel[]
-  >([]);
+  const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<OrderProcessingStatusModel[]>([]);
+  const [initListOrderProcessingStatus, setInitListOrderProcessingStatus] = useState<OrderProcessingStatusModel[]>([]);
 
   const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
 
@@ -225,8 +221,8 @@ function OrderList(props: PropTypes) {
           Number(paramsCopy?.in_goods_receipt) === 1
             ? true
             : Number(paramsCopy?.in_goods_receipt) === 0
-            ? false
-            : undefined;
+              ? false
+              : undefined;
         dispatch(
           getListOrderAction(
             { ...params, in_goods_receipt: inGoodsReceipt },
@@ -491,7 +487,8 @@ function OrderList(props: PropTypes) {
                 window.open(printPreviewOrderUrl);
               }
             },
-            onCancel() {},
+            onCancel() {
+            },
           });
           break;
         case ACTION_ID.changeOrderStatus:
@@ -893,7 +890,7 @@ function OrderList(props: PropTypes) {
                   </Button>
                 )}
               </AuthWrapper> */}
-              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
+              <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.EXPORT]} passThrough>
                 {(isPassed: boolean) => (
                   <Button
                     type="default"
@@ -911,7 +908,7 @@ function OrderList(props: PropTypes) {
                 )}
               </AuthWrapper>
               {orderType === ORDER_TYPES.online ? (
-                <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
+                <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.CREATE]} passThrough>
                   {(isPassed: boolean) => (
                     <ButtonCreate
                       path={`${UrlConfig.ORDER}/create`}
@@ -921,7 +918,7 @@ function OrderList(props: PropTypes) {
                   )}
                 </AuthWrapper>
               ) : (
-                <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
+                <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.CREATE]} passThrough>
                   {(isPassed: boolean) => (
                     <a
                       href={process.env.REACT_APP_BASE_POS || ""}
@@ -1044,4 +1041,5 @@ function OrderList(props: PropTypes) {
     </StyledComponent>
   );
 }
+
 export default OrderList;

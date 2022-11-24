@@ -28,6 +28,7 @@ import {
   ORDER_PAYMENT_STATUS,
   ORDER_SUB_STATUS,
 } from "./Order.constants";
+import { ORDER_PERMISSIONS } from "../config/permissions/order.permission";
 
 export const isOrderDetailHasPointPayment = (
   OrderDetail: OrderResponse | null | undefined,
@@ -375,6 +376,25 @@ export const checkIfOrderHasNotFinishPaymentMomo = (
   );
 };
 
+export const checkActiveCancelPackOrder = (
+  orderDetail: OrderResponse | null | undefined,
+  permissions: Array<string>
+) => {
+  if (!permissions.includes(ORDER_PERMISSIONS.CANCEL_PACKED)) {
+    return orderDetail?.sub_status_code === ORDER_SUB_STATUS.merchandise_packed || orderDetail?.sub_status_code === ORDER_SUB_STATUS.awaiting_shipper;
+  }
+  return false
+};
+export const checkActiveCancelConfirmOrder = (
+  orderDetail: OrderResponse | null | undefined,
+  permissions: Array<string>
+) => {
+  if (!permissions.includes(ORDER_PERMISSIONS.CANCEL_CONFIRMED)) {
+    return orderDetail?.fulfillment_status === FulFillmentStatus.PICKED || orderDetail?.fulfillment_status === FulFillmentStatus.UNSHIPPED;
+  }
+  return false
+};
+
 export const checkIfExpiredPayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
   return (
     payment.status === ORDER_PAYMENT_STATUS.expired ||
@@ -479,9 +499,9 @@ export const getDefaultReceiveReturnStoreIdFormValue = (
   return currentStores?.length === 1
     ? currentStores[0].store_id
     : currentStores && currentStores?.length > 1 && OrderDetail?.store_id
-    ? currentStores?.find((single) => single.store_id === OrderDetail?.store_id)?.store_id ||
+      ? currentStores?.find((single) => single.store_id === OrderDetail?.store_id)?.store_id ||
       undefined
-    : undefined;
+      : undefined;
 };
 
 export const checkIfMomoTypePayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {

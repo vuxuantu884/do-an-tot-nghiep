@@ -1,4 +1,4 @@
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
@@ -18,7 +18,7 @@ const offlineOrdersRoute: Array<RouteMenu> = [
     key: "tao-don-hang-offline",
     isShow: true,
     header: null,
-    permissions: [ODERS_PERMISSIONS.READ],
+    permissions: [ORDER_PERMISSIONS.READ],
     subMenu: [],
   },
   {
@@ -30,7 +30,7 @@ const offlineOrdersRoute: Array<RouteMenu> = [
     key: "danh sách bán lẻ",
     isShow: true,
     header: null,
-    permissions: [ODERS_PERMISSIONS.READ],
+    permissions: [ORDER_PERMISSIONS.READ],
     subMenu: [],
   },
   {
@@ -42,7 +42,7 @@ const offlineOrdersRoute: Array<RouteMenu> = [
     key: "danh-sach-tra-hang-offline",
     isShow: true,
     header: null,
-    permissions: [ODERS_PERMISSIONS.READ_RETURNS],
+    permissions: [ORDER_PERMISSIONS.READ_RETURNS],
     subMenu: [],
   },
 ];

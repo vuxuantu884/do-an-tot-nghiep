@@ -50,6 +50,7 @@ function SubStatusChange(props: PropTypes): JSX.Element {
 
   const checkIfCanChange = useCallback(() => {
     if (!toSubStatus) {
+      setConfirmModalContent("");
       return;
     }
     let canChange = false;
@@ -59,9 +60,11 @@ function SubStatusChange(props: PropTypes): JSX.Element {
       setSubText(
         "Đơn hàng trạng thái khách hàng hủy, HVC hủy, Hệ thống hủy sẽ không thao tác được nữa.",
       );
+      setConfirmModalContent("");
     } else if (toSubStatus === ORDER_SUB_STATUS.out_of_stock) {
       setSubText("Đơn hàng trạng thái Hết Hàng sẽ không thao tác được nữa.");
       setIsShowModalConfirm(true);
+      setConfirmModalContent("");
       canChange = false;
     } else if (toSubStatus === ORDER_SUB_STATUS.returned) {
       setSubText(

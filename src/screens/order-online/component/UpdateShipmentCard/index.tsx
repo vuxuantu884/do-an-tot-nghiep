@@ -4,7 +4,7 @@ import doubleArrow from "assets/icon/double_arrow.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 // import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
@@ -200,16 +200,16 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
   );
 
   const [allowCreatePacked] = useAuthorization({
-    acceptPermissions: [ODERS_PERMISSIONS.CREATE_PACKED],
+    acceptPermissions: [ORDER_PERMISSIONS.CREATE_PACKED],
     not: false,
   });
 
   const [allowCreateShipping] = useAuthorization({
-    acceptPermissions: [ODERS_PERMISSIONS.CREATE_SHIPPING],
+    acceptPermissions: [ORDER_PERMISSIONS.CREATE_SHIPPING],
     not: false,
   });
   const [allowCreatePicked] = useAuthorization({
-    acceptPermissions: [ODERS_PERMISSIONS.CREATE_PICKED],
+    acceptPermissions: [ORDER_PERMISSIONS.CREATE_PICKED],
     not: false,
   });
 

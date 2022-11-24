@@ -9,7 +9,7 @@ import { inventory } from "./inventory.route";
 import product from "./product.route";
 import promotion from "./promotion.route";
 // import { AdminPermission } from 'config/permissions/admin.permission';
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import { CAMPAIGN_PERMISSION } from "config/permissions/marketing.permission";
 import offlineOrdersRoute from "./offline-orders.route";
 import reports from "./reports.route";
@@ -177,7 +177,7 @@ const menu: Array<RouteMenu> = [
     isShow: false,
     header: null,
     subMenu: [],
-    permissions: [ODERS_PERMISSIONS.READ_POS],
+    permissions: [ORDER_PERMISSIONS.READ_POS],
   },
   {
     path: UrlConfig.YDPAGE,

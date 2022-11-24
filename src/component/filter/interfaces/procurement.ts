@@ -2,26 +2,26 @@ import { MenuAction } from "component/table/ActionButton";
 import { AccountResponse } from "model/account/account.model";
 
 export enum ProcurementFilterAdvanceEnum {
-  active = "active",
-  expect_receipt = "expect_receipt",
-  stock_in_bys = "stock_in_bys",
-  stock_in = "stock_in",
-  merchandisers = "merchandisers",
-  note = "note",
+  Active = "active",
+  ExpectReceipt = "expect_receipt",
+  StockInBys = "stock_in_bys",
+  StockIn = "stock_in",
+  Merchandisers = "merchandisers",
+  Note = "note",
 }
 
 export enum ProcurementTodayFilterAdvanceEnum {
-  active = "active",
-  note = "note",
-  stock_in_bys = "stock_in_bys",
-  merchandisers = "merchandisers",
+  Active = "active",
+  Note = "note",
+  StockInBys = "stock_in_bys",
+  Merchandisers = "merchandisers",
 }
 
 export enum ProcurementFilterBasicEnum {
-  content = "content",
-  suppliers = "suppliers",
-  store_ids = "stores",
-  status = "status",
+  Content = "content",
+  Suppliers = "suppliers",
+  StoreIds = "stores",
+  Status = "status",
 }
 
 export enum SearchProcurementFieldEnum {
@@ -34,19 +34,19 @@ export enum SearchProcurementFieldEnum {
 }
 
 export const ProcurementFilterBasicName = {
-  [ProcurementFilterBasicEnum.content]: "Thông tin tìm kiếm",
-  [ProcurementFilterBasicEnum.suppliers]: "Nhà cung cấp",
-  [ProcurementFilterBasicEnum.store_ids]: "Kho nhận",
-  [ProcurementFilterBasicEnum.status]: "Trạng thái",
+  [ProcurementFilterBasicEnum.Content]: "Thông tin tìm kiếm",
+  [ProcurementFilterBasicEnum.Suppliers]: "Nhà cung cấp",
+  [ProcurementFilterBasicEnum.StoreIds]: "Kho nhận",
+  [ProcurementFilterBasicEnum.Status]: "Trạng thái",
 };
 
 export const ProcurementFilterAdvanceName = {
-  [ProcurementFilterAdvanceEnum.active]: "Ngày duyệt phiếu nhập",
-  [ProcurementFilterAdvanceEnum.stock_in_bys]: "Người nhập kho",
-  [ProcurementFilterAdvanceEnum.stock_in]: "Ngày nhập kho",
-  [ProcurementFilterAdvanceEnum.expect_receipt]: "Ngày nhận dự kiến",
-  [ProcurementFilterAdvanceEnum.merchandisers]: "Merchandiser",
-  [ProcurementFilterAdvanceEnum.note]: "Ghi chú",
+  [ProcurementFilterAdvanceEnum.Active]: "Ngày duyệt phiếu nhập",
+  [ProcurementFilterAdvanceEnum.StockInBys]: "Người nhập kho",
+  [ProcurementFilterAdvanceEnum.StockIn]: "Ngày nhập kho",
+  [ProcurementFilterAdvanceEnum.ExpectReceipt]: "Ngày nhận dự kiến",
+  [ProcurementFilterAdvanceEnum.Merchandisers]: "Merchandiser",
+  [ProcurementFilterAdvanceEnum.Note]: "Ghi chú",
 };
 
 export interface ProcurementFilterProps {
@@ -74,13 +74,13 @@ export interface ProcurementFilter {
 }
 
 export enum ProcurementItemsFilterAdvanceEnum {
-  stock_in_date = "stock_in_date",
-  stock_in_by = "stock_in_by",
-  note = "note",
+  StockInDate = "stock_in_date",
+  StockInBy = "stock_in_by",
+  Note = "note",
 }
 
 export const ProcurementItemsFilterAdvanceName = {
-  [ProcurementItemsFilterAdvanceEnum.stock_in_date]: "Ngày nhập kho",
-  [ProcurementItemsFilterAdvanceEnum.stock_in_by]: "Người nhận",
-  [ProcurementItemsFilterAdvanceEnum.note]: "Ghi chú",
+  [ProcurementItemsFilterAdvanceEnum.StockInDate]: "Ngày nhập kho",
+  [ProcurementItemsFilterAdvanceEnum.StockInBy]: "Người nhận",
+  [ProcurementItemsFilterAdvanceEnum.Note]: "Ghi chú",
 };

@@ -60,7 +60,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { ECOMMERCE_CHANNEL } from "screens/ecommerce/common/commonAction";
-import CannotUpdateOrderWithWalletWarningInformation from "screens/order-online/component/CannotUpdateOrderWithWalletWarningInformation";
+import CannotUpdateOrderWithWalletWarningInformation
+  from "screens/order-online/component/CannotUpdateOrderWithWalletWarningInformation";
 import CardShowReturnProducts from "screens/order-online/order-return/components/CardShowReturnProducts";
 import { searchHandoverService } from "service/handover/handover.service";
 import {
@@ -224,9 +225,7 @@ const OrderDetail = (props: PropTypes) => {
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
 
-  const [shippingServiceConfig, setShippingServiceConfig] = useState<
-    ShippingServiceConfigDetailResponseModel[]
-  >([]);
+  const [shippingServiceConfig, setShippingServiceConfig] = useState<ShippingServiceConfigDetailResponseModel[]>([]);
 
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
   // xác nhận đơn
@@ -464,7 +463,8 @@ const OrderDetail = (props: PropTypes) => {
     [OrderDetail?.id, dispatch],
   );
 
-  const handleConfirmToEcommerce = () => {};
+  const handleConfirmToEcommerce = () => {
+  };
 
   const cancelPrepareGoodsModal = () => {
     setVisibleLogisticConfirmModal(false);
@@ -512,8 +512,8 @@ const OrderDetail = (props: PropTypes) => {
                 status === EcommerceOrderStatus.PACKED
                   ? "Có lỗi xảy ra khi tạo gói hàng Lazada"
                   : status === EcommerceOrderStatus.READY_TO_SHIP
-                  ? "Có lỗi xảy ra khi báo Lazada sẵn sàng giao"
-                  : "Có lỗi xảy ra khi chuyển trạng thái";
+                    ? "Có lỗi xảy ra khi báo Lazada sẵn sàng giao"
+                    : "Có lỗi xảy ra khi chuyển trạng thái";
               showError(errorMessage);
             } else {
               if (data.success_list && data.success_list.length > 0) {
@@ -521,8 +521,8 @@ const OrderDetail = (props: PropTypes) => {
                   status === EcommerceOrderStatus.PACKED
                     ? "Tạo gói hàng Lazada thành công"
                     : status === EcommerceOrderStatus.READY_TO_SHIP
-                    ? "Báo Lazada sẵn sàng giao thành công"
-                    : "Chuyển trạng thái thành công";
+                      ? "Báo Lazada sẵn sàng giao thành công"
+                      : "Chuyển trạng thái thành công";
                 showSuccess(successMessage);
               } else if (data.error_list && data.error_list.length > 0) {
                 showError(data.error_list[0].error_message);
@@ -730,7 +730,8 @@ const OrderDetail = (props: PropTypes) => {
   // const { handleChangeShippingFeeApplyOrderSettings, setIsShippingFeeAlreadyChanged } =
   //   useCalculateShippingFee(totalOrderAmount, form, setShippingFeeInformedToCustomer, false);
 
-  const handleChangeShippingFeeApplyOrderSettings = () => {};
+  const handleChangeShippingFeeApplyOrderSettings = () => {
+  };
 
   useEffect(() => {
     if (isFirstLoad.current || reload) {
@@ -1037,17 +1038,17 @@ const OrderDetail = (props: PropTypes) => {
         breadcrumb={
           OrderDetail
             ? [
-                {
-                  name: isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`,
-                  path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
-                },
-                {
-                  name: `Danh sách đơn hàng ${isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
-                  path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
-                },
-                {
-                  name: (
-                    <span>
+              {
+                name: isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`,
+                path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
+              },
+              {
+                name: `Danh sách đơn hàng ${isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
+                path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
+              },
+              {
+                name: (
+                  <span>
                       {OrderDetail?.code ? (
                         <>
                           Đơn hàng {OrderDetail?.code}{" "}
@@ -1057,9 +1058,9 @@ const OrderDetail = (props: PropTypes) => {
                         "Đang tải dữ liệu..."
                       )}
                     </span>
-                  ),
-                },
-              ]
+                ),
+              },
+            ]
             : undefined
         }
         extra={
@@ -1108,7 +1109,8 @@ const OrderDetail = (props: PropTypes) => {
                       payments={[]}
                       returnMoneyAmount={customerNeedToPayValue}
                       isShowPaymentMethod={true}
-                      setIsShowPaymentMethod={() => {}}
+                      setIsShowPaymentMethod={() => {
+                      }}
                       handleReturnMoney={handleReturnMoney}
                       returnPaymentMethodCode={returnPaymentMethodCode}
                       setReturnPaymentMethodCode={setReturnPaymentMethodCode}
@@ -1136,7 +1138,8 @@ const OrderDetail = (props: PropTypes) => {
                   createPaymentCallback={createPaymentCallback}
                   totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                   payments={OrderDetail?.payments}
-                  setExtraPayments={() => {}} //chú ý phải set
+                  setExtraPayments={() => {
+                  }} //chú ý phải set
                   orderPageType={OrderPageTypeModel.orderDetail}
                 />
 
@@ -1176,7 +1179,8 @@ const OrderDetail = (props: PropTypes) => {
                   handleChangeShippingFeeApplyOrderSettings={
                     handleChangeShippingFeeApplyOrderSettings
                   }
-                  setIsShippingFeeAlreadyChanged={() => {}}
+                  setIsShippingFeeAlreadyChanged={() => {
+                  }}
                 />
                 {/*--- end shipment ---*/}
 

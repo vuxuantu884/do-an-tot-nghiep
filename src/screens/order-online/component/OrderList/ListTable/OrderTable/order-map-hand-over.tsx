@@ -3,7 +3,7 @@ import { HandoverResponse } from "model/handover/handover.response";
 import { OrderModel } from "model/order/order.model";
 import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { HandoverReturn, HandoverTransfer } from "screens/order-online/handover/handover.config";
+import { HandoverReturn, HandoverTransfer } from "screens/handover/handover.config";
 
 type Props = {
   orderDetail: OrderModel;

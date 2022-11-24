@@ -144,6 +144,7 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
             ))}
           </Select>
         </Form.Item>
+
         <Form.Item label="Nhân viên điều phối" name="coordinator_code">
           <Select
             className="select-with-search"

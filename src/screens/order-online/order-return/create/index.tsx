@@ -1,5 +1,6 @@
 import { Button, Card, Col, Form, FormInstance, Modal, Row } from "antd";
 import { RefSelectProps } from "antd/lib/select";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import NumberInput from "component/custom/number-input.custom";
 import ModalConfirm from "component/modal/ModalConfirm";
@@ -11,6 +12,7 @@ import CreateOrderSidebarOrderInformation from "component/order/Sidebar/CreateOr
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
 import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
 import { AppConfig } from "config/app.config";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import {
@@ -77,11 +79,13 @@ import { TiWarningOutline } from "react-icons/ti";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useReactToPrint } from "react-to-print";
+import NoPermission from "screens/no-permission.screen";
 import CardCustomer from "screens/order-online/component/CardCustomer";
 import useCalculateShippingFee from "screens/order-online/hooks/useCalculateShippingFee";
 import useGetDefaultReturnOrderReceivedStore from "screens/order-online/hooks/useGetDefaultReturnOrderReceivedStore";
 import useGetOrderDetail from "screens/order-online/hooks/useGetOrderDetail";
 import useHandleMomoCreateShipment from "screens/order-online/hooks/useHandleMomoCreateShipment";
+import SplashScreen from "screens/splash.screen";
 import {
   getPrintOrderReturnContentService,
   getStoreBankAccountNumbersService,
@@ -289,7 +293,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   const [isShowReceiveProductConfirmModal, setIsShowReceiveProductConfirmModal] = useState(false);
 
-  const recentAccountCode = useMemo(() => {
+  const recentAccount = useMemo(() => {
     return {
       accountCode: userReducer.account?.code,
       accountFullName: userReducer.account?.full_name,
@@ -348,8 +352,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
           returnMoneyAmount: 0,
         },
       ],
-      account_code: recentAccountCode.accountCode,
-      assignee_code: isExchange ? recentAccountCode.accountCode : OrderDetail?.assignee_code,
+      account_code: undefined,
+      assignee_code: isExchange ? recentAccount.accountCode : OrderDetail?.assignee_code,
       marketer_code: undefined,
       coordinator_code: OrderDetail?.coordinator_code,
       // note: OrderDetail?.note,
@@ -365,7 +369,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     defaultReceiveReturnStore?.id,
     initialForm,
     isExchange,
-    recentAccountCode.accountCode,
+    recentAccount.accountCode,
     returnPaymentMethodCode,
   ]);
 
@@ -567,15 +571,24 @@ const ScreenReturnCreate = (props: PropTypes) => {
    * Đơn gốc online: trả tại quầy: POS, còn lại là channel_id gốc
    * Đơn gốc offline: POS
    */
-  const getChannelIdReturn = useCallback(
+  const getReturnChannel = useCallback(
     (OrderDetail: OrderResponse) => {
+      const PosChannel = {
+        channelId: POS.channel_id,
+        channel: POS.channel_name,
+        channelCode: POS.channel_code,
+      };
       if (isOrderFromPOS(OrderDetail)) {
-        return POS.channel_id;
+        return PosChannel;
       } else {
         if (orderReturnType === RETURN_TYPE_VALUES.offline) {
-          return POS.channel_id;
+          return PosChannel;
         } else {
-          return OrderDetail.channel_id;
+          return {
+            channelId: OrderDetail.channel_id,
+            channel: OrderDetail.channel,
+            channelCode: OrderDetail.channel_code,
+          };
         }
       }
     },
@@ -845,9 +858,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
       let discounts = handleRecalculateOriginDiscount(returnItems);
       // console.log('getTotalAmountAfterDiscount(returnItems)', getTotalAmountAfterDiscount(returnItems))
       // console.log('getTotalOrderDiscount(discounts)', getTotalOrderDiscount(discounts))
-
+      const { assignee, ...OrderDetailRest } = OrderDetail;
       let orderDetailResult: ReturnRequest = {
-        ...OrderDetail,
+        ...OrderDetailRest,
         source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
         store_id: returnStore ? returnStore.id : null,
         store: returnStore ? returnStore.name : "",
@@ -880,9 +893,11 @@ const ScreenReturnCreate = (props: PropTypes) => {
         ),
         total_discount: Math.round(getTotalOrderDiscount(discounts)),
         total_line_amount_after_line_discount: Math.round(getTotalAmountAfterDiscount(returnItems)),
-        account: recentAccountCode?.accountFullName,
-        account_code: recentAccountCode.accountCode,
-        assignee_code: OrderDetail?.assignee_code,
+        account: recentAccount?.accountFullName,
+        account_code: recentAccount.accountCode,
+        assignee_code: form.getFieldValue("assignee_code")
+          ? form.getFieldValue("assignee_code")
+          : OrderDetail?.assignee_code,
         // clear giá trị
         reference_code: "",
         customer_note: form.getFieldValue("customer_note"),
@@ -891,7 +906,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
         tags: tags,
         type: orderReturnType,
         //channel
-        channel_id: getChannelIdReturn(OrderDetail),
+        channel_id: getReturnChannel(OrderDetail).channelId,
+        channel: getReturnChannel(OrderDetail).channel,
+        channel_code: getReturnChannel(OrderDetail).channelCode,
         // thêm money refund
         money_refund: Math.round(refund.moneyRefund),
         // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
@@ -925,7 +942,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     OrderDetail,
     dispatch,
     form,
-    getChannelIdReturn,
+    getReturnChannel,
     getPaymentOfReturnInReturn,
     handlePrintOrderReturnOrExchange,
     handleRecalculateOriginDiscount,
@@ -936,8 +953,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
     orderReturnReasonResponse?.sub_reasons,
     orderReturnType,
     printType.return,
-    recentAccountCode.accountCode,
-    recentAccountCode.accountFullName,
+    recentAccount.accountCode,
+    recentAccount.accountFullName,
     refund.moneyRefund,
     returnItems,
     returnStore,
@@ -1174,11 +1191,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const checkIfNotHavePaymentsWhenReceiveAtStorePOS = () => {
     const methods = [ShipmentMethodOption.PICK_AT_STORE];
-    if (
-      totalOrderAmountAfterPayments > 0 &&
-      methods.includes(shipmentMethod) &&
-      isOrderFromPOS(OrderDetail)
-    ) {
+    if (totalOrderAmountAfterPayments > 0 && methods.includes(shipmentMethod)) {
       return true;
     }
     return false;
@@ -1510,7 +1523,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         // received: isReceivedReturnProducts,
         received: orderReturnType === RETURN_TYPE_VALUES.online ? true : isReceivedReturnProducts,
         discounts: handleRecalculateOriginDiscount(itemsResult),
-        account_code: recentAccountCode.accountCode,
+        account_code: recentAccount.accountCode,
         assignee_code: form.getFieldValue("assignee_code"),
         total: Math.floor(
           getTotalAmountAfterDiscount(itemsResult) - getTotalOrderDiscount(discounts),
@@ -1525,7 +1538,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
         tags: null,
         type: orderReturnType,
         // channel
-        channel_id: getChannelIdReturn(OrderDetail),
+        channel_id: getReturnChannel(OrderDetail).channelId,
+        channel: getReturnChannel(OrderDetail).channel,
+        channel_code: getReturnChannel(OrderDetail).channelCode,
         // thêm money refund
         money_refund: Math.round(refund.moneyRefund),
         currency: AppConfig.currency,
@@ -1550,7 +1565,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       }
       order_exchange.channel_id = getChannelIdExchange(OrderDetail);
       order_exchange.company_id = DEFAULT_COMPANY.company_id;
-      order_exchange.account_code = form.getFieldValue("account_code");
+      order_exchange.account_code = recentAccount.accountCode;
       order_exchange.assignee_code = form.getFieldValue("assignee_code");
       order_exchange.coordinator_code = form.getFieldValue("coordinator_code");
       order_exchange.marketer_code = form.getFieldValue("marketer_code");
@@ -1610,7 +1625,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     createFulFillmentRequest,
     form,
     getChannelIdExchange,
-    getChannelIdReturn,
+    getReturnChannel,
     getPaymentOfExchangeInExchange,
     getPaymentOfReturnInExchange,
     handleCreateOrderExchangeByValue,
@@ -1623,7 +1638,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     orderReturnReasonResponse?.id,
     orderReturnReasonResponse?.sub_reasons,
     orderReturnType,
-    recentAccountCode.accountCode,
+    recentAccount.accountCode,
     refund.moneyRefund,
     shipmentMethod,
     shippingAddress,
@@ -2444,16 +2459,50 @@ const ScreenReturnCreate = (props: PropTypes) => {
   }, [dispatch, storeIdLogin]);
 
   useEffect(() => {
-    if (isExchange) {
+    const handleIfDisableAccount = () => {
+      form.setFieldsValue({
+        assignee_code: OrderDetail?.assignee_code,
+      });
+    };
+    const handleIfCanChangeAccount = () => {
       form.setFieldsValue({
         assignee_code: undefined,
+        account_code: recentAccount.accountCode,
       });
+    };
+    const handleIfReturnOffline = () => {
+      handleIfCanChangeAccount();
+    };
+
+    const handleIfReturnOnline = () => {
+      const handleIfReturnOnlineAndExchange = () => {
+        handleIfCanChangeAccount();
+      };
+      const handleIfReturnOnlineAndOnlyReturn = () => {
+        handleIfDisableAccount();
+      };
+      if (isExchange) {
+        handleIfReturnOnlineAndExchange();
+      } else {
+        handleIfReturnOnlineAndOnlyReturn();
+      }
+    };
+
+    if (orderReturnType === RETURN_TYPE_VALUES.online) {
+      handleIfReturnOnline();
     } else {
-      form.setFieldsValue({
-        assignee_code: initialFormValueWithReturn.assignee_code,
-      });
+      handleIfReturnOffline();
     }
-  }, [form, initialFormValueWithReturn.assignee_code, isExchange]);
+  }, [
+    OrderDetail?.account_code,
+    OrderDetail?.assignee_code,
+    OrderDetail?.coordinator_code,
+    OrderDetail?.marketer_code,
+    form,
+    isExchange,
+    orderReturnType,
+    recentAccount.accountCode,
+  ]);
 
   useEffect(() => {
     window.addEventListener("keydown", eventKeydown);
@@ -2475,20 +2524,34 @@ const ScreenReturnCreate = (props: PropTypes) => {
     }
   }, [orderReturnType]);
 
+  const permissions = useMemo(() => {
+    if (orderReturnType === RETURN_TYPE_VALUES.online) {
+      return [ORDER_PERMISSIONS.orders_return_online];
+    }
+    if (orderReturnType === RETURN_TYPE_VALUES.offline) {
+      if (isOrderFromPOS(OrderDetail)) {
+        return [ORDER_PERMISSIONS.orders_return_offline];
+      } else {
+        return [ORDER_PERMISSIONS.orders_return_at_the_store];
+      }
+    }
+    return [];
+  }, [OrderDetail, orderReturnType]);
+
   const checkIfWrongPath = () => {
-    const checkIfOnline = () => {
+    const checkIfOnlineOrder = () => {
       return (
         orderReturnType !== RETURN_TYPE_VALUES.online &&
         orderReturnType !== RETURN_TYPE_VALUES.offline
       );
     };
-    const checkIfOffline = () => {
+    const checkIfOfflineOrder = () => {
       return orderReturnType !== RETURN_TYPE_VALUES.offline;
     };
     if (isOrderFromPOS(OrderDetail)) {
-      return checkIfOffline();
+      return checkIfOfflineOrder();
     } else {
-      return checkIfOnline();
+      return checkIfOnlineOrder();
     }
   };
 
@@ -2497,35 +2560,45 @@ const ScreenReturnCreate = (props: PropTypes) => {
   }
 
   return (
-    <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>
-      <ContentContainer
-        isError={isError}
-        title="Trả hàng cho đơn hàng"
-        breadcrumb={[
-          {
-            name: "Tổng quan",
-            path: `${UrlConfig.HOME}`,
-          },
-          {
-            name: isOrderFromPOS(OrderDetail)
-              ? `Danh sách đơn trả hàng offline`
-              : `Danh sách đơn trả hàng online`,
-            path: isOrderFromPOS(OrderDetail)
-              ? `${UrlConfig.OFFLINE_ORDERS}${UrlConfig.ORDERS_RETURN}`
-              : `${UrlConfig.ORDER}${UrlConfig.ORDERS_RETURN}`,
-          },
-          {
-            name: `Tạo đơn trả hàng cho đơn hàng ${orderId}`,
-          },
-        ]}
-      >
-        {!isFetchData
-          ? "Loading ..."
-          : isOrderFinished
-          ? renderIfOrderFinished()
-          : renderIfOrderNotFinished()}
-      </ContentContainer>
-    </CreateOrderReturnContext.Provider>
+    <AuthWrapper acceptPermissions={permissions} passThrough>
+      {(allowed: boolean, isLoadingUserPermission: boolean) =>
+        isLoadingUserPermission ? (
+          <SplashScreen />
+        ) : allowed ? (
+          <CreateOrderReturnContext.Provider value={createOrderReturnContextData}>
+            <ContentContainer
+              isError={isError}
+              title="Trả hàng cho đơn hàng"
+              breadcrumb={[
+                {
+                  name: "Tổng quan",
+                  path: `${UrlConfig.HOME}`,
+                },
+                {
+                  name: isOrderFromPOS(OrderDetail)
+                    ? `Danh sách đơn trả hàng offline`
+                    : `Danh sách đơn trả hàng online`,
+                  path: isOrderFromPOS(OrderDetail)
+                    ? `${UrlConfig.OFFLINE_ORDERS}${UrlConfig.ORDERS_RETURN}`
+                    : `${UrlConfig.ORDER}${UrlConfig.ORDERS_RETURN}`,
+                },
+                {
+                  name: `Tạo đơn trả hàng cho đơn hàng ${orderId}`,
+                },
+              ]}
+            >
+              {!isFetchData
+                ? "Loading ..."
+                : isOrderFinished
+                ? renderIfOrderFinished()
+                : renderIfOrderNotFinished()}
+            </ContentContainer>
+          </CreateOrderReturnContext.Provider>
+        ) : (
+          <NoPermission />
+        )
+      }
+    </AuthWrapper>
   );
 };
 

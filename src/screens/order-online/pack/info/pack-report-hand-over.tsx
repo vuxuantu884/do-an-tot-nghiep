@@ -26,7 +26,7 @@ import { DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
 import { MenuAction } from "component/table/ActionButton";
 import { Link } from "react-router-dom";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import useAuthorization from "hook/useAuthorization";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
@@ -83,7 +83,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (props: PackReport
     ...getQueryParams(query),
   };
   const [allowDeleteGoodsReceipt] = useAuthorization({
-    acceptPermissions: [ODERS_PERMISSIONS.DELETE_GOODS_RECEIPT],
+    acceptPermissions: [ORDER_PERMISSIONS.DELETE_GOODS_RECEIPT],
     not: false,
   });
 
@@ -440,7 +440,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (props: PackReport
         </Menu.Item>
 
         <Menu.Item key="4">
-          <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.DELETE_GOODS_RECEIPT]} passThrough>
+          <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.DELETE_GOODS_RECEIPT]} passThrough>
             {(isPassed: boolean) => (
               <Button
                 icon={<DeleteOutlined />}

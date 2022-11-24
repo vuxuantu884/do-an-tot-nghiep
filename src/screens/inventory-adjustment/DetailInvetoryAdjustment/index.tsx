@@ -55,7 +55,12 @@ import { ImportResponse } from "model/other/files/export-model";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 import { callApiNative } from "utils/ApiUtils";
-import { addLineItem, cancelInventoryTicket, getTotalOnHand } from "service/inventory/adjustment/index.service";
+import {
+  addLineItem,
+  cancelInventoryTicket,
+  getDetailInventorAdjustmentGetApi,
+  getTotalOnHand
+} from "service/inventory/adjustment/index.service";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import EditNote from "../../order-online/component/edit-note";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
@@ -705,37 +710,35 @@ const DetailInventoryAdjustment: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps,
   }, []);
 
-  useEffect(() => {
-    setIsLoadingBtn(true);
-    dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
-    try {
-      const interval = setInterval(async () => {
-        setData((data) => {
-          if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.INITIALIZING || !data) {
-            dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
-          } else {
-            getTotalOnHandFunc();
-            clearInterval(interval);
+  const getDetailInventoryAdjustment = async () => {
+    const response = await callApiNative({ isShowError: true }, dispatch, getDetailInventorAdjustmentGetApi, idNumber);
 
-            dispatch(
-              getLinesItemAdjustmentAction(
-                idNumber,
-                `page=1&limit=30&type=total`,
-                onResultDataTable,
-              )
-            );
+    if (response) {
+      onResult(response);
 
-            setIsLoadingBtn(false);
-          }
+      if (response?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.INITIALIZING) {
+        setTimeout(() => {
+          getDetailInventoryAdjustment().then();
+        }, 3000);
+        return;
+      }
 
-          return data;
-        });
-      }, 5000);
+      getTotalOnHandFunc();
 
-      return () => clearInterval(interval);
-    } catch (e) {
-      console.log(e);
+      dispatch(
+        getLinesItemAdjustmentAction(
+          idNumber,
+          `page=1&limit=30&type=total`,
+          onResultDataTable,
+        )
+      );
+
+      setIsLoadingBtn(false);
     }
+  }
+
+  useEffect(() => {
+    getDetailInventoryAdjustment().then();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps,
   }, [idNumber, isReRender]);
