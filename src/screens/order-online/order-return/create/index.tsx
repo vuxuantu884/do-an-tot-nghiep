@@ -531,12 +531,15 @@ const ScreenReturnCreate = (props: PropTypes) => {
     return (
       OrderDetail?.discounts?.map((singleDiscount) => {
         let value = Math.round(
-          ((singleDiscount?.rate || 0) / 100) * getTotalAmountAfterDiscount(itemsResult),
+          (OrderDetail.total_line_amount_after_line_discount
+            ? (singleDiscount?.amount || 0) / OrderDetail.total_line_amount_after_line_discount
+            : 0) * getTotalAmountAfterDiscount(itemsResult),
         );
         return {
           ...singleDiscount,
           value: value,
           amount: value,
+          rate: (value / getTotalAmountAfterDiscount(returnItems)) * 100,
         };
       }) || null
     );
