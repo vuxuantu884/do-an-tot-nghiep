@@ -254,7 +254,7 @@ function CreateOrderSidebarOrderInformation(props: PropTypes): JSX.Element {
           rules={[
             {
               required: true,
-              message: isOrderFromPOS(orderDetail)
+              message: isReturnOffline
                 ? "Vui lòng chọn nhân viên tư vấn!"
                 : "Vui lòng chọn nhân viên bán hàng!",
             },
