@@ -70,7 +70,7 @@ const LoyaltyAccumulateDetail = () => {
       width: "17%",
       visible: true,
       render: (rule: LoyaltyProgramRuleResponse) => {
-        return <span>{formatCurrency(rule.order_amount_min)}</span>;
+        return <span>{rule.order_amount.from && formatCurrency(rule.order_amount.from)}</span>;
       },
     },
     {
@@ -79,7 +79,49 @@ const LoyaltyAccumulateDetail = () => {
       visible: true,
       align: "center",
       render: (rule: LoyaltyProgramRuleResponse) => {
-        return <span>{formatCurrency(rule.order_amount_max)}</span>;
+        return <span>{rule.order_amount.to && formatCurrency(rule.order_amount.to)}</span>;
+      },
+    },
+    {
+      title: "Tiền tích lũy tối thiểu",
+      width: "17%",
+      visible: true,
+      render: (rule: LoyaltyProgramRuleResponse) => {
+        return (
+          <span>{rule.total_money_spend.from && formatCurrency(rule.total_money_spend.from)}</span>
+        );
+      },
+    },
+    {
+      title: "Tiền tích lũy tối đa",
+      width: "17%",
+      visible: true,
+      align: "center",
+      render: (rule: LoyaltyProgramRuleResponse) => {
+        return (
+          <span>{rule.total_money_spend.to && formatCurrency(rule.total_money_spend.to)}</span>
+        );
+      },
+    },
+    {
+      title: "Tổng đơn hàng tối thiểu",
+      width: "17%",
+      visible: true,
+      render: (rule: LoyaltyProgramRuleResponse) => {
+        return (
+          <span>{rule.total_order_count.from && formatCurrency(rule.total_order_count.from)}</span>
+        );
+      },
+    },
+    {
+      title: "Tổng đơn hàng tối đa",
+      width: "17%",
+      visible: true,
+      align: "center",
+      render: (rule: LoyaltyProgramRuleResponse) => {
+        return (
+          <span>{rule.total_order_count.to && formatCurrency(rule.total_order_count.to)}</span>
+        );
       },
     },
     {

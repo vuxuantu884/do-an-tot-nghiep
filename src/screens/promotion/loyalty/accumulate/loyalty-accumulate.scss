@@ -14,7 +14,6 @@
       font-size: 14px;
       line-height: 16px;
       display: flex;
-      width: 240px;
       justify-content: space-between;
       align-items: center;
 
@@ -24,30 +23,18 @@
     }
   }
 
-  .additional-option {
-    margin: 35px auto 31px 30px;
-    font-size: 14px;
-    line-height: 16px;
+  .option {
+    display: flex;
+    align-items: center;
 
-    .ant-switch-checked {
-      background-color: #2a2a86;
-    }
-
-    .option {
-      display: flex;
-      align-items: center;
-
-      .switcher {
-        margin-right: 13px;
-        align-self: center;
-      }
+    .switcher {
+      margin-right: 12px;
+      align-self: center;
     }
   }
 
   .require-rules,
   .date-rule {
-    margin: 0 0 0 30px;
-
     .rule {
       margin-bottom: 14px;
 
@@ -56,7 +43,7 @@
       .input-rule {
         margin-top: 8px;
         width: 100%;
-        max-width: 350px;
+        max-width: 450px;
         border-radius: 6px;
         display: block;
       }
@@ -113,7 +100,22 @@
   }
 
   .accumulate-point-rule {
-    padding: 0 30px;
+    .arrow-icon-point {
+      padding: 0 4px;
+    }
+    .rule {
+      display: flex;
+      width: 100%;
+
+      &-from {
+        width: 48%;
+      }
+
+      &-to {
+        width: 48%;
+      }
+    }
+
     .rule-dropdown {
       width: 100%;
       text-align: left;
@@ -153,4 +155,21 @@
       }
     }
   }
+}
+
+.ant-form-item {
+  margin: 0;
+}
+
+.ant-table-tbody > tr > td {
+  padding: 16px 4px;
+}
+
+.ant-card-head,
+.ant-card-body {
+  padding: 12px;
+}
+
+.ant-layout-content {
+  padding: 0 12px;
 }
