@@ -119,7 +119,7 @@ export const convertDataToFlatTableRotation = (
         }
       }
     });
-  if (currentDrillingLevel === 2) {
+  if (currentDrillingLevel <= 2) {
     // console.log("data data data", data);
     let objDailyActual: any = {};
     let propertyArrDailyActual: string[] = [];
@@ -142,8 +142,8 @@ export const convertDataToFlatTableRotation = (
       const arrValue = data
         .filter(
           (item) =>
-            item.drillingLevel !== ONL_DRILLING_LEVEL.DEPARTMENT &&
-            item.drillingLevel !== OFF_DRILLING_LEVEL.ASM,
+            (currentDrillingLevel === 2 && item.drillingLevel !== 2) ||
+            (currentDrillingLevel === 1 && item.drillingLevel !== 1),
         )
         .map((item, index) => {
           return item[ppt];
@@ -154,8 +154,8 @@ export const convertDataToFlatTableRotation = (
       const arrValue = data
         .filter(
           (item) =>
-            item.drillingLevel !== ONL_DRILLING_LEVEL.DEPARTMENT &&
-            item.drillingLevel !== OFF_DRILLING_LEVEL.ASM,
+            (currentDrillingLevel === 2 && item.drillingLevel !== 2) ||
+            (currentDrillingLevel === 1 && item.drillingLevel !== 1),
         )
         .map((item, index) => {
           return item[ppt];
@@ -166,8 +166,8 @@ export const convertDataToFlatTableRotation = (
       const arrValue = data
         .filter(
           (item) =>
-            item.drillingLevel !== ONL_DRILLING_LEVEL.DEPARTMENT &&
-            item.drillingLevel !== OFF_DRILLING_LEVEL.ASM,
+            (currentDrillingLevel === 2 && item.drillingLevel !== 2) ||
+            (currentDrillingLevel === 1 && item.drillingLevel !== 1),
         )
         .map((item, index) => {
           return item[ppt];
@@ -177,15 +177,15 @@ export const convertDataToFlatTableRotation = (
     // console.log("objDailyActual", objDailyActual);
 
     const { Offline } = KDReportName;
-    let limitRowFillColor = 3; // kdReportName === Online
+    let limitRowFillColor = currentDrillingLevel === 2 ? 3 : 1; // kdReportName === Online
     if (kdReportName === Offline) {
-      limitRowFillColor = 10;
+      limitRowFillColor = currentDrillingLevel === 2 ? 10 : 1;
     }
     propertyArrDailyActual.forEach((ppt) => {
       data = data.map((item, index) => {
         if (
-          item.drillingLevel === ONL_DRILLING_LEVEL.DEPARTMENT ||
-          item.drillingLevel === OFF_DRILLING_LEVEL.ASM
+          (currentDrillingLevel === 2 && item.drillingLevel === 2) ||
+          (currentDrillingLevel === 1 && item.drillingLevel === 1)
         ) {
           return item;
         }
@@ -220,8 +220,8 @@ export const convertDataToFlatTableRotation = (
     propertyArrMonthlyActual.forEach((ppt) => {
       data = data.map((item, index) => {
         if (
-          item.drillingLevel === ONL_DRILLING_LEVEL.DEPARTMENT ||
-          item.drillingLevel === OFF_DRILLING_LEVEL.ASM
+          (currentDrillingLevel === 2 && item.drillingLevel === 2) ||
+          (currentDrillingLevel === 1 && item.drillingLevel === 1)
         ) {
           return item;
         }
@@ -256,8 +256,8 @@ export const convertDataToFlatTableRotation = (
     propertyArrMonthlyProgress.forEach((ppt) => {
       data = data.map((item, index) => {
         if (
-          item.drillingLevel === ONL_DRILLING_LEVEL.DEPARTMENT ||
-          item.drillingLevel === OFF_DRILLING_LEVEL.ASM
+          (currentDrillingLevel === 2 && item.drillingLevel === 2) ||
+          (currentDrillingLevel === 1 && item.drillingLevel === 1)
         ) {
           return item;
         }

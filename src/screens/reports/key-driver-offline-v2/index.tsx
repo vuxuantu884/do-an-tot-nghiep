@@ -426,6 +426,7 @@ function KeyDriverOffline() {
                 </div>
               );
             },
+            sorter: direction === "h" ? true : false,
           },
           {
             title: () => {
@@ -452,6 +453,7 @@ function KeyDriverOffline() {
                 </div>
               );
             },
+            sorter: direction === "h" ? true : false,
           },
           {
             title: () => {
@@ -728,6 +730,7 @@ function KeyDriverOffline() {
                 </div>
               );
             },
+            sorter: direction === "h" ? true : false,
           },
           {
             title: () => {
@@ -1244,6 +1247,32 @@ function KeyDriverOffline() {
             columns={newFinalColumns}
             dataSource={data}
             loading={loadingPage}
+            onChange={(pagination, filters, sorter: any) => {
+              if (sorter) {
+                switch (sorter.order) {
+                  case "ascend":
+                    const newData1 = {
+                      ...data[0],
+                      children: data[0].children.sort(
+                        (a: any, b: any) => b[sorter.field] - a[sorter.field],
+                      ),
+                    };
+                    setData([newData1]);
+                    break;
+                  case "descend":
+                    const newData2 = {
+                      ...data[0],
+                      children: data[0].children.sort(
+                        (a: any, b: any) => a[sorter.field] - b[sorter.field],
+                      ),
+                    };
+                    setData([newData2]);
+                    break;
+                  default:
+                    break;
+                }
+              }
+            }}
           />
           <ModalSettingColumnData
             visible={showSettingColumn}
