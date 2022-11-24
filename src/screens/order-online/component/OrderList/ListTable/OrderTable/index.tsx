@@ -1312,6 +1312,11 @@ function OrdersTable(props: PropTypes) {
         title: "Ghi chú",
         className: "notes",
         render: (value: string, record: OrderModel) => {
+          const privateNote = promotionUtils.getPrivateNoteFromResponse(record.note || "");
+          const noteFormValue = {
+            note: privateNote,
+            customer_note: record.customer_note,
+          };
           return (
             <div className="orderNotes">
               <div className="inner">
@@ -1323,25 +1328,19 @@ function OrdersTable(props: PropTypes) {
                     onOk={(values) => {
                       editNote(values.note, values.customer_note, record.id, record);
                     }}
-                    noteFormValue={{
-                      note: record.note,
-                      customer_note: record.customer_note,
-                    }}
+                    noteFormValue={noteFormValue}
                   />
                 </div>
                 <div className="single">
                   <EditNote
                     // note={record.note}
-                    note={promotionUtils.getPrivateNoteFromResponse(record.note || "")}
+                    note={privateNote}
                     title="Nội bộ: "
                     color={primaryColor}
                     onOk={(values) => {
                       editNote(values.note, values.customer_note, record.id, record);
                     }}
-                    noteFormValue={{
-                      note: promotionUtils.getPrivateNoteFromResponse(record.note || ""),
-                      customer_note: record.customer_note,
-                    }}
+                    noteFormValue={noteFormValue}
                     promotionText={promotionUtils.getPromotionTextFromResponse(record.note || "")}
                   />
                 </div>
