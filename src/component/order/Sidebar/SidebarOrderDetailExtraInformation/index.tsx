@@ -18,6 +18,10 @@ type PropTypes = {
 function SidebarOrderDetailExtraInformation(props: PropTypes) {
   const { OrderDetail, editNote } = props;
 
+  const noteFormValue = {
+    note: promotionUtils.getPrivateNoteFromResponse(OrderDetail?.note || ""),
+    customer_note: OrderDetail?.customer_note,
+  };
   const detailArr = [
     {
       title: (
@@ -27,10 +31,7 @@ function SidebarOrderDetailExtraInformation(props: PropTypes) {
           onOk={(values) => {
             editNote && editNote(values?.note, values?.customer_note, OrderDetail?.id);
           }}
-          noteFormValue={{
-            note: OrderDetail?.note,
-            customer_note: OrderDetail?.customer_note,
-          }}
+          noteFormValue={noteFormValue}
         />
       ),
       value:
@@ -48,11 +49,7 @@ function SidebarOrderDetailExtraInformation(props: PropTypes) {
           onOk={(values) => {
             editNote && editNote(values?.note, values?.customer_note, OrderDetail?.id);
           }}
-          noteFormValue={{
-            // note: OrderDetail?.note,
-            note: promotionUtils.getPrivateNoteFromResponse(OrderDetail?.note || ""),
-            customer_note: OrderDetail?.customer_note,
-          }}
+          noteFormValue={noteFormValue}
         />
       ),
       value:
