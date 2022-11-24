@@ -20,6 +20,7 @@ export interface EcommerceShopInventoryDto extends BaseObject {
   warehouse: String | null;
   shop_id: Number | null;
   deleted: boolean;
+  type: string;
 }
 
 export interface EcommerceResponse extends BaseObject {
@@ -43,4 +44,5 @@ export interface EcommerceResponse extends BaseObject {
   source: String; // nguồn
   source_id: number; // id nguồn
   stores: Array<any>;
+  sync_stock_process_id: number | null;
 }

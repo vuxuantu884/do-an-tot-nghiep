@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { useHistory } from "react-router-dom";
 import CustomSelect from "component/custom/select.custom";
-import { Button, Col, Form, Row, Select, Spin, Table } from "antd";
+import { Button, Col, Form, Modal, Row, Select, Spin, Table } from "antd";
 
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
@@ -12,6 +12,7 @@ import { EcommerceRequest, EcommerceShopInventoryDto } from "model/request/ecomm
 import {
   ecommerceConfigUpdateAction,
   ecommerceConfigCreateAction,
+  exitEcommerceJobsAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
 import CustomInput from "screens/customer/common/customInput";
 
@@ -29,11 +30,26 @@ import { actionFetchListOrderSources } from "domain/actions/settings/order-sourc
 import { SourceResponse } from "model/response/order/source.response";
 import { SourceSearchQuery } from "model/request/source.request";
 import { getSourcesWithParamsService } from "service/order/order.service";
-import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import { handleFetchApiError, isFetchApiSuccessful, isNullOrUndefined } from "utils/AppUtils";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
+import BaseResponse from "base/base.response";
+import { getEcommerceJobsApi } from "service/ecommerce/ecommerce.service";
+import { HttpStatus } from "config/http-status.config";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
+import ProgressConfigMultipleInventoryModal from "./ProgressConfigMultipleInventoryModal";
 
 const { Option } = Select;
+
+const INVENTORY_STORE_TYPE = {
+  stores: "stores",
+  inventories: "inventories",
+};
+
+const INVENTORY_SYNC_TYPE = {
+  auto: "auto",
+  manual: "manual",
+};
 
 const shopsReadPermission = [EcommerceConfigPermission.shops_read];
 const shopsUpdatePermission = [EcommerceConfigPermission.shops_update];
@@ -160,23 +176,42 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
   const [sourceList, setSourceList] = useState<SourceResponse[]>([]);
   const [sourceSearching, setSourceSearching] = React.useState<boolean>(false);
 
-  const [listWareHouseInventory, setListWareHouseInventory] = useState<Array<any>>([]);
+  //handle inventory
+  const [isChangeInventory, setChangeInventory] = useState(false);
+  const [isChangeTypeInventory, setChangeTypeInventory] = useState("");
+  const [isShowProcessConfigMultipleInventoryModal, setIsShowProcessConfigMultipleInventoryModal] =
+    useState(false);
+  const [isShowConfirmCancelProcess, setIsShowConfirmCancelProcess] = useState(false);
+  const [syncStockProcessId, setSyncStockProcessId] = useState<number | null>(null);
+  const [progressData, setProgressData] = useState(null);
+  const [progressPercent, setProgressPercent] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [listWareHouse, setListWareHouse] = useState<Array<any>>([]);
 
   useEffect(() => {
-    if (configDetail) {
-      let _listWareHouseInventory: Array<any> = [];
-
-      const inventoriesValid = configDetail.inventories?.filter(
+    if (
+      configDetail &&
+      (configDetail.ecommerce_id === ECOMMERCE_ID.TIKI ||
+        configDetail.ecommerce_id === ECOMMERCE_ID.TIKTOK)
+    ) {
+      let _listWareHouse: Array<any> = [];
+      /** Lọc inventories deleted !== true và store_id !== null */
+      const inventoriesAndStoresValid = configDetail.inventories?.filter(
         (item) => !item.deleted && item.store_id,
       );
-      console.log("Lọc inventories deleted !== true và store_id !== null ");
-      console.log("inventoriesValid: ", inventoriesValid);
-      inventoriesValid?.forEach((inventory) => {
-        const indexItem = _listWareHouseInventory.findIndex(
+      const inventoriesList = inventoriesAndStoresValid.filter(
+        (item) => item.type === INVENTORY_STORE_TYPE.inventories,
+      );
+      const storesList = inventoriesAndStoresValid.filter(
+        (item) => item.type === INVENTORY_STORE_TYPE.stores,
+      );
+
+      inventoriesList?.forEach((inventory) => {
+        const indexItem = _listWareHouse.findIndex(
           (_item) => _item.warehouse_id === inventory.warehouse_id,
         );
         if (indexItem === -1) {
-          _listWareHouseInventory.push({
+          _listWareHouse.push({
             warehouse: inventory.warehouse,
             warehouse_id: inventory.warehouse_id,
             store: null,
@@ -185,23 +220,25 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
               {
                 store: inventory.store,
                 store_id: inventory.store_id,
+                warehouse_id: inventory.warehouse_id,
               },
             ],
           });
         } else {
-          _listWareHouseInventory[indexItem].inventories?.push({
+          _listWareHouse[indexItem].inventories?.push({
             store: inventory.store,
             store_id: inventory.store_id,
+            warehouse_id: inventory.warehouse_id,
           });
         }
       });
 
-      configDetail.stores?.forEach((storeItem) => {
-        const indexItem = _listWareHouseInventory.findIndex(
+      storesList?.forEach((storeItem) => {
+        const indexItem = _listWareHouse.findIndex(
           (_item) => _item.warehouse_id === storeItem.warehouse_id,
         );
         if (indexItem === -1) {
-          _listWareHouseInventory.push({
+          _listWareHouse.push({
             warehouse: storeItem.warehouse,
             warehouse_id: storeItem.warehouse_id,
             store: storeItem.store,
@@ -209,19 +246,18 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
             inventories: [],
           });
         } else {
-          _listWareHouseInventory[indexItem].store = storeItem.store;
-          _listWareHouseInventory[indexItem].store_id = storeItem.store_id;
+          _listWareHouse[indexItem].store = storeItem.store;
+          _listWareHouse[indexItem].store_id = storeItem.store_id;
+          _listWareHouse[indexItem].warehouse_id = storeItem.warehouse_id;
         }
       });
 
-      _listWareHouseInventory.sort((a, b) => {
+      _listWareHouse.sort((a, b) => {
         return b.warehouse_id < a.warehouse_id ? -1 : b.warehouse_id > a.warehouse_id ? 1 : 0;
       });
 
-
-      const checkListWareHouseInventory = _listWareHouseInventory.filter(item => item.warehouse_id)
-
-      setListWareHouseInventory(checkListWareHouseInventory);
+      const _listWareHouseValid = _listWareHouse.filter((item) => !!item.warehouse_id);
+      setListWareHouse(_listWareHouseValid);
     }
   }, [configDetail]);
 
@@ -235,6 +271,10 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
       setSourceList(response.items);
     }
   }, []);
+
+  const handleChangeTypeInventories = (value: string) => {
+    setChangeTypeInventory(value);
+  };
 
   const handleSearchingSource = useCallback(
     (searchValue: string) => {
@@ -254,58 +294,57 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
 
   /** select single store */
   const handleSelectSingleWareHouse = (value: number, option: any, item: any) => {
-    const _listWareHouseInventory = _.cloneDeep(listWareHouseInventory);
-    const indexItem = _listWareHouseInventory.findIndex(
-      (_item) => _item.warehouse_id === item.warehouse_id,
-    );
-    _listWareHouseInventory[indexItem].store = option.children;
-    _listWareHouseInventory[indexItem].store_id = option.value;
-    setListWareHouseInventory(_listWareHouseInventory);
+    const _listWareHouse = _.cloneDeep(listWareHouse);
+    const indexItem = _listWareHouse.findIndex((_item) => _item.warehouse_id === item.warehouse_id);
+    _listWareHouse[indexItem].store = option.children;
+    _listWareHouse[indexItem].store_id = option.value;
+    _listWareHouse[indexItem].warehouse_id = item.warehouse_id;
+    setListWareHouse(_listWareHouse);
   };
 
   const handleClearSingleWareHouse = (item: any) => {
-    const _listWareHouseInventory = _.cloneDeep(listWareHouseInventory);
-    const indexItem = _listWareHouseInventory.findIndex(
-      (_item) => _item.warehouse_id === item.warehouse_id,
-    );
-    _listWareHouseInventory[indexItem].store = null;
-    _listWareHouseInventory[indexItem].store_id = null;
-    setListWareHouseInventory(_listWareHouseInventory);
+    const _listWareHouse = _.cloneDeep(listWareHouse);
+    const indexItem = _listWareHouse.findIndex((_item) => _item.warehouse_id === item.warehouse_id);
+    _listWareHouse[indexItem].store = null;
+    _listWareHouse[indexItem].store_id = null;
+    _listWareHouse[indexItem].warehouse_id = null;
+    setListWareHouse(_listWareHouse);
   };
   /** end select single store */
 
   /** select multiple store */
-  const handleSelectMultipleWareHouse = (value: number, option: any, item: any) => {
-    const _listWareHouseInventory = _.cloneDeep(listWareHouseInventory);
-    const indexItem = _listWareHouseInventory.findIndex(
-      (_item) => _item.warehouse_id === item.warehouse_id,
-    );
-    _listWareHouseInventory[indexItem].inventories?.push({
-      store: option.children,
-      store_id: value,
-    });
-    setListWareHouseInventory(_listWareHouseInventory);
-  };
+  const handleSelectMultipleWareHouse = useCallback(
+    (value: number, option: any, item: any) => {
+      const _listWareHouse = _.cloneDeep(listWareHouse);
+      const indexItem = _listWareHouse.findIndex(
+        (_item) => _item.warehouse_id === item.warehouse_id,
+      );
+      _listWareHouse[indexItem].inventories?.push({
+        store: option.children,
+        store_id: value,
+        warehouse_id: item.warehouse_id,
+      });
+
+      setListWareHouse(_listWareHouse);
+    },
+    [listWareHouse],
+  );
 
   const handleDeselectMultipleWareHouse = (value: number, option: any, item: any) => {
-    const _listWareHouseInventory = _.cloneDeep(listWareHouseInventory);
-    const indexItem = _listWareHouseInventory.findIndex(
-      (_item) => _item.warehouse_id === item.warehouse_id,
-    );
-    const indexItemDeselect = _listWareHouseInventory[indexItem].inventories?.findIndex(
+    const _listWareHouse = _.cloneDeep(listWareHouse);
+    const indexItem = _listWareHouse.findIndex((_item) => _item.warehouse_id === item.warehouse_id);
+    const indexItemDeselect = _listWareHouse[indexItem].inventories?.findIndex(
       (_item: any) => _item.store_id === value,
     );
-    _listWareHouseInventory[indexItem].inventories?.splice(indexItemDeselect, 1);
-    setListWareHouseInventory(_listWareHouseInventory);
+    _listWareHouse[indexItem].inventories?.splice(indexItemDeselect, 1);
+    setListWareHouse(_listWareHouse);
   };
 
   const handleClearMultipleWareHouse = (item: any) => {
-    const _listWareHouseInventory = _.cloneDeep(listWareHouseInventory);
-    const indexItem = _listWareHouseInventory.findIndex(
-      (_item) => _item.warehouse_id === item.warehouse_id,
-    );
-    _listWareHouseInventory[indexItem].inventories = [];
-    setListWareHouseInventory(_listWareHouseInventory);
+    const _listWareHouse = _.cloneDeep(listWareHouse);
+    const indexItem = _listWareHouse.findIndex((_item) => _item.warehouse_id === item.warehouse_id);
+    _listWareHouse[indexItem].inventories = [];
+    setListWareHouse(_listWareHouse);
   };
   /** end select multiple store */
 
@@ -386,34 +425,118 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
     }
   }, [configDetail, configData]);
 
+  useEffect(() => {
+    const inventoriesAndStoresValid = configDetail?.inventories?.filter(
+      (item) => !item.deleted && item.store_id,
+    );
+
+    switch (configDetail?.ecommerce_id) {
+      case ECOMMERCE_ID.SHOPEE:
+      case ECOMMERCE_ID.LAZADA:
+        if (_.isEqual(inventoriesAndStoresValid, inventories)) {
+          setChangeInventory(false);
+        } else {
+          setChangeInventory(true);
+        }
+        break;
+      case ECOMMERCE_ID.TIKI:
+      case ECOMMERCE_ID.TIKTOK:
+        const initialInventories: any[] = [];
+
+        inventoriesAndStoresValid?.map(
+          (item) =>
+            item.type === INVENTORY_STORE_TYPE.inventories &&
+            initialInventories.push({
+              store: item.store,
+              store_id: item.store_id,
+              warehouse_id: item.warehouse_id,
+            }),
+        );
+
+        const afterChangeInventories = listWareHouse.map((item) => item.inventories).flat(Infinity);
+
+        if (_.isEqual(initialInventories, afterChangeInventories)) {
+          setChangeInventory(false);
+        } else {
+          setChangeInventory(true);
+        }
+        break;
+      default:
+        break;
+    }
+  }, [configDetail, form, inventories, listWareHouse]);
+
   const handleConfigCallback = React.useCallback(
     (value: EcommerceResponse) => {
       setIsLoading(false);
       if (value) {
-        setConfigToView(null);
-        setConfigDetail(undefined);
-        setConfigFromEcommerce(undefined);
-        showSuccess("Cập nhật cấu hình thành công");
-        history.replace(`${history.location.pathname}#sync`);
-        reloadConfigData();
+        switch (value.inventory_sync) {
+          case INVENTORY_SYNC_TYPE.auto:
+            if (
+              isChangeTypeInventory === INVENTORY_SYNC_TYPE.auto ||
+              (configDetail?.inventory_sync === INVENTORY_SYNC_TYPE.auto && isChangeInventory)
+            ) {
+              setIsProcessing(true);
+              setIsShowProcessConfigMultipleInventoryModal(true);
+              setSyncStockProcessId(value.sync_stock_process_id);
+            } else {
+              setConfigToView(null);
+              setConfigDetail(undefined);
+              setConfigFromEcommerce(undefined);
+              setChangeTypeInventory("");
+              history.replace(`${history.location.pathname}#sync`);
+              showSuccess("Đồng bộ cấu hình thành công");
+            }
+
+            break;
+          case INVENTORY_SYNC_TYPE.manual:
+            setConfigToView(null);
+            setConfigDetail(undefined);
+            setConfigFromEcommerce(undefined);
+            setChangeTypeInventory("");
+            history.replace(`${history.location.pathname}#sync`);
+            showSuccess("Đồng bộ cấu hình thành công");
+            reloadConfigData();
+            break;
+          default:
+            break;
+        }
       }
     },
-    [history, reloadConfigData, setConfigToView, setConfigFromEcommerce],
+    [
+      isChangeTypeInventory,
+      configDetail?.inventory_sync,
+      isChangeInventory,
+      setConfigToView,
+      setConfigFromEcommerce,
+      history,
+      reloadConfigData,
+    ],
   );
 
   const handleCreateConfigCallback = React.useCallback(
     (value: EcommerceResponse) => {
       setIsLoading(false);
       if (value) {
-        setConfigToView(null);
-        setConfigDetail(undefined);
-        setConfigFromEcommerce(undefined);
-        showSuccess("Đồng bộ cấu hình thành công");
-        history.replace(`${history.location.pathname}#sync`);
-        reloadConfigData();
+        switch (value.inventory_sync) {
+          case INVENTORY_SYNC_TYPE.auto:
+            setIsProcessing(true);
+            setIsShowProcessConfigMultipleInventoryModal(true);
+            setSyncStockProcessId(value.sync_stock_process_id);
+            break;
+          case INVENTORY_SYNC_TYPE.manual:
+            setConfigToView(null);
+            setConfigDetail(undefined);
+            setConfigFromEcommerce(undefined);
+            history.replace(`${history.location.pathname}#sync`);
+            showSuccess("Đồng bộ cấu hình thành công");
+            break;
+          default:
+            break;
+        }
       }
     },
-    [history, reloadConfigData, setConfigToView, setConfigFromEcommerce],
+    [history, setConfigToView, setConfigFromEcommerce],
   );
 
   //Render config multiple store for ecommerce
@@ -448,7 +571,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
           configDetail?.ecommerce_id === ECOMMERCE_ID.TIKI ||
           configDetail?.ecommerce_id === ECOMMERCE_ID.TIKTOK
         ) {
-          const invalidWarehouseConfig = listWareHouseInventory.find((item) => !item.store_id);
+          const invalidWarehouseConfig = listWareHouse.find((item) => !item.store_id);
           if (invalidWarehouseConfig) {
             showError(
               `Kho ${handleRenderConfigMultipleStore(configDetail?.ecommerce_id)} "${
@@ -458,14 +581,14 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
             return;
           }
 
-          let storesQuery: Array<any> = [];
           let inventoriesQuery: Array<any> = [];
-          listWareHouseInventory?.forEach((item) => {
-            storesQuery.push({
+          listWareHouse?.forEach((item) => {
+            inventoriesQuery.push({
               store: item.store,
               store_id: item.store_id,
               warehouse: item.warehouse,
               warehouse_id: item.warehouse_id,
+              type: INVENTORY_STORE_TYPE.stores,
             });
 
             item.inventories?.forEach((inventoryItem: any) => {
@@ -474,11 +597,11 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
                 store_id: inventoryItem.store_id,
                 warehouse: item.warehouse,
                 warehouse_id: item.warehouse_id,
+                type: INVENTORY_STORE_TYPE.inventories,
               });
             });
           });
 
-          request.stores = storesQuery;
           request.inventories = inventoriesQuery;
         }
 
@@ -497,7 +620,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
       assigneeAccountData,
       sourceList,
       listStores,
-      listWareHouseInventory,
+      listWareHouse,
       handleRenderConfigMultipleStore,
       dispatch,
       handleConfigCallback,
@@ -516,6 +639,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
         _inventories.push({
           store: _store.name,
           store_id: id,
+          type: INVENTORY_STORE_TYPE.inventories,
         });
       }
     }
@@ -543,6 +667,92 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
       setInventories([]);
     }
   }, [configDetail, form, setInventories]);
+
+  const handleCancelProcess = useCallback(() => {
+    setIsShowConfirmCancelProcess(true);
+  }, []);
+
+  const handleProcessSuccess = useCallback(() => {
+    setConfigToView(null);
+    setConfigDetail(undefined);
+    setConfigFromEcommerce(undefined);
+    setChangeTypeInventory("");
+    setIsShowProcessConfigMultipleInventoryModal(false);
+    showSuccess("Đồng bộ cấu hình thành công");
+    reloadConfigData();
+    resetProgress();
+    history.replace(`${history.location.pathname}#sync`);
+  }, [history, reloadConfigData, setConfigFromEcommerce, setConfigToView]);
+
+  const resetProgress = () => {
+    setSyncStockProcessId(null);
+    setProgressPercent(0);
+    setProgressData(null);
+  };
+
+  //handle confirm cancel process
+  const handleConfirmCancelProcess = useCallback(() => {
+    resetProgress();
+    setIsShowConfirmCancelProcess(false);
+    setIsShowProcessConfigMultipleInventoryModal(false);
+    if (syncStockProcessId) {
+      dispatch(
+        exitEcommerceJobsAction(syncStockProcessId, (responseData) => {
+          if (responseData) {
+            showSuccess(responseData);
+          }
+        }),
+      );
+    }
+    setConfigToView(null);
+    setConfigDetail(undefined);
+    setConfigFromEcommerce(undefined);
+    history.replace(`${history.location.pathname}#sync`);
+  }, [dispatch, history, setConfigFromEcommerce, setConfigToView, syncStockProcessId]);
+
+  useEffect(() => {
+    if (!syncStockProcessId) return;
+
+    const configMultipleInvetoryInterval = setInterval(getProcessConfigMulipleInventory, 3000);
+
+    return () => clearInterval(configMultipleInvetoryInterval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [syncStockProcessId]);
+
+  //config multiple inventory
+  const getProcessConfigMulipleInventory = () => {
+    let getProgressPromises: Promise<BaseResponse<any>> = getEcommerceJobsApi(syncStockProcessId);
+    Promise.all([getProgressPromises]).then((responses) => {
+      responses.forEach((response) => {
+        const processData = response.data;
+        if (
+          response.code === HttpStatus.SUCCESS &&
+          response.data &&
+          !isNullOrUndefined(processData.total)
+        ) {
+          setProgressData(response.data);
+          const progressCount =
+            processData.total_created +
+            processData.total_updated +
+            processData.total_success +
+            processData.total_error;
+          if (processData.finish) {
+            setProgressPercent(100);
+            setSyncStockProcessId(null);
+            setIsProcessing(false);
+            if (processData.api_error) {
+              resetProgress();
+              setIsShowProcessConfigMultipleInventoryModal(false);
+              showError(processData.api_error);
+            }
+          } else {
+            const percent = Math.floor((progressCount / response.data.total) * 100);
+            setProgressPercent(percent);
+          }
+        }
+      });
+    });
+  };
 
   const handleShopChange = React.useCallback(
     (id: any) => {
@@ -853,9 +1063,10 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
                 <Select
                   placeholder="Chọn kiểu đồng bộ tồn kho"
                   disabled={!configDetail || !allowShopsUpdate}
+                  onChange={handleChangeTypeInventories}
                 >
-                  <Option value={"auto"}>Tự động</Option>
-                  <Option value={"manual"}>Thủ công</Option>
+                  <Option value={INVENTORY_SYNC_TYPE.auto}>Tự động</Option>
+                  <Option value={INVENTORY_SYNC_TYPE.manual}>Thủ công</Option>
                 </Select>
               </Form.Item>
             </Col>
@@ -893,8 +1104,8 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
                   placeholder="Chọn kiểu đồng bộ đơn hàng"
                   disabled={!configDetail || !allowShopsUpdate}
                 >
-                  <Option value={"auto"}>Tự động</Option>
-                  <Option value={"manual"}>Thủ công</Option>
+                  <Option value={INVENTORY_SYNC_TYPE.auto}>Tự động</Option>
+                  <Option value={INVENTORY_SYNC_TYPE.manual}>Thủ công</Option>
                 </Select>
               </Form.Item>
               <Form.Item
@@ -911,7 +1122,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
                   placeholder="Chọn kiểu đồng bộ sản phẩm"
                   disabled={!configDetail || !allowShopsUpdate}
                 >
-                  <Option value={"manual"}>
+                  <Option value={INVENTORY_SYNC_TYPE.manual}>
                     <span>Đợi ghép nối</span>
                   </Option>
                 </Select>
@@ -968,7 +1179,6 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
                           <span></span>
                         ),
                     },
-
                     {
                       title: (
                         <span>
@@ -985,7 +1195,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
                             allowClear
                             optionFilterProp="children"
                             onSearch={(value) => onSearchSource(value.trim())}
-                            value={item.store_id}
+                            value={item.store_id !== -1 ? item.store_id : null}
                             onSelect={(value, option) => {
                               handleSelectSingleWareHouse(value, option, item);
                             }}
@@ -1049,7 +1259,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
                         ),
                     },
                   ]}
-                  dataSource={listWareHouseInventory}
+                  dataSource={listWareHouse}
                   pagination={false}
                   rowKey={(item: any) => item.warehouse_id}
                 />
@@ -1086,6 +1296,38 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
             )}
           </div>
         </Form>
+        {isShowProcessConfigMultipleInventoryModal && (
+          <ProgressConfigMultipleInventoryModal
+            visible={isShowProcessConfigMultipleInventoryModal}
+            onCancel={handleCancelProcess}
+            onOk={handleProcessSuccess}
+            progressData={progressData}
+            progressPercent={progressPercent}
+            isLoading={isProcessing}
+          />
+        )}
+        <Modal
+          width="600px"
+          centered
+          visible={isShowConfirmCancelProcess}
+          title=""
+          okText="Xác nhận"
+          cancelText="Hủy"
+          onCancel={() => setIsShowConfirmCancelProcess(false)}
+          onOk={handleConfirmCancelProcess}
+        >
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <img src={DeleteIcon} alt="" />
+            <div style={{ marginLeft: 15 }}>
+              <strong style={{ fontSize: 16 }}>
+                Bạn có chắc chắn muốn hủy cấu hình đa kho không?
+              </strong>
+              <div style={{ fontSize: 14 }}>
+                Hệ thống sẽ dừng việc cấu hình đa kho, bạn vẫn có thể cấu hình sau nếu muốn.
+              </div>
+            </div>
+          </div>
+        </Modal>
       </StyledConfig>
     );
   };
