@@ -2,6 +2,7 @@
 import {
   CheckOutlined,
   CloseOutlined,
+  // QuestionCircleOutlined,
   RightOutlined,
   RotateLeftOutlined,
   RotateRightOutlined,
@@ -1052,6 +1053,12 @@ function KeyDriverOnline() {
   return havePermission ? (
     <ContentContainer
       title={"Báo cáo kết quả kinh doanh Online"}
+      // extra={
+      //   <Button type="primary" ghost onClick={() => {}}>
+      //     <QuestionCircleOutlined />
+      //     <span className="margin-left-10">Giải thích thuật ngữ</span>
+      //   </Button>
+      // }
       breadcrumb={getBreadcrumbByLevel(
         queryString.parse(history.location.search),
         departmentLv2,
@@ -1234,24 +1241,28 @@ function KeyDriverOnline() {
             loading={loadingPage}
             onChange={(pagination, filters, sorter: any) => {
               if (sorter) {
-                // console.log("sorter", sorter);
-                // console.log("data", data);
-                const newData =
-                  sorter.order === "ascend"
-                    ? {
-                        ...data[0],
-                        children: data[0].children.sort(
-                          (a: any, b: any) => a[sorter.field] - b[sorter.field],
-                        ),
-                      }
-                    : {
-                        ...data[0],
-                        children: data[0].children.sort(
-                          (a: any, b: any) => b[sorter.field] - a[sorter.field],
-                        ),
-                      };
-                // console.log("newData", newData);
-                setData([newData]);
+                switch (sorter.order) {
+                  case "ascend":
+                    const newData1 = {
+                      ...data[0],
+                      children: data[0].children.sort(
+                        (a: any, b: any) => b[sorter.field] - a[sorter.field],
+                      ),
+                    };
+                    setData([newData1]);
+                    break;
+                  case "descend":
+                    const newData2 = {
+                      ...data[0],
+                      children: data[0].children.sort(
+                        (a: any, b: any) => a[sorter.field] - b[sorter.field],
+                      ),
+                    };
+                    setData([newData2]);
+                    break;
+                  default:
+                    break;
+                }
               }
             }}
           />
