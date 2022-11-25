@@ -2,7 +2,7 @@
 import {
   CheckOutlined,
   CloseOutlined,
-  // QuestionCircleOutlined,
+  QuestionCircleOutlined,
   RightOutlined,
   RotateLeftOutlined,
   RotateRightOutlined,
@@ -16,7 +16,6 @@ import CustomDatePicker from "component/custom/new-date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
 import ModalSettingColumnData from "component/table/ModalSettingColumnData";
 import { HttpStatus } from "config/http-status.config";
-// import { KeyboardKey } from "model/other/keyboard/keyboard.model";
 import { KeyDriverDataSourceType, LocalStorageKey } from "model/report";
 import moment from "moment";
 import queryString from "query-string";
@@ -31,6 +30,8 @@ import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { strForSearch } from "utils/StringUtils";
+import { initialAnnotationOnline } from "../analytics/shared/key-driver-annotation";
+import KeyDriverAnnotationModal from "../analytics/shared/key-driver-annotation-modal";
 import { kdOnNeedLowValue } from "../common/constant/kd-need-low-value";
 import {
   COLUMN_ORDER_LIST,
@@ -150,6 +151,9 @@ function KeyDriverOnline() {
   const [expandRowKeys, setExpandRowKeys] = useState<any[]>(
     expandedDefault ? JSON.parse(expandedDefault) : [],
   );
+
+  const [isVisibleAnnotation, setIsVisibleAnnotation] = useState(false);
+  const keyDriverOnlineAnnotation: any = initialAnnotationOnline;
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [columns, setColumns] = useState<any[]>(
     getColumns
@@ -1053,12 +1057,12 @@ function KeyDriverOnline() {
   return havePermission ? (
     <ContentContainer
       title={"Báo cáo kết quả kinh doanh Online"}
-      // extra={
-      //   <Button type="primary" ghost onClick={() => {}}>
-      //     <QuestionCircleOutlined />
-      //     <span className="margin-left-10">Giải thích thuật ngữ</span>
-      //   </Button>
-      // }
+      extra={
+        <Button type="primary" ghost onClick={() => setIsVisibleAnnotation(true)}>
+          <QuestionCircleOutlined />
+          <span className="margin-left-10">Giải thích thuật ngữ</span>
+        </Button>
+      }
       breadcrumb={getBreadcrumbByLevel(
         queryString.parse(history.location.search),
         departmentLv2,
@@ -1246,7 +1250,9 @@ function KeyDriverOnline() {
                     const newData1 = {
                       ...data[0],
                       children: data[0].children.sort(
-                        (a: any, b: any) => b[sorter.field] - a[sorter.field],
+                        (a: any, b: any) =>
+                          (b[sorter.field] ? b[sorter.field] : 0) -
+                          (a[sorter.field] ? a[sorter.field] : 0),
                       ),
                     };
                     setData([newData1]);
@@ -1255,7 +1261,9 @@ function KeyDriverOnline() {
                     const newData2 = {
                       ...data[0],
                       children: data[0].children.sort(
-                        (a: any, b: any) => a[sorter.field] - b[sorter.field],
+                        (a: any, b: any) =>
+                          (a[sorter.field] ? a[sorter.field] : 0) -
+                          (b[sorter.field] ? b[sorter.field] : 0),
                       ),
                     };
                     setData([newData2]);
@@ -1277,6 +1285,11 @@ function KeyDriverOnline() {
             data={columns}
           />
         </Card>
+        <KeyDriverAnnotationModal
+          isVisiable={isVisibleAnnotation}
+          handleCancel={() => setIsVisibleAnnotation(false)}
+          annotationData={keyDriverOnlineAnnotation}
+        />
       </KeyDriverStyle>
     </ContentContainer>
   ) : (
