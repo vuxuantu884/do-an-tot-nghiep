@@ -87,21 +87,21 @@ const TabHistoryInfo: React.FC = () => {
       ...data,
       data_old: JSON.stringify(newOldData),
       data_current: JSON.stringify(newCurrentData),
-    }
+    };
 
     setDataLogSelected(newData);
   };
 
-  const defaultColumn: Array<ICustomTableColumType<ProductHistoryResponse>> = useMemo(() => {
+  const defaultColumns: Array<ICustomTableColumType<ProductHistoryResponse>> = useMemo(() => {
     return [
       {
         title: "Sản phẩm",
-        dataIndex: "history_type",
-        key: "history_type",
+        dataIndex: "sku",
+        key: "sku",
         visible: true,
         fixed: "left",
-        render: (value, item) => {
-          if (IS_PRODUCT_TYPE.includes(value)) {
+        render: (sku, item) => {
+          if (IS_PRODUCT_TYPE.includes(item.history_type)) {
             return (
               <div>
                 <Link to={`${UrlConfig.PRODUCT}/${item.product_id}`}>{item.product_code}</Link>
@@ -186,15 +186,16 @@ const TabHistoryInfo: React.FC = () => {
   }, []);
 
   const [columns, setColumns] =
-    useState<Array<ICustomTableColumType<ProductHistoryResponse>>>(defaultColumn);
+    useState<Array<ICustomTableColumType<ProductHistoryResponse>>>(defaultColumns);
 
   const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(
     COLUMN_CONFIG_TYPE.COLUMN_PRODUCT_HISTORY,
   );
+
   useSetTableColumns(
     COLUMN_CONFIG_TYPE.COLUMN_PRODUCT_HISTORY,
     tableColumnConfigs,
-    defaultColumn,
+    defaultColumns,
     setColumns,
   );
 
@@ -254,7 +255,13 @@ const TabHistoryInfo: React.FC = () => {
           setColumns(data);
           onSaveConfigTableColumn(data);
         }}
-        data={defaultColumn}
+        data={columns}
+        onResetToDefault={() => {
+          setShowSettingColumn(false);
+          setColumns(defaultColumns);
+          onSaveConfigTableColumn(defaultColumns);
+        }}
+        isSetDefaultColumn
       />
 
       {isOpenModalLog && (
@@ -267,15 +274,23 @@ const TabHistoryInfo: React.FC = () => {
         >
           <Row gutter={24}>
             <Col span={12} style={{ borderRight: "1px solid #d9d9d9" }}>
-              <div style={{ textAlign: "center" }} className="font-weight-500 mb-20">Trước</div>
+              <div style={{ textAlign: "center" }} className="font-weight-500 mb-20">
+                Trước
+              </div>
               <pre>
-                {dataLogSelected && dataLogSelected.data_old && JSON.stringify(JSON.parse(dataLogSelected.data_old), null, 2)}
+                {dataLogSelected &&
+                  dataLogSelected.data_old &&
+                  JSON.stringify(JSON.parse(dataLogSelected.data_old), null, 2)}
               </pre>
             </Col>
             <Col span={12}>
-              <div style={{ textAlign: "center" }} className="font-weight-500 mb-20">Sau</div>
+              <div style={{ textAlign: "center" }} className="font-weight-500 mb-20">
+                Sau
+              </div>
               <pre>
-                {dataLogSelected && dataLogSelected.data_current && JSON.stringify(JSON.parse(dataLogSelected.data_current), null, 2)}
+                {dataLogSelected &&
+                  dataLogSelected.data_current &&
+                  JSON.stringify(JSON.parse(dataLogSelected.data_current), null, 2)}
               </pre>
             </Col>
           </Row>
