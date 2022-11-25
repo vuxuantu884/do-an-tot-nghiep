@@ -1,4 +1,5 @@
 import { Card } from "antd";
+import SearchCustomerAutoComplete from "component/SearchCustomer";
 import { DistrictGetByCountryAction } from "domain/actions/content/content.action";
 import { CustomerGroups } from "domain/actions/customer/customer.action";
 import { changeOrderCustomerAction } from "domain/actions/order/order.action";
@@ -17,7 +18,6 @@ import CreateCustomer from "./CreateCustomer";
 import ExtraCardCustomer from "./ExtraCardCustomer";
 import { StyleComponent } from "./ExtraCardCustomer/style";
 import InfoCustomer from "./InfoCustomer";
-import SearchCustomer from "./SearchCustomer";
 import UpdateCustomer from "./UpdateCustomer";
 
 type CardCustomerProps = {
@@ -168,7 +168,7 @@ const CardCustomer: React.FC<CardCustomerProps> = (props: CardCustomerProps) => 
         }
       >
         {isVisibleCustomer !== true && (
-          <SearchCustomer
+          <SearchCustomerAutoComplete
             keySearch={keySearchCustomer}
             setKeySearch={setKeySearchCustomer}
             id="search_customer"

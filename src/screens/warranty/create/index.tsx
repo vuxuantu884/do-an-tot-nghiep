@@ -9,16 +9,17 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { AutoComplete, Button, Card, Col, DatePicker, Form, FormInstance, Input, Row } from "antd";
-import { default as imageDefault, default as imgDefault } from "assets/icon/img-default.svg";
+import { default as imgDefault } from "assets/icon/img-default.svg";
 import ContentContainer from "component/container/content.container";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
+import SearchCustomerAutoComplete from "component/SearchCustomer";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
-import { CustomerSearchSo, getCustomerDetailAction } from "domain/actions/customer/customer.action";
+import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { OrderDetailAction } from "domain/actions/order/order.action";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import {
@@ -30,7 +31,6 @@ import useFetchStores from "hook/useFetchStores";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
-import { CustomerSearchQuery } from "model/query/customer.query";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { WarrantyFormType, WarrantyItemTypeModel } from "model/warranty/warranty.model";
 import moment from "moment";
@@ -60,23 +60,6 @@ import { StyledComponent } from "./index.styles";
 
 type Props = {};
 
-const initQueryCustomer: CustomerSearchQuery = {
-  request: "",
-  limit: 5,
-  page: 1,
-  gender: null,
-  from_birthday: null,
-  to_birthday: null,
-  company: null,
-  from_wedding_date: null,
-  to_wedding_date: null,
-  customer_type_ids: [],
-  customer_group_ids: [],
-  customer_level_id: undefined,
-  responsible_staff_codes: null,
-  search_type: "SIMPLE",
-};
-
 function CreateWarranty(props: Props) {
   const dispatch = useDispatch();
   const history = useHistory();
@@ -88,9 +71,7 @@ function CreateWarranty(props: Props) {
   const formRef = createRef<FormInstance>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
-  const [searchCustomer, setSearchCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
-  const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
   const [hadCustomer, setHadCustomer] = useState(false);
   const [customerID, setCustomerID] = useState<number | null>(null);
   const [createLoading, setCreateLoading] = useState(false);
@@ -247,7 +228,6 @@ function CreateWarranty(props: Props) {
   }, [resultSearchVariant]);
 
   const [reasons, setReasons] = useState<Array<any>>([]);
-  const autoCompleteRefCustomer = useRef<any>(null);
   const autoCompleteRefProduct = useRef<any>(null);
 
   const initialFormValueWarranty = {
@@ -261,92 +241,23 @@ function CreateWarranty(props: Props) {
     delivery_method: null,
   };
 
-  const CustomerRenderSearchResult = (item: CustomerResponse) => {
-    return (
-      <div className="row-search w-100">
-        <div className="rs-left w-100" style={{ lineHeight: "35px" }}>
-          <img src={imageDefault} alt="anh" placeholder={imageDefault} className="logo-customer" />
-          <div className="rs-info w-100">
-            <span style={{ display: "flex" }}>
-              {item.full_name}{" "}
-              <i
-                className="icon-dot"
-                style={{
-                  fontSize: "4px",
-                  margin: "16px 10px 10px 10px",
-                  color: "#737373",
-                }}
-              ></i>{" "}
-              <span style={{ color: "#737373" }}>{item.phone}</span>
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  };
-  const customerConvertResultSearch = useMemo(() => {
-    let options: any[] = [];
-    if (resultSearch.length > 0) {
-      resultSearch.forEach((item: CustomerResponse, index: number) => {
-        options.push({
-          label: CustomerRenderSearchResult(item),
-          value: item.id ? item.id.toString() : "",
-        });
+  const handleChangeCustomer = useCallback(
+    (customers: CustomerResponse | null) => {
+      if (!customers) return;
+      setCustomerID(customers.id);
+      setHadCustomer(true);
+      warrantyForm.setFieldsValue({
+        customer_id: customers.id,
+        customer: customers.full_name,
+        customer_mobile: customers.phone,
+        customer_address: `${customers.full_address ? customers.full_address : ""} ${
+          customers.ward ? customers.ward : ""
+        } ${customers.district ? customers.district : ""} ${
+          customers.city ? customers.city : ""
+        }`.trim(),
       });
-    }
-    return options;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, resultSearch]);
-  const customerChangeSearch = useCallback(
-    (value) => {
-      setKeySearchCustomer(value);
-      if (value.length >= 3) {
-        setSearchCustomer(true);
-      } else {
-        setSearchCustomer(false);
-      }
-      initQueryCustomer.request = value.trim();
-      const handleSearch = () => {
-        dispatch(
-          CustomerSearchSo(initQueryCustomer, (response) => {
-            setResultSearch(response);
-          }),
-        );
-        setSearchCustomer(false);
-      };
-      handleDelayActionWhenInsertTextInSearchInput(autoCompleteRefCustomer, () => handleSearch());
     },
-    [dispatch],
-  );
-
-  const searchCustomerSelect = useCallback(
-    (value, o) => {
-      let index: number = -1;
-      index = resultSearch.findIndex(
-        (customerResponse: CustomerResponse) =>
-          customerResponse.id && customerResponse.id.toString() === value,
-      );
-      if (index !== -1) {
-        dispatch(
-          getCustomerDetailAction(resultSearch[index].id, (data: CustomerResponse | null) => {
-            if (data) {
-              setCustomerID(data.id);
-              setHadCustomer(true);
-              warrantyForm.setFieldsValue({
-                customer_id: data.id,
-                customer: data.full_name,
-                customer_mobile: data.phone,
-                customer_address: `${data.full_address ? data.full_address : ""} ${
-                  data.ward ? data.ward : ""
-                } ${data.district ? data.district : ""} ${data.city ? data.city : ""}`.trim(),
-              });
-            }
-          }),
-        );
-        setKeySearchCustomer("");
-      }
-    },
-    [dispatch, resultSearch, warrantyForm],
+    [warrantyForm],
   );
 
   const disabledDate = (current: any) => {
@@ -820,32 +731,39 @@ function CreateWarranty(props: Props) {
                 }
               >
                 {!hadCustomer && (
-                  <AutoComplete
-                    notFoundContent={
-                      keySearchCustomer.length >= 3 ? "Không tìm thấy khách hàng" : undefined
-                    }
+                  // <AutoComplete
+                  //   notFoundContent={
+                  //     keySearchCustomer.length >= 3 ? "Không tìm thấy khách hàng" : undefined
+                  //   }
+                  //   id="search_customer"
+                  //   value={keySearchCustomer}
+                  //   ref={autoCompleteRefCustomer}
+                  //   onSelect={searchCustomerSelect}
+                  //   dropdownClassName="search-layout-customer dropdown-search-header"
+                  //   dropdownMatchSelectWidth={456}
+                  //   style={{ width: "100%" }}
+                  //   onSearch={customerChangeSearch}
+                  //   options={customerConvertResultSearch}
+                  //   defaultActiveFirstOption
+                  // >
+                  //   <Input
+                  //     placeholder="Tìm khách hàng"
+                  //     prefix={
+                  //       searchCustomer ? (
+                  //         <LoadingOutlined style={{ color: "#2a2a86" }} />
+                  //       ) : (
+                  //         <SearchOutlined style={{ color: "#ABB4BD" }} />
+                  //       )
+                  //     }
+                  //   />
+                  // </AutoComplete>
+
+                  <SearchCustomerAutoComplete
+                    keySearch={keySearchCustomer}
+                    setKeySearch={setKeySearchCustomer}
                     id="search_customer"
-                    value={keySearchCustomer}
-                    ref={autoCompleteRefCustomer}
-                    onSelect={searchCustomerSelect}
-                    dropdownClassName="search-layout-customer dropdown-search-header"
-                    dropdownMatchSelectWidth={456}
-                    style={{ width: "100%" }}
-                    onSearch={customerChangeSearch}
-                    options={customerConvertResultSearch}
-                    defaultActiveFirstOption
-                  >
-                    <Input
-                      placeholder="Tìm khách hàng"
-                      prefix={
-                        searchCustomer ? (
-                          <LoadingOutlined style={{ color: "#2a2a86" }} />
-                        ) : (
-                          <SearchOutlined style={{ color: "#ABB4BD" }} />
-                        )
-                      }
-                    />
-                  </AutoComplete>
+                    onSelect={handleChangeCustomer}
+                  />
                 )}
                 {hadCustomer && (
                   <>

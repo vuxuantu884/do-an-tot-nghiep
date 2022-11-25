@@ -16,7 +16,7 @@ type Props = {
   setKeySearch: (v: string) => void;
   id?: string;
   onSelect?: (v: CustomerResponse) => void;
-  handleConfirmCreate: () => void;
+  handleConfirmCreate?: () => void;
 };
 
 var barCode = "";
@@ -39,7 +39,7 @@ const initQueryCustomer: CustomerSearchQuery = {
   search_type: "SIMPLE",
 };
 
-const SearchCustomer: React.FC<Props> = (props: Props) => {
+const SearchCustomerAutoComplete: React.FC<Props> = (props: Props) => {
   const { keySearch, setKeySearch, onSelect, id, handleConfirmCreate } = props;
 
   const dispatch = useDispatch();
@@ -125,13 +125,19 @@ const SearchCustomer: React.FC<Props> = (props: Props) => {
       if (data.length === 0) {
         showError("Không tìm thấy khách hàng!");
       } else {
-        onSelect && onSelect(data[0]);
+        dispatch(
+          getCustomerDetailAction(data[0].id, (data: CustomerResponse | null) => {
+            if (data && onSelect) {
+              onSelect(data);
+            }
+          }),
+        );
         setKeySearch("");
         setResultSearchCustomer([]);
       }
       setIsSearchCustomer(false);
     },
-    [onSelect, setKeySearch],
+    [dispatch, onSelect, setKeySearch],
   );
 
   const handleBarcodeProduct = useCallback(
@@ -235,19 +241,23 @@ const SearchCustomer: React.FC<Props> = (props: Props) => {
         ref={autoCompleteRef}
         dropdownClassName="search-layout dropdown-search-header"
         style={{ width: "100%" }}
-        dropdownRender={(menu) => (
-          <div className="dropdown-custom">
-            <Button
-              icon={<AiOutlinePlusCircle size={24} />}
-              className="dropdown-custom-add-new"
-              type="link"
-              onClick={() => handleConfirmCreate()}
-            >
-              Thêm mới khách hàng
-            </Button>
-            {menu}
-          </div>
-        )}
+        dropdownRender={
+          handleConfirmCreate
+            ? (menu) => (
+                <div className="dropdown-custom">
+                  <Button
+                    icon={<AiOutlinePlusCircle size={24} />}
+                    className="dropdown-custom-add-new"
+                    type="link"
+                    onClick={() => handleConfirmCreate()}
+                  >
+                    Thêm mới khách hàng
+                  </Button>
+                  {menu}
+                </div>
+              )
+            : undefined
+        }
       >
         <Input
           size="middle"
@@ -264,4 +274,4 @@ const SearchCustomer: React.FC<Props> = (props: Props) => {
     </StyleComponent>
   );
 };
-// export default SearchCustomer;
+export default SearchCustomerAutoComplete;
