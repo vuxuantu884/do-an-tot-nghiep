@@ -79,7 +79,7 @@ import SupplierSearchSelect from "component/custom/select-search/supplier-select
 import { callApiNative } from "utils/ApiUtils";
 import { productUpdateApi } from "service/product/product.service";
 import { careInformation } from "screens/products/Component/CareInformation/care-value";
-import CareModal from "screens/products/Component/CareInformation"
+import CareModal from "screens/products/Component/CareInformation";
 
 const { Item } = Form;
 let tempActive: number = 0;
@@ -1559,14 +1559,16 @@ const ProductDetailScreen: React.FC = () => {
                                                   name={[name, "currency_code"]}
                                                 >
                                                   <CustomSelect placeholder="Đơn vị tiền tệ">
-                                                    {currencyList && currencyList[0] && [currencyList[0]]?.map((item) => (
-                                                      <CustomSelect.Option
-                                                        key={item.value}
-                                                        value={item.value}
-                                                      >
-                                                        {item.name}
-                                                      </CustomSelect.Option>
-                                                    ))}
+                                                    {currencyList &&
+                                                      currencyList[0] &&
+                                                      [currencyList[0]]?.map((item) => (
+                                                        <CustomSelect.Option
+                                                          key={item.value}
+                                                          value={item.value}
+                                                        >
+                                                          {item.name}
+                                                        </CustomSelect.Option>
+                                                      ))}
                                                   </CustomSelect>
                                                 </Item>
                                               </Col>
@@ -1579,10 +1581,10 @@ const ProductDetailScreen: React.FC = () => {
                                   <Row gutter={50}>
                                     <Col span={24} sm={12}>
                                       <Item name={[name, "color_id"]} label="Màu sắc">
-                                        <ColorSearchSelect />
+                                        <ColorSearchSelect disabled />
                                       </Item>
                                       <Item name={[name, "size_id"]} label="Kích cỡ">
-                                        <SizeSearchSelect />
+                                        <SizeSearchSelect disabled />
                                       </Item>
 
                                       <Item
