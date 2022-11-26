@@ -20,7 +20,7 @@ const { Option } = Select;
 const POCreatePaymentModal = lazy(() => import("../../modal/POCreatePayment"));
 
 type POPaymentConditionsFormProps = {
-  listPayment: Array<PoPaymentConditions>;
+  listPayment?: Array<PoPaymentConditions>;
   isEdit: Boolean;
   isEditDetail?: Boolean;
   formMain?: any;
