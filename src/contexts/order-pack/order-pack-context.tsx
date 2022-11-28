@@ -1,5 +1,4 @@
 import { StoreResponse } from "model/core/store.model";
-import { OrderWithFulfillmentActiveModel } from "model/order/order.model";
 import { PackModel } from "model/pack/pack.model";
 import { ChannelsResponse, DeliveryServiceResponse } from "model/response/order/order.response";
 import { GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";

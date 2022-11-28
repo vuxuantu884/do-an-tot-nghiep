@@ -9,13 +9,16 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderResponse } from "model/response/order/order.response";
 import React, { Fragment, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { EcommerceChannelId } from "screens/ecommerce/common/commonAction";
-import { isOrderFromPOS, sortFulfillments } from "utils/AppUtils";
+import { isOrderFromPOS, sortFulfillments, checkIfOrderHasReturnedAll } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import {
-  checkActiveCancelConfirmOrder, checkActiveCancelPackOrder,
+  checkActiveCancelConfirmOrder,
+  checkActiveCancelPackOrder,
   checkIfFulfillmentCancelled,
+  checkIfOrderFinished,
   checkIfOrderHasNotFinishPaymentMomo,
   isDeliveryOrderReturned,
 } from "utils/OrderUtils";
@@ -147,6 +150,87 @@ function OrderDetailBottomBar(props: PropTypes) {
       content = <CreateBillStep orderDetail={orderDetail} status={stepsStatusValue} />;
     }
     return <div className="bottomBar__left">{content}</div>;
+  };
+
+  const renderOrderReturnButtons = () => {
+    if (!orderDetail) return;
+    const isOrderReturnAll = checkIfOrderHasReturnedAll(orderDetail);
+    return !isOrderReturnAll ? (
+      <React.Fragment>
+        {!isOrderFromPOS(orderDetail) ? (
+          <React.Fragment>
+            <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.orders_return_online]} passThrough>
+              {(isPassed: boolean) => (
+                <Link
+                  to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${orderDetail?.id}&type=online`}
+                  title={
+                    !isPassed ? "Tài khoản không được cấp quyền trả lại chuyển hàng online" : ""
+                  }
+                >
+                  <Button
+                    type="primary"
+                    style={{ margin: "0 10px", padding: "0 25px" }}
+                    className="create-button-custom ant-btn-outline fixed-button"
+                    disabled={!isPassed}
+                  >
+                    Trả lại chuyển hàng
+                  </Button>
+                </Link>
+              )}
+            </AuthWrapper>
+            <AuthWrapper
+              acceptPermissions={[ORDER_PERMISSIONS.orders_return_at_the_store]}
+              passThrough
+            >
+              {(isPassed: boolean) => (
+                <Link
+                  to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${orderDetail?.id}&type=offline`}
+                  title={!isPassed ? "Tài khoản không được cấp quyền trả tại quầy online" : ""}
+                >
+                  <Button
+                    type="primary"
+                    style={{ margin: "0 10px", padding: "0 25px" }}
+                    className="create-button-custom ant-btn-outline fixed-button"
+                    disabled={!isPassed}
+                  >
+                    Trả lại tại quầy
+                  </Button>
+                </Link>
+              )}
+            </AuthWrapper>
+          </React.Fragment>
+        ) : (
+          <AuthWrapper acceptPermissions={[ORDER_PERMISSIONS.orders_return_offline]} passThrough>
+            {(isPassed: boolean) => (
+              <Link
+                to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${orderDetail?.id}&type=offline`}
+                title={!isPassed ? "Tài khoản không được cấp quyền đổi trả hàng offline" : ""}
+              >
+                <Button
+                  type="primary"
+                  style={{ padding: "0 25px" }}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  disabled={!isPassed}
+                >
+                  Đổi trả hàng
+                </Button>
+              </Link>
+            )}
+          </AuthWrapper>
+        )}
+      </React.Fragment>
+    ) : (
+      <React.Fragment>
+        <Button
+          type="primary"
+          style={{ margin: "0 10px", padding: "0 25px" }}
+          className="create-button-custom ant-btn-outline fixed-button"
+          disabled
+        >
+          Đơn hàng đã đổi trả hàng hết!
+        </Button>
+      </React.Fragment>
+    );
   };
 
   const renderBottomBarRight = {
@@ -400,7 +484,8 @@ function OrderDetailBottomBar(props: PropTypes) {
                   </AuthWrapper >
               )} */}
             {orderDetail?.sub_status_code &&
-              orderDetail.sub_status_code !== ORDER_SUB_STATUS.returned && ( // đơn đã hoàn thì tạm thời ko hiển thị sửa đơn hàng
+              orderDetail.sub_status_code !== ORDER_SUB_STATUS.returned &&
+              !checkIfOrderFinished(orderDetail) && ( // đơn đã hoàn thì tạm thời ko hiển thị sửa đơn hàng
                 <AuthWrapper acceptPermissions={acceptPermissionsUpdate()} passThrough>
                   {(isPassed: boolean) => (
                     <Button
@@ -431,6 +516,7 @@ function OrderDetailBottomBar(props: PropTypes) {
                 Xác nhận đơn
               </Button>
             )}
+            {checkIfOrderFinished(orderDetail) && renderOrderReturnButtons()}
           </Col>
         );
       }
