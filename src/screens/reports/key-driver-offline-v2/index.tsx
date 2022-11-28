@@ -54,6 +54,7 @@ import {
 import { convertDataToFlatTableRotation } from "../common/helpers/convert-data-to-flat-table-rotation";
 import { filterValueColumns } from "../common/helpers/filter-value-columns";
 import { getBreadcrumbByLevel } from "../common/helpers/get-breadcrumb-by-level";
+import { isPastDate } from "../common/helpers/handle-time-on-kd";
 import { saveTargetHorizontalReport } from "../common/helpers/save-target-horizontal-report";
 import { saveMonthTargetKeyDriver } from "../common/helpers/save-target-kd";
 import {
@@ -588,6 +589,7 @@ function KeyDriverOffline() {
                         const input: any = document.getElementById(inputId);
                         input.blur();
                       }}
+                      disabled={isPastDate(date)}
                       onFocus={(e) => {
                         document.getElementById(`${inputId}-action`)?.removeAttribute("hidden");
                       }}
@@ -765,6 +767,7 @@ function KeyDriverOffline() {
         ],
       };
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [day, dispatch, history],
   );
 
