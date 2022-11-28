@@ -18,7 +18,11 @@ import { formatCurrency, isNullOrUndefined, scrollAndFocusToDomElement } from "u
 import { PROMO_TYPE } from "./Constants";
 import { DATE_FORMAT } from "./DateUtils";
 import { showError } from "./ToastUtils";
-import { GIFT_METHOD_ENUM, GiftEntitlementForm, GiftProductEntitlements } from "model/promotion/gift.model";
+import {
+  GIFT_METHOD_ENUM,
+  GiftEntitlementForm,
+  GiftProductEntitlements,
+} from "model/promotion/gift.model";
 import { CustomerConditionField } from "screens/promotion/gift/components/GiftCustomerCondition";
 
 /**
@@ -96,7 +100,7 @@ export const insertProduct = (
 
   const itemParseFromFileToDisplay = {
     ...importItem,
-    cost: 0,    // nhập file chưa trả về giá vốn
+    cost: 0, // nhập file chưa trả về giá vốn
     retail_price: importItem.price,
     open_quantity: importItem.quantity,
     variant_title: importItem.variant_title,
@@ -285,6 +289,25 @@ export function nonAccentVietnamese(str: string) {
     .replaceAll(/\s/g, "")
     .replace(/[^a-zA-Z ]/g, "");
 }
+
+export function nonAccentVietnameseHaveNumber(str: string) {
+  str = str.toLowerCase();
+  str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+  str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+  str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+  str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+  str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+  str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+  str = str.replace(/đ/g, "d");
+  // Some system encode vietnamese combining accent as individual utf-8 characters
+  str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng
+  str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // Â, Ê, Ă, Ơ, Ư
+  return str
+    .toUpperCase()
+    .replaceAll(/\s/g, "")
+    .replace(/[^a-zA-Z0-9 ]/g, "");
+}
+
 export const getDateFormDuration = (duration: number) => {
   if (duration) {
     const day = duration % 100;
@@ -572,19 +595,29 @@ export const getEntilementValue = (
 };
 
 const checkCustomerCondition = (body: any) => {
-  if (!isNullOrUndefined(body.prerequisite_total_money_spend_to) &&
-    Number(body.prerequisite_total_money_spend_from) > Number(body.prerequisite_total_money_spend_to)) {
-    const element: any = document.getElementById(CustomerConditionField.prerequisite_total_money_spend_from);
+  if (
+    !isNullOrUndefined(body.prerequisite_total_money_spend_to) &&
+    Number(body.prerequisite_total_money_spend_from) >
+      Number(body.prerequisite_total_money_spend_to)
+  ) {
+    const element: any = document.getElementById(
+      CustomerConditionField.prerequisite_total_money_spend_from,
+    );
     scrollAndFocusToDomElement(element);
     throw new Error("Tiền tích lũy bắt đầu lớn hơn kết thúc.");
   }
-  if (!isNullOrUndefined(body.prerequisite_total_finished_order_to) &&
-    Number(body.prerequisite_total_finished_order_from) > Number(body.prerequisite_total_finished_order_to)) {
-    const element: any = document.getElementById(CustomerConditionField.prerequisite_total_finished_order_from);
+  if (
+    !isNullOrUndefined(body.prerequisite_total_finished_order_to) &&
+    Number(body.prerequisite_total_finished_order_from) >
+      Number(body.prerequisite_total_finished_order_to)
+  ) {
+    const element: any = document.getElementById(
+      CustomerConditionField.prerequisite_total_finished_order_from,
+    );
     scrollAndFocusToDomElement(element);
     throw new Error("Tổng đơn hàng bắt đầu lớn hơn kết thúc.");
   }
-}
+};
 
 export const transformData = (values: any, priceRuleType = PROMO_TYPE.AUTOMATIC) => {
   let body: any = values;
@@ -743,7 +776,7 @@ export const getGiftEntitlementValue = (
 ) => {
   // xóa quà tặng chưa được chọn
   entitlements?.forEach((item: GiftEntitlementForm) => {
-    item.entitled_gift_ids = item?.entitled_gift_ids?.filter(giftId => !!giftId);
+    item.entitled_gift_ids = item?.entitled_gift_ids?.filter((giftId) => !!giftId);
   });
 
   // check không được để trống sản phẩm quà tặng
@@ -754,7 +787,7 @@ export const getGiftEntitlementValue = (
   if (entitlementMethod === GIFT_METHOD_ENUM.ORDER_THRESHOLD) {
     return entitlements?.map((item: GiftEntitlementForm) => {
       return {
-        entitled_gift_ids: item?.entitled_gift_ids
+        entitled_gift_ids: item?.entitled_gift_ids,
       };
     });
   } else {
@@ -771,11 +804,13 @@ export const getGiftEntitlementValue = (
     }
 
     entitlements?.forEach((item: GiftEntitlementForm) => {
-      item.prerequisite_quantity_ranges = item.prerequisite_quantity_ranges.map((quantity_ranges_item: any) => {
-        return {
-          greater_than_or_equal_to: quantity_ranges_item.greater_than_or_equal_to
-        }
-      });
+      item.prerequisite_quantity_ranges = item.prerequisite_quantity_ranges.map(
+        (quantity_ranges_item: any) => {
+          return {
+            greater_than_or_equal_to: quantity_ranges_item.greater_than_or_equal_to,
+          };
+        },
+      );
     });
     return entitlements?.map((item: GiftEntitlementForm) => {
       delete item.selectedProducts;
@@ -816,15 +851,15 @@ export const transformGiftRequest = (values: any) => {
     body.prerequisite_birthday_duration = {
       starts_mmdd_key: startsBirthday
         ? Number(
-          (startsBirthday.month() + 1).toString().padStart(2, "0") +
-          startsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
-        )
+            (startsBirthday.month() + 1).toString().padStart(2, "0") +
+              startsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
+          )
         : null,
       ends_mmdd_key: endsBirthday
         ? Number(
-          (endsBirthday.month() + 1).toString().padStart(2, "0") +
-          endsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
-        )
+            (endsBirthday.month() + 1).toString().padStart(2, "0") +
+              endsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
+          )
         : null,
     };
   } else {
@@ -843,15 +878,15 @@ export const transformGiftRequest = (values: any) => {
     body.prerequisite_wedding_duration = {
       starts_mmdd_key: startsWeddingDays
         ? Number(
-          (startsWeddingDays.month() + 1).toString().padStart(2, "0") +
-          startsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
-        )
+            (startsWeddingDays.month() + 1).toString().padStart(2, "0") +
+              startsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
+          )
         : null,
       ends_mmdd_key: endsWeddingDays
         ? Number(
-          (endsWeddingDays.month() + 1).toString().padStart(2, "0") +
-          endsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
-        )
+            (endsWeddingDays.month() + 1).toString().padStart(2, "0") +
+              endsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
+          )
         : null,
     };
   } else {
@@ -861,7 +896,8 @@ export const transformGiftRequest = (values: any) => {
   //Khách hàng thuộc nhóm
   body.prerequisite_customer_group_ids = values.prerequisite_customer_group_ids ?? [];
   //Khách hàng thuộc cấp độ
-  body.prerequisite_customer_loyalty_level_ids = values.prerequisite_customer_loyalty_level_ids ?? [];
+  body.prerequisite_customer_loyalty_level_ids =
+    values.prerequisite_customer_loyalty_level_ids ?? [];
 
   //==Chiết khấu nâng cao theo đơn hàng==
   //Điều kiện chung
@@ -885,7 +921,8 @@ export const onSelectVariantOfGift = (
 ) => {
   const entitlements: Array<GiftEntitlementForm> = form.getFieldValue("entitlements");
 
-  const currentProductList: Array<GiftProductEntitlements> = entitlements[name].selectedProducts || [];
+  const currentProductList: Array<GiftProductEntitlements> =
+    entitlements[name].selectedProducts || [];
 
   const selectedItem = JSON.parse(value);
 

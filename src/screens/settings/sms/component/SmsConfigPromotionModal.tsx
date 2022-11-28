@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Button, Card, Col, Form, Input, Modal, Row, Select } from "antd";
 
-import { nonAccentVietnamese } from "utils/PromotionUtils";
+import { nonAccentVietnameseHaveNumber } from "utils/PromotionUtils";
 import { formatCurrency, replaceFormatString, scrollAndFocusToDomElement } from "utils/AppUtils";
 import NumberInput from "component/custom/number-input.custom";
 import { PriceRuleMethod } from "model/promotion/price-rules.model";
@@ -11,7 +11,6 @@ import GeneralOrderThreshold from "screens/promotion/shared/general-order-thresh
 import IssueProvider, { IssueContext } from "screens/promotion/issue/components/issue-provider";
 import { StyledPromotionModal } from "screens/settings/sms/styles";
 import { cloneDeep } from "lodash";
-
 
 const { Option } = Select;
 
@@ -42,7 +41,7 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
 
   const { priceRuleData, setPriceRuleData, setIsLimitUsage, setIsLimitUsagePerCustomer } =
     useContext(IssueContext);
-  
+
   useEffect(() => {
     if (promotionModalData) {
       const formValues = {
@@ -56,7 +55,7 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
         usage_limit_per_customer: promotionModalData.price_rule?.usage_limit_per_customer,
         rule: promotionModalData.price_rule?.rule,
         state: promotionModalData.price_rule?.state,
-      }
+      };
 
       setOriginFormValues(formValues);
       setIsLimitUsage(!!formValues.usage_limit);
@@ -80,7 +79,7 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
       form.setFieldsValue(formValues);
     }
   }, [form, promotionModalData, setIsLimitUsage, setIsLimitUsagePerCustomer, setPriceRuleData]);
-  
+
   /** handle Insert key word */
   const updateCursorPosition = (cursorPosition: any, text: any, textArea: any) => {
     cursorPosition = cursorPosition + text.length;
@@ -123,7 +122,7 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
     onOk(value);
     form.resetFields();
   };
-  
+
   const onCancelModal = () => {
     onOk(originFormValues);
     form.resetFields();
@@ -132,27 +131,22 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
   const keywordList = useMemo(() => {
     const _keywordList = cloneDeep(KEYWORD_LIST);
     if (smsType === "BIRTHDAY") {
-      _keywordList.splice(2, 0,
-        {
-          name: "Cửa hàng",
-          key: "stores",
-          value: "{stores}",
-        }
-      );
+      _keywordList.splice(2, 0, {
+        name: "Cửa hàng",
+        key: "stores",
+        value: "{stores}",
+      });
     }
 
     if (smsType === "ONLINE_ORDER") {
-      _keywordList.splice(0, 0,
-        {
-          name: "Nguồn",
-          key: "sources",
-          value: "{sources}",
-        }
-      );
+      _keywordList.splice(0, 0, {
+        name: "Nguồn",
+        key: "sources",
+        value: "{sources}",
+      });
     }
     return _keywordList;
   }, [smsType]);
-
 
   return (
     <Modal
@@ -198,7 +192,9 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
                 <Input id={"title"} placeholder="Nhập tên đợt phát hành" />
               </Form.Item>
 
-              <div style={{ marginBottom: "8px" }}><b>Chọn từ khóa:</b></div>
+              <div style={{ marginBottom: "8px" }}>
+                <b>Chọn từ khóa:</b>
+              </div>
               <div className="key-word">
                 <Row gutter={24}>
                   {keywordList?.map((keyWord: any, index: number) => (
@@ -218,10 +214,7 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
             <Card title="Loại khuyến mãi">
               <Row gutter={30}>
                 <Col span={24}>
-                  <Form.Item
-                    label="Chọn loại"
-                    name={PRICE_RULE_FIELDS.entitled_method}
-                  >
+                  <Form.Item label="Chọn loại" name={PRICE_RULE_FIELDS.entitled_method}>
                     <Select showArrow placeholder="Chọn loại mã khuyến mãi">
                       <Option
                         key={PriceRuleMethod.ORDER_THRESHOLD}
@@ -243,7 +236,7 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
               <GeneralOrderThreshold form={form} priceRuleData={priceRuleData} />
             </Card>
 
-            {smsType !== "BIRTHDAY" &&
+            {smsType !== "BIRTHDAY" && (
               <Card>
                 <Form.Item
                   name="apply_days"
@@ -273,7 +266,7 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
                   />
                 </Form.Item>
               </Card>
-            }
+            )}
 
             <Card title="Nguyên tắc tạo mã ngẫu nhiên">
               <Row gutter={24}>
@@ -281,7 +274,7 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
                   <Form.Item
                     name="prefix"
                     label="Tiền tố:"
-                    normalize={(value) => nonAccentVietnamese(value)}
+                    normalize={(value) => nonAccentVietnameseHaveNumber(value)}
                   >
                     <Input placeholder="VD: YODY" maxLength={10} />
                   </Form.Item>
@@ -319,7 +312,7 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
                   <Form.Item
                     name="suffix"
                     label="Hậu tố:"
-                    normalize={(value) => nonAccentVietnamese(value)}
+                    normalize={(value) => nonAccentVietnameseHaveNumber(value)}
                   >
                     <Input placeholder="VD: SALE" maxLength={10} />
                   </Form.Item>
