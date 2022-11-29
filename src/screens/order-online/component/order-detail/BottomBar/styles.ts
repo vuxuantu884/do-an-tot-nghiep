@@ -34,6 +34,7 @@ export const StyledComponent = styled.div`
     }
     button[disabled] {
       opacity: 0.5;
+      color: rgb(0 0 0);
     }
   }
   .bottomBarRight {

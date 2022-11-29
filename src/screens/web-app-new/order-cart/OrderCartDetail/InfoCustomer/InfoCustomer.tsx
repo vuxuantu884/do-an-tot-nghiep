@@ -1,5 +1,4 @@
 //#region Import
-import { PhoneOutlined } from "@ant-design/icons";
 import { Avatar, Card, Col, Divider, Row, Space, Tag, Typography } from "antd";
 import birthdayIcon from "assets/img/bithday.svg";
 import userIcon from "assets/img/user.svg";
@@ -172,7 +171,7 @@ const InfoCustomer: React.FC<CustomerCardUpdateProps> = (props: CustomerCardUpda
                                   item.city ? " - " + item.city : ""
                                 }`;
                               } else {
-                                return;
+                                return null;
                               }
                             })}
                         </span>
