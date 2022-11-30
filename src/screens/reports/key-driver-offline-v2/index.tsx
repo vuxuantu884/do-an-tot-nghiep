@@ -2,6 +2,7 @@
 import {
   CheckOutlined,
   CloseOutlined,
+  QuestionCircleOutlined,
   RightOutlined,
   RotateLeftOutlined,
   RotateRightOutlined,
@@ -30,6 +31,8 @@ import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { strForSearch } from "utils/StringUtils";
+import { initialAnnotationOffline } from "../analytics/shared/key-driver-annotation";
+import KeyDriverAnnotationModal from "../analytics/shared/key-driver-annotation-modal";
 import { kdOffNeedLowValue } from "../common/constant/kd-need-low-value";
 import {
   COLUMN_ORDER_LIST,
@@ -149,12 +152,11 @@ function KeyDriverOffline() {
       valueSetter?.call(element, value);
     }
   };
-  // const expandedDefault = localStorage.getItem(LocalStorageKey.KDOfflineRowkeysExpanded);
   const getColumns = localStorage.getItem(LocalStorageKey.KDOfflineColumns);
-  // const [expandRowKeys, setExpandRowKeys] = useState<any[]>(
-  //   expandedDefault ? JSON.parse(expandedDefault) : [],
-  // );
   const [expandRowKeys, setExpandRowKeys] = useState<any[]>([]);
+
+  const [isVisibleAnnotation, setIsVisibleAnnotation] = useState(false);
+  const keyDriverOnlineAnnotation: any = initialAnnotationOffline;
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [columns, setColumns] = useState<any[]>(
     getColumns
@@ -1072,6 +1074,12 @@ function KeyDriverOffline() {
   return havePermission ? (
     <ContentContainer
       title={"Báo cáo kết quả kinh doanh Offline"}
+      extra={
+        <Button type="primary" ghost onClick={() => setIsVisibleAnnotation(true)}>
+          <QuestionCircleOutlined />
+          <span className="margin-left-10">Giải thích thuật ngữ</span>
+        </Button>
+      }
       breadcrumb={getBreadcrumbByLevel(
         queryString.parse(history.location.search),
         departmentLv2,
@@ -1254,7 +1262,9 @@ function KeyDriverOffline() {
                     const newData1 = {
                       ...data[0],
                       children: data[0].children.sort(
-                        (a: any, b: any) => b[sorter.field] - a[sorter.field],
+                        (a: any, b: any) =>
+                          (b[sorter.field] ? b[sorter.field] : 0) -
+                          (a[sorter.field] ? a[sorter.field] : 0),
                       ),
                     };
                     setData([newData1]);
@@ -1263,7 +1273,9 @@ function KeyDriverOffline() {
                     const newData2 = {
                       ...data[0],
                       children: data[0].children.sort(
-                        (a: any, b: any) => a[sorter.field] - b[sorter.field],
+                        (a: any, b: any) =>
+                          (a[sorter.field] ? a[sorter.field] : 0) -
+                          (b[sorter.field] ? b[sorter.field] : 0),
                       ),
                     };
                     setData([newData2]);
@@ -1285,6 +1297,11 @@ function KeyDriverOffline() {
             data={columns}
           />
         </Card>
+        <KeyDriverAnnotationModal
+          isVisiable={isVisibleAnnotation}
+          handleCancel={() => setIsVisibleAnnotation(false)}
+          annotationData={keyDriverOnlineAnnotation}
+        />
       </KeyDriverStyle>
     </ContentContainer>
   ) : (
