@@ -419,7 +419,7 @@ export const initialAnnotationOnline = {
           formula: "= Tiền vốn đơn Web / Doanh thu Web",
         },
         {
-          key: 36,
+          key: 37,
           name: "CP/DT",
           description: "Tỉ lệ chi phí quảng cáo trên tổng doanh thu đơn thành công Web.",
           formula: "= (Chi phí Google Ads + chi phí Facebook Ads) / Doanh thu Web",
