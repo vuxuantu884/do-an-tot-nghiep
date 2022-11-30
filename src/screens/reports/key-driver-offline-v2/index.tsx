@@ -31,7 +31,7 @@ import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { strForSearch } from "utils/StringUtils";
-import { initialAnnotationOffline } from "../analytics/shared/key-driver-annotation";
+import { initialAnnotationOffline } from "../analytics/shared/kd-offline-annotation";
 import KeyDriverAnnotationModal from "../analytics/shared/key-driver-annotation-modal";
 import { kdOffNeedLowValue } from "../common/constant/kd-need-low-value";
 import {
@@ -157,7 +157,7 @@ function KeyDriverOffline() {
   const [expandRowKeys, setExpandRowKeys] = useState<any[]>([]);
 
   const [isVisibleAnnotation, setIsVisibleAnnotation] = useState(false);
-  const keyDriverOnlineAnnotation: any = initialAnnotationOffline;
+  const keyDriverAnnotation: any = initialAnnotationOffline;
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [columns, setColumns] = useState<any[]>(
     getColumns
@@ -1303,7 +1303,7 @@ function KeyDriverOffline() {
         <KeyDriverAnnotationModal
           isVisiable={isVisibleAnnotation}
           handleCancel={() => setIsVisibleAnnotation(false)}
-          annotationData={keyDriverOnlineAnnotation}
+          annotationData={keyDriverAnnotation}
         />
       </KeyDriverStyle>
     </ContentContainer>

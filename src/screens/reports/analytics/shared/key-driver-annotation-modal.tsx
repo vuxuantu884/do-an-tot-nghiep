@@ -1,7 +1,7 @@
-import { QuestionCircleOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Input, Modal, Table } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import { Input, Modal, Table } from "antd";
 import { useCallback, useState } from "react";
-import { AnnotationData } from "./key-driver-annotation";
+import { AnnotationData } from "./kd-online-annotation";
 
 type Props = {
   isVisiable: boolean;
@@ -55,19 +55,7 @@ function KeyDriverAnnotationModal({ isVisiable, annotationData, handleCancel }: 
       title="Bảng giải thích thuật ngữ"
       visible={isVisiable}
       onCancel={handleCancel}
-      footer={[
-        <Button type="primary" ghost key="1">
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            className="link"
-            href={annotationData.documentLink}
-          >
-            <QuestionCircleOutlined />
-            <span className="margin-left-10">Xem thêm tài liệu hướng dẫn</span>
-          </a>
-        </Button>,
-      ]}
+      footer={[]}
       width={800}
     >
       <Input
@@ -85,12 +73,20 @@ function KeyDriverAnnotationModal({ isVisiable, annotationData, handleCancel }: 
                 <p>
                   <b>{items.name}</b>
                 </p>
-                <Table
-                  columns={columns}
-                  dataSource={items.data}
-                  pagination={false}
-                  scroll={{ y: 500 }}
-                />
+                <Table dataSource={items.data} pagination={false} scroll={{ y: 500 }}>
+                  {columns.map((item: any, index: number) => {
+                    const { title, key, dataIndex } = item;
+                    return (
+                      <Table.Column<any>
+                        title={title}
+                        key={key}
+                        render={(value, record) => {
+                          return <div dangerouslySetInnerHTML={{ __html: record[dataIndex] }} />;
+                        }}
+                      />
+                    );
+                  })}
+                </Table>
               </>
             )
           );
