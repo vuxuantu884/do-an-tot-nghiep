@@ -30,7 +30,7 @@ import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { strForSearch } from "utils/StringUtils";
-import { initialAnnotationOnline } from "../analytics/shared/key-driver-annotation";
+import { initialAnnotationOnline } from "../analytics/shared/kd-online-annotation";
 import KeyDriverAnnotationModal from "../analytics/shared/key-driver-annotation-modal";
 import { kdOnNeedLowValue } from "../common/constant/kd-need-low-value";
 import {

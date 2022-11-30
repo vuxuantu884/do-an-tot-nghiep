@@ -17,7 +17,7 @@ export interface AnnotationData {
   documentLink: string;
 }
 
-export const annotationOnline = {
+const annotationOnline = {
   data: [
     {
       key: 1,
@@ -429,8 +429,34 @@ export const annotationOnline = {
     },
     {
       key: 3,
-      name: "D. NPS",
-      data: [],
+      name: "C. Điểm NPS",
+      data: [
+        {
+          key: 1,
+          name: "Điểm NPS",
+          description: "Chỉ số đánh giá mức độ hài lòng của khách hàng.",
+          formula:
+            '<ul class="ak-ul" data-indent-level="1"><li><p data-renderer-start-pos="1429">NPS = (“Số người đánh giá 9-10” - “Số người đánh giá 0-6”) / “Tổng số người đánh giá” * 100%</p></li><li><p data-renderer-start-pos="1525">NPS có thể âm </p></li></ul>',
+        },
+        {
+          key: 2,
+          name: "Số người đánh giá 9-10",
+          description: "Số khách hàng đánh giá dịch vụ từ 9 đến 10 điểm.",
+          formula: "",
+        },
+        {
+          key: 3,
+          name: "Số người đánh giá 0-6",
+          description: "Số khách hàng đánh giá dịch vụ từ 0 đến 6 điểm.",
+          formula: "",
+        },
+        {
+          key: 4,
+          name: "Số người đánh giá 7-8",
+          description: "Số khách hàng đánh giá dịch vụ từ 7 đến 8 điểm.",
+          formula: "",
+        },
+      ],
     },
     {
       key: 4,
@@ -460,31 +486,4 @@ export const initialAnnotationOnline: AnnotationData = {
       }),
     };
   }),
-};
-
-export const initialAnnotationOffline = {
-  data: [
-    {
-      key: 1,
-      name: "A. Doanh thu đơn tạo",
-      data: [],
-    },
-    {
-      key: 2,
-      name: "B. Doanh thu đơn thành công",
-      data: [],
-    },
-    {
-      key: 3,
-      name: "D. NPS",
-      data: [],
-    },
-    {
-      key: 4,
-      name: "G. Doanh thu theo khách hàng",
-      data: [],
-    },
-  ],
-  documentLink:
-    "https://yody.atlassian.net/wiki/spaces/YODY/pages/387153921/Keydriver+Online+M+t+ch+s",
 };
