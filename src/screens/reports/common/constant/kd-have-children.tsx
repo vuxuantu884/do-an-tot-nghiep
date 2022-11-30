@@ -41,6 +41,17 @@ export const kdOffHaveChildren = [
   "OF.HS.01.70",
   "OF.HS.01.73",
   "OF.HS.01.76",
+  "OF.DT.KH.00",
+  "OF.DT.KH.M01",
+  "OF.DT.KH.M04",
+  "OF.DT.KH.M07",
+  "OF.DT.KH.M10",
+  "OF.DT.KH.C01",
+  "OF.DT.KH.C04",
+  "OF.DT.KH.C11",
+  "OF.DT.KH.C18",
+  "OF.DT.KH.C25",
+  "OF.DT.KH.C32",
 ];
 
 export const kdOnHaveChildren = [
@@ -66,4 +77,5 @@ export const kdOnHaveChildren = [
   "ON.HS.S1.01.L",
   "ON.SP.S1.01.L",
   "ON.NS.01.01",
+  "ON.DT.KH.00",
 ];
