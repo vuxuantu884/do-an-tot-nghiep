@@ -42,16 +42,7 @@ function KeyDriverAnnotationModal({ isVisiable, annotationData, handleCancel }: 
       const newData = annotationData.data.map((item) => {
         return {
           ...item,
-          data: item.data.filter(
-            (keyDriver: any) =>
-              keyDriver.name
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/đ/g, "d")
-                .replace(/Đ/g, "D")
-                .toLowerCase()
-                .indexOf(newValue) > -1,
-          ),
+          data: item.data.filter((keyDriver: any) => keyDriver.normalize.indexOf(newValue) > -1),
         };
       });
       setAnnotationNewData(newData);
