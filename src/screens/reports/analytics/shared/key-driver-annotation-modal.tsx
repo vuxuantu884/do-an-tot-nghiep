@@ -1,5 +1,6 @@
 import { QuestionCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import { Button, Input, Modal, Table } from "antd";
+import { useCallback, useState } from "react";
 import { AnnotationData } from "./key-driver-annotation";
 
 type Props = {
@@ -26,6 +27,29 @@ function KeyDriverAnnotationModal({ isVisiable, annotationData, handleCancel }: 
       dataIndex: "formula",
     },
   ];
+  const [annotationNewData, setAnnotationNewData] = useState(annotationData.data);
+
+  const search = useCallback(
+    (value) => {
+      console.log("value", value);
+      const newValue = value
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D")
+        .toLowerCase()
+        .trim();
+      const newData = annotationData.data.map((item) => {
+        return {
+          ...item,
+          data: item.data.filter((keyDriver: any) => keyDriver.normalize.indexOf(newValue) > -1),
+        };
+      });
+      setAnnotationNewData(newData);
+    },
+    [annotationData.data],
+  );
+
   return (
     <Modal
       title="Bảng giải thích thuật ngữ"
@@ -50,10 +74,11 @@ function KeyDriverAnnotationModal({ isVisiable, annotationData, handleCancel }: 
         size="middle"
         placeholder="Tìm kiếm chỉ số"
         prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-        onChange={() => {}}
+        onChange={(input) => search(input.target.value)}
+        allowClear
       />
-      {annotationData.data.length > 0 &&
-        annotationData.data.map((items) => {
+      {annotationNewData.length > 0 &&
+        annotationNewData.map((items) => {
           return (
             items.data.length > 0 && (
               <>

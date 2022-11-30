@@ -1,6 +1,7 @@
 interface AnnotationDataItem {
   key: number;
   name: string;
+  normalize: string;
   description: string;
   formula: string;
 }
@@ -16,7 +17,7 @@ export interface AnnotationData {
   documentLink: string;
 }
 
-export const initialAnnotationOnline = {
+export const annotationOnline = {
   data: [
     {
       key: 1,
@@ -419,7 +420,7 @@ export const initialAnnotationOnline = {
           formula: "= Tiền vốn đơn Web / Doanh thu Web",
         },
         {
-          key: 36,
+          key: 37,
           name: "CP/DT",
           description: "Tỉ lệ chi phí quảng cáo trên tổng doanh thu đơn thành công Web.",
           formula: "= (Chi phí Google Ads + chi phí Facebook Ads) / Doanh thu Web",
@@ -439,6 +440,26 @@ export const initialAnnotationOnline = {
   ],
   documentLink:
     "https://yody.atlassian.net/wiki/spaces/YODY/pages/387153921/Keydriver+Online+M+t+ch+s",
+};
+
+export const initialAnnotationOnline: AnnotationData = {
+  ...annotationOnline,
+  data: annotationOnline.data.map((item) => {
+    return {
+      ...item,
+      data: item.data.map((i) => {
+        return {
+          ...i,
+          normalize: i.name
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/đ/g, "d")
+            .replace(/Đ/g, "D")
+            .toLowerCase(),
+        };
+      }),
+    };
+  }),
 };
 
 export const initialAnnotationOffline = {
