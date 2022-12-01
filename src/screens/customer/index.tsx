@@ -108,6 +108,8 @@ const Customer = () => {
       total_finished_order_to: undefined,
       total_paid_amount_from: undefined,
       total_paid_amount_to: undefined,
+      gross_sale_from: undefined,
+      gross_sale_to: undefined,
       total_returned_order_from: undefined,
       total_returned_order_to: undefined,
       remain_amount_to_level_up_from: undefined,

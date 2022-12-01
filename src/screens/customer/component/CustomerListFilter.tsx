@@ -112,7 +112,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
 
   const dispatch = useDispatch();
   const [formCustomerFilter] = Form.useForm();
-  const listGenderEnum = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.gender);
+  const listGenderEnum = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.gender,
+  );
 
   const [allowCreateLoyaltyAdjustment] = useAuthorization({
     acceptPermissions: createLoyaltyAdjustmentPermission,
@@ -142,20 +144,20 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
   // thêm các điều kiện lọc bổ sung
   const LIST_GENDER = useMemo(() => {
     const cloneListGenderEnum = cloneDeep(listGenderEnum);
-    cloneListGenderEnum?.push({name: "Chưa có giới tính", value: "undefine"});
-    return cloneListGenderEnum
+    cloneListGenderEnum?.push({ name: "Chưa có giới tính", value: "undefine" });
+    return cloneListGenderEnum;
   }, [listGenderEnum]);
 
   const customerGroupList = useMemo(() => {
     const cloneGroups = cloneDeep(groups);
-    cloneGroups?.push({name: "Chưa thuộc nhóm KH", id: -1});
-    return cloneGroups
+    cloneGroups?.push({ name: "Chưa thuộc nhóm KH", id: -1 });
+    return cloneGroups;
   }, [groups]);
 
   const customerLevelList = useMemo(() => {
     const cloneLoyaltyUsageRules = cloneDeep(loyaltyUsageRules);
-    cloneLoyaltyUsageRules?.push({rank_name: "Chưa có hạng KH", rank_id: -1});
-    return cloneLoyaltyUsageRules
+    cloneLoyaltyUsageRules?.push({ rank_name: "Chưa có hạng KH", rank_id: -1 });
+    return cloneLoyaltyUsageRules;
   }, [loyaltyUsageRules]);
 
   // lưu bộ lọc
@@ -170,7 +172,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
       first_order_time_to: firstDateEnd,
       last_order_time_from: lastDateStart,
       last_order_time_to: lastDateEnd,
-    }
+    };
     setFormSearchValuesToSave(saveFormValues);
     setIsShowModalSaveFilter(true);
   }, [firstDateEnd, firstDateStart, formCustomerFilter, lastDateEnd, lastDateStart]);
@@ -307,11 +309,23 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
       assign_store_ids: convertItemToArray(params.assign_store_ids, "number"),
       channel_ids: convertItemToArray(params.channel_ids),
       source_ids: convertItemToArray(params.source_ids, "number"),
-      source_of_first_order_online_ids: convertItemToArray(params.source_of_first_order_online_ids, "number"),
-      source_of_last_order_online_ids: convertItemToArray(params.source_of_last_order_online_ids, "number"),
+      source_of_first_order_online_ids: convertItemToArray(
+        params.source_of_first_order_online_ids,
+        "number",
+      ),
+      source_of_last_order_online_ids: convertItemToArray(
+        params.source_of_last_order_online_ids,
+        "number",
+      ),
       store_ids: convertItemToArray(params.store_ids, "number"),
-      store_of_first_order_offline_ids: convertItemToArray(params.store_of_first_order_offline_ids, "number"),
-      store_of_last_order_offline_ids: convertItemToArray(params.store_of_last_order_offline_ids, "number"),
+      store_of_first_order_offline_ids: convertItemToArray(
+        params.store_of_first_order_offline_ids,
+        "number",
+      ),
+      store_of_last_order_offline_ids: convertItemToArray(
+        params.store_of_last_order_offline_ids,
+        "number",
+      ),
     };
   }, [params]);
 
@@ -342,7 +356,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     const arrDate = dateString.split("-");
     const stringDate = arrDate[2] + "-" + arrDate[1] + "-" + arrDate[0];
     return new Date(stringDate);
-  }
+  };
 
   //handle change the first purchase date filter
   const handleFirstPurchaseDateStart = (dateString: string) => {
@@ -1055,6 +1069,25 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     }
 
     if (
+      !isNullOrUndefined(initialValues.gross_sale_from) ||
+      !isNullOrUndefined(initialValues.gross_sale_to)
+    ) {
+      let accumulatedAmountFiltered =
+        (isNullOrUndefined(initialValues.gross_sale_from)
+          ? ""
+          : formatCurrency(initialValues.gross_sale_from)) +
+        " - " +
+        (isNullOrUndefined(initialValues.gross_sale_to)
+          ? ""
+          : formatCurrency(initialValues.gross_sale_to));
+      list.push({
+        key: "gross_sale",
+        name: "Doanh thu",
+        value: accumulatedAmountFiltered,
+      });
+    }
+
+    if (
       !isNullOrUndefined(initialValues.total_returned_order_from) ||
       !isNullOrUndefined(initialValues.total_returned_order_to)
     ) {
@@ -1290,7 +1323,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
       let customerCharacteristics = "";
       initialValues.characteristics.forEach((characteristicValue: string) => {
         const characteristic = CHARACTERISTICS_LIST?.find(
-          (item: any) => item.value === characteristicValue
+          (item: any) => item.value === characteristicValue,
         );
         customerCharacteristics = characteristic
           ? customerCharacteristics + characteristic.label + "; "
@@ -1355,7 +1388,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     initialValues.gender,
     initialValues.customer_group_ids,
     initialValues.customer_level_ids,
-    initialValues.characteristics,
     initialValues.responsible_staff_codes,
     initialValues.customer_type_ids,
     initialValues.assign_store_ids,
@@ -1374,10 +1406,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     initialValues.wedding_year_to,
     initialValues.channel_ids,
     initialValues.source_ids,
-    initialValues.source_of_first_order_online_ids,
-    initialValues.source_of_last_order_online_ids,
-    initialValues.first_order_type,
-    initialValues.last_order_type,
     initialValues.age_from,
     initialValues.age_to,
     initialValues.city_ids,
@@ -1387,6 +1415,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     initialValues.total_finished_order_to,
     initialValues.total_paid_amount_from,
     initialValues.total_paid_amount_to,
+    initialValues.gross_sale_from,
+    initialValues.gross_sale_to,
     initialValues.total_returned_order_from,
     initialValues.total_returned_order_to,
     initialValues.remain_amount_to_level_up_from,
@@ -1397,6 +1427,10 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     initialValues.total_returned_amount_to,
     initialValues.store_of_first_order_offline_ids,
     initialValues.store_of_last_order_offline_ids,
+    initialValues.source_of_first_order_online_ids,
+    initialValues.source_of_last_order_online_ids,
+    initialValues.first_order_type,
+    initialValues.last_order_type,
     initialValues.number_of_days_without_purchase_from,
     initialValues.number_of_days_without_purchase_to,
     initialValues.first_order_time_from,
@@ -1405,12 +1439,13 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     initialValues.last_order_time_to,
     initialValues.point_from,
     initialValues.point_to,
-    initialValues.utm_campaign,
-    initialValues.utm_content,
-    initialValues.utm_id,
-    initialValues.utm_medium,
+    initialValues.characteristics,
     initialValues.utm_source,
+    initialValues.utm_medium,
+    initialValues.utm_content,
     initialValues.utm_term,
+    initialValues.utm_id,
+    initialValues.utm_campaign,
     LIST_GENDER,
     customerGroupList,
     customerLevelList,
@@ -1711,6 +1746,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
           break;
         case "utm_campaign":
           onFilter && onFilter({ ...params, utm_campaign: null });
+          break;
+        case "gross_sale":
+          onFilter && onFilter({ ...params, gross_sale_from: null, gross_sale_to: null });
           break;
 
         default:
@@ -2105,14 +2143,14 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
         layout="inline"
         className="inline-filter"
       >
-        {allowCreateLoyaltyAdjustment &&
+        {allowCreateLoyaltyAdjustment && (
           <Dropdown overlay={dropdownMenuList} trigger={["click"]} disabled={isLoading}>
             <Button style={{ marginRight: 15 }}>
               <span style={{ marginRight: 10 }}>Thao tác</span>
               <DownOutlined />
             </Button>
           </Dropdown>
-        }
+        )}
 
         <Form.Item name="request" className="input-search">
           <Input
@@ -3178,7 +3216,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
 
               <div className="base-filter-row">
                 <div className="left-filter">
-                  <div style={{ marginBottom: "8px"}}><b>Ngày mua đầu</b></div>
+                  <div style={{ marginBottom: "8px" }}>
+                    <b>Ngày mua đầu</b>
+                  </div>
                   <SelectRangeDateCustom
                     fieldNameFrom="first_order_time_from"
                     fieldNameTo="first_order_time_to"
@@ -3193,7 +3233,9 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                 </div>
 
                 <div className="center-filter">
-                  <div style={{ marginBottom: "8px"}}><b>Ngày mua cuối</b></div>
+                  <div style={{ marginBottom: "8px" }}>
+                    <b>Ngày mua cuối</b>
+                  </div>
                   <SelectRangeDateCustom
                     fieldNameFrom="last_order_time_from"
                     fieldNameTo="last_order_time_to"
@@ -3290,10 +3332,50 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                     </Form.Item>
                   </div>
 
-                  <Form.Item
-                    name="characteristics"
-                    label={<b>Đặc điểm:</b>}
-                  >
+                  <div>
+                    <div className="title">Doanh thu</div>
+                    <div className="select-scope">
+                      <Form.Item
+                        className="select-item"
+                        name="gross_sale_from"
+                        rules={[
+                          {
+                            pattern: RegUtil.NUMBERREG,
+                            message: "Doanh thu chỉ được phép nhập số",
+                          },
+                        ]}
+                      >
+                        <CustomNumberInput
+                          format={(a: string) => formatCurrencyNotDefaultValue(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
+                          placeholder="Từ"
+                          maxLength={15}
+                        />
+                      </Form.Item>
+
+                      <img src={rightArrow} alt="" />
+
+                      <Form.Item
+                        className="select-item"
+                        name="gross_sale_to"
+                        rules={[
+                          {
+                            pattern: RegUtil.NUMBERREG,
+                            message: "Doanh thu chỉ được phép nhập số",
+                          },
+                        ]}
+                      >
+                        <CustomNumberInput
+                          format={(a: string) => formatCurrencyNotDefaultValue(a)}
+                          revertFormat={(a: string) => replaceFormatString(a)}
+                          placeholder="Đến"
+                          maxLength={15}
+                        />
+                      </Form.Item>
+                    </div>
+                  </div>
+
+                  <Form.Item name="characteristics" label={<b>Đặc điểm:</b>}>
                     <Select
                       mode="multiple"
                       maxTagCount="responsive"
