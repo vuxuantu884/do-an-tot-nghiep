@@ -4,13 +4,11 @@ import { FilterModel } from "./model";
 
 type Props = {
   data: FilterModel[];
-  isExpand?: boolean;
 };
 const FilterArrayToString: React.FC<Props> = (props: Props) => {
-  const { data, isExpand = false } = props;
+  const { data } = props;
   const [visible, setVisible] = useState<boolean>(false);
 
-  console.log("visibleisExpand", visible);
   const shortenData: JSX.Element | null = useMemo(() => {
     let str: JSX.Element | null = null;
     if (data.length >= 2) {
