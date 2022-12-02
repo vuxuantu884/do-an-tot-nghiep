@@ -19,50 +19,44 @@ import {
   ProductResponse,
   ProductWrapperResponse,
   ProductWrapperSearchQuery,
-  VariantResponse,
 } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import ProductWrapperFilter from "screens/products/product/filter/ProductWrapperFilter";
-import { convertCategory, formatCurrencyForProduct, generateQuery } from "utils/AppUtils";
+import { ProductWrapperFilter } from "screens/products/product/filter";
+import { generateQuery } from "utils/AppUtils";
+import {
+  convertCategory,
+  formatCurrencyForProduct,
+  ACTIONS_INDEX_TAB_PRODUCT,
+  ProductResponseStatuses
+} from "screens/products/helper";
 import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showError, showInfo, showSuccess, showWarning } from "utils/ToastUtils";
-import ImageProduct from "../../component/image-product.component";
+import { showInfo, showSuccess, showWarning } from "utils/ToastUtils";
+import ImageProduct from "../../component/ImageProduct";
 import { StyledComponent } from "../style";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import { CollectionCreateRequest } from "model/product/collection.model";
 import { callApiNative } from "utils/ApiUtils";
-import { productWrapperPutApi, updateStatusProductApi } from "service/product/product.service";
+import { updateStatusProductApi } from "service/product/product.service";
 import { searchProductWrapperApi } from "service/product/product.service";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
-import { HttpStatus } from "config/http-status.config";
-import { unauthorizedAction } from "domain/actions/auth/auth.action";
-
-const ACTIONS_INDEX = {
-  EXPORT_EXCEL: 1,
-  PRINT_BAR_CODE: 2,
-  ACTIVE: 3,
-  INACTIVE: 4,
-  DELETE: 5,
-};
 
 const TabProductWrapper: React.FC = () => {
   const query = useQuery();
   const dispatch = useDispatch();
   const history = useHistory();
-  const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [isConfirmDelete, setIsConfirmDelete] = useState(false);
 
-  const [tableLoading, setTableLoading] = useState(true);
-  const [showSettingColumn, setShowSettingColumn] = useState(false);
+  const [isTableLoading, setIsTableLoading] = useState(true);
+  const [isShowSettingColumn, setIsShowSettingColumn] = useState(false);
   const goods = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.goods);
   const [listCategory, setListCategory] = useState<Array<CategoryView>>([]);
 
   const [selected, setSelected] = useState<Array<ProductResponse>>([]);
-  const [rowKey, setRowKey] = useState<Array<any>>([]);
+  const [rowKeys, setRowKeys] = useState<Array<any>>([]);
 
   const [data, setData] = useState<PageResponse<ProductResponse>>({
     metadata: {
@@ -77,21 +71,21 @@ const TabProductWrapper: React.FC = () => {
     const disabled = !(selected && selected.length > 0);
     return [
       {
-        id: ACTIONS_INDEX.EXPORT_EXCEL,
+        id: ACTIONS_INDEX_TAB_PRODUCT.EXPORT_EXCEL,
         name: "Xuất thông tin excel",
       },
       {
-        id: ACTIONS_INDEX.ACTIVE,
+        id: ACTIONS_INDEX_TAB_PRODUCT.ACTIVE,
         name: "Đang hoạt động",
         disabled: disabled,
       },
       {
-        id: ACTIONS_INDEX.INACTIVE,
+        id: ACTIONS_INDEX_TAB_PRODUCT.INACTIVE,
         name: "Ngừng hoạt động",
         disabled: disabled,
       },
       {
-        id: ACTIONS_INDEX.DELETE,
+        id: ACTIONS_INDEX_TAB_PRODUCT.DELETE,
         name: "Xóa sản phẩm",
         disabled: disabled,
       },
@@ -102,19 +96,19 @@ const TabProductWrapper: React.FC = () => {
 
   const [params, setParams] = useState<ProductWrapperSearchQuery>(dataQuery);
 
-  const defaultColumn: Array<ICustomTableColumType<ProductResponse>> = [
+  const defaultColumns: Array<ICustomTableColumType<ProductResponse>> = [
     {
       title: "Ảnh",
       align: "center",
       width: 70,
       dataIndex: "product_avatar",
-      render: (value: string, item: ProductResponse) => {
+      render: (value: string) => {
         return (
           <>
             {value ? (
               <Image width={40} height={40} placeholder="Xem" src={value ?? ""} />
             ) : (
-              <ImageProduct disabled={true} onClick={undefined} path={value} />
+              <ImageProduct isDisabled={true} path={value} />
             )}
           </>
         );
@@ -249,7 +243,7 @@ const TabProductWrapper: React.FC = () => {
   ];
 
   const [columns, setColumn] =
-    useState<Array<ICustomTableColumType<ProductResponse>>>(defaultColumn);
+    useState<Array<ICustomTableColumType<ProductResponse>>>(defaultColumns);
 
   const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(
     COLUMN_CONFIG_TYPE.COLUMN_PRODUCT,
@@ -257,7 +251,7 @@ const TabProductWrapper: React.FC = () => {
   useSetTableColumns(
     COLUMN_CONFIG_TYPE.COLUMN_PRODUCT,
     tableColumnConfigs,
-    defaultColumn,
+    defaultColumns,
     setColumn,
   );
 
@@ -269,24 +263,24 @@ const TabProductWrapper: React.FC = () => {
   });
 
   const actions = actionsDefault.filter((item) => {
-    if (item.id === ACTIONS_INDEX.DELETE) {
+    if (item.id === ACTIONS_INDEX_TAB_PRODUCT.DELETE) {
       return canDeleteParentProduct;
     }
-    if (item.id === ACTIONS_INDEX.ACTIVE || item.id === ACTIONS_INDEX.INACTIVE) {
+    if (item.id === ACTIONS_INDEX_TAB_PRODUCT.ACTIVE || item.id === ACTIONS_INDEX_TAB_PRODUCT.INACTIVE) {
       return canUpdateParentProduct;
     }
-    return item.id === ACTIONS_INDEX.EXPORT_EXCEL;
+    return item.id === ACTIONS_INDEX_TAB_PRODUCT.EXPORT_EXCEL;
   });
 
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
-    let temp: Array<CategoryView> = convertCategory(arr);
+    const temp: Array<CategoryView> = convertCategory(arr);
     setListCategory(temp);
   }, []);
 
   const setSearchResult = useCallback(
     (result: PageResponse<ProductResponse> | false) => {
       dispatch(hideLoading());
-      setTableLoading(false);
+      setIsTableLoading(false);
       if (!!result) {
         setData(result);
       }
@@ -302,22 +296,22 @@ const TabProductWrapper: React.FC = () => {
 
   const onPageChange = useCallback(
     (page, size) => {
-      let newParams = { ...params, page, limit: size };
+      const newParams = { ...params, page, limit: size };
       setParams(newParams);
-      let queryParam = generateQuery(newParams);
+      const queryParam = generateQuery(newParams);
       history.push(`${UrlConfig.PRODUCT}${history.location.hash}?${queryParam}`);
     },
     [history, params],
   );
 
-  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
+  const columnsFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   const onFilter = useCallback(
     (values) => {
-      let { info } = values;
+      const { info } = values;
 
       values.info = info && info.trim();
-      let newPrams = {
+      const newPrams = {
         ...params,
         ...{
           ...values,
@@ -326,7 +320,7 @@ const TabProductWrapper: React.FC = () => {
         page: 1,
       };
       setParams(newPrams);
-      let queryParam = generateQuery(newPrams);
+      const queryParam = generateQuery(newPrams);
       history.replace(`${ProductTabUrl.PRODUCTS}?${queryParam}`);
     },
     [params, history],
@@ -340,14 +334,14 @@ const TabProductWrapper: React.FC = () => {
         dispatch(searchProductWrapperRequestAction(params, setSearchResultDelete));
       }
       dispatch(hideLoading());
-      setTableLoading(false);
+      setIsTableLoading(false);
     },
     [dispatch, setSearchResultDelete, params],
   );
 
-  const onAcitveSuccess = useCallback(async () => {
+  const onActiveSuccess = useCallback(async () => {
     setSelected([]);
-    setRowKey([]);
+    setRowKeys([]);
     const res = await callApiNative(
       { isShowLoading: false },
       dispatch,
@@ -359,7 +353,7 @@ const TabProductWrapper: React.FC = () => {
     }
   }, [dispatch, params, setSearchResult]);
 
-  const onActive = useCallback(
+  const changeActiveProduct = useCallback(
     async (selected: any, type: string) => {
       if (!selected || selected.length === 0) {
         showWarning("Bạn chưa chọn sản phẩm cha nào.");
@@ -369,39 +363,39 @@ const TabProductWrapper: React.FC = () => {
         product_ids: selected.map((e: ProductResponse) => e.id),
         status: type,
       });
-      if (res === "SUCCESS") {
+      if (res === ProductResponseStatuses.SUCCESS) {
         showSuccess("Cập nhật dữ liệu thành công");
-        onAcitveSuccess();
+        onActiveSuccess();
       }
     },
-    [dispatch, onAcitveSuccess],
+    [dispatch, onActiveSuccess],
   );
 
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
-        case ACTIONS_INDEX.ACTIVE:
-          onActive(selected, "active");
+        case ACTIONS_INDEX_TAB_PRODUCT.ACTIVE:
+          changeActiveProduct(selected, "active");
           break;
-        case ACTIONS_INDEX.INACTIVE:
-          onActive(selected, "inactive");
+        case ACTIONS_INDEX_TAB_PRODUCT.INACTIVE:
+          changeActiveProduct(selected, "inactive");
           break;
-        case ACTIONS_INDEX.DELETE:
-          setConfirmDelete(true);
+        case ACTIONS_INDEX_TAB_PRODUCT.DELETE:
+          setIsConfirmDelete(true);
           break;
-        case ACTIONS_INDEX.EXPORT_EXCEL:
+        case ACTIONS_INDEX_TAB_PRODUCT.EXPORT_EXCEL:
           showInfo("Tính năng đang phát triển");
           break;
         case 3:
           break;
       }
     },
-    [onActive, selected],
+    [changeActiveProduct, selected],
   );
 
-  const onSelect = useCallback((selectedRow: Array<ProductResponse>) => {
+  const onSelect = useCallback((selectedRows: Array<ProductResponse>) => {
     setSelected(
-      selectedRow.filter(function (el) {
+      selectedRows.filter(function (el) {
         return el !== undefined;
       }),
     );
@@ -409,18 +403,18 @@ const TabProductWrapper: React.FC = () => {
 
   useEffect(() => {
     dispatch(getCategoryRequestAction({}, setDataCategory));
-    setTableLoading(true);
+    setIsTableLoading(true);
   }, [dispatch, setDataCategory]);
 
   const getProductWrapper = useCallback(async () => {
-    setTableLoading(true);
+    setIsTableLoading(true);
     const res = await callApiNative(
       { isShowLoading: false },
       dispatch,
       searchProductWrapperApi,
       params,
     );
-    setTableLoading(false);
+    setIsTableLoading(false);
     if (res) setSearchResult(res);
   }, [dispatch, params, setSearchResult]);
 
@@ -431,7 +425,7 @@ const TabProductWrapper: React.FC = () => {
   return (
     <StyledComponent>
       <ProductWrapperFilter
-        onClickOpen={() => setShowSettingColumn(true)}
+        onClickOpen={() => setIsShowSettingColumn(true)}
         onMenuClick={onMenuClick}
         actions={actions}
         onFilter={onFilter}
@@ -442,12 +436,12 @@ const TabProductWrapper: React.FC = () => {
       />
       <CustomTable
         bordered
-        selectedRowKey={rowKey}
-        onChangeRowKey={(rowKey) => setRowKey(rowKey)}
+        selectedRowKey={rowKeys}
+        onChangeRowKey={(rowKeys) => setRowKeys(rowKeys)}
         isRowSelection
-        isLoading={tableLoading}
+        isLoading={isTableLoading}
         onSelectedChange={onSelect}
-        // scroll={{ x: 1200 }}
+        isShowPaginationAtHeader
         scroll={{ x: "max-content" }}
         sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         pagination={{
@@ -459,27 +453,27 @@ const TabProductWrapper: React.FC = () => {
           onShowSizeChange: onPageChange,
         }}
         dataSource={data.items}
-        columns={columnFinal}
+        columns={columnsFinal}
         rowKey={(item: ProductResponse) => item.id}
         className="yody-table-product-search small-padding"
       />
       <ModalSettingColumn
         isSetDefaultColumn
-        visible={showSettingColumn}
-        onCancel={() => setShowSettingColumn(false)}
+        visible={isShowSettingColumn}
+        onCancel={() => setIsShowSettingColumn(false)}
         onOk={(data) => {
-          setShowSettingColumn(false);
+          setIsShowSettingColumn(false);
           setColumn(data);
           onSaveConfigTableColumn(data);
         }}
-        data={defaultColumn}
+        data={defaultColumns}
       />
       <ModalDeleteConfirm
-        onCancel={() => setConfirmDelete(false)}
+        onCancel={() => setIsConfirmDelete(false)}
         onOk={() => {
-          setConfirmDelete(false);
+          setIsConfirmDelete(false);
           dispatch(showLoading());
-          let ids: Array<number> = [];
+          const ids: Array<number> = [];
           selected.forEach((value) => {
             ids.push(value.id);
           });

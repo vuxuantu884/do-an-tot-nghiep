@@ -15,11 +15,11 @@ import { StyledComponent } from "../tab/style";
 import "./index.scss"
 const { TabPane } = Tabs;
 
-const TabProduct = React.lazy(() => import("../tab/TabProduct"));
-const TabProductWrapper = React.lazy(() => import("../tab/TabProductWrapper"));
-const TabHistoryInfo = React.lazy(() => import("../tab/TabHistoryInfo"));
-const TabHistoryPrice = React.lazy(() => import("../tab/TabHistoryPrice"));
-const TabHistoryInStamp = React.lazy(() => import("../tab/TabHistoryInStamp"));
+const TabProduct = React.lazy(() => import("../tab").then(module => ({ default: module.TabProduct })));
+const TabProductWrapper = React.lazy(() => import("../tab").then(module => ({ default: module.TabProductWrapper })));
+const TabHistoryInfo = React.lazy(() => import("../tab").then(module => ({ default: module.TabHistoryInfo })));
+const TabHistoryPrice = React.lazy(() => import("../tab").then(module => ({ default: module.TabHistoryPrice })));
+const TabHistoryInStamp = React.lazy(() => import("../tab").then(module => ({ default: module.TabHistoryInStamp })));
 
 const ListProductScreen: React.FC = () => {
   const [canReadHistories] = useAuthorization({
@@ -32,11 +32,11 @@ const ListProductScreen: React.FC = () => {
     acceptPermissions: [ProductPermission.read],
   });
   const [activeTab, setActiveTab] = useState<string | "">("");
-  const [visiblePickManyModal, setVisiblePickManyModal] = useState(false);
+  const isVisiblePickManyModal = false;
   const history = useHistory();
-  let match = useRouteMatch();
+  const match = useRouteMatch();
   const { path } = match;
-  const [vExportProduct, setVExportProduct] = useState(false);
+  const [isVExportProduct, setIsVExportProduct] = useState(false);
 
   useEffect(() => {
     let redirectUrl = path;
@@ -80,9 +80,9 @@ const ListProductScreen: React.FC = () => {
     }
   }, [path, canReadHistories, canReadVariants, canReadProducts, history]);
 
-  const onTogglePickManyModal = useCallback(() => {
+  const togglePickManyModal = useCallback(() => {
     history.push(`${UrlConfig.PRODUCT}/barcode`);
-  }, []);
+  }, [history]);
 
   const defaultTabs = useMemo(() => {
     return [
@@ -90,7 +90,7 @@ const ListProductScreen: React.FC = () => {
         name: "Danh sách sản phẩm",
         key: ProductTabUrl.VARIANTS,
         component: (
-          <TabProduct vExportProduct={vExportProduct} setVExportProduct={setVExportProduct} />
+          <TabProduct isVExportProduct={isVExportProduct} setIsVExportProduct={setIsVExportProduct} />
         ),
         isShow: canReadVariants,
       },
@@ -117,10 +117,10 @@ const ListProductScreen: React.FC = () => {
         key: ProductTabUrl.STAMP_PRINTING_HISTORY,
         component: (
           <TabHistoryInStamp
-            setVExportProduct={setVExportProduct}
-            vExportProduct={vExportProduct}
-            onTogglePickManyModal={onTogglePickManyModal}
-            visiblePickManyModal={visiblePickManyModal}
+            setIsVExportProduct={setIsVExportProduct}
+            isVExportProduct={isVExportProduct}
+            onTogglePickManyModal={togglePickManyModal}
+            isVisiblePickManyModal={isVisiblePickManyModal}
           />
         ),
         isShow: canReadHistories,
@@ -130,10 +130,11 @@ const ListProductScreen: React.FC = () => {
     canReadHistories,
     canReadVariants,
     canReadProducts,
-    vExportProduct,
-    onTogglePickManyModal,
-    visiblePickManyModal,
+    isVExportProduct,
+    togglePickManyModal,
+    isVisiblePickManyModal,
   ]);
+
   const tabs = useMemo(() => defaultTabs.filter((tab) => tab.isShow), [defaultTabs]);
 
   return (
@@ -169,7 +170,7 @@ const ListProductScreen: React.FC = () => {
                   size="large"
                   icon={<DownloadOutlined className="btn-view-icon"/>}
                   onClick={() => {
-                    setVExportProduct(true);
+                    setIsVExportProduct(true);
                   }}
                 >
                   Xuất file
@@ -184,7 +185,7 @@ const ListProductScreen: React.FC = () => {
             )}
             {activeTab === ProductTabUrl.STAMP_PRINTING_HISTORY && (
               <Button
-                onClick={onTogglePickManyModal}
+                onClick={togglePickManyModal}
                 size="large"
                 type="primary"
                 icon={<GoPlus style={{ marginRight: "0.2em" }} />}

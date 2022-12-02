@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
-import ImageProduct from "screens/products/product/component/image-product.component";
+import ImageProduct from "screens/products/product/component/ImageProduct";
 import NumberInput from "component/custom/number-input.custom";
 import {
   PurchaseProcument,
@@ -107,7 +107,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
                         return value ? (
                           <Image width={40} height={40} placeholder="Xem" src={value ?? ""} />
                         ) : (
-                          <ImageProduct disabled={true} onClick={undefined} path={value} />
+                          <ImageProduct isDisabled={true} path={value} />
                         );
                       },
                     },

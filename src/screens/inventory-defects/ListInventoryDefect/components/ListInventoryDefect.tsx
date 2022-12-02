@@ -10,7 +10,7 @@ import {
 } from "model/inventory-defects";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import ImageProduct from "screens/products/product/component/image-product.component";
+import ImageProduct from "screens/products/product/component/ImageProduct";
 import search from "assets/img/search.svg";
 import { primaryColor } from "utils/global-styles/variables";
 import { callApiNative } from "utils/ApiUtils";
@@ -29,7 +29,6 @@ import {
   formatFieldTag,
   transformParamsToObject,
   splitEllipsis,
-  formatCurrencyForProduct,
 } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -47,11 +46,12 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { InventoryDefectsPermission } from "config/permissions/inventory-defects.permission";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { strForSearch } from "../../../../utils/StringUtils";
+import { strForSearch } from "utils/StringUtils";
 import { Option } from "antd/es/mentions";
 import CopyIcon from "screens/order-online/component/CopyIcon";
 import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
+import { formatCurrencyForProduct } from "screens/products/helper";
 
 const ListInventoryDefect: React.FC = () => {
   const dispatch = useDispatch();
@@ -228,7 +228,7 @@ const ListInventoryDefect: React.FC = () => {
                   preview={{ mask: <EyeOutlined /> }}
                 />
               ) : (
-                <ImageProduct disabled={true} onClick={undefined} path={value} />
+                <ImageProduct isDisabled={true} onClick={undefined} path={value} />
               )}
             </>
           );

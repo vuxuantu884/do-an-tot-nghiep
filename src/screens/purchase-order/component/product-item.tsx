@@ -2,7 +2,9 @@ import { Checkbox } from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
 import { AppConfig } from "config/app.config";
 import { VariantResponse } from "model/product/product.model";
-import { formatCurrency, Products } from "utils/AppUtils";
+import { formatCurrency } from "utils/AppUtils";
+import { ProductHelper } from "utils";
+import React from "react";
 
 export type ProductItemProps = {
   data: VariantResponse;
@@ -14,8 +16,8 @@ export type ProductItemProps = {
 
 const ProductItem: React.FC<ProductItemProps> = (props: ProductItemProps) => {
   const { data, showCheckBox, checked, isTransfer, onChange = () => {} } = props;
-  const avatar = Products.findAvatar(data.variant_images);
-  const price_data = Products.findPrice(data.variant_prices, AppConfig.currency);
+  const avatar = ProductHelper.findAvatar(data.variant_images);
+  const price_data = ProductHelper.findPrice(data.variant_prices, AppConfig.currency);
   return (
     <div className="product-item product-item-select" onClick={() => onChange(!checked)}>
       {showCheckBox && <Checkbox checked={checked} onChange={(e) => onChange(e.target.checked)} />}

@@ -7,7 +7,7 @@ import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ProductHistoryQuery, ProductHistoryResponse } from "model/product/product.model";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
@@ -15,27 +15,21 @@ import { generateQuery } from "utils/AppUtils";
 import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, getEndOfDay, getStartOfDay } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import HistoryProductFilter from "../../filter/HistoryProductFilter";
+import { HistoryProductFilter } from "../../filter";
 import { StyledComponent } from "../style";
 import { EyeOutlined } from "@ant-design/icons";
 import { Col, Modal, Row } from "antd";
+import { PRODUCT_ACTION_TYPES } from "screens/products/helper";
 const initQuery: ProductHistoryQuery = {};
-
-const IS_PRODUCT_TYPE = [
-  "ADD_PRODUCT",
-  "UPDATE_PRODUCT",
-  "DELETE_PRODUCT",
-  "UPDATE_PRODUCT_STATUS",
-];
 
 const TabHistoryInfo: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isOpenModalLog, setOpenModalLog] = useState(false);
   const [dataLogSelected, setDataLogSelected] = useState<ProductHistoryResponse | null>(null);
-  const [showSettingColumn, setShowSettingColumn] = useState(false);
+  const [isShowSettingColumn, setIsShowSettingColumn] = useState(false);
   const [data, setData] = useState<PageResponse<ProductHistoryResponse>>({
     metadata: {
       limit: 30,
@@ -46,21 +40,24 @@ const TabHistoryInfo: React.FC = () => {
   });
 
   const onResult = useCallback((result: PageResponse<ProductHistoryResponse> | false) => {
-    setLoading(false);
+    setIsLoading(false);
     if (result) {
       setData(result);
     }
   }, []);
-  let dataQuery: ProductHistoryQuery = {
+
+  const dataQuery: ProductHistoryQuery = {
     ...initQuery,
     ...getQueryParams(query),
   };
-  let [params, setParams] = useState<ProductHistoryQuery>(dataQuery);
-  const onPageChange = useCallback(
+
+  const [params, setParams] = useState<ProductHistoryQuery>(dataQuery);
+
+  const changePage = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
-      let queryParam = generateQuery(params);
+      const queryParam = generateQuery(params);
       setParams({ ...params });
       history.replace(`${ProductTabUrl.PRODUCT_HISTORIES}?${queryParam}`);
     },
@@ -69,8 +66,8 @@ const TabHistoryInfo: React.FC = () => {
 
   const openModalLog = (data: ProductHistoryResponse) => {
     setOpenModalLog(true);
-    let newOldData: any = {};
-    let newCurrentData: any = {};
+    const newOldData: any = {};
+    const newCurrentData: any = {};
 
     if (data?.data_old) {
       for (let property in JSON.parse(data?.data_old)) {
@@ -101,7 +98,7 @@ const TabHistoryInfo: React.FC = () => {
         visible: true,
         fixed: "left",
         render: (sku, item) => {
-          if (IS_PRODUCT_TYPE.includes(item.history_type)) {
+          if (PRODUCT_ACTION_TYPES.includes(item.history_type)) {
             return (
               <div>
                 <Link to={`${UrlConfig.PRODUCT}/${item.product_id}`}>{item.product_code}</Link>
@@ -199,12 +196,12 @@ const TabHistoryInfo: React.FC = () => {
     setColumns,
   );
 
-  const columnFinal = useMemo(() => {
+  const columnsFinal = useMemo(() => {
     return columns.filter((item) => item.visible === true);
   }, [columns]);
 
   useEffect(() => {
-    setLoading(true);
+    setIsLoading(true);
     dispatch(productGetHistoryAction(params, onResult));
   }, [dispatch, onResult, params]);
 
@@ -212,7 +209,7 @@ const TabHistoryInfo: React.FC = () => {
     <StyledComponent>
       <HistoryProductFilter
         onFinish={(values: any) => {
-          let { from_action_date, to_action_date, condition } = values;
+          const { from_action_date, to_action_date, condition } = values;
           if (from_action_date) {
             values.from_action_date = getStartOfDay(from_action_date);
           }
@@ -220,12 +217,12 @@ const TabHistoryInfo: React.FC = () => {
             values.to_action_date = getEndOfDay(to_action_date);
           }
           values.condition = condition && condition.trim();
-          let newParams = { ...params, ...values, page: 1 };
+          const newParams = { ...params, ...values, page: 1 };
           setParams(newParams);
-          let queryParam = generateQuery(newParams);
+          const queryParam = generateQuery(newParams);
           history.replace(`${ProductTabUrl.PRODUCT_HISTORIES}?${queryParam}`);
         }}
-        onShowColumnSetting={() => setShowSettingColumn(true)}
+        onShowColumnSetting={() => setIsShowSettingColumn(true)}
         onMenuClick={() => {}}
         actions={[]}
       />
@@ -234,30 +231,31 @@ const TabHistoryInfo: React.FC = () => {
         bordered
         rowKey={(record) => record.id}
         isRowSelection
-        columns={columnFinal}
+        columns={columnsFinal}
         dataSource={data.items}
-        isLoading={loading}
+        isLoading={isLoading}
         sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
+        isShowPaginationAtHeader
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,
           current: data.metadata.page,
           showSizeChanger: true,
-          onChange: onPageChange,
-          onShowSizeChange: onPageChange,
+          onChange: changePage,
+          onShowSizeChange: changePage,
         }}
       />
       <ModalSettingColumn
-        visible={showSettingColumn}
-        onCancel={() => setShowSettingColumn(false)}
+        visible={isShowSettingColumn}
+        onCancel={() => setIsShowSettingColumn(false)}
         onOk={(data) => {
-          setShowSettingColumn(false);
+          setIsShowSettingColumn(false);
           setColumns(data);
           onSaveConfigTableColumn(data);
         }}
         data={columns}
         onResetToDefault={() => {
-          setShowSettingColumn(false);
+          setIsShowSettingColumn(false);
           setColumns(defaultColumns);
           onSaveConfigTableColumn(defaultColumns);
         }}

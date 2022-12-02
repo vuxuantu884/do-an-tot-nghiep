@@ -22,8 +22,8 @@ import { findAvatar } from "utils/AppUtils";
 import { InventoryDefectFields, LineItemDefect } from "model/inventory-defects";
 import { cloneDeep } from "lodash";
 import { createInventoryDefect } from "service/inventory/defect/index.service";
-import ImageProduct from "screens/products/product/component/image-product.component";
-import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import ImageProduct from "screens/products/product/component/ImageProduct";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import SearchProductComponent from "component/search-product";
 import { AccountStoreResponse } from "model/account/account.model";
 
@@ -72,7 +72,7 @@ const InventoryDefectCreate: React.FC = () => {
             {value ? (
               <Image width={40} height={40} placeholder="Xem" src={value ?? ""} />
             ) : (
-              <ImageProduct disabled={true} onClick={undefined} path={value} />
+              <ImageProduct isDisabled={true} path={value} />
             )}
           </>
         );
@@ -526,15 +526,15 @@ const InventoryDefectCreate: React.FC = () => {
                 >
                   {Array.isArray(myStores) && myStores.length > 0
                     ? myStores.map((item, index) => (
-                        <Option key={"store_id" + index} value={item.store_id}>
-                          {item.store}
-                        </Option>
-                      ))
+                      <Option key={"store_id" + index} value={item.store_id}>
+                        {item.store}
+                      </Option>
+                    ))
                     : stores.map((item, index) => (
-                        <Option key={"store_id" + index} value={item.id}>
-                          {item.name}
-                        </Option>
-                      ))}
+                      <Option key={"store_id" + index} value={item.id}>
+                        {item.name}
+                      </Option>
+                    ))}
                 </CustomSelect>
               </Form.Item>
             </Col>

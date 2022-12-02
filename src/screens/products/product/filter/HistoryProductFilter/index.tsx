@@ -1,14 +1,14 @@
 import CustomFilter from "component/table/custom.filter";
 import { Button, Form, Input } from "antd";
 import { MenuAction } from "component/table/ActionButton";
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 import search from "assets/img/search.svg";
 import { StyledComponent } from "./styles";
 import ButtonSetting from "component/table/ButtonSetting";
 import { ProductHistoryQuery } from "model/product/product.model";
 import CustomDatePicker from "component/custom/date-picker.custom";
 
-interface HistoryProductFilterProps {
+type HistoryProductFilterProps = {
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   onShowColumnSetting?: () => void;
@@ -21,14 +21,15 @@ const HistoryProductFilter: React.FC<HistoryProductFilterProps> = (
   props: HistoryProductFilterProps,
 ) => {
   const { actions, onMenuClick, onShowColumnSetting, onFinish } = props;
-  const onActionClick = useCallback(
+
+  const clickMenuItem = useCallback(
     (index: number) => {
       onMenuClick && onMenuClick(index);
     },
     [onMenuClick],
   );
 
-  const onSubmit = useCallback(
+  const searchProductHistory = useCallback(
     (value: ProductHistoryQuery) => {
       onFinish(value);
     },
@@ -38,8 +39,8 @@ const HistoryProductFilter: React.FC<HistoryProductFilterProps> = (
   return (
     <StyledComponent>
       <div className="history-filter">
-        <CustomFilter onMenuClick={onActionClick} menu={actions}>
-          <Form onFinish={onSubmit} layout="inline">
+        <CustomFilter onMenuClick={clickMenuItem} menu={actions}>
+          <Form onFinish={searchProductHistory} layout="inline">
             <Item name="condition" className="search">
               <Input
                 prefix={<img src={search} alt="" />}

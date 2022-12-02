@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { callApiNative } from "utils/ApiUtils";
 import SelectPagingV2 from "../SelectPaging/SelectPagingV2";
-import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { getCollectionApi } from "service/product/collection.service";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
 export interface SelectContentProps extends SelectProps<any> {

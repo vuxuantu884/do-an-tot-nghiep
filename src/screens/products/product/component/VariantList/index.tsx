@@ -1,12 +1,13 @@
 import { Loading3QuartersOutlined } from "@ant-design/icons";
 import { Checkbox, List, Spin } from "antd";
-import variantdefault from "assets/icon/variantdefault.jpg";
+import variantDefault from "assets/icon/variantdefault.jpg";
 import classNames from "classnames";
 import ActionButton from "component/table/ActionButton";
 import { ProductResponse, VariantResponse } from "model/product/product.model";
 import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
-import { formatCurrencyValue, Products, SupportedCurrencyType } from "utils/AppUtils";
+import { SupportedCurrencyType, formatCurrencyValue } from "utils/AppUtils";
 import { StyledComponent } from "./style";
+import { findAvatar } from "screens/products/helper";
 
 interface VariantListProps {
   value?: Array<VariantResponse>;
@@ -14,37 +15,37 @@ interface VariantListProps {
   setActive: (active: number) => void;
   onStopSale: (data: Array<number>) => void;
   onAllowSale: (data: Array<number>) => void;
-  loading?: boolean;
-  disabledAction?: boolean;
+  isLoading?: boolean;
+  isDisabledAction?: boolean;
   productData?: ProductResponse;
   canUpdateSaleable?: boolean;
 }
 
 const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
-  const { active, productData } = props;
+  const { active, productData, isDisabledAction, onStopSale, onAllowSale, value, canUpdateSaleable, isLoading, setActive } = props;
   const [listSelected, setListSelected] = useState<Array<number>>([]);
-  const [checkedAll, setCheckedAll] = useState<boolean>(false);
+  const [isCheckedAll, setIsCheckedAll] = useState<boolean>(false);
 
   const firstScrollRef = useRef(true);
   const onMenuClick = useCallback(
     (action) => {
       switch (action) {
         case 1:
-          props.onStopSale(listSelected);
+          onStopSale(listSelected);
           setListSelected([]);
-          setCheckedAll(false);
+          setIsCheckedAll(false);
           break;
         case 2:
-          props.onAllowSale(listSelected);
+          onAllowSale(listSelected);
           setListSelected([]);
-          setCheckedAll(false);
+          setIsCheckedAll(false);
       }
     },
-    [listSelected, props],
+    [listSelected, onAllowSale, onStopSale],
   );
 
   useLayoutEffect(() => {
-    // scroll to active varriant
+    // scroll to active variant
     if (firstScrollRef.current && active) {
       firstScrollRef.current = false;
       document
@@ -53,24 +54,22 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
     }
   }, [active]);
 
-  console.log(productData);
-
   return (
     <StyledComponent>
       <List
-        dataSource={props.value}
+        dataSource={value}
         className="list__variants"
         header={
           <div className="header-tab">
             <div className="header-tab-left">
               <Checkbox
-                checked={checkedAll}
+                checked={isCheckedAll}
                 onChange={(e) => {
-                  setCheckedAll(e.target.checked);
-                  if (props.value) {
+                  setIsCheckedAll(e.target.checked);
+                  if (value) {
                     if (e.target.checked) {
-                      props.value.forEach((item) => {
-                        let index = listSelected.findIndex((item1) => item1 === item.id);
+                      value.forEach((item) => {
+                        const index = listSelected.findIndex((item1) => item1 === item.id);
                         if (index === -1) {
                           listSelected.push(item.id);
                         }
@@ -87,18 +86,18 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
             </div>
             <div className="header-tab-right">
               <ActionButton
-                disabled={listSelected.length === 0 || props.disabledAction}
+                disabled={listSelected.length === 0 || isDisabledAction}
                 onMenuClick={onMenuClick}
                 menu={[
                   {
                     id: 1,
                     name: "Ngừng bán",
-                    disabled: !props.canUpdateSaleable,
+                    disabled: !canUpdateSaleable,
                   },
                   {
                     id: 2,
                     name: "Cho phép bán",
-                    disabled: !props.canUpdateSaleable,
+                    disabled: !canUpdateSaleable,
                   },
                 ]}
               />
@@ -106,7 +105,7 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
           </div>
         }
         renderItem={(item, index) => {
-          let avatar = Products.findAvatar(item.variant_images);
+          const avatar = findAvatar(item.variant_images);
           let variantName = item.sku;
           if (item.sku && productData) {
             variantName = item.name?.replace(productData.name, "");
@@ -114,14 +113,14 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
           }
           return (
             <List.Item
-              className={classNames(index === props.active && "active")}
+              className={classNames(index === active && "active")}
               id={"variantIndex" + index}
             >
               <div className="line-item">
                 <Checkbox
                   checked={listSelected.findIndex((item1) => item1 === item.id) !== -1}
                   onChange={(e) => {
-                    let index = listSelected.findIndex((item1) => item1 === item.id);
+                    const index = listSelected.findIndex((item1) => item1 === item.id);
                     if (e.target.checked) {
                       if (index === -1) {
                         listSelected.push(item.id);
@@ -134,10 +133,10 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                     setListSelected([...listSelected]);
                   }}
                 />
-                <div onClick={() => props.setActive(index)} className="line-item-container">
+                <div onClick={() => setActive(index)} className="line-item-container">
                   <div className="line-item-left">
                     <div className="avatar">
-                      <img alt="" src={avatar ? avatar.url : variantdefault} />
+                      <img alt="" src={avatar ? avatar.url : variantDefault} />
                       {!item.saleable && <div className="not-salable">Ngừng bán</div>}
                     </div>
                     <div className="info">
@@ -176,7 +175,7 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
           );
         }}
       />
-      {props.loading && (
+      {isLoading && (
         <div className="loading-view">
           <Spin indicator={<Loading3QuartersOutlined style={{ fontSize: 28 }} spin />} />
         </div>

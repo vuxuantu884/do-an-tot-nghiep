@@ -1,12 +1,13 @@
 import { Modal, List } from "antd";
 import { VariantResponse } from "model/product/product.model";
-import variantdefault from "assets/icon/variantdefault.jpg";
-import { convertVariantPrices, formatCurrency, Products } from "utils/AppUtils";
-import { useEffect, useState } from "react";
+import variantDefault from "assets/icon/variantdefault.jpg";
+import { formatCurrency } from "utils/AppUtils";
+import React, { useEffect, useState } from "react";
 import { StyledComponent } from "./styled";
 import { AppConfig } from "config/app.config";
+import { findPrice, convertVariantPrices, findAvatar } from "screens/products/helper";
 
-type IProps = {
+type ModalUpdatePriceProps = {
   visible: boolean;
   currentIndex: number;
   variants: Array<VariantResponse>;
@@ -14,23 +15,24 @@ type IProps = {
   onCancel: () => void;
 };
 
-const ModalUpdatePrice: React.FC<IProps> = (props: IProps) => {
+const ModalUpdatePrice: React.FC<ModalUpdatePriceProps> = (props: ModalUpdatePriceProps) => {
   const [variantConfirm, setVariantConfirm] = useState<Array<VariantResponse>>([]);
+  const { visible, currentIndex, variants, onCancel, onOk } = props;
 
   useEffect(() => {
     setVariantConfirm([
-      ...convertVariantPrices(props.variants, props.variants[props.currentIndex]),
+      ...convertVariantPrices(variants, variants[currentIndex]),
     ]);
-  }, [props.currentIndex, props.variants]);
+  }, [currentIndex, variants]);
 
   return (
     <Modal
       okText="Cập nhật giá"
       onCancel={() => {
-        props.onCancel();
+        onCancel();
       }}
       onOk={() => {
-        props.onOk(props.variants.map((e) => e.id));
+        onOk(variants.map((e) => e.id));
       }}
       title={
         <div>
@@ -48,24 +50,24 @@ const ModalUpdatePrice: React.FC<IProps> = (props: IProps) => {
           </p>
         </div>
       }
-      visible={props.visible}
+      visible={visible}
       className="yody-modal-price-product"
     >
       <StyledComponent>
         <List
           className="list__variants"
           dataSource={variantConfirm.filter(
-            (item, index) => index !== props.currentIndex && item.id,
+            (item, index) => index !== currentIndex && item.id,
           )}
           rowKey={(item) => item.id.toString()}
-          renderItem={(item, index) => {
-            let avatar = Products.findAvatar(item.variant_images);
+          renderItem={(item) => {
+            const avatar = findAvatar(item.variant_images);
             return (
               <List.Item>
                 <div className="line-item">
                   <div className="line-item-container">
                     <div className="avatar">
-                      <img alt="" src={avatar !== null ? avatar.url : variantdefault} />
+                      <img alt="" src={avatar !== null ? avatar.url : variantDefault} />
                       {!item.saleable && <div className="not-salable">Ngừng bán</div>}
                     </div>
                     <div
@@ -81,7 +83,7 @@ const ModalUpdatePrice: React.FC<IProps> = (props: IProps) => {
                         <div>{item.sku}</div>
                         <div className="retail-price-sku">
                           {formatCurrency(
-                            Products.findPrice(item.variant_prices, AppConfig.currency)
+                            findPrice(item.variant_prices, AppConfig.currency)
                               ?.retail_price ?? "",
                           )}
                         </div>

@@ -2,25 +2,27 @@ import { VariantResponse } from "model/product/product.model";
 import imgDefIcon from "assets/img/img-def.svg";
 import { Checkbox } from "antd";
 import { StyledComponent } from "./style";
-import { Products } from "utils/AppUtils";
+import { findAvatar } from "screens/products/helper";
+import React from "react";
 
 type ProductItemProps = {
   data: VariantResponse;
-  showCheckBox?: boolean;
-  checked?: boolean;
+  isShowCheckBox?: boolean;
+  isChecked?: boolean;
   onChange?: (checked: boolean) => void;
 };
 
 const BarcodeLineItem: React.FC<ProductItemProps> = (props: ProductItemProps) => {
-  const { data, showCheckBox, checked } = props;
-  const avatar = Products.findAvatar(data.variant_images);
+  const { data, isShowCheckBox, isChecked, onChange } = props;
+  const avatar = findAvatar(data.variant_images);
+
   return (
     <StyledComponent>
       <div className="bc-item">
-        {showCheckBox && (
+        {isShowCheckBox && (
           <Checkbox
-            checked={checked}
-            onChange={(e) => props.onChange && props.onChange(e.target.checked)}
+            checked={isChecked}
+            onChange={(event) => onChange && onChange(event.target.checked)}
           />
         )}
         <div className="bc-item-image">

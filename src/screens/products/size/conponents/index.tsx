@@ -1,7 +1,7 @@
 import { Col, Form, Input, Row } from "antd";
 import { CustomModalFormModel } from "model/modal/modal.model";
-import { useEffect } from "react";
-import * as CONSTANTS from "utils/Constants";
+import React, { useEffect } from "react";
+import { MODAL_ACTION_TYPE } from "utils/Constants";
 
 type FormValuesType = {
   code: string | null;
@@ -11,7 +11,7 @@ type FormValuesType = {
 const FormSize: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) => {
   const { modalAction, formItem, form, visible } = props;
 
-  const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
+  const isCreateForm = modalAction === MODAL_ACTION_TYPE.create;
   const initialFormValues: FormValuesType =
     !isCreateForm && formItem
       ? { code: formItem.code, version: formItem.version }

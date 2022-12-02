@@ -1,24 +1,24 @@
 import { Col, Modal, Popover, Row } from "antd";
 import { CareLabelItem } from "model/product/product.model";
-import { useCallback, useMemo, useState } from "react";
-import { careInformation } from "./care-value";
+import React, { useCallback, useMemo, useState } from "react";
+import { careInformation } from "./CareValues";
 import { StyledComponent } from "./style";
 
 type ModalCaresProps = {
-  visible: boolean;
+  isVisible: boolean;
   careLabels: string;
   onCancel: () => void;
-  onOk: (newCareLabes: string) => void;
+  onOk: (newCareLabels: string) => void;
 };
 
 const ModalCares: React.FC<ModalCaresProps> = (props: ModalCaresProps) => {
-  const { visible, careLabels, onCancel, onOk } = props;
+  const { isVisible, careLabels, onCancel, onOk } = props;
 
   const defaultSelected = useMemo<string[]>(() => careLabels ? careLabels.split(";"): [], [careLabels])
 
   const [selected, setSelected] = useState<string[]>(defaultSelected);
 
-  const onSelect = useCallback(
+  const selectCareInformation = useCallback(
     (value: string, type: string) => {
       if (!selected.includes(value)) {
         setSelected(selected.concat(value));
@@ -30,23 +30,23 @@ const ModalCares: React.FC<ModalCaresProps> = (props: ModalCaresProps) => {
     [selected],
   );
 
-  const onCancelHandler = useCallback(() => {
+  const cancelModal = useCallback(() => {
     setSelected(defaultSelected);
     onCancel();
   }, [defaultSelected, onCancel]);
 
-  const onOkClick = useCallback(() => {
+  const clickOk = useCallback(() => {
     onOk(selected.join(";"));
 
   }, [onOk, selected]);
 
   return (
     <Modal
-      onOk={onOkClick}
-      onCancel={onCancelHandler}
+      onOk={clickOk}
+      onCancel={cancelModal}
       title="Thông tin bảo quản"
       width={900}
-      visible={visible}
+      visible={isVisible}
       maskClosable={false}
     >
       <StyledComponent>
@@ -56,7 +56,7 @@ const ModalCares: React.FC<ModalCaresProps> = (props: ModalCaresProps) => {
             <Col key={item.value} span={3} style={{ marginBottom: "20px" }}>
               <Popover content={item.name}>
                 <span
-                  onClick={() => onSelect(item.value, "washing")}
+                  onClick={() => selectCareInformation(item.value, "washing")}
                   className={`yody-icon ydl-${item.value} ${
                     selected.includes(item.value) ? "active" : "deactive"
                   }`}
@@ -73,7 +73,7 @@ const ModalCares: React.FC<ModalCaresProps> = (props: ModalCaresProps) => {
                 <Col key={item.value} span={6} style={{ marginBottom: "20px" }}>
                   <Popover content={item.name}>
                     <span
-                      onClick={() => onSelect(item.value, "beleaching")}
+                      onClick={() => selectCareInformation(item.value, "beleaching")}
                       className={`yody-icon ydl-${item.value} ${
                         selected.includes(item.value) ? "active" : "deactive"
                       }`}
@@ -90,7 +90,7 @@ const ModalCares: React.FC<ModalCaresProps> = (props: ModalCaresProps) => {
                 <Col key={item.value} span={6} style={{ marginBottom: "20px" }}>
                   <Popover content={item.name}>
                     <span
-                      onClick={() => onSelect(item.value, "ironing")}
+                      onClick={() => selectCareInformation(item.value, "ironing")}
                       className={`yody-icon ydl-${item.value} ${
                         selected.includes(item.value) ? "active" : "deactive"
                       }`}
@@ -110,7 +110,7 @@ const ModalCares: React.FC<ModalCaresProps> = (props: ModalCaresProps) => {
               <Col key={item.value} span={3} style={{ marginBottom: "20px" }}>
                 <Popover content={item.name}>
                   <span
-                    onClick={() => onSelect(item.value, "drying")}
+                    onClick={() => selectCareInformation(item.value, "drying")}
                     className={`yody-icon ydl-${item.value} ${
                       selected.includes(item.value) ? "active" : "deactive"
                     }`}
@@ -126,7 +126,7 @@ const ModalCares: React.FC<ModalCaresProps> = (props: ModalCaresProps) => {
               <Col key={item.value} span={3} style={{ marginBottom: "20px" }}>
                 <Popover content={item.name}>
                   <span
-                    onClick={() => onSelect(item.value, "drying")}
+                    onClick={() => selectCareInformation(item.value, "drying")}
                     className={`yody-icon ydl-${item.value} ${
                       selected.includes(item.value) ? "active" : "deactive"
                     }`}
@@ -144,7 +144,7 @@ const ModalCares: React.FC<ModalCaresProps> = (props: ModalCaresProps) => {
               <Col key={item.value} span={3} style={{ marginBottom: "20px" }}>
                 <Popover content={item.name}>
                   <span
-                    onClick={() => onSelect(item.value, "professionalCare")}
+                    onClick={() => selectCareInformation(item.value, "professionalCare")}
                     className={`yody-icon ydl-${item.value} ${
                       selected.includes(item.value) ? "active" : "deactive"
                     }`}
@@ -160,7 +160,7 @@ const ModalCares: React.FC<ModalCaresProps> = (props: ModalCaresProps) => {
               <Col key={item.value} span={3} style={{ marginBottom: "20px" }}>
                 <Popover content={item.name}>
                   <span
-                    onClick={() => onSelect(item.value, "professionalCare")}
+                    onClick={() => selectCareInformation(item.value, "professionalCare")}
                     className={`yody-icon ydl-${item.value} ${
                       selected.includes(item.value) ? "active" : "deactive"
                     }`}

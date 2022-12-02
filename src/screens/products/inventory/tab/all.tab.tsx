@@ -26,23 +26,30 @@ import { HiChevronDoubleRight, HiOutlineChevronDoubleDown } from "react-icons/hi
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { getInventoryConfigService } from "service/inventory";
-import { formatCurrencyForProduct, generateQuery, Products, splitEllipsis } from "utils/AppUtils";
+import { generateQuery } from "utils/AppUtils";
+import {
+  ellipseName,
+  findAvatar,
+  findPrice, FINISH_PROCESS_PERCENT,
+  formatCurrencyForProduct,
+  START_PROCESS_PERCENT
+} from "screens/products/helper";
 import {
   COLUMN_CONFIG_TYPE,
   FulFillmentStatus,
   OFFSET_HEADER_TABLE,
   POS,
   ProcurementStatus,
+  TYPE_EXPORT,
 } from "utils/Constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import AllInventoryFilter from "../filter/all.filter";
 import "./index.scss";
 import InventoryExport from "../component/InventoryExport";
-import { TYPE_EXPORT } from "screens/products/constants";
 import { exportFileV2, getFileV2 } from "service/other/import.inventory.service";
 import InventoryExportModal from "../component/InventoryExportV2";
-import ImageProduct from "screens/products/product/component/image-product.component";
+import { ImageProduct } from "screens/products/product/component";
 import { Image } from "antd";
 import { callApiNative } from "utils/ApiUtils";
 import { searchVariantsInventoriesApi } from "service/product/product.service";
@@ -57,10 +64,11 @@ import useGetChannels from "hook/order/useGetChannels";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { BaseQuery } from "model/base/base.query";
 
-let varaintName = "";
+let variantName = "";
 let variantSKU = "";
 
 export const STATUS_IMPORT_EXPORT = {
+  NONE: 0,
   DEFAULT: 1,
   CREATE_JOB_SUCCESS: 2,
   JOB_FINISH: 3,
@@ -137,10 +145,10 @@ const AllTab: React.FC<any> = (props) => {
   const [selected, setSelected] = useState<Array<InventoryResponse>>([]);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [listExportFileDetail, setListExportFileDetail] = useState<Array<string>>([]);
-  const [exportProgress, setExportProgress] = useState<number>(0);
-  const [statusExport, setStatusExport] = useState<number>(0);
-  const [exportProgressDetail, setExportProgressDetail] = useState<number>(0);
-  const [statusExportDetail, setStatusExportDetail] = useState<number>(0);
+  const [exportProgress, setExportProgress] = useState<number>(START_PROCESS_PERCENT);
+  const [statusExport, setStatusExport] = useState<number>(STATUS_IMPORT_EXPORT.NONE);
+  const [exportProgressDetail, setExportProgressDetail] = useState<number>(START_PROCESS_PERCENT);
+  const [statusExportDetail, setStatusExportDetail] = useState<number>(STATUS_IMPORT_EXPORT.NONE);
   const [loading, setLoading] = useState<boolean>(false);
   const channels = useGetChannels();
 
@@ -305,22 +313,6 @@ const AllTab: React.FC<any> = (props) => {
     [params, onFilter],
   );
 
-  const ellipName = (str: string | undefined) => {
-    if (!str) {
-      return "";
-    }
-    let strName = str.trim();
-    strName =
-      window.screen.width >= 1920
-        ? splitEllipsis(strName, 100, 30)
-        : window.screen.width >= 1600
-        ? splitEllipsis(strName, 60, 30)
-        : window.screen.width >= 1366
-        ? splitEllipsis(strName, 47, 30)
-        : strName;
-    return strName;
-  };
-
   const defaultColumns: Array<ICustomTableColumType<InventoryResponse>> = useMemo(() => {
     return [
       {
@@ -332,14 +324,14 @@ const AllTab: React.FC<any> = (props) => {
         width: 250,
         className: "column-product",
         render: (value, record) => {
-          let strName = ellipName(record.name);
-          let image = Products.findAvatar(record.variant_images);
+          const strName = ellipseName(record.name);
+          const image = findAvatar(record.variant_images);
           return (
             <div className="image-product">
               {image ? (
                 <Image width={40} height={40} placeholder="Xem" src={image.url ?? ""} />
               ) : (
-                <ImageProduct disabled={true} onClick={undefined} path={image} />
+                <ImageProduct isDisabled={true} path={image} />
               )}
               <div className="product-name">
                 <div>
@@ -364,7 +356,7 @@ const AllTab: React.FC<any> = (props) => {
         width: 110,
         fixed: true,
         render: (value) => {
-          let price = Products.findPrice(value, AppConfig.currency);
+          const price = findPrice(value, AppConfig.currency);
           return formatCurrencyForProduct(price ? price.retail_price : 0);
         },
       },
@@ -537,7 +529,7 @@ const AllTab: React.FC<any> = (props) => {
         dataIndex: `in_coming`,
         align: "center",
         width: 80,
-        render: (value: number, record: InventoryResponse) => {
+        render: (value: number) => {
           return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
         },
       },
@@ -749,7 +741,7 @@ const AllTab: React.FC<any> = (props) => {
         dataIndex: `in_coming`,
         align: "center",
         width: 80,
-        render: (value: number, record: InventoryResponse) => {
+        render: (value: number) => {
           return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
         },
       },
@@ -1125,10 +1117,10 @@ const AllTab: React.FC<any> = (props) => {
     Cancel: () => {
       setVExportInventory(false);
       setShowExportModal(false);
-      setExportProgressDetail(0);
-      setStatusExportDetail(0);
-      setExportProgress(0);
-      setStatusExport(0);
+      setExportProgressDetail(START_PROCESS_PERCENT);
+      setStatusExportDetail(STATUS_IMPORT_EXPORT.NONE);
+      setExportProgress(START_PROCESS_PERCENT);
+      setStatusExport(STATUS_IMPORT_EXPORT.NONE);
     },
     OnExport: useCallback(
       (typeExport: string) => {
@@ -1189,7 +1181,7 @@ const AllTab: React.FC<any> = (props) => {
 
             downLoad.click();
             setListExportFile(newListExportFile);
-            setExportProgress(100);
+            setExportProgress(FINISH_PROCESS_PERCENT);
           }
         }
       });
@@ -1222,7 +1214,7 @@ const AllTab: React.FC<any> = (props) => {
 
             downLoad.click();
             setListExportFileDetail(newListExportFile);
-            setExportProgressDetail(100);
+            setExportProgressDetail(FINISH_PROCESS_PERCENT);
           }
         }
       });
@@ -1230,7 +1222,7 @@ const AllTab: React.FC<any> = (props) => {
   }, [listExportFileDetail]);
 
   useEffect(() => {
-    if (listExportFile.length === 0 || statusExport === 3) return;
+    if (listExportFile.length === 0 || statusExport === STATUS_IMPORT_EXPORT.JOB_FINISH) return;
     checkExportFile();
 
     const getFileInterval = setInterval(checkExportFile, 3000);
@@ -1238,7 +1230,7 @@ const AllTab: React.FC<any> = (props) => {
   }, [listExportFile, checkExportFile, statusExport]);
 
   useEffect(() => {
-    if (listExportFileDetail.length === 0 || statusExportDetail === 3) return;
+    if (listExportFileDetail.length === 0 || statusExportDetail === STATUS_IMPORT_EXPORT.JOB_FINISH) return;
     checkExportFileDetail();
 
     const getFileInterval = setInterval(checkExportFileDetail, 3000);
@@ -1315,7 +1307,7 @@ const AllTab: React.FC<any> = (props) => {
               return;
             }
 
-            varaintName = record.name;
+            variantName = record.name;
             variantSKU = record.sku;
             setExpandRow([record.id]);
             const store_ids: Array<number | string> = params.store_ids
@@ -1325,7 +1317,7 @@ const AllTab: React.FC<any> = (props) => {
               if (ele && Number(ele)) acc.push(Number(ele));
               return acc;
             }, [] as Array<number>);
-            fetchInventoryByVariant([record.id], store_ids_result, variantSKU, varaintName);
+            fetchInventoryByVariant([record.id], store_ids_result, variantSKU, variantName);
           },
 
           expandedRowRender: (record: VariantResponse) => {

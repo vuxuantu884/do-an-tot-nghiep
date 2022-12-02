@@ -1,6 +1,7 @@
 import { StockInOutItemsOther } from "model/stock-in-out-other";
 import { VariantResponse } from "model/product/product.model";
-import { isNullOrUndefined, Products } from "utils/AppUtils";
+import { isNullOrUndefined } from "utils/AppUtils";
+import { ProductHelper } from "utils";
 
 const StockInOutProductUtils = {
   convertVariantToStockInOutItem: (
@@ -13,7 +14,7 @@ const StockInOutProductUtils = {
       //   variant.variant_prices,
       //   AppConfig.currency
       // );
-      let variant_image = Products.findAvatar(variant.variant_images);
+      let variant_image = ProductHelper.findAvatar(variant.variant_images);
       // let price = price_response !== null ? price_response.import_price : 0;
       const retailPrice = variant.variant_prices[0].retail_price;
       const costPrice = variant.variant_prices[0].cost_price;

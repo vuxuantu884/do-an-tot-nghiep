@@ -31,7 +31,7 @@ import {
 } from "screens/purchase-order/provider/purchase-order.provider";
 import { productDetailApi } from "service/product/product.service";
 import { callApiNative } from "./ApiUtils";
-import { Products } from "./AppUtils";
+import { ProductHelper } from "./index";
 import { POStatus } from "./Constants";
 
 const POUtils = {
@@ -43,8 +43,8 @@ const POUtils = {
     let result: Array<PurchaseOrderLineItem> = [];
     variants.forEach((variant, index) => {
       let newId = `${variant.sku}${new Date().getTime()}`;
-      let price_response = Products.findPrice(variant.variant_prices, AppConfig.currency);
-      let variant_image = Products.findAvatar(variant.variant_images);
+      let price_response = ProductHelper.findPrice(variant.variant_prices, AppConfig.currency);
+      let variant_image = ProductHelper.findAvatar(variant.variant_images);
       let price = price_response !== null ? price_response.import_price : 0;
       const retailPrice = variant.variant_prices[0].retail_price;
       const cost_price = variant.variant_prices[0].cost_price;

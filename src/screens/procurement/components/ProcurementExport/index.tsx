@@ -1,7 +1,7 @@
 import { Modal, Form, Radio, Space, Row, Progress } from "antd";
 import { useCallback, Fragment } from "react";
 import { EnumTypeExport } from "screens/procurement/helper";
-import { STATUS_IMPORT_EXPORT } from "utils/Constants";
+import { STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Constants";
 
 type ExportModalProps = {
   isVisible: boolean;

@@ -1,6 +1,6 @@
 import { Modal, Form, Radio, Space } from "antd";
-import { useCallback, Fragment } from "react";
-import { TYPE_EXPORT } from "screens/products/constants";
+import React, { useCallback, Fragment } from "react";
+import { TYPE_EXPORT } from "utils/Constants";
 
 type ExportModalProps = {
   visible: boolean;
@@ -11,7 +11,7 @@ type ExportModalProps = {
 const InventoryHisExport: React.FC<ExportModalProps> = (props: ExportModalProps) => {
   const [form] = Form.useForm();
   const { visible, onCancel, onOk } = props;
-  const onCancelClick = useCallback(() => {
+  const cancelClick = useCallback(() => {
     onCancel();
   }, [onCancel]);
   const onOkClick = useCallback(() => {
@@ -19,7 +19,7 @@ const InventoryHisExport: React.FC<ExportModalProps> = (props: ExportModalProps)
   }, [onOk, form]);
   return (
     <Modal
-      onCancel={onCancelClick}
+      onCancel={cancelClick}
       width={600}
       visible={visible}
       cancelText="Hủy"

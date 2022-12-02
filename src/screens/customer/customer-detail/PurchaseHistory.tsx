@@ -59,8 +59,8 @@ import { getQueryParamsFromQueryString } from "utils/useQuery";
 import {
   getCustomerOrderHistoryAction,
   getCustomerOrderReturnHistoryAction,
-} from "../../../domain/actions/customer/customer.action";
-import { RootReducerType } from "../../../model/reducers/RootReducerType";
+} from "domain/actions/customer/customer.action";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 import iconWarranty from "assets/icon/icon-warranty-menu.svg";
 import IconPaymentBank from "assets/icon/payment/chuyen-khoan.svg";

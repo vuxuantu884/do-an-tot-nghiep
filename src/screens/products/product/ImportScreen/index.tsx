@@ -1,51 +1,40 @@
-import {
-  Card,
-  Col,
-  Row,
-  Tabs,
-  Form,
-  Space,
-  Button,
-  Radio,
-  Upload,
-  Input,
-  Modal,
-  Progress,
-} from "antd";
+import { Button, Card, Col, Form, Input, Modal, Progress, Radio, Row, Space, Tabs, Upload, } from "antd";
 import ContentContainer from "component/container/content.container";
 import updateProductExampleImg from "assets/img/update_product_example.png";
 import UrlConfig from "config/url.config";
 import { ProductImportScreenStyled } from "./styled";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { UploadOutlined } from "@ant-design/icons";
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { productImportAction } from "domain/actions/product/products.action";
 import { showError, showWarning } from "utils/ToastUtils";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
+import { FINISH_PROCESS_PERCENT, ProgressStatuses, START_PROCESS_PERCENT } from "../../helper";
+import { STATUS_IMPORT_EXPORT } from "utils/Constants";
 
 const ProductImportScreen: React.FC = () => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
-  const onBeforeUpload = useCallback(
+  const [percent, setPercent] = useState(START_PROCESS_PERCENT);
+  const [status, setStatus] = useState<number>(STATUS_IMPORT_EXPORT.NONE);
+
+  const handleBeforeUpload = useCallback(
     (file) => {
-      let fileData = [file];
+      const fileData = [file];
       form.setFieldsValue({ file: [...fileData] });
       return false;
     },
     [form],
   );
 
-  const [percent, setPercent] = useState(0);
-  const [status, setStatus] = useState<number>(1);
-
   const onResult = useCallback(
     (value) => {
       if (value) {
         setTimeout(() => {
-          setPercent(0);
-          setStatus(2);
-          setVisibleUpload(false);
+          setPercent(START_PROCESS_PERCENT);
+          setStatus(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+          setIsVisibleUpload(false);
           value.result.forEach((item: string) => {
             showWarning(item);
           });
@@ -53,9 +42,9 @@ const ProductImportScreen: React.FC = () => {
         }, 1000);
       } else {
         setTimeout(() => {
-          setPercent(100);
-          setStatus(3);
-          setVisibleUpload(false);
+          setPercent(FINISH_PROCESS_PERCENT);
+          setStatus(STATUS_IMPORT_EXPORT.JOB_FINISH);
+          setIsVisibleUpload(false);
         }, 2000);
       }
     },
@@ -66,14 +55,14 @@ const ProductImportScreen: React.FC = () => {
     visible: false,
   });
 
-  const [visibleUpload, setVisibleUpload] = useState<boolean>(false);
+  const [isVisibleUpload, setIsVisibleUpload] = useState<boolean>(false);
 
-  const onFinish = useCallback(
+  const startImport = useCallback(
     (value) => {
-      let { file, is_create } = value;
-      setVisibleUpload(true);
-      setStatus(1);
-      setPercent(0);
+      const { file, is_create } = value;
+      setIsVisibleUpload(true);
+      setStatus(STATUS_IMPORT_EXPORT.DEFAULT);
+      setPercent(START_PROCESS_PERCENT);
       setTimeout(() => {
         setPercent(20);
         dispatch(productImportAction(file[0], is_create, onResult));
@@ -82,9 +71,9 @@ const ProductImportScreen: React.FC = () => {
     [dispatch, onResult],
   );
 
-  const onClickSubmit = useCallback(() => {
-    let value = form.getFieldsValue(true);
-    let { file } = value;
+  const importFile = useCallback(() => {
+    const value = form.getFieldsValue(true);
+    const { file } = value;
     if (file.length === 0) {
       showError("Vui lòng chọn file");
       return;
@@ -104,6 +93,7 @@ const ProductImportScreen: React.FC = () => {
       },
     });
   }, [form]);
+
   return (
     <ProductImportScreenStyled>
       <Form
@@ -112,7 +102,7 @@ const ProductImportScreen: React.FC = () => {
           file: [],
         }}
         form={form}
-        onFinish={onFinish}
+        onFinish={startImport}
         layout="vertical"
       >
         <ContentContainer
@@ -164,9 +154,9 @@ const ProductImportScreen: React.FC = () => {
                     label="File excel:"
                   >
                     {({ getFieldValue }) => {
-                      let file = getFieldValue("file");
+                      const file = getFieldValue("file");
                       return (
-                        <Upload fileList={file} beforeUpload={onBeforeUpload}>
+                        <Upload fileList={file} beforeUpload={handleBeforeUpload}>
                           <Button icon={<UploadOutlined />}>Chọn file</Button>
                         </Upload>
                       );
@@ -189,7 +179,7 @@ const ProductImportScreen: React.FC = () => {
           back="Quay lại"
           rightComponent={
             <Space>
-              <Button onClick={onClickSubmit} type="primary">
+              <Button onClick={importFile} type="primary">
                 Import
               </Button>
             </Space>
@@ -198,14 +188,18 @@ const ProductImportScreen: React.FC = () => {
         <ModalConfirm {...modalConfirm} />
         <Modal
           className="ant-modal-header-nostyle ant-modal-footer-nostyle ant-modal-close-nostyle"
-          visible={visibleUpload}
+          visible={isVisibleUpload}
         >
           <div style={{ display: "flex", justifyContent: "center" }} className="modal-upload">
             <Progress
               type="circle"
               percent={percent}
               width={200}
-              status={status === 1 ? "normal" : status === 2 ? "success" : "exception"}
+              status={status === STATUS_IMPORT_EXPORT.DEFAULT
+                ? ProgressStatuses.NORMAL
+                : status === STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS
+                  ? ProgressStatuses.SUCCESS
+                  : ProgressStatuses.EXCEPTION}
             />
           </div>
         </Modal>

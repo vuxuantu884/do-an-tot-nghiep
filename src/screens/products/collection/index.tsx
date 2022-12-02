@@ -26,7 +26,6 @@ import deleteIcon from "assets/icon/deleteIcon.svg";
 import editIcon from "assets/icon/edit.svg";
 import threeDot from "assets/icon/three-dot.svg";
 import { PageResponse } from "model/base/base-metadata.response";
-import CustomPagination from "component/table/CustomPagination";
 import TextEllipsis from "component/table/TextEllipsis";
 
 const updateCollectionPermission = [ProductPermission.collections_update];
@@ -55,25 +54,25 @@ const Collection = () => {
     items: [],
   });
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [collectionId, setCollectionId] = useState<number>(0);
 
-  const RenderActionColumn = (value: any, row: CollectionResponse, index: number) => {
-    const [allowUpdateCollection] = useAuthorization({
+  const RenderActionColumn = (value: any, row: CollectionResponse) => {
+    const [canUpdateCollection] = useAuthorization({
       acceptPermissions: updateCollectionPermission,
       not: false,
     });
 
-    const [allowDeleteCollection] = useAuthorization({
+    const [canDeleteCollection] = useAuthorization({
       acceptPermissions: deleteCollectionPermission,
       not: false,
     });
 
-    const isShowAction = allowUpdateCollection || allowDeleteCollection;
+    const isShowAction = canUpdateCollection || canDeleteCollection;
 
     const menu = (
       <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-        {allowUpdateCollection && (
+        {canUpdateCollection && (
           <Menu.Item key="1">
             <Button
               icon={<img alt="" style={{ marginRight: 12 }} src={editIcon} />}
@@ -93,7 +92,7 @@ const Collection = () => {
           </Menu.Item>
         )}
 
-        {allowDeleteCollection && (
+        {canDeleteCollection && (
           <Menu.Item key="2">
             <Button
               icon={<img alt="" style={{ marginRight: 12 }} src={deleteIcon} />}
@@ -185,7 +184,7 @@ const Collection = () => {
       visible: true,
       width: "5%",
       className: "saleorder-product-card-action ",
-      render: (value, row, index) => RenderActionColumn(value, row, index),
+      render: (value, row) => RenderActionColumn(value, row),
     },
   ];
   const onFinish = useCallback(
@@ -201,7 +200,7 @@ const Collection = () => {
   );
 
   const onGetSuccess = useCallback((results: PageResponse<CollectionResponse>) => {
-    setLoading(false);
+    setIsLoading(false);
 
     if (results && results.items) {
       setData(results);
@@ -214,7 +213,7 @@ const Collection = () => {
     dispatch(getCollectionRequestAction(params, onGetSuccess));
   }, [dispatch, onGetSuccess, params]);
 
-  const onPageChange = useCallback(
+  const changePage = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
@@ -227,9 +226,10 @@ const Collection = () => {
   );
 
   useEffect(() => {
-    setLoading(true);
+    setIsLoading(true);
     dispatch(getCollectionRequestAction(params, onGetSuccess));
   }, [dispatch, onGetSuccess, params]);
+
   return (
     <ContentContainer
       title="Quản lý nhóm hàng"
@@ -271,7 +271,7 @@ const Collection = () => {
         </div>
         <CustomTable
           isRowSelection={false}
-          isLoading={loading}
+          isLoading={isLoading}
           dataSource={data.items}
           columns={columns}
           rowKey={(item: CollectionResponse) => item.id}
@@ -281,8 +281,8 @@ const Collection = () => {
             total: data.metadata.total,
             current: data.metadata.page,
             showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
+            onChange: changePage,
+            onShowSizeChange: changePage,
           }}
           sticky={{ offsetHeader: 55 }}
         />

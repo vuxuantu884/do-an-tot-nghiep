@@ -28,7 +28,7 @@ import {
   initValueLineItem,
   summaryContentByLineItemType,
 } from "utils/POUtils";
-import { sortSizeProduct } from "utils/ProductUtils";
+import { ProductHelper } from "utils";
 import { showError } from "utils/ToastUtils";
 import BaseButton from "../../../../component/base/BaseButton";
 import CustomAutoComplete from "../../../../component/custom/autocomplete.cusom";
@@ -434,7 +434,7 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
   const sizeRenderTable = useMemo((): Array<string> => {
     if (isEditMode) {
       return uniq(flatMapDeep(poLineItemGridChema?.map((schema) => schema.baseSize))).sort((a, b) =>
-        sortSizeProduct(a, b, "asc"),
+        ProductHelper.sortSizeProduct(a, b, "asc"),
       );
     } else if (poLineItemGridValue.length > 0) {
       const availableSize: string[] = [];
@@ -453,7 +453,7 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
           }
         }
       });
-      return uniq(availableSize).sort((a, b) => sortSizeProduct(a, b, "asc"));
+      return uniq(availableSize).sort((a, b) => ProductHelper.sortSizeProduct(a, b, "asc"));
     } else {
       return [];
     }

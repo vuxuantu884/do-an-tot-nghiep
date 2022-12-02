@@ -6,7 +6,7 @@ import CustomTable from "component/table/CustomTable";
 import UrlConfig, { ProductTabUrl } from "config/url.config";
 import { StyledComponent } from "./style";
 import { BiAddToQueue } from "react-icons/bi";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useDispatch } from "react-redux";
 import {
   productBarcodeAction,
@@ -17,18 +17,20 @@ import {
   ProductBarcodeRequest,
   VariantPricesResponse,
   VariantResponse,
+  VariantBarcodeLineItem
 } from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import BarcodeLineItem from "../component/BarcodeLineItem";
-import { formatCurrency, formatCurrencyForProduct, Products } from "utils/AppUtils";
-import variantdefault from "assets/icon/variantdefault.jpg";
+import { BarcodeLineItem } from "../component";
+import { formatCurrency } from "utils/AppUtils";
+import { findAvatar, findPrice, formatCurrencyForProduct, URL_TEMPLATE } from "screens/products/helper";
+import variantDefault from "assets/icon/variantdefault.jpg";
 import { AppConfig } from "config/app.config";
 import NumberInput from "component/custom/number-input.custom";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { CloseOutlined, InfoCircleOutlined, UploadOutlined } from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
 import { useLocation } from "react-router";
-import ModalPickManyProduct from "../component/ModalPickManyProduct";
+import { ModalPickManyProduct } from "../component";
 import { cloneDeep } from "lodash";
 import YDProgressModal, {
   DataProcess,
@@ -45,13 +47,6 @@ import { HttpStatus } from "config/http-status.config";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ProductPermission } from "config/permissions/product.permission";
 import excelIcon from "assets/icon/icon-excel.svg";
-export interface VariantBarcodeLineItem extends VariantResponse {
-  quantity_req: number | null;
-  image_url?: string;
-}
-
-const urlTemplate =
-  "https://yody-prd-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock_67f18ffe-23a3-4a67-b8f7-9a09bc6d0e36_original.xlsx";
 
 const initialProgressData = {
   processed: 0,
@@ -67,16 +62,16 @@ const BarcodeProductScreen: React.FC = () => {
   const history = useHistory();
   const state: any = location.state;
   const [data, setData] = useState<Array<VariantResponse>>([]);
-  const [loadingButton, setLoadingButton] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [visibleProduct, setVisibleProduct] = useState(false);
+  const [isLoadingButton, setIsLoadingButton] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isShowModalPickManyProduct, setIsShowModalPickManyProduct] = useState(false);
   const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
   const [dataSelected, setDataSelected] = useState<Array<VariantBarcodeLineItem>>([]);
   const [progressData, setProgressData] = useState<DataProcess>(initialProgressData);
   const refProgressModal = useRef<YDProgressModalHandle>(null);
   const renderResult = useMemo(() => {
-    let options: any[] = [];
-    data.forEach((item: VariantResponse, index: number) => {
+    const options: any[] = [];
+    data.forEach((item: VariantResponse) => {
       options.push({
         label: <BarcodeLineItem data={item} key={item.id.toString()} />,
         value: item.id.toString(),
@@ -84,6 +79,7 @@ const BarcodeProductScreen: React.FC = () => {
     });
     return options;
   }, [data]);
+
   const onResultSearch = useCallback((result: PageResponse<VariantResponse> | false) => {
     if (!result) {
       setData([]);
@@ -91,7 +87,8 @@ const BarcodeProductScreen: React.FC = () => {
       setData(result.items);
     }
   }, []);
-  const onSearch = useCallback(
+
+  const searchBarcode = useCallback(
     (value: string) => {
       if (value.trim() !== "" && value.length >= 3) {
         dispatch(
@@ -111,9 +108,9 @@ const BarcodeProductScreen: React.FC = () => {
     [dispatch, onResultSearch],
   );
 
-  const onResult = useCallback(
+  const onExportResult = useCallback(
     (data: string | false) => {
-      setLoadingButton(false);
+      setIsLoadingButton(false);
       if (!data) {
       } else {
         window.open(data);
@@ -125,22 +122,23 @@ const BarcodeProductScreen: React.FC = () => {
     [history],
   );
 
-  const onInTemp = useCallback(() => {
-    setLoadingButton(true);
-    let array: Array<ProductBarcodeItem> = [];
+  const exportInTemp = useCallback(() => {
+    setIsLoadingButton(true);
+    const array: Array<ProductBarcodeItem> = [];
     dataSelected.forEach((item) => {
       array.push({
         variant_id: item?.variant_id ? item?.variant_id : item.id,
         quantity_req: item.quantity_req ? item.quantity_req : 1,
       });
     });
-    let request: ProductBarcodeRequest = {
+    const request: ProductBarcodeRequest = {
       type_name: "excel",
       variants: array,
     };
-    dispatch(productBarcodeAction(request, onResult));
-  }, [dataSelected, dispatch, onResult]);
-  const onSelectProduct = useCallback(
+    dispatch(productBarcodeAction(request, onExportResult));
+  }, [dataSelected, dispatch, onExportResult]);
+
+  const selectProduct = useCallback(
     (value: string) => {
       const index = data.findIndex((item) => item.id.toString() === value);
       if (index !== -1) {
@@ -167,11 +165,11 @@ const BarcodeProductScreen: React.FC = () => {
 
   useEffect(() => {
     if (state && state.selected) {
-      let dataSelect1: Array<VariantBarcodeLineItem> = [];
+      const variantBarcodesSelect: Array<VariantBarcodeLineItem> = [];
       state.selected.forEach((item: VariantBarcodeLineItem) => {
-        dataSelect1.push({ ...item, quantity_req: item?.quantity_req || 1 });
+        variantBarcodesSelect.push({ ...item, quantity_req: item?.quantity_req || 1 });
       });
-      setDataSelected(dataSelect1);
+      setDataSelected(variantBarcodesSelect);
     }
   }, [state]);
 
@@ -192,8 +190,8 @@ const BarcodeProductScreen: React.FC = () => {
     customRequest: () => false,
   };
 
-  const disabledImport = useMemo(() => {
-    return fileList && fileList.length > 0 ? false : true;
+  const isDisabledImport = useMemo(() => {
+    return !(fileList && fileList.length > 0);
   }, [fileList]);
 
   const ActionImport = {
@@ -209,7 +207,7 @@ const BarcodeProductScreen: React.FC = () => {
       refProgressModal.current?.openModal();
       if (res && res.length > 0) {
         try {
-          setLoading(true);
+          setIsLoading(true);
           const resInTem = await importFileInTem({ url: res[0] });
           if (resInTem.code === HttpStatus.SUCCESS) {
             const data = resInTem.data;
@@ -231,12 +229,12 @@ const BarcodeProductScreen: React.FC = () => {
                 : [],
             );
             setFileList([]);
-            setLoading(false);
+            setIsLoading(false);
           }
         } catch {
           // setStatusImport(STATUS_IMPORT_EXPORT.ERROR);
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
-          setLoading(false);
+          setIsLoading(false);
         }
       } else {
         showError("Import không thành công");
@@ -244,8 +242,6 @@ const BarcodeProductScreen: React.FC = () => {
     }, [
       dispatch,
       fileList,
-      //  importType,
-      //  listImportFile
     ]),
     Cancel: useCallback(() => {
       refProgressModal.current?.closeModal();
@@ -253,7 +249,7 @@ const BarcodeProductScreen: React.FC = () => {
     }, []),
   };
 
-  const onResetFile = () => {
+  const resetFile = () => {
     setDataSelected([]);
   };
 
@@ -279,7 +275,7 @@ const BarcodeProductScreen: React.FC = () => {
           <AuthWrapper acceptPermissions={[ProductPermission.print_temp]}>
             <Card title="Thông tin import">
               <Upload
-                onRemove={onResetFile}
+                onRemove={resetFile}
                 maxCount={1}
                 {...uploadProps}
                 accept={ConAcceptImport}
@@ -288,11 +284,11 @@ const BarcodeProductScreen: React.FC = () => {
                 <Button icon={<UploadOutlined />}>Chọn file in tem</Button>
               </Upload>
               <Typography.Text style={{ marginTop: 20, display: "block" }}>
-                <img src={excelIcon} alt="" /> <a href={urlTemplate}>Link file excel mẫu (.xlsx)</a>
+                <img src={excelIcon} alt="" /> <a href={URL_TEMPLATE}>Link file excel mẫu (.xlsx)</a>
               </Typography.Text>
               <Row style={{ marginTop: 20 }}>
                 <Col span={24} style={{ display: "flex", flexDirection: "row-reverse" }}>
-                  <Button type="primary" onClick={ActionImport.Ok} disabled={disabledImport}>
+                  <Button type="primary" onClick={ActionImport.Ok} disabled={isDisabledImport}>
                     Nhập file
                   </Button>
                 </Col>
@@ -305,19 +301,18 @@ const BarcodeProductScreen: React.FC = () => {
                 id="#product_search"
                 dropdownClassName="product"
                 placeholder="Tên/Mã sản phẩm"
-                onSearch={onSearch}
+                onSearch={searchBarcode}
                 dropdownMatchSelectWidth={456}
                 style={{ width: "100%" }}
                 showAdd={true}
                 textAdd="Thêm mới sản phẩm"
-                onSelect={onSelectProduct}
+                onSelect={selectProduct}
                 options={renderResult}
-                // ref={productSearchRef}
               />
               <Button
                 className="button-pick-many"
                 icon={<BiAddToQueue />}
-                onClick={() => setVisibleProduct(true)}
+                onClick={() => setIsShowModalPickManyProduct(true)}
                 style={{ width: 132, marginLeft: 10 }}
               >
                 Chọn nhiều
@@ -337,12 +332,12 @@ const BarcodeProductScreen: React.FC = () => {
                   title: "Ảnh",
                   dataIndex: "variant_images",
                   render: (data, row) => {
-                    let img = data ? Products.findAvatar(data) : row?.image_url || "";
+                    const img = data ? findAvatar(data) : row?.image_url || "";
                     return (
                       <Image
                         className="avatar"
                         preview={false}
-                        src={img === null ? variantdefault : img.url}
+                        src={img === null ? variantDefault : img.url}
                       />
                     );
                   },
@@ -360,7 +355,7 @@ const BarcodeProductScreen: React.FC = () => {
                   dataIndex: "variant_prices",
                   render: (value: Array<VariantPricesResponse>, row) => {
                     if (row?.retail_price) return formatCurrency(row.retail_price);
-                    let price = Products.findPrice(value, AppConfig.currency);
+                    const price = findPrice(value, AppConfig.currency);
                     return price == null ? 0 : formatCurrency(price?.retail_price);
                   },
                 },
@@ -416,20 +411,20 @@ const BarcodeProductScreen: React.FC = () => {
         <BottomBarContainer
           back="Quay lại sản phẩm"
           rightComponent={
-            <Button onClick={onInTemp} loading={loadingButton} type="primary">
+            <Button onClick={exportInTemp} loading={isLoadingButton} type="primary">
               Xuất Excel
             </Button>
           }
         />
       </StyledComponent>
       <ModalPickManyProduct
-        visible={visibleProduct}
-        onCancel={() => setVisibleProduct(false)}
+        visible={isShowModalPickManyProduct}
+        onCancel={() => setIsShowModalPickManyProduct(false)}
         selected={dataSelected}
         onSave={(result: Array<VariantResponse>) => {
-          let dataSelect1: Array<VariantBarcodeLineItem> = [];
+          const dataSelect1: Array<VariantBarcodeLineItem> = [];
           result.forEach((item: VariantResponse) => {
-            let index = dataSelected.findIndex((item1) => item.id === item1.id);
+            const index = dataSelected.findIndex((item1) => item.id === item1.id);
             if (index === -1) {
               dataSelect1.unshift({ ...item, quantity_req: 1 });
             } else {
@@ -440,14 +435,14 @@ const BarcodeProductScreen: React.FC = () => {
             }
           });
           setDataSelected(dataSelect1);
-          setVisibleProduct(false);
+          setIsShowModalPickManyProduct(false);
         }}
       />
       <YDProgressModal
         dataProcess={progressData}
         onCancel={ActionImport.Cancel}
         onOk={ActionImport.Cancel}
-        loading={loading}
+        loading={isLoading}
         ref={refProgressModal}
       />
     </ContentContainer>

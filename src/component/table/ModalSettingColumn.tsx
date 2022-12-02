@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import ReactCustomScrollbars from "react-custom-scrollbars";
 import { Button, Checkbox, List, Modal } from "antd";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
@@ -9,9 +9,7 @@ import "./modal-setting-column.scss";
 
 const ReactDragListView = require("react-drag-listview/lib/index");
 
-export interface YodyColumn {}
-
-type ModalSettingColumnType = {
+type ModalSettingColumnProps = {
   visible: boolean;
   isSetDefaultColumn?: boolean;
   onOk: (data: Array<ICustomTableColumType<any>>) => void;
@@ -20,8 +18,8 @@ type ModalSettingColumnType = {
   data: Array<ICustomTableColumType<any>>;
 };
 
-const ModalSettingColumn: React.FC<ModalSettingColumnType> = (props: ModalSettingColumnType) => {
-  const { visible, isSetDefaultColumn, onResetToDefault, onOk, onCancel, data } = props;
+const ModalSettingColumn: React.FC<ModalSettingColumnProps> = (props: ModalSettingColumnProps) => {
+  const { visible, isSetDefaultColumn, onOk, onCancel, data, onResetToDefault } = props;
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<any>>>([]);
   const [isSelectAll, setIsSelectAll] = useState(false);
@@ -42,7 +40,7 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (props: ModalSettin
   const checkSelectAll = (columns: any) => {
     let isCheckSelectAll = true;
     columns.forEach((column: { visible: boolean }) => {
-      if (column.visible === false) {
+      if (!column.visible) {
         isCheckSelectAll = false;
       }
     });
@@ -62,13 +60,13 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (props: ModalSettin
   );
 
   const setDefaultColumn = useCallback(() => {
-    const defautlColumns = [...columns];
-    defautlColumns.forEach((column) => {
+    const defaultColumns = [...columns];
+    defaultColumns.forEach((column) => {
       column.visible = true;
     });
 
-    setColumn(defautlColumns);
-    onOk(defautlColumns);
+    setColumn(defaultColumns);
+    onOk(defaultColumns);
     onResetToDefault && onResetToDefault();
   }, [columns, onOk, onResetToDefault]);
 
