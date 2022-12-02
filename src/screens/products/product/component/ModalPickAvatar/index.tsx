@@ -1,7 +1,7 @@
 import { Checkbox, Col, Modal, Row } from "antd";
-import variantdefault from "assets/icon/variantdefault.jpg";
+import variantDefault from "assets/icon/variantdefault.jpg";
 import { VariantImage } from "model/product/product.model";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { StyledComponent } from "./style";
 
 type ModalPickAvatarProps = {
@@ -15,11 +15,11 @@ const ModalPickAvatar: React.FC<ModalPickAvatarProps> = (props: ModalPickAvatarP
   const { visible, variantImages, onCancel, onOk } = props;
   const [selected, setSelected] = useState<number>(-1);
 
-  const onCancelClick = useCallback(() => {
+  const clickCancel = useCallback(() => {
     onCancel();
   }, [onCancel]);
 
-  const onOkClick = useCallback(() => {
+  const clickOk = useCallback(() => {
     onOk(selected, false);
   }, [onOk, selected]);
 
@@ -30,7 +30,7 @@ const ModalPickAvatar: React.FC<ModalPickAvatarProps> = (props: ModalPickAvatarP
 
   useEffect(() => {
     if (visible) {
-      variantImages.forEach((item, index) => {
+      variantImages.forEach((item) => {
         if (item.product_avatar) {
           setSelected(item.image_id);
         }
@@ -40,8 +40,8 @@ const ModalPickAvatar: React.FC<ModalPickAvatarProps> = (props: ModalPickAvatarP
 
   return (
     <Modal
-      onOk={onOkClick}
-      onCancel={onCancelClick}
+      onOk={clickOk}
+      onCancel={clickCancel}
       title="Chọn ảnh đại diện"
       width={900}
       visible={visible}
@@ -50,7 +50,7 @@ const ModalPickAvatar: React.FC<ModalPickAvatarProps> = (props: ModalPickAvatarP
         <Row gutter={24}>
           <Col span={24} md={7}>
             <div className="avatar-show">
-              {avatar ? <img src={avatar} alt="" /> : <img src={variantdefault} alt="" />}
+              {avatar ? <img src={avatar} alt="" /> : <img src={variantDefault} alt="" />}
             </div>
           </Col>
           <Col span={24} md={17}>
@@ -58,7 +58,7 @@ const ModalPickAvatar: React.FC<ModalPickAvatarProps> = (props: ModalPickAvatarP
               {variantImages.map((item: VariantImage) => (
                 <div
                   className="img-frame"
-                  onClick={(e) => {
+                  onClick={() => {
                     setSelected(item.image_id);
                   }}
                 >

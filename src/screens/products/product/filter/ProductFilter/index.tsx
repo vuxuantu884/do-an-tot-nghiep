@@ -27,7 +27,7 @@ import { SizeResponse } from "model/product/size.model";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
+import { convertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 import {
   DATE_FORMAT,
   formatDateFilter,
@@ -35,9 +35,9 @@ import {
   getStartOfDayCommon,
 } from "utils/DateUtils";
 import { StyledComponent } from "./style";
-import BaseSelect from "../../../../../component/base/BaseSelect/BaseSelect";
-import BaseSelectMerchans from "../../../../../component/base/BaseSelect/BaseSelectMerchans";
-import { useFetchMerchans } from "../../../../../hook/useFetchMerchans";
+import BaseSelect from "component/base/BaseSelect/BaseSelect";
+import BaseSelectMerchans from "component/base/BaseSelect/BaseSelectMerchans";
+import { useFetchMerchans } from "hook/useFetchMerchans";
 import SupplierSearchSelect from "component/custom/select-search/supplier-select";
 
 type ProductFilterProps = {
@@ -49,7 +49,7 @@ type ProductFilterProps = {
   onMenuClick?: (index: number) => void;
   onFilter?: (values: VariantSearchQuery) => void;
   onClickOpen?: () => void;
-  allowReadSuppiers?: boolean;
+  canReadSuppliers?: boolean;
 };
 
 const { Item } = Form;
@@ -87,13 +87,13 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     onClickOpen,
     actions,
     onMenuClick,
-    allowReadSuppiers,
+    canReadSuppliers,
   } = props;
   const { fetchMerchans, merchans, isLoadingMerchans } = useFetchMerchans();
 
   const [visible, setVisible] = useState(false);
   const [dateClick, setDateClick] = useState("");
-  let [advanceFilters, setAdvanceFilters] = useState<any>({});
+  const [advanceFilters, setAdvanceFilters] = useState<any>({});
 
   const [lstSize, setLstSize] = useState<PageResponse<SizeResponse>>({
     items: [],
@@ -183,14 +183,14 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formAvd, params]);
 
-  const onFinish = useCallback(
+  const submitFilter = useCallback(
     (values: VariantSearchQuery) => {
       onFilter && onFilter(values);
     },
     [onFilter],
   );
 
-  const onFinishAvd = useCallback(
+  const submitAdvFilter = useCallback(
     (values: any) => {
       setAdvanceFilters(values);
       form.setFieldsValue(values);
@@ -202,7 +202,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     [form, onFilter],
   );
 
-  const onFilterClick = useCallback(() => {
+  const clickFilter = useCallback(() => {
     setVisible(false);
     formAvd.submit();
   }, [formAvd]);
@@ -211,11 +211,11 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     setVisible(true);
   }, []);
 
-  const onCancelFilter = useCallback(() => {
+  const cancelFilter = useCallback(() => {
     setVisible(false);
   }, []);
 
-  const onClearFilterClick = useCallback(() => {
+  const clearFilter = useCallback(() => {
     formAvd.resetFields();
     formAvd.submit();
     setVisible(false);
@@ -289,7 +289,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
   return (
     <StyledComponent>
       <div className="product-filter">
-        <Form onFinish={onFinish} form={form} initialValues={params} layout="inline">
+        <Form onFinish={submitFilter} form={form} initialValues={params} layout="inline">
           <CustomFilter onMenuClick={onMenuClick} menu={actions}>
             <Item name="info" className="search">
               <Input
@@ -331,13 +331,13 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
           suppliers={suppliers}
         />
         <BaseFilter
-          onClearFilter={onClearFilterClick}
-          onFilter={onFilterClick}
-          onCancel={onCancelFilter}
+          onClearFilter={clearFilter}
+          onFilter={clickFilter}
+          onCancel={cancelFilter}
           visible={visible}
           width={700}
         >
-          <Form onFinish={onFinishAvd} form={formAvd} ref={formRef} layout="vertical">
+          <Form onFinish={submitAdvFilter} form={formAvd} ref={formRef} layout="vertical">
             <Row>
               <Col span={24}>
                 <Item name="info" className="search">
@@ -433,12 +433,12 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     );
                     break;
                   case SearchVariantField.suppliers:
-                    if (allowReadSuppiers) {
+                    if (canReadSuppliers) {
                       component = (
                         <SupplierSearchSelect
                           mode="multiple"
                           placeholder="Chọn nhà cung cấp"
-                          onSelect={(key, option) => {
+                          onSelect={(key) => {
                             getSuppliers(key, 1);
                           }}
                         />
@@ -510,8 +510,8 @@ const FilterList = ({
 }: any) => {
   const newFilters = { ...filters };
   let filtersKeys = Object.keys(newFilters);
-  let renderTxt: any = null;
-  const newKeys = ConvertDatesLabel(newFilters, keysDateFilter);
+  let renderTxt: string;
+  const newKeys = convertDatesLabel(newFilters, keysDateFilter);
   filtersKeys = filtersKeys.filter((i) => !isExistInArr(keysDateFilter, i));
   return (
     <div>

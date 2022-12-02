@@ -3,7 +3,6 @@ import {
   Card,
   Col,
   Modal,
-  Progress,
   Radio,
   RadioChangeEvent,
   Row,
@@ -16,28 +15,19 @@ import UrlConfig from "config/url.config";
 import updateProductExampleImg from "assets/img/update_product_example.png";
 import createProductExampleImg from "assets/img/create_product_example.png";
 import { UploadOutlined } from "@ant-design/icons";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { ConAcceptImport, STATUS_IMPORT_EXPORT } from "utils/Constants";
 import excelIcon from "assets/icon/icon-excel.svg";
 import { HttpStatus } from "config/http-status.config";
-import NumberFormat from "react-number-format";
-import { isNullOrUndefined } from "utils/AppUtils";
-import { StyledProgressDownloadModal } from "screens/web-app/common/commonStyle";
 import { getFileV2, importFileV2 } from "service/other/import.inventory.service";
 import { callApiNative } from "utils/ApiUtils";
 import { uploadFileApi } from "service/core/import.service";
 import { useDispatch } from "react-redux";
+import { URL_IMPORT_PRODUCT_TEMPLATE, ConExportImport, ImportResponseStatuses } from "screens/products/helper";
 import cogoToast from "cogo-toast";
+import { ProcessDownloadInfo } from "component";
 
-const urlTemplate =
-  "https://yody-prd-media.s3.ap-southeast-1.amazonaws.com/yody-file/product-import_cd692c40-5818-4d7b-b259-01a47c3b0275_original.xlsx";
-
-const ConExportImport = {
-  IMPORT: "IMPORT_CREATE_PRODUCT",
-  UPDATE: "IMPORT_UPDATE_VARIANT",
-  UPDATE_PRODUCT: "IMPORT_UPDATE_PRODUCT",
-};
 type process = {
   total: number;
   processed: number;
@@ -46,34 +36,30 @@ type process = {
   percent: number;
 };
 
+const initProgressData = {
+  processed: 0,
+  success: 0,
+  error: 0,
+  total: 0,
+  percent: 0,
+};
+
 const ProductImportScreen: React.FC = () => {
   const dispatch = useDispatch();
   const { TabPane } = Tabs;
   const [fileList, setFileList] = useState<Array<File>>([]);
   const [errorData, setErrorData] = useState<Array<any>>([]);
   const [statusImport, setStatusImport] = useState<number>(STATUS_IMPORT_EXPORT.NONE);
-  const [importing, setImporting] = useState<boolean>(false);
+  const [isImporting, setIsImporting] = useState<boolean>(false);
   const [listImportFile, setListImportFile] = useState<Array<string>>([]);
   const [importType, setImportType] = useState<string>(ConExportImport.IMPORT);
-  const [progressData, setProgressData] = useState<process>({
-    processed: 0,
-    success: 0,
-    error: 0,
-    total: 0,
-    percent: 0,
-  });
+  const [progressData, setProgressData] = useState<process>(initProgressData);
 
   const resetFile = () => {
     setListImportFile([]);
     setErrorData([]);
     setFileList([]);
-    setProgressData({
-      processed: 0,
-      success: 0,
-      error: 0,
-      total: 0,
-      percent: 0,
-    });
+    setProgressData(initProgressData);
   };
 
   const uploadProps = {
@@ -92,6 +78,7 @@ const ProductImportScreen: React.FC = () => {
     },
     customRequest: () => false,
   };
+
   const ActionImport = {
     Ok: useCallback(async () => {
       cogoToast.success("Đã gửi yêu cầu nhập file", { position: "top-center" });
@@ -102,7 +89,7 @@ const ProductImportScreen: React.FC = () => {
         fileList,
         "",
       );
-      setImporting(true);
+      setIsImporting(true);
       if (res && res.length > 0) {
         importFileV2({
           url: res[0],
@@ -114,7 +101,7 @@ const ProductImportScreen: React.FC = () => {
               setListImportFile([...listImportFile, res.data.code]);
             }
           })
-          .catch((e: any) => {
+          .catch(() => {
             setStatusImport(STATUS_IMPORT_EXPORT.ERROR);
             showError("Có lỗi xảy ra, vui lòng thử lại sau");
           });
@@ -127,13 +114,13 @@ const ProductImportScreen: React.FC = () => {
     Cancel: useCallback(() => {
       resetFile();
       setFileList([]);
-      setImporting(false);
+      setIsImporting(false);
     }, []),
   };
 
   const checkImportFile = useCallback(() => {
     setStatusImport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
-    let getFilePromises = listImportFile.map((code) => {
+    const getFilePromises = listImportFile.map((code) => {
       return getFileV2(code);
     });
     Promise.all(getFilePromises).then((responses) => {
@@ -146,7 +133,7 @@ const ProductImportScreen: React.FC = () => {
             error: response.data.error,
             percent: response.data.percent,
           });
-          if (response.data && response.data.status === "FINISH") {
+          if (response.data && response.data.status === ImportResponseStatuses.SUCCESS) {
             showSuccess("Nhập file thành công");
             setStatusImport(STATUS_IMPORT_EXPORT.JOB_FINISH);
             const fileCode = response.data.code;
@@ -158,7 +145,7 @@ const ProductImportScreen: React.FC = () => {
               setStatusImport(STATUS_IMPORT_EXPORT.ERROR);
               setErrorData(JSON.parse(response.data.message));
             }
-          } else if (response.data && response.data.status === "ERROR") {
+          } else if (response.data && response.data.status === ImportResponseStatuses.ERROR) {
             setStatusImport(STATUS_IMPORT_EXPORT.ERROR);
             showError("Nhập file không thành công");
             if (response.data.message) {
@@ -183,8 +170,8 @@ const ProductImportScreen: React.FC = () => {
     return () => clearInterval(getFileInterval);
   }, [checkImportFile, listImportFile, listImportFile.length, statusImport]);
 
-  const disabledImport = useMemo(() => {
-    return fileList && fileList.length > 0 ? false : true;
+  const isDisabledImport = useMemo(() => {
+    return !(fileList && fileList.length > 0);
   }, [fileList]);
 
   return (
@@ -245,7 +232,7 @@ const ProductImportScreen: React.FC = () => {
             </Row>
             <Row style={{ marginTop: 20 }}>
               <Col span={24} style={{ display: "flex", flexDirection: "row-reverse" }}>
-                <Button type="primary" onClick={ActionImport.Ok} disabled={disabledImport}>
+                <Button type="primary" onClick={ActionImport.Ok} disabled={isDisabledImport}>
                   Nhập file
                 </Button>
               </Col>
@@ -255,7 +242,7 @@ const ProductImportScreen: React.FC = () => {
         <Col span={8}>
           <Card title="Link file excel mẫu">
             <Typography.Text>
-              <img src={excelIcon} alt="" /> <a href={urlTemplate}>Ấn để tải xuống file (.xlsx)</a>
+              <img src={excelIcon} alt="" /> <a href={URL_IMPORT_PRODUCT_TEMPLATE}>Ấn để tải xuống file (.xlsx)</a>
             </Typography.Text>
           </Card>
         </Col>
@@ -263,114 +250,14 @@ const ProductImportScreen: React.FC = () => {
       <Modal
         title="Nhập file"
         footer={false}
-        visible={importing}
+        visible={isImporting}
         width={650}
         centered
         maskClosable={false}
         onCancel={ActionImport.Cancel}
       >
         {statusImport !== STATUS_IMPORT_EXPORT.NONE && (
-          <StyledProgressDownloadModal>
-            <div>
-              <div className="progress-body" style={{ marginTop: "30px" }}>
-                <div className="progress-count">
-                  <div>
-                    <div>Tổng cộng</div>
-                    <div className="total-count">
-                      {isNullOrUndefined(progressData?.total) ? (
-                        "--"
-                      ) : (
-                        <NumberFormat
-                          value={progressData?.total}
-                          displayType={"text"}
-                          thousandSeparator={true}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div>Đã xử lý</div>
-                    <div style={{ fontWeight: "bold" }}>
-                      {isNullOrUndefined(progressData?.processed) ? (
-                        "--"
-                      ) : (
-                        <NumberFormat
-                          value={progressData?.processed}
-                          displayType={"text"}
-                          thousandSeparator={true}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div>Thành công</div>
-                    <div className="total-updated">
-                      {isNullOrUndefined(progressData?.success) ? (
-                        "--"
-                      ) : (
-                        <NumberFormat
-                          value={progressData?.success}
-                          displayType={"text"}
-                          thousandSeparator={true}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div>Lỗi</div>
-                    <div className="total-error">
-                      {isNullOrUndefined(progressData?.error) ? (
-                        "--"
-                      ) : (
-                        <NumberFormat
-                          value={progressData?.error}
-                          displayType={"text"}
-                          thousandSeparator={true}
-                        />
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <Progress
-                  status={`${progressData.percent === 100 ? "normal" : "active"}`}
-                  percent={progressData.percent}
-                  style={{ marginTop: 20 }}
-                  strokeColor="#2A2A86"
-                />
-              </div>
-              <div className="import-info">
-                <div className="content">
-                  {errorData?.length ? (
-                    <div className="error-orders">
-                      <div className="error_message">
-                        <div
-                          style={{
-                            backgroundColor: "#F5F5F5",
-                            padding: "20px 30px",
-                          }}
-                        >
-                          <ul style={{ color: "#E24343" }}>
-                            {errorData.map((error, index) => (
-                              <li key={index} style={{ marginBottom: "5px" }}>
-                                <span style={{ fontWeight: 500 }}>{error.split(":")[0]}</span>
-                                <span>:</span>
-                                <span>{error.split(":")[1]}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div />
-                  )}
-                </div>
-              </div>
-            </div>
-          </StyledProgressDownloadModal>
+          <ProcessDownloadInfo errorData={errorData} progressData={progressData} />
         )}
       </Modal>
     </ContentContainer>

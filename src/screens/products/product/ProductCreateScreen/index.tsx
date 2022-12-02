@@ -62,27 +62,32 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import {
-  convertCategory,
   formatCurrency,
-  formatCurrencyForProduct,
-  Products,
   replaceFormatString,
   capitalEachWords,
 } from "utils/AppUtils";
+import {
+  convertCategory, convertLabelSelected,
+  convertProductViewToRequest,
+  findAvatar,
+  formatCurrencyForProduct,
+} from "screens/products/helper";
 import { DEFAULT_COMPANY, VietNamId } from "utils/Constants";
-import { handleChangeMaterial, findPathTreeById } from "utils/ProductUtils";
+import { ProductHelper } from "utils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import ImageProduct from "../component/image-product.component";
-import ModalPickAvatar from "../component/ModalPickAvatar";
-import UploadImageModal, { VariantImageModel } from "../component/upload-image.modal";
+import {
+  ImageProduct,
+  ModalPickAvatar,
+  UploadImageModal,
+} from "../component";
+import { VariantImageModel } from "../component/UploadImageModal";
 import { StyledComponent } from "./styles";
 import BaseSelectPaging from "component/base/BaseSelect/BaseSelectPaging";
 import BaseSelectMerchans from "component/base/BaseSelect/BaseSelectMerchans";
 import { useFetchMerchans } from "hook/useFetchMerchans";
 import BaseSelect from "component/base/BaseSelect/BaseSelect";
-import { careInformation } from "screens/products/Component/CareInformation/care-value";
-import CareModal from "screens/products/Component/CareInformation"
+import CareModal from "screens/products/component/CareInformation"
 import { uniqBy } from "lodash";
 const { TreeNode } = TreeSelect;
 const { Item, List } = Form;
@@ -192,20 +197,20 @@ const ProductCreateScreen: React.FC = () => {
   const [variants, setVariants] = useState<Array<VariantRequestView>>([]);
   const [colorSelected, setColorSelected] = useState<Array<ColorResponse>>([]);
   const [sizeSelected, setSizeSelected] = useState<Array<SizeResponse>>([]);
-  const [loadingSaveButton, setLoadingSaveButton] = useState(false);
+  const [isLoadingSaveButton, setIsLoadingSaveButton] = useState(false);
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   });
   const [status, setStatus] = useState<string>(initialRequest.status);
-  const [isVisibleUpload, setVisibleUpload] = useState<boolean>(false);
-  const [visiblePickAvatar, setVisiblePickAvatar] = useState<boolean>(false);
+  const [isVisibleUpload, setIsVisibleUpload] = useState<boolean>(false);
+  const [isVisiblePickAvatar, setIsVisiblePickAvatar] = useState<boolean>(false);
   const [variant, setVariant] = useState<VariantImageModel | null>(null);
-  const [showCareModal, setShowCareModal] = useState(false);
-  const [changeDescription, setIsChangeDescription] = useState(true);
-  const [supplierLoading, setSupplierLoading] = useState(false);
-  const [collectionLoading, setCollectionLoading] = useState(false);
-  const [sizeLoading, setSizeLoading] = useState(false);
-  const [colorLoading, setColorLoading] = useState(false);
+  const [isShowCareModal, setIsShowCareModal] = useState(false);
+  const [isChangeDescription, setIsChangeDescription] = useState(true);
+  const [isSupplierLoading, setIsSupplierLoading] = useState(false);
+  const [isCollectionLoading, setCollectionLoading] = useState(false);
+  const [isSizeLoading, setIsSizeLoading] = useState(false);
+  const [isColorLoading, setIsColorLoading] = useState(false);
   const [isProductCollectionRequired, setIsProductCollectionRequired] = useState(false);
   const [careLabels, setCareLabels] = useState<any[]>([]);
   const [careLabelsString, setCareLabelsString] = useState("");
@@ -218,7 +223,7 @@ const ProductCreateScreen: React.FC = () => {
   //end state
 
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
-    let temp: Array<CategoryView> = convertCategory(arr);
+    const temp: Array<CategoryView> = convertCategory(arr);
     setLstCategoryAll(temp);
     setListCategory(arr);
   }, []);
@@ -229,14 +234,14 @@ const ProductCreateScreen: React.FC = () => {
     }
   }, []);
 
-  const onCategoryChange = useCallback(
+  const changeCategory = useCallback(
     (value: number) => {
       const category = lstCategoryAll.find((item) => item.id === value);
 
       if (category && category.child_ids === null) {
 
         let path: any;
-        listCategory.find((categoryItem) => (path = findPathTreeById(categoryItem, category.id)));
+        listCategory.find((categoryItem) => (path = ProductHelper.findPathTreeById(categoryItem, category.id)));
 
         const parents = lstCategoryAll.filter((item) => {
           return (
@@ -281,9 +286,9 @@ const ProductCreateScreen: React.FC = () => {
   /**
    * generate variants as product code change, selected colors, sizes change
    */
-  const listVariantsFilter = useCallback(
+  const changeVariantName = useCallback(
     () => {
-      let code = form.getFieldValue("code");
+      const code = form.getFieldValue("code");
       let name = form.getFieldValue("name");
       name = capitalEachWords(name);
       form.setFieldsValue({
@@ -295,7 +300,7 @@ const ProductCreateScreen: React.FC = () => {
         if (colorSelected.length > 0 && sizeSelected.length > 0) {
           colorSelected.forEach((color) => {
             sizeSelected.forEach((size) => {
-              let sku = `${code}-${color.code}-${size.code}`;
+              const sku = `${code}-${color.code}-${size.code}`;
               newVariants.push({
                 name: `${name} - ${color.name} - ${size.code}`,
                 code: color.code,
@@ -371,9 +376,9 @@ const ProductCreateScreen: React.FC = () => {
     [colorSelected, form, sizeSelected],
   );
 
-  const onCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const changeProductCode = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    listVariantsFilter();
+    changeVariantName();
     if (value.length === 7)
       dispatch(
         productCheckDuplicateCodeAction(value, (message) => {
@@ -389,12 +394,12 @@ const ProductCreateScreen: React.FC = () => {
       );
   };
 
-  const onMaterialChange = useCallback(
+  const changeMaterial = useCallback(
     (id: number) => {
-      if (changeDescription && id) {
+      if (isChangeDescription && id) {
         dispatch(
           detailMaterialAction(id, (material) => {
-            handleChangeMaterial(material, form);
+            ProductHelper.handleChangeMaterial(material, form);
             if (material && material.care_labels) {
               setCareLabelsString(material.care_labels);
             } else {
@@ -404,17 +409,17 @@ const ProductCreateScreen: React.FC = () => {
         );
       }
     },
-    [changeDescription, dispatch, form],
+    [isChangeDescription, dispatch, form],
   );
 
-  const onSizeSelected = useCallback(
+  const changeSelectedSize = useCallback(
     (value: number, objSize: any) => {
       let size: string = "";
       if (objSize && objSize?.children) {
         size = objSize?.children.split(" ")[0];
       }
       const newSize = { id: value, code: size } as SizeResponse;
-      let filter = [
+      const filter = [
         ...variants.filter((e) => e.size !== null).map((e) => ({ id: e.size_id, code: e.size })),
         newSize,
       ] as Array<SizeResponse>;
@@ -434,15 +439,15 @@ const ProductCreateScreen: React.FC = () => {
   // auto update product variant list as colors selected, sizes selected change
   useEffect(() => {
     if (colorSelected.length || sizeSelected.length) {
-      listVariantsFilter();
+      changeVariantName();
     }
-  }, [colorSelected.length, listVariantsFilter, sizeSelected.length]);
+  }, [colorSelected.length, changeVariantName, sizeSelected.length]);
 
   const statusValue = useMemo(() => {
     if (!productStatusList) {
       return "";
     }
-    let index = productStatusList?.findIndex((item) => item.value === status);
+    const index = productStatusList?.findIndex((item) => item.value === status);
     if (index !== -1) {
       return productStatusList?.[index].name;
     }
@@ -459,56 +464,15 @@ const ProductCreateScreen: React.FC = () => {
 
   useEffect(() => {
     const newSelected = careLabelsString ? careLabelsString.split(";") : [];
-    let careLabels: any[] = [];
-    newSelected.forEach((value: string) => {
-      careInformation.washing.forEach((item: any) => {
-        if (value === item.value) {
-          careLabels.push({
-            ...item,
-            active: true,
-          });
-        }
-      });
 
-      careInformation.beleaching.forEach((item: any) => {
-        if (value === item.value) {
-          careLabels.push({
-            ...item,
-            active: true,
-          });
-        }
-      });
-      careInformation.ironing.forEach((item: any) => {
-        if (value === item.value) {
-          careLabels.push({
-            ...item,
-            active: true,
-          });
-        }
-      });
-      careInformation.drying.forEach((item: any) => {
-        if (value === item.value) {
-          careLabels.push({
-            ...item,
-            active: true,
-          });
-        }
-      });
-      careInformation.professionalCare.forEach((item: any) => {
-        if (value === item.value) {
-          careLabels.push({
-            ...item,
-            active: true,
-          });
-        }
-      });
-    });
+    const careLabels = convertLabelSelected(newSelected);
+
     setCareLabels(careLabels);
   }, [careLabelsString]);
 
   const createCallback = useCallback(
     (result: ProductResponse) => {
-      setLoadingSaveButton(false);
+      setIsLoadingSaveButton(false);
       if (result) {
         showSuccess("Thêm mới dữ liệu thành công");
         history.push(`${UrlConfig.PRODUCT}/${result.id}`);
@@ -517,23 +481,23 @@ const ProductCreateScreen: React.FC = () => {
     [history],
   );
 
-  const onClickUpload = useCallback((item: VariantRequestView) => {
+  const uploadVariantImage = useCallback((item: VariantRequestView) => {
     setVariant({
       name: item.name,
       sku: item.sku,
       variant_images: item.variant_images,
     });
-    setVisibleUpload(true);
+    setIsVisibleUpload(true);
   }, []);
 
-  const onFinish = useCallback(
+  const createProduct = useCallback(
     (values: ProductRequestView) => {
-      setLoadingSaveButton(true);
+      setIsLoadingSaveButton(true);
       let variantsHasProductAvatar: VariantRequestView[] = variants;
       if (values.saleable) {
         variantsHasProductAvatar = getFirstProductAvatarCreate(variants);
       }
-      let request = Products.convertProductViewToRequest(
+      const request = convertProductViewToRequest(
         {
           ...values,
           description: form.getFieldValue("description"),
@@ -547,13 +511,13 @@ const ProductCreateScreen: React.FC = () => {
     [createCallback, dispatch, careLabelsString, status, variants, form],
   );
 
-  const onCancel = useCallback(() => {
+  const cancelModal = useCallback(() => {
     setModalConfirm({
       visible: false,
     });
   }, []);
 
-  const onClickAdd = useCallback(() => {
+  const validateCreateProduct = useCallback(() => {
     form
       .validateFields()
       .then((values: ProductRequestView) => {
@@ -582,10 +546,10 @@ const ProductCreateScreen: React.FC = () => {
           } else {
             notSelected = "kích cỡ và màu sắc";
           }
-          let subTitle = `Bạn chưa chọn ${notSelected}. Bạn có muốn tạo sản phẩm?`;
+          const subTitle = `Bạn chưa chọn ${notSelected}. Bạn có muốn tạo sản phẩm?`;
           setModalConfirm({
             visible: true,
-            onCancel: onCancel,
+            onCancel: cancelModal,
             onOk: () => {
               setModalConfirm({ visible: false });
               form.submit();
@@ -601,12 +565,12 @@ const ProductCreateScreen: React.FC = () => {
         const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
         window.scrollTo({ top: y, behavior: "smooth" });
       });
-  }, [colorSelected.length, form, onCancel, sizeSelected.length]);
+  }, [colorSelected.length, form, cancelModal, sizeSelected.length]);
 
-  const onClickReset = useCallback(() => {
+  const resetData = useCallback(() => {
     setModalConfirm({
       visible: true,
-      onCancel: onCancel,
+      onCancel: cancelModal,
       onOk: () => {
         form.resetFields();
         setModalConfirm({ visible: false });
@@ -616,20 +580,20 @@ const ProductCreateScreen: React.FC = () => {
       title: "Bạn có muốn đặt lại thông tin đã nhập",
       subTitle: "Sau khi đặt lại trang sẽ được đặt về mặt định. Bạn có muốn đặt lại?",
     });
-  }, [form, onCancel]);
+  }, [form, cancelModal]);
 
   const deleteVariant = useCallback(
     (sku: string) => {
-      let index = variants.findIndex((item) => item.sku === sku);
-     
+      const index = variants.findIndex((item) => item.sku === sku);
+
       variants.splice(index, 1);
       setVariants([...variants]);
     },
     [variants],
   );
 
-  const onPickAvatar = useCallback(() => {
-    setVisiblePickAvatar(true);
+  const pickAvatar = useCallback(() => {
+    setIsVisiblePickAvatar(true);
   }, []);
 
   const productAvatar = useMemo(() => {
@@ -684,7 +648,7 @@ const ProductCreateScreen: React.FC = () => {
     [dispatch, setCollections],
   );
 
-  const onSaveImage = useCallback(
+  const saveImage = useCallback(
     (imageId: number) => {
       variants.forEach((item) => {
         item.variant_images.forEach((item1) => {
@@ -694,18 +658,18 @@ const ProductCreateScreen: React.FC = () => {
         });
       });
       setVariants([...variants]);
-      setVisiblePickAvatar(false);
+      setIsVisiblePickAvatar(false);
     },
     [variants],
   );
 
   const getColors = useCallback(
     (info: string, page: number) => {
-      setColorLoading(true);
+      setIsColorLoading(true);
       dispatch(
         getColorAction({ info: info, is_main_color: 0, page: page }, (res) => {
           setColors(res);
-          setColorLoading(false);
+          setIsColorLoading(false);
         }),
       );
     },
@@ -714,11 +678,11 @@ const ProductCreateScreen: React.FC = () => {
 
   const getSizes = useCallback(
     (code: string, page: number) => {
-      setSizeLoading(true);
+      setIsSizeLoading(true);
       dispatch(
         sizeSearchAction({ code: code, page: page }, (res) => {
           setSizes(res);
-          setSizeLoading(false);
+          setIsSizeLoading(false);
         }),
       );
     },
@@ -727,13 +691,13 @@ const ProductCreateScreen: React.FC = () => {
 
   const getSuppliers = useCallback(
     (key: string, page: number) => {
-      setSupplierLoading(true);
+      setIsSupplierLoading(true);
       dispatch(
         SupplierSearchAction(
           { condition: key, page: page },
           (data: PageResponse<SupplierResponse>) => {
             setSupplier(data);
-            setSupplierLoading(false);
+            setIsSupplierLoading(false);
           },
         ),
       );
@@ -754,7 +718,7 @@ const ProductCreateScreen: React.FC = () => {
       dispatch(CountryGetAllAction(setListCountry));
       getColors("", 1);
       getSizes("", 1);
-      
+
       getCollections("", 1);
     }
     isLoadMaterData.current = true;
@@ -766,7 +730,7 @@ const ProductCreateScreen: React.FC = () => {
     form.setFieldsValue({ length_unit: "cm" });
   }, [form]);
 
-  const onChangeImportPrice = useCallback(
+  const changeImportPrice = useCallback(
     (e: any) => {
       let variant_prices = form.getFieldValue("variant_prices");
       if (!variant_prices) return;
@@ -784,7 +748,7 @@ const ProductCreateScreen: React.FC = () => {
   }, [getCollections]);
 
   return (
-    <Form form={form} onFinish={onFinish} initialValues={initialForm} layout="vertical">
+    <Form form={form} onFinish={createProduct} initialValues={initialForm} layout="vertical">
       <Item noStyle name="product_type" hidden>
         <Input />
         <Item noStyle name="component" hidden>
@@ -859,7 +823,7 @@ const ProductCreateScreen: React.FC = () => {
                         treeNodeFilterProp="title"
                         showSearch
                         className="selector"
-                        onChange={onCategoryChange}
+                        onChange={changeCategory}
                       >
                         {listCategory.map((item, index) => (
                           <React.Fragment key={index}>{TreeCategory(item)}</React.Fragment>
@@ -914,7 +878,7 @@ const ProductCreateScreen: React.FC = () => {
                       label="Mã sản phẩm"
                       normalize={(value: string) => (value || "").toUpperCase()}
                     >
-                      <Input maxLength={7} placeholder="Nhập mã sản phẩm" onChange={onCodeChange} />
+                      <Input maxLength={7} placeholder="Nhập mã sản phẩm" onChange={changeProductCode} />
                     </Item>
                   </Col>
                   <Col span={24} md={12} sm={24}>
@@ -938,7 +902,7 @@ const ProductCreateScreen: React.FC = () => {
                     >
                       <Input
                         className=""
-                        onChange={listVariantsFilter}
+                        onChange={changeVariantName}
                         maxLength={255}
                         placeholder="Nhập tên sản phẩm"
                       />
@@ -980,7 +944,7 @@ const ProductCreateScreen: React.FC = () => {
                         )}
                         placeholder="Chọn nhóm hàng"
                         mode="multiple"
-                        loading={collectionLoading}
+                        loading={isCollectionLoading}
                         fetchData={(query) =>
                           getCollections(query.condition || "", query.page || 1)
                         }
@@ -996,7 +960,7 @@ const ProductCreateScreen: React.FC = () => {
                         showSearch
                         optionFilterProp="children"
                         placeholder="Chọn chất liệu"
-                        onChange={onMaterialChange}
+                        onChange={changeMaterial}
                         allowClear
                       >
                         {listMaterial?.map((item) => (
@@ -1038,7 +1002,7 @@ const ProductCreateScreen: React.FC = () => {
                   <Col span={24} md={12} sm={24}>
                     <Item name="suppliers" label="Nhà cung cấp">
                       <BaseSelectPaging
-                        loading={supplierLoading}
+                        loading={isSupplierLoading}
                         metadata={suppliers.metadata}
                         data={suppliers.items}
                         mode="multiple"
@@ -1156,7 +1120,7 @@ const ProductCreateScreen: React.FC = () => {
                             <PlusOutlined />
                           )
                         }
-                        onClick={() => setShowCareModal(true)}
+                        onClick={() => setIsShowCareModal(true)}
                       />
                     </Item>
                   </Col>
@@ -1179,9 +1143,9 @@ const ProductCreateScreen: React.FC = () => {
                           <div>
                             <Checkbox
                               defaultChecked={true}
-                              onClick={(e) => e.stopPropagation()}
-                              onChange={(e) => {
-                                setIsChangeDescription(e.target.checked);
+                              onClick={(event) => event.stopPropagation()}
+                              onChange={(event) => {
+                                setIsChangeDescription(event.target.checked);
                               }}
                             >
                               Lấy thông tin mô tả từ chất liệu
@@ -1202,12 +1166,12 @@ const ProductCreateScreen: React.FC = () => {
               <Card className="card" title="Ảnh" hidden>
                 <div className="a-container">
                   {productAvatar === null ? (
-                    <div className="bpa" onClick={onPickAvatar}>
+                    <div className="bpa" onClick={pickAvatar}>
                       <PlusOutlined />
                       Chọn ảnh đại diện
                     </div>
                   ) : (
-                    <div className="bpa" onClick={onPickAvatar}>
+                    <div className="bpa" onClick={pickAvatar}>
                       <Image src={productAvatar} preview={false} />
                     </div>
                   )}
@@ -1320,7 +1284,7 @@ const ProductCreateScreen: React.FC = () => {
                                 format={(a: string) => formatCurrencyForProduct(a, ",")}
                                 replace={(a: string) => replaceFormatString(a)}
                                 placeholder="VD: 100,000"
-                                onChange={onChangeImportPrice}
+                                onChange={changeImportPrice}
                                 disabled
                               />
                             </Item>
@@ -1426,7 +1390,7 @@ const ProductCreateScreen: React.FC = () => {
                   <Col span={24} md={12} sm={24}>
                     <Item label="Màu sắc" name="color_id">
                       <BaseSelectPaging
-                        loading={colorLoading}
+                        loading={isColorLoading}
                         metadata={colors.metadata}
                         data={colors.items}
                         renderItem={(item) => (
@@ -1448,7 +1412,7 @@ const ProductCreateScreen: React.FC = () => {
                   <Col span={24} md={12} sm={24}>
                     <Item name="size" label="Kích cỡ">
                       <BaseSelectPaging
-                        loading={sizeLoading}
+                        loading={isSizeLoading}
                         metadata={sizes.metadata}
                         data={sizes.items}
                         renderItem={(item) => (
@@ -1459,7 +1423,7 @@ const ProductCreateScreen: React.FC = () => {
                         onDeselect={(sizeID, _) => {
                           setSizeSelected(sizeSelected.filter(size => size.id !== sizeID));
                         }}
-                        onSelect={onSizeSelected}
+                        onSelect={changeSelectedSize}
                         placeholder="Chọn kích cỡ"
                         notFoundContent={"Không có dữ liệu"}
                         mode="multiple"
@@ -1481,12 +1445,12 @@ const ProductCreateScreen: React.FC = () => {
                         images: Array<VariantImage>,
                         item: VariantRequestView,
                       ) => {
-                        let image = Products.findAvatar(images);
+                        let image = findAvatar(images);
                         return (
                           <ImageProduct
                             path={image !== null ? image.url : null}
                             onClick={() => {
-                              onClickUpload(item);
+                              uploadVariantImage(item);
                             }}
                           />
                         );
@@ -1538,8 +1502,8 @@ const ProductCreateScreen: React.FC = () => {
             back="Quay lại sản phẩm"
             rightComponent={
               <Space>
-                <Button onClick={onClickReset}>Đặt lại</Button>
-                <Button onClick={onClickAdd} loading={loadingSaveButton} type="primary">
+                <Button onClick={resetData}>Đặt lại</Button>
+                <Button onClick={validateCreateProduct} loading={isLoadingSaveButton} type="primary">
                   Tạo sản phẩm
                 </Button>
               </Space>
@@ -1547,14 +1511,14 @@ const ProductCreateScreen: React.FC = () => {
           />
           <ModalConfirm {...modalConfirm} />
           <ModalPickAvatar
-            onOk={onSaveImage}
-            onCancel={() => setVisiblePickAvatar(false)}
+            onOk={saveImage}
+            onCancel={() => setIsVisiblePickAvatar(false)}
             variantImages={variantImages}
-            visible={visiblePickAvatar}
+            visible={isVisiblePickAvatar}
           />
           <UploadImageModal
             onCancel={() => {
-              setVisibleUpload(false);
+              setIsVisibleUpload(false);
             }}
             visible={isVisibleUpload}
             variant={variant}
@@ -1565,16 +1529,16 @@ const ProductCreateScreen: React.FC = () => {
               }
               setVariants([...variants]);
               // getFirstProductAvatarCreate(variants)
-              setVisibleUpload(false);
+              setIsVisibleUpload(false);
             }}
           />
           <CareModal
-            onCancel={() => setShowCareModal(false)}
+            onCancel={() => setIsShowCareModal(false)}
             onOk={(data) => {
               setCareLabelsString(data);
-              setShowCareModal(false);
+              setIsShowCareModal(false);
             }}
-            visible={showCareModal}
+            isVisible={isShowCareModal}
             careLabels={careLabelsString}
           />
         </ContentContainer>
@@ -1583,18 +1547,21 @@ const ProductCreateScreen: React.FC = () => {
   );
 };
 
-const TreeCategory = (item: CategoryResponse) => {
+const TreeCategory = (categoryResponse: CategoryResponse) => {
   return (
-    <TreeNode value={item.id} title={item.code ? `${item.code} - ${item.name}` : item.name}>
-      {item.children.length > 0 && (
+    <TreeNode
+      value={categoryResponse.id}
+      title={categoryResponse.code ? `${categoryResponse.code} - ${categoryResponse.name}` : categoryResponse.name}
+    >
+      {categoryResponse.children.length > 0 && (
         <React.Fragment>
-          {item.children.map((item, index) => (
-            <React.Fragment key={index}>{TreeCategory(item)}</React.Fragment>
+          {categoryResponse.children.map((categoryResponse, index) => (
+            <React.Fragment key={index}>{TreeCategory(categoryResponse)}</React.Fragment>
           ))}
         </React.Fragment>
       )}
     </TreeNode>
   );
-};
+}
 
 export default ProductCreateScreen;

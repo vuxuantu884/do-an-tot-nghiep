@@ -1,7 +1,7 @@
 import { Col, Form, Input, Radio, Row, Space } from "antd";
 import { CustomModalFormModel } from "model/modal/modal.model";
-import { useCallback, useEffect, useState } from "react";
-import * as CONSTANTS from "utils/Constants";
+import React, { useCallback, useEffect, useState } from "react";
+import { MODAL_ACTION_TYPE } from "utils/Constants";
 import "./index.scss";
 import { FilterConfig } from "model/other";
 import CustomSelect from "component/custom/select.custom";
@@ -20,7 +20,7 @@ const FILTER_TYPE_CONSTANT = {
 
 const FormSaveFilter: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) => {
   const { modalAction, formItem, form, visible, lstConfigFilter } = props;
-  const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
+  const isCreateForm = modalAction === MODAL_ACTION_TYPE.create;
   const initialFormValues: FormValuesType =
     !isCreateForm && formItem
       ? {

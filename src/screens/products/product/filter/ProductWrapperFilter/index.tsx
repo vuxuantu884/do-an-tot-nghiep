@@ -1,5 +1,5 @@
 import { FilterOutlined } from "@ant-design/icons";
-import { Button, Col, Form, FormInstance, Input, Row, Select, Tag } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Tag } from "antd";
 import search from "assets/img/search.svg";
 import SelectPaging from "component/custom/SelectPaging";
 import BaseFilter from "component/filter/base.filter";
@@ -26,7 +26,7 @@ import { useDispatch } from "react-redux";
 import { DATE_FORMAT, formatDateFilter, getStartOfDayCommon } from "utils/DateUtils";
 import { StyledComponent } from "./styled";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
-import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
+import { convertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import CustomSelect from "component/custom/select.custom";
 import CollectionSearchPaging from "component/custom/select-search/collection-select-paging";
@@ -37,10 +37,12 @@ import CustomSelectOne from "component/filter/component/select-one.custom";
 
 function tagRender(props: any) {
   const { label, closable, onClose } = props;
+
   const onPreventMouseDown = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
   };
+
   return (
     <Tag
       className="primary-bg"
@@ -65,7 +67,6 @@ type ProductFilterProps = {
 };
 
 const { Item } = Form;
-const { Option } = Select;
 const listStatus = [
   {
     name: "Ngừng hoạt động",
@@ -82,7 +83,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
   const { params, actions, onMenuClick, onFilter, onClickOpen, listCategory, goods } = props;
   const [visible, setVisible] = useState(false);
   const [dateClick, setDateClick] = useState("");
-  let [advanceFilters, setAdvanceFilters] = useState<any>({});
+  const [advanceFilters, setAdvanceFilters] = useState<any>({});
   const [form] = Form.useForm();
   const [formNormal] = Form.useForm();
   const formRef = createRef<FormInstance>();
@@ -94,8 +95,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
     items: [],
     metadata: { limit: 20, page: 1, total: 0 },
   });
-
-  const [designers, setDeisgners] = useState<PageResponse<AccountResponse>>({
+  const [designers, setDesigners] = useState<PageResponse<AccountResponse>>({
     items: [],
     metadata: { limit: 20, page: 1, total: 0 },
   });
@@ -106,7 +106,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
 
   const setDataDesigners = useCallback((data: PageResponse<AccountResponse> | false) => {
     if (!data) return;
-    setDeisgners((designer) => {
+    setDesigners((designer) => {
       return {
         ...designer,
         items: [...designer.items, ...data.items],
@@ -181,14 +181,14 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form, params]);
 
-  const onFinish = useCallback(
+  const submitFilter = useCallback(
     (values: VariantSearchQuery) => {
       onFilter && onFilter(values);
     },
     [onFilter],
   );
 
-  const onFinishAvd = useCallback(
+  const submitAdvFilter = useCallback(
     (values: any) => {
       setAdvanceFilters(values);
       formNormal.setFieldsValue(values);
@@ -199,27 +199,33 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
     },
     [formNormal, onFilter],
   );
-  const onFilterClick = useCallback(() => {
+
+  const clickFilter = useCallback(() => {
     setVisible(false);
     form.submit();
   }, [form]);
+
   const openFilter = useCallback(() => {
     setVisible(true);
   }, []);
-  const onCancelFilter = useCallback(() => {
+
+  const cancelFilter = useCallback(() => {
     setVisible(false);
   }, []);
-  const onActionClick = useCallback(
+
+  const handleClickMenu = useCallback(
     (index: number) => {
       onMenuClick && onMenuClick(index);
     },
     [onMenuClick],
   );
-  const onClearFilterClick = useCallback(() => {
+
+  const clearFilter = useCallback(() => {
     form.resetFields();
     form.submit();
     setVisible(false);
   }, [form]);
+
   const resetField = useCallback(
     (field: string) => {
       form.resetFields([field]);
@@ -244,13 +250,13 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
   return (
     <StyledComponent>
       <div className="product-filter">
-        <CustomFilter onMenuClick={onActionClick} menu={actions}>
-          <Form form={formNormal} onFinish={onFinish} initialValues={params} layout="inline">
+        <CustomFilter onMenuClick={handleClickMenu} menu={actions}>
+          <Form form={formNormal} onFinish={submitFilter} initialValues={params} layout="inline">
             <Item name="info" className="search">
               <Input
-                onChange={(e) =>
+                onChange={(event) =>
                   form.setFieldsValue({
-                    info: e.target.value,
+                    info: event.target.value,
                   })
                 }
                 prefix={<img src={search} alt="" />}
@@ -284,13 +290,13 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
           form={form}
         />
         <BaseFilter
-          onClearFilter={onClearFilterClick}
-          onFilter={onFilterClick}
-          onCancel={onCancelFilter}
+          onClearFilter={clearFilter}
+          onFilter={clickFilter}
+          onCancel={cancelFilter}
           visible={visible}
           width={800}
         >
-          <Form ref={formRef} onFinish={onFinishAvd} form={form} layout="vertical">
+          <Form ref={formRef} onFinish={submitAdvFilter} form={form} layout="vertical">
             <Row>
               <Col span={24}>
                 <Item name="info" className="search">
@@ -433,7 +439,7 @@ const FilterList = ({
   let renderTxt = "";
   const newFilters = { ...filters };
   let filtersKeys = Object.keys(newFilters);
-  const newKeys = ConvertDatesLabel(newFilters, keysDateWrapperFilter);
+  const newKeys = convertDatesLabel(newFilters, keysDateWrapperFilter);
   filtersKeys = filtersKeys.filter((i) => !isExistInArr(keysDateWrapperFilter, i));
 
   const formValue = form.getFieldsValue(true);
@@ -525,9 +531,9 @@ const FilterList = ({
             case SearchVariantWrapperField.collections:
               let collectionTag = "";
               newValues.forEach((item: string) => {
-                const colection = lstCollection?.find((e: any) => e.code === item);
+                const collection = lstCollection?.find((e: any) => e.code === item);
 
-                collectionTag = colection ? collectionTag + colection.name + "; " : collectionTag;
+                collectionTag = collection ? collectionTag + collection.name + "; " : collectionTag;
               });
               renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${collectionTag}`;
               break;

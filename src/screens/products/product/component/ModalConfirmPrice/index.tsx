@@ -1,8 +1,9 @@
 import { Button, Modal, Typography } from "antd";
 import { TiWarningOutline } from "react-icons/ti";
+import React from "react";
 
-export interface ModalConfirmProps {
-  visible?: boolean;
+type ModalConfirmProps = {
+  isVisible?: boolean;
   onOk?: (isOnly: boolean) => void;
   onCancel?: () => void;
   onNext?: () => void;
@@ -11,12 +12,12 @@ export interface ModalConfirmProps {
 }
 
 const ModalConfirmPrice: React.FC<ModalConfirmProps> = (props: ModalConfirmProps) => {
-  const { visible, onOk, onCancel, onClickOutside } = props;
+  const { isVisible, onOk, onCancel, onClickOutside } = props;
   return (
     <Modal
       width="35%"
       className="modal-confirm"
-      visible={visible}
+      visible={isVisible}
       onCancel={onClickOutside}
       footer={[
         <Button

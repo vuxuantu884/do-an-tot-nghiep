@@ -1,10 +1,10 @@
 import { Modal, Form, Radio, Space, Row, Progress } from "antd";
-import { useCallback, Fragment } from "react";
-import { TYPE_EXPORT } from "screens/products/constants";
-import { STATUS_IMPORT_EXPORT } from "utils/Constants";
+import React, { useCallback, Fragment } from "react";
+import { STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Constants";
+import { START_PROCESS_PERCENT } from "screens/products/helper";
 
 type ExportModalProps = {
-  visible: boolean;
+  isVisible: boolean;
   onCancel: () => void;
   onOk: (record: string) => void;
   exportProgress?: number;
@@ -13,21 +13,23 @@ type ExportModalProps = {
 
 const CategoryExportModal: React.FC<ExportModalProps> = (props: ExportModalProps) => {
   const [form] = Form.useForm();
-  const { visible, onCancel, onOk, exportProgress, statusExport = 0 } = props;
-  const onCancelClick = useCallback(() => {
+  const { isVisible, onCancel, onOk, exportProgress, statusExport = START_PROCESS_PERCENT } = props;
+
+  const clickCancel = useCallback(() => {
     onCancel();
   }, [onCancel]);
-  const onOkClick = useCallback(() => {
+
+  const clickOk = useCallback(() => {
     onOk(form.getFieldValue("record"));
   }, [onOk, form]);
 
   return (
     <Modal
-      onCancel={onCancelClick}
+      onCancel={clickCancel}
       width={600}
-      visible={visible}
+      visible={isVisible}
       cancelText="Hủy"
-      onOk={onOkClick}
+      onOk={clickOk}
       title="Xuất file danh sách danh mục"
       okText="Xuất file"
     >

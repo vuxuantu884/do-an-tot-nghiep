@@ -41,10 +41,9 @@ import receivedIcon from "assets/icon/da_nhan.svg";
 import canceledIcon from "assets/icon/da_huy.svg";
 import confirmedIcon from "assets/icon/cho_chuyen.svg";
 import TransferExport from "../../Components/TransferExport";
-import { STATUS_IMPORT_EXPORT } from "utils/Constants";
+import { STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Constants";
 import moment from "moment";
 import * as XLSX from "xlsx";
-import { TYPE_EXPORT } from "screens/products/constants";
 import { TransferExportLineItemField } from "model/inventory/field";
 const { TextArea } = Input;
 

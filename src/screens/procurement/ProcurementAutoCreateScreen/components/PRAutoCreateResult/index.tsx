@@ -8,11 +8,11 @@ import {
   PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
 import { Link } from "react-router-dom";
+import ImageProduct from "screens/products/product/component/ImageProduct";
 import {
   getTotalProcurementItemsQuantityType,
   POProcurementLineItemField,
 } from "screens/procurement/helper";
-import ImageProduct from "screens/products/product/component/image-product.component";
 import { formatCurrency } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -96,7 +96,7 @@ const PRAutoCreateResult: React.FC<PRAutoCreateResultProps> = (props: PRAutoCrea
                           {url ? (
                             <Image width={40} height={40} placeholder="Xem" src={url ?? ""} />
                           ) : (
-                            <ImageProduct disabled={true} onClick={undefined} path={url} />
+                            <ImageProduct isDisabled={true} path={url} />
                           )}
                         </>
                       );

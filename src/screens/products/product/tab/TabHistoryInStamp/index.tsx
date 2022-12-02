@@ -13,55 +13,54 @@ import {
   VariantResponse,
 } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
-import { TYPE_EXPORT } from "screens/products/constants";
 import ModalPickManyProduct from "screens/products/product/component/ModalPickManyProduct";
 import { productGetHistoryInTem, productUpdateHistoryInTem } from "service/product/product.service";
 import { callApiNative } from "utils/ApiUtils";
-import { formatCurrencyForProduct, generateQuery, splitEllipsis } from "utils/AppUtils";
-import { OFFSET_HEADER_TABLE, STATUS_IMPORT_EXPORT } from "utils/Constants";
+import { generateQuery, splitEllipsis } from "utils/AppUtils";
+import {
+  formatCurrencyForProduct,
+  ACTIONS_INDEX,
+  START_PROCESS_PERCENT,
+  FINISH_PROCESS_PERCENT
+} from "screens/products/helper";
+import { OFFSET_HEADER_TABLE, STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { primaryColor } from "utils/global-styles/variables";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import ExportProduct from "../../component/ExportProduct";
 import { StyledComponent } from "../style";
-import EditNoteBarcode from "./EditNoteBarcode";
+import { EditNote, ExportModal } from "component";
 import HistoryInStampFilter from "./HistoryInStampFilter";
 import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
 import { MenuAction } from "component/table/ActionButton";
 import useAuthorization from "hook/useAuthorization";
-interface IProps {
-  visiblePickManyModal: boolean;
-  onTogglePickManyModal: () => void;
-  vExportProduct: boolean;
-  setVExportProduct: React.Dispatch<React.SetStateAction<boolean>>;
-}
 
-const ACTIONS_INDEX = {
-  PRINT_BAR_CODE: 2,
-  ACTIVE: 3,
-  INACTIVE: 4,
-  DELETE: 5,
-};
+type TabHistoryInStampProps = {
+  isVisiblePickManyModal: boolean;
+  onTogglePickManyModal: () => void;
+  isVExportProduct: boolean;
+  setIsVExportProduct: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
 const initQuery: BaseQuery = {
   sort_column: "created_date",
   sort_type: "desc",
 };
-const TabHistoryInStamp: React.FC<IProps> = (props) => {
+
+const TabHistoryInStamp: React.FC<TabHistoryInStampProps> = (props: TabHistoryInStampProps) => {
   //props
-  const { visiblePickManyModal, onTogglePickManyModal, vExportProduct, setVExportProduct } = props;
+  const { isVisiblePickManyModal, onTogglePickManyModal, isVExportProduct, setIsVExportProduct } = props;
   //page hooks
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
   //page state
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<PageResponse<BarcodePrintHistoriesResponse>>({
     metadata: {
       limit: 30,
@@ -70,12 +69,12 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
     },
     items: [],
   });
-  const [showSettingColumn, setShowSettingColumn] = useState(false);
-  const [loadingExport, setLoadingExport] = useState<boolean>(false);
+  const [isShowSettingColumn, setIsShowSettingColumn] = useState(false);
+  const [isLoadingExport, setIsLoadingExport] = useState<boolean>(false);
   const [selected, setSelected] = useState<Array<BarcodePrintHistoriesResponse>>([]);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
-  const [exportProgress, setExportProgress] = useState<number>(0);
-  const [statusExport, setStatusExport] = useState<number>(1);
+  const [exportProgress, setExportProgress] = useState<number>(START_PROCESS_PERCENT);
+  const [statusExport, setStatusExport] = useState<number>(STATUS_IMPORT_EXPORT.DEFAULT);
   const [exportError, setExportError] = useState<string>("");
 
   //redux state
@@ -84,7 +83,7 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
   );
 
   const onResult = useCallback((result: PageResponse<BarcodePrintHistoriesResponse> | false) => {
-    setLoading(false);
+    setIsLoading(false);
     if (result) {
       setData({ ...result });
     }
@@ -162,7 +161,7 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
       item: BarcodePrintHistoriesResponse,
       paramsQuery: ProductBarcodePrintHistories,
     ) => {
-      setLoading(true);
+      setIsLoading(true);
       const values: BarcodePrintTemEditNoteRequest = {
         note,
       };
@@ -234,9 +233,9 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
               window.screen.width >= 1920
                 ? splitEllipsis(strName, 100, 30)
                 : window.screen.width >= 1600
-                ? (strName = splitEllipsis(strName, 60, 30))
+                ? (splitEllipsis(strName, 60, 30))
                 : window.screen.width >= 1366
-                ? (strName = splitEllipsis(strName, 47, 30))
+                ? (splitEllipsis(strName, 47, 30))
                 : strName;
             return (
               <div>
@@ -298,12 +297,6 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
               "---"
             ),
         },
-        // {
-        //   title: "Mã tham chiếu",
-        //   dataIndex: "order_reference",
-        //   visible: true,
-        //   fixed: "left",
-        // },
         {
           title: (
             <div>
@@ -349,7 +342,7 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
             });
             return (
               <div className="note">
-                <EditNoteBarcode
+                <EditNote
                   isHaveEditPermission={hasPermission}
                   note={value}
                   title=""
@@ -382,13 +375,13 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
   const actionExport = {
     Ok: async (typeExport: string) => {
       if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
-        setStatusExport(0);
+        setStatusExport(STATUS_IMPORT_EXPORT.NONE);
         showWarning("Bạn chưa chọn sản phẩm nào để xuất file");
-        setVExportProduct(false);
+        setIsVExportProduct(false);
         return;
       }
-      setExportProgress(0);
-      setLoadingExport(true);
+      setExportProgress(START_PROCESS_PERCENT);
+      setIsLoadingExport(true);
       let newParams: any = {
         ...params,
         type: typeExport,
@@ -423,14 +416,14 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
             setListExportFile([...listExportFile, response.data.code]);
           }
         })
-        .catch((error) => {
+        .catch(() => {
           setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
         });
     },
     Cancel: () => {
-      setVExportProduct(false);
-      setLoadingExport(false);
+      setIsVExportProduct(false);
+      setIsLoadingExport(false);
     },
   };
 
@@ -441,31 +434,31 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          setExportProgress(response.data.percent ?? 0);
+          setExportProgress(response.data.percent ?? START_PROCESS_PERCENT);
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
-            setExportProgress(100);
+            setExportProgress(FINISH_PROCESS_PERCENT);
             const fileCode = response.data.code;
             const newListExportFile = listExportFile.filter((item) => {
               return item !== fileCode;
             });
             window.open(response.data.url, "_self");
             setListExportFile(newListExportFile);
-            setVExportProduct(false);
-            setLoadingExport(false);
+            setIsVExportProduct(false);
+            setIsLoadingExport(false);
           }
           if (response.data && response.data.status === "ERROR") {
             setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
             setExportError(response.data.message);
-            setLoadingExport(false);
+            setIsLoadingExport(false);
           }
         } else {
           setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
-          setLoadingExport(false);
+          setIsLoadingExport(false);
         }
       });
     });
-  }, [listExportFile, setVExportProduct]);
+  }, [listExportFile, setIsVExportProduct]);
 
   useEffect(() => {
     if (
@@ -481,7 +474,7 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
   }, [listExportFile, checkExportFile, statusExport]);
 
   useEffect(() => {
-    setLoading(true);
+    setIsLoading(true);
     getDataPrintHistories(params);
   }, [getDataPrintHistories, params]);
 
@@ -489,9 +482,9 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
     setColumns(defaultColumns);
   }, [defaultColumns]);
 
-  const onSelectedChange = useCallback((selectedRow: Array<BarcodePrintHistoriesResponse>) => {
+  const onSelectedChange = useCallback((selectedRows: Array<BarcodePrintHistoriesResponse>) => {
     setSelected(
-      selectedRow.filter(function (el) {
+      selectedRows.filter(function (el) {
         return el !== undefined;
       }),
     );
@@ -505,10 +498,10 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
         onFilter={onFilter}
         params={params}
         listCountries={[]}
-        onClickOpen={() => setShowSettingColumn(true)}
+        onClickOpen={() => setIsShowSettingColumn(true)}
       />
       <ModalPickManyProduct
-        visible={visiblePickManyModal}
+        visible={isVisiblePickManyModal}
         onCancel={onTogglePickManyModal}
         selected={[]}
         onSave={(result: Array<VariantResponse>) => {
@@ -522,11 +515,10 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
         isRowSelection
         selectedRowKey={selected.map((e) => e.id)}
         isShowPaginationAtHeader
-        // scroll={{ x: 1300 }}
         scroll={{ x: "max-content" }}
         columns={columnFinal}
         dataSource={data.items}
-        isLoading={loading}
+        isLoading={isLoading}
         rowKey={(item) => item.id}
         sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
@@ -540,19 +532,21 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
         }}
       />
       <ModalSettingColumn
-        visible={showSettingColumn}
-        onCancel={() => setShowSettingColumn(false)}
+        visible={isShowSettingColumn}
+        onCancel={() => setIsShowSettingColumn(false)}
         onOk={(data) => {
-          setShowSettingColumn(false);
+          setIsShowSettingColumn(false);
           setColumns(data);
         }}
         data={columns}
       />
-      <ExportProduct
+      <ExportModal
+        title="Xuất file danh sách sản phẩm"
+        moduleText="sản phẩm"
         onCancel={actionExport.Cancel}
         onOk={actionExport.Ok}
-        visible={vExportProduct}
-        loading={loadingExport}
+        isVisible={isVExportProduct}
+        isLoading={isLoadingExport}
         exportProgress={exportProgress}
         statusExport={statusExport}
         exportError={exportError}

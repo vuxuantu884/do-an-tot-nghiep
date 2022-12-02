@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { StyledComponent } from "./style";
 
 type RowDetailProps = {
@@ -7,12 +7,14 @@ type RowDetailProps = {
 };
 
 const RowDetail: React.FC<RowDetailProps> = (props: RowDetailProps) => {
+  const { title, value } = props;
+
   return (
     <StyledComponent>
       <div className="row-detail">
-        <div className="row-detail-left title text-truncate-1">{props.title}</div>
+        <div style={{ width: "40%" }} className="title text-truncate-1">{title}</div>
         <div className="dot data">:</div>
-        <div className="row-detail-right data">{props.value}</div>
+        <div style={{ width: "60%" }}  className="data">{value}</div>
       </div>
     </StyledComponent>
   );

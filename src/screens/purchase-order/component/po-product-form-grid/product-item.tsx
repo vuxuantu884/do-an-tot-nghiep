@@ -2,7 +2,9 @@ import { Checkbox } from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
 import { AppConfig } from "config/app.config";
 import { ProductResponse, VariantResponse } from "model/product/product.model";
-import { formatCurrency, Products } from "utils/AppUtils";
+import { formatCurrency } from "utils/AppUtils";
+import { ProductHelper } from "utils";
+import React from "react";
 
 export type ProductItemProps = {
   item: VariantResponse | ProductResponse;
@@ -17,10 +19,10 @@ const ProductItem: React.FC<ProductItemProps> = (props: ProductItemProps) => {
   let avatar;
   let price_data;
   if ("variant_images" in item) {
-    avatar = Products.findAvatar(item?.variant_images);
+    avatar = ProductHelper.findAvatar(item?.variant_images);
   }
   if ("variant_prices" in item) {
-    price_data = Products.findPrice(item?.variant_prices || "", AppConfig.currency);
+    price_data = ProductHelper.findPrice(item?.variant_prices || "", AppConfig.currency);
   }
 
   return (

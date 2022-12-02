@@ -1,7 +1,6 @@
 import { Modal, Form, Radio, Space, Row, Progress } from "antd";
-import { useCallback, Fragment } from "react";
-import { TYPE_EXPORT } from "screens/products/constants";
-import { STATUS_IMPORT_EXPORT } from "utils/Constants";
+import React, { useCallback, Fragment } from "react";
+import { STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Constants";
 
 type ExportModalProps = {
   visible: boolean;
@@ -13,8 +12,8 @@ type ExportModalProps = {
 
 const InventoryExport: React.FC<ExportModalProps> = (props: ExportModalProps) => {
   const [form] = Form.useForm();
-  const { visible, onCancel, onOk, exportProgressDetail, statusExportDetail = 0 } = props;
-  const onCancelClick = useCallback(() => {
+  const { visible, onCancel, onOk, exportProgressDetail, statusExportDetail = STATUS_IMPORT_EXPORT.NONE } = props;
+  const cancelClick = useCallback(() => {
     onCancel();
   }, [onCancel]);
   const onOkClick = useCallback(() => {
@@ -23,7 +22,7 @@ const InventoryExport: React.FC<ExportModalProps> = (props: ExportModalProps) =>
 
   return (
     <Modal
-      onCancel={onCancelClick}
+      onCancel={cancelClick}
       width={600}
       confirmLoading={statusExportDetail === STATUS_IMPORT_EXPORT.DEFAULT}
       visible={visible}

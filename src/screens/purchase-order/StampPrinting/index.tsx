@@ -24,7 +24,8 @@ import { useDispatch } from "react-redux";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import { printVariantBarcodeByPOApi } from "service/purchase-order/purchase-order.service";
 import { callApiNative } from "utils/ApiUtils";
-import { formatCurrency, formatCurrencyForProduct } from "utils/AppUtils";
+import { formatCurrency } from "utils/AppUtils";
+import { formatCurrencyForProduct } from "screens/products/helper";
 import { DownloadFile } from "utils/DownloadFile";
 import { fullTextSearch } from "utils/StringUtils";
 import {

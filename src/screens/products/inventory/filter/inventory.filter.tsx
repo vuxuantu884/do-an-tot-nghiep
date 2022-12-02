@@ -237,7 +237,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
 
 const FilterList = ({ filters, resetField }: any) => {
   let filtersKeys = Object.keys(filters);
-  let renderTxt: any = null;
+  let renderTxt: string;
   return (
     <div>
       {filtersKeys.map((filterKey) => {

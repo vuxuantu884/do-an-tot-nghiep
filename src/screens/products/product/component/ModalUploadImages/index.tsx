@@ -1,15 +1,16 @@
 import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Col, Modal, Row, Upload } from "antd";
-import variantdefault from "assets/icon/variantdefault.jpg";
+import variantDefault from "assets/icon/variantdefault.jpg";
 import { VariantImage } from "model/product/product.model";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { showSuccess, showWarning } from "utils/ToastUtils";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { showSuccess } from "utils/ToastUtils";
 import { RcFile } from "antd/lib/upload/interface";
 import "./index.scss";
 import { useDispatch } from "react-redux";
 import { callApiNative } from "utils/ApiUtils";
 import { producImagetUploadApi } from "service/product/product.service";
 import { HttpStatus } from "config/http-status.config";
+import { beforeUploadImage } from "screens/products/helper";
 
 type ModalPickAvatarProps = {
   visible: boolean;
@@ -24,14 +25,14 @@ const ModalUploadImages: React.FC<ModalPickAvatarProps> = (props: ModalPickAvata
   const { visible, variantImages, productId, onCancel, onOk } = props;
   const [selected, setSelected] = useState<number | undefined>(-1);
   const [fileList, setFileList] = useState<any>([]);
-  const [loadingConfirm, setLoadingConfirm] = useState<boolean>(false);
+  const [isLoadingConfirm, setIsLoadingConfirm] = useState<boolean>(false);
 
-  const onCancelClick = useCallback(() => {
+  const clickCancel = useCallback(() => {
     setFileList([]);
     onCancel();
   }, [onCancel]);
 
-  const onOkClick = useCallback(async () => {
+  const clickOk = useCallback(async () => {
     let isReload = false;
     if (fileList && fileList?.length > 0) {
       let files: Array<File> = [];
@@ -39,7 +40,7 @@ const ModalUploadImages: React.FC<ModalPickAvatarProps> = (props: ModalPickAvata
         const e: any = fileList[i].originFileObj as Blob;
         files.push(e);
       }
-      setLoadingConfirm(true);
+      setIsLoadingConfirm(true);
       const res = await callApiNative(
         { isShowLoading: false },
         dispatch,
@@ -48,7 +49,7 @@ const ModalUploadImages: React.FC<ModalPickAvatarProps> = (props: ModalPickAvata
         "variant",
         productId,
       );
-      setLoadingConfirm(false);
+      setIsLoadingConfirm(false);
       if (!res || res.code !== HttpStatus.SUCCESS) {
         if (res.message) {
           const dataErrors = res.data;
@@ -72,24 +73,17 @@ const ModalUploadImages: React.FC<ModalPickAvatarProps> = (props: ModalPickAvata
     onOk(selected, isReload);
     setFileList([]);
   }, [fileList, dispatch, productId, onOk, selected]);
+
   const avatar = useMemo(() => {
     let index = variantImages.findIndex((item) => item.id === selected);
     return index === -1 ? "" : variantImages[index].url;
   }, [selected, variantImages]);
 
-  const beforeUpload = useCallback((file: RcFile) => {
-    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
-    if (!isJpgOrPng) {
-      showWarning("Vui lòng chọn đúng định dạng file JPG, PNG");
-    }
-    const isLt2M = file.size / 1024 / 1024 < 5;
-    if (!isLt2M) {
-      showWarning("Cần chọn ảnh nhỏ hơn 5mb");
-    }
-    return isJpgOrPng && isLt2M ? true : Upload.LIST_IGNORE;
+  const handleBeforeUpload = useCallback((file: RcFile) => {
+    beforeUploadImage(file, 5);
   }, []);
 
-  const onAddFiles = useCallback((info) => {
+  const changeFiles = useCallback((info) => {
     setFileList(info.fileList);
   }, []);
 
@@ -110,9 +104,9 @@ const ModalUploadImages: React.FC<ModalPickAvatarProps> = (props: ModalPickAvata
 
   return (
     <Modal
-      onOk={onOkClick}
-      confirmLoading={loadingConfirm}
-      onCancel={onCancelClick}
+      onOk={clickOk}
+      confirmLoading={isLoadingConfirm}
+      onCancel={clickCancel}
       title="Ảnh sản phẩm"
       width={900}
       visible={visible}
@@ -121,16 +115,16 @@ const ModalUploadImages: React.FC<ModalPickAvatarProps> = (props: ModalPickAvata
       <Row gutter={24}>
         <Col span={24} md={7}>
           <div className="avatar-show">
-            {avatar ? <img src={avatar} alt="" /> : <img src={variantdefault} alt="" />}
+            {avatar ? <img src={avatar} alt="" /> : <img src={variantDefault} alt="" />}
           </div>
           <Upload
             style={{ width: "100%" }}
             multiple
             fileList={fileList}
             showUploadList={false}
-            beforeUpload={beforeUpload}
+            beforeUpload={handleBeforeUpload}
             onChange={(info) => {
-              onAddFiles(info);
+              changeFiles(info);
             }}
             className="image-product"
             listType="text"

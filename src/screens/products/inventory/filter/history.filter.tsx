@@ -16,7 +16,7 @@ import {
 } from "model/inventory/field";
 import moment from "moment";
 import { createRef, useCallback, useEffect, useState } from "react";
-import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
+import { convertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 import {
   DATE_FORMAT,
   formatDateFilter,
@@ -26,7 +26,7 @@ import {
 import { QuantityButtonStyle } from "./history-filter.style";
 import TreeStore from "./TreeStore";
 import CustomSelect from "../../../../component/custom/select.custom";
-import { documentTypes } from "../../constants";
+import { DOCUMENT_TYPES } from "screens/products/helper";
 
 interface HistoryInventoryFilterProps {
   params: HistoryInventoryQuery;
@@ -198,7 +198,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
                   width: "100%",
                 }}
               >
-                {documentTypes.map((item, index) => (
+                {DOCUMENT_TYPES.map((item, index) => (
                   <Select.Option key={index} value={item.value}>
                     {item.name}
                   </Select.Option>
@@ -276,8 +276,8 @@ const keysDateFilter = ["transaction_date", "quantity"];
 const FilterList = ({ filters, resetField }: any) => {
   const newFilters = { ...filters };
   let filtersKeys = Object.keys(filters);
-  let renderTxt: any = null;
-  const newKeys = ConvertDatesLabel(newFilters, keysDateFilter);
+  let renderTxt: string;
+  const newKeys = convertDatesLabel(newFilters, keysDateFilter);
   filtersKeys = filtersKeys.filter((i) => !isExistInArr(keysDateFilter, i));
   return (
     <div>

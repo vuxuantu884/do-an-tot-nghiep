@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { callApiNative } from "utils/ApiUtils";
 import SelectPagingV2 from "../SelectPaging/SelectPagingV2";
-import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import { RootReducerType } from "model/reducers/RootReducerType";
 export interface SelectContentProps extends SelectProps<any> {
   merchandiser?: string;
   fixedQuery?: any;

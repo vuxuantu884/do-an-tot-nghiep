@@ -1,7 +1,8 @@
 import { Button, Col, List, Modal, Progress, Row, Typography, Upload } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import excelIcon from "assets/icon/icon-excel.svg";
-import { DeleteOutlined, PaperClipOutlined, UploadOutlined } from "@ant-design/icons";
+import { UploadOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PaperClipOutlined } from "@ant-design/icons";
 import { VariantResponse } from "model/product/product.model";
 import { StyledProgressDownloadModal } from "screens/ecommerce/common/commonStyle";
 import { UploadFile } from "antd/lib/upload/interface";
