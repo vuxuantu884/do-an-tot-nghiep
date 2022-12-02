@@ -207,11 +207,11 @@ const YDPageCustomerView = (props: any) => {
           <div style={{ textAlign: "right" }}>
             {isOrderReturn ? (
               <Link to={`${UrlConfig.ORDERS_RETURN}/${item.id}`} target="_blank">
-                {formatCurrency(item.total_line_amount_after_line_discount)}
+                {formatCurrency(item.total)}
               </Link>
             ) : (
               <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank">
-                {formatCurrency(item.total_line_amount_after_line_discount)}
+                {formatCurrency(item.total)}
               </Link>
             )}
           </div>
