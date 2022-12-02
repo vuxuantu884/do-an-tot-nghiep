@@ -1,5 +1,8 @@
-import { BUSINESS_RESULT_CANCELED_QUERY, BUSINESS_RESULT_CART_NAME } from "config/dashboard";
-import { BusinessResultCartItem, DashboardShowMyData } from "model/dashboard/dashboard.model";
+import {
+  BUSINESS_RESULT_CART_NAME,
+  COMPANY_BUSINESS_RESULT_COMPLETED_QUERY,
+} from "config/dashboard";
+import { BusinessResultCartItem } from "model/dashboard/dashboard.model";
 import { ArrayAny } from "model/report/analytics.model";
 import moment from "moment";
 import { useContext, useEffect, useState } from "react";
@@ -9,49 +12,57 @@ import { DATE_FORMAT } from "utils/DateUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { DashboardContext } from "../provider/dashboard-provider";
 
-function useFetchTotalSaleCanceled() {
+function useFetchCompanyBRCompleted() {
   const dispatch = useDispatch();
   const { setDataSrcBusinessResultCard, deparmentIdList, showMyData } =
     useContext(DashboardContext);
-  const [isFetchingTotalSaleCanceled, setIsFetchingTotalSaleCanceled] = useState<boolean>(false);
+  const [isFetchingCompanyBRCompleted, setIsFetchingCompanyBRCompleted] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchTotalSaleComplete = async () => {
-      setIsFetchingTotalSaleCanceled(true);
+      setIsFetchingCompanyBRCompleted(true);
       const response = await getDataOneQueryDashboard(
         dispatch,
-        {} as DashboardShowMyData,
+        showMyData,
         deparmentIdList,
-        BUSINESS_RESULT_CANCELED_QUERY,
+        COMPANY_BUSINESS_RESULT_COMPLETED_QUERY,
       );
+      setIsFetchingCompanyBRCompleted(false);
 
-      setIsFetchingTotalSaleCanceled(false);
       if (!response) {
-        showErrorReport("Lỗi lấy dữ liệu doanh thu hủy");
+        showErrorReport("Lỗi lấy dữ liệu kết quả kinh doanh công ty");
         return;
       }
 
       const today = moment().format(DATE_FORMAT.YYYYMMDD);
 
-      let accumulateSalesCanceled = 0;
-      let salesCanceledToday = 0;
+      let totalSalesDailyActual = 0;
+      let totalSalesMonthlyActual = 0;
+      let ordersDailyActual = 0;
+      let ordersMonthlyActual = 0;
 
       response.result.data.forEach((value: ArrayAny) => {
         // Luỹ kế tháng
-        accumulateSalesCanceled += Number(value[1] || 0);
+        totalSalesMonthlyActual += Number(value[1]);
+        ordersMonthlyActual += Number(value[2]);
 
-        // Doanh thu online hôm nay
+        // Doanh thu hôm nay
         if (moment.parseZone(value[0]).utc(true).format(DATE_FORMAT.YYYYMMDD) === today) {
-          salesCanceledToday += Number(value[1]);
+          totalSalesDailyActual += Number(value[1]);
+          ordersDailyActual += Number(value[2]);
         }
       });
 
       // save data source
       setDataSrcBusinessResultCard((prevState: Map<string, BusinessResultCartItem>) => {
         const newState = new Map(prevState);
-        newState.set(BUSINESS_RESULT_CART_NAME.cancel, {
-          value: salesCanceledToday,
-          monthlyAccumulated: accumulateSalesCanceled,
+        newState.set(BUSINESS_RESULT_CART_NAME.companyTotalSales, {
+          value: totalSalesDailyActual,
+          monthlyAccumulated: totalSalesMonthlyActual,
+        });
+        newState.set(BUSINESS_RESULT_CART_NAME.companyOrders, {
+          value: ordersDailyActual,
+          monthlyAccumulated: ordersMonthlyActual,
         });
         return newState;
       });
@@ -59,7 +70,7 @@ function useFetchTotalSaleCanceled() {
     fetchTotalSaleComplete();
   }, [dispatch, setDataSrcBusinessResultCard, deparmentIdList, showMyData]);
 
-  return { isFetchingTotalSaleCanceled };
+  return { isFetchingCompanyBRCompleted };
 }
 
-export default useFetchTotalSaleCanceled;
+export default useFetchCompanyBRCompleted;

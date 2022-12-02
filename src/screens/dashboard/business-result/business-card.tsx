@@ -1,4 +1,4 @@
-import { BUSINESS_RESULT_CART_LABEL } from "config/dashboard";
+import { BUSINESS_RESULT_CART_DESCRIPTION, BUSINESS_RESULT_CART_LABEL } from "config/dashboard";
 import React from "react";
 import { DashboardContext } from "../provider/dashboard-provider";
 import IncomeBox, { IncomeBoxProps } from "./income-box";
@@ -11,6 +11,7 @@ function BusinessCard({ dataKey, ...rest }: Props) {
   const { dataSrcBusinessResultCard } = React.useContext(DashboardContext);
   return (
     <IncomeBox
+      description={BUSINESS_RESULT_CART_DESCRIPTION[dataKey]}
       title={BUSINESS_RESULT_CART_LABEL[dataKey]}
       value={dataSrcBusinessResultCard.get(dataKey)?.value}
       monthlyAccumulated={dataSrcBusinessResultCard.get(dataKey)?.monthlyAccumulated}
