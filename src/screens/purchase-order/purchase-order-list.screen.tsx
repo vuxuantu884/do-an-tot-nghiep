@@ -65,7 +65,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { useReactToPrint } from "react-to-print";
 import purify from "dompurify";
 import { PrintTypePo } from "./helper";
-import POProgressModal from "./POProgressModal";
+import YDProgressModal, { YDProgressModalHandle } from "./POProgressModal";
 
 import iconPo1 from "assets/icon/po-status-1.svg";
 import iconPo2 from "assets/icon/po-status-2.svg";
@@ -141,7 +141,6 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
   const [printContent, setPrintContent] = useState<string>("");
   const [poPrintType, setPOPrintType] = useState<string>(PrintTypePo.PURCHASE_ORDER_FGG);
   const [showWaitingConfirm, setShowWaitingConfirm] = useState<boolean>(false);
-  const [showPoProgress, setShowPOProgress] = useState<boolean>(false);
   const [dataProgress, setDataProgress] = useState<POProgressResult>();
 
   let initQuery: PurchaseOrderQuery = {};
@@ -160,6 +159,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
     items: [],
   });
   const printElementRef = useRef(null);
+  const refProgressModal = useRef<YDProgressModalHandle>(null);
 
   const onExport = useCallback(() => {
     let queryParams = generateQuery(params);
@@ -765,7 +765,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
   }, []);
 
   const deleteCallback = useCallback((result: POProgressResult) => {
-    setShowPOProgress(true);
+    refProgressModal.current?.openModal();
     setDataProgress(result);
   }, []);
 
@@ -837,8 +837,8 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
     [dispatch, handlePrint, printContentCallback],
   );
 
-  const onCloseProgressModal = () => {
-    setShowPOProgress(false);
+  const closeProgressModal = () => {
+    refProgressModal.current?.closeModal();
     setTableLoading(true);
     dispatch(PoSearchAction(params, setSearchResult));
   };
@@ -854,7 +854,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
     );
     if (res) {
       setDataProgress(res);
-      setShowPOProgress(true);
+      refProgressModal.current?.openModal();
     }
   };
 
@@ -967,11 +967,11 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
           </strong>
         </Row>
       </Modal>
-      <POProgressModal
+      <YDProgressModal
         dataProcess={dataProgress}
-        visible={showPoProgress}
-        onOk={onCloseProgressModal}
-        onCancel={onCloseProgressModal}
+        onOk={closeProgressModal}
+        onCancel={closeProgressModal}
+        ref={refProgressModal}
       />
       <ModalDeleteConfirm
         onCancel={() => setConfirmDelete(false)}

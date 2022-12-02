@@ -39,7 +39,7 @@ import POInventoryView from "./po-inventory/po-inventory.view";
 import { POModelCreateFile } from "./po-model-create-file";
 import { PoPrTable } from "./po-pr-table";
 import { PurchaseOrderCreateContext } from "../provider/purchase-order.provider";
-import POProgressModal from "../POProgressModal";
+import YDProgressModal, { YDProgressModalHandle } from "../POProgressModal";
 
 const ProcumentConfirmModal = lazy(() => import("../modal/procument-confirm.modal"));
 const ProcumentInventoryModal = lazy(() => import("../modal/procument-inventory.modal"));
@@ -124,8 +124,8 @@ const POInventoryFormCreate: React.FC<POInventoryFormProps> = (props: POInventor
   const [isEditProcument, setEditProcument] = useState<boolean>(false);
   const [loadingEditDraft, setLoadingEditDraft] = useState<boolean>(false);
   const [dataProgress, setDataProgress] = useState<POProgressResult>();
-  const [showPoProgress, setShowPOProgress] = useState<boolean>(false);
 
+  const refProgressModal = useRef<YDProgressModalHandle>(null);
   const onAddProcumentCallback = useCallback(
     (value: PurchaseProcument | null) => {
       setLoadingCreate(false);
@@ -244,7 +244,7 @@ const POInventoryFormCreate: React.FC<POInventoryFormProps> = (props: POInventor
     if (info.file && info.file.status === "removed") {
       return;
     }
-    setShowPOProgress(true);
+    refProgressModal.current?.openModal();
     const file = info.file;
     const dataExcel = await file?.originFileObj?.arrayBuffer();
     const workbook = XLSX.read(dataExcel);
@@ -298,7 +298,7 @@ const POInventoryFormCreate: React.FC<POInventoryFormProps> = (props: POInventor
   };
 
   const onCloseProgressModal = () => {
-    setShowPOProgress(false);
+    refProgressModal.current?.closeModal();
   };
 
   useEffect(() => {
@@ -588,11 +588,11 @@ const POInventoryFormCreate: React.FC<POInventoryFormProps> = (props: POInventor
               confirmLoading={loadingEditDraft}
             />
           )}
-          <POProgressModal
+          <YDProgressModal
             dataProcess={dataProgress}
-            visible={showPoProgress}
             onOk={onCloseProgressModal}
             onCancel={onCloseProgressModal}
+            ref={refProgressModal}
           />
         </StyledCard>
       ) : (

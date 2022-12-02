@@ -1,7 +1,5 @@
 import styled from "styled-components";
 
-export const StyledWrapper = styled.div``;
-
 export const POProgressWrapper = styled.div`
   .status {
     width: 85%;

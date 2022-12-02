@@ -6,7 +6,7 @@ import CustomTable from "component/table/CustomTable";
 import UrlConfig, { ProductTabUrl } from "config/url.config";
 import { StyledComponent } from "./style";
 import { BiAddToQueue } from "react-icons/bi";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useDispatch } from "react-redux";
 import {
   productBarcodeAction,
@@ -30,7 +30,10 @@ import { useHistory } from "react-router-dom";
 import { useLocation } from "react-router";
 import ModalPickManyProduct from "../component/ModalPickManyProduct";
 import { cloneDeep } from "lodash";
-import POProgressModal, { DataProcess } from "screens/purchase-order/POProgressModal";
+import YDProgressModal, {
+  DataProcess,
+  YDProgressModalHandle,
+} from "screens/purchase-order/POProgressModal";
 import Upload, { UploadChangeParam } from "antd/lib/upload";
 import { UploadFile } from "antd/lib/upload/interface";
 import { ConAcceptImport } from "utils/Constants";
@@ -67,10 +70,10 @@ const BarcodeProductScreen: React.FC = () => {
   const [loadingButton, setLoadingButton] = useState(false);
   const [loading, setLoading] = useState(false);
   const [visibleProduct, setVisibleProduct] = useState(false);
-  const [importing, setImporting] = useState(false);
   const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
   const [dataSelected, setDataSelected] = useState<Array<VariantBarcodeLineItem>>([]);
   const [progressData, setProgressData] = useState<DataProcess>(initialProgressData);
+  const refProgressModal = useRef<YDProgressModalHandle>(null);
   const renderResult = useMemo(() => {
     let options: any[] = [];
     data.forEach((item: VariantResponse, index: number) => {
@@ -203,7 +206,7 @@ const BarcodeProductScreen: React.FC = () => {
         fileList as any,
         "",
       );
-      setImporting(true);
+      refProgressModal.current?.openModal();
       if (res && res.length > 0) {
         try {
           setLoading(true);
@@ -245,7 +248,7 @@ const BarcodeProductScreen: React.FC = () => {
       //  listImportFile
     ]),
     Cancel: useCallback(() => {
-      setImporting(false);
+      refProgressModal.current?.closeModal();
       setProgressData(initialProgressData);
     }, []),
   };
@@ -440,12 +443,12 @@ const BarcodeProductScreen: React.FC = () => {
           setVisibleProduct(false);
         }}
       />
-      <POProgressModal
+      <YDProgressModal
         dataProcess={progressData}
-        visible={importing}
         onCancel={ActionImport.Cancel}
         onOk={ActionImport.Cancel}
         loading={loading}
+        ref={refProgressModal}
       />
     </ContentContainer>
   );
