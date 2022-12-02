@@ -525,3 +525,10 @@ export const DATE_OPTION_VALUE = {
   thisMonth: "thisMonth",
   lastMonth: "lastMonth",
 };
+
+export enum EnumConfirmModalType {
+  SUCCESS = "success",
+  WARNING = "warning",
+  INFO = "info",
+  ERROR = "error",
+}
