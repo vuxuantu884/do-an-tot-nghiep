@@ -5,7 +5,7 @@ import {
   PictureOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import { Button, Col, Image, Input, Popover, Row, Select, Tooltip } from "antd";
+import { Button, Col, Image, Input, Popover, Row, Select, Tag, Tooltip } from "antd";
 import iconWarranty from "assets/icon/icon-warranty-menu.svg";
 import IconPaymentBank from "assets/icon/payment/chuyen-khoan.svg";
 import IconPaymentCod from "assets/icon/payment/cod.svg";
@@ -93,6 +93,8 @@ import {
 } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import { getLoyaltyPoint } from "../../../../../../domain/actions/loyalty/loyalty.action";
+import { LoyaltyPoint } from "../../../../../../model/response/loyalty/loyalty-points.response";
 import ButtonCreateOrderReturn from "../../../ButtonCreateOrderReturn";
 import EditNote from "../../../EditOrderNote";
 import InventoryTable from "../InventoryTable";
@@ -179,6 +181,9 @@ function OrdersTable(props: PropTypes) {
   const [defaultReceiveReturnStore, setDefaultReceiveReturnStore] =
     useState<StoreResponse | null>();
 
+  const [customerLoyalty, setCustomerLoyalty] = useState<LoyaltyPoint | null>(null);
+  const [isCompleteLoadingCustomerLoyalty, setIsCompleteLoadingCustomerLoyalty] = useState(false);
+
   const [selectedOrder, setSelectedOrder] = useState<OrderModel | null>(null);
 
   // const [typeAPi, setTypeAPi] = useState("");
@@ -196,10 +201,10 @@ function OrdersTable(props: PropTypes) {
     return data.metadata
       ? data.metadata
       : {
-        limit: 0,
-        page: 0,
-        total: 0,
-      };
+          limit: 0,
+          page: 0,
+          total: 0,
+        };
   }, [data]);
 
   const paymentIcons = [
@@ -490,28 +495,6 @@ function OrdersTable(props: PropTypes) {
     );
   };
 
-  // const renderOrderTrackingLog = (record: OrderExtraModel) => {
-  //   if (!record?.fulfillments || !record.isShowTrackingLog) {
-  //     return;
-  //   }
-  //   const trackingLogFulfillment = record?.trackingLog;
-  //   const sortedFulfillments = sortFulfillments(record?.fulfillments);
-  //   const trackingCode = sortedFulfillments[0]?.shipment?.tracking_code;
-  //   if (!trackingCode) {
-  //     return " Không có mã vận đơn!";
-  //   }
-  //   if (!trackingLogFulfillment) {
-  //     return " Không có log tiến trình đơn hàng!";
-  //   }
-  //   let html = null;
-  //   if (trackingLogFulfillment) {
-  //     html = (
-  //       <TrackingLog trackingLogFulfillment={trackingLogFulfillment} trackingCode={trackingCode} />
-  //     );
-  //   }
-  //   return html;
-  // };
-
   const setTrackingOrderData = (
     orderId: number,
     _data: TrackingLogFulfillmentResponse[] | null,
@@ -536,11 +519,9 @@ function OrdersTable(props: PropTypes) {
   };
 
   const changeSubStatusCallback = (value: string, response?: any) => {
-    // console.log('response', response)
     const index = items?.findIndex((single) => single.id === selectedOrder?.id);
     if (index > -1) {
       let dataResult: dataExtra = { ...data };
-      // selected = value;
       dataResult.items[index].sub_status_code = value;
       dataResult.items[index].sub_status = subStatuses?.find(
         (single) => single.code === value,
@@ -716,105 +697,139 @@ function OrdersTable(props: PropTypes) {
       },
       {
         title: "Khách hàng",
-        render: (record: OrderModel) => (
-          <div className="customer custom-td">
-            {record.customer_phone_number && (
-              <div className="columnBody__customer">
-                <div
-                  className="columnBody__customer-inner"
-                  onClick={() => {
-                    onFilterPhoneCustomer(
-                      record.customer_phone_number ? record.customer_phone_number : "",
-                    );
-                  }}
-                >
-                  {record.customer_phone_number}
-                  <span title="Click để copy">
-                    <CopyIcon
-                      copiedText={record?.customer_phone_number || ""}
-                      informationText="Đã copy số điện thoại!"
-                      size={copyIconSize}
-                    />
-                  </span>
+        render: (record: OrderModel) => {
+          const handleClickChange = (open: boolean) => {
+            if (open) {
+              if (record) {
+                setIsCompleteLoadingCustomerLoyalty(false);
+                dispatch(
+                  getLoyaltyPoint(record.customer_id, (data) => {
+                    setIsCompleteLoadingCustomerLoyalty(true);
+                    setCustomerLoyalty(data);
+                  }),
+                );
+              } else {
+                setIsCompleteLoadingCustomerLoyalty(true);
+                setCustomerLoyalty(null);
+              }
+            } else {
+              setIsCompleteLoadingCustomerLoyalty(false);
+              setCustomerLoyalty(null);
+            }
+          };
+          return (
+            <div className="customer custom-td">
+              {record.customer_phone_number && (
+                <div className="columnBody__customer">
+                  <div
+                    className="columnBody__customer-inner"
+                    onClick={() => {
+                      onFilterPhoneCustomer(
+                        record.customer_phone_number ? record.customer_phone_number : "",
+                      );
+                    }}
+                  >
+                    {record.customer_phone_number}
+                    <span title="Click để copy">
+                      <CopyIcon
+                        copiedText={record?.customer_phone_number || ""}
+                        informationText="Đã copy số điện thoại!"
+                        size={copyIconSize}
+                      />
+                    </span>
+                  </div>
+                  <Popover
+                    placement="bottomLeft"
+                    style={{ width: 500 }}
+                    onVisibleChange={handleClickChange}
+                    content={
+                      <StyledComponent>
+                        <div className="popover-to-fast">
+                          <div>
+                            <Tag className="orders-tag orders-tag-vip">
+                              <b>
+                                {!isCompleteLoadingCustomerLoyalty
+                                  ? "Đang tải ..."
+                                  : !customerLoyalty?.loyalty_level
+                                  ? "Không có hạng"
+                                  : customerLoyalty.loyalty_level}
+                              </b>
+                            </Tag>
+                          </div>
+                          <Button
+                            className="btn-to-fast"
+                            type="link"
+                            icon={<img src={search} alt="" />}
+                            onClick={() =>
+                              onFilterPhoneCustomer(
+                                record.customer_phone_number ? record.customer_phone_number : "",
+                              )
+                            }
+                          >
+                            Lọc đơn của khách
+                          </Button>
+                          <Button
+                            className="btn-to-fast"
+                            type="link"
+                            icon={<EyeOutlined />}
+                            onClick={() => {
+                              let pathname = `${process.env.PUBLIC_URL}${UrlConfig.CUSTOMER}/${record.customer_id}`;
+                              window.open(pathname, "_blank");
+                            }}
+                          >
+                            Thông tin khách hàng
+                          </Button>
+                          <Button
+                            className="btn-to-fast"
+                            type="link"
+                            icon={<PlusOutlined />}
+                            onClick={() => {
+                              let pathname = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
+                              window.open(pathname, "_blank");
+                            }}
+                          >
+                            Tạo đơn cho khách
+                          </Button>
+                          <Button
+                            className="btn-to-fast"
+                            type="link"
+                            icon={<PhoneOutlined />}
+                            onClick={() => {
+                              window.location.href = `tel:${record.customer_phone_number}`;
+                            }}
+                          >
+                            Gọi điện cho khách
+                          </Button>
+                        </div>
+                      </StyledComponent>
+                    }
+                    trigger="click"
+                  >
+                    <Button
+                      type="link"
+                      className="trigger__button"
+                      icon={<DownOutlined className="trigger__icon" />}
+                    ></Button>
+                  </Popover>
                 </div>
-                <Popover
-                  placement="bottomLeft"
-                  content={
-                    <StyledComponent>
-                      <div className="poppver-to-fast">
-                        <Button
-                          className="btn-to-fast"
-                          type="link"
-                          icon={<img src={search} alt="" />}
-                          onClick={() =>
-                            onFilterPhoneCustomer(
-                              record.customer_phone_number ? record.customer_phone_number : "",
-                            )
-                          }
-                        >
-                          Lọc đơn của khách
-                        </Button>
-                        <Button
-                          className="btn-to-fast"
-                          type="link"
-                          icon={<EyeOutlined />}
-                          onClick={() => {
-                            let pathname = `${process.env.PUBLIC_URL}${UrlConfig.CUSTOMER}/${record.customer_id}`;
-                            window.open(pathname, "_blank");
-                          }}
-                        >
-                          Thông tin khách hàng
-                        </Button>
-                        <Button
-                          className="btn-to-fast"
-                          type="link"
-                          icon={<PlusOutlined />}
-                          onClick={() => {
-                            let pathname = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
-                            window.open(pathname, "_blank");
-                          }}
-                        >
-                          Tạo đơn cho khách
-                        </Button>
-                        <Button
-                          className="btn-to-fast"
-                          type="link"
-                          icon={<PhoneOutlined />}
-                          onClick={() => {
-                            window.location.href = `tel:${record.customer_phone_number}`;
-                          }}
-                        >
-                          Gọi điện cho khách
-                        </Button>
-                      </div>
-                    </StyledComponent>
-                  }
-                  trigger="click"
+              )}
+              <div className="name">
+                <Link
+                  target="_blank"
+                  to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
+                  title="Chi tiết khách hàng"
+                  className="primary"
                 >
-                  <Button
-                    type="link"
-                    className="trigger__button"
-                    icon={<DownOutlined className="trigger__icon" />}
-                  ></Button>
-                </Popover>
+                  {record.customer}
+                </Link>{" "}
               </div>
-            )}
-            <div className="name">
-              <Link
-                target="_blank"
-                to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
-                title="Chi tiết khách hàng"
-                className="primary"
-              >
-                {record.customer}
-              </Link>{" "}
+              <div className="textSmall">{renderShippingAddress(record)}</div>
+              {record?.tags?.length && record?.tags?.length > 0 ? (
+                <div className="customTags">{renderTag(record)}</div>
+              ) : null}
             </div>
-            <div className="textSmall">{renderShippingAddress(record)}</div>
-            {record?.tags?.length && record?.tags?.length > 0 ? (
-              <div className="customTags">{renderTag(record)}</div>
-            ) : null}
-          </div>
-        ),
+          );
+        },
         key: "customer",
         visible: true,
         width: 100,
@@ -905,7 +920,6 @@ function OrdersTable(props: PropTypes) {
       },
       {
         title: "Tổng tiền",
-        // dataIndex: "",
         render: (record: any) => (
           <div className="columnBody__discountAmount">
             <div className="originalPrice">
@@ -956,7 +970,6 @@ function OrdersTable(props: PropTypes) {
         title: "Biên bản bàn giao",
         key: "goods_receipt",
         render: (value, record: OrderModel, index) => {
-          // console.log(index, record.handOvers);
           if (record.handOvers) {
             return <OrderMapHandOver orderDetail={record} handOvers={record.handOvers} />;
           } else {
@@ -1019,7 +1032,7 @@ function OrdersTable(props: PropTypes) {
                               <img src={iconShippingFeePay3PL} alt="" className="iconShipping" />
                               {formatCurrency(
                                 sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls ||
-                                0,
+                                  0,
                               )}
                             </div>
                           </Tooltip>
@@ -1214,8 +1227,8 @@ function OrdersTable(props: PropTypes) {
             record.sub_status_code === ORDER_SUB_STATUS.fourHour_delivery
               ? "fourHour_delivery"
               : record.sub_status_code
-                ? record.sub_status_code
-                : "";
+              ? record.sub_status_code
+              : "";
           const returnedStore = stores?.find(
             (p) => p.id === getFulfillmentActive(record?.fulfillments)?.returned_store_id,
           );
@@ -1394,7 +1407,7 @@ function OrdersTable(props: PropTypes) {
       },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items.length, deliveryServices, editNote, status_order, stores]);
+  }, [items.length, deliveryServices, editNote, status_order, stores, customerLoyalty]);
 
   const initColumns = useMemo(() => {
     if (orderType === ORDER_TYPES.online) {
@@ -1430,8 +1443,6 @@ function OrdersTable(props: PropTypes) {
       inventoryGetApi(inventoryQuery)
         .then((response) => {
           if (isFetchApiSuccessful(response)) {
-            // console.log(response)
-
             setInventoryData(response.data);
           } else {
             handleFetchApiError(response, "Danh sách tồn kho", dispatch);
