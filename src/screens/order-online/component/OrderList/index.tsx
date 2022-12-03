@@ -131,7 +131,6 @@ function OrderList(props: PropTypes) {
       ? COLUMN_CONFIG_TYPE.orderOffline
       : COLUMN_CONFIG_TYPE.orderOnline;
   const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(columnConfigType);
-  console.log("KAHSKJADHKASHDKJASHD", tableColumnConfigs[0]?.json_content?JSON.parse(tableColumnConfigs[0]?.json_content):null)
   const [tableLoading, setTableLoading] = useState(true);
   const [isFilter, setIsFilter] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);

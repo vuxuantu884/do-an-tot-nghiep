@@ -19,14 +19,10 @@ export const promotionUtils = {
       PromotionConstants.combinePromotionTextAndPrivateNote,
       "",
     );
-    console.log("indexStart", indexStart);
     // const indexEnd =PromotionConstants.combinePromotionTextAndPrivateNote.indexOf(afterRemoveStart);
     const end = afterRemoveStart.indexOf(PromotionConstants.promotionTitleEndText);
-    console.log("end", end);
-    console.log("afterRemoveStart", afterRemoveStart);
     if (indexStart > -1 && end > -1) {
       const indexEnd = end + PromotionConstants.combinePromotionTextAndPrivateNote.length;
-      console.log("indexEnd", indexEnd);
       return orderPrivateNoteIncludePromotionTitle
         .substring(indexStart, indexEnd)
         .replace(PromotionConstants.combinePromotionTextAndPrivateNote, "")
