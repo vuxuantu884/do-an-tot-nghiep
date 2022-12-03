@@ -1,5 +1,4 @@
 import { Skeleton } from "antd";
-import React from "react";
 import { formatCurrency } from "utils/AppUtils";
 
 export interface IncomeBoxProps {
@@ -8,6 +7,7 @@ export interface IncomeBoxProps {
   monthlyAccumulated: number;
   type: "number" | "percent";
   loading: boolean;
+  description?: string;
 }
 IncomeBox.defaultProps = {
   value: 0,
@@ -16,11 +16,12 @@ IncomeBox.defaultProps = {
   loading: false,
 };
 function IncomeBox(props: IncomeBoxProps) {
-  const { title, value, monthlyAccumulated, type, loading } = props;
+  const { title, value, monthlyAccumulated, type, loading, description } = props;
 
   return (
     <div className="income-box">
       <span className="title">{title}</span>
+      {description ? <span className="description">{description}</span> : ""}
       {loading ? (
         <>
           <br />

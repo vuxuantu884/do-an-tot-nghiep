@@ -88,6 +88,10 @@ export const DashboardContainer = styled.div`
       font-size: 14px;
       color: #2a2a86;
     }
+    .description {
+      font-size: 12px;
+      color: #666;
+    }
     .value {
       font-weight: bold;
       font-size: 18px;

@@ -429,6 +429,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
     return result;
   }, [totalOrderAmount, totalAmountReturnProducts]);
 
+  console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
+
   let totalOrderAmountAfterPayments = useMemo(() => {
     let result = Math.round(totalAmountCustomerNeedToPay - totalAmountPayment);
     return result;
@@ -813,10 +815,14 @@ const ScreenReturnCreate = (props: PropTypes) => {
       let returnMoneyAmount = formValuePayment?.returnMoneyAmount
         ? formValuePayment?.returnMoneyAmount
         : 0;
-      const moneyPayment = findPaymentMethodByCode(
+      let moneyPayment = findPaymentMethodByCode(
         paymentMethods,
         formValuePayment.returnMoneyMethod,
       );
+      if (orderReturnType === RETURN_TYPE_VALUES.offline) {
+        returnMoneyAmount = Math.round(Math.abs(totalAmountCustomerNeedToPay));
+        moneyPayment = findPaymentMethodByCode(paymentMethods, PaymentMethodCode.CASH);
+      }
       if (moneyPayment) {
         result.push({
           payment_method_id: moneyPayment.id,
@@ -841,7 +847,14 @@ const ScreenReturnCreate = (props: PropTypes) => {
     }
 
     return result;
-  }, [customer?.id, getFormReturnMoneyValues, paymentMethods, returnMoneyType]);
+  }, [
+    customer?.id,
+    getFormReturnMoneyValues,
+    orderReturnType,
+    paymentMethods,
+    returnMoneyType,
+    totalAmountCustomerNeedToPay,
+  ]);
 
   const handleReturnCallback = useCallback(
     (response: any) => {

@@ -7,7 +7,7 @@ import KeyDriverOfflineV2 from "screens/reports/key-driver-offline-v2";
 import KeyDriverOnline from "screens/reports/key-driver-online";
 import { generateQuery } from "utils/AppUtils";
 import { useQuery } from "utils/useQuery";
-import DashboardWithProvider from "./dashborad";
+import DashboardWithProvider from "./dashboard";
 import { StyledComponent } from "./index.style";
 
 const NewDashboard = (props: any) => {

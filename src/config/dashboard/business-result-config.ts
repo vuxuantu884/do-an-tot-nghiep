@@ -1,5 +1,5 @@
 import { BusinessResultChartKey } from "model/dashboard/dashboard.model";
-import { AnalyticSampleQuery } from "model/report/analytics.model";
+import { AnalyticCube, AnalyticSampleQuery, TimeAtOptionValue } from "model/report/analytics.model";
 import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { LAST_3_MONTHS, START_OF_MONTH, TODAY } from "./time-query-config";
@@ -10,10 +10,17 @@ export const BUSINESS_RESULT_CHART_LABEL = {
 };
 
 export const BUSINESS_RESULT_CART_NAME = {
-  online: "online",
-  offline: "offline",
-  return: "return",
-  cancel: "cancel",
+  companyTotalSales: "companyTotalSales",
+  companyOrders: "companyOrders",
+  offlineTotalSales: "offlineTotalSales",
+  offlineOrders: "offlineOrders",
+  offlineReturns: "offlineReturns",
+  onlineTotalSales: "onlineTotalSales",
+  onlineOrders: "onlineOrders",
+  onlineReturns: "onlineReturns",
+  onlinePreTotalSales: "onlinePreTotalSales",
+  onlinePreOrders: "onlinePreOrders",
+  cancelledPreTotalSales: "cancelledPreTotalSales",
   successRate: "successRate",
   averageOrder: "averageOrder",
   conversionRate: "conversionRate",
@@ -21,13 +28,25 @@ export const BUSINESS_RESULT_CART_NAME = {
 };
 
 export const BUSINESS_RESULT_CART_LABEL = {
-  [BUSINESS_RESULT_CART_NAME.online]: "Doanh thu online",
-  [BUSINESS_RESULT_CART_NAME.offline]: "Doanh thu offline",
-  [BUSINESS_RESULT_CART_NAME.return]: "Doanh thu Trả hàng",
-  [BUSINESS_RESULT_CART_NAME.cancel]: "Doanh thu Huỷ đơn",
+  [BUSINESS_RESULT_CART_NAME.companyTotalSales]: "Tổng DT công ty",
+  [BUSINESS_RESULT_CART_NAME.companyOrders]: "Tổng đơn công ty",
+  [BUSINESS_RESULT_CART_NAME.offlineTotalSales]: "DT Offline",
+  [BUSINESS_RESULT_CART_NAME.offlineOrders]: "Số đơn Offline",
+  [BUSINESS_RESULT_CART_NAME.offlineReturns]: "Trả hàng Offline",
+  [BUSINESS_RESULT_CART_NAME.onlineTotalSales]: "DT TC Online",
+  [BUSINESS_RESULT_CART_NAME.onlineOrders]: "Số đơn TC Online",
+  [BUSINESS_RESULT_CART_NAME.onlineReturns]: "Trả hàng Online",
+  [BUSINESS_RESULT_CART_NAME.onlinePreTotalSales]: "DT ĐT Online",
+  [BUSINESS_RESULT_CART_NAME.onlinePreOrders]: "Số đơn ĐT Online",
+  [BUSINESS_RESULT_CART_NAME.cancelledPreTotalSales]: "Huỷ đơn Online",
   [BUSINESS_RESULT_CART_NAME.successRate]: "Tỉ lệ thành công",
   [BUSINESS_RESULT_CART_NAME.averageOrder]: "GTTB/ Hóa đơn",
   [BUSINESS_RESULT_CART_NAME.conversionRate]: "Tỉ lệ chuyển đổi",
+};
+
+export const BUSINESS_RESULT_CART_DESCRIPTION = {
+  [BUSINESS_RESULT_CART_NAME.companyTotalSales]: "= DT Offline + DT TC Online",
+  [BUSINESS_RESULT_CART_NAME.companyOrders]: "= Số đơn Offline + Số đơn TC Online",
 };
 
 export enum ReportDatavalue {
@@ -39,13 +58,9 @@ export enum ReportDataColumn {
   returns = "returns",
 }
 
-export const BUSINESS_RESULT_QUERY_TOTAL_SALES_COMPLETED: AnalyticSampleQuery = {
+export const COMPANY_BUSINESS_RESULT_COMPLETED_QUERY: AnalyticSampleQuery = {
   /**
-   * query cho : Doanh thu Offline, Doanh thu Online, Doanh thu Trả hàng
-   *
-   * Tổng trả : sumary column : returns
-   * Khối KD Offline: column[1] của row column[0] == "Khối KD Offline"
-   * Khối KD Online: column[1] của row column[0] == "Khối KD Online"
+   * query cho : Tổng DT công ty, Tổng đơn công ty
    */
   query: {
     columns: [
@@ -53,21 +68,92 @@ export const BUSINESS_RESULT_QUERY_TOTAL_SALES_COMPLETED: AnalyticSampleQuery = 
         field: "total_sales",
       },
       {
-        field: "returns",
+        field: "orders",
       },
     ],
-    rows: ["day", "sale_area"],
-    cube: "sales",
+    rows: ["day"],
+    cube: AnalyticCube.Costs,
     conditions: [],
     from: START_OF_MONTH,
     to: TODAY,
   },
-  options: `time:"completed_at"`,
+  options: TimeAtOptionValue.CompletedAt,
+};
+
+export const OFFLINE_BUSINESS_RESULT_COMPLETED_QUERY: AnalyticSampleQuery = {
+  /**
+   * query cho : Doanh thu + SL đơn hàng + DT trả hàng Offline
+   */
+  query: {
+    columns: [
+      {
+        field: "total_sales",
+      },
+      {
+        field: "orders",
+      },
+      {
+        field: "returns",
+      },
+    ],
+    rows: ["day"],
+    cube: AnalyticCube.OfflineSales,
+    conditions: [],
+    from: START_OF_MONTH,
+    to: TODAY,
+  },
+  options: TimeAtOptionValue.CompletedAt,
+};
+
+export const ONLINE_BUSINESS_RESULT_COMPLETED_QUERY: AnalyticSampleQuery = {
+  /**
+   * query cho : Doanh thu + SL đơn hàng + DT trả hàng Online (Ngày thành công)
+   */
+  query: {
+    columns: [
+      {
+        field: "total_sales",
+      },
+      {
+        field: "orders",
+      },
+      {
+        field: "returns",
+      },
+    ],
+    rows: ["day"],
+    cube: AnalyticCube.Sales,
+    conditions: [["sale_area", "==", ReportDatavalue.KD_ONLINE]],
+    from: START_OF_MONTH,
+    to: TODAY,
+  },
+  options: TimeAtOptionValue.CompletedAt,
+};
+
+export const ONLINE_BUSINESS_RESULT_CREATED_QUERY: AnalyticSampleQuery = {
+  /**
+   * query cho : Doanh thu đơn tạo + SL đơn tạo Online
+   */
+  query: {
+    columns: [
+      {
+        field: "pre_total_sales",
+      },
+      {
+        field: "pre_orders",
+      },
+    ],
+    rows: ["day"],
+    cube: AnalyticCube.Sales,
+    conditions: [["sale_area", "==", ReportDatavalue.KD_ONLINE]],
+    from: START_OF_MONTH,
+    to: TODAY,
+  },
+  options: TimeAtOptionValue.CreatedAt,
 };
 
 export const BUSINESS_RESULT_CANCELED_QUERY: AnalyticSampleQuery = {
-  // `SHOW+pre_total_sales+FROM+sales+WHERE+order_status+IN+('Đã+hủy')+SINCE+2022-04-18+UNTIL+2022-04-18
-  // options: time:"cancelled_at"`
+  // Hủy đơn Online
   query: {
     columns: [
       {
@@ -75,7 +161,7 @@ export const BUSINESS_RESULT_CANCELED_QUERY: AnalyticSampleQuery = {
       },
     ],
     rows: ["day"],
-    cube: "sales",
+    cube: AnalyticCube.Sales,
     conditions: [
       ["sale_area", "==", ReportDatavalue.KD_ONLINE],
       ["cancelled", "==", "Hủy/hết hàng"],
@@ -83,7 +169,7 @@ export const BUSINESS_RESULT_CANCELED_QUERY: AnalyticSampleQuery = {
     from: START_OF_MONTH,
     to: TODAY,
   },
-  options: `time:"cancelled_at"`,
+  options: TimeAtOptionValue.CancelledAt,
 };
 
 export const BUSINESS_RESULT_CONVERSION_RATE_QUERY: AnalyticSampleQuery = {
