@@ -13,7 +13,7 @@ export const TOP_SALES_PRODUCT_TEMPLATE: AnalyticSampleQuery = {
   query: {
     columns: [
       {
-        field: "total_sales",
+        field: "net_sales",
       },
       {
         field: "net_quantity",
