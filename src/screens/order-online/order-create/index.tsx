@@ -100,7 +100,6 @@ import useCalculateShippingFee from "../hooks/useCalculateShippingFee";
 import useHandleMomoCreateShipment from "../hooks/useHandleMomoCreateShipment";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import { StyledComponent } from "./styles";
-import useGetGiftPromotions from "../hooks/useGetGiftPromotions";
 
 let typeButton = "";
 
