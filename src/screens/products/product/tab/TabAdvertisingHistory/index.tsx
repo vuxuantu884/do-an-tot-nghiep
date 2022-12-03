@@ -56,8 +56,8 @@ const TabAdvertisingHistory: React.FC<AdvertisingHistoryProps> = (props: Adverti
                 <>
                   <Link to={`${UrlConfig.PROMOTION}/discounts/${row.id}`}>{value}</Link>
                 </>
-              )
-            }
+              );
+            },
           },
           {
             title: "Tên chương trình",
@@ -85,9 +85,12 @@ const TabAdvertisingHistory: React.FC<AdvertisingHistoryProps> = (props: Adverti
             width: 150,
             render: () => {
               return (
-                <div>{dataVariant?.variant_prices && dataVariant?.variant_prices[0]
-                && formatCurrencyForProduct(dataVariant.variant_prices[0].retail_price)}</div>
-              )
+                <div>
+                  {dataVariant?.variant_prices &&
+                    dataVariant?.variant_prices[0] &&
+                    formatCurrencyForProduct(dataVariant.variant_prices[0].retail_price)}
+                </div>
+              );
             },
           },
           {
@@ -104,16 +107,24 @@ const TabAdvertisingHistory: React.FC<AdvertisingHistoryProps> = (props: Adverti
                         <>{formatCurrencyForProduct(value.value)}</>
                       )}
                       {row?.suggested_discounts?.value_type === DiscountValueType.FIXED_AMOUNT && (
-                        <>{formatCurrencyForProduct(dataVariant.variant_prices[0].retail_price - value.value)}</>
+                        <>
+                          {formatCurrencyForProduct(
+                            dataVariant.variant_prices[0].retail_price - value.value,
+                          )}
+                        </>
                       )}
                       {row?.suggested_discounts?.value_type === DiscountValueType.PERCENTAGE && (
-                        <>{formatCurrencyForProduct(dataVariant.variant_prices[0].retail_price * (1 - value.value / 100))}</>
+                        <>
+                          {formatCurrencyForProduct(
+                            dataVariant.variant_prices[0].retail_price * (1 - value.value / 100),
+                          )}
+                        </>
                       )}
                     </>
                   )}
                 </div>
-              )
-            }
+              );
+            },
           },
           {
             title: "Thời gian",
@@ -122,14 +133,10 @@ const TabAdvertisingHistory: React.FC<AdvertisingHistoryProps> = (props: Adverti
             render: (value, row: AdvertisingHistoryResponse) => {
               return (
                 <div>
-                  <div>
-                    {ConvertUtcToLocalDate(row.starts_date, 'DD/MM/YYYY')}
-                  </div>
-                  <div>
-                    {ConvertUtcToLocalDate(row.ends_date, 'DD/MM/YYYY')}
-                  </div>
+                  <div>{ConvertUtcToLocalDate(row.starts_date, "DD/MM/YYYY")}</div>
+                  <div>{ConvertUtcToLocalDate(row.ends_date, "DD/MM/YYYY")}</div>
                 </div>
-              )
+              );
             },
             align: "left",
           },

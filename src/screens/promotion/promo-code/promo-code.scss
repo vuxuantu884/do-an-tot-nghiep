@@ -94,6 +94,23 @@ hr {
   }
 }
 
+.discount-code-product {
+  background-color: #f0f2f5;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  &-desc {
+    color: $primary-color;
+    font-weight: 700;
+    padding: 0 3px;
+  }
+
+  &-sub-desc {
+    font-weight: 700;
+    color: $primary-color;
+  }
+}
+
 .dragger-wrapper {
   width: 100%;
   padding: 10px 30px;
@@ -128,4 +145,13 @@ hr {
 
 .input-number {
   width: 100%;
+}
+
+.product-item-name {
+  display: flex;
+  flex-direction: column;
+
+  &-detail {
+    white-space: normal;
+  }
 }

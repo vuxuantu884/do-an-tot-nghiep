@@ -64,7 +64,7 @@ function DiscountUpdateForm({
               rules={[
                 {
                   required: true,
-                  message: "Cần nhập tên khuyến mại",
+                  message: "Cần nhập tên khuyến mãi",
                 },
                 {
                   max: 255,

@@ -16,13 +16,19 @@ import { PromotionReleasePermission } from "config/permissions/promotion.permiss
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
-  activatePromotionReleaseAction, createPromotionReleaseAction,
+  activatePromotionReleaseAction,
+  createPromotionReleaseAction,
   deactivatePromotionReleaseAction,
   getListPromoCode,
+  getPriceRuleVariantExcludePaggingAction,
   getPromotionReleaseDetailAction,
 } from "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
-import { PriceRule, PriceRuleMethod } from "model/promotion/price-rules.model";
+import {
+  PriceRule,
+  PriceRuleMethod,
+  ReleasePromotionListType,
+} from "model/promotion/price-rules.model";
 import React, { useCallback, useEffect, useState } from "react";
 import { RiUpload2Line } from "react-icons/ri";
 import { useDispatch } from "react-redux";
@@ -34,7 +40,7 @@ import CustomTable from "../../../component/table/CustomTable";
 import { AppConfig } from "../../../config/app.config";
 import { formatCurrency, isNullOrUndefined } from "utils/AppUtils";
 import { getToken } from "../../../utils/LocalStorageUtils";
-import { columnDiscountByRule } from "../constants";
+import { columnDiscountByRule, columnProductQuantitytByRule, DiscountUnitType } from "../constants";
 import DiscountRuleInfo from "../discount/components/discount-rule-info";
 import GeneralConditionDetail from "../shared/general-condition.detail";
 import CustomModal from "./components/CustomModal";
@@ -47,6 +53,14 @@ import { HttpStatus } from "../../../config/http-status.config";
 import { EnumJobStatus } from "../../../config/enum.config";
 import ProcessAddDiscountCodeModal from "screens/promotion/promo-code/components/ProcessAddDiscountCodeModal";
 import { VscError } from "react-icons/vsc";
+import { VariantResponse } from "model/product/product.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { CreateReleasePromotionRuleType } from "../issue/create/issue-create";
+
+const initialParams = {
+  page: 1,
+  limit: 30,
+};
 
 type detailMapping = {
   id: string;
@@ -126,6 +140,17 @@ const PromotionDetailScreen: React.FC = () => {
     "error" | "success" | "done" | "uploading" | "removed" | undefined
   >(undefined);
 
+  //product quantity
+  const [params, setParams] = useState(initialParams);
+  const [listProductByIssue, setListProductByIssue] = useState<PageResponse<VariantResponse>>({
+    items: [],
+    metadata: {
+      page: 1,
+      limit: 30,
+      total: 0,
+    },
+  });
+
   //phân quyền
   const [allowCreatePromotionRelease] = useAuthorization({
     acceptPermissions: [PromotionReleasePermission.CREATE],
@@ -151,9 +176,19 @@ const PromotionDetailScreen: React.FC = () => {
     dispatch(getListPromoCode(idNumber, dataQuery, checkIsHasPromo));
   }, [checkIsHasPromo, dataQuery, dispatch, idNumber]);
 
+  const getPriceRuleVariantDataCallback = useCallback((data: PageResponse<VariantResponse>) => {
+    setListProductByIssue(data);
+  }, []);
+
   useEffect(() => {
+    if (idNumber) {
+      dispatch(
+        getPriceRuleVariantExcludePaggingAction(idNumber, params, getPriceRuleVariantDataCallback),
+      );
+    }
+
     getDiscountCodeData();
-  }, [getDiscountCodeData]);
+  }, [dispatch, getDiscountCodeData, getPriceRuleVariantDataCallback, idNumber, params]);
 
   // section handle call api GET DETAIL
   const onResult = useCallback((result: PriceRule | false) => {
@@ -182,6 +217,13 @@ const PromotionDetailScreen: React.FC = () => {
     getPromotionReleaseDetail();
   }, [getPromotionReleaseDetail]);
 
+  const onChangePage = useCallback(
+    (page, limit) => {
+      setParams({ ...params, page, limit });
+    },
+    [params],
+  );
+
   const promoDetail: Array<any> | undefined = React.useMemo(() => {
     if (data) {
       const details = [
@@ -204,7 +246,13 @@ const PromotionDetailScreen: React.FC = () => {
         {
           id: "type",
           name: "Loại mã",
-          value: "Mã giảm giá",
+          value: `${
+            data.entitled_method === PriceRuleMethod.ORDER_THRESHOLD
+              ? "Khuyến mãi theo đơn hàng"
+              : data.entitled_method === PriceRuleMethod.DISCOUNT_CODE_QTY
+              ? "Khuyến mãi theo sản phẩm"
+              : "Mã khuyến mãi"
+          }`,
           position: "left",
           key: "3",
           color: "#222222",
@@ -417,21 +465,25 @@ const PromotionDetailScreen: React.FC = () => {
   };
 
   const onActivate = () => {
-    dispatch(activatePromotionReleaseAction({ ids: [idNumber] }, (response) => {
-      if (response) {
-        showSuccess("Kích hoạt đợt phát hành thành công");
-        getPromotionReleaseDetail();
-      }
-    }));
+    dispatch(
+      activatePromotionReleaseAction({ ids: [idNumber] }, (response) => {
+        if (response) {
+          showSuccess("Kích hoạt đợt phát hành thành công");
+          getPromotionReleaseDetail();
+        }
+      }),
+    );
   };
 
   const onDeactivate = () => {
-    dispatch(deactivatePromotionReleaseAction({ ids: [idNumber] },  (response) => {
-      if (response) {
-        showSuccess("Tạm ngừng đợt phát hành thành công");
-        getPromotionReleaseDetail();
-      }
-    }));
+    dispatch(
+      deactivatePromotionReleaseAction({ ids: [idNumber] }, (response) => {
+        if (response) {
+          showSuccess("Tạm ngừng đợt phát hành thành công");
+          getPromotionReleaseDetail();
+        }
+      }),
+    );
   };
 
   const renderActionButton = () => {
@@ -651,7 +703,7 @@ const PromotionDetailScreen: React.FC = () => {
                     >
                       <span>Đợt phát hành chưa có mã nào!</span>
                     </Col>
-                    {allowUpdatePromotionRelease &&
+                    {allowUpdatePromotionRelease && (
                       <Col
                         span="24"
                         style={{
@@ -665,7 +717,8 @@ const PromotionDetailScreen: React.FC = () => {
                         >
                           <img
                             style={{
-                              background: "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)",
+                              background:
+                                "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)",
                             }}
                             src={VoucherIcon}
                             alt=""
@@ -707,13 +760,14 @@ const PromotionDetailScreen: React.FC = () => {
                           <a href={PROMOTION_CDN.DISCOUNT_CODES_TEMPLATE_URL}>Tải file mẫu</a>
                         </div>
                       </Col>
-                    }
+                    )}
                   </Row>
                 )}
               </Card>
-              <Card title={"Điều kiện mua hàng"}>
-                <Space size={"large"} direction={"vertical"} style={{ width: "100%" }}>
-                  {data.entitled_method === PriceRuleMethod.ORDER_THRESHOLD && (
+
+              {data.entitled_method === PriceRuleMethod.ORDER_THRESHOLD && (
+                <Card title={"Điều kiện mua hàng"}>
+                  <Space size={"large"} direction={"vertical"} style={{ width: "100%" }}>
                     <>
                       <DiscountRuleInfo dataDiscount={data} />
                       <CustomTable
@@ -723,9 +777,220 @@ const PromotionDetailScreen: React.FC = () => {
                         rowKey="id"
                       />
                     </>
+                  </Space>
+                </Card>
+              )}
+
+              {data.entitled_method === PriceRuleMethod.DISCOUNT_CODE_QTY && (
+                <>
+                  {data.rule?.conditions[0].operator === ReleasePromotionListType.EQUALS &&
+                  (data.rule?.conditions[0].field === CreateReleasePromotionRuleType.product_id ||
+                    data.rule?.conditions[0].field ===
+                      CreateReleasePromotionRuleType.variant_id) ? (
+                    <Card title="Danh sách áp dụng">
+                      <Space size={"large"} direction={"vertical"} style={{ width: "100%" }} />
+                      <div className="discount-code-product">
+                        Chiết khấu
+                        {data.rule?.value_type === DiscountUnitType.PERCENTAGE.value && (
+                          <span className="discount-code-product-desc">{`${data.rule?.value}${DiscountUnitType.PERCENTAGE.label}`}</span>
+                        )}
+                        {data.rule?.value_type === DiscountUnitType.FIXED_AMOUNT.value && (
+                          <span className="discount-code-product-desc">{`${formatCurrency(
+                            data.rule?.value,
+                          )}${DiscountUnitType.FIXED_AMOUNT.label}`}</span>
+                        )}
+                        cho các sản phẩm sau:
+                      </div>
+
+                      {listProductByIssue.items.length > 0 && (
+                        <CustomTable
+                          className="product-table"
+                          style={{ marginTop: 20 }}
+                          bordered
+                          rowClassName="product-table-row"
+                          columns={[
+                            {
+                              title: "Sản phẩm",
+                              className: "ant-col-info",
+                              dataIndex: "",
+                              align: "left",
+                              width: "40%",
+                              render: (record) => {
+                                return (
+                                  <div className="product-item-name">
+                                    <Link
+                                      to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
+                                    >
+                                      {record.sku}
+                                    </Link>
+                                    <span className="product-item-name-detail">{record.title}</span>
+                                  </div>
+                                );
+                              },
+                            },
+
+                            {
+                              title: "Giá bán",
+                              align: "center",
+                              dataIndex: "retail_price",
+                              width: "20%",
+                              render: (item: any) => (item ? formatCurrency(item) : 0),
+                            },
+
+                            {
+                              title: "Giá bán sau chiết khấu",
+                              align: "center",
+                              dataIndex: "retail_price",
+                              render: (price) => {
+                                return (
+                                  <>
+                                    {data.rule?.value_type ===
+                                      DiscountUnitType.PERCENTAGE.value && (
+                                      <span style={{ color: "#E24343" }}>
+                                        {formatCurrency(
+                                          price - (price * data.rule?.value) / 100 > 0
+                                            ? price - (price * data.rule?.value) / 100
+                                            : 0,
+                                        )}
+                                      </span>
+                                    )}
+
+                                    {data.rule?.value_type ===
+                                      DiscountUnitType.FIXED_AMOUNT.value && (
+                                      <span style={{ color: "#E24343" }}>
+                                        {formatCurrency(
+                                          price - data.rule?.value > 0
+                                            ? price - data.rule?.value
+                                            : 0,
+                                        )}
+                                      </span>
+                                    )}
+                                  </>
+                                );
+                              },
+                            },
+                          ]}
+                          dataSource={listProductByIssue.items}
+                          tableLayout="fixed"
+                          pagination={{
+                            pageSize: listProductByIssue?.metadata.limit,
+                            total: listProductByIssue?.metadata.total,
+                            current: listProductByIssue?.metadata.page,
+                            onChange: onChangePage,
+                            onShowSizeChange: onChangePage,
+                            showSizeChanger: true,
+                          }}
+                          scroll={{ y: 300 }}
+                        />
+                      )}
+                    </Card>
+                  ) : data.rule?.conditions[0].operator === ReleasePromotionListType.NOT_EQUAL_TO &&
+                    (data.rule?.conditions[0].field === CreateReleasePromotionRuleType.product_id ||
+                      data.rule?.conditions[0].field ===
+                        CreateReleasePromotionRuleType.variant_id) ? (
+                    <Card title="Danh sách áp dụng">
+                      <Space size={"large"} direction={"vertical"} style={{ width: "100%" }} />
+                      {listProductByIssue.items.length === 0 ? (
+                        <div className="discount-code-product">
+                          Chiết khấu
+                          <span className="discount-code-product-desc">{`${data.rule?.value}${DiscountUnitType.PERCENTAGE.label}`}</span>
+                          cho tất cả sản phẩm
+                        </div>
+                      ) : (
+                        <>
+                          <div className="discount-code-product">
+                            Chiết khấu
+                            {data.rule?.value_type === DiscountUnitType.PERCENTAGE.value && (
+                              <span className="discount-code-product-desc">{`${data.rule?.value}${DiscountUnitType.PERCENTAGE.label}`}</span>
+                            )}
+                            {data.rule?.value_type === DiscountUnitType.FIXED_AMOUNT.value && (
+                              <span className="discount-code-product-desc">{`${formatCurrency(
+                                data.rule?.value,
+                              )}${DiscountUnitType.FIXED_AMOUNT.label}`}</span>
+                            )}
+                            cho tất cả sản phẩm, loại trừ các sản phẩm sau:
+                          </div>
+                        </>
+                      )}
+
+                      {listProductByIssue.items.length > 0 && (
+                        <CustomTable
+                          className="product-table"
+                          style={{ marginTop: 20 }}
+                          bordered
+                          rowClassName="product-table-row"
+                          columns={[
+                            {
+                              title: "Sản phẩm",
+                              className: "ant-col-info",
+                              dataIndex: "",
+                              align: "left",
+                              width: "40%",
+                              render: (record) => {
+                                return (
+                                  <div className="product-item-name">
+                                    <Link
+                                      to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
+                                    >
+                                      {record.sku}
+                                    </Link>
+                                    <span className="product-item-name-detail">{record.title}</span>
+                                  </div>
+                                );
+                              },
+                            },
+
+                            {
+                              title: "Giá bán",
+                              align: "center",
+                              dataIndex: "retail_price",
+                              width: "20%",
+                              render: (item: any) => (item ? formatCurrency(item) : 0),
+                            },
+                          ]}
+                          dataSource={listProductByIssue.items}
+                          tableLayout="fixed"
+                          pagination={{
+                            pageSize: listProductByIssue?.metadata.limit,
+                            total: listProductByIssue?.metadata.total,
+                            current: listProductByIssue?.metadata.page,
+                            onChange: onChangePage,
+                            onShowSizeChange: onChangePage,
+                            showSizeChanger: true,
+                          }}
+                          scroll={{ y: 300 }}
+                        />
+                      )}
+                    </Card>
+                  ) : (
+                    <Card title="Điều kiện áp dụng">
+                      <Space size={"large"} direction={"vertical"} style={{ width: "100%" }} />
+                      <div className="discount-code-product">
+                        Chiết khấu
+                        {data.rule?.value_type === DiscountUnitType.PERCENTAGE.value && (
+                          <span className="discount-code-product-desc">{`${data.rule?.value}${DiscountUnitType.PERCENTAGE.label}`}</span>
+                        )}
+                        {data.rule?.value_type === DiscountUnitType.FIXED_AMOUNT.value && (
+                          <span className="discount-code-product-desc">{`${formatCurrency(
+                            data.rule?.value,
+                          )}${DiscountUnitType.FIXED_AMOUNT.label}`}</span>
+                        )}
+                        cho phẩm thỏa mãn{" "}
+                        <span className="discount-code-product-sub-desc">
+                          tất cả các điều kiện sau
+                        </span>
+                      </div>
+
+                      <CustomTable
+                        columns={columnProductQuantitytByRule}
+                        dataSource={data.rule?.conditions}
+                        pagination={false}
+                        rowKey="id"
+                      />
+                    </Card>
                   )}
-                </Space>
-              </Card>
+                </>
+              )}
             </Col>
             <GeneralConditionDetail data={data} />
           </Row>
@@ -738,15 +1003,15 @@ const PromotionDetailScreen: React.FC = () => {
         }}
         rightComponent={
           <Space>
-            {allowCreatePromotionRelease &&
+            {allowCreatePromotionRelease && (
               <Button onClick={handleClone} loading={loadingClone}>
                 Nhân bản
               </Button>
-            }
+            )}
 
-            {allowUpdatePromotionRelease && data?.state !== "CANCELLED" &&
+            {allowUpdatePromotionRelease && data?.state !== "CANCELLED" && (
               <Button onClick={onEdit}>Sửa</Button>
-            }
+            )}
 
             {allowUpdatePromotionRelease && renderActionButton()}
           </Space>

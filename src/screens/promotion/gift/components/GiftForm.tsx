@@ -1,13 +1,5 @@
 import React, { ReactElement, useContext } from "react";
-import {
-  Card,
-  Col,
-  Form,
-  FormInstance,
-  Input,
-  Row,
-  Select,
-} from "antd";
+import { Card, Col, Form, FormInstance, Input, Row, Select } from "antd";
 import { GiftContext } from "screens/promotion/gift/components/GiftProvider";
 import GiftByProductGroupList from "screens/promotion/gift/components/GiftByProductGroupList";
 import GiftByOrderGroup from "screens/promotion/gift/components/GiftByOrderGroup";
@@ -29,7 +21,6 @@ function GiftForm({
 }: Props): ReactElement {
   const giftContext = useContext(GiftContext);
   const { giftMethod, setGiftMethod } = giftContext;
-
 
   const onChangeGiftMethod = (value: GIFT_METHOD_ENUM) => {
     if (!value) {
@@ -81,7 +72,7 @@ function GiftForm({
               rules={[
                 {
                   required: true,
-                  message: "Cần nhập tên khuyến mại",
+                  message: "Cần nhập tên khuyến mãi",
                 },
                 {
                   max: 255,

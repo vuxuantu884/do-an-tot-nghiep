@@ -13,18 +13,27 @@ import { IssueContext } from "./issue-provider";
 interface Props {
   form: FormInstance;
   isSetFormValues?: boolean;
+  setValueChangePromotion?: (item: number) => void;
+  setTypeSelectPromotion?: (item: string) => void;
 }
 
-function OrderThresholdIssueTypeForm(props: Props): ReactElement {
-  const { form, isSetFormValues } = props;
+function IssueTypeForm(props: Props): ReactElement {
+  const { form, isSetFormValues, setValueChangePromotion, setTypeSelectPromotion } = props;
   const { isLimitUsage, isLimitUsagePerCustomer, setIsLimitUsage, setIsLimitUsagePerCustomer } =
     useContext(IssueContext);
 
   const [isPercentUnit, setIsPercentUnit] = useState<boolean>(true);
 
+  const handleChangeValuePromotion = (value: any) => {
+    setValueChangePromotion?.(value);
+  };
+
   useEffect(() => {
     if (isSetFormValues) {
-      const priceRuleValueType = form.getFieldValue([PRICE_RULE_FIELDS.rule, PRICE_RULE_FIELDS.value_type]);
+      const priceRuleValueType = form.getFieldValue([
+        PRICE_RULE_FIELDS.rule,
+        PRICE_RULE_FIELDS.value_type,
+      ]);
       if (priceRuleValueType === DiscountUnitType.PERCENTAGE.value) {
         setIsPercentUnit(true);
       } else {
@@ -83,6 +92,7 @@ function OrderThresholdIssueTypeForm(props: Props): ReactElement {
                   format={(a: string) => formatCurrency(a)}
                   replace={(a: string) => replaceFormatString(a)}
                   placeholder="Nhập giá trị khuyến mại"
+                  onChange={handleChangeValuePromotion}
                   maxLength={isPercentUnit ? 3 : 11}
                   minLength={0}
                 />
@@ -94,10 +104,11 @@ function OrderThresholdIssueTypeForm(props: Props): ReactElement {
                     form.setFieldsValue({
                       [PRICE_RULE_FIELDS.rule]: {
                         value: 0,
-                        value_type: value
+                        value_type: value,
                       },
                     });
                     setIsPercentUnit(value === DiscountUnitType.PERCENTAGE.value);
+                    setTypeSelectPromotion?.(value);
                   }}
                 >
                   <Select.Option
@@ -208,4 +219,4 @@ function OrderThresholdIssueTypeForm(props: Props): ReactElement {
   );
 }
 
-export default OrderThresholdIssueTypeForm;
+export default IssueTypeForm;
