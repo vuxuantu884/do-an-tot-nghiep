@@ -9,16 +9,19 @@ import {
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import NumberInput from "component/custom/number-input.custom";
 import { IssueContext } from "./issue-provider";
+import { PriceRuleMethod } from "model/promotion/price-rules.model";
 
 interface Props {
   form: FormInstance;
   isSetFormValues?: boolean;
+  promotionType?: string;
   setValueChangePromotion?: (item: number) => void;
   setTypeSelectPromotion?: (item: string) => void;
 }
 
 function IssueTypeForm(props: Props): ReactElement {
-  const { form, isSetFormValues, setValueChangePromotion, setTypeSelectPromotion } = props;
+  const { form, isSetFormValues, promotionType, setValueChangePromotion, setTypeSelectPromotion } =
+    props;
   const { isLimitUsage, isLimitUsagePerCustomer, setIsLimitUsage, setIsLimitUsagePerCustomer } =
     useContext(IssueContext);
 
@@ -128,6 +131,29 @@ function IssueTypeForm(props: Props): ReactElement {
             </Input.Group>
           </Form.Item>
         </Col>
+        {promotionType === PriceRuleMethod.DISCOUNT_CODE_QTY && (
+          <Col span={12}>
+            <Form.Item
+              label="Số lượng tối thiểu"
+              name={PRICE_RULE_FIELDS.min_quantity}
+              rules={[
+                {
+                  type: "number",
+                  min: 1,
+                  message: "Số sản phẩm áp dụng phải lớn hơn 0",
+                },
+              ]}
+            >
+              <InputNumber
+                placeholder="Nhập số sản phẩm áp dụng"
+                maxLength={10}
+                minLength={0}
+                min={0}
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+          </Col>
+        )}
       </Row>
       <Row gutter={20}>
         <Col span={12}>

@@ -63,6 +63,7 @@ export const PRICE_RULE_FIELDS = {
   type: "type",
   value: "value",
   value_type: "value_type",
+  min_quantity: "min_quantity",
   usage_limit: "usage_limit",
   usage_limit_per_customer: "usage_limit_per_customer",
   conditions: "conditions",
@@ -257,6 +258,24 @@ export const FIELD_SELECT_OPTIONS_ORDER_THRESHOLD = [
 
 export const FIELD_SELECT_OPTIONS_PRODUCT_QUANTITY = [
   {
+    label: "Giá trị sản phẩm",
+    value: "subtotal",
+    type: ["number"],
+    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
+      <Item name={name} rules={rules}>
+        <NumberInput
+          style={{ width: "100%" }}
+          format={(a: string) => formatCurrency(a)}
+          replace={(a: string) => replaceFormatString(a)}
+          placeholder="Giá trị đơn sản phẩm"
+          value={Number(defaultValue)}
+          maxLength={11}
+          minLength={0}
+        />
+      </Item>
+    ),
+  },
+  {
     label: "Tên sản phẩm",
     value: "product_name",
     type: ["string"],
@@ -277,36 +296,6 @@ export const FIELD_SELECT_OPTIONS_PRODUCT_QUANTITY = [
     ),
   },
   {
-    label: "Danh mục sản phẩm",
-    value: "category_name",
-    type: ["string"],
-    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      <Item name={name} rules={rules}>
-        <Input placeholder="Nhập danh mục" defaultValue={defaultValue} maxLength={50} />
-      </Item>
-    ),
-  },
-  {
-    label: "Tag sản phẩm",
-    value: "product_tag",
-    type: ["string"],
-    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      <Item name={name} rules={rules}>
-        <Input placeholder="Nhập tag sản phẩm" defaultValue={defaultValue} maxLength={50} />
-      </Item>
-    ),
-  },
-  {
-    label: "Kích cỡ",
-    value: "product_size",
-    type: ["string", "number"],
-    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      <Item name={name} rules={rules}>
-        <Input placeholder="Nhập kích cỡ" defaultValue={defaultValue} maxLength={50} />
-      </Item>
-    ),
-  },
-  {
     label: "Màu sắc",
     value: "option_color",
     type: ["string"],
@@ -317,38 +306,12 @@ export const FIELD_SELECT_OPTIONS_PRODUCT_QUANTITY = [
     ),
   },
   {
-    label: "Giá trị sản phẩm",
-    value: "subtotal",
-    type: ["number"],
+    label: "Kích cỡ",
+    value: "product_size",
+    type: ["string", "number"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <NumberInput
-          style={{ width: "100%" }}
-          format={(a: string) => formatCurrency(a)}
-          replace={(a: string) => replaceFormatString(a)}
-          placeholder="Giá trị đơn sản phẩm"
-          value={Number(defaultValue)}
-          maxLength={11}
-          minLength={0}
-        />
-      </Item>
-    ),
-  },
-  {
-    label: "Số lượng",
-    value: "quantity",
-    type: ["number"],
-    valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
-      <Item name={name} rules={rules}>
-        <NumberInput
-          style={{ width: "100%" }}
-          format={(a: string) => formatCurrency(a)}
-          replace={(a: string) => replaceFormatString(a)}
-          placeholder="Số lượng"
-          value={Number(defaultValue)}
-          maxLength={11}
-          minLength={0}
-        />
+        <Input placeholder="Nhập kích cỡ" defaultValue={defaultValue} maxLength={50} />
       </Item>
     ),
   },

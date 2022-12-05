@@ -1,5 +1,5 @@
 import { CheckCircleOutlined, LoadingOutlined } from "@ant-design/icons";
-import { Button, Col, Divider, Form, FormInstance, Input, message, Modal, Row } from "antd";
+import { Button, Col, Divider, Form, FormInstance, InputNumber, message, Modal, Row } from "antd";
 import Dragger from "antd/es/upload/Dragger";
 import { Rule } from "antd/lib/form";
 import { SelectValue } from "antd/lib/select";
@@ -36,6 +36,7 @@ import GeneralProductQuantityConditions from "./general-product-quantity-conditi
 import GeneralProductQuantityHaveExclude from "./general-product-quantity-have-exclude";
 import GeneralProductQuantitySearchImport from "./general-product-quantity-search-import";
 import ModalConfirm from "component/modal/ModalConfirm";
+import { formatCurrency, replaceFormat } from "utils/AppUtils";
 
 enum ColumnIndex {
   field = "field",
@@ -95,7 +96,17 @@ interface Props {
 
 const defaultValueComponent = (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
   <Form.Item name={name} rules={rules}>
-    <Input placeholder="Nhập giá trị thuộc tính" defaultValue={defaultValue} />
+    <InputNumber
+      className="price_min"
+      formatter={(value) => {
+        return formatCurrency(value || 0);
+      }}
+      parser={(value: string | undefined) => replaceFormat(value || "")}
+      min={0}
+      max={1000000000}
+      placeholder="Nhập giá trị thuộc tính"
+      style={{ width: "100%" }}
+    />
   </Form.Item>
 );
 
@@ -226,19 +237,7 @@ export default function GeneralProductQuantity(props: Props): ReactElement {
         (item: any) => item.product_id !== productParent.id,
       );
 
-      const newListProductSelectImport = [productParent, ...listChildrentOfParentSelect];
-
-      const transformListProductSelectImport: any[] = [];
-
-      // eslint-disable-next-line array-callback-return
-      newListProductSelectImport.map((item: any) => {
-        transformListProductSelectImport.push({
-          ...item,
-          type: EnumProductPromotion.SELECT,
-        });
-      });
-
-      setListProduct(transformListProductSelectImport);
+      setListProduct([productParent, ...listChildrentOfParentSelect]);
     },
     [],
   );

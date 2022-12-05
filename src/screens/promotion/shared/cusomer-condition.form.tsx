@@ -13,6 +13,7 @@ import { DATE_FORMAT } from "utils/DateUtils";
 // import { formatCurrencyNotDefaultValue } from "utils/AppUtils";
 // import rightArrow from "assets/icon/right-arrow.svg";
 import { CustomerConditionStyled } from "screens/promotion/discount/discount-style";
+import moment from "moment";
 const { Option } = Select;
 
 interface Props {
@@ -218,13 +219,8 @@ export default function CustomerFilter(props: Props): ReactElement {
                       showTime={{ format: DATE_FORMAT.DDMM }}
                       format={DATE_FORMAT.DDMM}
                       disabledDate={(currentDate) => {
-                        const cur = currentDate.set({
-                          hour: 0,
-                        });
-                        const start = form.getFieldValue(CustomerFilterField.starts_birthday)?.set({
-                          hour: 12,
-                        });
-                        return start > cur;
+                        const start = form.getFieldValue(CustomerFilterField.starts_birthday);
+                        return currentDate && currentDate < moment(start);
                       }}
                     />
                   </Form.Item>
@@ -292,15 +288,8 @@ export default function CustomerFilter(props: Props): ReactElement {
                       format={DATE_FORMAT.DDMM}
                       showNow={false}
                       disabledDate={(currentDate) => {
-                        const cur = currentDate.set({
-                          hour: 0,
-                        });
-                        const start = form
-                          .getFieldValue(CustomerFilterField.starts_wedding_day)
-                          ?.set({
-                            hour: 12,
-                          });
-                        return start > cur;
+                        const start = form.getFieldValue(CustomerFilterField.starts_wedding_day);
+                        return currentDate && currentDate < moment(start);
                       }}
                     />
                   </Form.Item>
@@ -462,7 +451,6 @@ export default function CustomerFilter(props: Props): ReactElement {
               {/*    </Form.Item>*/}
               {/*  </div>*/}
               {/*</div>*/}
-
             </CustomerConditionStyled>
           )}
         </Col>
