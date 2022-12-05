@@ -35,7 +35,7 @@ import _ from "lodash";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { VariantResponse } from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { formatCurrencyNotDefaultValue, replaceFormatString } from "utils/AppUtils";
 import { LoyaltyRankResponse } from "model/response/loyalty/ranking/loyalty-rank.response";
 import { LoyaltyRankSearch } from "domain/actions/loyalty/rank/loyalty-rank.action";
 import {
@@ -152,7 +152,8 @@ const LoyaltyPointAccumulate = () => {
           <div className="rule">
             <NumberInput
               className="rule-from"
-              format={(a: string) => formatCurrency(a)}
+              placeholder="Từ"
+              format={(a: string) => formatCurrencyNotDefaultValue(a)}
               replace={(a: string) => replaceFormatString(a)}
               value={rule.order_amount.from || undefined}
               onChange={(value) => onChangeOrderAmountFrom(value, index)}
@@ -163,7 +164,8 @@ const LoyaltyPointAccumulate = () => {
 
             <NumberInput
               className="rule-to"
-              format={(a: string) => formatCurrency(a)}
+              placeholder="Đến"
+              format={(a: string) => formatCurrencyNotDefaultValue(a)}
               replace={(a: string) => replaceFormatString(a)}
               value={rule.order_amount.to || undefined}
               onChange={(value) => onChangeOrderAmountTo(value, index)}
@@ -182,7 +184,8 @@ const LoyaltyPointAccumulate = () => {
           <div className="rule">
             <NumberInput
               className="rule-from"
-              format={(a: string) => formatCurrency(a)}
+              placeholder="Từ"
+              format={(a: string) => formatCurrencyNotDefaultValue(a)}
               replace={(a: string) => replaceFormatString(a)}
               value={rule.total_money_spend.from || undefined}
               onChange={(value) => onChangeTotalMoneySpendFrom(value, index)}
@@ -193,7 +196,8 @@ const LoyaltyPointAccumulate = () => {
 
             <NumberInput
               className="rule-to"
-              format={(a: string) => formatCurrency(a)}
+              placeholder="Đến"
+              format={(a: string) => formatCurrencyNotDefaultValue(a)}
               replace={(a: string) => replaceFormatString(a)}
               value={rule.total_money_spend.to || undefined}
               onChange={(value) => onChangeTotalMoneySpendTo(value, index)}
@@ -212,7 +216,8 @@ const LoyaltyPointAccumulate = () => {
           <div className="rule">
             <NumberInput
               className="rule-from"
-              format={(a: string) => formatCurrency(a)}
+              placeholder="Từ"
+              format={(a: string) => formatCurrencyNotDefaultValue(a)}
               replace={(a: string) => replaceFormatString(a)}
               value={rule.total_order_count.from || undefined}
               onChange={(value) => onChangeTotalOrderCountFrom(value, index)}
@@ -223,7 +228,8 @@ const LoyaltyPointAccumulate = () => {
 
             <NumberInput
               className="rule-to"
-              format={(a: string) => formatCurrency(a)}
+              placeholder="Đến"
+              format={(a: string) => formatCurrencyNotDefaultValue(a)}
               replace={(a: string) => replaceFormatString(a)}
               value={rule.total_order_count.to || undefined}
               onChange={(value) => onChangeTotalOrderCountTo(value, index)}
@@ -456,15 +462,15 @@ const LoyaltyPointAccumulate = () => {
         return false;
       }
 
-      if (!rule.order_amount.from) {
-        showError("Giá trị hóa đơn từ phải lớn hơn 0");
-        return false;
-      }
+      // if (!rule.order_amount.from) {
+      //   showError("Giá trị hóa đơn từ phải lớn hơn 0");
+      //   return false;
+      // }
 
-      if (!rule.order_amount.to) {
-        showError("Giá trị hóa đơn đến phải lớn hơn 0");
-        return false;
-      }
+      // if (!rule.order_amount.to) {
+      //   showError("Giá trị hóa đơn đến phải lớn hơn 0");
+      //   return false;
+      // }
 
       //check rule for total money spend
       if (
@@ -476,15 +482,15 @@ const LoyaltyPointAccumulate = () => {
         return false;
       }
 
-      if (!rule.total_money_spend.from) {
-        showError("Giá trị tiền tích lũy từ phải lớn hơn 0");
-        return false;
-      }
+      // if (!rule.total_money_spend.from) {
+      //   showError("Giá trị tiền tích lũy từ phải lớn hơn 0");
+      //   return false;
+      // }
 
-      if (!rule.total_money_spend.to) {
-        showError("Giá trị tiền tích lũy đến phải lớn hơn 0");
-        return false;
-      }
+      // if (!rule.total_money_spend.to) {
+      //   showError("Giá trị tiền tích lũy đến phải lớn hơn 0");
+      //   return false;
+      // }
 
       //check rule for total order count
       if (
@@ -496,15 +502,15 @@ const LoyaltyPointAccumulate = () => {
         return false;
       }
 
-      if (!rule.total_order_count.from) {
-        showError("Giá trị tổng đơn hàng từ phải lớn hơn 0");
-        return false;
-      }
+      // if (!rule.total_order_count.from) {
+      //   showError("Giá trị tổng đơn hàng từ phải lớn hơn 0");
+      //   return false;
+      // }
 
-      if (!rule.total_order_count.to) {
-        showError("Giá trị tổng đơn hàng đến phải lớn hơn 0");
-        return false;
-      }
+      // if (!rule.total_order_count.to) {
+      //   showError("Giá trị tổng đơn hàng đến phải lớn hơn 0");
+      //   return false;
+      // }
 
       //check rule for percent point
       if (!rule.percent) {
