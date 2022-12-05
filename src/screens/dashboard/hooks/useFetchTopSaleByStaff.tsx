@@ -1,4 +1,9 @@
-import { MAX_TOP_RANK, TOP_CHARTS_KEY, TOP_SALES_BY_STAFF } from "config/dashboard";
+import {
+  ECOMMERCE_NAME_LIST,
+  MAX_TOP_RANK,
+  TOP_CHARTS_KEY,
+  TOP_SALES_BY_STAFF,
+} from "config/dashboard";
 import { DashboardShowMyData, DashboardTopSale } from "model/dashboard/dashboard.model";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -27,7 +32,9 @@ function useFetchTopSaleByStaff() {
       }
 
       const listTopSale: Array<DashboardTopSale> = [];
-
+      response.result.data = response.result.data.filter(
+        (item) => item && !ECOMMERCE_NAME_LIST.includes(item[0]?.toUpperCase()),
+      );
       for (let index = 0; index < MAX_TOP_RANK; index++) {
         const item = response.result.data[index];
         if (item) {
