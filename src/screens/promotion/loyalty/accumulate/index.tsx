@@ -52,20 +52,37 @@ import {
 } from "model/request/loyalty/create-loyalty-accumulation.request";
 import { PlusOutlined } from "@ant-design/icons";
 import CurrencyInput from "../component/currency-input";
+import { priorityOptions } from "./detail/constant";
+import rightArrow from "assets/icon/right-arrow.svg";
+
+export interface CreateAcumulationPoints {
+  from: number | null;
+  to: number | null;
+}
 
 class Rule {
-  id: number | null = null;
-  order_amount_min: number = 0;
-  order_amount_max: number | null = null;
+  order_amount: CreateAcumulationPoints = {
+    from: null,
+    to: null,
+  };
+
+  total_money_spend: CreateAcumulationPoints = {
+    from: null,
+    to: null,
+  };
+  total_order_count: CreateAcumulationPoints = {
+    from: null,
+    to: null,
+  };
   customer_group_id: number | null = null;
   customer_ranking_id: number | null = null;
   customer_type_id: number | null = null;
   percent: number = 0;
 
   constructor(fields?: {
-    id?: number;
-    order_amount_min?: number;
-    order_amount_max?: number;
+    order_amount: CreateAcumulationPoints;
+    total_money_spend: CreateAcumulationPoints;
+    total_order_count: CreateAcumulationPoints;
     customer_group_id?: number | null;
     customer_ranking_id?: number | null;
     customer_type_id?: number | null;
@@ -78,13 +95,26 @@ class Rule {
 const { Option } = Select;
 
 const initFormValues = {
+  having_card: false,
+  not_using_point: false,
   name: "",
   priority: 0,
+  channels: [],
+  sources: [],
+  stores: [],
+  items: [],
   start_time: null,
   end_time: null,
 };
 
 const LoyaltyPointAccumulate = () => {
+  const [form] = Form.useForm();
+  const dispatch = useDispatch();
+  const formRef = createRef<FormInstance>();
+
+  const [programName, setProgramName] = useState<string>();
+  const [prioritySelect, setPrioritySelect] = useState<number>(1);
+
   const [startDate, setStartDate] = useState<string>();
   const [endDate, setEndDate] = useState<string>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
@@ -92,18 +122,16 @@ const LoyaltyPointAccumulate = () => {
   const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
   const [listProduct, setListProduct] = useState<Array<any>>([]);
   const [listRanking, setListRanking] = useState<Array<LoyaltyRankResponse>>([]);
-  const dispatch = useDispatch();
-  const formRef = createRef<FormInstance>();
+
+  const [havingCardSwitch, setHavingCardSwitch] = useState<boolean>(false);
+  const [notUsingPointSwitch, setNotUsingPointSwitch] = useState<boolean>(false);
+
   const [rules, setRules] = useState<Array<Rule>>([]);
   const [groups, setGroups] = React.useState<Array<any>>([]);
   const [types, setTypes] = React.useState<Array<any>>([]);
   const params = useParams() as any;
   const [loyaltyProgram, setLoyaltyProgram] = useState<LoyaltyAccumulationProgramResponse>();
-  const [havingCardSwitch, setHavingCardSwitch] = useState<boolean>(false);
-  const [notUsingPointSwitch, setNotUsingPointSwitch] = useState<boolean>(false);
   const [statusSwitch, setStatusSwitch] = useState<boolean>(false);
-  const [prioritySelect, setPrioritySelect] = useState<number>(1);
-  const [programName, setProgramName] = useState<string>();
   const [stores, setStores] = useState<LoyaltyProgramRuleItem[]>([]);
   const [sources, setSources] = useState<LoyaltyProgramRuleItem[]>([]);
   const [channels, setChannels] = useState<LoyaltyProgramRuleItem[]>([]);
@@ -117,40 +145,98 @@ const LoyaltyPointAccumulate = () => {
 
   const columns = [
     {
-      title: "Hóa đơn tối thiểu",
-      width: "16%",
-      className: "text-center",
+      title: "Hóa đơn",
+      width: "30%",
       render: (rule: Rule, item: Rule, index: number) => {
         return (
-          <NumberInput
-            format={(a: string) => formatCurrency(a)}
-            replace={(a: string) => replaceFormatString(a)}
-            value={rule.order_amount_min}
-            onChange={(value) => onChangeOrderAmountMin(value, index)}
-            max={999999999999999}
-          />
+          <div className="rule">
+            <NumberInput
+              className="rule-from"
+              format={(a: string) => formatCurrency(a)}
+              replace={(a: string) => replaceFormatString(a)}
+              value={rule.order_amount.from || undefined}
+              onChange={(value) => onChangeOrderAmountFrom(value, index)}
+              max={9999999999999}
+            />
+
+            <img className="arrow-icon-point" src={rightArrow} alt="" />
+
+            <NumberInput
+              className="rule-to"
+              format={(a: string) => formatCurrency(a)}
+              replace={(a: string) => replaceFormatString(a)}
+              value={rule.order_amount.to || undefined}
+              onChange={(value) => onChangeOrderAmountTo(value, index)}
+              max={9999999999999}
+            />
+          </div>
         );
       },
     },
+
     {
-      title: "Hóa đơn tối đa",
-      width: "16%",
-      className: "text-center",
+      title: "Tiền tích lũy",
+      width: "30%",
       render: (rule: Rule, item: Rule, index: number) => {
         return (
-          <NumberInput
-            format={(a: string) => formatCurrency(a)}
-            replace={(a: string) => replaceFormatString(a)}
-            value={rule.order_amount_max || undefined}
-            onChange={(value) => onChangeOrderAmountMax(value, index)}
-            max={999999999999999}
-          />
+          <div className="rule">
+            <NumberInput
+              className="rule-from"
+              format={(a: string) => formatCurrency(a)}
+              replace={(a: string) => replaceFormatString(a)}
+              value={rule.total_money_spend.from || undefined}
+              onChange={(value) => onChangeTotalMoneySpendFrom(value, index)}
+              max={9999999999999}
+            />
+
+            <img className="arrow-icon-point" src={rightArrow} alt="" />
+
+            <NumberInput
+              className="rule-to"
+              format={(a: string) => formatCurrency(a)}
+              replace={(a: string) => replaceFormatString(a)}
+              value={rule.total_money_spend.to || undefined}
+              onChange={(value) => onChangeTotalMoneySpendTo(value, index)}
+              max={9999999999999}
+            />
+          </div>
         );
       },
     },
+
+    {
+      title: "Tổng đơn hàng",
+      width: "30%",
+      render: (rule: Rule, item: Rule, index: number) => {
+        return (
+          <div className="rule">
+            <NumberInput
+              className="rule-from"
+              format={(a: string) => formatCurrency(a)}
+              replace={(a: string) => replaceFormatString(a)}
+              value={rule.total_order_count.from || undefined}
+              onChange={(value) => onChangeTotalOrderCountFrom(value, index)}
+              max={9999999999999}
+            />
+
+            <img className="arrow-icon-point" src={rightArrow} alt="" />
+
+            <NumberInput
+              className="rule-to"
+              format={(a: string) => formatCurrency(a)}
+              replace={(a: string) => replaceFormatString(a)}
+              value={rule.total_order_count.to || undefined}
+              onChange={(value) => onChangeTotalOrderCountTo(value, index)}
+              max={9999999999999}
+            />
+          </div>
+        );
+      },
+    },
+
     {
       title: "Nhóm khách hàng",
-      width: "16%",
+      width: "15%",
       className: "text-center",
       render: (rule: Rule, item: Rule, index: number) => {
         return (
@@ -171,7 +257,7 @@ const LoyaltyPointAccumulate = () => {
     },
     {
       title: "Loại khách hàng",
-      width: "16%",
+      width: "15%",
       className: "text-center",
       render: (rule: Rule, item: Rule, index: number) => {
         return (
@@ -192,7 +278,7 @@ const LoyaltyPointAccumulate = () => {
     },
     {
       title: "Hạng khách hàng",
-      width: "16%",
+      width: "15%",
       className: "text-center",
       render: (rule: Rule, item: Rule, index: number) => {
         return (
@@ -213,7 +299,7 @@ const LoyaltyPointAccumulate = () => {
     },
     {
       title: "Giá trị tích điểm",
-      width: "16%",
+      width: "10%",
       className: "text-center",
       render: (rule: Rule, item: Rule, index: number) => {
         return (
@@ -231,7 +317,7 @@ const LoyaltyPointAccumulate = () => {
     },
     {
       title: "",
-      width: "48px",
+      width: "28px",
       render: (rule: Rule, item: Rule, index: number) => {
         return (
           <div onClick={() => removeRule(index)} style={{ cursor: "pointer" }}>
@@ -252,17 +338,45 @@ const LoyaltyPointAccumulate = () => {
     },
   ];
 
-  const onChangeOrderAmountMin = (value: number | null, index: number) => {
+  const onChangeOrderAmountFrom = (value: number | null, index: number) => {
     let _rules = [...rules];
 
-    _rules[index].order_amount_min = Number(value == null ? "0" : value.toString());
+    _rules[index].order_amount.from = Number(value == null ? "0" : value.toString());
     setRules(_rules);
   };
 
-  const onChangeOrderAmountMax = (value: any, index: number) => {
+  const onChangeOrderAmountTo = (value: any, index: number) => {
     let _rules = [...rules];
 
-    _rules[index].order_amount_max = value == null ? null : Number(value.toString());
+    _rules[index].order_amount.to = value == null ? null : Number(value.toString());
+    setRules(_rules);
+  };
+
+  const onChangeTotalMoneySpendFrom = (value: number | null, index: number) => {
+    let _rules = [...rules];
+
+    _rules[index].total_money_spend.from = Number(value == null ? "0" : value.toString());
+    setRules(_rules);
+  };
+
+  const onChangeTotalMoneySpendTo = (value: any, index: number) => {
+    let _rules = [...rules];
+
+    _rules[index].total_money_spend.to = value == null ? null : Number(value.toString());
+    setRules(_rules);
+  };
+
+  const onChangeTotalOrderCountFrom = (value: number | null, index: number) => {
+    let _rules = [...rules];
+
+    _rules[index].total_order_count.from = Number(value == null ? "0" : value.toString());
+    setRules(_rules);
+  };
+
+  const onChangeTotalOrderCountTo = (value: any, index: number) => {
+    let _rules = [...rules];
+
+    _rules[index].total_order_count.to = value == null ? null : Number(value.toString());
     setRules(_rules);
   };
 
@@ -332,15 +446,67 @@ const LoyaltyPointAccumulate = () => {
     }
     for (let i = 0; i < rules.length; i++) {
       const rule = rules[i];
-      if (rule.order_amount_max !== null && rule.order_amount_min > rule.order_amount_max) {
-        console.log(rule.order_amount_max);
-        showError("Giá trị hóa đơn tối thiểu không được lớn hơn giá trị hóa đơn tối đa");
+      //check rule for order amount
+      if (
+        rule.order_amount.to &&
+        rule.order_amount.from &&
+        rule.order_amount.from > rule.order_amount.to
+      ) {
+        showError("Giá trị hóa đơn từ không được lớn hơn giá trị hóa đơn đến");
         return false;
       }
-      if (!rule.order_amount_min) {
-        showError("Giá trị hóa đơn tối thiểu phải lớn hơn 0");
+
+      if (!rule.order_amount.from) {
+        showError("Giá trị hóa đơn từ phải lớn hơn 0");
         return false;
       }
+
+      if (!rule.order_amount.to) {
+        showError("Giá trị hóa đơn đến phải lớn hơn 0");
+        return false;
+      }
+
+      //check rule for total money spend
+      if (
+        rule.total_money_spend.to &&
+        rule.total_money_spend.from &&
+        rule.total_money_spend.from > rule.total_money_spend.to
+      ) {
+        showError("Giá trị tiền tích lũy từ không được lớn hơn giá trị tiền tích lũy đến");
+        return false;
+      }
+
+      if (!rule.total_money_spend.from) {
+        showError("Giá trị tiền tích lũy từ phải lớn hơn 0");
+        return false;
+      }
+
+      if (!rule.total_money_spend.to) {
+        showError("Giá trị tiền tích lũy đến phải lớn hơn 0");
+        return false;
+      }
+
+      //check rule for total order count
+      if (
+        rule.total_order_count.to &&
+        rule.total_order_count.from &&
+        rule.total_order_count.from > rule.total_order_count.to
+      ) {
+        showError("Giá trị tổng đơn hàng từ không được lớn hơn giá trị tổng đơn hàng đến");
+        return false;
+      }
+
+      if (!rule.total_order_count.from) {
+        showError("Giá trị tổng đơn hàng từ phải lớn hơn 0");
+        return false;
+      }
+
+      if (!rule.total_order_count.to) {
+        showError("Giá trị tổng đơn hàng đến phải lớn hơn 0");
+        return false;
+      }
+
+      //check rule for percent point
       if (!rule.percent) {
         showError("Giá trị tích điểm phải lớn hơn 0");
         return false;
@@ -388,6 +554,23 @@ const LoyaltyPointAccumulate = () => {
     return listSource.filter((item) => item.code !== "pos");
   }, [listSource]);
 
+  const updateLoyaltyProgram = useCallback((loyaltyProgram: LoyaltyAccumulationProgramResponse) => {
+    setLoyaltyProgram(loyaltyProgram);
+    setRules(loyaltyProgram.rules);
+    setHavingCardSwitch(loyaltyProgram.having_card);
+    setNotUsingPointSwitch(loyaltyProgram.not_using_point);
+    setProgramName(loyaltyProgram.name);
+    setPrioritySelect(loyaltyProgram.priority);
+    setListProduct(loyaltyProgram.items);
+    setSources(loyaltyProgram.sources);
+    setStores(loyaltyProgram.stores);
+    setChannels(loyaltyProgram.channels);
+    setProducts(loyaltyProgram.items);
+    setStartDate(moment(loyaltyProgram.start_time).toString());
+    setEndDate(loyaltyProgram.end_time ? moment(loyaltyProgram.end_time).toString() : undefined);
+    setStatusSwitch(loyaltyProgram.status === "ACTIVE");
+  }, []);
+
   useEffect(() => {
     dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setListStore));
@@ -404,24 +587,7 @@ const LoyaltyPointAccumulate = () => {
     } else {
       setRules([new Rule()]);
     }
-  }, [dispatch, params]);
-
-  const updateLoyaltyProgram = (loyaltyProgram: LoyaltyAccumulationProgramResponse) => {
-    setLoyaltyProgram(loyaltyProgram);
-    setRules(loyaltyProgram.rules);
-    setHavingCardSwitch(loyaltyProgram.having_card);
-    setNotUsingPointSwitch(loyaltyProgram.not_using_point);
-    setProgramName(loyaltyProgram.name);
-    setPrioritySelect(loyaltyProgram.priority);
-    setListProduct(loyaltyProgram.items);
-    setSources(loyaltyProgram.sources);
-    setStores(loyaltyProgram.stores);
-    setChannels(loyaltyProgram.channels);
-    setProducts(loyaltyProgram.items);
-    setStartDate(moment(loyaltyProgram.start_time).toString());
-    setEndDate(loyaltyProgram.end_time ? moment(loyaltyProgram.end_time).toString() : undefined);
-    setStatusSwitch(loyaltyProgram.status === "ACTIVE");
-  };
+  }, [dispatch, params, updateLoyaltyProgram]);
 
   const afterSubmit = useCallback(
     (data: BaseResponse<LoyaltyAccumulationProgramResponse>) => {
@@ -437,10 +603,10 @@ const LoyaltyPointAccumulate = () => {
         history.push(redirectUrl);
       }
     },
-    [loyaltyProgram, history],
+    [history, loyaltyProgram],
   );
 
-  const onFinish = () => {
+  const onFinish = (value: any) => {
     if (!programName || !startDate) {
       showError("Vui lòng điền đủ thông tin");
       return;
@@ -451,6 +617,7 @@ const LoyaltyPointAccumulate = () => {
       showError("Tên chương trình không được để trống");
       return;
     }
+
     const storeRequestParams = stores.map((store) => {
       return { id: store.id, name: store.name, code: store.code };
     });
@@ -460,6 +627,7 @@ const LoyaltyPointAccumulate = () => {
     const sourceRequestParams = sources.map((source) => {
       return { id: source.id, name: source.name, code: source.code };
     });
+
     const params = {
       id: loyaltyProgram ? loyaltyProgram.id : null,
       start_time: startDate ? ConvertDateToUtc(startDate) : null,
@@ -542,7 +710,7 @@ const LoyaltyPointAccumulate = () => {
           <div className="d-flex">
             <span className="title-card">Cài đặt Tích điểm</span>
             <div className="program-status">
-              <b>Trạng thái</b>
+              <b style={{ paddingRight: 12 }}>Trạng thái</b>
               <Switch
                 checked={statusSwitch}
                 onChange={(checked: boolean) => setStatusSwitch(checked)}
@@ -553,34 +721,37 @@ const LoyaltyPointAccumulate = () => {
         }
         className="loyalty-accumulate-wrapper"
       >
-        <Form onFinish={onFinish} initialValues={initFormValues} layout="vertical" ref={formRef}>
-          <div className="additional-option">
-            <Row>
-              <Col span={10}>
-                <div className="option">
-                  <Switch
-                    className="switcher"
-                    checked={havingCardSwitch}
-                    onChange={handleChangeHavingCardSwitch}
-                  />
-                  <span>Yêu cầu có thẻ khách hàng mới được tích điểm</span>
-                </div>
-              </Col>
-              <Col span={14}>
-                <div className="option">
-                  <Switch
-                    className="switcher"
-                    checked={notUsingPointSwitch}
-                    onChange={handleChangeNotUsingPointSwitch}
-                  />
-                  <span>Không tích điểm cho hóa đơn có tiêu điểm tích lũy</span>
-                </div>
-              </Col>
-            </Row>
-          </div>
+        <Form
+          form={form}
+          onFinish={onFinish}
+          initialValues={initFormValues}
+          layout="vertical"
+          ref={formRef}
+        >
+          <Row style={{ marginBottom: 16 }}>
+            <Col span={12} className="option">
+              <Switch
+                className="switcher"
+                checked={havingCardSwitch}
+                onChange={handleChangeHavingCardSwitch}
+              />
+              <span className="option-desc">Yêu cầu có thẻ khách hàng mới được tích điểm</span>
+            </Col>
+
+            <Col span={12} className="option">
+              <Form.Item name="not_using_point">
+                <Switch
+                  className="switcher"
+                  checked={notUsingPointSwitch}
+                  onChange={handleChangeNotUsingPointSwitch}
+                />
+              </Form.Item>
+              <span className="option-desc">Không tích điểm cho hóa đơn có tiêu điểm tích lũy</span>
+            </Col>
+          </Row>
           <div className="require-rules">
             <Row>
-              <Col span={10}>
+              <Col span={12}>
                 <div className="rule">
                   <label>
                     Tên chương trình tích điểm <span className="text-error">*</span>
@@ -594,7 +765,8 @@ const LoyaltyPointAccumulate = () => {
                   />
                 </div>
               </Col>
-              <Col span={14}>
+
+              <Col span={12}>
                 <div className="rule">
                   <label>
                     Ưu tiên <span className="text-error">*</span>
@@ -605,42 +777,17 @@ const LoyaltyPointAccumulate = () => {
                     value={prioritySelect}
                     onChange={onChangePrioritySelect}
                   >
-                    <Option key={1} value={1}>
-                      1
-                    </Option>
-                    <Option key={2} value={2}>
-                      2
-                    </Option>
-                    <Option key={3} value={3}>
-                      3
-                    </Option>
-                    <Option key={4} value={4}>
-                      4
-                    </Option>
-                    <Option key={5} value={5}>
-                      5
-                    </Option>
-                    <Option key={6} value={6}>
-                      6
-                    </Option>
-                    <Option key={7} value={7}>
-                      7
-                    </Option>
-                    <Option key={8} value={8}>
-                      8
-                    </Option>
-                    <Option key={9} value={9}>
-                      9
-                    </Option>
-                    <Option key={10} value={10}>
-                      10
-                    </Option>
+                    {priorityOptions.map((priorty, idx) => (
+                      <Option key={idx} value={Number(priorty)}>
+                        {priorty}
+                      </Option>
+                    ))}
                   </Select>
                 </div>
               </Col>
             </Row>
             <Row>
-              <Col span={10}>
+              <Col span={12}>
                 <div className="rule">
                   <label>Nguồn</label>
                   <CustomSelect
@@ -673,7 +820,8 @@ const LoyaltyPointAccumulate = () => {
                   </CustomSelect>
                 </div>
               </Col>
-              <Col span={14}>
+
+              <Col span={12}>
                 <div className="rule">
                   <label>Cửa hàng</label>
                   <CustomSelect
@@ -708,7 +856,7 @@ const LoyaltyPointAccumulate = () => {
               </Col>
             </Row>
             <Row>
-              <Col span={10}>
+              <Col span={12}>
                 <div className="rule">
                   <label>Kênh bán hàng</label>
                   <CustomSelect
@@ -741,7 +889,8 @@ const LoyaltyPointAccumulate = () => {
                   </CustomSelect>
                 </div>
               </Col>
-              <Col span={14}>
+
+              <Col span={12}>
                 <div className="rule">
                   <label>Sản phẩm</label>
                   <Select
@@ -776,7 +925,7 @@ const LoyaltyPointAccumulate = () => {
           </div>
           <div className="date-rule">
             <Row>
-              <Col span={10}>
+              <Col span={12}>
                 <div className="rule">
                   <label>
                     Từ ngày: <span className="text-error">*</span>
@@ -798,7 +947,7 @@ const LoyaltyPointAccumulate = () => {
                   />
                 </div>
               </Col>
-              <Col span={14}>
+              <Col span={12}>
                 <div className="rule">
                   <label>Đến ngày:</label>
                   <CustomDatePicker
