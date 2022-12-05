@@ -10,6 +10,8 @@ export const TOTAL_SALES_STORE_TAB_NAME = {
 
 export const MAX_TOP_RANK = 5;
 
+export const ECOMMERCE_NAME_LIST = ["SHOPEE", "LAZADA", "TIKI", "TIKTOK"];
+
 export const TOP_CHARTS_KEY = {
   TOP_STAFF_SALES: "TOP_STAFF_SALES",
   TOP_SHOP_SALES: "TOP_SHOP_SALES",
