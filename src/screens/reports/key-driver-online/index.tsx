@@ -480,7 +480,7 @@ function KeyDriverOnline() {
                   className={
                     text
                       ? (
-                          kdOnNeedLowValue.includes(record.key)
+                          kdOnNeedLowValue.includes(record[`${departmentKey}_key`] || record.key)
                             ? Number(text) - record[`${departmentKey}_monthly_target`] <= 0
                             : Number(text) - record[`${departmentKey}_monthly_target`] >= 0
                         )
@@ -518,7 +518,11 @@ function KeyDriverOnline() {
                 <div
                   className={
                     text
-                      ? (kdOnNeedLowValue.includes(record.key) ? text <= 100 : text >= 100)
+                      ? (
+                          kdOnNeedLowValue.includes(record[`${departmentKey}_key`] || record.key)
+                            ? text <= 100
+                            : text >= 100
+                        )
                         ? "background-green"
                         : "background-red"
                       : ""

@@ -489,7 +489,7 @@ function KeyDriverOffline() {
                   className={
                     text
                       ? (
-                          kdOffNeedLowValue.includes(record.key)
+                          kdOffNeedLowValue.includes(record[`${departmentKey}_key`] || record.key)
                             ? Number(text) - record[`${departmentKey}_monthly_target`] <= 0
                             : Number(text) - record[`${departmentKey}_monthly_target`] >= 0
                         )
@@ -531,7 +531,11 @@ function KeyDriverOffline() {
                 <div
                   className={
                     text
-                      ? (kdOffNeedLowValue.includes(record.key) ? text <= 100 : text >= 100)
+                      ? (
+                          kdOffNeedLowValue.includes(record[`${departmentKey}_key`] || record.key)
+                            ? text <= 100
+                            : text >= 100
+                        )
                         ? "background-green"
                         : "background-red"
                       : ""
