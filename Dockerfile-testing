@@ -6,7 +6,7 @@ COPY yarn.lock /app
 RUN yarn install
 RUN export NODE_OPTIONS="--max-old-space-size=8000"
 COPY . /app
-RUN yarn build:dev
+RUN yarn build:testing
 
 FROM nginx:1.15-alpine
 RUN  rm -rf /usr/share/nginx/html/*
