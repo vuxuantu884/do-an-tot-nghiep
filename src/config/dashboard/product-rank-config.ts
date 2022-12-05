@@ -24,7 +24,7 @@ export const TOP_SALES_PRODUCT_TEMPLATE: AnalyticSampleQuery = {
     // conditions: [["variant_sku3_group", "!=", ""]],
     from: TODAY,
     to: TODAY,
-    order_by: [["total_sales", "DESC"]],
+    order_by: [["net_sales", "DESC"]],
   },
   options: `time:"completed_at"`,
 };
