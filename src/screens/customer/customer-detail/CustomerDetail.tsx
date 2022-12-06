@@ -264,16 +264,6 @@ const CustomerDetail = () => {
       },
 
       {
-        name: "Doanh thu",
-        value: loyaltyPoint?.gross_sale ? (
-          <NumberFormat
-            value={loyaltyPoint?.gross_sale}
-            displayType={"text"}
-            thousandSeparator={true}
-          />
-        ) : null,
-      },
-      {
         name: "Tiền tích lũy",
         value: (
           <NumberFormat
@@ -311,7 +301,6 @@ const CustomerDetail = () => {
             : purchaseInfo.store_of_last_order_offline
           : null,
       },
-
       {
         name: "Số tiền cần nâng hạng",
         value: loyaltyPoint?.remain_amount_to_level_up ? (
@@ -349,6 +338,16 @@ const CustomerDetail = () => {
         name: "Ngày lên hạng gần nhất",
         value: loyaltyPoint?.level_change_time ? (
           <span>{ConvertUtcToLocalDate(loyaltyPoint.level_change_time, DATE_FORMAT.DDMMYYY)}</span>
+        ) : null,
+      },
+      {
+        name: "Doanh thu",
+        value: loyaltyPoint?.gross_sale ? (
+          <NumberFormat
+            value={loyaltyPoint?.gross_sale}
+            displayType={"text"}
+            thousandSeparator={true}
+          />
         ) : null,
       },
     ];
