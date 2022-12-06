@@ -1,4 +1,4 @@
-import { Button, Form, FormInstance, Input, Radio, Select } from "antd";
+import { Button, Form, FormInstance, Input, InputNumber, Radio, Select } from "antd";
 import { Rule } from "antd/lib/form";
 import { SelectValue } from "antd/lib/select";
 import _ from "lodash";
@@ -14,6 +14,7 @@ import {
 } from "../constants";
 import { OrderThresholdStyle } from "../discount/components/order-threshold.style";
 import { PromotionGift } from "model/promotion/gift.model";
+import { formatCurrency, replaceFormat } from "utils/AppUtils";
 const rule = PRICE_RULE_FIELDS.rule;
 const conditions = PRICE_RULE_FIELDS.conditions;
 
@@ -35,7 +36,17 @@ interface Props {
 
 const defaultValueComponent = (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
   <Form.Item name={name} rules={rules}>
-    <Input placeholder="Nhập giá trị thuộc tính" defaultValue={defaultValue} />
+    <InputNumber
+      className="price_min"
+      formatter={(value) => {
+        return formatCurrency(value || 0);
+      }}
+      parser={(value: string | undefined) => replaceFormat(value || "")}
+      min={0}
+      max={1000000000}
+      placeholder="Nhập giá trị thuộc tính"
+      style={{ width: "100%" }}
+    />
   </Form.Item>
 );
 

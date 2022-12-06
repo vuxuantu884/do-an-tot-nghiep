@@ -169,6 +169,7 @@ function IssueForm(props: Props): ReactElement {
             <IssueTypeForm
               form={form}
               isSetFormValues={isSetFormValues}
+              promotionType={promotionType}
               setValueChangePromotion={setValueChangePromotion}
               setTypeSelectPromotion={setTypeSelectPromotion}
             />

@@ -790,7 +790,7 @@ const PromotionDetailScreen: React.FC = () => {
                     <Card title="Danh sách áp dụng">
                       <Space size={"large"} direction={"vertical"} style={{ width: "100%" }} />
                       <div className="discount-code-product">
-                        Chiết khấu
+                        Khuyến mãi
                         {data.rule?.value_type === DiscountUnitType.PERCENTAGE.value && (
                           <span className="discount-code-product-desc">{`${data.rule?.value}${DiscountUnitType.PERCENTAGE.label}`}</span>
                         )}
@@ -892,8 +892,15 @@ const PromotionDetailScreen: React.FC = () => {
                       <Space size={"large"} direction={"vertical"} style={{ width: "100%" }} />
                       {listProductByIssue.items.length === 0 ? (
                         <div className="discount-code-product">
-                          Chiết khấu
-                          <span className="discount-code-product-desc">{`${data.rule?.value}${DiscountUnitType.PERCENTAGE.label}`}</span>
+                          Khuyến mãi
+                          {data.rule?.value_type === DiscountUnitType.PERCENTAGE.value && (
+                            <span className="discount-code-product-desc">{`${data.rule?.value}${DiscountUnitType.PERCENTAGE.label}`}</span>
+                          )}
+                          {data.rule?.value_type === DiscountUnitType.FIXED_AMOUNT.value && (
+                            <span className="discount-code-product-desc">{`${formatCurrency(
+                              data.rule?.value,
+                            )}${DiscountUnitType.FIXED_AMOUNT.label}`}</span>
+                          )}
                           cho tất cả sản phẩm
                         </div>
                       ) : (
@@ -966,7 +973,7 @@ const PromotionDetailScreen: React.FC = () => {
                     <Card title="Điều kiện áp dụng">
                       <Space size={"large"} direction={"vertical"} style={{ width: "100%" }} />
                       <div className="discount-code-product">
-                        Chiết khấu
+                        Khuyến mãi
                         {data.rule?.value_type === DiscountUnitType.PERCENTAGE.value && (
                           <span className="discount-code-product-desc">{`${data.rule?.value}${DiscountUnitType.PERCENTAGE.label}`}</span>
                         )}
@@ -975,7 +982,7 @@ const PromotionDetailScreen: React.FC = () => {
                             data.rule?.value,
                           )}${DiscountUnitType.FIXED_AMOUNT.label}`}</span>
                         )}
-                        cho phẩm thỏa mãn{" "}
+                        cho sản phẩm thỏa mãn{" "}
                         <span className="discount-code-product-sub-desc">
                           tất cả các điều kiện sau
                         </span>
