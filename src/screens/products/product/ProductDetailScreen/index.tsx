@@ -54,7 +54,7 @@ import {
   convertLabelSelected,
   findAvatarProduct,
   getFirstProductAvatarByVariantResponse,
-  ProductDetailTabName
+  ProductDetailTabName,
 } from "screens/products/helper";
 import { showSuccess } from "utils/ToastUtils";
 import { RowDetail, ProductSteps, VariantList } from "../component";
@@ -504,7 +504,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
     if (data?.name) {
       setTitle(`${data?.name}`);
     }
-  }, [data?.name, setTitle])
+  }, [data?.name, setTitle]);
 
   return (
     <StyledComponent className="product-detail">
@@ -593,7 +593,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                     <Col span={24} md={12}>
                       <RowDetail title="Danh mục" value={data.category} />
                       <RowDetail title="Mã sản phẩm" value={data.code} />
-                      <RowDetail title="Thương hiệu" value={data.brand} />
+                      <RowDetail title="Thương hiệu" value={data.brand_name} />
                       <RowDetail title="Chất liệu" value={data.material} />
                     </Col>
                     <Col span={24} md={12}>
@@ -781,8 +781,8 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                                     value={
                                       currentVariant.suppliers
                                         ? currentVariant.suppliers
-                                          .map((e: SupplierResponse) => e.name)
-                                          .toString()
+                                            .map((e: SupplierResponse) => e.name)
+                                            .toString()
                                         : ""
                                     }
                                   />
@@ -874,7 +874,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                                               className={classNames(
                                                 "image-thumbnail",
                                                 currentVariant.variant_images?.length === 2 &&
-                                                "image-2",
+                                                  "image-2",
                                               )}
                                             >
                                               {currentVariant.variant_images?.map((item, index) => (
@@ -954,7 +954,10 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                           data={dataHistory}
                         />
                       </Tabs.TabPane>
-                      <Tabs.TabPane tab="Chương trình khuyến mãi" key={ProductDetailTabName.ADVERTISING_HISTORY}>
+                      <Tabs.TabPane
+                        tab="Chương trình khuyến mãi"
+                        key={ProductDetailTabName.ADVERTISING_HISTORY}
+                      >
                         <TabAdvertisingHistory
                           isLoadingAdvertisingHistory={isLoadingAdvertisingHistory}
                           onChange={changeDataAdvertisingHistory}

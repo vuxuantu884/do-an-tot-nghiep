@@ -1024,6 +1024,10 @@
     {
       "name": "ONOFF",
       "value": "onoff"
+    },
+    {
+      "name": "CỎ MỀM",
+      "value": "co_mem"
     }
   ],
   "date_unit": [
