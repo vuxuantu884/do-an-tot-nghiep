@@ -189,6 +189,7 @@ const TabProductWrapper: React.FC = () => {
     {
       title: "Nhà thiết kế",
       visible: false,
+      width: 100,
       key: "designer",
       render: (record: ProductWrapperResponse) => {
         return (
@@ -466,7 +467,7 @@ const TabProductWrapper: React.FC = () => {
           setColumn(data);
           onSaveConfigTableColumn(data);
         }}
-        data={defaultColumns}
+        data={columns}
       />
       <ModalDeleteConfirm
         onCancel={() => setIsConfirmDelete(false)}
