@@ -54,7 +54,7 @@ const flowImportDataDefault = {
   error: 0,
 };
 
-const ImportFileOrderProduct: React.FC<Props> = (props: Props) => {
+const ProductImportByExcel: React.FC<Props> = (props: Props) => {
   const { title, visible, onCancel, storeId, handleItems, items } = props;
   const [file, setFile] = useState<UploadFile | null>(null);
   const [fileDatas, setFileDatas] = useState<ImportFileProduct[]>([]);
@@ -344,4 +344,4 @@ const ImportFileOrderProduct: React.FC<Props> = (props: Props) => {
   );
 };
 
-export default ImportFileOrderProduct;
+export default ProductImportByExcel;
