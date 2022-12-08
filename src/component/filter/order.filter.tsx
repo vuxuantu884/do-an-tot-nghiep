@@ -22,7 +22,7 @@ import CustomFilter from "component/table/custom.filter";
 import TreeStore from "component/TreeStore";
 import UrlConfig from "config/url.config";
 import { getListChannelRequest } from "domain/actions/order/order.action";
-import useHandleFilterConfigs from "hook/useHandleFilterConfigs";
+import useHandleFilterConfigsVersion2 from "hook/useHandleFilterConfigsVersion2";
 import { isEqual } from "lodash";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
@@ -55,7 +55,7 @@ import TreeSource from "../treeSource";
 import BaseFilter from "./base.filter";
 import UserCustomFilterTag from "./UserCustomFilterTag";
 
-type PropTypes = {
+type Props = {
   params: OrderSearchQuery;
   actions: Array<MenuAction>;
   listSource: Array<SourceResponse>;
@@ -78,6 +78,8 @@ type PropTypes = {
   orderType: OrderTypeModel;
   initChannelCodes?: string[];
   channels?: ChannelResponse[];
+  userConfigs: FilterConfig[];
+  handleCountForceFetchUserConfigs: () => void;
 };
 
 type ListFilterTagTypes = {
@@ -100,7 +102,7 @@ const numberTagShorten = 2;
 
 var initialValueExchange = {};
 
-function OrdersFilter(props: PropTypes): JSX.Element {
+function OrdersFilter(props: Props): JSX.Element {
   const {
     params,
     actions,
@@ -121,6 +123,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     orderType,
     initChannelCodes,
     channels,
+    userConfigs,
+    handleCountForceFetchUserConfigs,
   } = props;
 
   const [visible, setVisible] = useState(false);
@@ -145,6 +149,13 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   const status = bootstrapReducer.data?.order_main_status.filter(
     (single) => single.value !== "splitted",
   );
+
+  const filterConfigType =
+    orderType === ORDER_TYPES.offline
+      ? FILTER_CONFIG_TYPE.orderOffline
+      : FILTER_CONFIG_TYPE.orderOnline;
+
+  const filterConfigs = userConfigs.filter((config) => config.type === filterConfigType);
 
   useEffect(() => {
     setSelectedSubStatusCodes(initSubStatus?.map((single) => single.code) || []);
@@ -295,11 +306,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     setIsShowModalSaveFilter(true);
   }, [formRef, services]);
 
-  const filterConfigType =
-    orderType === ORDER_TYPES.offline
-      ? FILTER_CONFIG_TYPE.orderOffline
-      : FILTER_CONFIG_TYPE.orderOnline;
-
   const onHandleFilterTagSuccessCallback = (res: BaseResponse<FilterConfig>) => {
     setTagActive(res.data.id);
   };
@@ -310,22 +316,18 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
   const [tagActive, setTagActive] = useState<number | null>();
 
-  const {
-    filterConfigs,
-    onSaveFilter,
-    configId,
-    setConfigId,
-    handleDeleteFilter,
-    onSelectFilterConfig,
-  } = useHandleFilterConfigs(
-    filterConfigType,
-    formRef,
-    {
-      ...formSearchValuesToSave,
-    },
-    setTagActive,
-    onHandleFilterTagSuccessCallback,
-  );
+  const { onSaveFilter, configId, setConfigId, handleDeleteFilter, onSelectFilterConfig } =
+    useHandleFilterConfigsVersion2(
+      userConfigs,
+      filterConfigType,
+      formRef,
+      handleCountForceFetchUserConfigs,
+      {
+        ...formSearchValuesToSave,
+      },
+      setTagActive,
+      onHandleFilterTagSuccessCallback,
+    );
 
   const onChangeOrderOptions = useCallback(
     (e) => {
@@ -2719,7 +2721,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
             <span>
               Bạn có chắc muốn xóa bộ lọc{" "}
               <strong>
-                "{filterConfigs.find((single) => single.id === configId)?.name || null}"
+                "{userConfigs.find((single) => single.id === configId)?.name || null}"
               </strong>
             </span>
           }

@@ -1,4 +1,4 @@
-import { Button, Col, Form, FormInstance, Input, Row, Select, Tag } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Tag } from "antd";
 import React from "react";
 
 import { FilterOutlined, SettingOutlined } from "@ant-design/icons";
@@ -12,11 +12,10 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import SearchProductComponent from "component/search-product";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
 import TreeSource from "component/treeSource";
 import UrlConfig from "config/url.config";
 import { getListChannelRequest } from "domain/actions/order/order.action";
-import useHandleFilterConfigs from "hook/useHandleFilterConfigs";
+import useHandleFilterConfigsVersion2 from "hook/useHandleFilterConfigsVersion2";
 import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { OrderTypeModel } from "model/order/order.model";
@@ -29,6 +28,7 @@ import { ChannelResponse } from "model/response/product/channel.response";
 import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
@@ -40,7 +40,7 @@ import BaseFilter from "./base.filter";
 import "./order.filter.scss";
 import UserCustomFilterTag from "./UserCustomFilterTag";
 
-type ReturnFilterProps = {
+type Props = {
   params: ReturnSearchQuery;
   actions: Array<MenuAction>;
   listSource: Array<SourceResponse>;
@@ -54,12 +54,14 @@ type ReturnFilterProps = {
   onClearFilter?: () => void;
   setListSource?: (values: SourceResponse[]) => void;
   orderType: OrderTypeModel;
+  userConfigs: FilterConfig[];
+  handleCountForceFetchUserConfigs: () => void;
 };
 
 const { Item } = Form;
 var initialValueExchange = {};
 
-const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
+function ReturnFilter(props: Props) {
   const {
     params,
     actions,
@@ -74,6 +76,8 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
     onShowColumnSetting,
     setListSource,
     orderType,
+    userConfigs,
+    handleCountForceFetchUserConfigs,
   } = props;
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
@@ -248,11 +252,6 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
     setTagActive(res.data.id);
   };
 
-  const filterConfigType =
-    orderType === ORDER_TYPES.offline
-      ? FILTER_CONFIG_TYPE.orderReturnOffline
-      : FILTER_CONFIG_TYPE.orderReturnOnline;
-
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
 
   const [formSearchValuesToSave, setFormSearchValuesToSave] = useState({});
@@ -261,22 +260,24 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
 
   const [tagActive, setTagActive] = useState<number | null>();
 
-  const {
-    filterConfigs,
-    onSaveFilter,
-    configId,
-    setConfigId,
-    handleDeleteFilter,
-    onSelectFilterConfig,
-  } = useHandleFilterConfigs(
-    filterConfigType,
-    formRef,
-    {
-      ...formSearchValuesToSave,
-    },
-    setTagActive,
-    onHandleFilterTagSuccessCallback,
-  );
+  const filterConfigType =
+    orderType === ORDER_TYPES.offline
+      ? FILTER_CONFIG_TYPE.orderReturnOffline
+      : FILTER_CONFIG_TYPE.orderReturnOnline;
+  const filterConfigs = userConfigs.filter((config) => config.type === filterConfigType);
+
+  const { onSaveFilter, configId, setConfigId, handleDeleteFilter, onSelectFilterConfig } =
+    useHandleFilterConfigsVersion2(
+      userConfigs,
+      filterConfigType,
+      formRef,
+      handleCountForceFetchUserConfigs,
+      {
+        ...formSearchValuesToSave,
+      },
+      setTagActive,
+      onHandleFilterTagSuccessCallback,
+    );
 
   const onMenuDeleteConfigFilter = () => {
     handleDeleteFilter(configId);
@@ -1139,6 +1140,6 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
       </div>
     </div>
   );
-};
+}
 
 export default ReturnFilter;
