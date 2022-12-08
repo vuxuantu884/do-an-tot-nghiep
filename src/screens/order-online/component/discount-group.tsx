@@ -12,7 +12,7 @@ import {
   getLineItemDiscountValue,
   replaceFormatString,
 } from "utils/AppUtils";
-import { MoneyType } from "utils/Constants";
+import { DISCOUNT_TYPE } from "utils/Constants";
 import { showError } from "utils/ToastUtils";
 
 type PropTypes = {
@@ -29,7 +29,7 @@ type PropTypes = {
 function DiscountGroup(props: PropTypes) {
   const { items, disabled = false } = props;
   const { Text } = Typography;
-  const [selected, setSelected] = useState(MoneyType.MONEY);
+  const [selected, setSelected] = useState(DISCOUNT_TYPE.MONEY);
   let showResult = true;
 
   const changeDiscountType = (value: string) => {
@@ -43,7 +43,7 @@ function DiscountGroup(props: PropTypes) {
         return;
       }
       if (v < 0) v = -v;
-      if (selected === MoneyType.PERCENT) {
+      if (selected === DISCOUNT_TYPE.PERCENT) {
         v = Math.round(v * 100) / 100;
       } else {
         v = Math.round(v);
@@ -66,7 +66,7 @@ function DiscountGroup(props: PropTypes) {
       }
       let _itemDiscount = _item.discount_items[0];
       let _price = _items[props.index].price;
-      if (selected === MoneyType.MONEY) {
+      if (selected === DISCOUNT_TYPE.MONEY) {
         if (_items[props.index].amount < v) {
           showError("Chiết khấu không lớn hơn giá sản phẩm!");
           v = _items[props.index].amount;
@@ -100,14 +100,14 @@ function DiscountGroup(props: PropTypes) {
     <div>
       <Input.Group compact>
         <Select onChange={(value: string) => changeDiscountType(value)} value={selected}>
-          <Select.Option value={MoneyType.PERCENT}>%</Select.Option>
-          <Select.Option value={MoneyType.MONEY}>₫</Select.Option>
+          <Select.Option value={DISCOUNT_TYPE.PERCENT}>%</Select.Option>
+          <Select.Option value={DISCOUNT_TYPE.MONEY}>₫</Select.Option>
         </Select>
         <OrderNumberInputCustom
           className="hide-number-handle "
           onChange={ChangeValueDiscount}
           format={(a: string) => {
-            if (selected === MoneyType.MONEY) {
+            if (selected === DISCOUNT_TYPE.MONEY) {
               return formatCurrency(a);
             } else {
               return formatPercentage(a);
@@ -121,14 +121,16 @@ function DiscountGroup(props: PropTypes) {
           }}
           min={0}
           max={
-            selected === MoneyType.PERCENT
+            selected === DISCOUNT_TYPE.PERCENT
               ? 100
               : props.items
               ? props.items[props.index].price * props.items[props.index].quantity
               : 0
           }
           value={
-            selected === MoneyType.PERCENT ? props.discountRate : Math.round(props.discountAmount)
+            selected === DISCOUNT_TYPE.PERCENT
+              ? props.discountRate
+              : Math.round(props.discountAmount)
           }
           onBlur={props.onBlur}
         />
@@ -136,7 +138,7 @@ function DiscountGroup(props: PropTypes) {
       {showResult && (
         <div className="d-flex justify-content-end yody-table-discount-converted">
           <Text type="danger">
-            {selected === MoneyType.MONEY
+            {selected === DISCOUNT_TYPE.MONEY
               ? formatPercentage(props.discountRate) + "%"
               : formatCurrency(props.discountAmount)}
           </Text>

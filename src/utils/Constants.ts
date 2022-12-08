@@ -74,7 +74,7 @@ export const FulFillmentReturnStatus = {
   RETURNED: "returned",
 };
 
-export const MoneyType = {
+export const DISCOUNT_TYPE = {
   MONEY: "money",
   PERCENT: "percent",
 };
