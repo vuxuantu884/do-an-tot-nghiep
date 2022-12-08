@@ -62,6 +62,7 @@ import {
   updateNoteOrderReturnService,
 } from "service/order/return.service";
 import EditNote from "../EditOrderNote";
+import giftIcon from "assets/icon/gift.svg";
 
 type PropTypes = {
   initQuery: ReturnSearchQuery;
@@ -702,6 +703,7 @@ function OrderReturnList(props: PropTypes) {
       title: "Ghi chú",
       className: "notes",
       render: (value: string, record: any) => {
+        const promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
         return (
           <div className="orderNotes">
             <div className="inner">
@@ -721,7 +723,6 @@ function OrderReturnList(props: PropTypes) {
               </div>
               <div className="single text-left">
                 <EditNote
-                  // note={record.note}
                   note={promotionUtils.getPrivateNoteFromResponse(record.note || "")}
                   title="Nội bộ: "
                   color={primaryColor}
@@ -732,9 +733,16 @@ function OrderReturnList(props: PropTypes) {
                     note: record.note,
                     customer_note: record.customer_note,
                   }}
-                  promotionText={promotionUtils.getPromotionTextFromResponse(record.note || "")}
                 />
               </div>
+              {promotionText ? (
+                <div className="single text-left">
+                  <span className="promotionText" title="Chương trình khuyến mại">
+                    <img src={giftIcon} alt="" className="iconGift" />
+                    {promotionText}.
+                  </span>
+                </div>
+              ) : null}
             </div>
           </div>
         );
