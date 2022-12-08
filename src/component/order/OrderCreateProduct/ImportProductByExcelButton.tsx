@@ -2,7 +2,7 @@ import { ImportOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useState } from "react";
-import ImportFileOrderProduct from "screens/order-online/component/ImportProduct";
+import ProductImportByExcel from "screens/order-online/component/ProductImportByExcel";
 
 type Props = {
   storeId?: number | null;
@@ -11,7 +11,7 @@ type Props = {
   disabled?: boolean;
 };
 
-const ButtonImportProduct: React.FC<Props> = (props: Props) => {
+const ImportProductByExcelButton: React.FC<Props> = (props: Props) => {
   const { storeId, items, handleItems, disabled } = props;
   const [visible, setVisible] = useState(false);
   return (
@@ -19,7 +19,7 @@ const ButtonImportProduct: React.FC<Props> = (props: Props) => {
       <Button onClick={() => setVisible(true)} icon={<ImportOutlined />} disabled={disabled}>
         Nhập File
       </Button>
-      <ImportFileOrderProduct
+      <ProductImportByExcel
         title="Nhập file sản phẩm"
         visible={visible && !disabled}
         setVisible={setVisible}
@@ -32,4 +32,4 @@ const ButtonImportProduct: React.FC<Props> = (props: Props) => {
   );
 };
 
-export default ButtonImportProduct;
+export default ImportProductByExcelButton;

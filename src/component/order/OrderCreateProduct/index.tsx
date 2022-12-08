@@ -111,7 +111,7 @@ import {
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import { checkIfEcommerceByOrderChannelCode } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import ButtonImportProduct from "./ButtonImportProduct";
+import ImportProductByExcelButton from "./ImportProductByExcelButton";
 import CardProductBottom from "./CardProductBottom";
 import { StyledComponent } from "./styles";
 
@@ -2335,7 +2335,7 @@ function OrderCreateProduct(props: PropTypes) {
                 Chiết khấu tự động
               </Checkbox>
             </Form.Item>
-            <ButtonImportProduct
+            <ImportProductByExcelButton
               disabled={props.isPageOrderUpdate}
               storeId={storeId}
               items={items}
