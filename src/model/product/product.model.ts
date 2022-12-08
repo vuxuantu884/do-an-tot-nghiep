@@ -3,10 +3,9 @@ import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
 import { CollectionResponse } from "./collection.model";
 
-export interface ProductCollectionsResponse {
-  id: number;
-  collection: string;
-  product_id: number;
+export interface ProductParams {
+  id: string;
+  variantId: string;
 }
 
 export interface VariantImage {
@@ -130,6 +129,7 @@ export interface ProductWrapperUpdateRequest {
   specifications: string | null;
   variants: Array<VariantResponse>;
 }
+
 export interface VariantResponse extends BaseObject {
   amount: number;
   name: string;
@@ -181,34 +181,9 @@ export interface VariantResponse extends BaseObject {
   suppliers?: Array<SupplierResponse> | null;
 }
 
-export interface VariantView extends BaseObject {
-  name: string;
-  inventory: number;
-  category: string;
-  supplier_id: number;
-  supplier: string;
-  color_id: number;
-  color: string;
-  size_id: number;
-  size: string;
-  barcode: string;
-  taxable: boolean;
-  saleable: boolean;
-  sku: string;
-  status: string;
-  status_name: string;
-  composite: boolean;
-  width: number | null;
-  length: number | null;
-  height: number | null;
-  weight: number;
-  weight_unit: string;
-  length_unit: string;
-  composites: string;
-  product_id: string;
-  product: ProductResponse;
-  variant_prices: Array<VariantPriceViewRequest>;
-  variant_images: Array<VariantImage>;
+export interface VariantBarcodeLineItem extends VariantResponse {
+  quantity_req: number | null;
+  image_url?: string;
 }
 
 export interface VariantSearchQuery extends BaseQuery {
@@ -430,30 +405,6 @@ export interface ProductUpdateView {
   specifications: string;
   material_id: number;
   collections: Array<string>;
-}
-
-export interface VariantUpdateView {
-  id: number | null;
-  status: string;
-  name: string;
-  color_id: number | null;
-  size_id: number | null;
-  barcode: string | null;
-  taxable: boolean | null;
-  saleable: boolean | null;
-  deleted: boolean;
-  sku: string;
-  width: number | null;
-  height: number | null;
-  length: number | null;
-  length_unit: string | null;
-  weight: number;
-  weight_unit: string | null;
-  variant_prices: Array<VariantPriceViewRequest>;
-  variant_image: Array<VariantImage> | null;
-  product: ProductUpdateView;
-  product_id: number | null;
-  supplier_ids: Array<number> | null;
 }
 
 export interface ProductHistoryResponse extends BaseObject {

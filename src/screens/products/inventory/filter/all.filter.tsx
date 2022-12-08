@@ -37,7 +37,7 @@ import { CategoryResponse, CategoryView } from "model/product/category.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { convertCategory, formatCurrencyForProduct } from "utils/AppUtils";
+import { convertCategory, formatCurrencyForProduct } from "screens/products/helper";
 import { FILTER_CONFIG_TYPE } from "utils/Constants";
 import { primaryColor } from "utils/global-styles/variables";
 import { showSuccess } from "utils/ToastUtils";
@@ -315,7 +315,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
       lstCollection,
     }: any) => {
       let filtersKeys = Object.keys(filters);
-      let renderTxt: any = null;
+      let renderTxt: string;
 
       return (
         <div style={{ wordBreak: "break-word" }}>

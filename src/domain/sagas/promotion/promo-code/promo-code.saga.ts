@@ -1,3 +1,4 @@
+import { getPriceRuleVariantExcludeApi } from "./../../../../service/promotion/promo-code/promo-code.service";
 import {
   checkPromoCode,
   addPromoCode,
@@ -14,7 +15,8 @@ import {
   enablePromotionReleaseService,
   disablePromotionReleaseService,
   createPromotionReleaseService,
-  getPromotionReleaseDetailService, updatePromotionReleaseService,
+  getPromotionReleaseDetailService,
+  updatePromotionReleaseService,
 } from "../../../../service/promotion/promo-code/promo-code.service";
 import { YodyAction } from "../../../../base/base.action";
 import BaseResponse from "../../../../base/base.response";
@@ -319,6 +321,17 @@ function* disableBulkPromoCodeAct(action: YodyAction) {
   }
 }
 
+function* getPriceRuleVariantExcludePaggingAction(action: YodyAction) {
+  const { id, params, onResult } = action.payload;
+  yield callApiSaga(
+    { isShowError: true, jobName: "đọc danh sách sản phẩm khuyến mại" },
+    onResult,
+    getPriceRuleVariantExcludeApi,
+    id,
+    params,
+  );
+}
+
 export function* promoCodeSaga() {
   yield all([
     takeLatest(PromoCodeType.CREATE_PROMOTION_RELEASE, createPromotionReleaseSaga),
@@ -338,5 +351,7 @@ export function* promoCodeSaga() {
     takeLatest(PromoCodeType.PUBLISHED_PROMO_CODE_BULK, publishedBulkPromoCodeAct),
     takeLatest(PromoCodeType.ENABLE_PROMO_CODE_BULK, enableBulkPromoCodeAct),
     takeLatest(PromoCodeType.DISABLE_PROMO_CODE_BULK, disableBulkPromoCodeAct),
+    takeLatest(PromoCodeType.DISABLE_PROMO_CODE_BULK, disableBulkPromoCodeAct),
+    takeLatest(PromoCodeType.GET_PRODUCT_QUANTITY_EXCLUDE, getPriceRuleVariantExcludePaggingAction),
   ]);
 }

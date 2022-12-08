@@ -21,7 +21,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
-import { OFFSET_HEADER_TABLE, POStatus, STATUS_IMPORT_EXPORT } from "utils/Constants";
+import {
+  OFFSET_HEADER_TABLE,
+  POStatus,
+  STATUS_IMPORT_EXPORT,
+} from "utils/Constants";
 import {
   ConvertDateToUtc,
   ConvertUtcToLocalDate,
@@ -52,7 +56,6 @@ import { AccountResponse } from "model/account/account.model";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { MenuAction } from "component/table/ActionButton";
 import useAuthorization from "hook/useAuthorization";
-import { Modal, Row } from "antd";
 import { printMultipleProcurementApi } from "service/purchase-order/purchase-order.service";
 import { useReactToPrint } from "react-to-print";
 import purify from "dompurify";
@@ -67,6 +70,7 @@ import {
   ProcurementStatusName,
   EnumTypeExport,
 } from "screens/procurement/helper";
+import YDConfirmModal, { YDConfirmHandle } from "component/modal/YDConfirmModal";
 
 const ProcumentConfirmModal = lazy(
   () => import("screens/purchase-order/modal/procument-confirm.modal"),
@@ -102,7 +106,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
   const [selected, setSelected] = useState<Array<PurchaseProcument>>([]);
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [statusExport, setStatusExport] = useState<number>(0);
-  const [isShowPrintConfirm, setIsShowPrintConfirm] = useState<boolean>(false);
   const [printContent, setPrintContent] = useState<string>("");
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [exportError, setExportError] = useState<string>("");
@@ -119,6 +122,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
   const [purchaseOrderItem, setPurchaseOrderItem] = useState<PurchaseOrder>({} as PurchaseOrder);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const printElementRef = useRef(null);
+  const refModal = useRef<YDConfirmHandle>(null);
 
   const currentPermissions: string[] = useSelector(
     (state: RootReducerType) => state.permissionReducer.permissions,
@@ -868,11 +872,17 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     }
     switch (index) {
       case EnumActionIndex.PRINT_PROCUREMENTS:
-        setIsShowPrintConfirm(true);
+        refModal.current?.openModal();
         break;
       default:
         break;
     }
+  };
+
+  const confirmPrint = () => {
+    refModal.current?.closeModal();
+    const ids = selected.map((item: PurchaseProcument) => item.id).join(",");
+    onPrint(ids);
   };
 
   return (
@@ -1000,35 +1010,12 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
             />
           )
         } */}
-        <Modal
-          width={500}
-          centered
-          visible={isShowPrintConfirm}
-          onCancel={() => setIsShowPrintConfirm(false)}
-          onOk={() => {
-            setIsShowPrintConfirm(false);
-            const ids = selected.map((item: PurchaseProcument) => item.id).join(",");
-            onPrint(ids);
-          }}
-          cancelText={`Hủy`}
-          okText={`Đồng ý`}
-        >
-          <Row align="top">
-            <PrinterOutlined
-              style={{
-                fontSize: 40,
-                background: "#2A2A86",
-                color: "white",
-                borderRadius: "50%",
-                padding: 10,
-                marginRight: 10,
-              }}
-            />
-            <strong className="margin-top-10">
-              Bạn có muốn in {selected.length} phiếu nhập kho đã chọn ?
-            </strong>
-          </Row>
-        </Modal>
+        <YDConfirmModal
+          description={`Bạn có muốn in ${selected.length} phiếu nhập kho đã chọn ?`}
+          ref={refModal}
+          onOk={confirmPrint}
+          onCancel={() => refModal.current?.closeModal()}
+        />
         <ProcurementExport
           onCancel={actionExport.Cancel}
           onOk={actionExport.Ok}

@@ -1160,6 +1160,8 @@ const OrderDuplicate: React.FC = () => {
             initSubStatus={listOrderProcessingStatus}
             isHideTab={true}
             orderType={ORDER_TYPES.online}
+            userConfigs={[]}
+            handleCountForceFetchUserConfigs={() => {}}
           />
           <CustomTable
             isRowSelection

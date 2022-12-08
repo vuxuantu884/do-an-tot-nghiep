@@ -282,7 +282,7 @@
       "value": "active"
     },
     {
-      "name": "Dừng hoạt động",
+      "name": "Ngừng hoạt động",
       "value": "inactive"
     }
   ],
@@ -1024,6 +1024,10 @@
     {
       "name": "ONOFF",
       "value": "onoff"
+    },
+    {
+      "name": "CỎ MỀM",
+      "value": "co_mem"
     }
   ],
   "date_unit": [

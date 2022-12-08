@@ -1,6 +1,6 @@
 import { EditOutlined } from "@ant-design/icons";
 import { Button, Input, Popover } from "antd";
-import { useState } from "react";
+import React, { useState } from "react";
 
 type EditPopoverProps = {
   content: any;

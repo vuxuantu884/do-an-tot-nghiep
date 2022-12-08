@@ -4,7 +4,7 @@ import HashTag from "component/custom/hashtag";
 import { POField } from "model/purchase-order/po-field";
 import React, { useContext, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { PurchaseOrderCreateContext } from "../provider/purchase-order.provider";
 
 type POInfoFormProps = {

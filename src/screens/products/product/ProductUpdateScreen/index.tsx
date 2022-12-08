@@ -50,36 +50,45 @@ import {
   VariantImage,
   VariantRequest,
   VariantResponse,
+  ProductParams
 } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import {
-  formatCurrencyForProduct,
-  Products,
   replaceFormatString,
   scrollAndFocusToDomElement,
   capitalEachWords,
-  convertVariantPrices,
 } from "utils/AppUtils";
-import { handleChangeMaterial } from "utils/ProductUtils";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import ModalConfirmPrice from "../component/ModalConfirmPrice";
-import ModalPickAvatar from "../component/ModalPickAvatar";
-import ModalUpdatePrice from "../component/ModalUpdatePrice";
-import VariantList from "../component/VariantList";
-import { ProductParams } from "../ProductDetailScreen";
-import AddVariantsModal from "./add-variants-modal";
+import {
+  formatCurrencyForProduct,
+  convertAvatarToFileList,
+  convertVariantPrices,
+  handleChangeMaterial,
+  backAction,
+  convertLabelSelected,
+  beforeUploadImage
+} from "screens/products/helper";
+import {
+  showError,
+  showSuccess
+} from "utils/ToastUtils";
+import {
+  ModalConfirmPrice,
+  ModalPickAvatar,
+  ModalUpdatePrice,
+  VariantList,
+  ModalUploadImages,
+  TreeCategory
+} from "../component";
+import AddVariantsModal from "./AddVariantsModal";
 import { StyledComponent } from "./styles";
-import _, { debounce } from "lodash";
-import ModalUploadImages from "../component/ModalUploadImages";
-import TreeCategory from "../component/TreeCategory";
+import { debounce, cloneDeep } from "lodash";
 import SupplierSearchSelect from "component/custom/select-search/supplier-select";
 import { callApiNative } from "utils/ApiUtils";
 import { productUpdateApi } from "service/product/product.service";
-import { careInformation } from "screens/products/Component/CareInformation/care-value";
-import CareModal from "screens/products/Component/CareInformation";
+import CareModal from "screens/products/component/CareInformation"
 
 const { Item } = Form;
 let tempActive: number = 0;
@@ -115,8 +124,8 @@ const ProductDetailScreen: React.FC = () => {
   const productStatusList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.product_status,
   );
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<ProductResponse | null>(null);
   const [listCategory, setListCategory] = useState<Array<CategoryResponse>>([]);
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
@@ -124,16 +133,16 @@ const ProductDetailScreen: React.FC = () => {
   const [status, setStatus] = useState<string>("inactive");
   const [active, setActive] = useState<number>(tempActive);
   const [isChange, setChange] = useState<boolean>(false);
-  const [loadingButton, setLoadingButton] = useState<boolean>(false);
-  const [isChangePrice, setChangePrice] = useState<boolean>(false);
-  const [visiblePickAvatar, setVisiblePickAvatar] = useState<boolean>(false);
+  const [isLoadingButton, setIsLoadingButton] = useState<boolean>(false);
+  const [isChangePrice, setIsChangePrice] = useState<boolean>(false);
+  const [isVisiblePickAvatar, setIsVisiblePickAvatar] = useState<boolean>(false);
   const [variantImages, setVariantImage] = useState<Array<VariantImage>>([]);
-  const [loadingVariant, setLoadingVariant] = useState(false);
-  const [visiblePrice, setVisiblePrice] = useState(false);
-  const [visibleUpdatePrice, setVisibleUpdatePrice] = useState(false);
+  const [isLoadingVariant, setIsLoadingVariant] = useState(false);
+  const [isVisiblePrice, setIsVisiblePrice] = useState(false);
+  const [isVisibleUpdatePrice, setIsVisibleUpdatePrice] = useState(false);
   const [currentVariants, setCurrentVariants] = useState<Array<VariantResponse>>([]);
   const [dataOrigin, setDataOrigin] = useState<ProductRequest | null>(null);
-  const [showCareModal, setShowCareModal] = useState(false);
+  const [isShowCareModal, setIsShowCareModal] = useState(false);
   const [isChangeDescription, setIsChangeDescription] = useState(true);
   const [collections, setCollections] = useState<PageResponse<CollectionResponse>>({
     items: [],
@@ -158,8 +167,8 @@ const ProductDetailScreen: React.FC = () => {
     (newActive: number) => {
       setActive(newActive);
       setChange(false);
-      let variants: Array<VariantResponse> = form.getFieldValue("variants");
-      let fieldList = Products.convertAvatarToFileList(variants[newActive]?.variant_images ?? []);
+      const variants: Array<VariantResponse> = form.getFieldValue("variants");
+      const fieldList = convertAvatarToFileList(variants[newActive]?.variant_images ?? []);
       setFieldList(fieldList);
     },
     [form],
@@ -169,13 +178,13 @@ const ProductDetailScreen: React.FC = () => {
     setListCategory(arr);
   }, []);
 
-  const onPickAvatar = useCallback(() => {
-    let variants: Array<VariantResponse> = form.getFieldValue("variants");
+  const pickAvatar = useCallback(() => {
+    const variants: Array<VariantResponse> = form.getFieldValue("variants");
     let variantImages: Array<VariantImage> = [];
     variants.forEach((item) => {
       if (item.saleable) variantImages = [...variantImages, ...item.variant_images];
     });
-    setVisiblePickAvatar(true);
+    setIsVisiblePickAvatar(true);
     setVariantImage(variantImages);
   }, [form]);
 
@@ -222,7 +231,7 @@ const ProductDetailScreen: React.FC = () => {
     if (!productStatusList) {
       return "";
     }
-    let index = productStatusList?.findIndex((item) => item.value === status);
+    const index = productStatusList?.findIndex((item) => item.value === status);
     if (index !== -1) {
       return productStatusList?.[index].name;
     }
@@ -234,58 +243,17 @@ const ProductDetailScreen: React.FC = () => {
 
   useEffect(() => {
     const newSelected = careLabelsString ? careLabelsString.split(";") : [];
-    let careLabels: any[] = [];
-    newSelected.forEach((value: string) => {
-      careInformation.washing.forEach((item: any) => {
-        if (value === item.value) {
-          careLabels.push({
-            ...item,
-            active: true,
-          });
-        }
-      });
 
-      careInformation.beleaching.forEach((item: any) => {
-        if (value === item.value) {
-          careLabels.push({
-            ...item,
-            active: true,
-          });
-        }
-      });
-      careInformation.ironing.forEach((item: any) => {
-        if (value === item.value) {
-          careLabels.push({
-            ...item,
-            active: true,
-          });
-        }
-      });
-      careInformation.drying.forEach((item: any) => {
-        if (value === item.value) {
-          careLabels.push({
-            ...item,
-            active: true,
-          });
-        }
-      });
-      careInformation.professionalCare.forEach((item: any) => {
-        if (value === item.value) {
-          careLabels.push({
-            ...item,
-            active: true,
-          });
-        }
-      });
-    });
+    const careLabels = convertLabelSelected(newSelected);
+
     setCareLabels(careLabels);
   }, [careLabelsString]);
 
-  const onChange = useCallback(() => {
+  const handleInputChange = useCallback(() => {
     setChange(true);
   }, []);
 
-  const onChangeProductName = useCallback(
+  const changeProductName = useCallback(
     (e) => {
       let newName = e.target.value;
       newName = capitalEachWords(newName);
@@ -296,7 +264,7 @@ const ProductDetailScreen: React.FC = () => {
       for (let i = 0; i < newData.variants.length; i++) {
         if (
           newData.variants[i].name.slice(0, newData.variants[i].name.indexOf("-")).trim() ===
-            newData.name.trim() ||
+          newData.name.trim() ||
           newData.variants[i].sku.indexOf("-MAU") !== -1 ||
           newData.variants[i].sku === newData.code
         ) {
@@ -334,11 +302,11 @@ const ProductDetailScreen: React.FC = () => {
     [data, form],
   );
 
-  const onChangePrice = () => {
-    setChangePrice(true);
+  const changePrice = () => {
+    setIsChangePrice(true);
   };
 
-  const update = useCallback(
+  const updateInfo = useCallback(
     (product: any) => {
       if (product.collections) {
         product.collections = product.collections.map((e: CollectionCreateRequest) => e.code);
@@ -350,14 +318,14 @@ const ProductDetailScreen: React.FC = () => {
         }
       });
 
-      setLoadingVariant(true);
+      setIsLoadingVariant(true);
       callApiNative({ isShowLoading: false }, dispatch, productUpdateApi, idNumber, product).then(
         (data) => {
           if (!data) {
           } else {
             form.setFieldsValue(data);
             setChange(false);
-            setChangePrice(false);
+            setIsChangePrice(false);
             showSuccess("Cập nhật thông tin sản phẩm thành công");
             if (tempActive !== active) {
               setCurrentVariant(tempActive);
@@ -365,31 +333,31 @@ const ProductDetailScreen: React.FC = () => {
           }
         },
       );
-      setLoadingVariant(false);
-      setLoadingButton(false);
+      setIsLoadingVariant(false);
+      setIsLoadingButton(false);
     },
     [active, dispatch, form, idNumber, setCurrentVariant],
   );
 
-  const onUpdatePrice = useCallback(
-    async (listSelected: Array<number>) => {
-      setVisibleUpdatePrice(false);
+  const updatePrice = useCallback(
+    async () => {
+      setIsVisibleUpdatePrice(false);
       let values: ProductResponse = form.getFieldsValue(true);
       if (values) {
-        let variantRequest: Array<VariantResponse> = [
+        const variantRequest: Array<VariantResponse> = [
           ...convertVariantPrices(values.variants, values.variants[active]),
         ];
         values = { ...values, variants: variantRequest };
-        await update(values);
+        await updateInfo(values);
         history.push(`/products/${idNumber}`);
       }
     },
-    [active, form, update, history, idNumber],
+    [active, form, updateInfo, history, idNumber],
   );
 
   const updateStatus = useCallback(
     (listSelected: Array<number>, status) => {
-      let values: ProductResponse = form.getFieldsValue(true);
+      const values: ProductResponse = form.getFieldsValue(true);
       values?.variants.forEach((item) => {
         if (listSelected.includes(item.id)) {
           item.saleable = status;
@@ -401,7 +369,7 @@ const ProductDetailScreen: React.FC = () => {
     [form],
   );
 
-  const onMaterialChange = useCallback(
+  const changeMaterial = useCallback(
     (id: number) => {
       let careLabels = null;
       if (isChangeDescription && id) {
@@ -425,7 +393,7 @@ const ProductDetailScreen: React.FC = () => {
     [dispatch, form, isChangeDescription],
   );
 
-  const onAllowSale = useCallback(
+  const allowSale = useCallback(
     (listSelected: Array<number>) => {
       setModalConfirm({
         visible: true,
@@ -446,7 +414,7 @@ const ProductDetailScreen: React.FC = () => {
     [updateStatus, getFirstAvatar],
   );
 
-  const onStopSale = useCallback(
+  const stopSale = useCallback(
     (listSelected: Array<number>) => {
       setModalConfirm({
         visible: true,
@@ -467,42 +435,30 @@ const ProductDetailScreen: React.FC = () => {
     [updateStatus, getFirstAvatar],
   );
 
-  const onSaveImage = useCallback(
+  const saveImage = useCallback(
     (imageId: number | undefined, isReload: boolean = false) => {
-      let variants: Array<VariantResponse> = form.getFieldValue("variants");
+      const variants: Array<VariantResponse> = form.getFieldValue("variants");
       variants.forEach((item) => {
         item.variant_images = item.variant_images === null ? [] : item.variant_images;
-        item.variant_images.forEach((item1) => {
-          if (item1.id === imageId) {
-            item1.product_avatar = true;
-          } else {
-            item1.product_avatar = false;
-          }
+        item.variant_images.forEach((variantImage) => {
+          variantImage.product_avatar = variantImage.id === imageId;
         });
       });
       form.setFieldsValue({ variants: [...variants] });
-      setVisiblePickAvatar(false);
+      setIsVisiblePickAvatar(false);
       if (isReload) history.push(`${UrlConfig.PRODUCT}/${idNumber}`);
     },
     [form, history, idNumber],
   );
 
-  const beforeUpload = useCallback((file: RcFile) => {
-    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
-    if (!isJpgOrPng) {
-      showWarning("Vui lòng chọn đúng định dạng file JPG, PNG");
-    }
-    const isLt2M = file.size / 1024 / 1024 < 5;
-    if (!isLt2M) {
-      showWarning("Cần chọn ảnh nhỏ hơn 5mb");
-    }
-    return isJpgOrPng && isLt2M ? true : Upload.LIST_IGNORE;
+  const handleBeforeUpload = useCallback((file: RcFile) => {
+    beforeUploadImage(file, 5);
   }, []);
 
-  const onRemoveFile = useCallback(
+  const removeFile = useCallback(
     (file, active) => {
-      let variants: Array<VariantResponse> = form.getFieldValue("variants");
-      let index = variants[active].variant_images?.findIndex(
+      const variants: Array<VariantResponse> = form.getFieldValue("variants");
+      const index = variants[active].variant_images?.findIndex(
         (variantImg) => variantImg.image_id.toString() === file.uid,
       );
       if (index !== -1) {
@@ -518,19 +474,19 @@ const ProductDetailScreen: React.FC = () => {
     [form, getFirstAvatar],
   );
 
-  const onAddFile = useCallback((info) => {
+  const changeFileList = useCallback((info) => {
     setFieldList(info.fileList);
   }, []);
 
   const customRequest = useCallback(
     (options, active) => {
-      let files: Array<File> = [];
+      const files: Array<File> = [];
       if (options.file instanceof File) {
-        let uuid = options.file.uid;
+        const uuid = options.file.uid;
         files.push(options.file);
         dispatch(
           productUploadAction(files, "variant", (data: false | Array<ProductUploadModel>) => {
-            let index = fieldList.findIndex((item) => item.uid === uuid);
+            const index = fieldList.findIndex((item) => item.uid === uuid);
             if (!!data) {
               if (index !== -1) {
                 let variants: Array<VariantResponse> = form.getFieldValue("variants");
@@ -551,7 +507,7 @@ const ProductDetailScreen: React.FC = () => {
                   position: null,
                 });
                 variants[active].variant_images = [...variants[active].variant_images];
-                let newVariants = [...variants];
+                const newVariants = [...variants];
                 form.setFieldsValue({ variants: newVariants });
                 fieldList[index].status = "done";
                 fieldList[index].url = data[0].path;
@@ -570,9 +526,9 @@ const ProductDetailScreen: React.FC = () => {
     [dispatch, fieldList, form, getFirstAvatar],
   );
 
-  const onSave = useCallback(() => {
+  const validateProduct = useCallback(() => {
     if (isChangePrice) {
-      setVisiblePrice(true);
+      setIsVisiblePrice(true);
     } else {
       form
         .validateFields()
@@ -586,45 +542,26 @@ const ProductDetailScreen: React.FC = () => {
     }
   }, [form, isChangePrice]);
 
-  const onOkPrice = useCallback(
+  const confirmChangePrice = useCallback(
     (isOnly) => {
-      setVisiblePrice(false);
+      setIsVisiblePrice(false);
       if (isOnly) {
         form.submit();
       } else {
-        let variants = form.getFieldValue("variants");
+        const variants = form.getFieldValue("variants");
         setCurrentVariants(variants);
-        setVisibleUpdatePrice(true);
+        setIsVisibleUpdatePrice(true);
       }
     },
     [form],
   );
   const productDetailRef = useRef<ProductResponse>();
 
-  const backAction = () => {
-    if (JSON.stringify(form.getFieldsValue()) !== JSON.stringify(dataOrigin)) {
-      setModalConfirm({
-        visible: true,
-        onCancel: () => {
-          setModalConfirm({ visible: false });
-        },
-        onOk: () => {
-          setModalConfirm({ visible: false });
-          history.goBack();
-        },
-        title: "Bạn có muốn quay lại?",
-        subTitle: "Sau khi quay lại thay đổi sẽ không được lưu.",
-      });
-    } else {
-      history.goBack();
-    }
-  };
-
   const resetProductDetail = useCallback(() => {
-    setChangePrice(false);
+    setIsChangePrice(false);
     if (productDetailRef.current && typeof active === "number") {
       form.setFieldsValue(productDetailRef.current);
-      let fieldList = Products.convertAvatarToFileList(
+      const fieldList = convertAvatarToFileList(
         productDetailRef.current.variants[active]?.variant_images,
       );
       setFieldList(fieldList);
@@ -651,9 +588,9 @@ const ProductDetailScreen: React.FC = () => {
     }
   }, [form, dataOrigin, resetProductDetail]);
 
-  const onActive = useCallback(
+  const activeProduct = useCallback(
     (activeRow: number) => {
-      let variants = form.getFieldValue("variants");
+      const variants = form.getFieldValue("variants");
       if (activeRow !== active) {
         //change url when select variant
         if (variants[activeRow]?.id) {
@@ -670,18 +607,18 @@ const ProductDetailScreen: React.FC = () => {
             },
             onCancel: () => {
               resetOnClick();
-              let variants: Array<VariantResponse> = form.getFieldValue("variants");
+              const variants: Array<VariantResponse> = form.getFieldValue("variants");
               if (variants[active].id) {
                 setModalConfirm({ visible: false });
                 setCurrentVariant(activeRow);
               } else {
                 setModalConfirm({ visible: false });
-                let idActive = variants[activeRow].id;
+                const idActive = variants[activeRow].id;
                 variants.splice(active, 1);
-                let index = variants.findIndex((item) => item.id === idActive);
+                const index = variants.findIndex((item) => item.id === idActive);
                 form.setFieldsValue({ variants: variants });
                 setActive(index);
-                let fieldList = Products.convertAvatarToFileList(variants[index].variant_images);
+                const fieldList = convertAvatarToFileList(variants[index].variant_images);
                 setChange(false);
                 setFieldList(fieldList);
               }
@@ -693,7 +630,7 @@ const ProductDetailScreen: React.FC = () => {
         } else if (isChangePrice && variants.length > 1) {
           tempActive = activeRow;
 
-          setVisiblePrice(true);
+          setIsVisiblePrice(true);
         } else {
           setCurrentVariant(activeRow);
         }
@@ -701,11 +638,12 @@ const ProductDetailScreen: React.FC = () => {
     },
     [form, active, isChange, isChangePrice, history, id, resetOnClick, setCurrentVariant],
   );
+
   const onResult = useCallback(
     (result: ProductResponse | false) => {
-      setLoading(false);
+      setIsLoading(false);
       if (!result) {
-        setError(true);
+        setIsError(true);
       } else {
         result.product_collections = result.collections?.map((e) => {
           return e.code;
@@ -737,13 +675,13 @@ const ProductDetailScreen: React.FC = () => {
    * Thêm sản phẩm
    */
   const handleSubmitAddVariant = (values: any) => {
-    onFinish(values);
+    updateProduct(values);
   };
 
   /**
    * Focus vào sản phẩm vừa thêm từ modal
    */
-  const focusLastestVariant = () => {
+  const focusFinalVariant = () => {
     setChange(true);
     const variants = form.getFieldValue("variants");
     if (Array.isArray(variants) && variants.length > 0) {
@@ -763,7 +701,7 @@ const ProductDetailScreen: React.FC = () => {
 
   useEffect(() => {
     if (data) {
-      let fieldList = Products.convertAvatarToFileList(data.variants[active]?.variant_images ?? []);
+      const fieldList = convertAvatarToFileList(data.variants[active]?.variant_images ?? []);
       setFieldList(fieldList);
     }
   }, [data, active]);
@@ -787,11 +725,11 @@ const ProductDetailScreen: React.FC = () => {
     [dispatch, setCollections],
   );
 
-  const onChangeImportPrice = useCallback(
+  const changeImportPrice = useCallback(
     (e: any) => {
-      setChangePrice(true);
+      setIsChangePrice(true);
 
-      let variants = form.getFieldValue("variants");
+      const variants = form.getFieldValue("variants");
       if (!variants) return;
       if (!dataOrigin || !dataOrigin.variants) return;
       const costPrice = dataOrigin.variants.find(
@@ -814,10 +752,10 @@ const ProductDetailScreen: React.FC = () => {
     getCollections("", 1);
   }, [getCollections]);
 
-  const onFinish = useCallback(
+  const updateProduct = useCallback(
     async (values: ProductRequest) => {
-      setLoadingButton(true);
-      let request: ProductRequest = _.cloneDeep(values);
+      setIsLoadingButton(true);
+      const request: ProductRequest = cloneDeep(values);
       request.variants?.forEach((e: VariantRequest) => {
         if (e.saleable) e.status = "active"; //CO-3415
         e.suppliers = null;
@@ -834,8 +772,8 @@ const ProductDetailScreen: React.FC = () => {
         idNumber,
         request,
       );
-      setLoadingVariant(false);
-      setLoadingButton(false);
+      setIsLoadingVariant(false);
+      setIsLoadingButton(false);
 
       if (res) {
         showSuccess("Cập nhật thành công");
@@ -850,8 +788,8 @@ const ProductDetailScreen: React.FC = () => {
   return (
     <StyledComponent>
       <ContentContainer
-        isError={error}
-        isLoading={loading}
+        isError={isError}
+        isLoading={isLoading}
         title="Sửa thông tin sản phẩm"
         breadcrumb={[
           {
@@ -876,7 +814,7 @@ const ProductDetailScreen: React.FC = () => {
               const element: any = document.getElementById(errorFields[0].name.join(""));
               scrollAndFocusToDomElement(element);
             }}
-            onFinish={onFinish}
+            onFinish={updateProduct}
           >
             <Item hidden noStyle name="id">
               <Input />
@@ -1035,7 +973,7 @@ const ProductDetailScreen: React.FC = () => {
                             label="Tên sản phẩm"
                           >
                             <Input
-                              onChange={debounce(onChangeProductName, 500)}
+                              onChange={debounce(changeProductName, 500)}
                               maxLength={255}
                               placeholder="Nhập tên sản phẩm"
                             />
@@ -1085,7 +1023,7 @@ const ProductDetailScreen: React.FC = () => {
                               showSearch
                               optionFilterProp="children"
                               placeholder="Chọn chất liệu"
-                              onChange={onMaterialChange}
+                              onChange={changeMaterial}
                               allowClear
                             >
                               {listMaterial?.map((item) => (
@@ -1146,7 +1084,7 @@ const ProductDetailScreen: React.FC = () => {
                                   <PlusOutlined />
                                 )
                               }
-                              onClick={() => setShowCareModal(true)}
+                              onClick={() => setIsShowCareModal(true)}
                             />
                           </Item>
                         </Col>
@@ -1224,14 +1162,14 @@ const ProductDetailScreen: React.FC = () => {
                             });
                             if (url !== null) {
                               return (
-                                <div onClick={onPickAvatar} className="bpa">
+                                <div onClick={pickAvatar} className="bpa">
                                   <Image preview={false} src={url} className="product-img" />
                                 </div>
                               );
                             }
 
                             return (
-                              <div onClick={onPickAvatar} className="bpa">
+                              <div onClick={pickAvatar} className="bpa">
                                 <PlusOutlined />
                                 Thêm ảnh sản phẩm
                               </div>
@@ -1273,12 +1211,12 @@ const ProductDetailScreen: React.FC = () => {
                   <Col className="left" span={24} md={7}>
                     <Item name="variants" noStyle>
                       <VariantList
-                        disabledAction={status === "inactive"}
-                        loading={loadingVariant}
-                        onAllowSale={onAllowSale}
-                        onStopSale={onStopSale}
+                        isDisabledAction={status === "inactive"}
+                        isLoading={isLoadingVariant}
+                        onAllowSale={allowSale}
+                        onStopSale={stopSale}
                         active={active}
-                        setActive={onActive}
+                        setActive={activeProduct}
                         productData={data}
                         canUpdateSaleable={canUpdateSaleable}
                       />
@@ -1287,7 +1225,7 @@ const ProductDetailScreen: React.FC = () => {
                     <AddVariantsModal
                       form={form}
                       onFinish={handleSubmitAddVariant}
-                      onOk={focusLastestVariant}
+                      onOk={focusFinalVariant}
                     />
                   </Col>
                   <Col className="right" span={24} md={17}>
@@ -1356,7 +1294,7 @@ const ProductDetailScreen: React.FC = () => {
                                               }
                                             >
                                               <Input
-                                                onChange={onChange}
+                                                onChange={handleInputChange}
                                                 //disabled={id !== undefined && id !== null}
                                                 placeholder="Nhập mã sản phẩm"
                                                 disabled
@@ -1366,7 +1304,7 @@ const ProductDetailScreen: React.FC = () => {
                                           <Col span={24} md={12}>
                                             <Item name={[name, "barcode"]} label="Mã vạch">
                                               <Input
-                                                onChange={onChange}
+                                                onChange={handleInputChange}
                                                 disabled
                                                 placeholder="Nhập mã vạch"
                                               />
@@ -1385,7 +1323,7 @@ const ProductDetailScreen: React.FC = () => {
                                         normalize={(value: string) => capitalEachWords(value || "")}
                                       >
                                         <Input
-                                          onChange={onChange}
+                                          onChange={handleInputChange}
                                           placeholder="Nhập tên sản phẩm"
                                         />
                                       </Item>
@@ -1427,7 +1365,7 @@ const ProductDetailScreen: React.FC = () => {
                                                   }}
                                                 >
                                                   <NumberInput
-                                                    onChange={onChangePrice}
+                                                    onChange={changePrice}
                                                     format={(a: string) =>
                                                       formatCurrencyForProduct(a, ",")
                                                     }
@@ -1482,7 +1420,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     }}
                                                   >
                                                     <NumberInput
-                                                      onChange={onChangeImportPrice}
+                                                      onChange={changeImportPrice}
                                                       format={(a: string) =>
                                                         formatCurrencyForProduct(a, ",")
                                                       }
@@ -1597,7 +1535,7 @@ const ProductDetailScreen: React.FC = () => {
                                         <Input.Group compact>
                                           <Item name={[name, "length"]} noStyle>
                                             <NumberInput
-                                              onChange={onChange}
+                                              onChange={handleInputChange}
                                               isFloat
                                               maxLength={6}
                                               style={{
@@ -1608,7 +1546,7 @@ const ProductDetailScreen: React.FC = () => {
                                           </Item>
                                           <Item name={[name, "width"]} noStyle>
                                             <NumberInput
-                                              onChange={onChange}
+                                              onChange={handleInputChange}
                                               isFloat
                                               maxLength={6}
                                               style={{
@@ -1619,7 +1557,7 @@ const ProductDetailScreen: React.FC = () => {
                                           </Item>
                                           <Item name={[name, "height"]} noStyle>
                                             <NumberInput
-                                              onChange={onChange}
+                                              onChange={handleInputChange}
                                               isFloat
                                               maxLength={6}
                                               placeholder="Cao"
@@ -1630,7 +1568,7 @@ const ProductDetailScreen: React.FC = () => {
                                           </Item>
                                           <Item name={[name, "length_unit"]} noStyle>
                                             <Select
-                                              onChange={onChange}
+                                              onChange={handleInputChange}
                                               placeholder="Đơn vị"
                                               style={{ width: "100px" }}
                                             >
@@ -1663,7 +1601,7 @@ const ProductDetailScreen: React.FC = () => {
                                             noStyle
                                           >
                                             <NumberInput
-                                              onChange={onChange}
+                                              onChange={handleInputChange}
                                               isFloat
                                               maxLength={6}
                                               placeholder="Khối lượng"
@@ -1674,7 +1612,7 @@ const ProductDetailScreen: React.FC = () => {
                                           </Item>
                                           <Item name={[name, "weight_unit"]} noStyle>
                                             <Select
-                                              onChange={onChange}
+                                              onChange={handleInputChange}
                                               placeholder="Đơn vị"
                                               style={{ width: "100px" }}
                                               value="gram"
@@ -1700,17 +1638,17 @@ const ProductDetailScreen: React.FC = () => {
                                           style={{ width: "100%" }}
                                           multiple
                                           maxCount={6}
-                                          beforeUpload={beforeUpload}
+                                          beforeUpload={handleBeforeUpload}
                                           fileList={fieldList}
                                           onChange={(info) => {
-                                            onAddFile(info);
+                                            changeFileList(info);
                                           }}
                                           customRequest={(options) => {
                                             customRequest(options, active);
                                           }}
                                           listType="picture-card"
                                           onRemove={(file) => {
-                                            onRemoveFile(file, active);
+                                            removeFile(file, active);
                                           }}
                                         >
                                           {fieldList.length >= 6 ? null : uploadButton}
@@ -1733,39 +1671,39 @@ const ProductDetailScreen: React.FC = () => {
         )}
         <BottomBarContainer
           back="Quay lại"
-          backAction={backAction}
+          backAction={() => backAction(form.getFieldsValue(), dataOrigin, setModalConfirm, history, UrlConfig.PRODUCT)}
           rightComponent={
             <Space>
               <Button onClick={resetOnClick}>Đặt lại</Button>
-              <Button loading={loadingButton} onClick={onSave} type="primary">
+              <Button loading={isLoadingButton} onClick={validateProduct} type="primary">
                 Lưu lại
               </Button>
             </Space>
           }
         />
         <ModalPickAvatar
-          onOk={onSaveImage}
-          onCancel={() => setVisiblePickAvatar(false)}
+          onOk={saveImage}
+          onCancel={() => setIsVisiblePickAvatar(false)}
           variantImages={variantImages}
           visible={false}
         />
         <ModalUploadImages
-          onOk={onSaveImage}
-          onCancel={() => setVisiblePickAvatar(false)}
+          onOk={saveImage}
+          onCancel={() => setIsVisiblePickAvatar(false)}
           variantImages={variantImages}
-          visible={visiblePickAvatar}
+          visible={isVisiblePickAvatar}
           productId={data?.id}
         />
         <ModalConfirm {...modalConfirm} />
         <ModalUpdatePrice
-          onCancel={() => setVisibleUpdatePrice(false)}
-          onOk={onUpdatePrice}
+          onCancel={() => setIsVisibleUpdatePrice(false)}
+          onOk={updatePrice}
           currentIndex={active}
-          variants={_.cloneDeep(currentVariants)}
-          visible={visibleUpdatePrice}
+          variants={cloneDeep(currentVariants)}
+          visible={isVisibleUpdatePrice}
         />
         <ModalConfirmPrice
-          onClickOutside={() => setVisiblePrice(false)}
+          onClickOutside={() => setIsVisiblePrice(false)}
           onCancel={() => {
             // check has new item => remove new item
             setActive(tempActive);
@@ -1777,16 +1715,16 @@ const ProductDetailScreen: React.FC = () => {
               }
             });
           }}
-          visible={visiblePrice}
-          onOk={onOkPrice}
+          isVisible={isVisiblePrice}
+          onOk={confirmChangePrice}
         />
         <CareModal
-          onCancel={() => setShowCareModal(false)}
+          onCancel={() => setIsShowCareModal(false)}
           onOk={(data) => {
             setCareLabelsString(data);
-            setShowCareModal(false);
+            setIsShowCareModal(false);
           }}
-          visible={showCareModal}
+          isVisible={isShowCareModal}
           careLabels={careLabelsString}
         />
       </ContentContainer>

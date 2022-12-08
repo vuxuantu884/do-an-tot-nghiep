@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { showError } from "utils/ToastUtils";
 import excelIcon from "assets/icon/icon-excel.svg";
 import { UploadOutlined } from "@ant-design/icons";
-import { read, utils, write } from "xlsx";
+import { utils, read, write } from "xlsx";
 import { saveAs } from "file-saver";
 import NumberFormat from "react-number-format";
 import { isNullOrUndefined } from "utils/AppUtils";

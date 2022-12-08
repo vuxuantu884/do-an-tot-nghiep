@@ -8,15 +8,15 @@ import { HistoryInventoryQuery, HistoryInventoryResponse } from "model/inventory
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import { documentTypes, TYPE_EXPORT } from "screens/products/constants";
-import { formatCurrency, generateQuery, splitEllipsis } from "utils/AppUtils";
-import { OFFSET_HEADER_TABLE } from "utils/Constants";
+import { DOCUMENT_TYPES, ellipseName } from "screens/products/helper";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
+import { OFFSET_HEADER_TABLE, TYPE_EXPORT } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showWarning } from "utils/ToastUtils";
 import { getQueryParams } from "utils/useQuery";
 import InventoryHisExport from "../component/InventoryHisExport";
 import HistoryInventoryFilter from "../filter/history.filter";
-import * as XLSX from "xlsx";
+import { utils, write } from "xlsx";
 import moment from "moment";
 import { callApiNative } from "utils/ApiUtils";
 import { inventoryGetHistoryApi } from "service/inventory";
@@ -123,24 +123,8 @@ const HistoryTab: React.FC<any> = (props) => {
   const [columns, setColumn] = useState<Array<ICustomTableColumType<HistoryInventoryResponse>>>([]);
   const ActionComponent = useChangeHeaderToAction("Sản phẩm", selected.length > 0, () => {}, []);
 
-  const ellipName = (str: string | undefined) => {
-    if (!str) {
-      return "";
-    }
-    let strName = str.trim();
-    strName =
-      window.screen.width >= 1920
-        ? splitEllipsis(strName, 100, 30)
-        : window.screen.width >= 1600
-        ? (strName = splitEllipsis(strName, 60, 30))
-        : window.screen.width >= 1366
-        ? (strName = splitEllipsis(strName, 47, 30))
-        : strName;
-    return strName;
-  };
-
   const convertDocumentType = (type: string) => {
-    const documentFiltered = documentTypes.filter((item) => item.value === type);
+    const documentFiltered = DOCUMENT_TYPES.filter((item) => item.value === type);
     return documentFiltered.length > 0 ? documentFiltered[0].name : "";
   };
 
@@ -150,8 +134,8 @@ const HistoryTab: React.FC<any> = (props) => {
       visible: true,
       dataIndex: "sku",
       fixed: "left",
-      render: (value, record, index) => {
-        let strName = ellipName(record.name);
+      render: (value, record) => {
+        const strName = ellipseName(record.name);
         return (
           <div>
             <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}>
@@ -377,9 +361,9 @@ const HistoryTab: React.FC<any> = (props) => {
         dataExport.push(item);
       }
 
-      let worksheet = XLSX.utils.json_to_sheet(dataExport);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "data");
+      const worksheet = utils.json_to_sheet(dataExport);
+      const workbook = utils.book_new();
+      utils.book_append_sheet(workbook, worksheet, "data");
       const today = moment(new Date(), "YYYY/MM/DD");
 
       const fileType =
@@ -387,8 +371,7 @@ const HistoryTab: React.FC<any> = (props) => {
       const month = today.format("M");
       const day = today.format("D");
       const year = today.format("YYYY");
-      //XLSX.writeFile(workbook, `inventory_history_${day}_${month}_${year}.xlsx`);
-      const excelBuffer = XLSX.write(workbook, {
+      const excelBuffer = write(workbook, {
         bookType: "xlsx",
         type: "array",
       });

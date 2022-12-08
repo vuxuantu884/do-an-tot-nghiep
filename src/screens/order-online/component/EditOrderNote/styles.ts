@@ -22,20 +22,10 @@ export const StyledComponent = styled.div`
   .iconEdit {
     margin-right: 5px;
     cursor: pointer;
+    position: relative;
+    top: -2px;
   }
   .noteText {
     text-align: left;
-  }
-  .promotionText {
-    color: ${primaryColor};
-    font-size: 0.93rem;
-    font-weight: 500;
-    margin-right: 3px;
-    font-style: italic;
-  }
-  .iconGift {
-    margin-right: 3px;
-    position: relative;
-    margin-top: -3px;
   }
 `;

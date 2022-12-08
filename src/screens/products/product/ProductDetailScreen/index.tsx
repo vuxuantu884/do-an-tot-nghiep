@@ -22,7 +22,7 @@ import {
   Tag,
   Tooltip,
 } from "antd";
-import variantdefault from "assets/icon/variantdefault.jpg";
+import variantDefault from "assets/icon/variantdefault.jpg";
 import classNames from "classnames";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
@@ -42,41 +42,32 @@ import {
   InventoryResponse,
 } from "model/inventory";
 import { CollectionCreateRequest } from "model/product/collection.model";
-import { ProductResponse, VariantResponse } from "model/product/product.model";
+import { ProductParams, ProductResponse, VariantResponse } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation, useParams } from "react-router";
 import { Link } from "react-router-dom";
 import Slider from "react-slick";
-import { formatCurrencyValue, Products, SupportedCurrencyType } from "utils/AppUtils";
-import { getFirstProductAvatarByVariantResponse } from "utils/ProductUtils";
+import { formatCurrencyValue, SupportedCurrencyType } from "utils/AppUtils";
+import {
+  convertLabelSelected,
+  findAvatarProduct,
+  getFirstProductAvatarByVariantResponse,
+  ProductDetailTabName,
+} from "screens/products/helper";
 import { showSuccess } from "utils/ToastUtils";
-import RowDetail from "../component/RowDetail";
-import VariantList from "../component/VariantList";
-import TabProductHistory from "../tab/TabProductHistory";
-import TabProductInventory from "../tab/TabProductInventory";
+import { RowDetail, ProductSteps, VariantList } from "../component";
+import { TabProductHistory, TabProductInventory } from "../tab";
 import { StyledComponent } from "./styles";
 import useAuthorization from "hook/useAuthorization";
-import "./index.scss";
 import { callApiNative } from "utils/ApiUtils";
 import { productUpdateApi } from "service/product/product.service";
-import { debounce, cloneDeep } from "lodash";
-import ProductSteps from "../component/ProductSteps";
+import { cloneDeep, debounce } from "lodash";
 import { fullTextSearch } from "utils/StringUtils";
 import { SupplierResponse } from "model/core/supplier.model";
-import TabAdvertisingHistory from "../tab/TabAdvertisingHistory";
-import { careInformation } from "screens/products/Component/CareInformation/care-value";
-export interface ProductParams {
-  id: string;
-  variantId: string;
-}
+import { TabAdvertisingHistory } from "../tab";
 
-enum TabName {
-  HISTORY = "history",
-  INVENTORY = "inventory",
-  ADVERTISING_HISTORY = "advertising history",
-}
 const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   const { setTitle } = props;
   const { TabPane } = Tabs;
@@ -87,23 +78,23 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
 
   const [isReSearch, setIsReSearch] = useState<boolean>(false);
   const tabRef = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState<string>(TabName.INVENTORY);
+  const [activeTab, setActiveTab] = useState<string>(ProductDetailTabName.INVENTORY);
   const { id, variantId } = useParams<ProductParams>();
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [loadingVariantUpdate, setLoadingVariantUpdate] = useState(false);
-  const [loadingSwitch, setLoadingSwitch] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingVariantUpdate, setIsLoadingVariantUpdate] = useState(false);
+  const [isLoadingSwitch, setIsLoadingSwitch] = useState(false);
   const [keySearch, setKeySearch] = useState<string>();
 
-  const [loadingVariant, setLoadingVariant] = useState(false);
+  const [isLoadingVariant, setIsLoadingVariant] = useState(false);
   const [active, setActive] = useState<number>(0);
   const [nav1, setNav1] = useState<Slider | null>();
   const [nav2, setNav2] = useState<Slider | null>();
   const [data, setData] = useState<ProductResponse | null>(null);
-  const [visibleDes, setVisibleDes] = useState<boolean>(false);
-  const [loadingHis, setLoadingHis] = useState<boolean>(false);
-  const [loadingAdvertisingHistory, setLoadingAdvertisingHistory] = useState<boolean>(false);
-  const [loadingInventories, setLoadingInventories] = useState<boolean>(false);
+  const [isVisibleDes, setIsVisibleDes] = useState<boolean>(false);
+  const [isLoadingHis, setIsLoadingHis] = useState<boolean>(false);
+  const [isLoadingAdvertisingHistory, setIsLoadingAdvertisingHistory] = useState<boolean>(false);
+  const [isLoadingInventories, setIsLoadingInventories] = useState<boolean>(false);
   const [dataInventory, setDataInventory] = useState<PageResponse<InventoryResponse>>({
     items: [],
     metadata: {
@@ -163,7 +154,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
     acceptPermissions: [ProductPermission.read_import],
   });
 
-  const onEdit = () => {
+  const redirectToUpdatePage = () => {
     if (variantId) {
       // redirect to edit this variantId
       history.push(`${UrlConfig.PRODUCT}/${idNumber}/variants/${variantId}/update`);
@@ -174,13 +165,14 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   };
 
   const onResult = useCallback((result: ProductResponse | false) => {
-    setLoading(false);
+    setIsLoading(false);
     if (!result) {
-      setError(true);
+      setIsError(true);
     } else {
       setData(result);
     }
   }, []);
+
   const currentVariant = useMemo(() => {
     if (data && data.variants.length > 0) {
       return data.variants[active];
@@ -211,7 +203,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   };
 
   const onResultUpdate = useCallback((data: ProductResponse | false) => {
-    setLoadingVariant(false);
+    setIsLoadingVariant(false);
     if (!data) {
     } else {
       setData(data);
@@ -219,10 +211,10 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
     }
   }, []);
 
-  const update = useCallback(
+  const updateInfo = useCallback(
     (product: ProductResponse) => {
       let productRequest: any = { ...product };
-      setLoadingVariant(true);
+      setIsLoadingVariant(true);
       if (productRequest.collections) {
         productRequest.collections = productRequest.collections.map(
           (e: CollectionCreateRequest) => e.code,
@@ -234,9 +226,9 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   );
 
   const productAvatar = useMemo(() => {
-    let avatar = Products.findAvatarProduct(data);
+    const avatar = findAvatarProduct(data);
     if (avatar == null) {
-      return variantdefault;
+      return variantDefault;
     }
     return avatar;
   }, [data]);
@@ -245,57 +237,16 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
 
   useEffect(() => {
     const newSelected = data?.care_labels ? data?.care_labels.split(";") : [];
-    let careLabels: any[] = [];
-    newSelected.forEach((value: string) => {
-      careInformation.washing.forEach((item: any) => {
-        if (value === item.value) {
-          careLabels.push({
-            ...item,
-            active: true,
-          });
-        }
-      });
 
-      careInformation.beleaching.forEach((item: any) => {
-        if (value === item.value) {
-          careLabels.push({
-            ...item,
-            active: true,
-          });
-        }
-      });
-      careInformation.ironing.forEach((item: any) => {
-        if (value === item.value) {
-          careLabels.push({
-            ...item,
-            active: true,
-          });
-        }
-      });
-      careInformation.drying.forEach((item: any) => {
-        if (value === item.value) {
-          careLabels.push({
-            ...item,
-            active: true,
-          });
-        }
-      });
-      careInformation.professionalCare.forEach((item: any) => {
-        if (value === item.value) {
-          careLabels.push({
-            ...item,
-            active: true,
-          });
-        }
-      });
-    });
+    const careLabels = convertLabelSelected(newSelected);
+
     setCareLabels(careLabels);
   }, [data?.care_labels]);
 
-  const onAllowSale = useCallback(
+  const allowSale = useCallback(
     (listSelected: Array<number>) => {
       if (data !== null) {
-        let request = cloneDeep(data);
+        const request = cloneDeep(data);
         request?.variants.forEach((item) => {
           if (listSelected.includes(item.id)) {
             item.saleable = true;
@@ -303,24 +254,24 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
           }
         });
         request.variants = getFirstProductAvatarByVariantResponse(request.variants);
-        update(request);
+        updateInfo(request);
       }
     },
-    [data, update],
+    [data, updateInfo],
   );
 
   const statusValue = useMemo(() => {
     if (!productStatusList) {
       return "";
     }
-    let index = productStatusList?.findIndex((item) => item.value === data?.status);
+    const index = productStatusList?.findIndex((item) => item.value === data?.status);
     if (index !== -1) {
       return productStatusList?.[index].name;
     }
     return "";
   }, [data?.status, productStatusList]);
 
-  const onStopSale = useCallback(
+  const stopSale = useCallback(
     (listSelected: Array<number>) => {
       if (data !== null) {
         data?.variants.forEach((item) => {
@@ -329,17 +280,17 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
           }
         });
         data.variants = getFirstProductAvatarByVariantResponse(data.variants);
-        update(data);
+        updateInfo(data);
       }
     },
-    [data, update],
+    [data, updateInfo],
   );
 
-  const onChangeChecked = useCallback(
+  const changeChecked = useCallback(
     async (e) => {
       if (data !== null) {
-        let request: any = cloneDeep(data);
-        setLoadingVariantUpdate(true);
+        const request: any = cloneDeep(data);
+        setIsLoadingVariantUpdate(true);
         request.variants[active].saleable = e;
         if (e) request.variants[active].status = "active"; //CO-3415
         request.variants = getFirstProductAvatarByVariantResponse(request.variants);
@@ -353,7 +304,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
           idNumber,
           request,
         );
-        setLoadingVariantUpdate(false);
+        setIsLoadingVariantUpdate(false);
 
         if (!res) {
           setData(cloneDeep(data));
@@ -367,7 +318,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   );
 
   const onResultDetail = useCallback((result) => {
-    setLoadingInventories(false);
+    setIsLoadingInventories(false);
     if (!result) {
     } else {
       setDataInventory(result);
@@ -376,7 +327,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   }, []);
 
   const onResultInventoryHistory = useCallback((result) => {
-    setLoadingHis(false);
+    setIsLoadingHis(false);
     if (!result) {
     } else {
       setDataHistory(result);
@@ -385,17 +336,17 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   }, []);
 
   const onResultAdvertisingHistory = useCallback((result) => {
-    setLoadingAdvertisingHistory(false);
+    setIsLoadingAdvertisingHistory(false);
     if (!result) return;
 
     setDataAdvertisingHistory(result);
   }, []);
 
-  const onChangeDataInventory = useCallback(
+  const changeDataInventory = useCallback(
     (page) => {
       if (data && data?.variants.length > 0) {
-        let variantSelect = data.variants[active].id;
-        setLoadingInventories(true);
+        const variantSelect = data.variants[active].id;
+        setIsLoadingInventories(true);
         dispatch(
           inventoryGetDetailAction(
             { variant_id: variantSelect, page: page, limit: 500 },
@@ -407,11 +358,11 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
     [active, data, dispatch, onResultDetail],
   );
 
-  const onChangeDataHistory = useCallback(
+  const changeDataHistory = useCallback(
     (page) => {
       if (data && data?.variants.length > 0) {
-        let variantSelect = data.variants[active].id;
-        setLoadingHis(true);
+        const variantSelect = data.variants[active].id;
+        setIsLoadingHis(true);
         dispatch(
           inventoryGetHistoryAction(
             { variant_id: variantSelect, page: page, limit: 300 },
@@ -423,11 +374,11 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
     [active, data, dispatch, onResultInventoryHistory],
   );
 
-  const onChangeDataAdvertisingHistory = useCallback(
+  const changeDataAdvertisingHistory = useCallback(
     (page) => {
       if (data && data?.variants.length > 0) {
-        let variantSelect = data.variants[active].id;
-        setLoadingAdvertisingHistory(true);
+        const variantSelect = data.variants[active].id;
+        setIsLoadingAdvertisingHistory(true);
         dispatch(
           inventoryGetAdvertisingHistoryAction(
             {
@@ -453,10 +404,10 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
 
   useEffect(() => {
     if (data && data?.variants.length > 0) {
-      let variantSelect = data.variants[active].id;
-      setLoadingHis(true);
-      setLoadingInventories(true);
-      setLoadingAdvertisingHistory(true);
+      const variantSelect = data.variants[active].id;
+      setIsLoadingHis(true);
+      setIsLoadingInventories(true);
+      setIsLoadingAdvertisingHistory(true);
       dispatch(inventoryGetDetailAction({ variant_id: variantSelect, limit: 500 }, onResultDetail));
       dispatch(
         inventoryGetHistoryAction(
@@ -482,24 +433,26 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
 
   useEffect(() => {
     if (variantId && data) {
-      let index = data.variants.findIndex((item) => item.id.toString() === variantId);
+      const index = data.variants.findIndex((item) => item.id.toString() === variantId);
       if (index !== -1) {
         setActive(index);
       }
     }
   }, [data, variantId]);
+
   const tab = document.getElementById("tab");
+
   useLayoutEffect(() => {
-    if (hash === TabName.INVENTORY) {
-      setActiveTab(TabName.INVENTORY);
+    if (hash === ProductDetailTabName.INVENTORY) {
+      setActiveTab(ProductDetailTabName.INVENTORY);
     }
 
-    if (hash === TabName.HISTORY) {
-      setActiveTab(TabName.HISTORY);
+    if (hash === ProductDetailTabName.HISTORY) {
+      setActiveTab(ProductDetailTabName.HISTORY);
     }
 
-    if (hash === TabName.ADVERTISING_HISTORY) {
-      setActiveTab(TabName.ADVERTISING_HISTORY);
+    if (hash === ProductDetailTabName.ADVERTISING_HISTORY) {
+      setActiveTab(ProductDetailTabName.ADVERTISING_HISTORY);
     }
 
     if (tabRef.current && hash) {
@@ -510,11 +463,11 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   const debounceSearch = useMemo(
     () =>
       debounce((code: string) => {
-        if (activeTab === TabName.INVENTORY) {
-          let variantsInv = cloneDeep(dataInventoryOrg);
+        if (activeTab === ProductDetailTabName.INVENTORY) {
+          const variantsInv = cloneDeep(dataInventoryOrg);
           if (variantsInv.items && variantsInv.items.length === 0) return;
           if (!code || code === "") {
-            onChangeDataInventory(1);
+            changeDataInventory(1);
             return;
           }
 
@@ -525,10 +478,10 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
           return;
         }
 
-        let variantsHis = cloneDeep(dataHistoryOrg);
+        const variantsHis = cloneDeep(dataHistoryOrg);
         if (variantsHis.items && variantsHis.items.length === 0) return;
         if (!code || code === "") {
-          onChangeDataHistory(1);
+          changeDataHistory(1);
           return;
         }
 
@@ -537,10 +490,10 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
         });
         setDataHistory({ ...dataHistoryOrg, items: [...variantsHis.items] });
       }, 300),
-    [activeTab, dataHistoryOrg, dataInventoryOrg, onChangeDataHistory, onChangeDataInventory],
+    [activeTab, dataHistoryOrg, dataInventoryOrg, changeDataHistory, changeDataInventory],
   );
 
-  const onChangeKeySearch = useCallback(
+  const changeKeySearch = useCallback(
     (code: string) => {
       debounceSearch(code);
     },
@@ -556,8 +509,8 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   return (
     <StyledComponent className="product-detail">
       <ContentContainer
-        isError={error}
-        isLoading={loading}
+        isError={isError}
+        isLoading={isLoading}
         title={`${data?.name}`}
         breadcrumb={[
           {
@@ -605,10 +558,10 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                             );
                           }
 
-                          setLoadingSwitch(true);
+                          setIsLoadingSwitch(true);
                           dispatch(
                             productUpdateAction(idNumber, newData, (result) => {
-                              setLoadingSwitch(false);
+                              setIsLoadingSwitch(false);
                               if (result) {
                                 setData(result);
                                 showSuccess("Cập nhật trạng thái thành công");
@@ -626,7 +579,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                       >
                         {statusValue}
                       </label>
-                      {loadingSwitch && (
+                      {isLoadingSwitch && (
                         <div className="loading-view">
                           <Spin
                             indicator={<Loading3QuartersOutlined style={{ fontSize: 28 }} spin />}
@@ -640,7 +593,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                     <Col span={24} md={12}>
                       <RowDetail title="Danh mục" value={data.category} />
                       <RowDetail title="Mã sản phẩm" value={data.code} />
-                      <RowDetail title="Thương hiệu" value={data.brand} />
+                      <RowDetail title="Thương hiệu" value={data.brand_name} />
                       <RowDetail title="Chất liệu" value={data.material} />
                     </Col>
                     <Col span={24} md={12}>
@@ -715,7 +668,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                             <Button
                               className="button-show-more"
                               onClick={() => {
-                                setVisibleDes(true);
+                                setIsVisibleDes(true);
                               }}
                             >
                               Xem thêm
@@ -769,9 +722,9 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                     <Row className="card-container">
                       <Col className="left" span={24} md={7}>
                         <VariantList
-                          disabledAction={data.status === "inactive"}
-                          onAllowSale={onAllowSale}
-                          onStopSale={onStopSale}
+                          isDisabledAction={data.status === "inactive"}
+                          onAllowSale={allowSale}
+                          onStopSale={stopSale}
                           value={data.variants}
                           active={active}
                           setActive={(active) => {
@@ -779,7 +732,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                               `${UrlConfig.PRODUCT}/${idNumber}${UrlConfig.VARIANTS}/${data.variants[active].id}`,
                             );
                           }}
-                          loading={loadingVariant}
+                          isLoading={isLoadingVariant}
                           productData={data}
                           canUpdateSaleable={canUpdateSaleable}
                         />
@@ -795,7 +748,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                               <div className="header-view-right">
                                 {canUpdateSaleable && (
                                   <Switch
-                                    onChange={onChangeChecked}
+                                    onChange={changeChecked}
                                     className="ant-switch-success"
                                     disabled={data.status === "inactive"}
                                     checked={currentVariant.saleable}
@@ -883,7 +836,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                                 <Col className="view-right" span={24} md={10}>
                                   <div className="image-view">
                                     {currentVariant.variant_images?.length === 0 ? (
-                                      <img className="item-default" src={variantdefault} alt="" />
+                                      <img className="item-default" src={variantDefault} alt="" />
                                     ) : (
                                       <React.Fragment>
                                         {currentVariant.variant_images?.length === 1 ? (
@@ -935,7 +888,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                                   </div>
                                 </Col>
                               </Row>
-                              {loadingVariantUpdate && (
+                              {isLoadingVariantUpdate && (
                                 <div className="loading-view">
                                   <Spin
                                     indicator={
@@ -962,7 +915,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                         <Input
                           name="key_search"
                           onChange={(e) => {
-                            onChangeKeySearch(e.target.value);
+                            changeKeySearch(e.target.value);
                             setKeySearch(e.target.value);
                           }}
                           value={keySearch}
@@ -984,27 +937,30 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                       onChange={(e) => {
                         setActiveTab(e);
                         setKeySearch("");
-                        onChangeKeySearch("");
+                        changeKeySearch("");
                       }}
                     >
-                      <Tabs.TabPane tab="Danh sách tồn kho" key={TabName.INVENTORY}>
+                      <Tabs.TabPane tab="Danh sách tồn kho" key={ProductDetailTabName.INVENTORY}>
                         <TabProductInventory
-                          loadingInventories={loadingInventories}
-                          onChange={onChangeDataInventory}
+                          isLoadingInventories={isLoadingInventories}
+                          onChange={changeDataInventory}
                           data={dataInventory}
                         />
                       </Tabs.TabPane>
-                      <Tabs.TabPane tab="Lịch sử tồn kho" key={TabName.HISTORY}>
+                      <Tabs.TabPane tab="Lịch sử tồn kho" key={ProductDetailTabName.HISTORY}>
                         <TabProductHistory
-                          loadingHis={loadingHis}
-                          onChange={onChangeDataHistory}
+                          isLoadingHis={isLoadingHis}
+                          onChange={changeDataHistory}
                           data={dataHistory}
                         />
                       </Tabs.TabPane>
-                      <Tabs.TabPane tab="Chương trình khuyến mãi" key={TabName.ADVERTISING_HISTORY}>
+                      <Tabs.TabPane
+                        tab="Chương trình khuyến mãi"
+                        key={ProductDetailTabName.ADVERTISING_HISTORY}
+                      >
                         <TabAdvertisingHistory
-                          loadingAdvertisingHistory={loadingAdvertisingHistory}
-                          onChange={onChangeDataAdvertisingHistory}
+                          isLoadingAdvertisingHistory={isLoadingAdvertisingHistory}
+                          onChange={changeDataAdvertisingHistory}
                           data={dataAdvertisingHistory}
                           dataVariant={data.variants[active]}
                         />
@@ -1017,17 +973,17 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
             <Modal
               className="modal-des"
               title="Mô tả sản phẩm"
-              visible={visibleDes}
+              visible={isVisibleDes}
               width="95%"
               onCancel={() => {
-                setVisibleDes(false);
+                setIsVisibleDes(false);
               }}
               footer={
                 <>
                   <Button
                     type="primary"
                     onClick={() => {
-                      setVisibleDes(false);
+                      setIsVisibleDes(false);
                     }}
                   >
                     Đóng
@@ -1109,7 +1065,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
           back="Quay lại"
           rightComponent={
             <AuthWrapper acceptPermissions={[ProductPermission.update]}>
-              <Button onClick={onEdit}>Sửa sản phẩm</Button>
+              <Button onClick={redirectToUpdatePage}>Sửa sản phẩm</Button>
             </AuthWrapper>
           }
         />

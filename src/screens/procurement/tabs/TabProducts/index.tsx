@@ -12,7 +12,7 @@ import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT, formatDateTimeFilter } from "utils/DateUtils";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { Image } from "antd";
-import ImageProduct from "screens/products/product/component/image-product.component";
+import ImageProduct from "screens/products/product/component/ImageProduct";
 import { useDispatch } from "react-redux";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { callApiNative } from "utils/ApiUtils";
@@ -92,7 +92,7 @@ const TabProducts: React.FC = () => {
                   preview={{ mask: <EyeOutlined /> }}
                 />
               ) : (
-                <ImageProduct disabled={true} onClick={undefined} path={value} />
+                <ImageProduct isDisabled={true} path={value} />
               )}
             </>
           );

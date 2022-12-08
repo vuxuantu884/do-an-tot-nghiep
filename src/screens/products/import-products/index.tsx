@@ -1,7 +1,7 @@
 import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Card, Upload } from "antd";
-import { useEffect, useRef, useState } from "react";
-import { UploadFile } from "antd/lib/upload/interface";
+import React, { useEffect, useRef, useState } from "react";
+import { UploadChangeParam, UploadFile } from "antd/lib/upload/interface";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { callApiNative } from "utils/ApiUtils";
 import { useDispatch } from "react-redux";
@@ -10,29 +10,28 @@ import "./index.scss"
 
 const ImportFileProducts: React.FC = () => {
   const [fileList, setFileList] = useState<Array<UploadFile>>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const dispatch = useDispatch();
 
-  const onChangeFile = (info: any) => {
+  const changeFile = (info: UploadChangeParam) => {
     if (info.file.status !== "removed") {
       setFileList([info.file]);
     }
   };
 
   const getFileByCode = async (code: string) => {
-    const response = await callApiNative(
-      { isShowError: true },
+    return await callApiNative(
+      {isShowError: true},
       dispatch,
       getFileProductByCode,
       code,
     );
-    return response;
   };
 
   const ref: any = useRef();
   // Gọi api liên tục cho tới khi status trả về FINISH hoặc quá 90s
-  const onUploadFile = async () => {
-    setLoading(true);
+  const uploadFile = async () => {
+    setIsLoading(true);
     const fileUpload: any = fileList[0];
     const response = await callApiNative(
       { isShowError: true },
@@ -49,25 +48,25 @@ const ImportFileProducts: React.FC = () => {
           if (data.status === "FINISH") {
             clearInterval(ref.current);
             showSuccess("Download file thành công");
-            setLoading(false);
-            var downLoad = document.createElement("a");
+            setIsLoading(false);
+            let downLoad = document.createElement("a");
             downLoad.href = data.url;
             downLoad.download = "download";
             downLoad.click();
           } else if (num >= 90000 || data.status === "ERROR") {
             clearInterval(ref.current);
             showError("Download file không thành công");
-            setLoading(false);
+            setIsLoading(false);
           }
         } else {
           clearInterval(ref.current);
           showError("Download file không thành công");
-          setLoading(false);
+          setIsLoading(false);
         }
       }, 3000);
     } else {
       showError("Download file không thành công");
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -81,14 +80,14 @@ const ImportFileProducts: React.FC = () => {
         accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
         maxCount={1}
         fileList={fileList}
-        onChange={onChangeFile}
+        onChange={changeFile}
         onRemove={(file) => {
           const index = fileList.indexOf(file);
           const newFileList = [...fileList];
           newFileList.splice(index, 1);
           return setFileList(newFileList);
         }}
-        beforeUpload={(file) => {
+        beforeUpload={() => {
           return false;
         }}
       >
@@ -102,9 +101,9 @@ const ImportFileProducts: React.FC = () => {
           type="text"
           size="middle"
           icon={<DownloadOutlined className="btn-view-icon"/>}
-          loading={loading}
+          loading={isLoading}
           onClick={() => {
-            onUploadFile();
+            uploadFile();
           }}
         >
           Tải file sản phẩm

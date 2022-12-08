@@ -41,7 +41,7 @@ import BaseFilter from "./base.filter";
 import CustomSelectMany from "./component/select-many.custom";
 import CustomSelectOne from "./component/select-one.custom";
 import CustomFilterDatePicker from "../custom/filter-date-picker.custom";
-import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
+import { convertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 import { isArray } from "lodash";
 import BaseSelect from "../base/BaseSelect/BaseSelect";
 import { useFetchMerchans } from "../../hook/useFetchMerchans";
@@ -164,7 +164,7 @@ const convertStoreLabel = (store: string, allStore: StoreResponse[]) => {
 const FilterList = ({ filters, resetField, allStores }: any) => {
   const newFilters = { ...filters };
   let filtersKeys = Object.keys(newFilters);
-  const newKeys = ConvertDatesLabel(newFilters, keysDateFilter);
+  const newKeys = convertDatesLabel(newFilters, keysDateFilter);
   filtersKeys = filtersKeys.filter((i) => !isExistInArr(keysDateFilter, i));
 
   let renderTxt: any = null;

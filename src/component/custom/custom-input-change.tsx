@@ -2,7 +2,7 @@ import { Input, InputNumber, Select, Typography } from "antd";
 import React, { useState } from "react";
 import styled from "styled-components";
 import { formatCurrency, parseLocaleNumber } from "utils/AppUtils";
-import { MoneyType } from "utils/Constants";
+import { DISCOUNT_TYPE } from "utils/Constants";
 
 interface CustomInputChangeProps {
   placeholder?: string;
@@ -23,7 +23,7 @@ const InputStyle = styled.div`
 
 const CustomInputChange: React.FC<CustomInputChangeProps> = (props: CustomInputChangeProps) => {
   const { remainPayment = 0, value, onChange, totalPayment } = props;
-  const [selected, setSelected] = useState(MoneyType.PERCENT);
+  const [selected, setSelected] = useState(DISCOUNT_TYPE.PERCENT);
   const [data, setData] = useState<number>(0);
 
   const handleChangeSelect = (value: string) => {
@@ -36,12 +36,12 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (props: CustomInputC
     let money = value || 0;
     if (typeof value === "number") {
       if (
-        selected === MoneyType.PERCENT &&
+        selected === DISCOUNT_TYPE.PERCENT &&
         typeof remainPayment === "number" &&
         remainPayment > 0
       ) {
         money = (value * totalPayment) / 100;
-      } else if (selected === MoneyType.PERCENT) {
+      } else if (selected === DISCOUNT_TYPE.PERCENT) {
         money = 0;
       }
     }
@@ -51,9 +51,9 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (props: CustomInputC
   };
 
   const getMaxInput = () => {
-    if (selected === MoneyType.PERCENT && remainPayment > 0 && totalPayment > 0) {
+    if (selected === DISCOUNT_TYPE.PERCENT && remainPayment > 0 && totalPayment > 0) {
       return (remainPayment / totalPayment) * 100;
-    } else if (selected === MoneyType.MONEY) {
+    } else if (selected === DISCOUNT_TYPE.MONEY) {
       return remainPayment;
     } else {
       return 0;
@@ -63,9 +63,9 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (props: CustomInputC
   const getMoneyLabel = () => {
     let label: number | string = 0;
 
-    if (selected === MoneyType.MONEY && value && remainPayment) {
+    if (selected === DISCOUNT_TYPE.MONEY && value && remainPayment) {
       label = ((data / totalPayment) * 100).toFixed(2) + " %";
-    } else if (value && selected === MoneyType.PERCENT) {
+    } else if (value && selected === DISCOUNT_TYPE.PERCENT) {
       label = formatCurrency(value);
     }
 
@@ -86,8 +86,8 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (props: CustomInputC
           }}
           value={selected}
         >
-          <Select.Option value={MoneyType.PERCENT}>%</Select.Option>
-          <Select.Option value={MoneyType.MONEY}>₫</Select.Option>
+          <Select.Option value={DISCOUNT_TYPE.PERCENT}>%</Select.Option>
+          <Select.Option value={DISCOUNT_TYPE.MONEY}>₫</Select.Option>
         </Select>
         <InputNumber<number>
           style={{ textAlign: "right", width: "100%" }}

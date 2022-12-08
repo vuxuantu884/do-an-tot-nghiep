@@ -1,8 +1,7 @@
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Modal, Row, Progress, Form, Radio, Space } from "antd";
-import { Fragment, useCallback, useState } from "react";
-import { TYPE_EXPORT } from "screens/products/constants";
-import { STATUS_IMPORT_EXPORT } from "utils/Constants";
+import React, { Fragment, useCallback, useState } from "react";
+import { STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Constants";
 
 type ExportModalProps = {
   visible: boolean;
@@ -13,7 +12,7 @@ type ExportModalProps = {
 };
 
 const InventoryExportModal: React.FC<ExportModalProps> = (props: ExportModalProps) => {
-  const { visible, onOk, onCancel, exportProgress, statusExport = 0 } = props;
+  const { visible, onOk, onCancel, exportProgress, statusExport = STATUS_IMPORT_EXPORT.NONE } = props;
   const [editFields, setEditFields] = useState(false);
   const [form] = Form.useForm();
 

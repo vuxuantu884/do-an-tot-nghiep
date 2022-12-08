@@ -4,32 +4,29 @@ import { RouteMenu } from "model/other";
 import React from "react";
 import ImportFileProducts from "screens/products/import-products";
 
-const ColorUpdateScreen = React.lazy(() => import("screens/products/color/color-update.screen"));
-const Category = React.lazy(() => import("screens/products/category/category-list.screen"));
+const ColorUpdateScreen = React.lazy(() => import("screens/products/color").then(module => ({ default: module.ColorUpdateScreen })));
+const Category = React.lazy(() => import("screens/products/category").then(module => ({ default: module.CategoryListScreen })));
 const ProductCreateScreen = React.lazy(
   () => import("screens/products/product/ProductCreateScreen"),
 );
-const ColorListScreen = React.lazy(() => import("screens/products/color/color-list.screen"));
+const ColorListScreen = React.lazy(() => import("screens/products/color").then(module => ({ default: module.ColorListScreen })));
 const MaterialDetail = React.lazy(
-  () => import("screens/products/materials/material-detail.screen"),
-);
-const ListMaterial = React.lazy(() => import("screens/products/materials/materials-list.screen"));
-const AddMaterial = React.lazy(() => import("screens/products/materials/material-add.screen"));
+  () => import("screens/products/materials").then(module => ({ default: module.MaterialDetailScreen })));
+const ListMaterial = React.lazy(() => import("screens/products/materials").then(module => ({ default: module.MaterialListScreen })));
+const AddMaterial = React.lazy(() => import("screens/products/materials").then(module => ({ default: module.MaterialCreateScreen })));
 const UpdateMaterial = React.lazy(
-  () => import("screens/products/materials/material-update.screen"),
-);
-const SizeListScreen = React.lazy(() => import("screens/products/size/size-list.screen"));
-const SizeCreateScreen = React.lazy(() => import("screens/products/size/size-create.screen"));
-const SizeUpdateScreen = React.lazy(() => import("screens/products/size/size-update.screen"));
+  () => import("screens/products/materials").then(module => ({ default: module.MaterialUpdateScreen })));
+const SizeListScreen = React.lazy(() => import("screens/products/size").then(module => ({ default: module.SizeListScreen })));
+const SizeCreateScreen = React.lazy(() => import("screens/products/size").then(module => ({ default: module.SizeCreateScreen })));
+const SizeUpdateScreen = React.lazy(() => import("screens/products/size").then(module => ({ default: module.SizeUpdateScreen })));
 
-const AddCategory = React.lazy(() => import("screens/products/category/category-add.screen"));
-const UpdateCategory = React.lazy(() => import("screens/products/category/category-update.screen"));
+const AddCategory = React.lazy(() => import("screens/products/category").then(module => ({ default: module.CategoryCreateScreen })));
+const UpdateCategory = React.lazy(() => import("screens/products/category").then(module => ({ default: module.CategoryUpdateScreen })));
 const OverviewCategory = React.lazy(
-  () => import("screens/products/category/category-overview.screen"),
-);
-const DetailCategory = React.lazy(() => import("screens/products/category/category-detail.screen"));
+  () => import("screens/products/category").then(module => ({ default: module.CategoryOverviewScreen })));
+const DetailCategory = React.lazy(() => import("screens/products/category").then(module => ({ default: module.CategoryDetailScreen })));
 
-const ColorCreateScreen = React.lazy(() => import("screens/products/color/color-create.screen"));
+const ColorCreateScreen = React.lazy(() => import("screens/products/color").then(module => ({ default: module.ColorCreateScreen })));
 
 //Product
 const Product = React.lazy(() => import("screens/products/product/ProductSearchScreen"));
@@ -48,8 +45,8 @@ const ProductBarcodeScreen = React.lazy(
 
 //product Collection
 const Collection = React.lazy(() => import("screens/products/collection"));
-const CollectionAdd = React.lazy(() => import("screens/products/collection/create"));
-const CollectionUpdate = React.lazy(() => import("screens/products/collection/update"));
+const CollectionAdd = React.lazy(() => import("screens/products/collection/CollectionCreateScreen"));
+const CollectionUpdate = React.lazy(() => import("screens/products/collection/CollectionUpdateScreen"));
 
 const product: Array<RouteMenu> = [
   {

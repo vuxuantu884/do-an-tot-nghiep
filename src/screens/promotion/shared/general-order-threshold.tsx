@@ -1,4 +1,4 @@
-import { Button, Form, FormInstance, Input, Radio, Select } from "antd";
+import { Button, Form, FormInstance, Input, InputNumber, Radio, Select } from "antd";
 import { Rule } from "antd/lib/form";
 import { SelectValue } from "antd/lib/select";
 import _ from "lodash";
@@ -8,12 +8,13 @@ import { AiOutlineClose } from "react-icons/ai";
 import { GoPlus } from "react-icons/go";
 import {
   DiscountUnitType,
-  FIELD_SELECT_OPTIONS,
+  FIELD_SELECT_OPTIONS_ORDER_THRESHOLD,
   OPERATOR_SELECT_OPTIONS,
   PRICE_RULE_FIELDS,
 } from "../constants";
 import { OrderThresholdStyle } from "../discount/components/order-threshold.style";
 import { PromotionGift } from "model/promotion/gift.model";
+import { formatCurrency, replaceFormat } from "utils/AppUtils";
 const rule = PRICE_RULE_FIELDS.rule;
 const conditions = PRICE_RULE_FIELDS.conditions;
 
@@ -35,7 +36,17 @@ interface Props {
 
 const defaultValueComponent = (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
   <Form.Item name={name} rules={rules}>
-    <Input placeholder="Nhập giá trị thuộc tính" defaultValue={defaultValue} />
+    <InputNumber
+      className="price_min"
+      formatter={(value) => {
+        return formatCurrency(value || 0);
+      }}
+      parser={(value: string | undefined) => replaceFormat(value || "")}
+      min={0}
+      max={1000000000}
+      placeholder="Nhập giá trị thuộc tính"
+      style={{ width: "100%" }}
+    />
   </Form.Item>
 );
 
@@ -88,7 +99,10 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
 
   function handleChangeFieldSelect(value: SelectValue, index: number): void {
     // Change input value component
-    const currentValueComponent = _.find(FIELD_SELECT_OPTIONS, ["value", value])?.valueComponent;
+    const currentValueComponent = _.find(FIELD_SELECT_OPTIONS_ORDER_THRESHOLD, [
+      "value",
+      value,
+    ])?.valueComponent;
 
     setValueComponentList((prev) => {
       const temps = _.cloneDeep(prev);
@@ -108,7 +122,10 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
     (operatorOptions: string[], index: number) => {
       const currentField = discountList[index]?.field;
 
-      const acceptTypeOfCurrentField = _.find(FIELD_SELECT_OPTIONS, ["value", currentField])?.type;
+      const acceptTypeOfCurrentField = _.find(FIELD_SELECT_OPTIONS_ORDER_THRESHOLD, [
+        "value",
+        currentField,
+      ])?.type;
 
       const allowUseOptions = operatorOptions.some((operator) => {
         return acceptTypeOfCurrentField?.includes(operator);
@@ -137,9 +154,13 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
     if (priceRuleData?.rule && priceRuleData.rule.conditions?.length > 0) {
       const temp: any[] = [];
       priceRuleData?.rule?.conditions.forEach((element: DiscountConditionRule) => {
-        temp.push(_.find(FIELD_SELECT_OPTIONS, ["value", element.field])?.valueComponent);
+        temp.push(
+          _.find(FIELD_SELECT_OPTIONS_ORDER_THRESHOLD, ["value", element.field])?.valueComponent,
+        );
       });
-      setValueComponentList(temp);
+      if (temp[0]) {
+        setValueComponentList(temp);
+      }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -191,7 +212,7 @@ export default function GeneralOrderThreshold(props: Props): ReactElement {
                             ]}
                           >
                             <Select
-                              options={FIELD_SELECT_OPTIONS}
+                              options={FIELD_SELECT_OPTIONS_ORDER_THRESHOLD}
                               onChange={(value) => handleChangeFieldSelect(value, index)}
                             />
                           </Form.Item>

@@ -148,7 +148,7 @@ const menu: Array<RouteMenu> = [
   {
     path: UrlConfig.PROMOTION,
     exact: true,
-    title: "Khuyến mại",
+    title: "Khuyến mãi",
     icon: "icon-promotion",
     component: null,
     key: "7",

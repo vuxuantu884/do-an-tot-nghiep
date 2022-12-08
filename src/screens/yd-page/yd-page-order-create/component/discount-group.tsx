@@ -10,7 +10,7 @@ import {
   getLineItemDiscountValue,
   replaceFormatString,
 } from "utils/AppUtils";
-import { MoneyType } from "utils/Constants";
+import { DISCOUNT_TYPE } from "utils/Constants";
 import "./discount-group.scss";
 import _ from "lodash";
 import { showError } from "utils/ToastUtils";
@@ -28,7 +28,7 @@ type DiscountGroupProps = {
 const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) => {
   const { items, disabled = false } = props;
   const { Text } = Typography;
-  const [selected, setSelected] = useState(MoneyType.MONEY);
+  const [selected, setSelected] = useState(DISCOUNT_TYPE.MONEY);
 
   const changeDiscountType = (value: string) => {
     setSelected(value);
@@ -40,7 +40,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
         return;
       }
       if (v < 0) v = -v;
-      if (selected === MoneyType.PERCENT) {
+      if (selected === DISCOUNT_TYPE.PERCENT) {
         v = Math.round(v * 100) / 100;
       } else {
         v = Math.round(v);
@@ -62,7 +62,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
       }
       let _itemDiscount = _item.discount_items[0];
       let _price = _items[props.index].price;
-      if (selected === MoneyType.MONEY) {
+      if (selected === DISCOUNT_TYPE.MONEY) {
         if (v === _itemDiscount.amount) {
           return;
         }
@@ -108,10 +108,16 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
           className="discount-group-select"
           getPopupContainer={(trigger: any) => trigger.parentElement}
         >
-          <Select.Option value={MoneyType.PERCENT} style={{ padding: "5px", textAlign: "center" }}>
+          <Select.Option
+            value={DISCOUNT_TYPE.PERCENT}
+            style={{ padding: "5px", textAlign: "center" }}
+          >
             %
           </Select.Option>
-          <Select.Option value={MoneyType.MONEY} style={{ padding: "5px", textAlign: "center" }}>
+          <Select.Option
+            value={DISCOUNT_TYPE.MONEY}
+            style={{ padding: "5px", textAlign: "center" }}
+          >
             ₫
           </Select.Option>
         </Select>
@@ -127,9 +133,13 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
             e.target.setSelectionRange(0, e.target.value.length);
           }}
           min={0}
-          max={selected === MoneyType.PERCENT ? 100 : props.price * items[props.index]?.quantity}
+          max={
+            selected === DISCOUNT_TYPE.PERCENT ? 100 : props.price * items[props.index]?.quantity
+          }
           value={
-            selected === MoneyType.PERCENT ? props.discountRate : Math.round(props.discountAmount)
+            selected === DISCOUNT_TYPE.PERCENT
+              ? props.discountRate
+              : Math.round(props.discountAmount)
           }
           onChange={ChangeValueDiscount}
         />
@@ -137,7 +147,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
 
       <div className="discount-rate-convert">
         <Text type="danger">
-          {selected === MoneyType.MONEY
+          {selected === DISCOUNT_TYPE.MONEY
             ? Math.round(props.discountRate * 100) / 100 + "%"
             : formatCurrency(props.discountAmount) + " ₫"}
         </Text>

@@ -189,7 +189,7 @@ const GeneralCreate = (props: any) => {
                 name="title"
                 label={<b>Tên đợt phát hành: </b>}
                 form={form}
-                message="Cần nhập tên khuyến mại"
+                message="Cần nhập tên khuyến mãi"
                 placeholder="Nhập tên đợt phát hàng"
                 isRequired={true}
                 maxLength={255}

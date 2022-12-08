@@ -1,3 +1,5 @@
+import { CreateAcumulationPoints } from "screens/promotion/loyalty/accumulate";
+
 export interface CreateLoyaltyAccumulationRequest {
   name: string;
   start_time: string | null;
@@ -15,9 +17,9 @@ export interface CreateLoyaltyAccumulationRequest {
 }
 
 export interface LoyaltyProgramRuleRequest {
-  id: number | null;
-  order_amount_min: number | null;
-  order_amount_max: number | null;
+  order_amount: CreateAcumulationPoints;
+  total_money_spend: CreateAcumulationPoints;
+  total_order_count: CreateAcumulationPoints;
   customer_group_id: number | null;
   customer_ranking_id: number | null;
   customer_type_id: number | null;

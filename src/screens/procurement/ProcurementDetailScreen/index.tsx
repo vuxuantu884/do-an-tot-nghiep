@@ -34,7 +34,7 @@ import {
 import { callApiNative } from "utils/ApiUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
-import ImageProduct from "screens/products/product/component/image-product.component";
+import ImageProduct from "screens/products/product/component/ImageProduct";
 import { POUtils } from "utils/POUtils";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { DeleteOutlined, ImportOutlined, PhoneOutlined, PrinterOutlined } from "@ant-design/icons";
@@ -492,7 +492,7 @@ const ProcurementDetailScreen: React.FC = () => {
                                         />
                                       ) : (
                                         <ImageProduct
-                                          disabled={true}
+                                          isDisabled={true}
                                           onClick={undefined}
                                           path={value}
                                         />

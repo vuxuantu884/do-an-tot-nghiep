@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { callApiNative } from "utils/ApiUtils";
 import SelectPagingV2 from "../SelectPaging/SelectPagingV2";
-import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { ProductResponse, ProductWrapperSearchQuery } from "model/product/product.model";
 import { searchProductWrapperApi } from "service/product/product.service";
 import { searchProductWrapperRequestAction } from "domain/actions/product/products.action";

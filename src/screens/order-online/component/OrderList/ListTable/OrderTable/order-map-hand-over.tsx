@@ -28,7 +28,6 @@ const OrderMapHandOver: React.FC<Props> = (props: Props) => {
     return [];
   }, [handOvers, orderDetail.fulfillments]);
 
-  console.log(result);
   return (
     <React.Fragment>
       {result && result.length !== 0 ? (

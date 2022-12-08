@@ -3,41 +3,33 @@ import UrlConfig from "config/url.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { HistoryInventoryResponse } from "model/inventory";
 import { Link } from "react-router-dom";
-import { formatCurrencyForProduct } from "utils/AppUtils";
+import { formatCurrencyForProduct, ProductHistoryDocumentTypes } from "screens/products/helper";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import React from "react";
 
-interface IProps {
+type TabProductHistoryProps = {
   data: PageResponse<HistoryInventoryResponse>;
   onChange: (page: number, pageSize?: number) => void;
-  loadingHis?: boolean;
-}
-enum DocumentType {
-  PURCHASE_ORDER = "purchase_order",
-  ORDER = "order",
-  RETURN_ORDER = "return_order",
-  RETURN_PO = "return_po",
-  INVENTORY_TRANSFER = "inventory_transfer",
-  INVENTORY_ADJUSTMENT = "inventory_adjustment",
-  OTHER_STOCK_IN_OUT = "other_stock_in_out",
+  isLoadingHis?: boolean;
 }
 
-const TabProductHistory: React.FC<IProps> = (props: IProps) => {
-  const { data, onChange, loadingHis } = props;
+const TabProductHistory: React.FC<TabProductHistoryProps> = (props: TabProductHistoryProps) => {
+  const { data, onChange, isLoadingHis } = props;
 
   const getUrlByDocumentType = (type: string) => {
     switch (type) {
-      case DocumentType.ORDER:
+      case ProductHistoryDocumentTypes.ORDER:
         return UrlConfig.ORDER;
-      case DocumentType.RETURN_ORDER:
+      case ProductHistoryDocumentTypes.RETURN_ORDER:
         return UrlConfig.ORDERS_RETURN;
-      case DocumentType.PURCHASE_ORDER:
-      case DocumentType.RETURN_PO:
+      case ProductHistoryDocumentTypes.PURCHASE_ORDER:
+      case ProductHistoryDocumentTypes.RETURN_PO:
         return UrlConfig.PURCHASE_ORDERS;
-      case DocumentType.INVENTORY_TRANSFER:
+      case ProductHistoryDocumentTypes.INVENTORY_TRANSFER:
         return UrlConfig.INVENTORY_TRANSFERS;
-      case DocumentType.INVENTORY_ADJUSTMENT:
+      case ProductHistoryDocumentTypes.INVENTORY_ADJUSTMENT:
         return UrlConfig.INVENTORY_ADJUSTMENTS;
-      case DocumentType.OTHER_STOCK_IN_OUT:
+      case ProductHistoryDocumentTypes.OTHER_STOCK_IN_OUT:
         return UrlConfig.STOCK_IN_OUT_OTHERS;
       default:
         return type;
@@ -46,7 +38,7 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
   return (
     <div>
       <CustomTable
-        isLoading={loadingHis}
+        isLoading={isLoadingHis}
         className="small-padding"
         dataSource={data.items}
         pagination={{
@@ -63,7 +55,7 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
             dataIndex: "code",
             render: (value, record: HistoryInventoryResponse) => {
               let id = record.parent_document_id;
-              if (record.document_type === DocumentType.RETURN_ORDER) {
+              if (record.document_type === ProductHistoryDocumentTypes.RETURN_ORDER) {
                 id = record.document_id;
               }
 

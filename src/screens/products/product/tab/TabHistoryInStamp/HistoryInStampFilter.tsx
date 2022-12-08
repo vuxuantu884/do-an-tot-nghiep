@@ -17,7 +17,7 @@ import {
 import { VariantSearchQuery } from "model/product/product.model";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
+import { convertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 import {
   DATE_FORMAT,
   formatDateFilter,
@@ -47,8 +47,8 @@ const HistoryInStampFilter: React.FC<ProductFilterProps> = (props: ProductFilter
   const [dateClick, setDateClick] = useState("");
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
   const { fetchMerchans, merchans, isLoadingMerchans } = useFetchMerchans();
-
   const { note } = params;
+
   useEffect(() => {
     const filter = {
       from_create_date: formatDateFilter(params.from_create_date),
@@ -61,7 +61,7 @@ const HistoryInStampFilter: React.FC<ProductFilterProps> = (props: ProductFilter
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formAvd, params]);
 
-  const onFinish = useCallback(
+  const submitForm = useCallback(
     (values: any) => {
       const valuesForm = {
         ...values,
@@ -72,7 +72,7 @@ const HistoryInStampFilter: React.FC<ProductFilterProps> = (props: ProductFilter
     [onFilter],
   );
 
-  const onFinishAvd = useCallback(
+  const submitAdvForm = useCallback(
     (values: any) => {
       form.setFieldsValue(values);
       values.from_create_date = getStartOfDayCommon(values.from_create_date)?.format();
@@ -84,7 +84,7 @@ const HistoryInStampFilter: React.FC<ProductFilterProps> = (props: ProductFilter
     [form, onFilter, setAdvanceFilters, advanceFilters],
   );
 
-  const onFilterClick = useCallback(() => {
+  const clickFilter = useCallback(() => {
     setVisible(false);
     formAvd.submit();
   }, [formAvd]);
@@ -93,11 +93,11 @@ const HistoryInStampFilter: React.FC<ProductFilterProps> = (props: ProductFilter
     setVisible(true);
   }, []);
 
-  const onCancelFilter = useCallback(() => {
+  const cancelFilter = useCallback(() => {
     setVisible(false);
   }, []);
 
-  const onClearFilterClick = useCallback(() => {
+  const clearFilter = useCallback(() => {
     formAvd.resetFields();
     formAvd.submit();
     setVisible(false);
@@ -122,7 +122,7 @@ const HistoryInStampFilter: React.FC<ProductFilterProps> = (props: ProductFilter
   return (
     <StyledComponent>
       <div className="product-filter">
-        <Form onFinish={onFinish} form={form} initialValues={params} layout="inline">
+        <Form onFinish={submitForm} form={form} initialValues={params} layout="inline">
           <CustomFilter onMenuClick={onMenuClick} menu={actions}>
             <Item name="info" className="search">
               <Input
@@ -167,13 +167,13 @@ const HistoryInStampFilter: React.FC<ProductFilterProps> = (props: ProductFilter
         />
         <FilterList filters={advanceFilters} resetField={resetField} />
         <BaseFilter
-          onClearFilter={onClearFilterClick}
-          onFilter={onFilterClick}
-          onCancel={onCancelFilter}
+          onClearFilter={clearFilter}
+          onFilter={clickFilter}
+          onCancel={cancelFilter}
           visible={visible}
           width={700}
         >
-          <Form onFinish={onFinishAvd} form={formAvd} ref={formRef} layout="vertical">
+          <Form onFinish={submitAdvForm} form={formAvd} ref={formRef} layout="vertical">
             <Item name="info" className="search" style={{ display: "none" }}>
               <Input className="w-100" />
             </Item>
@@ -255,8 +255,8 @@ const FilterItemMerchandisers = ({ values, resetField, wins }: any) => {
 const FilterList = ({ filters, resetField }: any) => {
   const newFilters = { ...filters };
   let filtersKeys = Object.keys(newFilters);
-  let renderTxt: any = null;
-  const newKeys = ConvertDatesLabel(newFilters, keysDateFilter);
+  let renderTxt: string;
+  const newKeys = convertDatesLabel(newFilters, keysDateFilter);
   filtersKeys = filtersKeys.filter((i) => !isExistInArr(keysDateFilter, i));
   const dataList = [...newKeys, ...filtersKeys];
 

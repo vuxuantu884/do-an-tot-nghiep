@@ -1,7 +1,6 @@
 import { FormInstance } from "antd/es/form/Form";
-import { UploadFile } from "antd/lib/upload/interface";
-import currencyFormater from "currency.js";
 import BaseResponse from "base/base.response";
+import currencyFormatter from "currency.js";
 import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import _, { cloneDeep, sortBy } from "lodash";
@@ -12,20 +11,9 @@ import { CityView, DistrictResponse } from "model/content/district.model";
 import { LineItem } from "model/inventory/transfer";
 import { OrderModel } from "model/order/order.model";
 import { RouteMenu } from "model/other";
-import { CategoryResponse, CategoryView } from "model/product/category.model";
 import {
-  ProductRequest,
-  ProductRequestView,
-  ProductResponse,
   VariantImage,
-  VariantPriceRequest,
   VariantPricesResponse,
-  VariantPriceViewRequest,
-  VariantRequest,
-  VariantRequestView,
-  VariantResponse,
-  VariantUpdateRequest,
-  VariantUpdateView,
 } from "model/product/product.model";
 import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
@@ -50,7 +38,6 @@ import moment, { Moment } from "moment";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { BaseFilterTag } from "../model/base/base-filter-tag";
 import {
-  ArrDefects,
   LAZADA,
   OrderStatus,
   PaymentMethodCode,
@@ -159,16 +146,6 @@ export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = "
   return result;
 };
 
-export const convertCategory = (data: Array<CategoryResponse>) => {
-  let arr: Array<CategoryView> = [];
-  data.forEach((item) => {
-    let level = 1;
-    let temp = getArrCategory(item, level, null);
-    arr = [...arr, ...temp];
-  });
-  return arr;
-};
-
 export const convertDepartment = (data: Array<DepartmentResponse>) => {
   let arr: Array<DepartmentView> = [];
   data.forEach((item) => {
@@ -176,46 +153,6 @@ export const convertDepartment = (data: Array<DepartmentResponse>) => {
     let temp = getArrDepartment(item, level, null);
     arr = [...arr, ...temp];
   });
-  return arr;
-};
-
-export const getArrCategory = (
-  i: CategoryResponse,
-  level: number,
-  parent: CategoryResponse | null,
-) => {
-  let arr: Array<CategoryView> = [];
-  let parentTemp = null;
-  if (parent !== null) {
-    parentTemp = {
-      id: parent.id,
-      name: parent.name,
-    };
-  }
-  arr.push({
-    id: i.id,
-    created_by: i.created_by,
-    created_date: i.created_date,
-    created_name: i.created_name,
-    updated_by: i.updated_by,
-    updated_name: i.updated_name,
-    updated_date: i.updated_date,
-    version: i.version,
-    code: i.code,
-    goods_name: i.goods_name,
-    goods: i.goods,
-    level: level,
-    parent: parentTemp,
-    name: i.name,
-    child_ids: i.child_ids,
-    isHaveChild: i.children.length > 0,
-  });
-  if (i.children.length > 0) {
-    i.children.forEach((i1) => {
-      let c = getArrCategory(i1, level + 1, i);
-      arr = [...arr, ...c];
-    });
-  }
   return arr;
 };
 
@@ -368,7 +305,7 @@ export const formatCurrencyValue = (
   }
 
   return (
-    currencyFormater(amount, {
+    currencyFormatter(amount, {
       symbol: "",
       separator,
       decimal,
@@ -377,25 +314,6 @@ export const formatCurrencyValue = (
     " " +
     currencyCode
   );
-};
-
-export const formatCurrencyForProduct = (
-  currency: number | string | boolean,
-  sep: string = ".",
-): string => {
-  try {
-    if (currency === null || currency === undefined || currency === "") return "";
-
-    if (typeof currency === "number") {
-      currency = Math.round(currency);
-    } else if (typeof currency === "string") {
-      currency = Math.round(Number(currency));
-    }
-    let format = currency.toString();
-    return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, `$1${sep}`);
-  } catch (e) {
-    return "";
-  }
 };
 
 export const generateQuery = (obj: any) => {
@@ -546,245 +464,6 @@ export const haveAccess = (
 export const ListUtil = {
   notEmpty: (a: Array<any> | undefined) => {
     return a !== undefined && a.length >= 0;
-  },
-};
-
-export const Products = {
-  convertVariantPriceViewToRequest: (priceView: Array<VariantPriceViewRequest>) => {
-    let variant_prices: Array<VariantPriceRequest> = [];
-    priceView.forEach((item) => {
-      variant_prices.push({
-        cost_price: item.cost_price === "" ? null : item.cost_price,
-        currency_code: item.currency,
-        import_price: item.import_price === "" ? null : item.import_price,
-        retail_price: item.retail_price === "" ? null : item.retail_price,
-        tax_percent: item.tax_percent === "" ? null : item.tax_percent,
-        wholesale_price: item.wholesale_price === "" ? null : item.wholesale_price,
-      });
-    });
-    return variant_prices;
-  },
-  convertProductViewToRequest: (
-    pr: ProductRequestView,
-    arrVariants: Array<VariantRequestView>,
-    status: string,
-  ) => {
-    let variants: Array<VariantRequest> = [];
-    let variant_prices: Array<VariantPriceRequest> = [];
-
-    pr.variant_prices.forEach((item) => {
-      variant_prices.push({
-        cost_price: item.cost_price === "" ? null : item.cost_price,
-        currency_code: item.currency,
-        import_price: item.import_price === "" ? null : item.import_price,
-        retail_price: item.retail_price === "" ? null : item.retail_price,
-        tax_percent: item.tax_percent === "" ? null : item.tax_percent,
-        wholesale_price: item.wholesale_price === "" ? null : item.wholesale_price,
-      });
-    });
-
-    arrVariants.forEach((item) => {
-      item.type = 0;
-      let vp = _.cloneDeep(variant_prices);
-      if (ArrDefects.find((e) => item.sku.indexOf(e.code) !== -1)) {
-        item.type = 1;
-      }
-      if (item.defect_code) {
-        item.type = 1;
-        vp.forEach((itemPrice) => {
-          const valueDefect = ArrDefects.find((e: any) => e.code === item.defect_code)?.value;
-          if (!valueDefect) return;
-          if (itemPrice.retail_price !== null)
-            itemPrice.retail_price = parseFloat(
-              ((itemPrice.retail_price * (100 - valueDefect)) / 100).toFixed(2),
-            );
-          if (itemPrice.cost_price !== null)
-            itemPrice.cost_price = parseFloat(
-              ((itemPrice.cost_price * (100 - valueDefect)) / 100).toFixed(2),
-            );
-          if (itemPrice.import_price !== null)
-            itemPrice.import_price = parseFloat(
-              ((itemPrice.import_price * (100 - valueDefect)) / 100).toFixed(2),
-            );
-          if (itemPrice.wholesale_price !== null)
-            itemPrice.wholesale_price = parseFloat(
-              ((itemPrice.wholesale_price * (100 - valueDefect)) / 100).toFixed(2),
-            );
-        });
-      }
-
-      variants.push({
-        type: item.type,
-        status: status,
-        name: item.name,
-        color_id: item.color_id,
-        size_id: item.size_id,
-        barcode: null,
-        taxable: false,
-        saleable: item.saleable ?? pr.saleable,
-        deleted: false,
-        sku: item.sku,
-        width: pr.width,
-        height: pr.height,
-        length: pr.length,
-        length_unit: pr.length_unit,
-        weight: pr.weight,
-        weight_unit: pr.weight_unit,
-        variant_prices: [...vp],
-        variant_images: item.variant_images,
-        inventory: 0,
-        supplier_ids: pr.suppliers,
-        suppliers: pr.suppliers,
-      });
-    });
-
-    let productRequest: ProductRequest = {
-      brand: pr.brand,
-      category_id: pr.category_id,
-      code: pr.code,
-      content: pr.content,
-      description: pr.description,
-      designer_code: pr.designer_code,
-      goods: pr.goods,
-      made_in_id: pr.made_in_id,
-      merchandiser_code: pr.merchandiser_code,
-      name: pr.name,
-      care_labels: pr.care_labels,
-      specifications: pr.specifications,
-      product_type: pr.product_type ? pr.product_type : "",
-      status: status,
-      tags: pr.tags,
-      variants: variants,
-      unit: pr.unit,
-      suppliers: pr.suppliers,
-      material_id: pr.material_id,
-      material: pr.material,
-      collections: pr.product_collections,
-      component: pr.component,
-      advantages: pr.advantages,
-      defect: pr.defect,
-    };
-    return productRequest;
-  },
-  findAvatar: (images: Array<VariantImage>): VariantImage | null => {
-    let image: VariantImage | null = null;
-    images?.forEach((imageRequest) => {
-      if (imageRequest.variant_avatar) {
-        image = imageRequest;
-      }
-    });
-    return image;
-  },
-  /**
-   * @param prices
-   * @param currency
-   * @returns
-   */
-  findPrice: (
-    prices: Array<VariantPricesResponse>,
-    currency?: string,
-  ): VariantPricesResponse | null => {
-    let price: VariantPricesResponse | null = null;
-    prices?.forEach((priceResponse) => {
-      if (priceResponse.currency_code === currency) {
-        price = priceResponse;
-      }
-    });
-    return price;
-  },
-  convertVariantRequestToView: (variant: VariantResponse) => {
-    let variantPrices: Array<VariantPriceViewRequest> = [];
-    let variantUpdateView: VariantUpdateView = {
-      id: variant.id,
-      product_id: variant.product_id,
-      supplier_ids: variant.supplier_ids,
-      status: variant.status,
-      name: variant.name,
-      color_id: variant.color_id,
-      size_id: variant.size_id,
-      barcode: variant.barcode,
-      taxable: variant.taxable,
-      saleable: variant.saleable,
-      deleted: false,
-      sku: variant.sku,
-      width: variant.width,
-      height: variant.height,
-      length: variant.length,
-      length_unit: variant.length_unit,
-      weight: variant.weight,
-      weight_unit: variant.weight_unit,
-      variant_prices: variantPrices,
-      product: {
-        product_type: variant.product.product_type,
-        goods: variant.product.goods,
-        category_id: variant.product.category_id,
-        collections: variant.product.collections.map((i) => i.code),
-        tags: variant.product.tags !== null ? variant.product.tags.split(";") : [],
-        product_unit: variant.product.unit,
-        brand: variant.product.brand,
-        content: variant.product.content,
-        description: variant.product.description,
-        designer_code: variant.product.designer_code,
-        made_in_id: variant.product.made_in_id,
-        merchandiser_code: variant.product.merchandiser_code,
-        care_labels: variant.product.care_labels,
-        specifications: variant.product.specifications,
-        material_id: variant.product.material_id,
-      },
-      variant_image: null,
-    };
-    return variantUpdateView;
-  },
-  convertVariantResponseToRequest: (variant: VariantResponse) => {
-    let variantUpadteRequest: VariantUpdateRequest = {
-      id: variant.id,
-      composite: variant.composite,
-      product_id: variant.product_id,
-      supplier_ids: variant.supplier_ids,
-      status: variant.status,
-      name: variant.name,
-      color_id: variant.color_id,
-      size_id: variant.size_id,
-      barcode: variant.barcode,
-      taxable: variant.taxable,
-      saleable: variant.saleable,
-      deleted: false,
-      sku: variant.sku,
-      width: variant.width,
-      height: variant.height,
-      length: variant.length,
-      length_unit: variant.length_unit,
-      weight: variant.weight,
-      weight_unit: variant.weight_unit,
-      variant_prices: variant.variant_prices,
-      variant_images: variant.variant_images,
-    };
-    return variantUpadteRequest;
-  },
-  findAvatarProduct: (product: ProductResponse | null) => {
-    let avatar = null;
-    if (product) {
-      product.variants?.forEach((variant) => {
-        variant.variant_images?.forEach((variantImage) => {
-          if (variantImage.product_avatar) {
-            avatar = variantImage.url;
-          }
-        });
-      }, []);
-    }
-    return avatar;
-  },
-  convertAvatarToFileList: (arrImg: Array<VariantImage>) => {
-    let arr: Array<UploadFile> = [];
-    arrImg?.forEach((item, index) => {
-      arr.push({
-        uid: item.image_id.toString(),
-        name: item.image_id.toString(),
-        url: item.url,
-        status: "done",
-      });
-    });
-    return arr;
   },
 };
 
@@ -2233,30 +1912,3 @@ export function capitalEachWords(str: string) {
     .map((item) => _.capitalize(item))
     .join(" ");
 }
-
-export const convertVariantPrices = (
-  variants: Array<VariantResponse>,
-  variantActive: VariantResponse,
-) => {
-  let v: Array<VariantResponse> = [];
-  variants.forEach((item) => {
-    const variantDefect = ArrDefects.find((e) => item.sku.indexOf(e.code) !== -1);
-
-    item.variant_prices.forEach((e) => {
-      if (e.retail_price !== null) {
-        const retailPriceActive = variantActive.variant_prices[0]?.retail_price ?? 0;
-
-        e.retail_price = retailPriceActive;
-        if (variantDefect) {
-          e.retail_price = parseFloat(
-            ((retailPriceActive * (100 - variantDefect.value)) / 100).toFixed(2),
-          );
-        }
-        e.currency_code = variantActive.variant_prices[0].currency_code;
-        e.currency_symbol = variantActive.variant_prices[0].currency_symbol;
-      }
-    });
-    v.push(item);
-  });
-  return variants;
-};

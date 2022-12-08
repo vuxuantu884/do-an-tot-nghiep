@@ -6,7 +6,7 @@ import { formatCurrency, replaceFormatString, scrollAndFocusToDomElement } from 
 import NumberInput from "component/custom/number-input.custom";
 import { PriceRuleMethod } from "model/promotion/price-rules.model";
 import { PRICE_RULE_FIELDS } from "screens/promotion/constants";
-import OrderThresholdIssueTypeForm from "screens/promotion/issue/components/issue-type-order-threshold-form";
+import IssueTypeForm from "screens/promotion/issue/components/issue-type-form";
 import GeneralOrderThreshold from "screens/promotion/shared/general-order-threshold";
 import IssueProvider, { IssueContext } from "screens/promotion/issue/components/issue-provider";
 import { StyledPromotionModal } from "screens/settings/sms/styles";
@@ -226,7 +226,7 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <OrderThresholdIssueTypeForm form={form} isSetFormValues={isSetFormValues} />
+                  <IssueTypeForm form={form} isSetFormValues={isSetFormValues} />
                 </Col>
                 <Col span={24}></Col>
               </Row>

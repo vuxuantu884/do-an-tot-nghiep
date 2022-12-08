@@ -6,28 +6,28 @@ import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ProductHistoryQuery, ProductHistoryResponse } from "model/product/product.model";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
-import { formatCurrencyForProduct, generateQuery } from "utils/AppUtils";
+import { generateQuery } from "utils/AppUtils";
+import { formatCurrencyForProduct, HISTORY_PRICE_PRODUCT_TYPES } from "screens/products/helper";
 import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, getEndOfDay, getStartOfDay } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import HistoryProductFilter from "../../filter/HistoryProductFilter";
+import { HistoryProductFilter } from "../../filter";
 import { StyledComponent } from "../style";
+
 const initQuery: ProductHistoryQuery = {
   history_type: "UPDATE_PRICE",
 };
-
-const IS_PRODUCT_TYPE = ["ADD_PRODUCT", "UPDATE_PRODUCT", "DELETE_PRODUCT"];
 
 const TabHistoryPrice: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
-  const [showSettingColumn, setShowSettingColumn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isShowSettingColumn, setIsShowSettingColumn] = useState(false);
   const [data, setData] = useState<PageResponse<ProductHistoryResponse>>({
     metadata: {
       limit: 30,
@@ -36,29 +36,31 @@ const TabHistoryPrice: React.FC = () => {
     },
     items: [],
   });
+  const dataQuery: ProductHistoryQuery = {
+    ...initQuery,
+    ...getQueryParams(query),
+  };
+  const [params, setParams] = useState<ProductHistoryQuery>(dataQuery);
+
   const onResult = useCallback((result: PageResponse<ProductHistoryResponse> | false) => {
-    setLoading(false);
+    setIsLoading(false);
     if (result) {
       setData(result);
     }
   }, []);
-  let dataQuery: ProductHistoryQuery = {
-    ...initQuery,
-    ...getQueryParams(query),
-  };
-  let [params, setParams] = useState<ProductHistoryQuery>(dataQuery);
-  const onPageChange = useCallback(
+
+  const changePage = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
-      let queryParam = generateQuery(params);
+      const queryParam = generateQuery(params);
       setParams({ ...params });
       history.replace(`${ProductTabUrl.HISTORY_PRICES}?${queryParam}`);
     },
     [history, params],
   );
 
-  const defaultColumn: Array<ICustomTableColumType<ProductHistoryResponse>> = useMemo(() => {
+  const defaultColumns: Array<ICustomTableColumType<ProductHistoryResponse>> = useMemo(() => {
     return [
       {
         title: "Sản phẩm",
@@ -67,7 +69,7 @@ const TabHistoryPrice: React.FC = () => {
         visible: true,
         fixed: "left",
         render: (value, item) => {
-          if (IS_PRODUCT_TYPE.includes(value)) {
+          if (HISTORY_PRICE_PRODUCT_TYPES.includes(value)) {
             return (
               <div>
                 <Link to="">{item.product_code}</Link>
@@ -209,14 +211,15 @@ const TabHistoryPrice: React.FC = () => {
   }, []);
 
   const [columns, setColumns] =
-    useState<Array<ICustomTableColumType<ProductHistoryResponse>>>(defaultColumn);
+    useState<Array<ICustomTableColumType<ProductHistoryResponse>>>(defaultColumns);
   const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(
     COLUMN_CONFIG_TYPE.COLUMN_PRODUCT_PRICE,
   );
+
   useSetTableColumns(
     COLUMN_CONFIG_TYPE.COLUMN_PRODUCT_PRICE,
     tableColumnConfigs,
-    defaultColumn,
+    defaultColumns,
     setColumns,
   );
 
@@ -225,7 +228,7 @@ const TabHistoryPrice: React.FC = () => {
   }, [columns]);
 
   useEffect(() => {
-    setLoading(true);
+    setIsLoading(true);
     dispatch(productGetHistoryAction(params, onResult));
   }, [dispatch, onResult, params]);
 
@@ -233,7 +236,7 @@ const TabHistoryPrice: React.FC = () => {
     <StyledComponent>
       <HistoryProductFilter
         onFinish={(values: any) => {
-          let { from_action_date, to_action_date, condition } = values;
+          const { from_action_date, to_action_date, condition } = values;
 
           if (from_action_date) {
             values.from_action_date = getStartOfDay(from_action_date);
@@ -242,13 +245,13 @@ const TabHistoryPrice: React.FC = () => {
             values.to_action_date = getEndOfDay(to_action_date);
           }
           values.condition = condition && condition.trim();
-          let newParams = { ...params, ...values, page: 1 };
+          const newParams = { ...params, ...values, page: 1 };
 
           setParams(newParams);
-          let queryParam = generateQuery(newParams);
+          const queryParam = generateQuery(newParams);
           history.replace(`${ProductTabUrl.HISTORY_PRICES}?${queryParam}`);
         }}
-        onShowColumnSetting={() => setShowSettingColumn(true)}
+        onShowColumnSetting={() => setIsShowSettingColumn(true)}
         onMenuClick={() => {}}
         actions={[]}
       />
@@ -257,31 +260,31 @@ const TabHistoryPrice: React.FC = () => {
         bordered
         rowKey={(record) => record.id}
         isRowSelection
-        // scroll={{ x: 1300 }}
         scroll={{ x: "max-content" }}
         columns={columnFinal}
         dataSource={data.items}
-        isLoading={loading}
+        isLoading={isLoading}
         sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
+        isShowPaginationAtHeader
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,
           current: data.metadata.page,
           showSizeChanger: true,
-          onChange: onPageChange,
-          onShowSizeChange: onPageChange,
+          onChange: changePage,
+          onShowSizeChange: changePage,
         }}
       />
       <ModalSettingColumn
         isSetDefaultColumn
-        visible={showSettingColumn}
-        onCancel={() => setShowSettingColumn(false)}
+        visible={isShowSettingColumn}
+        onCancel={() => setIsShowSettingColumn(false)}
         onOk={(data) => {
-          setShowSettingColumn(false);
+          setIsShowSettingColumn(false);
           setColumns(data);
           onSaveConfigTableColumn(data);
         }}
-        data={defaultColumn}
+        data={defaultColumns}
       />
     </StyledComponent>
   );

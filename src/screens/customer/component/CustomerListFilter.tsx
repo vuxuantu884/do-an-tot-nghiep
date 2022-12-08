@@ -1088,6 +1088,25 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     }
 
     if (
+      !isNullOrUndefined(initialValues.total_order_has_gross_sale_from) ||
+      !isNullOrUndefined(initialValues.total_order_has_gross_sale_to)
+    ) {
+      let accumulatedAmountFiltered =
+        (isNullOrUndefined(initialValues.total_order_has_gross_sale_from)
+          ? ""
+          : formatCurrency(initialValues.total_order_has_gross_sale_from)) +
+        " - " +
+        (isNullOrUndefined(initialValues.total_order_has_gross_sale_to)
+          ? ""
+          : formatCurrency(initialValues.total_order_has_gross_sale_to));
+      list.push({
+        key: "total_order_has_gross_sale",
+        name: "Tổng số hóa đơn > 0",
+        value: accumulatedAmountFiltered,
+      });
+    }
+
+    if (
       !isNullOrUndefined(initialValues.total_returned_order_from) ||
       !isNullOrUndefined(initialValues.total_returned_order_to)
     ) {
@@ -1417,6 +1436,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     initialValues.total_paid_amount_to,
     initialValues.gross_sale_from,
     initialValues.gross_sale_to,
+    initialValues.total_order_has_gross_sale_from,
+    initialValues.total_order_has_gross_sale_to,
     initialValues.total_returned_order_from,
     initialValues.total_returned_order_to,
     initialValues.remain_amount_to_level_up_from,
@@ -1749,6 +1770,14 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
           break;
         case "gross_sale":
           onFilter && onFilter({ ...params, gross_sale_from: null, gross_sale_to: null });
+          break;
+        case "total_order_has_gross_sale":
+          onFilter &&
+            onFilter({
+              ...params,
+              total_order_has_gross_sale_from: null,
+              total_order_has_gross_sale_to: null,
+            });
           break;
 
         default:
@@ -3214,6 +3243,137 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                 </div>
               </div>
 
+              <div className="base-filter-row" style={{ marginTop: 10 }}>
+                <div className="left-filter">
+                  <div className="title">Số ngày chưa mua hàng</div>
+                  <div className="select-scope">
+                    <Form.Item
+                      className="select-item"
+                      name="number_of_days_without_purchase_from"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số ngày chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
+                        placeholder="Từ"
+                        maxLength={6}
+                      />
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item
+                      className="select-item"
+                      name="number_of_days_without_purchase_to"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Số ngày chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
+                        placeholder="Đến"
+                        maxLength={6}
+                      />
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <div className="center-filter">
+                  <div className="title">Doanh thu</div>
+                  <div className="select-scope">
+                    <Form.Item
+                      className="select-item"
+                      name="gross_sale_from"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Doanh thu chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
+                        placeholder="Từ"
+                        maxLength={15}
+                      />
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item
+                      className="select-item"
+                      name="gross_sale_to"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Doanh thu chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
+                        placeholder="Đến"
+                        maxLength={15}
+                      />
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <div className="right-filter">
+                  <div className="title">{`Tổng số hóa đơn > 0`}</div>
+                  <div className="select-scope">
+                    <Form.Item
+                      className="select-item"
+                      name="total_order_has_gross_sale_from"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Tổng số hóa đơn chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
+                        placeholder="Từ"
+                        maxLength={15}
+                      />
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item
+                      className="select-item"
+                      name="total_order_has_gross_sale_to"
+                      rules={[
+                        {
+                          pattern: RegUtil.NUMBERREG,
+                          message: "Tổng số hóa đơn chỉ được phép nhập số",
+                        },
+                      ]}
+                    >
+                      <CustomNumberInput
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
+                        revertFormat={(a: string) => replaceFormatString(a)}
+                        placeholder="Đến"
+                        maxLength={15}
+                      />
+                    </Form.Item>
+                  </div>
+                </div>
+              </div>
+
               <div className="base-filter-row">
                 <div className="left-filter">
                   <div style={{ marginBottom: "8px" }}>
@@ -3289,90 +3449,6 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                         maxLength={15}
                       />
                     </Form.Item>
-                  </div>
-
-                  <div className="title">Số ngày chưa mua hàng</div>
-                  <div className="select-scope">
-                    <Form.Item
-                      className="select-item"
-                      name="number_of_days_without_purchase_from"
-                      rules={[
-                        {
-                          pattern: RegUtil.NUMBERREG,
-                          message: "Số ngày chỉ được phép nhập số",
-                        },
-                      ]}
-                    >
-                      <CustomNumberInput
-                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
-                        revertFormat={(a: string) => replaceFormatString(a)}
-                        placeholder="Từ"
-                        maxLength={6}
-                      />
-                    </Form.Item>
-
-                    <img src={rightArrow} alt="" />
-
-                    <Form.Item
-                      className="select-item"
-                      name="number_of_days_without_purchase_to"
-                      rules={[
-                        {
-                          pattern: RegUtil.NUMBERREG,
-                          message: "Số ngày chỉ được phép nhập số",
-                        },
-                      ]}
-                    >
-                      <CustomNumberInput
-                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
-                        revertFormat={(a: string) => replaceFormatString(a)}
-                        placeholder="Đến"
-                        maxLength={6}
-                      />
-                    </Form.Item>
-                  </div>
-
-                  <div>
-                    <div className="title">Doanh thu</div>
-                    <div className="select-scope">
-                      <Form.Item
-                        className="select-item"
-                        name="gross_sale_from"
-                        rules={[
-                          {
-                            pattern: RegUtil.NUMBERREG,
-                            message: "Doanh thu chỉ được phép nhập số",
-                          },
-                        ]}
-                      >
-                        <CustomNumberInput
-                          format={(a: string) => formatCurrencyNotDefaultValue(a)}
-                          revertFormat={(a: string) => replaceFormatString(a)}
-                          placeholder="Từ"
-                          maxLength={15}
-                        />
-                      </Form.Item>
-
-                      <img src={rightArrow} alt="" />
-
-                      <Form.Item
-                        className="select-item"
-                        name="gross_sale_to"
-                        rules={[
-                          {
-                            pattern: RegUtil.NUMBERREG,
-                            message: "Doanh thu chỉ được phép nhập số",
-                          },
-                        ]}
-                      >
-                        <CustomNumberInput
-                          format={(a: string) => formatCurrencyNotDefaultValue(a)}
-                          revertFormat={(a: string) => replaceFormatString(a)}
-                          placeholder="Đến"
-                          maxLength={15}
-                        />
-                      </Form.Item>
-                    </div>
                   </div>
 
                   <Form.Item name="characteristics" label={<b>Đặc điểm:</b>}>

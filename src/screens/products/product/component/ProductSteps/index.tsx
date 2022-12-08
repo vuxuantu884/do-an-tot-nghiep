@@ -1,7 +1,7 @@
 import { CheckOutlined } from "@ant-design/icons";
 import { Steps } from "antd";
 import { ProductResponse, VariantResponse } from "model/product/product.model";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import "./index.scss";
 
 export declare type Status = "error" | "process" | "finish" | "wait";
@@ -20,7 +20,7 @@ type ProductStepStatus = {
 const { Step } = Steps;
 
 const progressDot = (dot: any, { status, index }: any) => {
-  let stt = 1;
+  let stt: number;
   stt = index === 1 ? 2 : index === 2 ? 3 : 1;
 
   return (
@@ -31,10 +31,11 @@ const progressDot = (dot: any, { status, index }: any) => {
 };
 
 const ProductSteps: React.FC<ProductStepsProps> = (props: ProductStepsProps) => {
+  const { data } = props;
   const objProductSteps = useMemo(() => {
-    const product = { ...props.data };
+    const product = { ...data };
 
-    let productStepStatus: ProductStepStatus = {
+    const productStepStatus: ProductStepStatus = {
       Material: "wait",
       Price: "wait",
       Image: "wait",
@@ -80,7 +81,7 @@ const ProductSteps: React.FC<ProductStepsProps> = (props: ProductStepsProps) => 
     productStepStatus.ProcessImage = `Ảnh mẫu (${processedImage}/${product.variants.length})`;
 
     return productStepStatus;
-  }, [props.data]);
+  }, [data]);
 
   return (
     <Steps size="small" progressDot={progressDot}>

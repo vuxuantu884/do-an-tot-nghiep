@@ -1,6 +1,6 @@
 import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
+import { ProductHelper } from "utils";
 import { Tooltip } from "antd";
-import { formatCurrencyForProduct } from "utils/AppUtils";
 import { sortActionColor } from "utils/global-styles/variables";
 import "./index.scss";
 
@@ -59,7 +59,7 @@ export const HeaderSummary = (
               position: "absolute",
               bottom: 0,
             }}
-          >{`${formatCurrencyForProduct(total, ".")}`}</div>
+          >{`${ProductHelper.formatCurrencyForProduct(total, ".")}`}</div>
         </div>
       ) : null}
     </div>

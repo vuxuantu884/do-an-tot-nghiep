@@ -1,27 +1,19 @@
 import CustomTable from "component/table/CustomTable";
 import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
-import { formatCurrencyForProduct } from "utils/AppUtils";
+import { EInventoryStatus, formatCurrencyForProduct } from "screens/products/helper";
 import { Link } from "react-router-dom";
 import React, { useCallback } from "react";
-import UrlConfig from "../../../../../config/url.config";
+import UrlConfig from "config/url.config";
 
-interface IProps {
+type TabProductInventoryProps = {
   data: PageResponse<InventoryResponse>;
   onChange: (page: number, pageSize?: number) => void;
-  loadingInventories?: boolean;
+  isLoadingInventories?: boolean;
 }
 
-enum EInventoryStatus {
-  COMMITTED = "committed",
-  ON_HOLD = "on_hold",
-  IN_COMING = "in_coming",
-  TRANSFERRING = "transferring",
-  ON_WAY = "on_way",
-}
-
-const TabProductInventory: React.FC<IProps> = (props: IProps) => {
-  const { data, loadingInventories } = props;
+const TabProductInventory: React.FC<TabProductInventoryProps> = (props: TabProductInventoryProps) => {
+  const { data, isLoadingInventories } = props;
 
   const goDocument = useCallback(
     (inventoryStatus: string, sku: string, variantName: string, store_id?: number) => {
@@ -72,7 +64,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
         className="small-padding"
         dataSource={data.items}
         pagination={false}
-        isLoading={loadingInventories}
+        isLoading={isLoadingInventories}
         sticky={{ offsetHeader: 55, offsetScroll: 10 }}
         rowKey={(record) => record.id}
         columns={[

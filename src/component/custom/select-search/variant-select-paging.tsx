@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { callApiNative } from "utils/ApiUtils";
 import SelectPagingV2 from "../SelectPaging/SelectPagingV2";
-import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { ProductWrapperSearchQuery, VariantSku3Response } from "model/product/product.model";
 import { searchVariantSku3Api } from "service/product/product.service";
 export interface SelectContentProps extends SelectProps<any> {

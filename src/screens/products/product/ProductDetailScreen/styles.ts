@@ -187,4 +187,40 @@ export const StyledComponent = styled.div`
     border-color: #180973;
     margin: auto;
   }
+  .modal-des .ant-modal-body {
+    padding: 0px;
+  }
+  .modal-des .des-content {
+    overflow: auto;
+  }
+  .modal-des .ant-tabs-content {
+    padding: 24px;
+  }
+  .product-detail .page-header {
+    margin-bottom: 8px;
+  }
+  #tab .card .ant-card-body {
+    padding-top: 0px;
+  }
+  .variant-prices {
+    margin-right: 15px;
+    flex-grow: 1;
+    flex-shrink: 1;
+  }
+
+  .variant-price-container {
+    display: flex;
+    flex-shrink: 1;
+    flex-wrap: wrap;
+    margin-top: 30px;
+  }
+
+  .variant-price-title {
+    font-weight: bold;
+  }
+
+  .variant-price-title {
+    margin-bottom: 10px;
+  }
+
 `;

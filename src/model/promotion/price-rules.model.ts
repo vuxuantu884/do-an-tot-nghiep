@@ -9,6 +9,7 @@ export enum PriceRuleMethod {
   QUANTITY = "QUANTITY", // Chiết khấu theo từng sản phẩm
   ORDER_THRESHOLD = "ORDER_THRESHOLD", // Chiết khấu theo đơn hàng
   BUY_X_GET_Y = "BUY_X_GET_Y", // Tặng quà
+  DISCOUNT_CODE_QTY = "DISCOUNT_CODE_QTY", // Khuyến mãi theo từng sản phẩm
 }
 
 export enum DiscountValueType {
@@ -37,6 +38,16 @@ export enum Gender {
 export enum CustomerSelectionOption {
   ALL = "ALL",
   PREREQUISITE = "PREREQUISITE",
+}
+
+/**
+ *Dùng trong khuyến mãi theo sản phẩm
+ */
+export enum ReleasePromotionListType {
+  EQUALS = "EQUALS",
+  NOT_EQUAL_TO = "NOT_EQUAL_TO",
+  GREATER_THAN_OR_EQUAL_TO = "GREATER_THAN_OR_EQUAL_TO",
+  OTHER_CONDITION = "OTHER_CONDITION",
 }
 
 /**
@@ -210,6 +221,7 @@ export interface PriceRule extends BaseObject {
   title: string;
   total_usage_count?: number;
   type?: PriceRuleType;
+  min_quantity?: number;
   usage_limit?: number;
   usage_limit_per_customer?: number;
 }

@@ -14,7 +14,6 @@ import { searchAccountPublicAction } from "domain/actions/account/account.action
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getReturnsAction } from "domain/actions/order/order.action";
 import { getAllSourcesRequestAction } from "domain/actions/product/source.action";
-import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -53,7 +52,9 @@ import IconStore from "assets/icon/channel/store.svg";
 import IconPaymentReturn from "assets/icon/payment/tien-hoan.svg";
 import { promotionUtils } from "component/order/promotion.utils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import useHandleTableColumnsVersion2 from "hook/table/useHandleTableColumnsVersion2";
 import useAuthorization from "hook/useAuthorization";
+import useFetchUserConfigs from "hook/useFetchUserConfigSettings";
 import CopyIcon from "screens/order-online/component/CopyIcon";
 import useFetchOrderReturnReasons from "screens/order-online/hooks/useFetchOrderReturnReasons";
 import {
@@ -61,6 +62,7 @@ import {
   updateNoteOrderReturnService,
 } from "service/order/return.service";
 import EditNote from "../EditOrderNote";
+import giftIcon from "assets/icon/gift.svg";
 
 type PropTypes = {
   initQuery: ReturnSearchQuery;
@@ -110,6 +112,10 @@ function OrderReturnList(props: PropTypes) {
   // update columns table thành useMemo để fix, tạm thời dùng dataItemsClone
   // eslint-disable-next-line react-hooks/exhaustive-deps
   let dataItemsClone: any[] = [];
+
+  const [countForceFetchUserConfigs, setCountForceFetchUserConfigs] = useState(0);
+  const { userConfigs } = useFetchUserConfigs(countForceFetchUserConfigs);
+
   const setSearchResult = useCallback((result: PageResponse<ReturnModel> | false) => {
     setTableLoading(false);
     setIsFilter(false);
@@ -697,6 +703,7 @@ function OrderReturnList(props: PropTypes) {
       title: "Ghi chú",
       className: "notes",
       render: (value: string, record: any) => {
+        const promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
         return (
           <div className="orderNotes">
             <div className="inner">
@@ -716,7 +723,6 @@ function OrderReturnList(props: PropTypes) {
               </div>
               <div className="single text-left">
                 <EditNote
-                  // note={record.note}
                   note={promotionUtils.getPrivateNoteFromResponse(record.note || "")}
                   title="Nội bộ: "
                   color={primaryColor}
@@ -727,9 +733,16 @@ function OrderReturnList(props: PropTypes) {
                     note: record.note,
                     customer_note: record.customer_note,
                   }}
-                  promotionText={promotionUtils.getPromotionTextFromResponse(record.note || "")}
                 />
               </div>
+              {promotionText ? (
+                <div className="single text-left">
+                  <span className="promotionText" title="Chương trình khuyến mại">
+                    <img src={giftIcon} alt="" className="iconGift" />
+                    {promotionText}.
+                  </span>
+                </div>
+              ) : null}
             </div>
           </div>
         );
@@ -807,9 +820,11 @@ function OrderReturnList(props: PropTypes) {
 
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
-    let queryParam = generateQuery(initQuery);
-    history.push(`${UrlConfig.ORDERS_RETURN}?${queryParam}`);
-  }, [history, initQuery]);
+    const queryParam = generateQuery(initQuery);
+    const orderUrl = orderType === ORDER_TYPES.online ? UrlConfig.ORDER : UrlConfig.OFFLINE_ORDERS;
+    history.push(`${orderUrl}${UrlConfig.ORDERS_RETURN}?${queryParam}`);
+  }, [history, initQuery, orderType]);
+
   const [showExportModal, setShowExportModal] = useState(false);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [exportProgress, setExportProgress] = useState<number>(0);
@@ -977,9 +992,10 @@ function OrderReturnList(props: PropTypes) {
     orderType === ORDER_TYPES.offline
       ? COLUMN_CONFIG_TYPE.orderReturnOffline
       : COLUMN_CONFIG_TYPE.orderReturnOnline;
-  const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(columnConfigType);
+
+  const { onSaveConfigTableColumn } = useHandleTableColumnsVersion2(userConfigs, columnConfigType);
   //cột của bảng
-  useSetTableColumns(columnConfigType, tableColumnConfigs, columns, setColumns);
+  useSetTableColumns(columnConfigType, userConfigs, columns, setColumns);
 
   useEffect(() => {
     if (listExportFile.length === 0 || statusExport === 3 || statusExport === 4) return;
@@ -1211,6 +1227,10 @@ function OrderReturnList(props: PropTypes) {
             onShowColumnSetting={() => setShowSettingColumn(true)}
             onClearFilter={() => onClearFilter()}
             orderType={orderType}
+            userConfigs={userConfigs}
+            handleCountForceFetchUserConfigs={() =>
+              setCountForceFetchUserConfigs((prev) => prev + 1)
+            }
           />
           <CustomTable
             isRowSelection

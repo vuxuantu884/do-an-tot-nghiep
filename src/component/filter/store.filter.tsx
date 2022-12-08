@@ -21,7 +21,7 @@ import {
   getEndOfDayCommon,
   getStartOfDayCommon,
 } from "utils/DateUtils";
-import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
+import { convertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 import moment from "moment";
 
 type StoreFilterProps = {
@@ -266,7 +266,7 @@ const FilterList = ({ filters, resetField, type, storeRanks }: any) => {
   const newFilters = { ...filters };
   let filtersKeys = Object.keys(newFilters);
   let renderTxt: any = null;
-  const newKeys = ConvertDatesLabel(newFilters, keysFilter);
+  const newKeys = convertDatesLabel(newFilters, keysFilter);
   filtersKeys = filtersKeys.filter((i) => !isExistInArr(keysFilter, i));
 
   return (

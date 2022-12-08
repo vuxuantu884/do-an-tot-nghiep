@@ -20,4 +20,9 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  .ant-radio-group-solid
+    .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):active,
+  .ant-radio-button-wrapper-checked:not([class*=" ant-radio-button-wrapper-disabled"]).ant-radio-button-wrapper:first-child {
+    background: none;
+  }
 `;

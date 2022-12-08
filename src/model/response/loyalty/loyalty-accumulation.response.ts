@@ -3,6 +3,7 @@ import {
   LoyaltyProgramRuleItem,
   LoyaltyProgramRuleProductItem,
 } from "model/request/loyalty/create-loyalty-accumulation.request";
+import { CreateAcumulationPoints } from "screens/promotion/loyalty/accumulate";
 
 export interface LoyaltyAccumulationProgramResponse extends BaseObject {
   id: number;
@@ -22,9 +23,9 @@ export interface LoyaltyAccumulationProgramResponse extends BaseObject {
 }
 
 export interface LoyaltyProgramRuleResponse {
-  id: number;
-  order_amount_min: number;
-  order_amount_max: number;
+  order_amount: CreateAcumulationPoints;
+  total_money_spend: CreateAcumulationPoints;
+  total_order_count: CreateAcumulationPoints;
   customer_group_id: number;
   customer_ranking_id: number;
   customer_type_id: number;
