@@ -106,6 +106,7 @@ import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
 import OrderMapHandOver from "./order-map-hand-over";
 import { nameQuantityWidth, StyledComponent } from "./styles";
+import giftIcon from "assets/icon/gift.svg";
 
 type PropTypes = {
   tableLoading: boolean;
@@ -1330,6 +1331,8 @@ function OrdersTable(props: PropTypes) {
             note: privateNote,
             customer_note: record.customer_note,
           };
+
+          const promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
           return (
             <div className="orderNotes">
               <div className="inner">
@@ -1354,9 +1357,16 @@ function OrdersTable(props: PropTypes) {
                       editNote(values.note, values.customer_note, record.id, record);
                     }}
                     noteFormValue={noteFormValue}
-                    promotionText={promotionUtils.getPromotionTextFromResponse(record.note || "")}
                   />
                 </div>
+                {promotionText ? (
+                  <div className="single">
+                    <span className="promotionText" title="Chương trình khuyến mại">
+                      <img src={giftIcon} alt="" className="iconGift" />
+                      {promotionText}.
+                    </span>
+                  </div>
+                ) : null}
               </div>
             </div>
           );

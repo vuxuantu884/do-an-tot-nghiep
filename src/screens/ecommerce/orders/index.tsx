@@ -1165,7 +1165,7 @@ const EcommerceOrders: React.FC = () => {
                       customer_note: record.customer_note,
                     }}
                     isDisable={record.status === OrderStatus.CANCELLED}
-                    promotionText={promotionUtils.getPromotionTextFromResponse(record.note || "")}
+                    // promotionText={promotionUtils.getPromotionTextFromResponse(record.note || "")}
                   />
                 </div>
               </div>

@@ -3,7 +3,6 @@ import { Button, Form, Input, Popover } from "antd";
 import React, { useEffect, useState } from "react";
 import TextWithLineBreak from "../TextWithLineBreak";
 import { StyledComponent } from "./styles";
-import giftIcon from "assets/icon/gift.svg";
 
 type FormValueType = {
   [key: string]: any;
@@ -17,7 +16,6 @@ type PropTypes = {
   isHaveEditPermission?: boolean;
   onOk: (values: FormValueType) => void;
   noteFormValue: FormValueType;
-  promotionText?: string;
 };
 
 function EditOrderNote(props: PropTypes) {
@@ -29,7 +27,6 @@ function EditOrderNote(props: PropTypes) {
     isGroupButton = false,
     isHaveEditPermission = true,
     noteFormValue,
-    promotionText,
   } = props;
 
   const [form] = Form.useForm();
@@ -135,12 +132,6 @@ function EditOrderNote(props: PropTypes) {
           <span>
             {title && <strong>{title}</strong>}
             <span className="noteText">
-              {promotionText ? (
-                <span className="promotionText" title="Chương trình khuyến mại">
-                  <img src={giftIcon} alt="" className="iconGift" />
-                  {promotionText}.
-                </span>
-              ) : null}
               <TextWithLineBreak note={note} />
             </span>
           </span>

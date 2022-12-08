@@ -218,7 +218,7 @@ export const StyledComponent = styled.div.attrs((props: any) => {
       }
     }
   }
-  
+
   .shipmentType {
     .icon {
       margin-right: 5px;
@@ -237,7 +237,7 @@ export const StyledComponent = styled.div.attrs((props: any) => {
         }
       }
     }
-    .coordinator{
+    .coordinator {
       padding: 10px 0px;
     }
     .coordinator:not(:first-child) {
@@ -565,11 +565,21 @@ export const StyledComponent = styled.div.attrs((props: any) => {
     color: ${primaryColor};
     font-weight: 500;
   }
-  .uniformText{
+  .uniformText {
     color: red;
+  }
+  .promotionText {
+    color: rgb(42, 42, 134);
+    font-size: 0.93rem;
+    font-weight: 500;
+    margin-right: 3px;
+    font-style: italic;
+  }
+  .iconGift {
+    margin-right: 3px;
+    position: relative;
+    margin-top: -3px;
   }
 `;
 
 export { nameQuantityWidth };
-
-
