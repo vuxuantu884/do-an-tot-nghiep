@@ -2365,7 +2365,11 @@ function OrderCreateProduct(props: PropTypes) {
             <Form.Item>
               <AutoComplete
                 notFoundContent={
-                  keySearchVariant.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
+                  keySearchVariant.length >= 3
+                    ? searchProducts
+                      ? "Đang tải..."
+                      : "Không tìm thấy sản phẩm"
+                    : undefined
                 }
                 id="search_product"
                 value={keySearchVariant}

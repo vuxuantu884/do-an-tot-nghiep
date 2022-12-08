@@ -64,7 +64,7 @@ function OrderSettingValue(props: PropTypes) {
                       if (value) {
                         return Promise.resolve();
                       }
-                      return Promise.reject(new Error("Vui lòng nhập giá trị lớn hơn 0!"));
+                      return Promise.reject(new Error("Vui lòng nhập giá trị lớn hơn 0"));
                     },
                   }),
                 ]}
@@ -88,7 +88,7 @@ function OrderSettingValue(props: PropTypes) {
             return (
               <Form.Item
                 name={[index, "city_name"]}
-                rules={[{ required: true, message: "Vui lòng chọn thành phố" }]}
+                rules={[{ required: true, message: "Vui lòng chọn tỉnh/thành phố" }]}
               >
                 <Select
                   showSearch

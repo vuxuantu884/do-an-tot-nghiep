@@ -14,7 +14,7 @@ function OrderSettingsShippingServicesAndShippingFeeCreate(props: PropType) {
       {
         from_price: undefined,
         to_price: undefined,
-        city_name: "",
+        city_name: undefined,
         city_id: undefined,
         transport_fee: undefined,
       },

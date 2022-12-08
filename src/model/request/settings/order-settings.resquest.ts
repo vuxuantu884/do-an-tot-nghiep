@@ -6,7 +6,7 @@ export interface CreateShippingServiceConfigReQuestModel {
   shipping_fee_configs: {
     from_price: number | undefined;
     to_price: number | undefined;
-    city_name: string;
+    city_name: string | undefined;
     city_id: number | undefined;
     transport_fee: number | undefined;
   }[];
