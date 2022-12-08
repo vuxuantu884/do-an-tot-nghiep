@@ -96,7 +96,7 @@ import {
 import {
   ACCOUNT_ROLE_ID,
   ADMIN_ORDER,
-  MoneyType,
+  DISCOUNT_TYPE,
   PRODUCT_TYPE,
   ShipmentMethodOption,
   STORE_TYPE,
@@ -281,7 +281,7 @@ function OrderCreateProduct(props: PropType) {
   const [indexItem, setIndexItem] = useState<number>(-1);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
   const [isVisiblePickCoupon, setIsVisiblePickCoupon] = useState(false);
-  const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
+  const [discountType, setDiscountType] = useState<string>(DISCOUNT_TYPE.MONEY);
   const [changeMoney, setChangeMoney] = useState<number>(0);
   const [isShowProductSearch, setIsShowProductSearch] = useState(true);
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(true);
@@ -1828,13 +1828,13 @@ function OrderCreateProduct(props: PropType) {
       // setVisiblePickDiscount(false);
       let totalOrderAmount = totalAmount(items);
       setDiscountType(type);
-      if (type === MoneyType.MONEY) {
+      if (type === DISCOUNT_TYPE.MONEY) {
         _value = value;
         if (_value >= totalOrderAmount) {
           _value = totalOrderAmount;
         }
         _rate = (_value / orderAmount) * 100;
-      } else if (type === MoneyType.PERCENT) {
+      } else if (type === DISCOUNT_TYPE.PERCENT) {
         _rate = rate;
         if (_rate >= 100) {
           _rate = 100;
@@ -1936,13 +1936,13 @@ function OrderCreateProduct(props: PropType) {
         let _value = 0;
         let _rate = 0;
         let totalOrderAmount = totalAmount(_items);
-        if (discountType === MoneyType.MONEY) {
+        if (discountType === DISCOUNT_TYPE.MONEY) {
           _value = promotion?.value || 0;
           if (_value > totalOrderAmount) {
             _value = totalOrderAmount;
           }
           _rate = (_value / totalOrderAmount) * 100;
-        } else if (discountType === MoneyType.PERCENT) {
+        } else if (discountType === DISCOUNT_TYPE.PERCENT) {
           _rate = promotion?.rate || 0;
           if (_rate > 100) {
             _rate = 100;

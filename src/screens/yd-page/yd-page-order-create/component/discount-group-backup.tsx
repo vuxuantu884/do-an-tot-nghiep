@@ -2,7 +2,7 @@ import { Input, InputNumber, Select, Typography } from "antd";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useState } from "react";
 import { formatCurrency } from "utils/AppUtils";
-import { MoneyType } from "utils/Constants";
+import { DISCOUNT_TYPE } from "utils/Constants";
 
 type DiscountGroupProps = {
   price: number;
@@ -18,7 +18,7 @@ type DiscountGroupProps = {
 const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) => {
   const { items, disabled = false } = props;
   const { Text } = Typography;
-  const [selected, setSelected] = useState(MoneyType.MONEY);
+  const [selected, setSelected] = useState(DISCOUNT_TYPE.MONEY);
   let showResult = true;
 
   const changeDiscountType = (value: string) => {
@@ -35,7 +35,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
       let _items = [...items];
       let _item = _items[props.index].discount_items[0];
       let _price = _items[props.index].price;
-      if (selected === MoneyType.MONEY) {
+      if (selected === DISCOUNT_TYPE.MONEY) {
         _item.value = v;
         _item.rate = Math.round((v / _price) * 100 * 100) / 100;
         _item.amount = v;
@@ -53,8 +53,8 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
     <div>
       <Input.Group compact>
         <Select onChange={(value: string) => changeDiscountType(value)} value={selected}>
-          <Select.Option value={MoneyType.PERCENT}>%</Select.Option>
-          <Select.Option value={MoneyType.MONEY}>₫</Select.Option>
+          <Select.Option value={DISCOUNT_TYPE.PERCENT}>%</Select.Option>
+          <Select.Option value={DISCOUNT_TYPE.MONEY}>₫</Select.Option>
         </Select>
         <InputNumber
           className="hide-number-handle "
@@ -67,11 +67,11 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
             fontWeight: 500,
           }}
           value={
-            selected === MoneyType.PERCENT
+            selected === DISCOUNT_TYPE.PERCENT
               ? props.discountRate
               : formatCurrency(props.discountValue)
           }
-          max={selected === MoneyType.PERCENT ? 100 : props.price}
+          max={selected === DISCOUNT_TYPE.PERCENT ? 100 : props.price}
           onChange={ChangeValueDiscount}
           onFocus={(e) => {
             e.target.setSelectionRange(0, e.target.value.length);
@@ -82,7 +82,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
       {showResult && (
         <div className="d-flex justify-content-end yody-table-discount-converted">
           <Text type="danger">
-            {selected === MoneyType.MONEY
+            {selected === DISCOUNT_TYPE.MONEY
               ? props.discountRate + "%"
               : formatCurrency(props.discountValue)}
           </Text>

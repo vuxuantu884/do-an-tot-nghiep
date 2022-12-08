@@ -102,7 +102,7 @@ import {
 import {
   ACCOUNT_ROLE_ID,
   ADMIN_ORDER,
-  MoneyType,
+  DISCOUNT_TYPE,
   POS,
   PRODUCT_TYPE,
   ShipmentMethodOption,
@@ -111,6 +111,7 @@ import {
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import { checkIfEcommerceByOrderChannelCode } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import ButtonImportProduct from "./ButtonImportProduct";
 import CardProductBottom from "./CardProductBottom";
 import { StyledComponent } from "./styles";
 
@@ -274,7 +275,7 @@ function OrderCreateProduct(props: PropTypes) {
   const [indexItem, setIndexItem] = useState<number>(-1);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
   const [isVisiblePickCoupon, setIsVisiblePickCoupon] = useState(false);
-  const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
+  const [discountType, setDiscountType] = useState<string>(DISCOUNT_TYPE.MONEY);
   const [isShowProductSearch, setIsShowProductSearch] = useState(true);
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(true);
   const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(false);
@@ -1785,13 +1786,13 @@ function OrderCreateProduct(props: PropTypes) {
       // setVisiblePickDiscount(false);
       let totalOrderAmount = totalAmount(items);
       setDiscountType(type);
-      if (type === MoneyType.MONEY) {
+      if (type === DISCOUNT_TYPE.MONEY) {
         _value = value;
         if (_value >= totalOrderAmount) {
           _value = totalOrderAmount;
         }
         _rate = (_value / orderProductsAmount) * 100;
-      } else if (type === MoneyType.PERCENT) {
+      } else if (type === DISCOUNT_TYPE.PERCENT) {
         _rate = rate;
         if (_rate >= 100) {
           _rate = 100;
@@ -1880,13 +1881,13 @@ function OrderCreateProduct(props: PropTypes) {
         let _value = 0;
         let _rate = 0;
         let totalOrderAmount = totalAmount(_items);
-        if (discountType === MoneyType.MONEY) {
+        if (discountType === DISCOUNT_TYPE.MONEY) {
           _value = promotion?.value || 0;
           if (_value > totalOrderAmount) {
             _value = totalOrderAmount;
           }
           _rate = (_value / totalOrderAmount) * 100;
-        } else if (discountType === MoneyType.PERCENT) {
+        } else if (discountType === DISCOUNT_TYPE.PERCENT) {
           _rate = promotion?.rate || 0;
           if (_rate > 100) {
             _rate = 100;
@@ -2271,6 +2272,26 @@ function OrderCreateProduct(props: PropTypes) {
     }
   }, [coupon]);
 
+  // const handleImportNewItem = useCallback(
+  //   (item) => {
+  //     if (!items) {
+  //       return;
+  //     }
+  //     let _items = [...items];
+  //     console.log("long 111", item);
+  //     _items.push(item);
+  //     console.log("long 222", _items);
+  //     setItems(_items);
+
+  //     console.log("long tesst 11");
+  //     if (isAutomaticDiscount && _items.length > 0) {
+  //       //handleApplyDiscount(_items);
+  //     } else if (couponInputText && _items.length > 0) {
+  //       //handleApplyCouponWhenInsertCoupon(couponInputText, _items);
+  //     }
+  //   },
+  //   [couponInputText, isAutomaticDiscount, items, setItems],
+  // );
   return (
     <StyledComponent>
       <Card
@@ -2314,6 +2335,32 @@ function OrderCreateProduct(props: PropTypes) {
                 Chiết khấu tự động
               </Checkbox>
             </Form.Item>
+            <ButtonImportProduct
+              disabled={props.isPageOrderUpdate}
+              storeId={storeId}
+              items={items}
+              handleItems={(items) => {
+                if (!isAutomaticDiscount && !coupon) {
+                  calculateChangeMoney(items);
+                } else {
+                  let result = items.map((item) => {
+                    return {
+                      ...item,
+                      discount_items: [],
+                      discount_value: 0,
+                      discount_amount: 0,
+                      discount_rate: 0,
+                      line_amount_after_line_discount: item.amount,
+                    };
+                  });
+                  if (isAutomaticDiscount && result.length > 0) {
+                    handleApplyDiscount(result);
+                  } else if (couponInputText && result.length > 0) {
+                    handleApplyCouponWhenInsertCoupon(couponInputText, result);
+                  }
+                }
+              }}
+            />
             <Button
               disabled={levelOrder > 3 || isOrderFinishedOrCancel(orderDetail)}
               onClick={() => {
