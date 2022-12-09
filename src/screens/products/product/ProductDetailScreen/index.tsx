@@ -4,7 +4,6 @@ import {
   Loading3QuartersOutlined,
   MinusCircleOutlined,
   PlusCircleOutlined,
-  SearchOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import {
@@ -66,7 +65,25 @@ import { productUpdateApi } from "service/product/product.service";
 import { cloneDeep, debounce } from "lodash";
 import { fullTextSearch } from "utils/StringUtils";
 import { SupplierResponse } from "model/core/supplier.model";
+import TreeStore from "component/TreeStore";
+import { StoreResponse } from "model/core/store.model";
+import { getAllPublicSimpleStoreApi } from "service/core/store.service";
+import { enumStoreStatus } from "model/warranty/warranty.model";
 import { TabAdvertisingHistory } from "../tab";
+
+const LIMIT_PAGE = 10;
+const LIMIT_PAGE_DETAIL = 500;
+
+const initialDataInventory: PageResponse<
+  InventoryResponse | HistoryInventoryResponse | HistoryInventoryResponse
+> = {
+  items: [],
+  metadata: {
+    limit: 30,
+    page: 1,
+    total: 0,
+  },
+};
 
 const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   const { setTitle } = props;
@@ -76,7 +93,8 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   const location = useLocation();
   const { hash } = location;
 
-  const [isReSearch, setIsReSearch] = useState<boolean>(false);
+  const [stores, setStores] = useState<Array<StoreResponse>>([]);
+  const [valueStores, setValueStores] = useState<Array<number>>([]);
   const tabRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<string>(ProductDetailTabName.INVENTORY);
   const { id, variantId } = useParams<ProductParams>();
@@ -96,20 +114,10 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   const [isLoadingAdvertisingHistory, setIsLoadingAdvertisingHistory] = useState<boolean>(false);
   const [isLoadingInventories, setIsLoadingInventories] = useState<boolean>(false);
   const [dataInventory, setDataInventory] = useState<PageResponse<InventoryResponse>>({
-    items: [],
-    metadata: {
-      limit: 30,
-      page: 1,
-      total: 0,
-    },
+    ...(initialDataInventory as PageResponse<InventoryResponse>),
   });
   const [dataHistory, setDataHistory] = useState<PageResponse<HistoryInventoryResponse>>({
-    items: [],
-    metadata: {
-      limit: 30,
-      page: 1,
-      total: 0,
-    },
+    ...(initialDataInventory as PageResponse<HistoryInventoryResponse>),
   });
 
   const [dataAdvertisingHistory, setDataAdvertisingHistory] = useState<
@@ -329,6 +337,8 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   const onResultInventoryHistory = useCallback((result) => {
     setIsLoadingHis(false);
     if (!result) {
+      setDataHistory({ ...(initialDataInventory as PageResponse<HistoryInventoryResponse>) });
+      setDataHistoryOrg({ ...(initialDataInventory as PageResponse<HistoryInventoryResponse>) });
     } else {
       setDataHistory(result);
       setDataHistoryOrg(result);
@@ -349,7 +359,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
         setIsLoadingInventories(true);
         dispatch(
           inventoryGetDetailAction(
-            { variant_id: variantSelect, page: page, limit: 500 },
+            { variant_id: variantSelect, page: page, limit: LIMIT_PAGE_DETAIL },
             onResultDetail,
           ),
         );
@@ -360,12 +370,18 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
 
   const changeDataHistory = useCallback(
     (page) => {
+      console.log("change");
       if (data && data?.variants.length > 0) {
         const variantSelect = data.variants[active].id;
         setIsLoadingHis(true);
         dispatch(
           inventoryGetHistoryAction(
-            { variant_id: variantSelect, page: page, limit: 300 },
+            {
+              variant_id: variantSelect,
+              page: page,
+              limit: LIMIT_PAGE,
+              store_ids: valueStores,
+            },
             onResultInventoryHistory,
           ),
         );
@@ -386,7 +402,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
               product_id: data.id,
               type: "AUTOMATIC",
               page,
-              limit: 300,
+              limit: LIMIT_PAGE,
               state: "ACTIVE",
             },
             onResultAdvertisingHistory,
@@ -396,6 +412,29 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
     },
     [active, data, dispatch, onResultAdvertisingHistory],
   );
+  const onChangeStore = (value: number[], labelList: React.ReactNode[]) => {
+    if (data && data?.variants.length > 0) {
+      const variantSelect = data.variants[active].id;
+      setValueStores(value);
+      dispatch(
+        inventoryGetHistoryAction(
+          { variant_id: variantSelect, limit: LIMIT_PAGE, store_ids: value },
+          onResultInventoryHistory,
+        ),
+      );
+    }
+  };
+
+  const getAllStores = async () => {
+    callApiNative({ isShowLoading: false }, dispatch, getAllPublicSimpleStoreApi).then((res) => {
+      setStores(res);
+    });
+  };
+  useEffect(() => {
+    setIsLoading(false);
+    getAllStores();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
@@ -408,10 +447,15 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
       setIsLoadingHis(true);
       setIsLoadingInventories(true);
       setIsLoadingAdvertisingHistory(true);
-      dispatch(inventoryGetDetailAction({ variant_id: variantSelect, limit: 500 }, onResultDetail));
+      dispatch(
+        inventoryGetDetailAction(
+          { variant_id: variantSelect, limit: LIMIT_PAGE_DETAIL },
+          onResultDetail,
+        ),
+      );
       dispatch(
         inventoryGetHistoryAction(
-          { variant_id: variantSelect, limit: 300 },
+          { variant_id: variantSelect, limit: LIMIT_PAGE_DETAIL },
           onResultInventoryHistory,
         ),
       );
@@ -421,7 +465,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
             variant_id: variantSelect,
             product_id: data.id,
             type: "AUTOMATIC",
-            limit: 300,
+            limit: LIMIT_PAGE,
             state: "ACTIVE",
           },
           onResultAdvertisingHistory,
@@ -912,25 +956,18 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                   <Card className="card">
                     <Tabs
                       tabBarExtraContent={
-                        <Input
-                          name="key_search"
-                          onChange={(e) => {
-                            changeKeySearch(e.target.value);
-                            setKeySearch(e.target.value);
-                          }}
-                          value={keySearch}
-                          onKeyPress={(e) => e.key === "Enter" && setIsReSearch(!isReSearch)}
-                          style={{ marginLeft: 8, minWidth: 300 }}
-                          placeholder="Tìm kiếm theo tên cửa hàng"
-                          addonAfter={
-                            <SearchOutlined
-                              onClick={() => {
-                                setIsReSearch(!isReSearch);
-                              }}
-                              style={{ color: "#2A2A86" }}
-                            />
-                          }
-                        />
+                        <>
+                          <TreeStore
+                            name="store_ids"
+                            placeholder="Chọn cửa hàng"
+                            listStore={((stores || []) as StoreResponse[]).filter(
+                              (store) => store.status === enumStoreStatus.ACTIVE,
+                            )}
+                            style={{ minWidth: "220px" }}
+                            value={valueStores}
+                            onChange={onChangeStore}
+                          />
+                        </>
                       }
                       style={{ overflow: "initial" }}
                       defaultActiveKey={activeTab}
