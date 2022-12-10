@@ -23,6 +23,8 @@ import DiscountUpdateForm from "../components/discount-form";
 import DiscountProvider, { DiscountContext } from "../components/discount-provider";
 import { DiscountStyled } from "../discount-style";
 import _ from "lodash";
+import { PROMO_TYPE } from "utils/Constants";
+import { initEntilements } from "screens/promotion/constants";
 const DiscountUpdate = () => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
@@ -42,9 +44,16 @@ const DiscountUpdate = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const discountUpdateContext = useContext(DiscountContext);
-  const { setDiscountMethod, setDiscountData, discountData } = discountUpdateContext;
+  const {
+    discountData,
+    setDiscountData,
+    setDiscountMethod,
+    discountAllProduct,
+    setDiscountAllProduct,
+    discountProductHaveExclude,
+    setDiscountProductHaveExclude,
+  } = discountUpdateContext;
 
-  const [getIndexRemoveDiscount, setGetIndexRemoveDiscount] = useState(null);
   const [originalEntitlements, setOriginalEntitlements] = useState<Array<any>>([]);
 
   const parseDataToForm = useCallback(
@@ -124,34 +133,55 @@ const DiscountUpdate = () => {
   /**
    * Update discount
    */
-  const updateCallback = (data: PriceRule) => {
-    if (data) {
-      showSuccess("Cập nhật chiết khấu thành công");
-      setIsSubmitting(false);
-      history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${idNumber}`);
-    } else {
-      setIsSubmitting(false);
-    }
-  };
+  const updateCallback = useCallback(
+    (data: PriceRule) => {
+      if (data) {
+        showSuccess("Cập nhật chiết khấu thành công");
+        setIsSubmitting(false);
+        history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${idNumber}`);
+      } else {
+        setIsSubmitting(false);
+      }
+    },
+    [history, idNumber],
+  );
 
-  const handleSubmit = (values: any) => {
-    let _originalEntitlements = _.cloneDeep(originalEntitlements);
-    for (let i = 0; i < values.entitlements?.length; i++) {
-      _originalEntitlements = _originalEntitlements.filter(
-        (item) => item.id !== values.entitlements[i].id,
-      );
-    }
-    values.entitlements = values.entitlements?.concat(_originalEntitlements);
-    try {
-      setIsSubmitting(true);
-      const body = transformData(values);
-      body.id = idNumber;
-      dispatch(updatePriceRuleByIdAction(body, updateCallback));
-    } catch (error: any) {
-      setIsSubmitting(false);
-      showError(error.message);
-    }
-  };
+  const handleSubmit = useCallback(
+    (values: any) => {
+      let _originalEntitlements = _.cloneDeep(originalEntitlements);
+      for (let i = 0; i < values.entitlements?.length; i++) {
+        _originalEntitlements = _originalEntitlements.filter(
+          (item) => item.id !== values.entitlements[i].id,
+        );
+      }
+      values.entitlements = values.entitlements?.concat(_originalEntitlements);
+      values.entitlements[0].is_apply_all = discountAllProduct;
+      values.entitlements[0].is_exclude = discountProductHaveExclude;
+
+      try {
+        setIsSubmitting(true);
+        const body = transformData(
+          values,
+          PROMO_TYPE.AUTOMATIC,
+          discountAllProduct,
+          discountProductHaveExclude,
+        );
+        body.id = idNumber;
+        dispatch(updatePriceRuleByIdAction(body, updateCallback));
+      } catch (error: any) {
+        setIsSubmitting(false);
+        showError(error.message);
+      }
+    },
+    [
+      discountAllProduct,
+      discountProductHaveExclude,
+      dispatch,
+      idNumber,
+      originalEntitlements,
+      updateCallback,
+    ],
+  );
 
   /**
    *
@@ -182,7 +212,14 @@ const DiscountUpdate = () => {
       const listProductFormVariant = entitled_variant_ids.map((id) => {
         return dataVariants?.find((v) => v.variant_id === id) || ({} as ProductEntitlements);
       });
-      return [...listProduct, ...listProductFormVariant];
+
+      const listProductTranform = [...listProduct, ...listProductFormVariant];
+
+      const filterListProductTranform = listProductTranform.filter(
+        (value) => JSON.stringify(value) !== "{}",
+      );
+
+      return filterListProductTranform;
     },
     [dataVariants],
   );
@@ -192,24 +229,64 @@ const DiscountUpdate = () => {
    */
   useEffect(() => {
     const entitlementValue: Array<EntilementFormModel> = discountData.entitlements;
+
     if (entitlementValue) {
       entitlementValue.forEach((item: EntilementFormModel) => {
-        item.selectedProducts =
-          mergeVariantsData(item.entitled_variant_ids, item.entitled_product_ids) || [];
+        if (discountAllProduct && !discountProductHaveExclude) {
+          item.entitled_product_ids = [];
+          item.entitled_variant_ids = [];
+          item.selectedProducts = [];
+        } else {
+          item.selectedProducts = mergeVariantsData(
+            item.entitled_variant_ids,
+            item.entitled_product_ids,
+          );
+        }
       });
+
       setOriginalEntitlements(entitlementValue);
-      if (getIndexRemoveDiscount !== null) {
-        entitlementValue.splice(getIndexRemoveDiscount, 1);
+
+      if (discountAllProduct && !discountProductHaveExclude) {
+        form.setFieldsValue({ entitlements: [entitlementValue[0]] });
+      } else {
+        form.setFieldsValue({ entitlements: entitlementValue });
       }
-      form.setFieldsValue({ entitlements: entitlementValue });
     }
-  }, [discountData, form, getIndexRemoveDiscount, mergeVariantsData]);
+  }, [
+    discountAllProduct,
+    discountData.entitlements,
+    discountProductHaveExclude,
+    form,
+    mergeVariantsData,
+  ]);
+
+  useEffect(() => {
+    if (!discountAllProduct && !discountProductHaveExclude) {
+      form.setFieldsValue({ entitlements: [initEntilements] });
+      setDiscountData({ ...discountData, entitlements: [initEntilements] });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [discountAllProduct, discountProductHaveExclude, form]);
 
   useEffect(() => {
     setIsLoading(true);
     dispatch(getVariantsAction(idNumber, setDataVariants));
     dispatch(getPriceRuleAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
+
+  useEffect(() => {
+    if (_.isEmpty(discountData)) return;
+
+    discountData.entitlements[0]?.is_apply_all &&
+      setDiscountAllProduct(discountData.entitlements[0]?.is_apply_all);
+  }, [discountData, setDiscountAllProduct]);
+
+  useEffect(() => {
+    if (_.isEmpty(discountData)) return;
+
+    discountData.entitlements[0]?.is_exclude &&
+      setDiscountProductHaveExclude(discountData.entitlements[0]?.is_exclude);
+  }, [discountData, setDiscountProductHaveExclude]);
 
   return (
     <ContentContainer
@@ -247,7 +324,6 @@ const DiscountUpdate = () => {
                 form={form}
                 idNumber={idNumber}
                 originalEntitlements={originalEntitlements}
-                setGetIndexRemoveDiscount={setGetIndexRemoveDiscount}
               />
             </Col>
             <Col span={6}>

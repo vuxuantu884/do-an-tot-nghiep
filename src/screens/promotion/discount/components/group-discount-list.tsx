@@ -72,17 +72,17 @@ interface Props {
   form: FormInstance;
   idNumber?: number;
   originalEntitlements?: any;
-  setGetIndexRemoveDiscount?: (item: any) => void;
 }
 
 const GroupDiscountList = (props: Props) => {
   const token = getToken() || "";
-  const { form, idNumber, originalEntitlements, setGetIndexRemoveDiscount } = props;
+  const { form, idNumber, originalEntitlements } = props;
   const dispatch = useDispatch();
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
   const [entitlementsImported, setEntitlementsImported] = useState<
     Array<VariantEntitlementsFileImport>
   >([]);
+
   const [entitlementErrorsResponse, setEntitlementErrorsResponse] = useState<Array<any>>([]);
   const [uploadError, setUploadError] = useState<any>("");
   const [importTotal, setImportTotal] = useState(0);
@@ -94,12 +94,26 @@ const GroupDiscountList = (props: Props) => {
   const indexOfEntitlement = useRef<number>(0);
 
   const discountUpdateContext = useContext(DiscountContext);
-  const { discountMethod } = discountUpdateContext;
+  const {
+    discountData,
+    setDiscountData,
+    discountMethod,
+    discountAllProduct,
+    setDiscountAllProduct,
+    setDiscountProductHaveExclude,
+  } = discountUpdateContext;
+
+  //Disount all product
+  const handleDicountAllProduct = useCallback(() => {
+    setDiscountAllProduct(!discountAllProduct);
+    setDiscountProductHaveExclude(false);
+  }, [discountAllProduct, setDiscountAllProduct, setDiscountProductHaveExclude]);
 
   // import file
   const handleImportEntitlements = () => {
     setIsImportingFile(true);
     let formEntitlements: Array<EntilementFormModel> = form.getFieldValue("entitlements");
+
     // remove init item in  entitlements
     if (
       formEntitlements.length === 1 &&
@@ -426,75 +440,85 @@ const GroupDiscountList = (props: Props) => {
 
           const removeEntitlementItem = (index: number) => {
             remove(index);
-            setGetIndexRemoveDiscount?.(index);
+
+            const newEntitlementValue = [...discountData.entitlements];
+            newEntitlementValue.splice(index, 1);
+
+            setDiscountData({ ...discountData, entitlements: newEntitlementValue });
           };
 
           return (
             <DiscountDetailListStyled>
-              <Row>
-                <Col span={16}>
-                  {idNumber && (
-                    <div className={"input-search-product"}>
-                      <span className={"label-search-product"}>
-                        Tìm kiếm sản phẩm trong chương trình chiết khấu
-                      </span>
-                      <AutoComplete
-                        notFoundContent={
-                          isSearchingProducts ? <Spin size="small" /> : "Không tìm thấy sản phẩm"
-                        }
-                        id="search_variant"
-                        ref={autoCompleteRef}
-                        value={keySearchVariant}
-                        onSelect={onSearchVariantSelect}
-                        allowClear
-                        onClear={onClearVariantSelect}
-                        dropdownClassName="search-layout dropdown-search-header"
-                        dropdownMatchSelectWidth={360}
-                        style={{ width: "100%" }}
-                        onSearch={handleOnSearchProduct}
-                        options={renderVariantOptions}
-                        maxLength={255}
-                        getPopupContainer={(trigger: any) => trigger.parentElement}
-                        onFocus={onInputSelectFocus}
-                        onBlur={onInputSelectBlur}
-                        onPopupScroll={handleOnSelectPopupScroll}
-                        onMouseLeave={handleOnMouseLeaveSelect}
-                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
-                      >
-                        <Input
-                          placeholder="Tìm kiếm sản phẩm"
-                          prefix={
-                            isSearchingProducts ? (
-                              <LoadingOutlined style={{ color: "#2a2a86" }} />
-                            ) : (
-                              <img alt="" src={search} style={{ cursor: "default" }} />
-                            )
-                          }
-                        />
-                      </AutoComplete>
-                    </div>
-                  )}
-                </Col>
+              <Row justify="end">
+                <Space size={16}>
+                  <Form.Item>
+                    <Button
+                      className={`${discountAllProduct && "discount-all-product"}`}
+                      onClick={handleDicountAllProduct}
+                    >
+                      Tất cả sản phẩm
+                    </Button>
+                  </Form.Item>
+                  <Form.Item>
+                    <Button
+                      onClick={() => setShowImportModal(true)}
+                      icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+                      disabled={discountAllProduct}
+                    >
+                      Nhập file
+                    </Button>
+                  </Form.Item>
+                  <Form.Item>
+                    <Button
+                      onClick={addBlankEntitlement}
+                      icon={<PlusOutlined />}
+                      disabled={discountAllProduct}
+                    >
+                      Thêm chiết khấu
+                    </Button>
+                  </Form.Item>
+                </Space>
+              </Row>
 
-                <Col span={8}>
-                  <Row justify="end">
-                    <Space size={16}>
-                      <Form.Item>
-                        <Button
-                          onClick={() => setShowImportModal(true)}
-                          icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
-                        >
-                          Nhập file
-                        </Button>
-                      </Form.Item>
-                      <Form.Item>
-                        <Button onClick={addBlankEntitlement} icon={<PlusOutlined />}>
-                          Thêm chiết khấu
-                        </Button>
-                      </Form.Item>
-                    </Space>
-                  </Row>
-                </Col>
+              <Row>
+                {!discountAllProduct && idNumber && (
+                  <div className="input-search-product">
+                    <AutoComplete
+                      notFoundContent={
+                        isSearchingProducts ? <Spin size="small" /> : "Không tìm thấy sản phẩm"
+                      }
+                      id="search_variant"
+                      ref={autoCompleteRef}
+                      value={keySearchVariant}
+                      onSelect={onSearchVariantSelect}
+                      allowClear
+                      onClear={onClearVariantSelect}
+                      dropdownClassName="search-layout dropdown-search-header"
+                      dropdownMatchSelectWidth={360}
+                      style={{ width: "100%" }}
+                      onSearch={handleOnSearchProduct}
+                      options={renderVariantOptions}
+                      maxLength={255}
+                      getPopupContainer={(trigger: any) => trigger.parentElement}
+                      onFocus={onInputSelectFocus}
+                      onBlur={onInputSelectBlur}
+                      onPopupScroll={handleOnSelectPopupScroll}
+                      onMouseLeave={handleOnMouseLeaveSelect}
+                      onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                    >
+                      <Input
+                        placeholder="Tìm kiếm sản phẩm trong chương trình chiết khấu"
+                        prefix={
+                          isSearchingProducts ? (
+                            <LoadingOutlined style={{ color: "#2a2a86" }} />
+                          ) : (
+                            <img alt="" src={search} style={{ cursor: "default" }} />
+                          )
+                        }
+                      />
+                    </AutoComplete>
+                  </div>
+                )}
               </Row>
 
               {fields.map(({ key, name, fieldKey, ...restField }) => {

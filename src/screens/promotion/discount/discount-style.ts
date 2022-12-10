@@ -51,6 +51,22 @@ export const DiscountStyled = styled.div`
       padding-top: 0;
     }
   }
+
+  .discount-code-product {
+    display: flex;
+    background-color: #f0f2f5;
+    padding: 10px;
+    border-radius: 5px;
+ 
+    &-value {
+      padding: 0 4px;
+    }
+
+    &-desc {
+      color: #2a2a86;
+      font-weight: 700;
+    }
+  
 `;
 
 export const ImportFileDiscountStyled = styled.div`
@@ -86,8 +102,14 @@ export const ImportFileDiscountStyled = styled.div`
 `;
 
 export const DiscountDetailListStyled = styled.div`
+  .discount-all-product {
+    color: #ffffff;
+    background-color: #2a2a86;
+  }
   .input-search-product {
+    width: 100%;
     display: flex;
+    margin: 10px 0 20px 0;
     .label-search-product {
       font-weight: 500;
       white-space: nowrap;
