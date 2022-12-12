@@ -1,18 +1,21 @@
 import { RightOutlined } from "@ant-design/icons";
 import classnames from "classnames";
 import { uniqBy } from "lodash";
-import queryString from "query-string";
 import { Link } from "react-router-dom";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showWarning } from "utils/ToastUtils";
 import { kdOffHaveChildren, kdOnHaveChildren } from "../constant/kd-have-children";
 import { COLUMN_ORDER_LIST } from "../constant/kd-report-response-key";
 import { filterKDOfflineHorizontalByDim } from "./filter-kd-by-dim";
+import { KDTableHeader } from "./set-objective-columns";
 
 interface IColumnLink {
   groupLv: string;
   groupLvName: string;
   queryParams: any;
+  queryString: any;
+  history: any;
+  dispatch: any;
 }
 
 export const getAllKeyDriverByGroupLevel = (
@@ -112,10 +115,15 @@ export const getAllKeyDriverByGroupLevel = (
 
 export const setTableHorizontalColumns = (
   allKeyDriverByGroupLevel: any[],
-  setObjectiveColumns: any,
+  setObjectiveColumns: (
+    kdTableHeader: KDTableHeader,
+    queryString: any,
+    history: any,
+    dispatch: any,
+  ) => void,
   link: IColumnLink,
 ): any[] => {
-  const { groupLv, groupLvName, queryParams } = link;
+  const { groupLv, groupLvName, queryParams, queryString, history, dispatch } = link;
   const columns: any[] = [];
   let nextGroupLv = 2;
   let currentGroupLvName = "";
@@ -150,32 +158,33 @@ export const setTableHorizontalColumns = (
       };
       children.forEach((child: any) => {
         const { keyDriver: keyDriverChild } = child;
+        const kdTableHeader: KDTableHeader = {
+          departmentKey: nonAccentVietnameseKD(keyDriverChild),
+          department: keyDriverChild,
+          columnIndex: index,
+          departmentDrillingLevel: 1,
+          className: "key-driver-header",
+          link: "",
+        };
         parentHeader.children.push(
-          setObjectiveColumns(
-            nonAccentVietnameseKD(keyDriverChild),
-            keyDriverChild,
-            index,
-            1,
-            "key-driver-header",
-            "",
-          ),
+          setObjectiveColumns(kdTableHeader, queryString, history, dispatch),
         );
       });
       columns.push(parentHeader);
     } else {
-      columns.push(
-        setObjectiveColumns(
-          nonAccentVietnameseKD(keyDriver),
-          keyDriver,
-          index,
-          1,
-          "key-driver-header",
+      const kdTableHeader: KDTableHeader = {
+        departmentKey: nonAccentVietnameseKD(keyDriver),
+        department: keyDriver,
+        columnIndex: index,
+        departmentDrillingLevel: 1,
+        className: "key-driver-header",
+        link:
           [...kdOffHaveChildren, ...kdOnHaveChildren].includes(keyDriverCode) &&
-            keyDriver !== currentGroupLvName
+          keyDriver !== currentGroupLvName
             ? navigateTo
             : "",
-        ),
-      );
+      };
+      columns.push(setObjectiveColumns(kdTableHeader, queryString, history, dispatch));
     }
   });
   return columns;

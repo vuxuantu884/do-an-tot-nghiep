@@ -1,23 +1,18 @@
 /* eslint-disable eqeqeq */
 import {
-  CheckOutlined,
-  CloseOutlined,
   QuestionCircleOutlined,
-  RightOutlined,
   RotateLeftOutlined,
   RotateRightOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
 import { Button, Card, Col, Form, Popover, Row, Select, Table } from "antd";
-import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
-import classnames from "classnames";
+import { ColumnsType } from "antd/lib/table";
 import ContentContainer from "component/container/content.container";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
-import NumberInput from "component/custom/number-input.custom";
 import ModalSettingColumnData from "component/table/ModalSettingColumnData";
 import { HttpStatus } from "config/http-status.config";
 // import { KeyboardKey } from "model/other/keyboard/keyboard.model";
-import { KeyDriverDataSourceType, LocalStorageKey } from "model/report";
+import { LocalStorageKey } from "model/report";
 import moment from "moment";
 import queryString from "query-string";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
@@ -26,25 +21,16 @@ import { Link, useHistory, useLocation } from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
 import { getKeyDriverOnlineApi } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
-import { formatCurrency, parseLocaleNumber, replaceFormatString } from "utils/AppUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { strForSearch } from "utils/StringUtils";
 import { initialAnnotationOffline } from "../analytics/shared/kd-offline-annotation";
 import KeyDriverAnnotationModal from "../analytics/shared/key-driver-annotation-modal";
-import { kdOffNeedLowValue } from "../common/constant/kd-need-low-value";
 import {
   COLUMN_ORDER_LIST,
   DEFAULT_OFF_KD_GROUP_LV1,
 } from "../common/constant/kd-report-response-key";
-import {
-  showDashOnDailyActualKD,
-  showDashOnDailyTargetKD,
-  showDashOnMonthlyForecastedKD,
-  showDashOnMonthlyForecastedProgressKD,
-  showDashOnMonthlyTargetKD,
-} from "../common/constant/offline-report-kd";
 import { KDReportDirection } from "../common/enums/kd-report-direction";
 import { KDReportName } from "../common/enums/kd-report-name";
 import {
@@ -54,9 +40,7 @@ import {
 import { convertDataToFlatTableRotation } from "../common/helpers/convert-data-to-flat-table-rotation";
 import { filterValueColumns } from "../common/helpers/filter-value-columns";
 import { getBreadcrumbByLevel } from "../common/helpers/get-breadcrumb-by-level";
-import { isPastDate } from "../common/helpers/handle-time-on-kd";
-import { saveTargetHorizontalReport } from "../common/helpers/save-target-horizontal-report";
-import { saveMonthTargetKeyDriver } from "../common/helpers/save-target-kd";
+import { KDTableHeader, setObjectiveColumns } from "../common/helpers/set-objective-columns";
 import {
   getAllKeyDriverByGroupLevel,
   setTableHorizontalColumns,
@@ -68,12 +52,6 @@ import KeyDriverOfflineProvider, {
 
 const { Option } = Select;
 
-type VerifyCellProps = {
-  row: KeyDriverDataSourceType;
-  children: any;
-  value: number;
-  type?: "display" | "edit";
-};
 const baseColumns: any = [
   {
     title: "Chỉ số key",
@@ -99,27 +77,6 @@ const baseColumns: any = [
 const SHOP_LEVEL = 3;
 // const PREFIX_CELL_TABLE = "KEY_DRIVER_ONLINE";
 
-const inputTargetDefaultProps: any = {
-  className: "input-number",
-  format: (value?: string) => formatCurrency(value || 0),
-  replace: (a: string) => replaceFormatString(a),
-  min: 0,
-  // onFocus: handleFocusInput,
-  keyboard: false,
-  // isChangeAfterBlur: true,
-};
-
-function VerifyCell(props: VerifyCellProps) {
-  const { row, children, value, type = "display" } = props;
-  if (["OF.HS.S1.01", "OF.SP.S1.01"].includes(row.key)) {
-    return <></>;
-  } else if (!value && typeof value !== "number" && type === "display") {
-    return <div>-</div>;
-  } else {
-    return <div className="overflow-wrap-normal">{children}</div>;
-  }
-}
-
 function KeyDriverOffline() {
   const history = useHistory();
   // get query from url
@@ -142,17 +99,6 @@ function KeyDriverOffline() {
     ? moment(date).format(DATE_FORMAT.DDMMYYY)
     : moment().format(DATE_FORMAT.DDMMYYY);
 
-  const setNativeValue = (element: any, value: any) => {
-    const valueSetter = Object.getOwnPropertyDescriptor(element, "value")?.set;
-    const prototype = Object.getPrototypeOf(element);
-    const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, "value")?.set;
-
-    if (valueSetter && valueSetter !== prototypeValueSetter) {
-      prototypeValueSetter?.call(element, value);
-    } else {
-      valueSetter?.call(element, value);
-    }
-  };
   const getColumns = localStorage.getItem(LocalStorageKey.KDOfflineColumns);
   const [expandRowKeys, setExpandRowKeys] = useState<any[]>([]);
 
@@ -222,558 +168,6 @@ function KeyDriverOffline() {
   const newFinalColumns = useMemo(() => {
     return filterValueColumns(finalColumns, columns);
   }, [columns, finalColumns]);
-
-  const setObjectiveColumns = useCallback(
-    (
-      departmentKey: string,
-      department: string,
-      columnIndex: number,
-      departmentDrillingLevel: number,
-      className: string = "department-name--secondary",
-      link: string,
-    ): ColumnGroupType<any> | ColumnType<any> => {
-      const queryParams = queryString.parse(history.location.search);
-      const { direction, date: viewDate } = queryParams;
-      return {
-        title: link ? (
-          <Link to={link}>
-            <span>{department}</span>{" "}
-            {direction === KDReportDirection.Horizontal ? <RightOutlined /> : ""}
-          </Link>
-        ) : (
-          department
-        ),
-        className: classnames("department-name", className),
-        onHeaderCell: (data: any) => {
-          return {
-            onClick: () => {
-              link && history.push({ search: link });
-            },
-          };
-        },
-
-        children: [
-          {
-            title: () => {
-              return (
-                <Popover
-                  content={
-                    <div style={{ width: 200 }}>
-                      Mục tiêu tháng của chỉ số, người dùng nhập hàng tháng
-                    </div>
-                  }
-                  title="Mục tiêu tháng"
-                  placement="bottom"
-                >
-                  Mục tiêu tháng
-                </Popover>
-              );
-            },
-            width: 110,
-            align: "right",
-            dataIndex: `${departmentKey}_monthly_target`,
-            className: "input-cell",
-            render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              // const inputId = getInputTargetId(index, columnIndex * 2, PREFIX_CELL_TABLE);
-              const inputId = `${record[`${departmentKey}_key`] || record.key}-${
-                record.title
-              }-${index}-${columnIndex * 2 + 1}-month-target`;
-              let newValue = text ? Number(text) : 0;
-              let clickCancel = false;
-              return showDashOnMonthlyTargetKD.includes(
-                record[`${departmentKey}_key`] || record.key,
-              ) ? (
-                <span>- </span>
-              ) : (
-                <VerifyCell row={record} value={text} type="edit">
-                  <div style={{ position: "relative" }}>
-                    <NumberInput
-                      id={inputId}
-                      value={newValue}
-                      onPressEnter={(e: any) => {
-                        const input: any = document.getElementById(inputId);
-                        input.blur();
-                      }}
-                      onFocus={(e) => {
-                        document.getElementById(`${inputId}-action`)?.removeAttribute("hidden");
-                      }}
-                      onBlur={(e) => {
-                        setTimeout(() => {
-                          const input: any = document.getElementById(inputId);
-                          const value = input.value
-                            ? parseLocaleNumber(input.value)
-                            : parseLocaleNumber(newValue);
-                          console.log("value, newValue", value, newValue);
-
-                          if (!clickCancel && value != newValue) {
-                            newValue = value;
-                            if (direction === KDReportDirection.Horizontal) {
-                              saveTargetHorizontalReport(
-                                { total: value, currentValue: parseLocaleNumber(newValue) },
-                                record,
-                                inputId,
-                                dispatch,
-                                departmentKey,
-                              );
-                            } else {
-                              saveMonthTargetKeyDriver(
-                                { total: value },
-                                record,
-                                departmentDrillingLevel,
-                                departmentKey,
-                                inputId,
-                                dispatch,
-                                parseLocaleNumber(newValue),
-                                `day${day.toString().padStart(2, "0")}`,
-                              );
-                            }
-                          } else {
-                            clickCancel = false;
-                          }
-                          document
-                            .getElementById(`${inputId}-action`)
-                            ?.setAttribute("hidden", "false");
-                        }, 100);
-                      }}
-                      onKeyDown={(e: any) => {
-                        // if (e.shiftKey) {
-                        //   handleMoveFocusInput(
-                        //     index,
-                        //     columnIndex * 2 + 1,
-                        //     PREFIX_CELL_TABLE,
-                        //     e.key,
-                        //   );
-                        // }
-                        if (e.key === "Escape") {
-                          const event = new Event("input", { bubbles: true });
-                          const input: any = document.getElementById(inputId);
-                          setNativeValue(input, newValue);
-                          input.dispatchEvent(event);
-                          input.blur();
-                        }
-                      }}
-                      suffix={
-                        (record[`${departmentKey}_unit`] || record.unit) === "percent" ? "%" : null
-                      }
-                      {...inputTargetDefaultProps}
-                    />
-                    <div
-                      id={`${inputId}-action`}
-                      hidden
-                      style={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        position: "absolute",
-                        zIndex: 1,
-                        paddingTop: "2px",
-                        right: 0,
-                      }}
-                    >
-                      <Button
-                        size="small"
-                        icon={<CloseOutlined />}
-                        className="btn-cancel-input"
-                        onClick={(e) => {
-                          clickCancel = true;
-                          const event = new Event("input", { bubbles: true });
-                          const input: any = document.getElementById(inputId);
-                          setNativeValue(input, newValue);
-                          input.dispatchEvent(event);
-                          input.blur();
-                        }}
-                      />
-                      <Button
-                        size="small"
-                        type="primary"
-                        icon={<CheckOutlined />}
-                        className="btn-ok-input"
-                        onClick={(e) => {
-                          const input: any = document.getElementById(inputId);
-                          input.blur();
-                        }}
-                      />
-                    </div>
-                  </div>
-                </VerifyCell>
-              );
-            },
-          },
-          {
-            title: () => {
-              return (
-                <Popover
-                  content={
-                    <div style={{ width: 200 }}>
-                      <div>Lọc hôm nay: Dữ liệu từ đầu tháng đến hết hôm qua.</div>
-                      <div>Lọc ngày quá khứ: Dữ liệu từ đầu tháng đến ngày được chọn.</div>
-                    </div>
-                  }
-                  title="Luỹ kế"
-                  placement="bottom"
-                >
-                  Luỹ kế
-                </Popover>
-              );
-            },
-            width: 45,
-            align: "right",
-            dataIndex: `${departmentKey}_monthly_actual`,
-            className: "non-input-cell",
-            render: (text: any, record: KeyDriverDataSourceType) => {
-              return (
-                <div className={record[`${departmentKey}_monthly_actual_color`]}>
-                  <VerifyCell row={record} value={text}>
-                    {formatCurrency(text)}{" "}
-                    {(record[`${departmentKey}_unit`] || record.unit) === "percent" ? "%" : ""}
-                  </VerifyCell>
-                </div>
-              );
-            },
-            sorter: direction === "h" ? true : false,
-          },
-          {
-            title: () => {
-              return (
-                <Popover
-                  content={<div style={{ width: 200 }}>= Luỹ kế/Mục tiêu tháng</div>}
-                  title="Tỷ lệ"
-                  placement="bottom"
-                >
-                  Tỷ lệ
-                </Popover>
-              );
-            },
-            width: 40,
-            align: "right",
-            dataIndex: `${departmentKey}_monthly_progress`,
-            className: "non-input-cell",
-            render: (text: any, record: KeyDriverDataSourceType) => {
-              return (
-                <div className={record[`${departmentKey}_monthly_progress_color`]}>
-                  <VerifyCell row={record} value={text}>
-                    {`${text}%`}
-                  </VerifyCell>
-                </div>
-              );
-            },
-            sorter: direction === "h" ? true : false,
-          },
-          {
-            title: () => {
-              return (
-                <Popover
-                  content={
-                    <div style={{ width: 200 }}>
-                      <div>Lọc hôm nay: =Lũy kế/(Ngày được chọn - 1) * Số ngày trong tháng.</div>
-                      <div>Lọc ngày quá khứ: =Lũy kế/Ngày được chọn * Số ngày trong tháng.</div>
-                    </div>
-                  }
-                  title="Dự kiến đạt"
-                  placement="bottom"
-                >
-                  Dự kiến đạt
-                </Popover>
-              );
-            },
-            width: 80,
-            align: "right",
-            dataIndex: `${departmentKey}_monthly_forecasted`,
-            className: "non-input-cell",
-            render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              return showDashOnMonthlyForecastedKD.includes(
-                record[`${departmentKey}_key`] || record.key,
-              ) ? (
-                <span>-</span>
-              ) : (
-                <div
-                  className={
-                    text
-                      ? (
-                          kdOffNeedLowValue.includes(record[`${departmentKey}_key`] || record.key)
-                            ? Number(text) - record[`${departmentKey}_monthly_target`] <= 0
-                            : Number(text) - record[`${departmentKey}_monthly_target`] >= 0
-                        )
-                        ? "background-green"
-                        : "background-red"
-                      : ""
-                  }
-                >
-                  <VerifyCell row={record} value={text}>
-                    {formatCurrency(text)}{" "}
-                    {(record[`${departmentKey}_unit`] || record.unit) === "percent" ? "%" : ""}
-                  </VerifyCell>
-                </div>
-              );
-            },
-          },
-          {
-            title: () => {
-              return (
-                <Popover
-                  content={<div style={{ width: 200 }}>= Dự kiến đạt/Mục tiêu tháng</div>}
-                  title="Tỷ lệ"
-                  placement="bottom"
-                >
-                  Tỷ lệ
-                </Popover>
-              );
-            },
-            width: 40,
-            align: "right",
-            dataIndex: `${departmentKey}_monthly_forecasted_progress`,
-            className: "non-input-cell",
-            render: (text: any, record: KeyDriverDataSourceType) => {
-              return showDashOnMonthlyForecastedProgressKD.includes(
-                record[`${departmentKey}_key`] || record.key,
-              ) ? (
-                <span>-</span>
-              ) : (
-                <div
-                  className={
-                    text
-                      ? (
-                          kdOffNeedLowValue.includes(record[`${departmentKey}_key`] || record.key)
-                            ? text <= 100
-                            : text >= 100
-                        )
-                        ? "background-green"
-                        : "background-red"
-                      : ""
-                  }
-                >
-                  <VerifyCell row={record} value={text}>
-                    {text ? `${text}%` : "-"}
-                  </VerifyCell>
-                </div>
-              );
-            },
-          },
-          {
-            title: () => {
-              return (
-                <Popover
-                  content={
-                    <div style={{ width: 200 }}>
-                      <div>
-                        = (Mục tiêu tháng - Lũy kế) / [Số ngày trong tháng - (Ngày hiện tại - 1)].
-                      </div>
-                      <div>Người dùng có thể sửa mục tiêu ngày.</div>
-                      <div>{`Xoá mục tiêu ngày đã nhập -> Unicorn sẽ tự tính lại mục tiêu ngày.`}</div>
-                    </div>
-                  }
-                  title="Mục tiêu ngày"
-                  placement="bottom"
-                >
-                  Mục tiêu ngày
-                </Popover>
-              );
-            },
-            width: 100,
-            align: "right",
-            dataIndex: `${departmentKey}_daily_target`,
-            className: "input-cell",
-            render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              // const inputId = getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE);
-              const inputId = `${record[`${departmentKey}_key`] || record.key}-${
-                record.title
-              }-${index}-${columnIndex * 2 + 1}-day-target`;
-              let newValue = text ? Number(text) : 0;
-              let clickCancel = false;
-              return showDashOnDailyTargetKD.includes(
-                record[`${departmentKey}_key`] || record.key,
-              ) ? (
-                <span>- </span>
-              ) : (
-                <VerifyCell row={record} value={text} type="edit">
-                  <div style={{ position: "relative" }}>
-                    <NumberInput
-                      id={inputId}
-                      value={newValue}
-                      onPressEnter={(e: any) => {
-                        const input: any = document.getElementById(inputId);
-                        input.blur();
-                      }}
-                      disabled={isPastDate(date)}
-                      onFocus={(e) => {
-                        document.getElementById(`${inputId}-action`)?.removeAttribute("hidden");
-                      }}
-                      onBlur={(e) => {
-                        setTimeout(() => {
-                          const input: any = document.getElementById(inputId);
-                          const value = input.value
-                            ? parseLocaleNumber(input.value)
-                            : parseLocaleNumber(newValue);
-                          console.log("value, newValue", value, newValue);
-
-                          if (!clickCancel && value != newValue) {
-                            newValue = value;
-                            let targetDay = viewDate
-                              ? moment(viewDate as string, DATE_FORMAT.YYYYMMDD).date()
-                              : 0;
-                            const day =
-                              targetDay && targetDay > 0 && targetDay <= 31
-                                ? targetDay
-                                : moment().date();
-                            if (direction === KDReportDirection.Horizontal) {
-                              saveTargetHorizontalReport(
-                                {
-                                  [`day${day.toString().padStart(2, "0")}`]: value,
-                                  currentValue: parseLocaleNumber(newValue),
-                                },
-                                record,
-                                inputId,
-                                dispatch,
-                                departmentKey,
-                              );
-                            } else {
-                              saveMonthTargetKeyDriver(
-                                { [`day${day.toString().padStart(2, "0")}`]: value },
-                                record,
-                                departmentDrillingLevel,
-                                departmentKey,
-                                inputId,
-                                dispatch,
-                                parseLocaleNumber(newValue),
-                                `day${day.toString().padStart(2, "0")}`,
-                              );
-                            }
-                          } else {
-                            clickCancel = false;
-                          }
-                          document
-                            .getElementById(`${inputId}-action`)
-                            ?.setAttribute("hidden", "false");
-                        }, 100);
-                      }}
-                      onKeyDown={(e: any) => {
-                        // if (e.shiftKey) {
-                        //   handleMoveFocusInput(
-                        //     index,
-                        //     columnIndex * 2 + 1,
-                        //     PREFIX_CELL_TABLE,
-                        //     e.key,
-                        //   );
-                        // }
-                        if (e.key === "Escape") {
-                          const event = new Event("input", { bubbles: true });
-                          const input: any = document.getElementById(inputId);
-                          setNativeValue(input, newValue);
-                          input.dispatchEvent(event);
-                          input.blur();
-                        }
-                      }}
-                      suffix={
-                        (record[`${departmentKey}_unit`] || record.unit) === "percent" ? "%" : null
-                      }
-                      {...inputTargetDefaultProps}
-                    />
-                    <div
-                      id={`${inputId}-action`}
-                      hidden
-                      style={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        position: "absolute",
-                        zIndex: 1,
-                        paddingTop: "2px",
-                        right: 0,
-                      }}
-                    >
-                      <Button
-                        size="small"
-                        icon={<CloseOutlined />}
-                        className="btn-cancel-input"
-                        onClick={(e) => {
-                          clickCancel = true;
-                          const event = new Event("input", { bubbles: true });
-                          const input: any = document.getElementById(inputId);
-                          setNativeValue(input, newValue);
-                          input.dispatchEvent(event);
-                          input.blur();
-                        }}
-                      />
-                      <Button
-                        size="small"
-                        type="primary"
-                        icon={<CheckOutlined />}
-                        className="btn-ok-input"
-                        onClick={(e) => {
-                          const input: any = document.getElementById(inputId);
-                          input.blur();
-                        }}
-                      />
-                    </div>
-                  </div>
-                </VerifyCell>
-              );
-            },
-          },
-          {
-            title: () => {
-              return (
-                <Popover
-                  content={<div style={{ width: 200 }}>Dữ liệu ngày hôm nay</div>}
-                  title="Thực đạt"
-                  placement="bottom"
-                >
-                  Thực đạt
-                </Popover>
-              );
-            },
-            width: 60,
-            align: "right",
-            dataIndex: `${departmentKey}_daily_actual`,
-            className: "non-input-cell",
-            render: (text: any, record: KeyDriverDataSourceType, index: number) => {
-              return showDashOnDailyActualKD.includes(
-                record[`${departmentKey}_key`] || record.key,
-              ) ? (
-                <span>-</span>
-              ) : (
-                <div className={record[`${departmentKey}_daily_actual_color`]}>
-                  <VerifyCell row={record} value={text}>
-                    {formatCurrency(text)}{" "}
-                    {(record[`${departmentKey}_unit`] || record.unit) === "percent" ? "%" : ""}
-                  </VerifyCell>
-                </div>
-              );
-            },
-            sorter: direction === "h" ? true : false,
-          },
-          {
-            title: () => {
-              return (
-                <Popover
-                  content={<div style={{ width: 200 }}>= Thực đạt/Mục tiêu ngày</div>}
-                  title="Tỷ lệ"
-                  placement="bottom"
-                >
-                  Tỷ lệ
-                </Popover>
-              );
-            },
-            width: 40,
-            align: "right",
-            dataIndex: `${departmentKey}_daily_progress`,
-            className: "non-input-cell",
-            render: (text: any, record: KeyDriverDataSourceType) => {
-              return showDashOnDailyTargetKD.includes(
-                record[`${departmentKey}_key`] || record.key,
-              ) ? (
-                <span>-</span>
-              ) : (
-                <VerifyCell row={record} value={text}>
-                  {`${text}%`}
-                </VerifyCell>
-              );
-            },
-          },
-        ],
-      };
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [day, dispatch, history],
-  );
 
   const initTable = useCallback(
     async (
@@ -863,6 +257,9 @@ function KeyDriverOffline() {
               groupLv: groupLv as string,
               groupLvName: groupLvName as string,
               queryParams,
+              queryString,
+              history,
+              dispatch,
             },
           );
           setAllKDInDim(allKeyDriverByGroupLevel);
@@ -879,6 +276,9 @@ function KeyDriverOffline() {
               groupLv: groupLv as string,
               groupLvName: groupLvName as string,
               queryParams,
+              queryString,
+              history,
+              dispatch,
             },
           );
           temp = [
@@ -957,16 +357,15 @@ function KeyDriverOffline() {
                 link = `?${queryString.stringify(params)}`;
               }
 
-              temp.push(
-                setObjectiveColumns(
-                  nonAccentVietnameseKD(groupedBy),
-                  groupedBy.toUpperCase(),
-                  index,
-                  drillingLevel,
-                  index === 0 ? "department-name--primary" : undefined,
-                  link,
-                ),
-              );
+              const kdTableHeader: KDTableHeader = {
+                departmentKey: nonAccentVietnameseKD(groupedBy),
+                department: groupedBy.toUpperCase(),
+                columnIndex: index,
+                departmentDrillingLevel: drillingLevel,
+                className: index === 0 ? "department-name--primary" : "department-name--secondary",
+                link,
+              };
+              temp.push(setObjectiveColumns(kdTableHeader, queryString, history, dispatch));
             });
         }
 
