@@ -456,6 +456,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                   case SearchVariantField.brands:
                     component = (
                       <Select
+                        autoClearSearchValue={false}
                         mode="multiple"
                         showSearch
                         optionFilterProp="children"

@@ -488,6 +488,7 @@ const AccountUpdateScreen: React.FC = () => {
                   },
                 ]}>
                 <Select
+                  autoClearSearchValue={false}
                   placeholder="Tìm kiếm và chọn nhà cung cấp"
                   mode="multiple"
                   tagRender={tagRender}
@@ -576,6 +577,7 @@ const AccountUpdateScreen: React.FC = () => {
                 ]}
               >
                 <Select
+                  autoClearSearchValue={false}
                   placeholder="Chọn nhóm quyền"
                   className="selector"
                   allowClear
@@ -609,6 +611,7 @@ const AccountUpdateScreen: React.FC = () => {
             <Col span={24} lg={8} md={12} sm={24}>
               <Item label="Khu vực" name="district_id">
                 <Select
+                  autoClearSearchValue={false}
                   allowClear
                   showArrow
                   showSearch
@@ -710,6 +713,7 @@ const AccountUpdateScreen: React.FC = () => {
                             label="Vị trí"
                           >
                             <Select
+                              autoClearSearchValue={false}
                               placeholder="Chọn vị trí"
                               allowClear
                               showArrow

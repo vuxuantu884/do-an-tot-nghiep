@@ -106,6 +106,7 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
           <Form.Item name="city_id" hidden={true}></Form.Item>
           <Form.Item label="Khu vực" name="district_id">
             <Select
+              autoClearSearchValue={false}
               allowClear
               showArrow
               showSearch

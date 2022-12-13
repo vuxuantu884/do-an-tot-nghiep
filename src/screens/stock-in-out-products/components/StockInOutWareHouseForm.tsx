@@ -184,6 +184,7 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (
             ]}
           >
             <Select
+              autoClearSearchValue={false}
               allowClear
               showSearch
               showArrow
@@ -221,6 +222,7 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (
                 ]}
               >
                 <Select
+                  autoClearSearchValue={false}
                   allowClear
                   showSearch
                   showArrow
@@ -254,6 +256,7 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (
                 ]}
               >
                 <Select
+                  autoClearSearchValue={false}
                   allowClear
                   showSearch
                   showArrow

@@ -189,6 +189,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (props: POReturnFormProps) => 
                                   ]}
                                 >
                                   <Select
+                                    autoClearSearchValue={false}
                                     showSearch
                                     showArrow
                                     optionFilterProp="children"
