@@ -32,6 +32,7 @@ export const POStore = (props: IProps) => {
       help={false}
     >
       <Select
+        autoClearSearchValue={false}
         style={{ minWidth: "205px" }}
         placeholder="Kho nhận"
         showArrow

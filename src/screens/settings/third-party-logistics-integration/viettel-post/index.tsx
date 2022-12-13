@@ -315,6 +315,7 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
               </div>
               <div className="sectionSelectShop">
                 <CustomSelect
+                  autoClearSearchValue={false}
                   placeholder="Chọn hoặc tìm kiếm cửa hàng"
                   allowClear
                   showSearch

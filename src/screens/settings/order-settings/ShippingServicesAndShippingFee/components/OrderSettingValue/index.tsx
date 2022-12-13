@@ -91,6 +91,7 @@ function OrderSettingValue(props: PropTypes) {
                 rules={[{ required: true, message: "Vui lòng chọn tỉnh/thành phố" }]}
               >
                 <Select
+                  autoClearSearchValue={false}
                   showSearch
                   allowClear
                   style={{ width: "100%" }}

@@ -464,6 +464,7 @@ const CreateSupplierScreen: React.FC = () => {
                           <Col span={12}>
                             <Item label="Khu vực" name={[name, "district_id"]}>
                               <Select
+                                autoClearSearchValue={false}
                                 showSearch
                                 onSelect={(value: number) => onSelectDistrict(name, value)}
                                 className="selector"

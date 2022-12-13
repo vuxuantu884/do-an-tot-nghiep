@@ -557,6 +557,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
           >
             <Item name="from_store_id" className="select-item">
               <Select
+                autoClearSearchValue={false}
                 style={{ width: "200px" }}
                 optionFilterProp="children"
                 placeholder="Kho gửi"
@@ -603,6 +604,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
             </Item>
             <Item name="to_store_id" className="select-item">
               <Select
+                autoClearSearchValue={false}
                 style={{ width: "200px" }}
                 placeholder="Kho nhận"
                 showArrow

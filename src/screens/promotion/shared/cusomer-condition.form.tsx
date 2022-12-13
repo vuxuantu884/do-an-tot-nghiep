@@ -307,6 +307,7 @@ export default function CustomerFilter(props: Props): ReactElement {
                 labelCol={{ span: 24 }}
               >
                 <Select
+                  autoClearSearchValue={false}
                   placeholder="Chọn nhóm khách hàng"
                   showArrow
                   optionFilterProp="children"
@@ -336,6 +337,7 @@ export default function CustomerFilter(props: Props): ReactElement {
                 labelCol={{ span: 24 }}
               >
                 <Select
+                  autoClearSearchValue={false}
                   mode="multiple"
                   placeholder="Chọn hạng khách hàng"
                   showArrow

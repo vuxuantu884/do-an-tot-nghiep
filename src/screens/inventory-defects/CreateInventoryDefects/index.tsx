@@ -517,6 +517,7 @@ const InventoryDefectCreate: React.FC = () => {
                 labelCol={{ span: 24, offset: 0 }}
               >
                 <CustomSelect
+                  autoClearSearchValue={false}
                   placeholder="Chọn cửa hàng"
                   showArrow
                   optionFilterProp="children"

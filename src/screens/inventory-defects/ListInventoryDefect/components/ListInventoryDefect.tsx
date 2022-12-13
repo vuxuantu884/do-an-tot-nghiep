@@ -533,6 +533,7 @@ const ListInventoryDefect: React.FC = () => {
         </Item>
         <Item name={DefectFilterBasicEnum.store_ids} className="select-item">
           <Select
+            autoClearSearchValue={false}
             style={{ width: "300px" }}
             placeholder="Chọn cửa hàng"
             maxTagCount={"responsive" as const}
