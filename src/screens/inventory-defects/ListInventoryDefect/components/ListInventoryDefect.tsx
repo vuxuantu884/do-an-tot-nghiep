@@ -1,4 +1,4 @@
-import { Button, Card, Form, Image, Input, Select } from "antd";
+import { Button, Card, Form, Image, Input, Select, Tooltip } from "antd";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
@@ -20,6 +20,8 @@ import EditNote from "screens/order-online/component/edit-note";
 import {
   createInventoryDefect,
   deleteInventoryDefect,
+  deleteInventoryDefects,
+  editInventoryDefectNote,
   getListInventoryDefect,
 } from "service/inventory/defect/index.service";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -31,7 +33,7 @@ import {
   splitEllipsis,
 } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { cloneDeep, isArray, isEmpty } from "lodash";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
@@ -40,7 +42,7 @@ import { StoreResponse } from "model/core/store.model";
 import { DefectFilterBasicEnum, DefectFilterBasicName } from "model/inventory-defects/filter";
 import { useArray } from "hook/useArray";
 import BaseFilterResult from "component/base/BaseFilterResult";
-import { DeleteOutlined, EyeOutlined } from "@ant-design/icons";
+import { CloseCircleOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import EditPopover from "./EditPopover";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { InventoryDefectsPermission } from "config/permissions/inventory-defects.permission";
@@ -52,6 +54,18 @@ import CopyIcon from "screens/order-online/component/CopyIcon";
 import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import { formatCurrencyForProduct } from "screens/products/helper";
+import { RefSelectProps } from "antd/lib/select";
+import ActionButton, { MenuAction } from "component/table/ActionButton";
+import useAuthorization from "hook/useAuthorization";
+import styled from "styled-components";
+
+const actionsDefault: Array<MenuAction> = [
+  {
+    id: 1,
+    name: "Xóa",
+    icon: <CloseCircleOutlined />,
+  },
+];
 
 const ListInventoryDefect: React.FC = () => {
   const dispatch = useDispatch();
@@ -80,6 +94,7 @@ const ListInventoryDefect: React.FC = () => {
   let [params, setParams] = useState<any>(dataQuery);
   const [loadingTable, setLoadingTable] = useState<boolean>(false);
   const [itemDelete, setItemDelete] = useState<InventoryDefectResponse>();
+  const [selected, setSelected] = useState<Array<LineItemDefect>>([]);
   const { array: paramsArray, set: setParamsArray, remove, prevArray } = useArray([]);
   const [data, setData] = useState<PageResponse<InventoryDefectResponse>>({
     metadata: {
@@ -177,6 +192,30 @@ const ListInventoryDefect: React.FC = () => {
     [dispatch, data, getInventoryDefects],
   );
 
+  const editNoteDefect = async (value: string, id: number) => {
+    const listDefect = cloneDeep(data.items) ?? [];
+    const itemObject = listDefect.find((el: InventoryDefectResponse) => el.id === id);
+    if (itemObject) {
+      dispatch(showLoading());
+      const res = await callApiNative(
+        { isShowError: true },
+        dispatch,
+        editInventoryDefectNote,
+        id,
+        value,
+      );
+      if (res) {
+        // BE yêu cầu chờ 3s để đồng bộ ES
+        setTimeout(() => {
+          getInventoryDefects();
+          showSuccess("Sửa sản phẩm thành công");
+        }, 3000);
+      } else {
+        dispatch(hideLoading());
+      }
+    }
+  };
+
   const handleDelete = useCallback(
     async (id: number) => {
       dispatch(showLoading());
@@ -202,9 +241,10 @@ const ListInventoryDefect: React.FC = () => {
 
   const getTotalDefects = useCallback(() => {
     const inventoryDefects = cloneDeep(data.items);
-    const total = inventoryDefects.reduce((value, element) => {
-      return value + element.defect || 0;
-    }, 0);
+    const total =
+      inventoryDefects?.reduce((value, element) => {
+        return value + element.defect || 0;
+      }, 0) || 0;
     return formatCurrencyForProduct(total);
   }, [data]);
 
@@ -281,6 +321,16 @@ const ListInventoryDefect: React.FC = () => {
         },
       },
       {
+        title: <Tooltip title="Số tồn trong tại thời điểm hiện tại">Tồn trong kho</Tooltip>,
+        dataIndex: "on_hand",
+        align: "center",
+        visible: true,
+        width: 100,
+        render: (text: string, item: InventoryDefectResponse) => {
+          return <span>{text}</span>;
+        },
+      },
+      {
         title: (
           <div>
             Số lỗi <span style={{ color: "#2A2A86" }}>({getTotalDefects()})</span>
@@ -325,7 +375,7 @@ const ListInventoryDefect: React.FC = () => {
                 note={item.note}
                 color={primaryColor}
                 onOk={(newNote) => {
-                  editItemDefect(newNote, InventoryDefectFields.note, item.id);
+                  editNoteDefect(newNote, item.id);
                 }}
               />
             </div>
@@ -370,7 +420,7 @@ const ListInventoryDefect: React.FC = () => {
         align: "center",
       },
     ];
-  }, [currentPermissions, editItemDefect, getTotalDefects]);
+  }, [currentPermissions, editItemDefect, getTotalDefects, data]);
 
   useEffect(() => {
     if (tableColumnConfigs && tableColumnConfigs.length) {
@@ -378,7 +428,6 @@ const ListInventoryDefect: React.FC = () => {
         (prev, current) => (prev.id > current.id ? prev : current),
         { id: -1, json_content: "" },
       );
-
       try {
         const columnsConfig = JSON.parse(latestConfig.json_content);
         let newColumns = [];
@@ -389,13 +438,12 @@ const ListInventoryDefect: React.FC = () => {
             newColumns.push({ ...col, visible: colConfig.visible });
           }
         }
-
         setColumns(newColumns);
       } catch (err) {
         showError("Lỗi lấy cài đặt cột");
       }
     }
-  }, [initColumns, tableColumnConfigs]);
+  }, [initColumns, tableColumnConfigs, data]);
 
   const [columns, setColumns] =
     useState<Array<ICustomTableColumType<InventoryDefectResponse>>>(initColumns);
@@ -462,7 +510,7 @@ const ListInventoryDefect: React.FC = () => {
     history.replace(`${UrlConfig.INVENTORY_DEFECTS}?${queryParam}`);
     setParams(newParam);
     setData({ ...data, metadata: { ...data.metadata, page: 1 } }); // change to page 1 before performing search
-  }, [form, history, params, data]);
+  }, [form, history, params]);
 
   useEffect(() => {
     if (myStores) {
@@ -518,9 +566,69 @@ const ListInventoryDefect: React.FC = () => {
     },
     [remove],
   );
+  const [canDeleteDefect] = useAuthorization({
+    acceptPermissions: [InventoryDefectsPermission.delete],
+  });
+
+  const menu = useMemo(() => {
+    return actionsDefault.filter((item) => {
+      if (item.id === actionsDefault[1].id) {
+        return canDeleteDefect;
+      }
+      return false;
+    });
+  }, [canDeleteDefect]);
+
+  const onMenuClick = useCallback(
+    (index: number) => {
+      if (selected.length === 0) {
+        showWarning("Bạn chưa chọn đơn đặt hàng nào");
+        return;
+      }
+      switch (index) {
+        case actionsDefault[1].id:
+          setConfirmDelete(true);
+          break;
+      }
+    },
+    [selected],
+  );
+
+  const onSelect = useCallback(
+    (selectedRow: Array<LineItemDefect>) => {
+      const res = selectedRow.filter(function (el) {
+        return el !== undefined;
+      });
+      setSelected(res);
+    },
+    [setSelected],
+  );
+
+  const handleDeleteInventoryDefects = async () => {
+    try {
+      const idSelected = selected.map((item) => {
+        return item.id;
+      });
+      const res = await callApiNative(
+        { isShowError: true, isShowLoading: true },
+        dispatch,
+        deleteInventoryDefects,
+        {
+          ids: idSelected.toString(),
+        },
+      );
+      setConfirmDelete(false);
+      showSuccess("Xóa sản phẩm thành công");
+      getInventoryDefects();
+    } catch (err) {}
+  };
+
   return (
-    <Card>
+    <StyledCard>
       <Form onFinish={onFinish} layout="inline" initialValues={{}} form={form}>
+        <div className="page-filter-left">
+          <ActionButton menu={menu} onMenuClick={onMenuClick} />
+        </div>
         <Item style={{ flex: 1 }} name={DefectFilterBasicEnum.condition} className="input-search">
           <Input
             allowClear
@@ -581,6 +689,8 @@ const ListInventoryDefect: React.FC = () => {
         bordered
         isLoading={loadingTable}
         isShowPaginationAtHeader
+        isRowSelection
+        onSelectedChange={onSelect}
         dataSource={data.items}
         scroll={{ x: "max-content" }}
         sticky={{ offsetScroll: 5, offsetHeader: 55 }}
@@ -588,9 +698,9 @@ const ListInventoryDefect: React.FC = () => {
         rowKey={(item: LineItemDefect) => item.id}
         pagination={{
           showSizeChanger: true,
-          pageSize: data.metadata.limit,
-          current: data.metadata.page,
-          total: data.metadata.total,
+          pageSize: data?.metadata?.limit || 0,
+          current: data?.metadata?.page || 0,
+          total: data?.metadata?.total || 0,
           onChange: onPageChange,
           onShowSizeChange: onPageChange,
         }}
@@ -622,8 +732,38 @@ const ListInventoryDefect: React.FC = () => {
           visible={isConfirmDelete}
         />
       )}
-    </Card>
+      {selected.length > 0 && (
+        <ModalDeleteConfirm
+          onCancel={() => setConfirmDelete(false)}
+          onOk={() => {
+            handleDeleteInventoryDefects();
+          }}
+          title={
+            <div>
+              Bạn chắc chắn xóa <span style={{ color: "#11006f" }}>{selected.length}</span> sản phẩm
+              này ra khỏi danh sách hàng lỗi không ?
+            </div>
+          }
+          visible={isConfirmDelete}
+        />
+      )}
+    </StyledCard>
   );
 };
 
 export default ListInventoryDefect;
+
+const StyledCard = styled(Card)`
+  .page-filter-left {
+    margin-right: 20px;
+    .action-button {
+      border: 1px solid #2a2a86;
+      padding: 6px 15px;
+      border-radius: 5px;
+      flex-direction: row;
+      display: flex;
+      align-items: center;
+      color: #2a2a86;
+    }
+  }
+`;

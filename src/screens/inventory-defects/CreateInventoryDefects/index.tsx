@@ -5,7 +5,7 @@ import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { createRef, useCallback, useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { Link, useHistory } from "react-router-dom";
 import arrowLeft from "assets/icon/arrow-back.svg";
@@ -18,7 +18,7 @@ import { getStoreApi } from "service/inventory/transfer/index.service";
 import { searchVariantsApi } from "service/product/product.service";
 import { VariantResponse } from "model/product/product.model";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { findAvatar } from "utils/AppUtils";
+import { findAvatar, handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 import { InventoryDefectFields, LineItemDefect } from "model/inventory-defects";
 import { cloneDeep } from "lodash";
 import { createInventoryDefect } from "service/inventory/defect/index.service";
@@ -26,6 +26,7 @@ import ImageProduct from "screens/products/product/component/ImageProduct";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import SearchProductComponent from "component/search-product";
 import { AccountStoreResponse } from "model/account/account.model";
+import { RefSelectProps } from "antd/lib/select";
 
 export interface SummaryDefect {
   total_defect: number;
@@ -59,7 +60,10 @@ const InventoryDefectCreate: React.FC = () => {
     (state: RootReducerType) => state.userReducer.account?.account_stores,
   );
 
+  const productAutoCompleteRef = createRef<RefSelectProps>();
+
   const history = useHistory();
+
   const columns: Array<ICustomTableColumType<LineItemDefect>> = [
     {
       title: "Ảnh",
@@ -423,7 +427,6 @@ const InventoryDefectCreate: React.FC = () => {
 
       if (keyCode === "Enter" && code) {
         setKeySearch("");
-
         const storeId = form.getFieldValue("store_id");
         if (!storeId) {
           showError("Vui lòng chọn cửa hàng");
@@ -459,9 +462,31 @@ const InventoryDefectCreate: React.FC = () => {
     [dispatch, handleSearchProduct],
   );
 
+  const eventKeydown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLInputElement) {
+        if (event.target.id === "search_product") {
+          if (event.key !== "Enter") {
+            barCode = barCode + event.key;
+          }
+          handleDelayActionWhenInsertTextInSearchInput(
+            productAutoCompleteRef,
+            () => handleSearchProduct(event.key, barCode),
+            400,
+          );
+          return;
+        }
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [handleSearchProduct],
+  );
+
   useEffect(() => {
     window.addEventListener("keypress", eventKeyPress);
+    window.addEventListener("keydown", eventKeydown);
     return () => {
+      window.removeEventListener("keydown", eventKeydown);
       window.removeEventListener("keypress", eventKeyPress);
     };
   }, [eventKeyPress]);
@@ -527,15 +552,15 @@ const InventoryDefectCreate: React.FC = () => {
                 >
                   {Array.isArray(myStores) && myStores.length > 0
                     ? myStores.map((item, index) => (
-                      <Option key={"store_id" + index} value={item.store_id}>
-                        {item.store}
-                      </Option>
-                    ))
+                        <Option key={"store_id" + index} value={item.store_id}>
+                          {item.store}
+                        </Option>
+                      ))
                     : stores.map((item, index) => (
-                      <Option key={"store_id" + index} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))}
+                        <Option key={"store_id" + index} value={item.id}>
+                          {item.name}
+                        </Option>
+                      ))}
                 </CustomSelect>
               </Form.Item>
             </Col>
@@ -561,6 +586,7 @@ const InventoryDefectCreate: React.FC = () => {
             <SearchProductComponent
               keySearch={keySearch}
               setKeySearch={setKeySearch}
+              ref={productAutoCompleteRef}
               id="search_product"
               onSelect={onSelectProduct}
               storeId={defectStoreIdBak}

@@ -1,4 +1,7 @@
-import { InventoryDefectResponse } from "./../../../model/inventory-defects/index";
+import {
+  DeleteInventoryDefects,
+  InventoryDefectResponse,
+} from "./../../../model/inventory-defects/index";
 import BaseResponse from "../../../base/base.response";
 import BaseAxios from "../../../base/base.axios";
 import { ApiConfig } from "../../../config/api.config";
@@ -8,12 +11,22 @@ const createInventoryDefect = (data: DataRequestDefectItems): Promise<BaseRespon
   return BaseAxios.post(`${ApiConfig.INVENTORY_ADJUSTMENT}/defects`, data);
 };
 
+const editInventoryDefectNote = (id: number, note: string) => {
+  return BaseAxios.put(`${ApiConfig.INVENTORY_ADJUSTMENT}/defects/${id}/update-note`, {
+    note,
+  });
+};
+
 // const editInventoryDefect = (data: DataRequestDefectItems): Promise<BaseResponse<InventoryDefectResponse>> => {
 //     return BaseAxios.put(`${ApiConfig.INVENTORY_ADJUSTMENT}/defects/${data.items[0].id}`, data)
 // }
 
 const deleteInventoryDefect = (id: number): Promise<BaseResponse<any>> => {
   return BaseAxios.delete(`${ApiConfig.INVENTORY_ADJUSTMENT}/defects/${id}`);
+};
+
+const deleteInventoryDefects = (params: DeleteInventoryDefects): Promise<BaseResponse<any>> => {
+  return BaseAxios.delete(`${ApiConfig.INVENTORY_ADJUSTMENT}/defects`, { params });
 };
 
 const getListInventoryDefect = (
@@ -27,4 +40,6 @@ export {
   // editInventoryDefect,
   deleteInventoryDefect,
   getListInventoryDefect,
+  deleteInventoryDefects,
+  editInventoryDefectNote,
 };
