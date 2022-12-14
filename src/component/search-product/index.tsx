@@ -18,15 +18,16 @@ type Props = {
   onSelect?: (v?: VariantResponse, ds?: any) => void;
   storeId?: number | null;
   dataSource?: any;
+  ref?: React.RefObject<RefSelectProps>;
 };
 
 var barCode = "";
 var isBarcode = false;
 
 const SearchProductComponent: React.FC<Props> = (props: Props) => {
-  const { keySearch, setKeySearch, onSelect, id, storeId, dataSource } = props;
+  const { keySearch, setKeySearch, onSelect, id, storeId, dataSource, ref } = props;
   const dispatch = useDispatch();
-  const autoCompleteRef = createRef<RefSelectProps>();
+  const autoCompleteRef = ref ? ref : createRef<RefSelectProps>();
 
   const [resultSearchVariant, setResultSearchVariant] = useState<VariantResponse[]>([]);
   const [isSearchingProducts, setIsSearchingProducts] = useState(false);
@@ -208,7 +209,7 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
       >
         <Input
           size="middle"
-          placeholder="Tìm sản phẩm"
+          placeholder="Tìm sản phẩm /Barcode sản phẩm"
           prefix={
             isSearchingProducts ? (
               <LoadingOutlined style={{ color: "#2a2a86" }} />

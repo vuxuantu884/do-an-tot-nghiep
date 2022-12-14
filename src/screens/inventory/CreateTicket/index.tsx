@@ -137,7 +137,6 @@ const CreateTicket: FC = () => {
     delete quantityInput[variantId];
 
     const collection: any = document.getElementsByClassName("product-item-delete");
-    console.log(collection);
     collection[index]?.blur();
   }
 
@@ -590,7 +589,6 @@ const CreateTicket: FC = () => {
           if (event.key !== "Enter") {
             barCode = barCode + event.key;
           }
-
           handleDelayActionWhenInsertTextInSearchInput(
             productAutoCompleteRef,
             () => handleSearchProduct(event.key, barCode),
