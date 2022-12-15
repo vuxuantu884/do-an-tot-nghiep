@@ -1,6 +1,5 @@
 import { Avatar, Badge, Button, Dropdown, Layout, Menu, Space, Tooltip } from "antd";
 import hotlineIcon from "assets/icon/hotline.svg";
-import youtubeIcon from "assets/icon/youtube-icon.svg";
 import devEnvMarkup from "assets/img/dev-env-markup.png";
 import gapoIcon from "assets/img/gapo_icon.png";
 import gopyIcon from "assets/icon/gop-y.svg";
@@ -26,7 +25,6 @@ type HeaderContainerProps = {
 };
 
 const hotlineNumber = "0888 464 258";
-const youtubeUrl = "https://www.youtube.com/channel/UCVgds2lhgxftOxEtQJooKKQ/playlists";
 const gapoUrl = "https://www.gapowork.vn/group/unicorn";
 const gopyUrl = "https://forms.gle/zCgBGA7Th7MDNNL58";
 
@@ -159,11 +157,6 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
                     </a>
                   </span>
                 </Tooltip>
-
-                <a href={youtubeUrl} className="support-link" target={"_blank"} rel="noreferrer">
-                  <img className="support-icon" src={youtubeIcon} alt="Youtube" />
-                  {"Unicorn Channel »"}
-                </a>
                 <a href={gapoUrl} target={"_blank"} rel="noreferrer" className="support-link">
                   <img className="support-icon" src={gapoIcon} alt="gapo" />
                   {"Nhóm hỗ trợ Gapo »"}
