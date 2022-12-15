@@ -137,9 +137,7 @@ const ListInventoryDefect: React.FC = () => {
   }, [getInventoryDefects, getStores, params]);
 
   const editItemDefect = useCallback(
-    async (value: any, field: string, id: number) => {
-      const listDefect = cloneDeep(data.items) ?? [];
-      const itemObject = listDefect.find((el: InventoryDefectResponse) => el.id === id);
+    async (value: any, field: string, itemObject: InventoryDefectResponse) => {
       let itemEdit: any = {};
       if (itemObject && !isEmpty(itemObject)) {
         if (InventoryDefectFields.defect === field) {
@@ -193,26 +191,22 @@ const ListInventoryDefect: React.FC = () => {
   );
 
   const editNoteDefect = async (value: string, id: number) => {
-    const listDefect = cloneDeep(data.items) ?? [];
-    const itemObject = listDefect.find((el: InventoryDefectResponse) => el.id === id);
-    if (itemObject) {
-      dispatch(showLoading());
-      const res = await callApiNative(
-        { isShowError: true },
-        dispatch,
-        editInventoryDefectNote,
-        id,
-        value,
-      );
-      if (res) {
-        // BE yêu cầu chờ 3s để đồng bộ ES
-        setTimeout(() => {
-          getInventoryDefects();
-          showSuccess("Sửa sản phẩm thành công");
-        }, 3000);
-      } else {
-        dispatch(hideLoading());
-      }
+    dispatch(showLoading());
+    const res = await callApiNative(
+      { isShowError: true },
+      dispatch,
+      editInventoryDefectNote,
+      id,
+      value,
+    );
+    if (res) {
+      // BE yêu cầu chờ 3s để đồng bộ ES
+      setTimeout(() => {
+        getInventoryDefects();
+        showSuccess("Sửa sản phẩm thành công");
+      }, 3000);
+    } else {
+      dispatch(hideLoading());
     }
   };
 
@@ -352,7 +346,7 @@ const ListInventoryDefect: React.FC = () => {
                 title="Sửa số lỗi: "
                 color={primaryColor}
                 onOk={(newNote) => {
-                  editItemDefect(newNote, InventoryDefectFields.defect, item.id);
+                  editItemDefect(newNote, InventoryDefectFields.defect, item);
                 }}
               />
             </div>
