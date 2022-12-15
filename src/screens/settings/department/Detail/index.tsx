@@ -4,14 +4,14 @@ import { DataNode } from "antd/lib/tree";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import { DepartmentsPermissions } from "config/permissions/account.permisssion";
-import UrlConfig from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import {
   departmentDetailAction,
   searchDepartmentAction,
 } from "domain/actions/account/department.action";
 import useAuthorization from "hook/useAuthorization";
 import { DepartmentResponse } from "model/account/department.model";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { Key, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import RowDetail from "screens/settings/store/RowDetail";
@@ -113,6 +113,12 @@ const DepartmentCreateScreen: React.FC = () => {
     }
   };
 
+  const goToDepartmentDetail = (keys: Key[]) => {
+    if (keys.length > 0) {
+      window.open(`${BASE_NAME_ROUTER}${UrlConfig.DEPARTMENT}/${keys[0]}`, "_blank");
+    }
+  };
+
   return (
     <ContentContainer
       title={`Phòng ban ${data?.name}`}
@@ -180,13 +186,14 @@ const DepartmentCreateScreen: React.FC = () => {
               </Card>
             </Col>
             <Col md={8} span={8}>
-              <Card title="Sơ đồ tổ chức">
+              <Card title="Sơ đồ tổ chức 1">
                 <Tree
                   showLine={{ showLeafIcon: false }}
                   defaultExpandAll
                   defaultSelectedKeys={["0-0-0"]}
                   switcherIcon={<DownOutlined />}
                   treeData={dataChildren}
+                  onSelect={(keys) => goToDepartmentDetail(keys)}
                 />
               </Card>
             </Col>
