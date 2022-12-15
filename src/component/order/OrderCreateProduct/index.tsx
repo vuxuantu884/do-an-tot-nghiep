@@ -1941,10 +1941,9 @@ function OrderCreateProduct(props: PropTypes) {
     let newData: Array<StoreResponse> = [];
 
     //loại bỏ kho Kho dự trữ, Kho phân phối
+    // chỉ tạo với kho cửa hàng
     let storesCopy = stores.filter(
-      (store) =>
-        store.type.toLocaleLowerCase() !== STORE_TYPE.DISTRIBUTION_CENTER &&
-        store.type.toLocaleLowerCase() !== STORE_TYPE.STOCKPILE,
+      (store) => store.type.toLocaleLowerCase() === STORE_TYPE.STORE.toLowerCase(),
     );
 
     if (storesCopy && storesCopy.length) {

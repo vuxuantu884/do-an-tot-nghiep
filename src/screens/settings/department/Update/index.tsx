@@ -5,16 +5,13 @@ import AccountSearchSelect from "component/custom/select-search/account-select";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { DepartmentsPermissions } from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
 import {
   departmentDetailAction,
   departmentUpdateAction,
   searchDepartmentAction,
 } from "domain/actions/account/department.action";
 import useAuthorization from "hook/useAuthorization";
-import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { DepartmentRequest, DepartmentResponse } from "model/account/department.model";
-import { PageResponse } from "model/base/base-metadata.response";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
@@ -32,14 +29,6 @@ const DepartmentUpdateScreen: React.FC = () => {
   const [error, setError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [departments, setDepartment] = useState<Array<DepartmentResponse>>([]);
-  const [, setAccounts] = useState<PageResponse<AccountResponse>>({
-    metadata: {
-      limit: 20,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<DepartmentResponse | null>(null);
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
@@ -55,19 +44,6 @@ const DepartmentUpdateScreen: React.FC = () => {
   });
 
   const levels = [1, 2, 3, 4, 5, 6, 7];
-
-  const searchAccount = useCallback(
-    (query: AccountSearchQuery, paging: boolean) => {
-      dispatch(
-        AccountSearchAction({ ...query, limit: 20 }, (result) => {
-          if (result) {
-            setAccounts(result);
-          }
-        }),
-      );
-    },
-    [dispatch],
-  );
 
   const onFinish = useCallback(
     (value: DepartmentRequest) => {
@@ -105,7 +81,6 @@ const DepartmentUpdateScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    searchAccount({}, false);
     dispatch(
       searchDepartmentAction((result) => {
         if (result) {
@@ -115,7 +90,8 @@ const DepartmentUpdateScreen: React.FC = () => {
         }
       }),
     );
-  }, [form, dispatch, searchAccount]);
+  }, [form, dispatch]);
+
   useEffect(() => {
     setIsLoading(true);
     dispatch(

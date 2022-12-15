@@ -316,6 +316,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
           >
             <Item name="from_store_id" className="select-item">
               <Select
+                autoClearSearchValue={false}
                 style={{ width: "200px" }}
                 placeholder="Kho gửi"
                 maxTagCount={"responsive" as const}
@@ -343,6 +344,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
             </Item>
             <Item name="to_store_id" className="select-item">
               <Select
+                autoClearSearchValue={false}
                 style={{ width: "180px" }}
                 placeholder="Kho nhận"
                 showArrow

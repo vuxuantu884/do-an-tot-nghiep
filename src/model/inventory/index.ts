@@ -87,24 +87,24 @@ export interface HistoryInventoryResponse extends BaseObject {
 }
 
 export interface AdvertisingHistoryResponse extends BaseObject {
-  code: string,
-  id: number,
-  entitled_method: string,
-  title: string,
-  starts_date: string | null,
-  ends_date: string | null,
-  quantity_limit?: number | null,
+  code: string;
+  id: number;
+  entitled_method: string;
+  title: string;
+  starts_date: string | null;
+  ends_date: string | null;
+  quantity_limit?: number | null;
   suggested_discounts: {
-    value_type: string,
-    value: number
-  },
-  prerequisite_quantity_gte: string
+    value_type: string;
+    value: number;
+  };
+  prerequisite_quantity_gte: string;
 }
 
 export interface HistoryInventoryQuery extends BaseQuery {
   condition?: string;
   document_type?: string | null;
-  store_ids?: number | Array<number> | null;
+  store_ids?: Array<number>;
   from_created_date?: string;
   to_created_date?: string;
   from_transaction_date?: string;
@@ -124,7 +124,7 @@ export interface AdvertisingHistoryQuery extends BaseQuery {
 
 export interface AllInventoryQuery extends BaseQuery {
   info?: string;
-  store_ids?: number | Array<number> | null;
+  store_ids?: Array<number>;
 }
 
 export interface AllInventoryProductInStore {

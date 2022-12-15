@@ -222,6 +222,7 @@ const ManualForm: React.FC<ProcurementManualFormProps> = (props: ProcurementManu
                         ]}
                       >
                         <Select
+                          autoClearSearchValue={false}
                           allowClear
                           showSearch
                           showArrow
@@ -274,6 +275,7 @@ const ManualForm: React.FC<ProcurementManualFormProps> = (props: ProcurementManu
             ]}
           >
             <Select
+              autoClearSearchValue={false}
               allowClear
               showSearch
               showArrow

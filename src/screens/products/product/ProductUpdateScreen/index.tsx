@@ -1020,6 +1020,7 @@ const ProductDetailScreen: React.FC = () => {
                           <Item name="material" hidden={true}></Item>
                           <Item name="material_id" className="po-form" label="Chất liệu">
                             <Select
+                              autoClearSearchValue={false}
                               showSearch
                               optionFilterProp="children"
                               placeholder="Chọn chất liệu"
@@ -1041,6 +1042,7 @@ const ProductDetailScreen: React.FC = () => {
                         <Col span={24} md={12} sm={24}>
                           <Item name="made_in_id" label="Xuất xứ">
                             <CustomSelect
+                              autoClearSearchValue={false}
                               showSearch
                               allowClear
                               optionFilterProp="children"

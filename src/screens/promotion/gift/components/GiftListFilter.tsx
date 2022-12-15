@@ -757,6 +757,7 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
 
           <Form.Item className="search-variant">
             <Select
+              autoClearSearchValue={false}
               loading={isLoading}
               showSearch
               showArrow
@@ -877,6 +878,7 @@ const GiftListFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                 case GiftFilterField.channels:
                   component = (
                     <Select
+                      autoClearSearchValue={false}
                       mode="multiple"
                       maxTagCount="responsive"
                       showSearch

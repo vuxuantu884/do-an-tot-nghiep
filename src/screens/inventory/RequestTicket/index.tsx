@@ -705,6 +705,7 @@ const RequestTicket: FC = () => {
                     labelCol={{ span: 24, offset: 0 }}
                   >
                     <Select
+                      autoClearSearchValue={false}
                       placeholder="Chọn kho gửi"
                       showArrow
                       optionFilterProp="children"
@@ -757,6 +758,7 @@ const RequestTicket: FC = () => {
                     labelCol={{ span: 24, offset: 0 }}
                   >
                     <Select
+                      autoClearSearchValue={false}
                       placeholder="Chọn kho nhận"
                       showArrow
                       optionFilterProp="children"

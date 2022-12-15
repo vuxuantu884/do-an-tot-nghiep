@@ -445,6 +445,7 @@ const SmsCustomerBirthday: React.FC = () => {
                     <Col span={12} style={{ marginBottom: "20px" }}>
                       <div style={{ marginBottom: "8px" }}><b>Hạng khách hàng</b></div>
                       <Select
+                        autoClearSearchValue={false}
                         mode="multiple"
                         maxTagCount="responsive"
                         showSearch
@@ -470,6 +471,7 @@ const SmsCustomerBirthday: React.FC = () => {
                     <Col span={12} style={{ marginBottom: "20px" }}>
                       <div style={{ marginBottom: "8px" }}><b>Nhóm khách hàng</b></div>
                       <Select
+                        autoClearSearchValue={false}
                         mode="multiple"
                         maxTagCount="responsive"
                         showSearch

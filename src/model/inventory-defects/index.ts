@@ -70,6 +70,10 @@ export interface InventoryDefectResponse {
   name: string;
 }
 
+export interface DeleteInventoryDefects {
+  ids: string;
+}
+
 export const InventoryDefectFields = {
   code: "code",
   sku: "sku",

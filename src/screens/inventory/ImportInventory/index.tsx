@@ -370,6 +370,7 @@ const UpdateTicket: FC = () => {
                       labelCol={{ span: 24, offset: 0 }}
                     >
                       <Select
+                        autoClearSearchValue={false}
                         placeholder="Chọn kho gửi"
                         showArrow
                         showSearch
@@ -414,6 +415,7 @@ const UpdateTicket: FC = () => {
                       labelCol={{ span: 24, offset: 0 }}
                     >
                       <Select
+                        autoClearSearchValue={false}
                         placeholder="Chọn kho nhận"
                         showArrow
                         showSearch

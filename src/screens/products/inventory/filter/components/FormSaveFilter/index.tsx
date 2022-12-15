@@ -98,6 +98,7 @@ const FormSaveFilter: React.FC<CustomModalFormModel> = (props: CustomModalFormMo
                         ]}
                       >
                         <CustomSelect
+                          autoClearSearchValue={false}
                           showArrow
                           allowClear
                           showSearch

@@ -322,6 +322,7 @@ export default function GiftCustomerCondition(props: Props): ReactElement {
                 <Select
                   placeholder="Chọn nhóm khách hàng"
                   showArrow
+                  autoClearSearchValue={false}
                   optionFilterProp="children"
                   showSearch
                   allowClear
@@ -349,6 +350,7 @@ export default function GiftCustomerCondition(props: Props): ReactElement {
                 labelCol={{ span: 24 }}
               >
                 <Select
+                  autoClearSearchValue={false}
                   mode="multiple"
                   placeholder="Chọn hạng khách hàng"
                   showArrow
