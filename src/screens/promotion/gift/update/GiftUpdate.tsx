@@ -43,7 +43,13 @@ const GiftUpdate = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const giftContext = useContext(GiftContext);
-  const { setGiftMethod, setGiftDetailData, giftDetailData } = giftContext;
+  const {
+    setGiftMethod,
+    setGiftDetailData,
+    giftDetailData,
+    setUnlimitedQuantity,
+    setUsageLimitPerCustomer,
+  } = giftContext;
 
   const [getIndexRemoveDiscount, setGetIndexRemoveDiscount] = useState(null);
   const [originalEntitlements, setOriginalEntitlements] = useState<Array<any>>([]);
@@ -151,10 +157,22 @@ const GiftUpdate = () => {
     (result: PromotionGift | false) => {
       if (result) {
         parseDataToForm(result);
+
+        if (result.quantity_limit) {
+          setUnlimitedQuantity(false);
+        } else {
+          setUnlimitedQuantity(true);
+        }
+
+        if (result.usage_limit_per_customer) {
+          setUsageLimitPerCustomer(false);
+        } else {
+          setUsageLimitPerCustomer(true);
+        }
       }
       setIsLoading(false);
     },
-    [parseDataToForm],
+    [parseDataToForm, setUnlimitedQuantity, setUsageLimitPerCustomer],
   );
 
   /**
@@ -165,13 +183,16 @@ const GiftUpdate = () => {
       const listProduct: Array<GiftProductEntitlements> = entitled_product_ids.map(
         (productId: number) => {
           return (
-            giftProductApplyData?.find((v) => v.product_id === productId) || ({} as GiftProductEntitlements)
+            giftProductApplyData?.find((v) => v.product_id === productId) ||
+            ({} as GiftProductEntitlements)
           );
         },
       );
 
       const listProductFormVariant = entitled_variant_ids.map((id) => {
-        return giftProductApplyData?.find((v) => v.variant_id === id) || ({} as GiftProductEntitlements);
+        return (
+          giftProductApplyData?.find((v) => v.variant_id === id) || ({} as GiftProductEntitlements)
+        );
       });
       return [...listProduct, ...listProductFormVariant];
     },
@@ -184,7 +205,10 @@ const GiftUpdate = () => {
         return [];
       }
       return entitled_gift_ids.map((id) => {
-        return giftVariantList?.find((item: any) => item.variant_id === id) || ({} as GiftProductEntitlements);
+        return (
+          giftVariantList?.find((item: any) => item.variant_id === id) ||
+          ({} as GiftProductEntitlements)
+        );
       });
     },
     [giftVariantList],
@@ -197,7 +221,8 @@ const GiftUpdate = () => {
     const entitlementValue: Array<GiftEntitlementForm> = giftDetailData.entitlements;
     if (entitlementValue) {
       entitlementValue.forEach((item: GiftEntitlementForm) => {
-        item.selectedProducts = mergeVariantsData(item.entitled_variant_ids, item.entitled_product_ids) || [];
+        item.selectedProducts =
+          mergeVariantsData(item.entitled_variant_ids, item.entitled_product_ids) || [];
         item.selectedGifts = setSelectedGifts(item.entitled_gift_ids);
       });
       setOriginalEntitlements(entitlementValue);
@@ -210,19 +235,22 @@ const GiftUpdate = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    dispatch(getPromotionGiftProductApplyAction(idNumber, {page: 1, limit: 1000}, (data) => {
-      if (data) {
-        setGiftProductApplyData(data.items);
-      }
-    }));
-    dispatch(getPromotionGiftVariantAction(idNumber, { page: 1, limit: 1000 }, (data) => {
-      if (data) {
-        setGiftVariantList(data.items);
-      }
-    }));
+    dispatch(
+      getPromotionGiftProductApplyAction(idNumber, { page: 1, limit: 1000 }, (data) => {
+        if (data) {
+          setGiftProductApplyData(data.items);
+        }
+      }),
+    );
+    dispatch(
+      getPromotionGiftVariantAction(idNumber, { page: 1, limit: 1000 }, (data) => {
+        if (data) {
+          setGiftVariantList(data.items);
+        }
+      }),
+    );
     dispatch(getPromotionGiftDetailAction(idNumber, getPromotionGiftDetailCallback));
   }, [dispatch, idNumber, getPromotionGiftDetailCallback]);
-
 
   return (
     <ContentContainer
