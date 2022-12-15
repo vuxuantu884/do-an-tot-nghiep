@@ -73,6 +73,7 @@ const DepartmentUpdateScreen: React.FC = () => {
     (value: DepartmentRequest) => {
       setLoading(true);
       value.status = "active";
+      value.name = value.name?.trim();
       dispatch(
         departmentUpdateAction(idNumber, value, (result) => {
           setLoading(false);

@@ -138,6 +138,7 @@ const StoreCreateScreen: React.FC = () => {
 
       newData = {
         ...newData,
+        name: newData.name?.trim(),
         status: statusStore,
         is_saleable: isSaleable === "active",
         is_stocktaking: isStocktaking === "active",

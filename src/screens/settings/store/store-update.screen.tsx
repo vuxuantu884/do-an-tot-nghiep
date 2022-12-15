@@ -120,6 +120,7 @@ const StoreUpdateScreen: React.FC = () => {
       newData = {
         ...newData,
         status: statusStore,
+        name: newData.name?.trim(),
         is_saleable: isSaleable === "active",
         is_stocktaking: isStocktaking === "active",
         latitude: coordinates && coordinates.length > 0 ? coordinates[0] : "",
