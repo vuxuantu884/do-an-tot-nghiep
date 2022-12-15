@@ -47,6 +47,7 @@ function AddVariantsModal(props: Props) {
    */
   const [isVisible, setIsVisible] = React.useState(false);
   const [valueSearchColor, setValueSearchColor] = React.useState("");
+  const [valueSearchSize, setValueSearchSize] = React.useState("");
   const [sizeSelectedList, setSizeSelectedList] = React.useState<SizeResponse[]>([]);
   const [colorSelectedList, setColorSelectedList] = React.useState<ColorResponse[]>([]);
 
@@ -632,7 +633,9 @@ function AddVariantsModal(props: Props) {
                 <BaseSelectPaging<SizeResponse>
                   mode="multiple"
                   onChange={changeSize}
-                  fetchData={fetchSizes}
+                  fetchData={(query) =>
+                    fetchSizes({ code: query.condition || "", page: query.page || 1 })
+                  }
                   metadata={sizes.metadata}
                   data={sizes.items}
                   renderItem={(item) => (
@@ -641,12 +644,14 @@ function AddVariantsModal(props: Props) {
                     </Option>
                   )}
                   onSearch={(value) => {
+                    setValueSearchSize(value);
                     fetchSizes({ code: value });
                   }}
                   filterOption={() => true}
                   showArrow
                   loading={isSizeLoading}
                   placeholder="Chọn sizes"
+                  valueSearch={valueSearchSize}
                 />
               </Item>
             </Col>
