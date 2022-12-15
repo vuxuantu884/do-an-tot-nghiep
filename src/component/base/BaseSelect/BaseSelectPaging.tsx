@@ -10,11 +10,13 @@ function BaseSelectPaging<T>({
   fetchData,
   valueSearch,
   onDeselect,
+  onSearch,
   ...props
 }: BaseSelectPagingType<T>) {
   const totalPage = metadata ? Math.ceil((metadata.total || 1) / (metadata.limit || 1)) : 1;
 
   const onSearchValue = (value: string) => {
+    onSearch && onSearch(value);
     fetchData && fetchData({ condition: value.trim(), page: 1 });
   };
   const onChange = (type: "next" | "prev") => {
@@ -30,6 +32,7 @@ function BaseSelectPaging<T>({
     <BaseSelect<T>
       optionFilterProp="children"
       showSearch
+      valueSearch={valueSearch}
       onSearch={debounce(onSearchValue, AppConfig.TYPING_TIME_REQUEST)}
       filterOption={false}
       {...props}

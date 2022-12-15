@@ -12,10 +12,10 @@ const DeliveryRecordsScreen = React.lazy(() => import("screens/order-online/reco
 const AddReportHandOver = React.lazy(() => import("screens/order-online/pack/pack-add"));
 const PackUpdate = React.lazy(() => import("screens/order-online/pack/pack-update"));
 // const SplitOrdersScreen = React.lazy(() => import("screens/order-online/split-orders.screen"));
-const CustomerDuplicate = React.lazy(() => import("screens/order-online/order-duplicate/index"));
-const OrderDuplicate = React.lazy(
-  () => import("screens/order-online/order-duplicate/detail.screen"),
-);
+// const CustomerDuplicate = React.lazy(() => import("screens/order-online/order-duplicate/index"));
+// const OrderDuplicate = React.lazy(
+//   () => import("screens/order-online/order-duplicate/detail.screen"),
+// );
 const ListOrder = React.lazy(() => import("screens/order-online/orders/online-orders.screen"));
 const OrderDetail = React.lazy(() => import("screens/order-online/order-detail"));
 const OrderCreate = React.lazy(() => import("screens/order-online/order-create"));
@@ -128,29 +128,6 @@ const bill: Array<RouteMenu> = [
         isShow: true,
         header: null,
         permissions: [ORDER_PERMISSIONS.READ_RETURNS],
-        subMenu: [],
-      },
-    ],
-  },
-  {
-    path: `${UrlConfig.ORDERS_DUPLICATE}`,
-    exact: true,
-    title: "Danh sách đơn trùng",
-    icon: "icon-dot",
-    component: CustomerDuplicate,
-    key: "order-duplicate",
-    isShow: true,
-    header: null,
-    subMenu: [
-      {
-        path: `${UrlConfig.ORDERS_DUPLICATE}/order/:customer_phone/:store_id`,
-        exact: true,
-        title: "Danh sách đơn trùng",
-        icon: "icon-dot",
-        component: OrderDuplicate,
-        key: "order-duplicate",
-        isShow: true,
-        header: null,
         subMenu: [],
       },
     ],

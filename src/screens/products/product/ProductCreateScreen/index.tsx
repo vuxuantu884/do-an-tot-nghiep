@@ -61,13 +61,10 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
+import { formatCurrency, replaceFormatString, capitalEachWords } from "utils/AppUtils";
 import {
-  formatCurrency,
-  replaceFormatString,
-  capitalEachWords,
-} from "utils/AppUtils";
-import {
-  convertCategory, convertLabelSelected,
+  convertCategory,
+  convertLabelSelected,
   convertProductViewToRequest,
   findAvatar,
   formatCurrencyForProduct,
@@ -76,18 +73,14 @@ import { DEFAULT_COMPANY, VietNamId } from "utils/Constants";
 import { ProductHelper } from "utils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import {
-  ImageProduct,
-  ModalPickAvatar,
-  UploadImageModal,
-} from "../component";
+import { ImageProduct, ModalPickAvatar, UploadImageModal } from "../component";
 import { VariantImageModel } from "../component/UploadImageModal";
 import { StyledComponent } from "./styles";
 import BaseSelectPaging from "component/base/BaseSelect/BaseSelectPaging";
 import BaseSelectMerchans from "component/base/BaseSelect/BaseSelectMerchans";
 import { useFetchMerchans } from "hook/useFetchMerchans";
 import BaseSelect from "component/base/BaseSelect/BaseSelect";
-import CareModal from "screens/products/component/CareInformation"
+import CareModal from "screens/products/component/CareInformation";
 import { uniqBy } from "lodash";
 const { TreeNode } = TreeSelect;
 const { Item, List } = Form;
@@ -218,6 +211,7 @@ const ProductCreateScreen: React.FC = () => {
     items: [],
     metadata: { limit: 20, page: 1, total: 0 },
   });
+  const [valueSearch, setValueSearch] = useState<string>("");
   const { fetchMerchans, merchans, isLoadingMerchans } = useFetchMerchans();
   //end category
   //end state
@@ -239,9 +233,10 @@ const ProductCreateScreen: React.FC = () => {
       const category = lstCategoryAll.find((item) => item.id === value);
 
       if (category && category.child_ids === null) {
-
         let path: any;
-        listCategory.find((categoryItem) => (path = ProductHelper.findPathTreeById(categoryItem, category.id)));
+        listCategory.find(
+          (categoryItem) => (path = ProductHelper.findPathTreeById(categoryItem, category.id)),
+        );
 
         const parents = lstCategoryAll.filter((item) => {
           return (
@@ -256,12 +251,12 @@ const ProductCreateScreen: React.FC = () => {
         });
 
         const rootParent = parents.filter((parent) => !parent.parent);
-        setIsProductCollectionRequired(rootParent?.length > 0 && rootParent[0].name === 'Thời trang')
+        setIsProductCollectionRequired(
+          rootParent?.length > 0 && rootParent[0].name === "Thời trang",
+        );
 
-        if (rootParent.length > 0 && rootParent[0].name === 'Thời trang') {
-          form.resetFields([
-            "product_collections"
-          ]);
+        if (rootParent.length > 0 && rootParent[0].name === "Thời trang") {
+          form.resetFields(["product_collections"]);
         }
 
         form.setFieldsValue({
@@ -273,10 +268,7 @@ const ProductCreateScreen: React.FC = () => {
         form.setFieldsValue({
           category_id: null,
         });
-        form.resetFields([
-          "category_id",
-          "product_collections"
-        ]);
+        form.resetFields(["category_id", "product_collections"]);
         setIsProductCollectionRequired(false);
       }
     },
@@ -286,95 +278,91 @@ const ProductCreateScreen: React.FC = () => {
   /**
    * generate variants as product code change, selected colors, sizes change
    */
-  const changeVariantName = useCallback(
-    () => {
-      const code = form.getFieldValue("code");
-      let name = form.getFieldValue("name");
-      name = capitalEachWords(name);
-      form.setFieldsValue({
-        name: name,
-      });
+  const changeVariantName = useCallback(() => {
+    const code = form.getFieldValue("code");
+    let name = form.getFieldValue("name");
+    name = capitalEachWords(name);
+    form.setFieldsValue({
+      name: name,
+    });
 
-      if (name && code) {
-        let newVariants: Array<VariantRequestView> = [];
-        if (colorSelected.length > 0 && sizeSelected.length > 0) {
-          colorSelected.forEach((color) => {
-            sizeSelected.forEach((size) => {
-              const sku = `${code}-${color.code}-${size.code}`;
-              newVariants.push({
-                name: `${name} - ${color.name} - ${size.code}`,
-                code: color.code,
-                color_id: color.id,
-                color: color.name,
-                size_id: size.id,
-                size: size.code,
-                sku: sku,
-                variant_images: [],
-                quantity: 0,
-              });
-            });
-          });
-        } else if (colorSelected.length === 0 && sizeSelected.length > 0) {
+    if (name && code) {
+      let newVariants: Array<VariantRequestView> = [];
+      if (colorSelected.length > 0 && sizeSelected.length > 0) {
+        colorSelected.forEach((color) => {
           sizeSelected.forEach((size) => {
+            const sku = `${code}-${color.code}-${size.code}`;
             newVariants.push({
-              name: `${name} - ${size.code}`,
-              code: null,
-              color_id: null,
-              color: null,
+              name: `${name} - ${color.name} - ${size.code}`,
+              code: color.code,
+              color_id: color.id,
+              color: color.name,
               size_id: size.id,
               size: size.code,
-              sku: `${code}-${size.code}`,
+              sku: sku,
               variant_images: [],
               quantity: 0,
             });
           });
-        } else if (colorSelected.length >= 0 && sizeSelected.length === 0) {
-          colorSelected.forEach((color) => {
-            newVariants.push({
-              name: `${name} - ${color.name}`,
-              color_id: color.id,
-              code: color.code,
-              color: color.name,
-              size_id: null,
-              size: null,
-              sku: `${code}-${color.code}`,
-              variant_images: [],
-              quantity: 0,
-            });
-          });
-        }
-        if (newVariants.length === 0) {
+        });
+      } else if (colorSelected.length === 0 && sizeSelected.length > 0) {
+        sizeSelected.forEach((size) => {
           newVariants.push({
-            name: name,
-            color_id: null,
+            name: `${name} - ${size.code}`,
             code: null,
+            color_id: null,
             color: null,
+            size_id: size.id,
+            size: size.code,
+            sku: `${code}-${size.code}`,
+            variant_images: [],
+            quantity: 0,
+          });
+        });
+      } else if (colorSelected.length >= 0 && sizeSelected.length === 0) {
+        colorSelected.forEach((color) => {
+          newVariants.push({
+            name: `${name} - ${color.name}`,
+            color_id: color.id,
+            code: color.code,
+            color: color.name,
             size_id: null,
             size: null,
-            sku: `${code}-MAU`,
-            quantity: 0,
+            sku: `${code}-${color.code}`,
             variant_images: [],
-          });
-          //add variant sku = product_code CO-4551
-          newVariants.push({
-            name: name,
-            color_id: null,
-            code: null,
-            color: null,
-            size_id: null,
-            size: null,
-            sku: `${code}`,
             quantity: 0,
-            variant_images: [],
           });
-
-        }
-
-        setVariants(uniqBy(newVariants, "sku"));
+        });
       }
-    },
-    [colorSelected, form, sizeSelected],
-  );
+      if (newVariants.length === 0) {
+        newVariants.push({
+          name: name,
+          color_id: null,
+          code: null,
+          color: null,
+          size_id: null,
+          size: null,
+          sku: `${code}-MAU`,
+          quantity: 0,
+          variant_images: [],
+        });
+        //add variant sku = product_code CO-4551
+        newVariants.push({
+          name: name,
+          color_id: null,
+          code: null,
+          color: null,
+          size_id: null,
+          size: null,
+          sku: `${code}`,
+          quantity: 0,
+          variant_images: [],
+        });
+      }
+
+      setVariants(uniqBy(newVariants, "sku"));
+    }
+  }, [colorSelected, form, sizeSelected]);
 
   const changeProductCode = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -431,9 +419,16 @@ const ProductCreateScreen: React.FC = () => {
 
   const onColorSelected = useCallback(
     (value: number) => {
-      const foundColor = colors.items.find(color => color.id === value);
-      setColorSelected(colorSelected.concat({id: value, name: foundColor?.name || "", code: foundColor?.code || ""} as ColorResponse));
-    }, [colorSelected, colors.items]
+      const foundColor = colors.items.find((color) => color.id === value);
+      setColorSelected(
+        colorSelected.concat({
+          id: value,
+          name: foundColor?.name || "",
+          code: foundColor?.code || "",
+        } as ColorResponse),
+      );
+    },
+    [colorSelected, colors.items],
   );
 
   // auto update product variant list as colors selected, sizes selected change
@@ -723,7 +718,15 @@ const ProductCreateScreen: React.FC = () => {
     }
     isLoadMaterData.current = true;
     return () => {};
-  }, [dispatch, getCollections, getColors, getSizes, getSuppliers, setDataAccounts, setDataCategory]);
+  }, [
+    dispatch,
+    getCollections,
+    getColors,
+    getSizes,
+    getSuppliers,
+    setDataAccounts,
+    setDataCategory,
+  ]);
 
   useEffect(() => {
     form.setFieldsValue({ made_in_id: VietNamId });
@@ -804,7 +807,7 @@ const ProductCreateScreen: React.FC = () => {
                   </Space>
                 }
               >
-                <Row gutter={50}/>
+                <Row gutter={50} />
                 <Row gutter={50}>
                   <Col span={24} md={12} sm={24}>
                     <Item
@@ -878,7 +881,11 @@ const ProductCreateScreen: React.FC = () => {
                       label="Mã sản phẩm"
                       normalize={(value: string) => (value || "").toUpperCase()}
                     >
-                      <Input maxLength={7} placeholder="Nhập mã sản phẩm" onChange={changeProductCode} />
+                      <Input
+                        maxLength={7}
+                        placeholder="Nhập mã sản phẩm"
+                        onChange={changeProductCode}
+                      />
                     </Item>
                   </Col>
                   <Col span={24} md={12} sm={24}>
@@ -927,12 +934,16 @@ const ProductCreateScreen: React.FC = () => {
                     <Item
                       label="Nhóm hàng"
                       name="product_collections"
-                      rules={isProductCollectionRequired ? [
-                        {
-                          required: true,
-                          message: "Vui lòng chọn nhóm hàng",
-                        },
-                      ] : []}
+                      rules={
+                        isProductCollectionRequired
+                          ? [
+                              {
+                                required: true,
+                                message: "Vui lòng chọn nhóm hàng",
+                              },
+                            ]
+                          : []
+                      }
                     >
                       <BaseSelectPaging
                         metadata={collections.metadata}
@@ -1110,7 +1121,7 @@ const ProductCreateScreen: React.FC = () => {
                     <Item label="Thông tin bảo quản">
                       {careLabels.map((item: any) => (
                         <Popover content={item.name}>
-                          <span className={`care-label ydl-${item.value}`}/>
+                          <span className={`care-label ydl-${item.value}`} />
                         </Popover>
                       ))}
                       <Button
@@ -1212,7 +1223,7 @@ const ProductCreateScreen: React.FC = () => {
                 <List name="variant_prices">
                   {(fields, { remove }) => (
                     <>
-                      {fields.map(({ key, name, fieldKey}) => (
+                      {fields.map(({ key, name, fieldKey }) => (
                         <Row key={key} gutter={16}>
                           <Col md={3}>
                             <Item
@@ -1400,14 +1411,20 @@ const ProductCreateScreen: React.FC = () => {
                             {`${item.code} - ${item.name}`}
                           </Option>
                         )}
+                        valueSearch={valueSearch}
+                        onSearch={(value) => {
+                          setValueSearch(value || "");
+                        }}
                         onSelect={onColorSelected}
                         onDeselect={(colorID, _) => {
-                          setColorSelected(colorSelected.filter(slt => slt.id !== colorID));
+                          setColorSelected(colorSelected.filter((slt) => slt.id !== colorID));
                         }}
                         placeholder="Chọn màu sắc"
                         notFoundContent={"Không có dữ liệu"}
                         mode="multiple"
-                        fetchData={(params) => getColors(params.condition || "", params.page || 1)}
+                        fetchData={(params) =>
+                          getColors(params.condition || params?.info || "", params.page || 1)
+                        }
                       />
                     </Item>
                   </Col>
@@ -1423,7 +1440,7 @@ const ProductCreateScreen: React.FC = () => {
                           </Option>
                         )}
                         onDeselect={(sizeID, _) => {
-                          setSizeSelected(sizeSelected.filter(size => size.id !== sizeID));
+                          setSizeSelected(sizeSelected.filter((size) => size.id !== sizeID));
                         }}
                         onSelect={changeSelectedSize}
                         placeholder="Chọn kích cỡ"
@@ -1443,10 +1460,7 @@ const ProductCreateScreen: React.FC = () => {
                     {
                       title: "Ảnh",
                       dataIndex: "variant_images",
-                      render: (
-                        images: Array<VariantImage>,
-                        item: VariantRequestView,
-                      ) => {
+                      render: (images: Array<VariantImage>, item: VariantRequestView) => {
                         let image = findAvatar(images);
                         return (
                           <ImageProduct
@@ -1505,7 +1519,11 @@ const ProductCreateScreen: React.FC = () => {
             rightComponent={
               <Space>
                 <Button onClick={resetData}>Đặt lại</Button>
-                <Button onClick={validateCreateProduct} loading={isLoadingSaveButton} type="primary">
+                <Button
+                  onClick={validateCreateProduct}
+                  loading={isLoadingSaveButton}
+                  type="primary"
+                >
                   Tạo sản phẩm
                 </Button>
               </Space>
@@ -1553,7 +1571,11 @@ const TreeCategory = (categoryResponse: CategoryResponse) => {
   return (
     <TreeNode
       value={categoryResponse.id}
-      title={categoryResponse.code ? `${categoryResponse.code} - ${categoryResponse.name}` : categoryResponse.name}
+      title={
+        categoryResponse.code
+          ? `${categoryResponse.code} - ${categoryResponse.name}`
+          : categoryResponse.name
+      }
     >
       {categoryResponse.children.length > 0 && (
         <React.Fragment>
@@ -1564,6 +1586,6 @@ const TreeCategory = (categoryResponse: CategoryResponse) => {
       )}
     </TreeNode>
   );
-}
+};
 
 export default ProductCreateScreen;

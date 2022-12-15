@@ -153,8 +153,8 @@ const CustomerUpdate = (props: any) => {
     const processValue = {
       ...customer,
       ...values,
-      customer_type: types.find((type: any) => type.id === values.customer_type_id).name,
-      customer_group: groups.find((group: any) => group.id === values.customer_group_id).name,
+      customer_type: types?.find((type: any) => type.id === values.customer_type_id)?.name,
+      customer_group: groups?.find((group: any) => group.id === values.customer_group_id)?.name,
       birthday: values.birthday ? new Date(values.birthday).toUTCString() : null,
       wedding_date: values.wedding_date ? new Date(values.wedding_date).toUTCString() : null,
       status: status,

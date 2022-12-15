@@ -303,16 +303,14 @@ export const PoSplitGoods = (props: IProps) => {
   }, [dataStore, isEditDetail]);
 
   const handleChangePercentStore = (
-    procument: PurchaseProcument,
+    procurementValue: PurchaseProcument,
     indexStore: number,
     value: number | null,
   ) => {
     const procurements = formMain?.getFieldsValue()?.procurements as PurchaseProcument[];
     const valueResult = value || 0;
-
-    // const indexStore = dataStore.findIndex((item) => item.store_id === storeId);
-    const indexProcurements = procurements.findIndex((item) => procument.id === item.id);
-    dataStore[indexStore]["percent"] = valueResult;
+    const indexProcurements = procurements.findIndex((item) => procurementValue.id === item.id);
+    dataStore[indexStore].percent = valueResult;
     if (indexProcurements >= 0) {
       procurements[indexProcurements]["percent"] = valueResult;
       procurements[indexProcurements].procurement_items = procurements[
@@ -335,20 +333,27 @@ export const PoSplitGoods = (props: IProps) => {
             (acc, ele) => acc + ele.planned_quantity,
             0,
           );
+          const quantityPercent = totalPlannedQuantity - dataSourceItem.quantity;
           if (
             totalPercent === AppConfig.ONE_HUNDRED_PERCENT &&
             dataSourceItem.quantity !== totalPlannedQuantity
           ) {
-            const quantityPercent = totalPlannedQuantity - dataSourceItem.quantity;
             if (valueResult === 0) {
               quantity = 0;
               let check = false;
               dataSourceItem.procurement_items &&
-                dataSourceItem.procurement_items.forEach((item, index) => {
+                dataStore.forEach((item, index) => {
                   if (item.percent && dataSourceItem.procurement_items && !check) {
                     check = true;
-                    dataSourceItem.procurement_items[index].planned_quantity =
-                      dataSourceItem.procurement_items[index].planned_quantity - quantityPercent;
+                    dataSourceItem.procurement_items[index].planned_quantity -= quantityPercent;
+                    const indexProcurementsStore = procurements.findIndex(
+                      (procurement) => procurement.id === item.id,
+                    );
+                    if (indexProcurementsStore >= 0) {
+                      procurements[indexProcurementsStore].procurement_items[
+                        indexProcurementsItem
+                      ].planned_quantity -= quantityPercent;
+                    }
                   }
                 });
             } else {

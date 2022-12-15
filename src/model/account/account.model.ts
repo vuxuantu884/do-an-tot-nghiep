@@ -23,11 +23,12 @@ export interface AccountBaseModel {
   is_shipper?: boolean;
   code: string;
   birthday?: string;
-  role_id : number;
-  store_ids: Array<number>
+  role_id: number;
+  store_ids: Array<number>;
 }
 
-export interface MerchandiserSelectResponse extends PageResponse<Pick<AccountResponse, "code" | "full_name">> {}
+export interface MerchandiserSelectResponse
+  extends PageResponse<Pick<AccountResponse, "code" | "full_name">> {}
 export interface AccountResponse extends AccountBaseModel, BaseObject {
   gender_name: string;
   country_name: string;
@@ -37,21 +38,21 @@ export interface AccountResponse extends AccountBaseModel, BaseObject {
   account_jobs: Array<AccountJobResponse>;
   account_stores: Array<AccountStoreResponse>;
   account_suppliers: any;
-  permissions : {
-    modules: Array<ModuleAuthorize>,
-  }
+  permissions: {
+    modules: Array<ModuleAuthorize>;
+  };
   role_name: string;
   temporary_password: boolean;
 }
 
 export interface DeliverPartnerResponse {
   address: string;
-	code: string;
-	id: number;
-	name: string;
-	phone: string;
-	status: string;
-	tax_code: string|null;
+  code: string;
+  id: number;
+  name: string;
+  phone: string;
+  status: string;
+  tax_code: string | null;
 }
 export interface AccountSearchQuery extends BaseQuery {
   code?: string;
@@ -59,12 +60,12 @@ export interface AccountSearchQuery extends BaseQuery {
   from_date?: Date;
   to_date?: Date;
   condition?: string;
-  info?: string,
+  info?: string;
   mobile?: string;
   position_ids?: number;
   role_id?: Array<number>;
   store_ids?: Array<number>;
-  status?:string;
+  status?: string;
   codes?: Array<string> | string;
   is_shipper?: number;
 }
@@ -76,6 +77,7 @@ export interface AccountPublicSearchQueryModel extends BaseQuery {
   store_ids?: Array<number>;
   codes?: Array<string> | string;
   status?: "active" | "inactive";
+  info?: string;
 }
 
 export interface AccountJobResponse {
@@ -88,12 +90,12 @@ export interface AccountJobResponse {
 }
 
 export interface AccountStoreResponse {
-  id?:number,
+  id?: number;
   store_id?: number;
   store?: string;
 }
 export interface AccountRolesResponse {
-  id?:number,
+  id?: number;
   role_id?: number;
   role_name?: string;
 }
@@ -116,9 +118,9 @@ export interface AccountJobReQuest {
 
 export interface AccountView extends AccountBaseModel {
   account_jobs?: Array<AccountJobReQuest>;
-  permissions? : {
-    modules: Array<ModuleAuthorize>,
-  }
+  permissions?: {
+    modules: Array<ModuleAuthorize>;
+  };
 }
 
 // for create and update screen
@@ -126,14 +128,13 @@ export interface AccountRequest extends AccountBaseModel {
   account_jobs: Array<AccountJobResponse>;
 }
 
-
 export interface MeRequest {
-  country_id?: 0,
-  city_id?: 0,
-  district_id: 0,
-  country?: string,
-  city?: string,
-  district?: string,
-  address: string,
-  phone?: string,
+  country_id?: 0;
+  city_id?: 0;
+  district_id: 0;
+  country?: string;
+  city?: string;
+  district?: string;
+  address: string;
+  phone?: string;
 }
