@@ -370,7 +370,6 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
 
   const changeDataHistory = useCallback(
     (page) => {
-      console.log("change");
       if (data && data?.variants.length > 0) {
         const variantSelect = data.variants[active].id;
         setIsLoadingHis(true);
@@ -387,7 +386,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
         );
       }
     },
-    [active, data, dispatch, onResultInventoryHistory],
+    [active, data, dispatch, onResultInventoryHistory, valueStores],
   );
 
   const changeDataAdvertisingHistory = useCallback(
