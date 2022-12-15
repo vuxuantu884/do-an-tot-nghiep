@@ -572,7 +572,7 @@ const ListInventoryDefect: React.FC = () => {
 
   const menu = useMemo(() => {
     return actionsDefault.filter((item) => {
-      if (item.id === actionsDefault[1].id) {
+      if (item.id === actionsDefault[0].id) {
         return canDeleteDefect;
       }
       return false;
@@ -586,7 +586,7 @@ const ListInventoryDefect: React.FC = () => {
         return;
       }
       switch (index) {
-        case actionsDefault[1].id:
+        case actionsDefault[0].id:
           setConfirmDelete(true);
           break;
       }
