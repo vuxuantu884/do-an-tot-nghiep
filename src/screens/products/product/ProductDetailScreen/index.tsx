@@ -454,7 +454,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
       );
       dispatch(
         inventoryGetHistoryAction(
-          { variant_id: variantSelect, limit: LIMIT_PAGE_DETAIL },
+          { variant_id: variantSelect, limit: LIMIT_PAGE },
           onResultInventoryHistory,
         ),
       );
