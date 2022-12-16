@@ -132,6 +132,8 @@ export interface ProductEntitlements {
 }
 
 export interface EntilementFormModel {
+  is_apply_all?: boolean;
+  is_exclude?: boolean;
   entitled_category_ids?: Array<number>;
   entitled_product_ids: Array<number>;
   entitled_variant_ids: Array<number>;

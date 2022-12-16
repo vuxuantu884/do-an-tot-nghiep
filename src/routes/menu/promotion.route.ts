@@ -164,7 +164,7 @@ const promotion: Array<RouteMenu> = [
     title: "Mã khuyến mãi",
     icon: "icon-dot",
     component: priceRulesPage,
-    key: "submenu107",
+    key: "submenu108",
     isShow: true,
     header: null,
     permissions: [PromotionReleasePermission.READ],

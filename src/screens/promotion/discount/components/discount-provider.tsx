@@ -6,6 +6,10 @@ type DiscountAction = {
   setDiscountMethod: (discountMethod: PriceRuleMethod) => void;
   discountData: PriceRule;
   setDiscountData: (discountData: PriceRule) => void;
+  discountAllProduct: boolean;
+  setDiscountAllProduct: (item: boolean) => void;
+  discountProductHaveExclude: boolean;
+  setDiscountProductHaveExclude: (item: boolean) => void;
 };
 
 export const DiscountContext = createContext<DiscountAction>({} as DiscountAction);
@@ -15,6 +19,8 @@ function DiscountProvider(props: { children: ReactNode }) {
   const [discountMethod, setDiscountMethod] = useState<PriceRuleMethod>(
     PriceRuleMethod.FIXED_PRICE,
   );
+  const [discountAllProduct, setDiscountAllProduct] = useState<boolean>(false);
+  const [discountProductHaveExclude, setDiscountProductHaveExclude] = useState<boolean>(false);
 
   return (
     <DiscountContext.Provider
@@ -24,6 +30,10 @@ function DiscountProvider(props: { children: ReactNode }) {
         setDiscountMethod,
         discountData,
         setDiscountData,
+        discountAllProduct,
+        setDiscountAllProduct,
+        discountProductHaveExclude,
+        setDiscountProductHaveExclude,
       }}
     />
   );

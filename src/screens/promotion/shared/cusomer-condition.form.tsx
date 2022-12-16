@@ -219,8 +219,14 @@ export default function CustomerFilter(props: Props): ReactElement {
                       showTime={{ format: DATE_FORMAT.DDMM }}
                       format={DATE_FORMAT.DDMM}
                       disabledDate={(currentDate) => {
-                        const start = form.getFieldValue(CustomerFilterField.starts_birthday);
-                        return currentDate && currentDate < moment(start);
+                        const cur = currentDate.set({
+                          hour: 0,
+                        });
+                        const start = form.getFieldValue(CustomerFilterField.starts_birthday)?.set({
+                          hour: 12,
+                        });
+
+                        return cur && cur < moment(start).subtract(1, "d");
                       }}
                     />
                   </Form.Item>
@@ -288,8 +294,16 @@ export default function CustomerFilter(props: Props): ReactElement {
                       format={DATE_FORMAT.DDMM}
                       showNow={false}
                       disabledDate={(currentDate) => {
-                        const start = form.getFieldValue(CustomerFilterField.starts_wedding_day);
-                        return currentDate && currentDate < moment(start);
+                        const cur = currentDate.set({
+                          hour: 0,
+                        });
+                        const start = form
+                          .getFieldValue(CustomerFilterField.starts_wedding_day)
+                          ?.set({
+                            hour: 12,
+                          });
+
+                        return cur && cur < moment(start).subtract(1, "d");
                       }}
                     />
                   </Form.Item>

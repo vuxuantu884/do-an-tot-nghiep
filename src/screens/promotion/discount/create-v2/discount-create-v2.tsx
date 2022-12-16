@@ -6,51 +6,72 @@ import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { createPriceRuleAction } from "domain/actions/promotion/discount/discount.action";
-import { PriceRuleMethod } from "model/promotion/price-rules.model";
+import { EntilementFormModel, PriceRuleMethod } from "model/promotion/price-rules.model";
 import moment from "moment";
-import React, { ReactElement, useEffect } from "react";
+import React, { ReactElement, useContext, useEffect, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import GeneralConditionForm from "screens/promotion/shared/general-condition.form";
+import { PROMO_TYPE } from "utils/Constants";
 import { transformData } from "utils/PromotionUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { DiscountUnitType } from "../../constants";
+import { initEntilements } from "../../constants";
 import DiscountUpdateForm from "../components/discount-form";
-import DiscountProvider from "../components/discount-provider";
+import DiscountProvider, { DiscountContext } from "../components/discount-provider";
 
 function DiscountCreateV2(): ReactElement {
   const history = useHistory();
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  let activeDiscout = true;
+  let activeDiscount = true;
 
-  function handleSubmit(values: any) {
-    try {
-      const body = transformData(values);
-      body.activated = activeDiscout;
-      dispatch(showLoading());
-      dispatch(
-        createPriceRuleAction(body, (data) => {
-          if (data) {
-            showSuccess("Lưu thành công");
-            history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${data.id}`);
-          }
-          dispatch(hideLoading());
-        }),
-      );
-    } catch (error: any) {
-      dispatch(hideLoading());
-      showError(error.message);
-    }
-  }
+  const discountUpdateContext = useContext(DiscountContext);
+  const { discountAllProduct, discountProductHaveExclude } = discountUpdateContext;
+
+  const handleSubmit = useCallback(
+    (values: any) => {
+      try {
+        values.entitlements[0].is_apply_all = discountAllProduct;
+        values.entitlements[0].is_exclude = discountProductHaveExclude;
+
+        if (discountAllProduct && !discountProductHaveExclude) {
+          values.entitlements[0].entitled_product_ids = [];
+          values.entitlements[0].entitled_variant_ids = [];
+        }
+
+        const body = transformData(
+          values,
+          PROMO_TYPE.AUTOMATIC,
+          discountAllProduct,
+          discountProductHaveExclude,
+        );
+        body.activated = activeDiscount;
+
+        dispatch(showLoading());
+        dispatch(
+          createPriceRuleAction(body, (data) => {
+            if (data) {
+              showSuccess("Lưu thành công");
+              history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${data.id}`);
+            }
+            dispatch(hideLoading());
+          }),
+        );
+      } catch (error: any) {
+        dispatch(hideLoading());
+        showError(error.message);
+      }
+    },
+    [activeDiscount, discountAllProduct, discountProductHaveExclude, dispatch, history],
+  );
 
   const handleSaveAndActive = () => {
-    activeDiscout = true;
+    activeDiscount = true;
     form.submit();
   };
 
   const save = () => {
-    activeDiscout = false;
+    activeDiscount = false;
     form.submit();
   };
 
@@ -58,23 +79,6 @@ function DiscountCreateV2(): ReactElement {
    * init data
    */
   useEffect(() => {
-    const initEntilements = {
-      entitled_variant_ids: [],
-      entitled_product_ids: [],
-      selectedProducts: [],
-      prerequisite_variant_ids: [],
-      entitled_category_ids: [],
-      prerequisite_quantity_ranges: [
-        {
-          greater_than_or_equal_to: 1,
-          less_than_or_equal_to: null,
-          allocation_limit: undefined,
-          value: 0,
-          value_type: DiscountUnitType.FIXED_PRICE.value,
-        },
-      ],
-    };
-
     const initialValues = {
       starts_date: moment(),
       entitled_method: PriceRuleMethod.FIXED_PRICE.toString(),
@@ -82,7 +86,18 @@ function DiscountCreateV2(): ReactElement {
       entitlements: [initEntilements],
     };
     form.setFieldsValue(initialValues);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form]);
+
+  useEffect(() => {
+    if (discountAllProduct && !discountProductHaveExclude) {
+      const entitlementValue: Array<EntilementFormModel> = form.getFieldValue("entitlements");
+      entitlementValue[0].prerequisite_quantity_ranges[0].greater_than_or_equal_to = 1;
+      entitlementValue[0].prerequisite_quantity_ranges[0].value = 0;
+      entitlementValue[0].selectedProducts = [];
+      form.setFieldsValue({ entitlements: [entitlementValue[0]] });
+    }
+  }, [discountAllProduct, discountProductHaveExclude, form]);
 
   return (
     <ContentContainer
