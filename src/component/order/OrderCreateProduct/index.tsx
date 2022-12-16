@@ -97,6 +97,7 @@ import {
   haveAccess,
   isFetchApiSuccessful,
   isOrderFinishedOrCancel,
+  isOrderFromPOS,
   replaceFormatString,
 } from "utils/AppUtils";
 import {
@@ -1941,10 +1942,19 @@ function OrderCreateProduct(props: PropTypes) {
     let newData: Array<StoreResponse> = [];
 
     //loại bỏ kho Kho dự trữ, Kho phân phối
-    // chỉ tạo với kho cửa hàng
     let storesCopy = stores.filter(
-      (store) => store.type.toLocaleLowerCase() === STORE_TYPE.STORE.toLowerCase(),
+      (store) =>
+        store.type.toLocaleLowerCase() !== STORE_TYPE.DISTRIBUTION_CENTER &&
+        store.type.toLocaleLowerCase() !== STORE_TYPE.STOCKPILE,
     );
+
+    // đối với đổi trả offline
+    // chỉ tạo với kho cửa hàng
+    if (isReturnOffline) {
+      storesCopy = stores.filter(
+        (store) => store.type.toLocaleLowerCase() === STORE_TYPE.STORE.toLowerCase(),
+      );
+    }
 
     if (storesCopy && storesCopy.length) {
       if (userReducer.account?.account_stores && userReducer.account?.account_stores.length > 0) {
