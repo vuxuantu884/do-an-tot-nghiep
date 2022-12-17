@@ -49,10 +49,16 @@ const GiftUpdate = () => {
     giftDetailData,
     setUnlimitedQuantity,
     setUsageLimitPerCustomer,
+    registerWithMinistry,
+    setRegisterWithMinistry,
   } = giftContext;
 
   const [getIndexRemoveDiscount, setGetIndexRemoveDiscount] = useState(null);
   const [originalEntitlements, setOriginalEntitlements] = useState<Array<any>>([]);
+
+  useEffect(() => {
+    setRegisterWithMinistry(giftDetailData.is_registered ?? false);
+  }, [giftDetailData.is_registered, setRegisterWithMinistry]);
 
   const parseDataToForm = useCallback(
     (result: PromotionGift) => {
@@ -75,6 +81,7 @@ const GiftUpdate = () => {
         usage_limit: result.usage_limit,
 
         usage_limit_per_customer: result.usage_limit_per_customer,
+        is_registered: result.is_registered,
         prerequisite_subtotal_range: result.prerequisite_subtotal_range,
 
         entitlements: result.entitlements,
@@ -142,6 +149,7 @@ const GiftUpdate = () => {
       setIsSubmitting(true);
       const body = transformGiftRequest(formValues);
       body.id = idNumber;
+      body.is_registered = registerWithMinistry;
       dispatch(showLoading());
       dispatch(updatePromotionGiftAction(body, updateCallback));
     } catch (error: any) {

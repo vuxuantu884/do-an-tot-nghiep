@@ -123,6 +123,14 @@ export const DiscountDetailListStyled = styled.div`
   }
 `;
 
+export const DiscountFormStyle = styled.div`
+  .discount-desc-with-ministry {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+`;
+
 export const CustomerConditionStyled = styled.div`
   .form-item-title {
     font-weight: 500;

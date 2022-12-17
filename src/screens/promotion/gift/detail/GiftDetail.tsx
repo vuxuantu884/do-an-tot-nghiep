@@ -29,10 +29,7 @@ import {
 } from "domain/actions/promotion/gift/gift.action";
 import { showError, showInfo, showSuccess } from "utils/ToastUtils";
 import GeneralConditionDetail from "screens/promotion/shared/general-condition.detail";
-import {
-  columnDiscountByRule,
-  DISCOUNT_STATUS,
-} from "screens/promotion/constants";
+import { columnDiscountByRule, DISCOUNT_STATUS } from "screens/promotion/constants";
 import { GiftStyled } from "screens/promotion/gift/gift.style";
 import { PageResponse } from "model/base/base-metadata.response";
 import exportIcon from "assets/icon/export.svg";
@@ -74,16 +71,18 @@ const GiftDetail: React.FC = () => {
       page: 1,
     },
   });
-  const [dataDiscountVariant, setDataDiscountVariant] = useState<Array<GiftProductEntitlements>>([]);
+  const [dataDiscountVariant, setDataDiscountVariant] = useState<Array<GiftProductEntitlements>>(
+    [],
+  );
   const [loadingDiscountVariant, setLoadingDiscountVariant] = useState(false);
 
   const isFirstLoadVariantList = useRef(true);
   const countLoadVariantList = useRef(0);
 
   const [keySearchVariantDiscount, setKeySearchVariantDiscount] = useState("");
-  
+
   const [giftVariantList, setGiftVariantList] = useState<Array<GiftVariant>>([]);
-  
+
   //phân quyền
   const [allowCreateGift] = useAuthorization({
     acceptPermissions: [PROMOTION_GIFT_PERMISSIONS.CREATE],
@@ -132,6 +131,12 @@ const GiftDetail: React.FC = () => {
     {
       name: "Mô tả",
       value: <TextShowMore maxLength={50}>{giftDetail?.description}</TextShowMore>,
+      position: "left",
+    },
+
+    {
+      name: "Đăng ký với Bộ công thương",
+      value: <span>{giftDetail?.is_registered ? "Đã đăng ký" : "Không đăng ký"}</span>,
       position: "right",
     },
   ];
@@ -191,24 +196,33 @@ const GiftDetail: React.FC = () => {
     }
   };
 
-  const handleGetGiftProductApplyCallback = useCallback((result: PageResponse<GiftProductEntitlements>) => {
-    setLoading(false);
-    setIsLoadingVariantList(false);
-    if (result) {
-      setDataVariants(result);
-      setDataDiscountVariant(result.items);
-    } else {
-      setError(true);
-    }
-  }, []);
-  
+  const handleGetGiftProductApplyCallback = useCallback(
+    (result: PageResponse<GiftProductEntitlements>) => {
+      setLoading(false);
+      setIsLoadingVariantList(false);
+      if (result) {
+        setDataVariants(result);
+        setDataDiscountVariant(result.items);
+      } else {
+        setError(true);
+      }
+    },
+    [],
+  );
+
   const getPromotionGiftProductApply = useCallback(
     (page = 1, limit = 30) => {
-      dispatch(getPromotionGiftProductApplyAction(idNumber, { page, limit }, handleGetGiftProductApplyCallback));
+      dispatch(
+        getPromotionGiftProductApplyAction(
+          idNumber,
+          { page, limit },
+          handleGetGiftProductApplyCallback,
+        ),
+      );
     },
     [idNumber, dispatch, handleGetGiftProductApplyCallback],
   );
-  
+
   const handleGetGiftVariantCallback = useCallback((result: PageResponse<GiftVariant>) => {
     if (result) {
       setGiftVariantList(result.items);
@@ -221,7 +235,13 @@ const GiftDetail: React.FC = () => {
     dispatch(getPromotionGiftDetailAction(idNumber, getPromotionGiftDetailCallback));
     dispatch(getPromotionGiftVariantAction(idNumber, { page: 1 }, handleGetGiftVariantCallback));
     getPromotionGiftProductApply();
-  }, [dispatch, idNumber, getPromotionGiftDetailCallback, getPromotionGiftProductApply, handleGetGiftVariantCallback]);
+  }, [
+    dispatch,
+    idNumber,
+    getPromotionGiftDetailCallback,
+    getPromotionGiftProductApply,
+    handleGetGiftVariantCallback,
+  ]);
 
   /**
    * Kiểm tra danh sách sản phẩm nếu trong chiết khấu có sản phẩm mà danh sách variant của chiết khấu chưa có => server chưa lưu dữ liệu variant xong => chờ 3s load lại
@@ -416,7 +436,9 @@ const GiftDetail: React.FC = () => {
         }
         return (
           <div>
-            <Link to={url} target="_blank">{sku}</Link>
+            <Link to={url} target="_blank">
+              {sku}
+            </Link>
             <br />
             <div>{item.title}</div>
           </div>
@@ -441,7 +463,8 @@ const GiftDetail: React.FC = () => {
       align: "center",
       width: "200px",
       render: (item: any) => {
-        const greater_than_or_equal_to = item.entitlement &&
+        const greater_than_or_equal_to =
+          item.entitlement &&
           item.entitlement.prerequisite_quantity_ranges[0]?.greater_than_or_equal_to;
         if (Number(greater_than_or_equal_to) >= 0) {
           return formatCurrency(Number(greater_than_or_equal_to));
@@ -470,7 +493,9 @@ const GiftDetail: React.FC = () => {
         }
         return (
           <div>
-            <Link to={url} target="_blank">{sku}</Link>
+            <Link to={url} target="_blank">
+              {sku}
+            </Link>
             <br />
             <div>{item.title}</div>
           </div>
@@ -527,14 +552,16 @@ const GiftDetail: React.FC = () => {
       ]}
       extra={
         // Tạm thời ẩn
-        allowExportProduct && false &&
-        <Button
-          size="large"
-          icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-          onClick={handleExportVariant}
-        >
-          Xuất file danh sách SP
-        </Button>
+        allowExportProduct &&
+        false && (
+          <Button
+            size="large"
+            icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+            onClick={handleExportVariant}
+          >
+            Xuất file danh sách SP
+          </Button>
+        )
       }
     >
       {giftDetail && (
@@ -619,7 +646,6 @@ const GiftDetail: React.FC = () => {
                       ))}
                   </Col>
                 </Row>
-
               </Card>
               <Card
                 className="card product-card"
@@ -660,7 +686,7 @@ const GiftDetail: React.FC = () => {
                   <>
                     <div style={{ fontSize: "16px", padding: "20px 0" }}>
                       <span>Quà tặng cho đơn hàng thoả mãn </span>
-                      <span  style={{ color: "#e24343", fontWeight: "bold"}}>
+                      <span style={{ color: "#e24343", fontWeight: "bold" }}>
                         {giftDetail?.rule?.group_operator === "AND" ? " tất cả" : " 1 trong"}
                       </span>
                       <span> các điều kiện</span>
@@ -719,7 +745,7 @@ const GiftDetail: React.FC = () => {
                   rowKey={(item: any) => item.product_id}
                 />
 
-                <Divider style={{ marginTop: 20 }}/>
+                <Divider style={{ marginTop: 20 }} />
               </Card>
             </Col>
 
@@ -731,18 +757,18 @@ const GiftDetail: React.FC = () => {
             backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.GIFT}`)}
             rightComponent={
               <Space>
-                {allowUpdateGift &&
+                {allowUpdateGift && (
                   <Link to={`${idNumber}/update`}>
                     <Button>Sửa</Button>
                   </Link>
-                }
-                
+                )}
+
                 {/*Tạm thời chưa dùng*/}
-                {allowCreateGift && false &&
+                {allowCreateGift && false && (
                   <Link to={`${idNumber}/replicate`}>
                     <Button>Nhân bản</Button>
                   </Link>
-                }
+                )}
 
                 {allowUpdateGift && RenderActionButton()}
               </Space>

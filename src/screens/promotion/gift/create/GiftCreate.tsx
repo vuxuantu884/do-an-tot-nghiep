@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from "react";
+import React, { ReactElement, useEffect, useContext } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { Button, Col, Form, Row } from "antd";
@@ -16,7 +16,7 @@ import { transformGiftRequest } from "utils/PromotionUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { PROMOTION_TYPE } from "screens/promotion/constants";
 import GiftForm from "screens/promotion/gift/components/GiftForm";
-import GiftProvider from "screens/promotion/gift/components/GiftProvider";
+import GiftProvider, { GiftContext } from "screens/promotion/gift/components/GiftProvider";
 import { scrollAndFocusToDomElement } from "utils/AppUtils";
 
 function GiftCreate(): ReactElement {
@@ -25,11 +25,16 @@ function GiftCreate(): ReactElement {
   const dispatch = useDispatch();
   let activePromotionGift = true;
 
+  const giftContext = useContext(GiftContext);
+  const { registerWithMinistry } = giftContext;
+
   const handleSubmit = (values: any) => {
     try {
       const formValues = form.getFieldsValue(true);
       const body = transformGiftRequest(formValues);
       body.activated = activePromotionGift;
+      body.is_registered = registerWithMinistry;
+
       dispatch(showLoading());
       dispatch(
         createPromotionGiftAction(body, (data) => {
@@ -47,7 +52,7 @@ function GiftCreate(): ReactElement {
       dispatch(hideLoading());
       showError(error.message);
     }
-  }
+  };
 
   const handleSaveAndActive = () => {
     activePromotionGift = true;

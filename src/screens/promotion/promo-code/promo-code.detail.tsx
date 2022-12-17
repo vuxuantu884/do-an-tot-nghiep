@@ -292,7 +292,16 @@ const PromotionDetailScreen: React.FC = () => {
           key: "7",
           color: "#222222",
         },
+        {
+          id: "is_registered",
+          name: "Đăng ký với Bộ công thương",
+          value: <span>{data?.is_registered ? "Đã đăng ký" : "Không đăng ký"}</span>,
+          position: "right",
+          key: "8",
+          color: "#222222",
+        },
       ];
+
       return details;
     }
   }, [data]);
