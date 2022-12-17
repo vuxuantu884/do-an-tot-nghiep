@@ -173,12 +173,12 @@ function IssueForm(props: Props): ReactElement {
                 >
                   Khuyến mãi theo đơn hàng
                 </Option>
-                {/* <Option
+                <Option
                   key={PriceRuleMethod.DISCOUNT_CODE_QTY}
                   value={PriceRuleMethod.DISCOUNT_CODE_QTY}
                 >
                   Khuyến mãi theo sản phẩm
-                </Option> */}
+                </Option>
               </Select>
             </Form.Item>
           </Col>
