@@ -50,17 +50,13 @@ import {
   VariantImage,
   VariantRequest,
   VariantResponse,
-  ProductParams
+  ProductParams,
 } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import {
-  replaceFormatString,
-  scrollAndFocusToDomElement,
-  capitalEachWords,
-} from "utils/AppUtils";
+import { replaceFormatString, scrollAndFocusToDomElement, capitalEachWords } from "utils/AppUtils";
 import {
   formatCurrencyForProduct,
   convertAvatarToFileList,
@@ -68,19 +64,16 @@ import {
   handleChangeMaterial,
   backAction,
   convertLabelSelected,
-  beforeUploadImage
+  beforeUploadImage,
 } from "screens/products/helper";
-import {
-  showError,
-  showSuccess
-} from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import {
   ModalConfirmPrice,
   ModalPickAvatar,
   ModalUpdatePrice,
   VariantList,
   ModalUploadImages,
-  TreeCategory
+  TreeCategory,
 } from "../component";
 import AddVariantsModal from "./AddVariantsModal";
 import { StyledComponent } from "./styles";
@@ -88,7 +81,7 @@ import { debounce, cloneDeep } from "lodash";
 import SupplierSearchSelect from "component/custom/select-search/supplier-select";
 import { callApiNative } from "utils/ApiUtils";
 import { productUpdateApi } from "service/product/product.service";
-import CareModal from "screens/products/component/CareInformation"
+import CareModal from "screens/products/component/CareInformation";
 
 const { Item } = Form;
 let tempActive: number = 0;
@@ -264,7 +257,7 @@ const ProductDetailScreen: React.FC = () => {
       for (let i = 0; i < newData.variants.length; i++) {
         if (
           newData.variants[i].name.slice(0, newData.variants[i].name.indexOf("-")).trim() ===
-          newData.name.trim() ||
+            newData.name.trim() ||
           newData.variants[i].sku.indexOf("-MAU") !== -1 ||
           newData.variants[i].sku === newData.code
         ) {
@@ -339,21 +332,18 @@ const ProductDetailScreen: React.FC = () => {
     [active, dispatch, form, idNumber, setCurrentVariant],
   );
 
-  const updatePrice = useCallback(
-    async () => {
-      setIsVisibleUpdatePrice(false);
-      let values: ProductResponse = form.getFieldsValue(true);
-      if (values) {
-        const variantRequest: Array<VariantResponse> = [
-          ...convertVariantPrices(values.variants, values.variants[active]),
-        ];
-        values = { ...values, variants: variantRequest };
-        await updateInfo(values);
-        history.push(`/products/${idNumber}`);
-      }
-    },
-    [active, form, updateInfo, history, idNumber],
-  );
+  const updatePrice = useCallback(async () => {
+    setIsVisibleUpdatePrice(false);
+    let values: ProductResponse = form.getFieldsValue(true);
+    if (values) {
+      const variantRequest: Array<VariantResponse> = [
+        ...convertVariantPrices(values.variants, values.variants[active]),
+      ];
+      values = { ...values, variants: variantRequest };
+      await updateInfo(values);
+      history.push(`/products/${idNumber}`);
+    }
+  }, [active, form, updateInfo, history, idNumber]);
 
   const updateStatus = useCallback(
     (listSelected: Array<number>, status) => {
@@ -993,7 +983,16 @@ const ProductDetailScreen: React.FC = () => {
                           </Item>
                         </Col>
                         <Col span={24} md={12} sm={24}>
-                          <Item label="Nhóm hàng" name="product_collections">
+                          <Item
+                            label="Nhóm hàng"
+                            name="product_collections"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Vui lòng chọn nhóm hàng",
+                              },
+                            ]}
+                          >
                             <SelectPaging
                               metadata={collections.metadata}
                               showSearch={false}
@@ -1673,7 +1672,15 @@ const ProductDetailScreen: React.FC = () => {
         )}
         <BottomBarContainer
           back="Quay lại"
-          backAction={() => backAction(form.getFieldsValue(), dataOrigin, setModalConfirm, history, UrlConfig.PRODUCT)}
+          backAction={() =>
+            backAction(
+              form.getFieldsValue(),
+              dataOrigin,
+              setModalConfirm,
+              history,
+              UrlConfig.PRODUCT,
+            )
+          }
           rightComponent={
             <Space>
               <Button onClick={resetOnClick}>Đặt lại</Button>
