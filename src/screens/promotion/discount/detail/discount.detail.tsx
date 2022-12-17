@@ -168,6 +168,11 @@ const PromotionDetailScreen: React.FC = () => {
       value: <TextShowMore maxLength={50}>{dataDiscount?.description}</TextShowMore>,
       position: "left",
     },
+    {
+      name: "Đăng ký với Bộ công thương",
+      value: <span>{dataDiscount?.is_registered ? "Đã đăng ký" : "Không đăng ký"}</span>,
+      position: "left",
+    },
   ];
 
   const RenderStatus = (data: PriceRule) => {

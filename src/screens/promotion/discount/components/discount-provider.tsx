@@ -10,6 +10,8 @@ type DiscountAction = {
   setDiscountAllProduct: (item: boolean) => void;
   discountProductHaveExclude: boolean;
   setDiscountProductHaveExclude: (item: boolean) => void;
+  registerWithMinistry: boolean;
+  setRegisterWithMinistry: (item: boolean) => void;
 };
 
 export const DiscountContext = createContext<DiscountAction>({} as DiscountAction);
@@ -21,6 +23,8 @@ function DiscountProvider(props: { children: ReactNode }) {
   );
   const [discountAllProduct, setDiscountAllProduct] = useState<boolean>(false);
   const [discountProductHaveExclude, setDiscountProductHaveExclude] = useState<boolean>(false);
+
+  const [registerWithMinistry, setRegisterWithMinistry] = useState<boolean>(false);
 
   return (
     <DiscountContext.Provider
@@ -34,6 +38,8 @@ function DiscountProvider(props: { children: ReactNode }) {
         setDiscountAllProduct,
         discountProductHaveExclude,
         setDiscountProductHaveExclude,
+        registerWithMinistry,
+        setRegisterWithMinistry,
       }}
     />
   );

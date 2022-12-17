@@ -226,4 +226,5 @@ export interface PriceRule extends BaseObject {
   min_quantity?: number;
   usage_limit?: number;
   usage_limit_per_customer?: number;
+  is_registered?: boolean;
 }

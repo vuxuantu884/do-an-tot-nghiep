@@ -1,4 +1,4 @@
-import { Card, Col, Form, Input, Radio, Row, Select } from "antd";
+import { Card, Col, Form, Input, Radio, Row, Select, Space, Switch } from "antd";
 import { FormInstance } from "antd/es/form/Form";
 import {
   PriceRule,
@@ -76,7 +76,7 @@ function IssueForm(props: Props): ReactElement {
     listProductUpdateNotExclude,
     listProductUpdateHaveExclude,
   } = props;
-  const { priceRuleData } = useContext(IssueContext);
+  const { priceRuleData, registerWithMinistry, setRegisterWithMinistry } = useContext(IssueContext);
 
   const handleChangePromotionMethod = (value: string) => {
     setPromotionType(value);
@@ -111,6 +111,9 @@ function IssueForm(props: Props): ReactElement {
             >
               <Input placeholder="Nhập tên đợt phát hành" />
             </Form.Item>
+          </Col>
+
+          <Col span={12}>
             <Form.Item
               name="code"
               label="Mã đợt phát hành:"
@@ -135,6 +138,20 @@ function IssueForm(props: Props): ReactElement {
                 placeholder="Nhập mô tả cho đợt phát hành"
                 autoSize={{ minRows: 5, maxRows: 5 }}
               />
+            </Form.Item>
+          </Col>
+
+          <Col span={12} style={{ marginTop: 30 }}>
+            <Form.Item>
+              <Space>
+                <Switch
+                  checked={registerWithMinistry}
+                  onChange={(value) => {
+                    setRegisterWithMinistry(value);
+                  }}
+                />
+                Đã đăng ký Bộ công thương
+              </Space>
             </Form.Item>
           </Col>
         </Row>

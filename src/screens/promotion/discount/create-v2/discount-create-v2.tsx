@@ -26,7 +26,8 @@ function DiscountCreateV2(): ReactElement {
   let activeDiscount = true;
 
   const discountUpdateContext = useContext(DiscountContext);
-  const { discountAllProduct, discountProductHaveExclude } = discountUpdateContext;
+  const { discountAllProduct, discountProductHaveExclude, registerWithMinistry } =
+    discountUpdateContext;
 
   const handleSubmit = useCallback(
     (values: any) => {
@@ -46,6 +47,7 @@ function DiscountCreateV2(): ReactElement {
           discountProductHaveExclude,
         );
         body.activated = activeDiscount;
+        body.is_registered = registerWithMinistry;
 
         dispatch(showLoading());
         dispatch(

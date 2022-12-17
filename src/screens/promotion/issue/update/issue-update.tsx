@@ -86,8 +86,18 @@ function IssueUpdate(props: Props): ReactElement {
   const [isSetFormValues, setIsSetFormValues] = useState<boolean>(false);
 
   const [loading, setLoading] = useState(true);
-  const { setPriceRuleData, setIsLimitUsage, setIsLimitUsagePerCustomer } =
-    useContext(IssueContext);
+  const {
+    priceRuleData,
+    setPriceRuleData,
+    setIsLimitUsage,
+    setIsLimitUsagePerCustomer,
+    setRegisterWithMinistry,
+    registerWithMinistry,
+  } = useContext(IssueContext);
+
+  useEffect(() => {
+    setRegisterWithMinistry(priceRuleData?.is_registered ?? false);
+  }, [priceRuleData?.is_registered, setRegisterWithMinistry]);
 
   useEffect(() => {
     if (promotionType === PriceRuleMethod.ORDER_THRESHOLD) {
@@ -189,6 +199,7 @@ function IssueUpdate(props: Props): ReactElement {
       setIsSubmitting(true);
       const body = transformData(values, PROMO_TYPE.MANUAL);
       body.id = priceRuleId;
+      body.is_registered = registerWithMinistry;
       dispatch(
         updatePromotionReleaseAction(body, (result: PriceRule) => {
           if (result) {

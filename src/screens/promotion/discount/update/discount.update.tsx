@@ -52,9 +52,15 @@ const DiscountUpdate = () => {
     setDiscountAllProduct,
     discountProductHaveExclude,
     setDiscountProductHaveExclude,
+    registerWithMinistry,
+    setRegisterWithMinistry,
   } = discountUpdateContext;
 
   const [originalEntitlements, setOriginalEntitlements] = useState<Array<any>>([]);
+
+  useEffect(() => {
+    setRegisterWithMinistry(discountData.is_registered ?? false);
+  }, [discountData.is_registered, setRegisterWithMinistry]);
 
   const parseDataToForm = useCallback(
     (result: PriceRule) => {
@@ -84,6 +90,7 @@ const DiscountUpdate = () => {
         usage_limit: result.usage_limit,
 
         usage_limit_per_customer: result.usage_limit_per_customer,
+        is_registered: result.is_registered,
         prerequisite_subtotal_range: result.prerequisite_subtotal_range,
 
         entitlements: result.entitlements,
@@ -167,6 +174,7 @@ const DiscountUpdate = () => {
           discountProductHaveExclude,
         );
         body.id = idNumber;
+        body.is_registered = registerWithMinistry;
         dispatch(updatePriceRuleByIdAction(body, updateCallback));
       } catch (error: any) {
         setIsSubmitting(false);
@@ -179,6 +187,7 @@ const DiscountUpdate = () => {
       dispatch,
       idNumber,
       originalEntitlements,
+      registerWithMinistry,
       updateCallback,
     ],
   );

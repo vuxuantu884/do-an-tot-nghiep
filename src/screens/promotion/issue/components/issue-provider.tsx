@@ -10,6 +10,8 @@ type IssueAction = {
   setIsLimitUsagePerCustomer: (discountData: boolean) => void;
   isLimitUsage?: boolean;
   setIsLimitUsage: (discountData: boolean) => void;
+  registerWithMinistry: boolean;
+  setRegisterWithMinistry: (item: boolean) => void;
 };
 
 export const IssueContext = createContext<IssueAction>({} as IssueAction);
@@ -19,6 +21,7 @@ function IssueProvider(props: { children: ReactNode }) {
   const [priceRuleData, setPriceRuleData] = useState<PriceRule>({} as PriceRule);
   const [isLimitUsagePerCustomer, setIsLimitUsagePerCustomer] = useState(false);
   const [isLimitUsage, setIsLimitUsage] = useState(false);
+  const [registerWithMinistry, setRegisterWithMinistry] = useState<boolean>(false);
 
   return (
     <IssueContext.Provider
@@ -32,6 +35,8 @@ function IssueProvider(props: { children: ReactNode }) {
         setIsLimitUsagePerCustomer,
         isLimitUsage,
         setIsLimitUsage,
+        registerWithMinistry,
+        setRegisterWithMinistry,
       }}
     />
   );
