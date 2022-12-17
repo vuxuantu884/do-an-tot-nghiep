@@ -32,12 +32,14 @@ function DiscountCreateV2(): ReactElement {
   const handleSubmit = useCallback(
     (values: any) => {
       try {
-        values.entitlements[0].is_apply_all = discountAllProduct;
-        values.entitlements[0].is_exclude = discountProductHaveExclude;
+        if (values.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD) {
+          values.entitlements[0].is_apply_all = discountAllProduct;
+          values.entitlements[0].is_exclude = discountProductHaveExclude;
 
-        if (discountAllProduct && !discountProductHaveExclude) {
-          values.entitlements[0].entitled_product_ids = [];
-          values.entitlements[0].entitled_variant_ids = [];
+          if (discountAllProduct && !discountProductHaveExclude) {
+            values.entitlements[0].entitled_product_ids = [];
+            values.entitlements[0].entitled_variant_ids = [];
+          }
         }
 
         const body = transformData(
@@ -64,7 +66,14 @@ function DiscountCreateV2(): ReactElement {
         showError(error.message);
       }
     },
-    [activeDiscount, discountAllProduct, discountProductHaveExclude, dispatch, history],
+    [
+      activeDiscount,
+      discountAllProduct,
+      discountProductHaveExclude,
+      dispatch,
+      history,
+      registerWithMinistry,
+    ],
   );
 
   const handleSaveAndActive = () => {

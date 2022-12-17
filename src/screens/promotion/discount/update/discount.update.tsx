@@ -8,6 +8,7 @@ import {
 import {
   EntilementFormModel,
   PriceRule,
+  PriceRuleMethod,
   ProductEntitlements,
 } from "model/promotion/price-rules.model";
 import moment from "moment";
@@ -162,8 +163,11 @@ const DiscountUpdate = () => {
         );
       }
       values.entitlements = values.entitlements?.concat(_originalEntitlements);
-      values.entitlements[0].is_apply_all = discountAllProduct;
-      values.entitlements[0].is_exclude = discountProductHaveExclude;
+
+      if (values.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD) {
+        values.entitlements[0].is_apply_all = discountAllProduct;
+        values.entitlements[0].is_exclude = discountProductHaveExclude;
+      }
 
       try {
         setIsSubmitting(true);
