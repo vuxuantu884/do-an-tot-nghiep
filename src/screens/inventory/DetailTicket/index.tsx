@@ -962,7 +962,7 @@ const DetailTicket: FC = () => {
 
   const onReload = useCallback(() => {
     setLoadingBtn(true);
-    dispatch(showLoading())
+    dispatch(showLoading());
     dispatch(getDetailInventoryTransferAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
@@ -1592,6 +1592,7 @@ const DetailTicket: FC = () => {
                       <Button
                         className="export-button"
                         type="primary"
+                        disabled={isLoadingBtn}
                         loading={isLoadingBtn}
                         onClick={() => {
                           if (data) {
@@ -1599,6 +1600,7 @@ const DetailTicket: FC = () => {
                             const secretData = {
                               secret: queryParamsParsed.secret,
                             };
+                            dispatch(showLoading());
                             dispatch(exportInventoryAction(data?.id, secretData, onReload));
                           }
                         }}

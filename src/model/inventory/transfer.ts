@@ -354,3 +354,8 @@ export interface InventoryProcessImport {
   success: string;
   error: string;
 }
+
+export interface GetTopReceivedStoreParam {
+  from_store_id: number,
+  limit: number
+}
