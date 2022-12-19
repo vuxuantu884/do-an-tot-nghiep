@@ -348,16 +348,16 @@ const ListAccountScreen: React.FC = () => {
       extra={
         <Row>
           <Space>
-            {/*<AuthWrapper acceptPermissions={[AccountPermissions.CREATE]}>*/}
-            {/*  <Button*/}
-            {/*    className="light"*/}
-            {/*    size="large"*/}
-            {/*    icon={<img src={uploadIcon} style={{ marginRight: 8 }} alt="" />}*/}
-            {/*    onClick={() => history.push(`${UrlConfig.ACCOUNTS}/import`)}*/}
-            {/*  >*/}
-            {/*    Nhập file*/}
-            {/*  </Button>*/}
-            {/*</AuthWrapper>*/}
+            <AuthWrapper acceptPermissions={[AccountPermissions.CREATE]}>
+              <Button
+                className="light"
+                size="large"
+                icon={<img src={uploadIcon} style={{ marginRight: 8 }} alt="" />}
+                onClick={() => history.push(`${UrlConfig.ACCOUNTS}/import`)}
+              >
+                Nhập file
+              </Button>
+            </AuthWrapper>
             <AuthWrapper acceptPermissions={[AccountPermissions.CREATE]}>
               <ButtonCreate child="Thêm người dùng" path={`${UrlConfig.ACCOUNTS}/create`} />
             </AuthWrapper>
