@@ -25,7 +25,7 @@ import { STATUS_INVENTORY_TRANSFER_ARRAY } from "../../../../constants";
 type InventoryExportFiltersProps = {
   accountStores?: Array<AccountStoreResponse>;
   params: InventoryTransferImportExportSearchQuery;
-  isLoading?: Boolean;
+  isLoading: boolean;
   accounts: Array<AccountResponse> | undefined;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery | Object) => void;
@@ -99,10 +99,6 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
   const [visible, setVisible] = useState(false);
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
   const [dateClick, setDateClick] = useState("");
-
-  const loadingFilter = useMemo(() => {
-    return !!isLoading;
-  }, [isLoading]);
 
   const onFilterClick = useCallback(() => {
     setVisible(false);
@@ -512,7 +508,8 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
               <Button
                 style={{ width: "80px" }}
                 type="primary"
-                loading={loadingFilter}
+                loading={isLoading}
+                disabled={isLoading}
                 htmlType="submit"
               >
                 Lọc

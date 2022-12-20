@@ -665,6 +665,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
                 style={{ width: "80px" }}
                 type="primary"
                 loading={loadingFilter}
+                disabled={isLoadingAction}
                 htmlType="submit"
               >
                 Lọc
