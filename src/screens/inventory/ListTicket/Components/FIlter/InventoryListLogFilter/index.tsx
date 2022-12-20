@@ -1,4 +1,4 @@
-import { Button, Col, Form, FormInstance, Input, Row, Select, Tag } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Tag } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
@@ -16,7 +16,6 @@ import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
 import { AppConfig } from "config/app.config";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
-import { strForSearch } from "utils/StringUtils";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 
@@ -66,7 +65,6 @@ type InventoryFilterProps = {
 };
 
 const { Item } = Form;
-const { Option } = Select;
 
 const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: InventoryFilterProps) => {
   const {
@@ -77,9 +75,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
     onClearFilter,
     onFilter,
     onShowColumnSetting,
-    stores,
     accounts,
-    accountStoresSelected,
     setAccountStoresSelected,
   } = props;
   const [formAdv] = Form.useForm();
@@ -96,26 +92,6 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
   const initialValues = useMemo(() => {
     return filterFromParams;
   }, [filterFromParams]);
-
-  useEffect(() => {
-    if (!accountStoresSelected) {
-      formSearchRef.current?.setFieldsValue({
-        ...params,
-        from_store_id: params.from_store_id ? params.from_store_id : [],
-        to_store_id: params.to_store_id ? params.to_store_id : [],
-      });
-      return;
-    }
-
-    if (accountStoresSelected === "SECOND_SEARCH") return;
-
-    formSearchRef.current?.setFieldsValue({
-      ...params,
-      from_store_id: params.from_store_id ? params.from_store_id : String(accountStoresSelected.id),
-      to_store_id: params.to_store_id ? params.to_store_id : [],
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountStoresSelected]);
 
   useEffect(() => {
     if (
@@ -314,67 +290,10 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
             initialValues={initialValues}
             layout="inline"
           >
-            <Item name="from_store_id" className="select-item">
-              <Select
-                autoClearSearchValue={false}
-                style={{ width: "200px" }}
-                placeholder="Kho gửi"
-                maxTagCount={"responsive" as const}
-                mode="multiple"
-                showArrow
-                showSearch
-                allowClear
-                onClear={() => formSearchRef?.current?.submit()}
-                filterOption={(input: String, option: any) => {
-                  if (option.props.value) {
-                    return strForSearch(option.props.children).includes(strForSearch(input));
-                  }
-
-                  return false;
-                }}
-              >
-                {Array.isArray(stores) &&
-                  stores.length > 0 &&
-                  stores.map((item, index) => (
-                    <Option key={"from_store_id" + index} value={item.id.toString()}>
-                      {item.name}
-                    </Option>
-                  ))}
-              </Select>
-            </Item>
-            <Item name="to_store_id" className="select-item">
-              <Select
-                autoClearSearchValue={false}
-                style={{ width: "180px" }}
-                placeholder="Kho nhận"
-                showArrow
-                showSearch
-                maxTagCount={"responsive" as const}
-                mode="multiple"
-                optionFilterProp="children"
-                allowClear
-                onClear={() => formSearchRef?.current?.submit()}
-                filterOption={(input: String, option: any) => {
-                  if (option.props.value) {
-                    return strForSearch(option.props.children).includes(strForSearch(input));
-                  }
-
-                  return false;
-                }}
-              >
-                {Array.isArray(stores) &&
-                  stores.length > 0 &&
-                  stores.map((item, index) => (
-                    <Option key={"to_store_id" + index} value={item.id.toString()}>
-                      {item.name}
-                    </Option>
-                  ))}
-              </Select>
-            </Item>
             <Item name="condition" className="input-search">
               <Input
                 prefix={<img src={search} alt="" />}
-                placeholder="Tìm kiếm theo ID phiếu, SKU"
+                placeholder="Tìm kiếm theo Mã phiếu"
                 onBlur={(e) => {
                   formSearchRef?.current?.setFieldsValue({
                     condition: e.target.value.trim(),
@@ -386,6 +305,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
               <Button
                 style={{ width: "80px" }}
                 type="primary"
+                disabled={loadingFilter}
                 loading={loadingFilter}
                 htmlType="submit"
               >
