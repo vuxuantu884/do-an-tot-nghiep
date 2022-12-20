@@ -256,13 +256,19 @@ const DetailTicket: FC = () => {
     acceptPermissions: [InventoryTransferPermission.clone],
   });
 
+  const isDisabledCancelTicket = () => {
+    return !allowCancel || (data?.status !== STATUS_INVENTORY_TRANSFER.REQUESTED.status
+      && data?.status !== STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
+      && data?.status !== STATUS_INVENTORY_TRANSFER.CONFIRM.status)
+  };
+
   const actions: Array<MenuAction> = [
     {
       id: 1,
       name: "Hủy phiếu",
       icon: <CloseCircleOutlined />,
       color: "#E24343",
-      disabled: !allowCancel,
+      disabled: isDisabledCancelTicket(),
     },
     {
       id: 2,
