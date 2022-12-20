@@ -804,6 +804,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
   return (
     <ExportImportTransferTabWrapper>
       <InventoryExportFilters
+        isLoading={tableLoading}
         activeTab={activeTab}
         accounts={accounts}
         params={params}
