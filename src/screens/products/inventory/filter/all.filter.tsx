@@ -59,6 +59,8 @@ import { callApiNative } from "utils/ApiUtils";
 import { SizeResponse } from "model/product/size.model";
 import { sizeSearchAction } from "domain/actions/product/size.action";
 import SizeSearchSelect from "component/custom/select-search/size-search";
+import BaseFilterResult from "component/base/BaseFilterResult";
+import { useArray } from "hook/useArray";
 
 export interface InventoryFilterProps {
   params: any;
@@ -138,6 +140,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
   });
   const history = useHistory();
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
+
   const setDataCollection = useCallback((data: PageResponse<CollectionResponse>) => {
     setLstCollection(data.items);
   }, []);
@@ -408,6 +411,9 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
               case AvdAllFilter.to_price:
                 renderTxt = `Giá bán đến: ${formatCurrencyForProduct(filters.to_price)}`;
                 break;
+              case AvdAllFilter.info:
+                renderTxt = `${AllInventoryMappingField[filterKey]} : ${newValues.toString()}`;
+                break;
               default:
                 break;
             }
@@ -673,7 +679,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
 
   const validateFromQuality = (e: any) => {
     formAdvanceFilter.setFieldsValue({
-      from_price: e
+      from_price: e,
     });
     const toPrice = formAdvanceFilter.getFieldValue("to_price");
     if (e > toPrice) {
@@ -682,11 +688,11 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
     }
 
     setMessageErrorQuality("");
-  }
+  };
 
   const validateToQuality = (e: any) => {
     formAdvanceFilter.setFieldsValue({
-      to_price: e
+      to_price: e,
     });
     const fromPrice = formAdvanceFilter.getFieldValue("from_price");
     if (e < fromPrice) {
@@ -695,7 +701,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
     }
 
     setMessageErrorQuality("");
-  }
+  };
 
   return (
     <div className="inventory-filter">
@@ -944,7 +950,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
                   >
                     <InputNumber
                       onChange={validateFromQuality}
-                      style={{ width: '94%' }}
+                      style={{ width: "94%" }}
                       className="price_min"
                       placeholder="Từ"
                       formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
@@ -963,7 +969,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
                   >
                     <InputNumber
                       onChange={validateToQuality}
-                      style={{ width: '94%' }}
+                      style={{ width: "94%" }}
                       className="site-input-right price_max"
                       placeholder="Đến"
                       formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
