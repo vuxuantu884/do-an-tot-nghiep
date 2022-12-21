@@ -35,7 +35,7 @@ import _ from "lodash";
 import { searchVariantsApi } from "service/product/product.service";
 import { STATUS_INVENTORY_ADJUSTMENT } from "../../../ListInventoryAdjustment/constants";
 import NumberInput from "component/custom/number-input.custom";
-import { OFFSET_HEADER_TABLE } from "../../../../../utils/Constants";
+import { OFFSET_HEADER_TABLE } from "utils/Constants";
 
 const arrTypeNote = [
   { key: 1, value: "XNK sai quy trình" },
@@ -56,6 +56,7 @@ type propsInventoryAdjustment = {
   objSummaryTableByAuditTotal: any;
   setIsReRender: () => void;
   setDataTab?: (value: any) => void;
+  setTotalProp?: (value: number) => void;
 };
 
 export interface Summary {
@@ -64,6 +65,11 @@ export interface Summary {
   TotalOnHand: number | 0;
   TotalRealOnHand: number | 0;
 }
+
+const ADJUSTMENT_LIST_TABS = {
+  DEVIANT_TAB: "1",
+  TOTAL_TAB: "2"
+};
 
 const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
   props: propsInventoryAdjustment,
@@ -93,7 +99,8 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     setIsReRender,
     setDataTab,
     isReSearch,
-    isPermissionEdit
+    isPermissionEdit,
+    setTotalProp
   } = props;
 
   //phân quyền
@@ -271,7 +278,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     },
     {
       title: "Sản phẩm",
-      width: "250px",
+      width: "200px",
       className: "ant-col-info",
       dataIndex: "variant_name",
       render: (value: string, record: PurchaseOrderLineItem) => (
@@ -307,7 +314,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
           </>
         );
       },
-      width: 70,
+      width: 100,
       align: "center",
       dataIndex: "total_stock",
       render: (value) => {
@@ -329,7 +336,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
           </>
         );
       },
-      width: 60,
+      width: 100,
       align: "center",
       dataIndex: "shipping",
       render: (value) => {
@@ -351,7 +358,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
           </>
         );
       },
-      width: 80,
+      width: 110,
       align: "center",
       dataIndex: "on_way",
       render: (value) => {
@@ -369,7 +376,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
           </>
         );
       },
-      width: 80,
+      width: 110,
       align: "center",
       dataIndex: "on_hand",
       render: (value) => {
@@ -389,7 +396,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       },
       dataIndex: "real_on_hand",
       align: "center",
-      width: 60,
+      width: 100,
       render: (value, row: LineItemAdjustment) => {
         if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT && allowUpdate && isPermissionEdit) {
           return (
@@ -440,7 +447,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         );
       },
       align: "center",
-      width: 100,
+      width: 150,
       render: (value, item) => {
         if (!item.on_hand_adj && item.on_hand_adj === 0) {
           return null;
@@ -558,6 +565,9 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       if (result) {
         setDataLinesItem({ ...result });
         setDataTab && setDataTab(result);
+        if (tab === ADJUSTMENT_LIST_TABS.TOTAL_TAB) {
+          setTotalProp && setTotalProp(result.metadata.total);
+        }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps,
@@ -572,7 +582,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
           getLinesItemAdjustmentAction(
             idNumber,
             `page=${page}&limit=${size}&type=${
-              tab === "1" ? "deviant" : "total"
+              tab === ADJUSTMENT_LIST_TABS.DEVIANT_TAB ? "deviant" : "total"
             }&condition=${keySearch?.toString()}`,
             onResultDataTable,
           ),
@@ -603,6 +613,8 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         </div>
       )}
       <Table
+        bordered
+        className="adjustment-inventory-table"
         loading={loadingTable || tableLoading}
         rowClassName="product-table-row"
         style={{ paddingTop: 16 }}
