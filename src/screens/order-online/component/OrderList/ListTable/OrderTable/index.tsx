@@ -31,6 +31,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { AllInventoryProductInStore, InventoryVariantListQuery } from "model/inventory";
 import { OrderExtraModel, OrderModel, OrderTypeModel } from "model/order/order.model";
+import { SpecialOrderResponseModel } from "model/order/special-order.model";
 import { FilterConfig } from "model/other";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
@@ -97,6 +98,7 @@ import { getLoyaltyPoint } from "../../../../../../domain/actions/loyalty/loyalt
 import { LoyaltyPoint } from "../../../../../../model/response/loyalty/loyalty-points.response";
 import ButtonCreateOrderReturn from "../../../ButtonCreateOrderReturn";
 import EditNote from "../../../EditOrderNote";
+import EditSpecialOrder from "../../../EditSpecialOrder";
 import InventoryTable from "../InventoryTable";
 import IconFacebook from "./images/facebook.svg";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
@@ -599,6 +601,20 @@ function OrdersTable(props: PropTypes) {
       </div>
     );
   };
+
+  const onEditSpecialOrderSuccess = useCallback(
+    (orderID, specialOrder?: SpecialOrderResponseModel) => {
+      const indexOrder = itemResult.findIndex((item: any) => item.id === orderID);
+      if (indexOrder > -1) {
+        itemResult[indexOrder].special_order = specialOrder;
+      }
+      setData({
+        ...dataResult,
+        items: itemResult,
+      });
+    },
+    [setData],
+  );
 
   const initColumnsDefault: ICustomTableColumTypeExtra = useMemo(() => {
     return [
@@ -1413,6 +1429,34 @@ function OrdersTable(props: PropTypes) {
           return result;
         },
         visible: false,
+        width: 120,
+      },
+      {
+        title: "Loại đơn hàng",
+        className: "",
+        isHideInOffline: true,
+        render: (value: string, record: OrderModel) => {
+          if (isOrderFromPOS(record)) {
+            return;
+          }
+          return (
+            <div className="orderNotes">
+              <div className="inner">
+                <div className="single">
+                  <EditSpecialOrder
+                    title="Loại: "
+                    specialOrder={record.special_order}
+                    orderId={record.id}
+                    onEditSpecialOrderSuccess={onEditSpecialOrderSuccess}
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        },
+        key: "specialOrder",
+        visible: true,
+        align: "left",
         width: 120,
       },
     ];

@@ -1,8 +1,9 @@
-import {BaseObject} from "model/base/base.response";
-import {StoreResponse} from "model/core/store.model";
-import {ReasonReturn} from "model/order/return.model";
-import {GoodsReceiptsResponse} from "../pack/pack.response";
-import {OrderItemDiscountRequest} from "../../request/order.request";
+import { BaseObject } from "model/base/base.response";
+import { StoreResponse } from "model/core/store.model";
+import { ReasonReturn } from "model/order/return.model";
+import { GoodsReceiptsResponse } from "../pack/pack.response";
+import { OrderItemDiscountRequest } from "../../request/order.request";
+import { SpecialOrderResponseModel } from "model/order/special-order.model";
 
 export interface OrderResponse extends BaseObject {
   ecommerce_shop_id: null;
@@ -105,6 +106,7 @@ export interface OrderResponse extends BaseObject {
   goods_receipts?: GoodsReceiptsResponse[] | null;
   returned_store_id?: number;
   uniform?: boolean | null | undefined;
+  special_order?: SpecialOrderResponseModel;
 }
 
 export interface OrderLineItemResponse {
@@ -222,8 +224,8 @@ export interface OrderDiscountResponse {
   promotion_id?: number | null;
   promotion_title?: string | null;
   order_id: number | null;
-  discount_code: string|null;
-  reason: string|null;
+  discount_code: string | null;
+  reason: string | null;
   source: string;
   type: string;
 }
@@ -666,36 +668,36 @@ export interface CustomerOrderHistoryResponse extends BaseObject {
 }
 
 export interface PromotionResponse extends BaseObject {
-  type: string,
-  title: string,
-  priority: number,
-  usage_limit: any,
-  usage_limit_per_customer: any,
-  quantity_limit: number,
-  starts_date: Date,
-  ends_date: Date,
-  entitled_method: string,
-  number_of_entitlements: number,
-  number_of_discount_codes: number,
-  total_usage_count: number,
-  async_usage_count: number,
-  async_allocation_count: number,
-  state: string,
-  activated_by: string,
-  activated_name: string,
-  activated_date: Date,
-  disabled_by: string,
-  disabled_name: string,
-  disabled_date: Date,
-  cancelled_by: any,
-  cancelled_name: any,
-  cancelled_date: any,
-  suggested_discounts: any,
-  prerequisite_quantity_gte: any
+  type: string;
+  title: string;
+  priority: number;
+  usage_limit: any;
+  usage_limit_per_customer: any;
+  quantity_limit: number;
+  starts_date: Date;
+  ends_date: Date;
+  entitled_method: string;
+  number_of_entitlements: number;
+  number_of_discount_codes: number;
+  total_usage_count: number;
+  async_usage_count: number;
+  async_allocation_count: number;
+  state: string;
+  activated_by: string;
+  activated_name: string;
+  activated_date: Date;
+  disabled_by: string;
+  disabled_name: string;
+  disabled_date: Date;
+  cancelled_by: any;
+  cancelled_name: any;
+  cancelled_date: any;
+  suggested_discounts: any;
+  prerequisite_quantity_gte: any;
 }
 
 export interface ParamPromotion {
-  query?: string,
-  states: string,
-  page: number
+  query?: string;
+  states: string;
+  page: number;
 }
