@@ -1,5 +1,5 @@
 import { Card, Col, DatePicker, Form, FormInstance, Row, Select, Space, Switch } from "antd";
-import AccountSearchSelect from "component/custom/select-search/account-select";
+// import AccountSearchSelect from "component/custom/select-search/account-select";
 import { CustomerGroups } from "domain/actions/customer/customer.action";
 import { LoyaltyRankSearch } from "domain/actions/loyalty/rank/loyalty-rank.action";
 import _ from "lodash";
@@ -29,7 +29,7 @@ export enum CustomerFilterField {
   prerequisite_genders = "prerequisite_genders",
   prerequisite_customer_loyalty_level_ids = "prerequisite_customer_loyalty_level_ids",
   prerequisite_customer_group_ids = "prerequisite_customer_group_ids",
-  prerequisite_assignee_codes = "prerequisite_assignee_codes",
+  // prerequisite_assignee_codes = "prerequisite_assignee_codes",
   // prerequisite_total_money_spend_from = "prerequisite_total_money_spend_from",
   // prerequisite_total_money_spend_to = "prerequisite_total_money_spend_to",
   // prerequisite_total_finished_order_from = "prerequisite_total_finished_order_from",
@@ -102,7 +102,7 @@ export default function CustomerFilter(props: Props): ReactElement {
         [CustomerFilterField.ends_wedding_day]: undefined,
         [CustomerFilterField.prerequisite_customer_group_ids]: undefined,
         [CustomerFilterField.prerequisite_customer_loyalty_level_ids]: undefined,
-        [CustomerFilterField.prerequisite_assignee_codes]: undefined,
+        // [CustomerFilterField.prerequisite_assignee_codes]: undefined,
       });
     }
   };
@@ -370,7 +370,7 @@ export default function CustomerFilter(props: Props): ReactElement {
                 </Select>
               </Form.Item>
 
-              <AccountSearchSelect
+              {/* <AccountSearchSelect
                 label="Nhân viên phụ trách"
                 placeholder="Chọn nhân viên phụ trách"
                 name={CustomerFilterField.prerequisite_assignee_codes}
@@ -382,7 +382,7 @@ export default function CustomerFilter(props: Props): ReactElement {
                 ]}
                 help={false}
                 maxTagCount={undefined}
-              />
+              /> */}
 
               {/*<div>*/}
               {/*  <div className="form-item-title">Tiền tích lũy</div>*/}
