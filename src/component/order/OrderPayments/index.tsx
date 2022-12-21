@@ -393,7 +393,7 @@ function OrderPayments(props: PropTypes): JSX.Element {
     return (
       <Row gutter={30} className="rowPrice">
         <Col lg={15} xxl={8} className="row-large-title rowPrice__title">
-          <b>Khách cần trả:</b>
+          <b>Khách phải trả:</b>
         </Col>
         <Col className="lbl-money rowPrice__amount" lg={6} xxl={6}>
           <div className="rowPriceAmountWrapper">
