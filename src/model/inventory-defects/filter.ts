@@ -1,6 +1,7 @@
 export enum DefectFilterBasicEnum {
   store_ids = "store_ids",
   condition = "condition",
+  info = "info",
 }
 
 export const DefectFilterBasicName = {

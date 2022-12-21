@@ -27,6 +27,9 @@ import { QuantityButtonStyle } from "./history-filter.style";
 import TreeStore from "./TreeStore";
 import CustomSelect from "../../../../component/custom/select.custom";
 import { DOCUMENT_TYPES } from "screens/products/helper";
+import BaseFilterResult from "component/base/BaseFilterResult";
+import { useArray } from "hook/useArray";
+import { cloneDeep } from "lodash";
 
 interface HistoryInventoryFilterProps {
   params: HistoryInventoryQuery;
@@ -81,7 +84,6 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
       if (data.from_quantity === 1) data.from_quantity = "0";
 
       setAdvanceFilters(data);
-
       onFilter && onFilter(data);
     },
     [onFilter, formAdvanceFilter],
@@ -104,11 +106,19 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
 
   const resetField = useCallback(
     (field: string) => {
-      formAdvanceFilter.resetFields([field]);
-      formBaseFilter.resetFields([field]);
-      formAdvanceFilter.submit();
+      const newFieldsValue = {
+        ...formBaseFilter.getFieldsValue(true),
+        [field]: undefined,
+      };
+      formBaseFilter.setFieldsValue({
+        ...newFieldsValue,
+      });
+      formAdvanceFilter.setFieldsValue({
+        ...newFieldsValue,
+      });
+      formBaseFilter.submit();
     },
-    [formBaseFilter, formAdvanceFilter],
+    [formBaseFilter, formAdvanceFilter, onFilter],
   );
 
   useEffect(() => {
@@ -125,7 +135,6 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
     setAdvanceFilters(filter);
     formBaseFilter.setFieldsValue(filter);
   }, [formAdvanceFilter, formBaseFilter, params]);
-
   return (
     <div className="inventory-filter">
       <Form.Provider
@@ -220,7 +229,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
             </Item>
           </FilterWrapper>
         </Form>
-        <FilterList filters={advanceFilters} resetField={resetField} />
+        <FilterList filters={advanceFilters} resetField={resetField} listStore={listStore} />
         <BaseFilter
           onClearFilter={onResetFilter}
           onFilter={onFilterClick}
@@ -273,7 +282,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
 
 const keysDateFilter = ["transaction_date", "quantity"];
 
-const FilterList = ({ filters, resetField }: any) => {
+const FilterList = ({ filters, resetField, listStore }: any) => {
   const newFilters = { ...filters };
   let filtersKeys = Object.keys(filters);
   let renderTxt: string;
@@ -291,6 +300,7 @@ const FilterList = ({ filters, resetField }: any) => {
         )
           return null;
         if (!HistoryInventoryMappingField[filterKey]) return null;
+        const newValues = Array.isArray(value) ? value : [value];
 
         switch (filterKey) {
           case AvdHistoryInventoryFilter.transaction_date:
@@ -306,6 +316,17 @@ const FilterList = ({ filters, resetField }: any) => {
                 : "??"
             }`;
             break;
+          case AvdHistoryInventoryFilter.store_ids:
+            let storeTag = "";
+            newValues.forEach((item: number) => {
+              const store = listStore?.find((e: any) => e.id === Number(item));
+              storeTag = store ? storeTag + store.name + "; " : storeTag;
+            });
+            renderTxt = `Cửa hàng : ${storeTag}`;
+            break;
+          case AvdHistoryInventoryFilter.condition:
+            renderTxt = `Sản phẩm : ${value?.toString()}`;
+            break;
           case "quantity":
             renderTxt = `${
               HistoryInventoryMappingField[AvdHistoryInventoryFilter.quantity_change]
@@ -313,26 +334,31 @@ const FilterList = ({ filters, resetField }: any) => {
               ${filters[HistoryInventoryQueryField.to_quantity] === 0 ? `Trừ` : `Cộng`}`;
             break;
         }
+        const onCloseFilter = () => {
+          if (filterKey === AvdHistoryInventoryFilter.transaction_date) {
+            resetField(HistoryInventoryQueryField.from_transaction_date);
+            resetField(HistoryInventoryQueryField.to_transaction_date);
+            return;
+          }
+          if (filterKey === AvdHistoryInventoryFilter.quantity) {
+            resetField(HistoryInventoryQueryField.from_quantity);
+            resetField(HistoryInventoryQueryField.to_quantity);
+            return;
+          }
+          resetField(filterKey);
+        };
         return (
-          <Tag
-            onClose={() => {
-              if (filterKey === AvdHistoryInventoryFilter.transaction_date) {
-                resetField(HistoryInventoryQueryField.from_transaction_date);
-                resetField(HistoryInventoryQueryField.to_transaction_date);
-                return;
-              }
-              if (filterKey === "quantity") {
-                resetField(HistoryInventoryQueryField.from_quantity);
-                resetField(HistoryInventoryQueryField.to_quantity);
-                return;
-              }
-              resetField(filterKey);
-            }}
-            key={filterKey}
-            className="fade"
-            closable
-            style={{ marginBottom: 20 }}
-          >{`${renderTxt}`}</Tag>
+          <>
+            {(Array.isArray(value) ? value?.length > 0 : value) && (
+              <Tag
+                onClose={onCloseFilter}
+                key={filterKey}
+                className="fade"
+                closable
+                style={{ marginBottom: 20 }}
+              >{`${renderTxt}`}</Tag>
+            )}
+          </>
         );
       })}
     </div>
