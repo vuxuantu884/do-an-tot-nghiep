@@ -186,6 +186,7 @@ function* searchVariantOrderSaga(action: YodyAction) {
       }
     }
   } catch (error) {
+    console.log("onSearch",error)
     handleError && handleError();
     showError("Có lỗi khi tìm kiếm sản phẩm! Vui lòng thử lại sau!");
   }
