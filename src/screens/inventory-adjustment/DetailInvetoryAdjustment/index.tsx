@@ -12,7 +12,11 @@ import {
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import { InventoryAdjustmentDetailItem, LineItemAdjustment } from "model/inventoryadjustment";
+import {
+  IncurredAuditRecordType,
+  InventoryAdjustmentDetailItem,
+  LineItemAdjustment
+} from "model/inventoryadjustment";
 import ContentContainer from "component/container/content.container";
 import InventoryAdjustmentTimeLine from "./conponents/InventoryAdjustmentTimeLine";
 import { VariantResponse } from "model/product/product.model";
@@ -58,7 +62,8 @@ import { callApiNative } from "utils/ApiUtils";
 import {
   addLineItem,
   cancelInventoryTicket,
-  getDetailInventorAdjustmentGetApi,
+  checkIncurredRecordApi,
+  getDetailInventorAdjustmentGetApi, getLinesItemAdjustmentApi,
   getTotalOnHand
 } from "service/inventory/adjustment/index.service";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -73,6 +78,10 @@ import IconPrint from "assets/icon/printer-blue.svg";
 import BaseAxios from "base/base.axios";
 import { ApiConfig } from "config/api.config";
 import useAuthorization from "hook/useAuthorization";
+import NoticeIncurredRecordTour from "./conponents/InventoryAdjustmentTours/NoticeIncurredRecordTour";
+import SummaryIncurredRecordTour from "./conponents/InventoryAdjustmentTours/SummaryIncurredRecordTour";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import debounce from "lodash/debounce";
 
 const { TabPane } = Tabs;
 
@@ -86,6 +95,7 @@ export interface Summary {
   TotalOnHand: number | 0;
   TotalRealOnHand: number | 0;
 }
+
 export const STATUS_IMPORT_EXPORT = {
   DEFAULT: 1,
   CREATE_JOB_SUCCESS: 2,
@@ -99,8 +109,8 @@ const DetailInventoryAdjustment: FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const [data, setData] = useState<InventoryAdjustmentDetailItem>();
-  const [isShowConfirmAdited, setIsShowConfirmAdited] = useState<boolean>(false);
-  const [isShowConfirmAdj, seIsShowConfirmAdj] = useState<boolean>(false);
+  const [isShowConfirmAudited, setIsShowConfirmAudited] = useState<boolean>(false);
+  const [isShowConfirmAdj, setIsShowConfirmAdj] = useState<boolean>(false);
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
 
@@ -116,6 +126,15 @@ const DetailInventoryAdjustment: FC = () => {
   const [hasError, setHasError] = useState<boolean>(false);
   const [isReRender, setIsReRender] = useState<boolean>(false);
   const [isReRenderTotalOnHand, setIsReRenderTotalOnHand] = useState<boolean>(false);
+  const [isRun, setIsRun] = useState<boolean>(false);
+  const [isVisibleModalNotice, setIsVisibleModalNotice] = useState<boolean>(false);
+  const [isVisibleModalSummaryNotice, setIsVisibleModalSummaryNotice] = useState<boolean>(false);
+  const [isDisabledIncurredRecordBtn, setIsDisabledIncurredRecordBtn] = useState(true);
+  const [incurredRecordNumber, setIncurredRecordNumber] = useState(0);
+  const [incurredAuditRecords, setIncurredAuditRecords] = useState<Array<IncurredAuditRecordType>>([]);
+  const [incurredAuditRecordsMap, setIncurredAuditRecordsMap] = useState<Map<string, Array<IncurredAuditRecordType>>>(new Map());
+  const [incurredAdjustRecords, setIncurredAdjustRecords] = useState<Array<IncurredAuditRecordType>>([]);
+  const [incurredAdjustRecordsMap, setIncurredAdjustRecordsMap] = useState<Map<string, Array<IncurredAuditRecordType>>>(new Map());
 
   const [printContent, setPrintContent] = useState("");
   const [keySearchHistory, setKeySearchHistory] = useState("");
@@ -140,7 +159,6 @@ const DetailInventoryAdjustment: FC = () => {
   const [hasImportUrl, setHasImportUrl] = useState<boolean>(false);
   const [isRerenderTab, setIsRerenderTab] = useState<boolean>(false);
   const [isReSearch, setIsReSearch] = useState<boolean>(false);
-  const [isRerenderTabHistory, setIsRerenderTabHistory] = useState<boolean>(false);
 
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [formStoreData, setFormStoreData] = useState<StoreResponse | null>();
@@ -176,6 +194,9 @@ const DetailInventoryAdjustment: FC = () => {
       total_on_way: 0
     }
   });
+
+  const isShowSummaryTourVar = "isShowSummaryTour";
+  const isShowAuditTourVar = "isShowAuditTour";
 
   //phân quyền
 
@@ -231,6 +252,10 @@ const DetailInventoryAdjustment: FC = () => {
       );
     }
   };
+
+  const onSearchProductDebounce = debounce((key: string) => {
+    onSearchProduct(key);
+  }, 300);
 
   let textTag: string;
   let classTag: string;
@@ -309,13 +334,23 @@ const DetailInventoryAdjustment: FC = () => {
 
       setHasError(false);
 
+      dispatch(showLoading());
+
       addItemApi(idNumber, data).then((res) => {
+        dispatch(hideLoading());
         if (!res) return;
 
-        if (activeTab === "1") setIsRerenderTabHistory(!isRerenderTabHistory);
-        if (activeTab === "2") setIsRerenderTab(!isRerenderTab);
+        setIsRerenderTab(!isRerenderTab);
 
-        setTotal(total + 1);
+        if (activeTab === "1") {
+          callApiNative({ isShowError: false },
+            dispatch, getLinesItemAdjustmentApi, idNumber, `page=${dataLinesItem.metadata.page}&limit=${dataLinesItem.metadata.limit}&type=
+            total"`).then((res) => {
+              setTotal(res.metadata.total);
+          });
+        } else {
+
+        }
 
         getTotalOnHandApi().then((res) => {
           if (!res) return;
@@ -500,7 +535,8 @@ const DetailInventoryAdjustment: FC = () => {
         if (result) {
           onResult(result);
           showSuccess("Hoàn thành kiểm kho thành công.");
-          setIsShowConfirmAdited(false);
+          setIsShowConfirmAudited(false);
+          setIsRun(false);
         }
       }),
     );
@@ -514,7 +550,7 @@ const DetailInventoryAdjustment: FC = () => {
         if (result) {
           onResult(result);
           showSuccess("Cân tồn kho thành công.");
-          seIsShowConfirmAdj(false);
+          setIsShowConfirmAdj(false);
         }
       }),
     );
@@ -777,7 +813,7 @@ const DetailInventoryAdjustment: FC = () => {
       id="#product_search_variant"
       dropdownClassName="product"
       placeholder="Thêm sản phẩm vào phiếu kiểm"
-      onSearch={onSearchProduct}
+      onSearch={onSearchProductDebounce}
       dropdownMatchSelectWidth={456}
       style={{ width: "100%" }}
       showAdd={true}
@@ -800,6 +836,97 @@ const DetailInventoryAdjustment: FC = () => {
       );
     }
   }
+
+  const convertRecordToMap = (data: Array<IncurredAuditRecordType>) => {
+    const auditRecordsMap = new Map();
+
+    data.forEach((record: IncurredAuditRecordType) => {
+      if (auditRecordsMap.has(record.code)) {
+        auditRecordsMap.set(record.code, [...auditRecordsMap.get(record.code), record]);
+      } else {
+        auditRecordsMap.set(record.code, [record]);
+      }
+    });
+
+    return auditRecordsMap;
+  }
+
+  const sortRecordByCode = (data: Array<IncurredAuditRecordType>) => {
+    return data.sort((a: IncurredAuditRecordType, b: IncurredAuditRecordType) => {
+      return b.code < a.code ? -1 : b.code > a.code ? 1 : 0
+    });
+  };
+
+  const checkIncurredRecord = async (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    dispatch(showLoading());
+
+    const res = await callApiNative(
+      { isShowLoading: false },
+      dispatch,
+      checkIncurredRecordApi,
+      data?.id
+    );
+
+    dispatch(hideLoading());
+
+    if (res && res.transaction_while_audit && res.transaction_while_audit.length > 0) {
+      const isShowTour = localStorage.getItem(isShowAuditTourVar);
+      if (!isShowTour) {
+        setTimeout(() => {
+          setIsRun(true);
+        }, 300);
+      }
+
+      setIsVisibleModalNotice(true);
+
+      setIncurredAuditRecordsMap(convertRecordToMap(res.transaction_while_audit));
+      setIncurredAuditRecords(sortRecordByCode(res.transaction_while_audit));
+      localStorage.setItem(isShowAuditTourVar, "false");
+
+      return;
+    }
+
+    setIsShowConfirmAudited(true);
+  };
+
+  const allApiCheckIncurredRecord = async () => {
+    const res = await callApiNative(
+      { isShowLoading: false },
+      dispatch,
+      checkIncurredRecordApi,
+      data?.id
+    )
+
+    if (res?.transaction_while_audit?.length > 0 || res?.transaction_while_adjust?.length > 0) {
+      setIsDisabledIncurredRecordBtn(false);
+      setIncurredAuditRecords(sortRecordByCode(res.transaction_while_audit));
+      setIncurredAuditRecordsMap(convertRecordToMap(res.transaction_while_audit));
+      setIncurredAdjustRecords(sortRecordByCode(res.transaction_while_adjust));
+      setIncurredAdjustRecordsMap(convertRecordToMap(res.transaction_while_adjust));
+      setIncurredRecordNumber(res.transaction_while_audit.length + res.transaction_while_adjust.length);
+    }
+  }
+
+  useEffect(() => {
+    if (data && data.status === STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status) {
+      allApiCheckIncurredRecord().then();
+    }
+    // eslint-disable-next-line
+  }, [data])
+
+  const showModalIncurredRecord = async (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+
+    const isShowSummaryTour = localStorage.getItem(isShowSummaryTourVar);
+    if (!isShowSummaryTour) {
+      setTimeout(() => {
+        setIsRun(true);
+      }, 300);
+    }
+    setIsVisibleModalSummaryNotice(true);
+    localStorage.setItem(isShowSummaryTourVar, "false");
+  };
 
   return (
     <StyledWrapper>
@@ -1153,6 +1280,7 @@ const DetailInventoryAdjustment: FC = () => {
                             objSummaryTableByAuditTotal={objSummaryTableByAudit.total}
                             idNumber={idNumber}
                             data={data}
+                            setTotalProp={(value) => setTotal(value)}
                           />
                         )}
                       </TabPane>
@@ -1199,6 +1327,17 @@ const DetailInventoryAdjustment: FC = () => {
                         </Button>
                       </AuthWrapper>
                     )}
+                  {data.status === STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status && (
+                    <Button
+                      disabled={isDisabledIncurredRecordBtn}
+                      onClick={(event) => showModalIncurredRecord(event)}
+                      type="primary"
+                      ghost
+                      style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                    >
+                      Tổng hợp phát sinh ({incurredRecordNumber})
+                    </Button>
+                  )}
                   {data.status === STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status && (
                     <Button
                       onClick={() => {
@@ -1272,9 +1411,7 @@ const DetailInventoryAdjustment: FC = () => {
                         <Button
                           style={{ marginLeft: 10 }}
                           type="primary"
-                          onClick={() => {
-                            setIsShowConfirmAdited(true);
-                          }}
+                          onClick={checkIncurredRecord}
                           loading={isLoading}
                           disabled={
                             hasError ||
@@ -1286,6 +1423,15 @@ const DetailInventoryAdjustment: FC = () => {
                           Hoàn thành kiểm
                         </Button>
                       </AuthWrapper>
+                      <NoticeIncurredRecordTour
+                        confirmAudit={() => onUpdateOnlineInventory()}
+                        isRun={isRun}
+                        setIsRun={setIsRun}
+                        isVisibleModalNotice={isVisibleModalNotice}
+                        setIsVisibleModalNotice={setIsVisibleModalNotice}
+                        incurredAuditRecords={incurredAuditRecords}
+                        incurredAuditRecordsMap={incurredAuditRecordsMap}
+                      />
                     </>
                   )}
                   {data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status && (
@@ -1293,7 +1439,7 @@ const DetailInventoryAdjustment: FC = () => {
                       <Button
                         type="primary"
                         onClick={() => {
-                          seIsShowConfirmAdj(true);
+                          setIsShowConfirmAdj(true);
                         }}
                         loading={isLoading}
                         disabled={hasError || isLoading || !isPermissionAudit}
@@ -1337,10 +1483,10 @@ const DetailInventoryAdjustment: FC = () => {
                 fileList={fileList}
               />
             )}
-            {isShowConfirmAdited && (
+            {isShowConfirmAudited && (
               <ModalConfirm
                 onCancel={() => {
-                  setIsShowConfirmAdited(false);
+                  setIsShowConfirmAudited(false);
                 }}
                 onOk={() => {
                   onUpdateOnlineInventory();
@@ -1349,14 +1495,14 @@ const DetailInventoryAdjustment: FC = () => {
                 cancelText="Hủy"
                 title={`Bạn có chắc chắn Hoàn thành kiểm?`}
                 subTitle='Phiếu kiểm kho sẽ chuyển sang trạng thái "Đã kiểm" và không thể thay đổi số lượng thực tồn.'
-                visible={isShowConfirmAdited}
+                visible={isShowConfirmAudited}
               />
             )}
 
             {isShowConfirmAdj && (
               <ModalConfirm
                 onCancel={() => {
-                  seIsShowConfirmAdj(false);
+                  setIsShowConfirmAdj(false);
                 }}
                 onOk={() => {
                   onAdjustInventory();
@@ -1409,6 +1555,19 @@ const DetailInventoryAdjustment: FC = () => {
             inventoryId={idNumber}
             visible={isOpenModal}
             onCancel={() => setIsOpenModal(false)}
+          />
+        )}
+
+        {isVisibleModalSummaryNotice && (
+          <SummaryIncurredRecordTour
+            isRun={isRun}
+            setIsRun={setIsRun}
+            isVisibleModalSummaryNotice={isVisibleModalSummaryNotice}
+            setIsVisibleModalSummaryNotice={setIsVisibleModalSummaryNotice}
+            incurredAuditRecords={incurredAuditRecords}
+            incurredAuditRecordsMap={incurredAuditRecordsMap}
+            incurredAdjustRecords={incurredAdjustRecords}
+            incurredAdjustRecordsMap={incurredAdjustRecordsMap}
           />
         )}
       </ContentContainer>

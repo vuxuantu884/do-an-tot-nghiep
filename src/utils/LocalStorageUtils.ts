@@ -18,6 +18,8 @@ const getToken = (): String | null => {
 
 const removeToken = () => {
   localStorage.removeItem(ACCESS_TOKEN);
+  localStorage.removeItem("isShowSummaryTour");
+  localStorage.removeItem("isShowAuditTour");
 };
 
 export const clearLocalStorage = () => {
