@@ -56,6 +56,9 @@ enum EnumOptionValueOrPercent {
   PERCENT = "%",
 }
 
+enum EnumCodeKey {
+  ENTER = 13,
+}
 export {
   EnumUploadStatus,
   EnumImportStatus,
@@ -66,4 +69,5 @@ export {
   EnumStoreTung,
   EnumStoreHieu,
   EnumOptionValueOrPercent,
+  EnumCodeKey,
 };

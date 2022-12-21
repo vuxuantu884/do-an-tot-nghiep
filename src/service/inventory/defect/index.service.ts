@@ -35,6 +35,12 @@ const getListInventoryDefect = (
   return BaseAxios.get(`${ApiConfig.INVENTORY_ADJUSTMENT}/defects/?${params}`);
 };
 
+const getListInventoryDefectHistory = (
+  params: string,
+): Promise<BaseResponse<Array<InventoryDefectResponse>>> => {
+  return BaseAxios.get(`${ApiConfig.INVENTORY_ADJUSTMENT}/defects/history/?${params}`);
+};
+
 export {
   createInventoryDefect,
   // editInventoryDefect,
@@ -42,4 +48,5 @@ export {
   getListInventoryDefect,
   deleteInventoryDefects,
   editInventoryDefectNote,
+  getListInventoryDefectHistory,
 };

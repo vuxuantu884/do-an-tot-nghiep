@@ -438,7 +438,6 @@ const ListInventoryDefect: React.FC = () => {
       }
     }
   }, [initColumns, tableColumnConfigs, data]);
-
   const [columns, setColumns] =
     useState<Array<ICustomTableColumType<InventoryDefectResponse>>>(initColumns);
 
@@ -671,7 +670,7 @@ const ListInventoryDefect: React.FC = () => {
             Lọc
           </Button>
         </Item>
-        <Item>
+        <Item style={{ margin: 0 }}>
           <ButtonSetting onClick={() => setShowSettingColumn(true)} />
         </Item>
       </Form>
@@ -748,6 +747,9 @@ const ListInventoryDefect: React.FC = () => {
 export default ListInventoryDefect;
 
 const StyledCard = styled(Card)`
+  border: none;
+  box-shadow: none;
+  margin-top: 20px;
   .page-filter-left {
     margin-right: 20px;
     .action-button {
@@ -759,5 +761,8 @@ const StyledCard = styled(Card)`
       align-items: center;
       color: #2a2a86;
     }
+  }
+  .ant-card-body {
+    padding: 0;
   }
 `;
