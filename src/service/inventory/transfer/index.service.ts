@@ -15,7 +15,8 @@ import {
   StockTransferSubmit,
   Store,
   StoreStatus,
-  GetTopReceivedStoreParam
+  GetTopReceivedStoreParam,
+  ForwardStoreData
 } from "model/inventory/transfer";
 import * as queryString from "query-string";
 import { VariantResponse } from "../../../model/product/product.model";
@@ -223,6 +224,13 @@ const TransferService = {
       params
     });
   },
+
+  forwardStoreApi: (
+    id: number,
+    data: ForwardStoreData,
+  ): Promise<BaseResponse<string>> => {
+    return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${id}/forward`, data);
+  },
 };
 
 export const {
@@ -244,4 +252,5 @@ export const {
   getTransferRecordNumberApi,
   updateAvailableApi,
   getTopReceivedStoreApi,
+  forwardStoreApi
 } = TransferService;

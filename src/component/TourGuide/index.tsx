@@ -70,11 +70,13 @@ const TourGuide = (props: Props) => {
           <div className="content">
             {step.content}
           </div>
-          <div className="footer">
-            <Button className={index !== 0 ? "" : "hidden"} ref={previousRef} type="ghost" {...backProps}>Lùi</Button>
-            <div>{index + 1} / {size}</div>
-            <Button type="primary" ref={nextRef} {...primaryProps}>{isLastStep ? "Đóng" : "Tiếp"}</Button>
-          </div>
+          {size > 1 && (
+            <div className="footer">
+              <Button className={index !== 0 ? "" : "hidden"} ref={previousRef} type="ghost" {...backProps}>Lùi</Button>
+              <div>{index + 1} / {size}</div>
+              <Button type="primary" ref={nextRef} {...primaryProps}>{isLastStep ? "Đóng" : "Tiếp"}</Button>
+            </div>
+          )}
         </div>
       </TourGuideStyled>
     )

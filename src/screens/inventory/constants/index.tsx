@@ -25,6 +25,13 @@ export const STATUS_INVENTORY_TRANSFER = {
   },
 };
 
+export const SUB_STATUS_INVENTORY_TRANSFER = {
+  FORWARDED: {
+    status: "FORWARDED",
+    name: "Chuyển tiếp",
+  }
+};
+
 export const STATUS_INVENTORY_TRANSFER_ARRAY = [
   {
     value: "requested",
