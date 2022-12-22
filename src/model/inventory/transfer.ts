@@ -165,6 +165,10 @@ export type StockTransferSubmit = {
   exception_items: [];
 };
 
+export interface ForwardStoreData {
+  to_store_id: string;
+}
+
 export type TrackingLogs = {
   fulfillment_code: string;
   shipping_message: string;
@@ -246,6 +250,9 @@ export interface InventoryTransferDetailItem {
   line_items: Array<LineItem>;
   shipment: ShipmentItem;
   exception_items: [];
+  sub_status: string;
+  store_forward: Store;
+  forward_store_id: number;
 }
 
 export interface InventoryExportImportTransferDetailItem {

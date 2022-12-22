@@ -5,6 +5,8 @@ import { IncurredAuditRecordType } from "model/inventoryadjustment";
 import { ProductHelper } from "utils";
 import UrlConfig from "config/url.config";
 
+const DELAY_TIME_FOR_TOUR = 1000;
+
 const ACTION_CALLBACK = {
   CLOSE: 'close',
   RESET: 'reset'
@@ -81,6 +83,7 @@ const goDocument = (type: string) => {
 }
 
 export {
+  DELAY_TIME_FOR_TOUR,
   ACTION_CALLBACK,
   convertRecordExport,
   exportExcel,

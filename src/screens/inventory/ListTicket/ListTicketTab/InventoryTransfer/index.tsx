@@ -38,7 +38,6 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import {
   BarsOutlined,
   CopyOutlined,
-  PaperClipOutlined,
   PrinterOutlined,
   ExportOutlined,
   CloseCircleOutlined,
@@ -441,6 +440,20 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       },
     },
     {
+      title: "Ghi chú hệ thống",
+      dataIndex: "forward_store_name",
+      visible: true,
+      align: "left",
+      width: "220px",
+      render: (item: string, row: InventoryTransferDetailItem) => {
+        return row.forward_store_id ? (
+          <div className="single">
+            Chuyển tiếp từ kho {item} đến kho {row.to_store_name}
+          </div>
+        ) : <></>
+      },
+    },
+    {
       title: "Ngày chuyển",
       dataIndex: "transfer_date",
       visible: true,
@@ -463,26 +476,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       align: "center",
       width: "100px",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYY_HHmm)}</div>,
-    },
-    {
-      title: "Tệp đính kèm",
-      dataIndex: "attached_files",
-      visible: true,
-      align: "center",
-      width: "220px",
-      render: (item: any) => {
-        return (
-          <span>
-            {item?.map((link: string) => {
-              return (
-                <a className="file-pin" target="_blank" rel="noreferrer" href={link}>
-                  <PaperClipOutlined /> {link}
-                </a>
-              );
-            })}
-          </span>
-        );
-      },
     },
     {
       title: "Người tạo",
