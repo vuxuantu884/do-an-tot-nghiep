@@ -213,34 +213,15 @@ const ListInventoryDefect: React.FC = () => {
   const handleDelete = useCallback(
     async (id: number) => {
       dispatch(showLoading());
-      const response = await callApiNative(
-        { isShowError: true },
-        dispatch,
-        deleteInventoryDefect,
-        id,
-      );
-      if (response) {
-        // BE yêu cầu chờ 3s để đồng bộ ES
-        setTimeout(() => {
-          getInventoryDefects();
-          showSuccess("Xóa sản phẩm thành công");
-          // dispatch(hideLoading())
-        }, 3000);
-      } else {
+      await callApiNative({ isShowError: true }, dispatch, deleteInventoryDefect, id);
+      setTimeout(() => {
+        getInventoryDefects();
+        showSuccess("Xóa sản phẩm thành công");
         dispatch(hideLoading());
-      }
+      }, 3000);
     },
     [dispatch, getInventoryDefects],
   );
-
-  const getTotalDefects = useCallback(() => {
-    const inventoryDefects = cloneDeep(data.items);
-    const total =
-      inventoryDefects?.reduce((value, element) => {
-        return value + element.defect || 0;
-      }, 0) || 0;
-    return formatCurrencyForProduct(total);
-  }, [data]);
 
   const initColumns: Array<ICustomTableColumType<InventoryDefectResponse>> = useMemo(() => {
     return [
@@ -325,11 +306,19 @@ const ListInventoryDefect: React.FC = () => {
         },
       },
       {
-        title: (
-          <div>
-            Số lỗi <span style={{ color: "#2A2A86" }}>({getTotalDefects()})</span>
-          </div>
-        ),
+        title: () => {
+          const inventoryDefects = cloneDeep(data.items);
+          const total =
+            inventoryDefects?.reduce((value, element) => {
+              return value + element.defect || 0;
+            }, 0) || 0;
+
+          return (
+            <div>
+              Số lỗi <span style={{ color: "#2A2A86" }}>({formatCurrencyForProduct(total)})</span>
+            </div>
+          );
+        },
         dataIndex: "defect",
         width: 100,
         align: "center",
@@ -414,7 +403,7 @@ const ListInventoryDefect: React.FC = () => {
         align: "center",
       },
     ];
-  }, [currentPermissions, editItemDefect, getTotalDefects, data]);
+  }, [currentPermissions, editItemDefect, data]);
 
   useEffect(() => {
     if (tableColumnConfigs && tableColumnConfigs.length) {

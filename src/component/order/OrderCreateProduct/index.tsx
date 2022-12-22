@@ -97,6 +97,7 @@ import {
   haveAccess,
   isFetchApiSuccessful,
   isOrderFinishedOrCancel,
+  isOrderFromPOS,
   replaceFormatString,
 } from "utils/AppUtils";
 import {
@@ -1941,10 +1942,19 @@ function OrderCreateProduct(props: PropTypes) {
     let newData: Array<StoreResponse> = [];
 
     //loại bỏ kho Kho dự trữ, Kho phân phối
-    // chỉ tạo với kho cửa hàng
     let storesCopy = stores.filter(
-      (store) => store.type.toLocaleLowerCase() === STORE_TYPE.STORE.toLowerCase(),
+      (store) =>
+        store.type.toLowerCase() === STORE_TYPE.STORE.toLowerCase() ||
+        store.type.toLowerCase() === STORE_TYPE.WARE_HOUSE.toLowerCase(),
     );
+
+    // đối với đổi trả offline
+    // chỉ tạo với kho cửa hàng
+    if (isReturnOffline) {
+      storesCopy = stores.filter(
+        (store) => store.type.toLowerCase() === STORE_TYPE.STORE.toLowerCase(),
+      );
+    }
 
     if (storesCopy && storesCopy.length) {
       if (userReducer.account?.account_stores && userReducer.account?.account_stores.length > 0) {
@@ -1978,7 +1988,15 @@ function OrderCreateProduct(props: PropTypes) {
       }
     }
     return newData;
-  }, [isCreateReturn, stores, setStoreId, storeId, storeIdLogin, userReducer?.account]);
+  }, [
+    stores,
+    isReturnOffline,
+    userReducer.account,
+    storeId,
+    storeIdLogin,
+    isCreateReturn,
+    setStoreId,
+  ]);
 
   // console.log("dataCanAccess",dataCanAccess.map(p=>{return {name:p.name, type:p.type}} ))
 
