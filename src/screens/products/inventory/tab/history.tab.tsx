@@ -159,7 +159,18 @@ const HistoryTab: React.FC<any> = (props) => {
 
         return (
           <div>
-            <Link to={`${getUrlByDocumentType(record.document_type)}/${id}`}>{value}</Link>
+            <Link
+              to={
+                getUrlByDocumentType(record.document_type) === UrlConfig.PURCHASE_ORDERS
+                  ? `${getUrlByDocumentType(record.document_type)}/${id}/procurements/${
+                      record.document_id
+                    }`
+                  : `${getUrlByDocumentType(record.document_type)}/${id}`
+              }
+              target="_blank"
+            >
+              {value}
+            </Link>
           </div>
         );
       },
