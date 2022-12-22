@@ -287,11 +287,13 @@ function CardReturnProducts(props: PropTypes) {
   const storeIdLogin = useGetStoreIdFromLocalStorage();
 
   const dataCanAccess = useMemo(() => {
-    let newData: Array<StoreResponse> = stores.filter(
-      (store) =>
-        store.type.toLocaleLowerCase() !== STORE_TYPE.DISTRIBUTION_CENTER &&
-        store.type.toLocaleLowerCase() !== STORE_TYPE.STOCKPILE,
-    );
+    //loại bỏ kho Kho dự trữ, Kho phân phối
+    // let newData: Array<StoreResponse> = stores.filter(
+    //   (store) =>
+    //     store.type.toLocaleLowerCase() !== STORE_TYPE.DISTRIBUTION_CENTER &&
+    //     store.type.toLocaleLowerCase() !== STORE_TYPE.STOCKPILE,
+    // );
+    let newData: Array<StoreResponse> = stores;
     // set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên, nếu đã có ở local storage thì ưu tiên lấy, nếu chưa chọn cửa hàng (update đơn hàng không set cửa hàng đầu tiên)
     if (newData && newData[0]?.id) {
       if (!returnStore) {

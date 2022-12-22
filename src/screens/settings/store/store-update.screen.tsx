@@ -413,6 +413,7 @@ const StoreUpdateScreen: React.FC = () => {
                       name="district_id"
                     >
                       <Select
+                        autoClearSearchValue={false}
                         showSearch
                         showArrow
                         optionFilterProp="children"
@@ -476,6 +477,7 @@ const StoreUpdateScreen: React.FC = () => {
                       name="type"
                     >
                       <Select
+                        autoClearSearchValue={false}
                         showSearch
                         showArrow
                         optionFilterProp="children"

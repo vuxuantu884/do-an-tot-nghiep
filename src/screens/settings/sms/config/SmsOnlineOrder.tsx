@@ -485,6 +485,7 @@ const SmsOnlineOrder: React.FC = () => {
                 rules={[{ required: true, message: "Vui lòng chọn kênh bán hàng" }]}
               >
                 <CustomSelect
+                  autoClearSearchValue={false}
                   mode="multiple"
                   showSearch
                   allowClear
@@ -533,6 +534,7 @@ const SmsOnlineOrder: React.FC = () => {
                     <Col span={12}>
                       <div style={{ marginBottom: "8px" }}><b>Nhóm khách hàng</b></div>
                       <Select
+                        autoClearSearchValue={false}
                         mode="multiple"
                         maxTagCount="responsive"
                         showSearch
@@ -571,6 +573,7 @@ const SmsOnlineOrder: React.FC = () => {
                     <Col span={12} style={{ marginBottom: "20px" }}>
                       <div style={{ marginBottom: "8px" }}><b>Hạng khách hàng</b></div>
                       <Select
+                        autoClearSearchValue={false}
                         mode="multiple"
                         maxTagCount="responsive"
                         showSearch

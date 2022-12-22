@@ -330,6 +330,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                   case SearchVariantWrapperField.category_ids:
                     component = (
                       <CustomSelect
+                        autoClearSearchValue={false}
                         showSearch
                         optionFilterProp="children"
                         showArrow
@@ -351,6 +352,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                   case SearchVariantWrapperField.goods:
                     component = (
                       <CustomSelect
+                        autoClearSearchValue={false}
                         showSearch
                         optionFilterProp="children"
                         showArrow

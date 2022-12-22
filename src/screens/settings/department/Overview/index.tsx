@@ -1,7 +1,7 @@
 import { Card } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { searchDepartmentAction } from "domain/actions/account/department.action";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -73,7 +73,7 @@ const DepartmentOverviewScreen: React.FC = () => {
   };
 
   const goToDepartmentDetail = (id: number) => {
-    history.push(`${UrlConfig.DEPARTMENT}/${id}`);
+    window.open(`${BASE_NAME_ROUTER}${UrlConfig.DEPARTMENT}/${id}`, "_blank")
   };
 
   return (

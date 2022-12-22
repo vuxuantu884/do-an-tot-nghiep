@@ -3,7 +3,6 @@ import { BUSINESS_RESULT_CART_NAME } from "config/dashboard";
 // import { useContext } from "react";
 // import useFetchChartBusinessResult from "../hooks/useFetchTotalSaleChart";
 // import { DashboardContext } from "../provider/dashboard-provider";
-import useFetchCompanyBRCompleted from "../hooks/useFetchCompanyBRCompleted";
 import useFetchOfflineBRCompleted from "../hooks/useFetchOfflineBRCompleted";
 import useFetchOnlineBRCompleted from "../hooks/useFetchOnlineBRCompleted";
 import useFetchOnlineBRCreated from "../hooks/useFetchOnlineBRCreated";
@@ -13,7 +12,7 @@ type Props = {};
 
 function BusinessResult(props: Props) {
   // const { totalSalesToday, dataSrcChartBusinessResult } = useContext(DashboardContext);
-  const { isFetchingCompanyBRCompleted } = useFetchCompanyBRCompleted();
+  // const { isFetchingCompanyBRCompleted } = useFetchCompanyBRCompleted();
   const { isFetchingOfflineBRCompleted } = useFetchOfflineBRCompleted();
   const { isFetchingOnlineBRCompleted } = useFetchOnlineBRCompleted();
   const { isFetchingOnlineBRCreated } = useFetchOnlineBRCreated();
@@ -30,13 +29,13 @@ function BusinessResult(props: Props) {
           <div className="verti-grid__item">
             <BusinessCard
               dataKey={BUSINESS_RESULT_CART_NAME.companyTotalSales}
-              loading={isFetchingCompanyBRCompleted}
+              loading={isFetchingOfflineBRCompleted && isFetchingOnlineBRCompleted}
             />
           </div>
           <div className="verti-grid__item">
             <BusinessCard
               dataKey={BUSINESS_RESULT_CART_NAME.companyOrders}
-              loading={isFetchingCompanyBRCompleted}
+              loading={isFetchingOfflineBRCompleted && isFetchingOnlineBRCompleted}
             />
           </div>
         </Col>

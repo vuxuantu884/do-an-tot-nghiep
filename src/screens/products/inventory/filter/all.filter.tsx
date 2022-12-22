@@ -717,6 +717,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
           </Item>
           <Item name="remain" style={{ minWidth: 250 }}>
             <CustomSelect
+              autoClearSearchValue={false}
               showSearch
               allowClear
               showArrow
@@ -739,6 +740,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
               form={formBaseFilter}
               name={InventoryQueryField.store_ids}
               placeholder="Chọn cửa hàng"
+              autoClearSearchValue={false}
               listStore={listStore}
               onChange={onChangeStore}
             />
@@ -814,6 +816,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
             <Col span={12}>
               <Item name={AvdInventoryFilter.store_ids} className="store" label="Cửa hàng">
                 <TreeStore
+                  autoClearSearchValue={false}
                   form={formBaseFilter}
                   name={InventoryQueryField.store_ids}
                   placeholder="Chọn cửa hàng"
@@ -825,6 +828,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
             <Col span={12}>
               <Item name={AvdInventoryFilter.made_in_ids} label="Xuất xứ">
                 <CustomSelect
+                  autoClearSearchValue={false}
                   showSearch
                   optionFilterProp="children"
                   showArrow
@@ -860,6 +864,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
             <Col span={12}>
               <Item name="remain" style={{ minWidth: 250 }} label="Trạng thái tồn">
                 <CustomSelect
+                  autoClearSearchValue={false}
                   showSearch
                   allowClear
                   showArrow
@@ -880,6 +885,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
             <Col span={12}>
               <Item name={AvdInventoryFilter.category_ids} label="Danh mục">
                 <CustomSelect
+                  autoClearSearchValue={false}
                   showSearch
                   optionFilterProp="children"
                   showArrow

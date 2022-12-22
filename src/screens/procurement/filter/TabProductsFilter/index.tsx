@@ -269,6 +269,7 @@ const TabProductsFilter: React.FC<ProcurementItemsFilterProps> = (
               case ProcurementItemsFilterAdvanceEnum.StockInBy:
                 component = (
                   <Select
+                    autoClearSearchValue={false}
                     allowClear
                     showSearch
                     showArrow

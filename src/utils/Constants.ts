@@ -19,6 +19,13 @@ export const PaymentMethodCode = {
   POINT_REFUND: "point_refund",
   MOMO: "momo",
   VN_PAY: "vn_pay",
+  VCB_QR: "vcb_qr",
+};
+
+export const PaymentMethodType = {
+  MOMO: "momo",
+  VN_PAY: "vn_pay",
+  VCB_QR: "vcb_qr",
 };
 
 export const OrderStatus = {

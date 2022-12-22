@@ -76,6 +76,7 @@ const FormFilter: React.FC<PropType> = (props: PropType) => {
             }
           >
             <CustomSelect
+              autoClearSearchValue={false}
               placeholder="Chọn mẫu in"
               allowClear
               showSearch
@@ -109,6 +110,7 @@ const FormFilter: React.FC<PropType> = (props: PropType) => {
             }
           >
             <CustomSelect
+              autoClearSearchValue={false}
               placeholder="Chọn chi nhánh áp dụng:"
               allowClear
               showSearch
@@ -139,6 +141,7 @@ const FormFilter: React.FC<PropType> = (props: PropType) => {
             }
           >
             <CustomSelect
+              autoClearSearchValue={false}
               placeholder="Chọn khổ in"
               allowClear
               showSearch

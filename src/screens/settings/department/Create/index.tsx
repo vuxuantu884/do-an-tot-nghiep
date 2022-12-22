@@ -2,14 +2,11 @@ import { Button, Card, Col, Form, Input, Row, Select, Space, TreeSelect } from "
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
 import {
   departmentCreateAction,
   searchDepartmentAction,
 } from "domain/actions/account/department.action";
-import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { DepartmentRequest, DepartmentResponse } from "model/account/department.model";
-import { PageResponse } from "model/base/base-metadata.response";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
@@ -24,14 +21,6 @@ const DepartmentCreateScreen: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const [departments, setDepartment] = useState<Array<DepartmentResponse>>([]);
-  const [, setAccounts] = useState<PageResponse<AccountResponse>>({
-    metadata: {
-      limit: 20,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
   const [loading, setLoading] = useState<boolean>(false);
   //phân quyền
   const [allowCreateDep] = useAuthorization({
@@ -44,19 +33,6 @@ const DepartmentCreateScreen: React.FC = () => {
     visible: false,
   });
   const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
-
-  const searchAccount = useCallback(
-    (query: AccountSearchQuery, paging: boolean) => {
-      dispatch(
-        AccountSearchAction({ ...query, limit: 20 }, (result) => {
-          if (result) {
-            setAccounts(result);
-          }
-        }),
-      );
-    },
-    [dispatch],
-  );
 
   const onFinish = useCallback(
     (value: DepartmentRequest) => {
@@ -89,7 +65,6 @@ const DepartmentCreateScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    searchAccount({}, false);
     dispatch(
       searchDepartmentAction((result) => {
         if (result) {
@@ -97,7 +72,8 @@ const DepartmentCreateScreen: React.FC = () => {
         }
       }),
     );
-  }, [dispatch, searchAccount]);
+  }, [dispatch]);
+
   return (
     <ContentContainer
       title="Quản lý phòng ban"

@@ -179,7 +179,7 @@ const BankAccountCreateScreen: React.FC = () => {
                   },
                 ]}
               >
-                <Select showSearch allowClear placeholder="Chọn ngân hàng">
+                <Select autoClearSearchValue={false} showSearch allowClear placeholder="Chọn ngân hàng">
                   {listBank.map((value: any, key: number) => (
                     <Select.Option key={key} value={value.value}>
                       {value.name}
