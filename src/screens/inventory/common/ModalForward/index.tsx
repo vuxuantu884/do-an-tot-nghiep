@@ -79,10 +79,10 @@ const ModalForward: React.FC<ModalForwardProps> = (props: ModalForwardProps) => 
       <div>
         <div className="font-weight-500 mb-10">Hãng đang/đã chuyển tới kho:</div>
         <div>
-          <RowDetail title="Kho gửi" value={currentStore ? currentStore.from_store_name : ""} />
-          <RowDetail title="Mã CH" value={currentStore ? currentStore.from_store_code?.toString() : ""} />
-          <RowDetail title="SĐT" value={currentStore ? currentStore.from_store_phone?.toString() : ""} />
-          <RowDetail title="Địa chỉ" value={ConvertFullAddress(currentStore?.store_transfer)} />
+          <RowDetail title="Kho gửi" value={currentStore ? currentStore.to_store_name : ""} />
+          <RowDetail title="Mã CH" value={currentStore ? currentStore.to_store_code?.toString() : ""} />
+          <RowDetail title="SĐT" value={currentStore ? currentStore.to_store_phone?.toString() : ""} />
+          <RowDetail title="Địa chỉ" value={ConvertFullAddress(currentStore?.store_receive)} />
         </div>
         <div className="font-weight-500 mb-10 mt-10">Chuyển tiếp tới kho:</div>
         <Select
