@@ -436,6 +436,8 @@ const ListInventoryDefect: React.FC = () => {
       } catch (err) {
         showError("Lỗi lấy cài đặt cột");
       }
+    } else {
+      setColumns([...initColumns]);
     }
   }, [initColumns, tableColumnConfigs, data]);
   const [columns, setColumns] =
@@ -602,7 +604,8 @@ const ListInventoryDefect: React.FC = () => {
       const idSelected = selected.map((item) => {
         return item.id;
       });
-      const res = await callApiNative(
+
+      const result = await callApiNative(
         { isShowError: true, isShowLoading: true },
         dispatch,
         deleteInventoryDefects,
@@ -610,9 +613,12 @@ const ListInventoryDefect: React.FC = () => {
           ids: idSelected.toString(),
         },
       );
+
+      if (result) {
+        showSuccess("Xóa sản phẩm thành công");
+        getInventoryDefects();
+      }
       setConfirmDelete(false);
-      showSuccess("Xóa sản phẩm thành công");
-      getInventoryDefects();
     } catch (err) {}
   };
 
