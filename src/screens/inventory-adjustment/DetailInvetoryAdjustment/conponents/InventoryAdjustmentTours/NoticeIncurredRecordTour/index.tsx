@@ -107,7 +107,7 @@ const NoticeIncurredRecordTour = (props: NoticeIncurredRecordTourProps) => {
   };
 
   const confirmNoticeContentRender = <StyledWrapperContentModal style={{ overflow: "auto", maxHeight: "50vh" }}>
-    <div className="mb-10 warning"><FileTextOutlined className="icon-warning" /> Có { incurredAuditRecords.length } phiếu phát sinh trong quá trình kiểm kho</div>
+    <div className="mb-10 warning"><FileTextOutlined className="icon-warning" /> Có {[...incurredAuditRecordsMap.entries()].length} phiếu phát sinh trong quá trình kiểm kho</div>
     <Table
       bordered
       className="adjustment-inventory-table"
