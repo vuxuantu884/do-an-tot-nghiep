@@ -68,7 +68,7 @@ function SpecialOrderDetail(props: Props) {
 
     {
       title: "Số tiền",
-      content: specialOrder?.amount && formatCurrency(specialOrder?.amount),
+      content: specialOrder?.amount ? formatCurrency(specialOrder?.amount) : null,
     },
     {
       title: "Lý do",
