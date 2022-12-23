@@ -388,9 +388,7 @@ const buildCompanySchemas = (list: any[]) => {
         const childrenItems = schemas.filter(
           (item) =>
             item.drillingLevel === drillingLevel + 1 &&
-            parentDepartment
-              .toLowerCase()
-              .includes(item[`department_lv${item.drillingLevel - 1}`].toLowerCase()),
+            parentDepartment === item[`department_lv${item.drillingLevel - 1}`],
         );
         if (childrenItems.length) {
           schemas.push({
@@ -402,5 +400,9 @@ const buildCompanySchemas = (list: any[]) => {
         }
       }
     });
-  return schemas.filter((item) => item.drillingLevel === 1);
+  return schemas
+    .filter((item) => item.drillingLevel === 1)
+    .map((item) => {
+      return { ...item, blockAction: true };
+    });
 };

@@ -24,6 +24,12 @@ const NewDashboard = (props: any) => {
     acceptPermissions: [ReportPermissions.reports_view_report_offline],
     not: false,
   });
+
+  const [allowViewReportCompany] = useAuthorization({
+    acceptPermissions: [ReportPermissions.reports_view_report_tct],
+    not: false,
+  });
+
   const defaultScreen = useMemo(() => {
     return defaultScreenQuery &&
       (defaultScreenQuery === "dash-board" ||
@@ -54,7 +60,7 @@ const NewDashboard = (props: any) => {
           {allowViewReportOffline && (
             <Radio.Button value="key-driver-offline">Key Driver Offline</Radio.Button>
           )}
-          {allowViewReportOffline && (
+          {allowViewReportCompany && (
             <Radio.Button value="key-driver-company">Key Driver Công ty</Radio.Button>
           )}
         </Radio.Group>
@@ -66,7 +72,7 @@ const NewDashboard = (props: any) => {
       {allowViewReportOffline && defaultScreenQuery === "key-driver-offline" && (
         <KeyDriverOfflineV2 />
       )}
-      {allowViewReportOffline && defaultScreenQuery === "key-driver-company" && (
+      {allowViewReportCompany && defaultScreenQuery === "key-driver-company" && (
         <KeyDriverCompany />
       )}
     </StyledComponent>

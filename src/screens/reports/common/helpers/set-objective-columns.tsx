@@ -73,7 +73,11 @@ function VerifyCell(props: VerifyCellProps) {
   }
 }
 
-const getMonthlyTargetColumn = (kdTableHeader: KDTableHeader, dispatch: any) => {
+const getMonthlyTargetColumn = (
+  kdTableHeader: KDTableHeader,
+  dispatch: any,
+  keyDriverGroupLv1: string,
+) => {
   const { departmentKey, columnIndex, departmentDrillingLevel, direction, viewDay } = kdTableHeader;
   return {
     title: () => {
@@ -92,7 +96,7 @@ const getMonthlyTargetColumn = (kdTableHeader: KDTableHeader, dispatch: any) => 
     width: 110,
     align: "right",
     dataIndex: `${departmentKey}_monthly_target`,
-    className: "input-cell",
+    className: keyDriverGroupLv1 === "all" ? "non-input-cell" : "input-cell",
     render: (text: any, record: KeyDriverDataSourceType, index: number) => {
       // const inputId = getInputTargetId(index, columnIndex * 2, PREFIX_CELL_TABLE);
       const inputId = `${record[`${departmentKey}_key`] || record.key}-${record.title}-${index}-${
@@ -100,9 +104,17 @@ const getMonthlyTargetColumn = (kdTableHeader: KDTableHeader, dispatch: any) => 
       }-month-target`;
       let newValue = text ? Number(text) : 0;
       let clickCancel = false;
-      return showDashOnMonthlyTargetKD.includes(record[`${departmentKey}_key`] || record.key) ? (
-        <span>- </span>
-      ) : (
+      if (showDashOnMonthlyTargetKD.includes(record[`${departmentKey}_key`] || record.key)) {
+        return <span>- </span>;
+      }
+      if (keyDriverGroupLv1 === "all") {
+        return (
+          <VerifyCell row={record} value={text}>
+            {formatCurrency(text)}
+          </VerifyCell>
+        );
+      }
+      return (
         <VerifyCell row={record} value={text} type="edit">
           <div style={{ position: "relative" }}>
             <NumberInput
@@ -380,7 +392,11 @@ const getMonthlyForecastedProgressColumn = (departmentKey: string) => {
   };
 };
 
-const getDailyTargetColumn = (kdTableHeader: KDTableHeader, dispatch: any) => {
+const getDailyTargetColumn = (
+  kdTableHeader: KDTableHeader,
+  dispatch: any,
+  keyDriverGroupLv1: string,
+) => {
   const { departmentKey, columnIndex, departmentDrillingLevel, direction, viewDate } =
     kdTableHeader;
   return {
@@ -404,7 +420,7 @@ const getDailyTargetColumn = (kdTableHeader: KDTableHeader, dispatch: any) => {
     width: 100,
     align: "right",
     dataIndex: `${departmentKey}_daily_target`,
-    className: "input-cell",
+    className: keyDriverGroupLv1 === "all" ? "non-input-cell" : "input-cell",
     render: (text: any, record: KeyDriverDataSourceType, index: number) => {
       // const inputId = getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE);
       const inputId = `${record[`${departmentKey}_key`] || record.key}-${record.title}-${index}-${
@@ -412,9 +428,17 @@ const getDailyTargetColumn = (kdTableHeader: KDTableHeader, dispatch: any) => {
       }-day-target`;
       let newValue = text ? Number(text) : 0;
       let clickCancel = false;
-      return showDashOnDailyTargetKD.includes(record[`${departmentKey}_key`] || record.key) ? (
-        <span>- </span>
-      ) : (
+      if (showDashOnDailyTargetKD.includes(record[`${departmentKey}_key`] || record.key)) {
+        return <span>- </span>;
+      }
+      if (keyDriverGroupLv1 === "all") {
+        return (
+          <VerifyCell row={record} value={text}>
+            {formatCurrency(text)}
+          </VerifyCell>
+        );
+      }
+      return (
         <VerifyCell row={record} value={text} type="edit">
           <div style={{ position: "relative" }}>
             <NumberInput
@@ -604,7 +628,8 @@ export const setObjectiveColumns = (
   dispatch: any,
 ): ColumnGroupType<any> | ColumnType<any> => {
   const queryParams = queryString.parse(history.location.search);
-  const { direction, date: viewDate } = queryParams;
+  const { direction, date: viewDate, keyDriverGroupLv1 } = queryParams;
+
   const day = viewDate
     ? moment(viewDate).format(DATE_FORMAT.DDMMYYY)
     : moment().format(DATE_FORMAT.DDMMYYY);
@@ -613,6 +638,7 @@ export const setObjectiveColumns = (
   const monthlyTargetColumn: any = getMonthlyTargetColumn(
     { ...kdTableHeader, direction, viewDay: day },
     dispatch,
+    keyDriverGroupLv1,
   );
   const monthlyActualColumn: any = getMonthlyActualColumn(departmentKey, direction);
   const monthlyProgressColumn: any = getMonthlyProgressColumn(departmentKey, direction);
@@ -621,6 +647,7 @@ export const setObjectiveColumns = (
   const dailyTargetColumn: any = getDailyTargetColumn(
     { ...kdTableHeader, direction, viewDate },
     dispatch,
+    keyDriverGroupLv1,
   );
   const dailyActualColumn: any = getDailyActualColumn(departmentKey, direction);
   const dailyProgressColumn: any = getDailyProgressColumn(departmentKey);
