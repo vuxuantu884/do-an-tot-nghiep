@@ -170,7 +170,7 @@ function KDCompany() {
           dispatch,
           getKeyDriverOnlineApi,
           {
-            date: "2022-10-10",
+            date,
             keyDriverGroupLv1,
             departmentLv2,
             departmentLv3,
