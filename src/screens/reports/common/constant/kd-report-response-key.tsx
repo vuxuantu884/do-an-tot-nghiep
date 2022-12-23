@@ -1,3 +1,5 @@
+export const DEFAULT_COMPANY_KD_GROUP = "all";
+
 export const DEFAULT_OFF_KD_GROUP_LV1 = "Kinh doanh Offline";
 
 export const DEFAULT_ON_KD_GROUP_LV1 = "Kinh doanh Online";
