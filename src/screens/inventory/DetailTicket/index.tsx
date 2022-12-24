@@ -911,6 +911,7 @@ const DetailTicket: FC = () => {
       align: "center",
       width: 80,
       dataIndex: "receive_on_hand",
+      key: "receive_on_hand",
       render: (value: any) => {
         return formatCurrency(value, ".");
       },
@@ -1335,7 +1336,9 @@ const DetailTicket: FC = () => {
                         tableLayout="fixed"
                         scroll={{ x: "max-content" }}
                         pagination={false}
-                        columns={columnsTransfer}
+                        columns={data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
+                          ? columnsTransfer.filter((column) => column.key !== "receive_on_hand" )
+                          : columnsTransfer}
                         dataSource={dataTable}
                         summary={() => {
                           return (
