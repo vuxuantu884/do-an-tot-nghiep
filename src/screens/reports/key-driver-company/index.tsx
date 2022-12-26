@@ -24,6 +24,8 @@ import KeyDriverAnnotationModal from "../analytics/shared/key-driver-annotation-
 import {
   COLUMN_ORDER_LIST,
   DEFAULT_COMPANY_KD_GROUP,
+  DEFAULT_OFF_KD_GROUP_LV1,
+  DEFAULT_ON_KD_GROUP_LV1,
 } from "../common/constant/kd-report-response-key";
 import { KDReportDirection } from "../common/enums/kd-report-direction";
 import { KDReportName } from "../common/enums/kd-report-name";
@@ -90,7 +92,11 @@ function KDCompany() {
     : moment().format(DATE_FORMAT.DDMMYYY);
 
   const getColumns = localStorage.getItem(LocalStorageKey.KDCompanyColumns);
-  const [expandRowKeys, setExpandRowKeys] = useState<any[]>([]);
+  const [expandRowKeys, setExpandRowKeys] = useState<any[]>([
+    "Tổng công ty",
+    "Khối kinh doanh Online",
+    "Khối kinh doanh Offline",
+  ]);
 
   const [isVisibleAnnotation, setIsVisibleAnnotation] = useState(false);
   const keyDriverAnnotation: any = initialAnnotationOffline;
@@ -182,13 +188,7 @@ function KDCompany() {
           return;
         }
         const queryParams = queryString.parse(history.location.search);
-        const {
-          direction,
-          groupLv,
-          groupLvName,
-          departmentLv2: departmentLv2Param,
-          departmentLv3: departmentLv3Param,
-        } = queryParams;
+        const { direction, groupLv, groupLvName } = queryParams;
         const { Horizontal } = KDReportDirection;
         let temp = [...baseColumns];
         if (response.code && response.code !== SUCCESS) {
@@ -234,26 +234,50 @@ function KDCompany() {
               width: 220,
               fixed: "left",
               render: (text: string, record: any) => {
-                if (record.blockAction) {
+                const { blockAction, department_lv2, department_lv3 } = record;
+                if (
+                  blockAction ||
+                  (department_lv3 && department_lv3.toLowerCase().includes("khác ("))
+                ) {
                   return <span className="deparment-name-horizontal">{text}</span>;
                 } else {
-                  if (!departmentLv2Param) {
+                  let defaultScreen = "";
+                  let keyDriverGroupLv1 = "";
+                  if (
+                    department_lv2 &&
+                    department_lv2.toLowerCase().includes(DEFAULT_OFF_KD_GROUP_LV1.toLowerCase())
+                  ) {
+                    defaultScreen = "key-driver-offline";
+                    keyDriverGroupLv1 = DEFAULT_OFF_KD_GROUP_LV1;
+                  } else if (
+                    department_lv2 &&
+                    department_lv2.toLowerCase().includes(DEFAULT_ON_KD_GROUP_LV1.toLowerCase())
+                  ) {
+                    defaultScreen = "key-driver-online";
+                    keyDriverGroupLv1 = DEFAULT_ON_KD_GROUP_LV1;
+                  }
+                  if (department_lv3) {
                     return (
                       <Link
                         to={`?${queryString.stringify({
-                          ...queryParams,
-                          departmentLv2: text,
+                          date,
+                          direction,
+                          "default-screen": defaultScreen,
+                          keyDriverGroupLv1,
+                          departmentLv2: department_lv3,
                         })}`}
                       >
                         <span className="deparment-name-horizontal">{text}</span>
                       </Link>
                     );
-                  } else if (!departmentLv3Param) {
+                  } else if (department_lv2) {
                     return (
                       <Link
                         to={`?${queryString.stringify({
-                          ...queryParams,
-                          departmentLv3: text,
+                          date,
+                          direction,
+                          "default-screen": defaultScreen,
+                          keyDriverGroupLv1,
                         })}`}
                       >
                         <span className="deparment-name-horizontal">{text}</span>
@@ -449,10 +473,11 @@ function KDCompany() {
             expandable={{
               defaultExpandAllRows: true,
               onExpandedRowsChange: (rowKeys: any) => {
-                console.log("rowKeys", rowKeys);
-
                 setExpandRowKeys(rowKeys);
-                // localStorage.setItem(LocalStorageKey.KDOfflineRowkeysExpanded, JSON.stringify(rowKeys));
+                // localStorage.setItem(
+                //   LocalStorageKey.KDCompanyRowkeysExpanded,
+                //   JSON.stringify(rowKeys),
+                // );
               },
             }}
             rowClassName={(record: any, rowIndex: any) => {

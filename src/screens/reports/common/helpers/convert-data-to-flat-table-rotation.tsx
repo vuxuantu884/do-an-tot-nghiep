@@ -343,6 +343,7 @@ export const convertDataCompanyToFlatTableRotation = (
             ...objValue,
             ...otherValue,
             [`${keyDriver}_unit`]: row[unitIndex],
+            key: row[departmentLevelIndex],
           });
         }
       } else {
@@ -353,6 +354,7 @@ export const convertDataCompanyToFlatTableRotation = (
           [`${keyDriver}_key`]: row[keyDriverIndex],
           [`${keyDriver}_method`]: row[keyDriverDescriptionDataIndex],
           [`${keyDriver}_unit`]: row[unitIndex],
+          key: row[departmentLevelIndex],
         };
       }
     }
