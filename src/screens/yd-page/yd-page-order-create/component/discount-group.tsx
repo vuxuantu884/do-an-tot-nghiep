@@ -61,6 +61,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
         ];
       }
       let _itemDiscount = _item.discount_items[0];
+      _itemDiscount.taxable = false;
       let _price = _items[props.index].price;
       if (selected === DISCOUNT_TYPE.MONEY) {
         if (v === _itemDiscount.amount) {
