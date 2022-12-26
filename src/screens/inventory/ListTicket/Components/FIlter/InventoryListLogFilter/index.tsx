@@ -10,7 +10,7 @@ import CustomSelect from "component/custom/select.custom";
 import { OrderSearchQuery } from "model/order/order.model";
 import moment from "moment";
 import BaseFilter from "component/filter/base.filter";
-import { InventoryTransferLogSearchQuery, Store } from "model/inventory/transfer";
+import { InventoryTransferLogSearchQuery } from "model/inventory/transfer";
 import { BaseFilterWrapper, InventoryFiltersWrapper } from "./styles";
 import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
@@ -18,6 +18,7 @@ import { AppConfig } from "config/app.config";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
+import { StoreResponse } from "model/core/store.model";
 
 const ACTIONS_STATUS_ARRAY = [
   {
@@ -59,7 +60,7 @@ type InventoryFilterProps = {
   onFilter?: (values: OrderSearchQuery | Object) => void;
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
-  stores?: Array<Store>;
+  stores?: Array<StoreResponse>;
   accountStoresSelected?: any;
   setAccountStoresSelected?: (value: any) => void;
 };

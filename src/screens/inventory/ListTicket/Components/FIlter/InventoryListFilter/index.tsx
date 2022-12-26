@@ -1,29 +1,30 @@
-import { Button, Col, Form, FormInstance, Input, Row, Select, Tag } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Tag } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import search from "assets/img/search.svg";
-import { AccountResponse, AccountStoreResponse } from "model/account/account.model";
+import { AccountResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
 import { FilterOutlined } from "@ant-design/icons";
 import CustomSelect from "component/custom/select.custom";
 import { OrderSearchQuery } from "model/order/order.model";
 import moment from "moment";
 import BaseFilter from "component/filter/base.filter";
-import { InventoryTransferSearchQuery, Store } from "model/inventory/transfer";
+import { InventoryTransferSearchQuery } from "model/inventory/transfer";
 import { BaseFilterWrapper, InventoryFiltersWrapper } from "./styles";
 import { STATUS_INVENTORY_TRANSFER_ARRAY } from "screens/inventory/constants";
 import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
-import { strForSearch } from "utils/StringUtils";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { formatDateFilter, formatDateTimeFilter } from "utils/DateUtils";
 import { InventoryTransferTabUrl } from "config/url.config";
 import { useQuery } from "utils/useQuery";
+import TreeStore from "component/TreeStore";
+import { StoreResponse } from "model/core/store.model";
 
 type OrderFilterProps = {
-  accountStores?: Array<AccountStoreResponse>;
+  accountStores?: Array<StoreResponse>;
   params: InventoryTransferSearchQuery;
   actions: Array<MenuAction>;
   isLoading?: Boolean;
@@ -33,12 +34,11 @@ type OrderFilterProps = {
   onFilter?: (values: OrderSearchQuery | Object) => void;
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
-  stores?: Array<Store>;
+  stores?: Array<StoreResponse>;
   activeTab?: string;
 };
 
 const { Item } = Form;
-const { Option } = Select;
 
 const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) => {
   const {
@@ -103,29 +103,23 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
     if (activeTab === "") return;
 
     let accountStoreSelected =
-      accountStores && accountStores.length > 0 ? accountStores.map((i) => String(i.store_id)) : [];
+      accountStores && accountStores.length > 0 ? accountStores.map((i) => i.id) : [];
+
 
     if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE) {
       formSearchRef.current?.setFieldsValue({
         ...params,
         to_store_id:
           params.to_store_id && Array.isArray(params.to_store_id) && params.to_store_id.length > 0
-            ? params.to_store_id
+            ? params.to_store_id.map((storeId) => Number(storeId))
             : accountStoreSelected,
         from_store_id:
           params.from_store_id &&
           Array.isArray(params.from_store_id) &&
           params.from_store_id.length > 0
-            ? params.from_store_id
+            ? params.from_store_id.map((storeId) => Number(storeId))
             : [],
       });
-    } else if (activeTab === InventoryTransferTabUrl.LIST) {
-      formSearchRef.current?.setFieldsValue({
-        ...params,
-        from_store_id: params.from_store_id ? params.from_store_id : [],
-        to_store_id: params.to_store_id ? params.to_store_id : [],
-      });
-      return;
     } else {
       formSearchRef.current?.setFieldsValue({
         ...params,
@@ -133,11 +127,11 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
           params.from_store_id &&
           Array.isArray(params.from_store_id) &&
           params.from_store_id.length > 0
-            ? params.from_store_id
+            ? params.from_store_id.map((storeId) => Number(storeId))
             : accountStoreSelected,
         to_store_id:
           params.to_store_id && Array.isArray(params.to_store_id) && params.to_store_id.length > 0
-            ? params.to_store_id
+            ? params.to_store_id.map((storeId) => Number(storeId))
             : [],
       });
     }
@@ -556,97 +550,22 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
             layout="inline"
           >
             <Item name="from_store_id" className="select-item">
-              <Select
-                autoClearSearchValue={false}
-                style={{ width: "200px" }}
-                optionFilterProp="children"
+              <TreeStore
+                name="from_store_id"
                 placeholder="Kho gửi"
-                showArrow
-                showSearch
-                allowClear
-                maxTagCount={"responsive" as const}
-                mode="multiple"
-                onClear={() => formSearchRef?.current?.submit()}
-                filterOption={(input: String, option: any) => {
-                  if (option.props.value) {
-                    return strForSearch(option.props.children).includes(strForSearch(input));
-                  }
-
-                  return false;
-                }}
-              >
-                {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE ||
-                activeTab === `${InventoryTransferTabUrl.LIST}/`
-                  ? Array.isArray(stores) &&
-                    stores.length > 0 &&
-                    stores.map((item, index) => (
-                      <Option key={"from_store_id" + index} value={item.id.toString()}>
-                        {item.name}
-                      </Option>
-                    ))
-                  : Array.isArray(accountStores) &&
-                    accountStores.length > 0 ?
-                    accountStores.map((item, index) => (
-                      <Option
-                        key={"from_store_id" + index}
-                        value={item && item.store_id ? item.store_id.toString() : ""}
-                      >
-                        {item.store}
-                      </Option>
-                    )) : Array.isArray(stores) &&
-                    stores.length > 0 &&
-                    stores.map((item, index) => (
-                      <Option key={"from_store_id" + index} value={item.id.toString()}>
-                        {item.name}
-                      </Option>
-                    ))}
-              </Select>
+                listStore={stores}
+                style={{ width: 200 }}
+                autoClearSearchValue={false}
+              />
             </Item>
             <Item name="to_store_id" className="select-item">
-              <Select
-                autoClearSearchValue={false}
-                style={{ width: "200px" }}
+              <TreeStore
+                name="to_store_id"
                 placeholder="Kho nhận"
-                showArrow
-                showSearch
-                maxTagCount={"responsive" as const}
-                mode="multiple"
-                optionFilterProp="children"
-                allowClear
-                onClear={() => formSearchRef?.current?.submit()}
-                filterOption={(input: String, option: any) => {
-                  if (option.props.value) {
-                    return strForSearch(option.props.children).includes(strForSearch(input));
-                  }
-
-                  return false;
-                }}
-              >
-                {activeTab !== InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE
-                  ? Array.isArray(stores) &&
-                    stores.length > 0 &&
-                    stores.map((item, index) => (
-                      <Option key={"to_store_id" + index} value={item.id.toString()}>
-                        {item.name}
-                      </Option>
-                    ))
-                  : Array.isArray(accountStores) &&
-                    accountStores.length > 0 ?
-                    accountStores.map((item, index) => (
-                      <Option
-                        key={"to_store_id" + index}
-                        value={item && item.store_id ? item.store_id.toString() : ""}
-                      >
-                        {item.store}
-                      </Option>
-                    )) : Array.isArray(stores) &&
-                    stores.length > 0 &&
-                    stores.map((item, index) => (
-                      <Option key={"from_store_id" + index} value={item.id.toString()}>
-                        {item.name}
-                      </Option>
-                    ))}
-              </Select>
+                listStore={stores}
+                style={{ width: 200 }}
+                autoClearSearchValue={false}
+              />
             </Item>
             <Item name="condition" className="input-search">
               <Input

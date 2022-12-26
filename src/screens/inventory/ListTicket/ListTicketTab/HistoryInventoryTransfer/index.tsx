@@ -7,8 +7,7 @@ import { InventoryTransferTabWrapper } from "./styles";
 import {
   InventoryTransferDetailItem,
   InventoryTransferLog,
-  InventoryTransferLogSearchQuery,
-  Store,
+  InventoryTransferLogSearchQuery
 } from "model/inventory/transfer";
 import CustomTable from "component/table/CustomTable";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -23,6 +22,7 @@ import { Link } from "react-router-dom";
 import { callApiNative } from "utils/ApiUtils";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import CustomPagination from "component/table/CustomPagination";
+import { StoreResponse } from "model/core/store.model";
 
 const ACTIONS_INDEX = {
   ADD_FORM_EXCEL: 1,
@@ -112,8 +112,8 @@ const actions: Array<MenuAction> = [
 ];
 
 type HistoryInventoryTransferTabProps = {
-  accountStores?: Array<AccountStoreResponse>;
-  stores?: Array<Store>;
+  accountStores?: Array<StoreResponse>;
+  stores?: Array<StoreResponse>;
   accounts?: Array<AccountResponse>;
   setAccounts?: (e: any) => any;
 };

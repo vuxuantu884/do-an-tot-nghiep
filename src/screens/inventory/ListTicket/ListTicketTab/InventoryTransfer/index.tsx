@@ -13,7 +13,6 @@ import {
   InventoryTransferDetailItem,
   InventoryTransferSearchQuery,
   LineItem,
-  Store,
 } from "model/inventory/transfer";
 import CustomTable from "component/table/CustomTable";
 import purify from "dompurify";
@@ -47,7 +46,7 @@ import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
 
 import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { useHistory } from "react-router-dom";
-import { AccountResponse, AccountStoreResponse } from "model/account/account.model";
+import { AccountResponse } from "model/account/account.model";
 
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import DeleteTicketModal from "screens/inventory/common/DeleteTicketPopup";
@@ -71,6 +70,7 @@ import CustomPagination from "component/table/CustomPagination";
 import queryString from "query-string";
 import EditPopover from "../../../../inventory-defects/ListInventoryDefect/components/EditPopover";
 import { primaryColor } from "utils/global-styles/variables";
+import { StoreResponse } from "../../../../../model/core/store.model";
 const { Text } = Typography;
 
 let firstLoad = true;
@@ -111,8 +111,8 @@ const initQuery: InventoryTransferSearchQuery = {
 };
 
 type InventoryTransferTabProps = {
-  accountStores?: Array<AccountStoreResponse>;
-  stores?: Array<Store>;
+  accountStores?: Array<StoreResponse>;
+  stores?: Array<StoreResponse>;
   accounts?: Array<AccountResponse>;
   setAccounts?: (e: any) => any;
   activeTab?: string;
@@ -1125,7 +1125,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     }
 
     let accountStoreSelected =
-      accountStores && accountStores.length > 0 ? accountStores.map((i) => i.store_id).join(',') : null;
+      accountStores && accountStores.length > 0 ? accountStores.map((i) => i.id).join(',') : null;
 
     switch (activeTab) {
       // case InventoryTransferTabUrl.LIST:
