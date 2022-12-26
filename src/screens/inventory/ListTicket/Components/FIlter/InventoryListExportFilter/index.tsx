@@ -8,7 +8,7 @@ import { FilterOutlined } from "@ant-design/icons";
 import { OrderSearchQuery } from "model/order/order.model";
 import moment from "moment";
 import BaseFilter from "component/filter/base.filter";
-import { InventoryTransferImportExportSearchQuery, Store } from "model/inventory/transfer";
+import { InventoryTransferImportExportSearchQuery } from "model/inventory/transfer";
 import { BaseFilterWrapper, InventoryExportFiltersWrapper } from "./styles";
 import "assets/css/custom-filter.scss";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
@@ -19,7 +19,7 @@ import { useDispatch } from "react-redux";
 import { StoreResponse } from "model/core/store.model";
 import { callApiNative } from "utils/ApiUtils";
 import { getStoreApi } from "service/inventory/transfer/index.service";
-import CustomSelect from "../../../../../../component/custom/select.custom";
+import CustomSelect from "component/custom/select.custom";
 import { STATUS_INVENTORY_TRANSFER_ARRAY } from "../../../../constants";
 
 type InventoryExportFiltersProps = {
@@ -31,7 +31,7 @@ type InventoryExportFiltersProps = {
   onFilter?: (values: OrderSearchQuery | Object) => void;
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
-  stores?: Array<Store>;
+  stores?: Array<StoreResponse>;
   activeTab?: string;
 };
 

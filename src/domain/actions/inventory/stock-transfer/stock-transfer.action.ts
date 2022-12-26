@@ -17,6 +17,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
 import { InventoryResponse } from "model/inventory";
 import { GetFeesRequest } from "model/request/order.request";
+import { StoreResponse } from "model/core/store.model";
 
 const inventoryGetSenderStoreAction = (
   queryParams: StoreStatus,
@@ -24,6 +25,14 @@ const inventoryGetSenderStoreAction = (
 ) => {
   return BaseAction(InventoryType.GET_STORE, { queryParams, onResult });
 };
+
+const inventoryGetSenderStoreV2Action = (
+  queryParams: StoreStatus,
+  onResult: (data: Array<StoreResponse>) => void,
+) => {
+  return BaseAction(InventoryType.GET_STORE, { queryParams, onResult });
+};
+
 const inventoryGetVariantByStoreAction = (
   queryParams: StoreStatus,
   onResult: (data: PageResponse<VariantResponse>) => void,
@@ -250,4 +259,5 @@ export {
   acceptInventoryAction,
   creatInventoryTransferRequestAction,
   checkDuplicateInventoryTransferAction,
+  inventoryGetSenderStoreV2Action
 };
