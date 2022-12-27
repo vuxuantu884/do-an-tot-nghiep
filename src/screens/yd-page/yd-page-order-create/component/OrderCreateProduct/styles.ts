@@ -45,6 +45,10 @@ export const StyledComponent = styled.div`
       float: right;
       margin-bottom: 5px;
     }
+
+    .ant-input-group-compact {
+      flex-direction: column;
+    }
   }
 
   .saleorder-input-group-wrapper {
