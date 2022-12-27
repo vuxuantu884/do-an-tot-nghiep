@@ -67,10 +67,10 @@ function EditSpecialOrder(props: PropTypes) {
       .delete(orderId)
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
-          showSuccess("Xóa đơn đặc biệt thành công");
+          showSuccess("Xóa loại đơn hàng thành công");
           onEditSpecialOrderSuccess(orderId, undefined);
         } else {
-          handleFetchApiError(response, "Xóa đơn đặc biệt", dispatch);
+          handleFetchApiError(response, "Xóa loại đơn hàng", dispatch);
         }
       })
       .finally(() => {
@@ -85,11 +85,11 @@ function EditSpecialOrder(props: PropTypes) {
         .then((response) => {
           if (isFetchApiSuccessful(response)) {
             resolve();
-            showSuccess("Cập nhật đơn đặc biệt thành công");
+            showSuccess("Cập nhật loại đơn hàng thành công");
             onEditSpecialOrderSuccess(orderId, response.data.special_order);
             setVisible(false);
           } else {
-            handleFetchApiError(response, "Cập nhật đơn đặc biệt", dispatch);
+            handleFetchApiError(response, "Cập nhật loại đơn hàng", dispatch);
             reject();
           }
         })
