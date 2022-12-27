@@ -382,6 +382,7 @@ function OrderSources(props: PropTypes) {
 
   const handleFormOrderSource = {
     create: (formValues: OrderSourceModel) => {
+      formValues.name = formValues.name?.trim();
       dispatch(
         actionAddOrderSource(handleFormOrderSourceFormatFormValues(formValues), () => {
           setIsShowModalOrderSource(false);
@@ -390,6 +391,7 @@ function OrderSources(props: PropTypes) {
       );
     },
     edit: (formValues: OrderSourceModel) => {
+      formValues.name = formValues.name?.trim();
       if (modalSingleOrderSource) {
         dispatch(
           actionEditOrderSource(
