@@ -508,42 +508,6 @@ export const REVENUE_STATE = [
   },
 ];
 
-export enum EnumRevenueGroups {
-  revenue_facebook = "revenue_facebook",
-  revenue_zalo = "revenue_zalo",
-  revenue_tmdt = "revenue_tmdt",
-  revenue_tiktok = "revenue_tiktok",
-  revenue_app = "revenue_app",
-  revenue_web = "revenue_web",
-}
-
-export const REVENUE_GROUP = [
-  {
-    name: "Doanh thu Facebook",
-    value: EnumRevenueGroups.revenue_facebook
-  },
-  {
-    name: "Doanh thu Zalo",
-    value: EnumRevenueGroups.revenue_zalo
-  },
-  {
-    name: "Doanh thu sàn TMĐT",
-    value: EnumRevenueGroups.revenue_tmdt
-  },
-  {
-    name: "Doanh thu Tiktok",
-    value: EnumRevenueGroups.revenue_tiktok
-  },
-  {
-    name: "Doanh thu App",
-    value: EnumRevenueGroups.revenue_app
-  },
-  {
-    name: "Doanh thu Web",
-    value: EnumRevenueGroups.revenue_web
-  }
-];
-
 export const DAILY_REVENUE_IMPORT = {
   OTHER_PAYMENT: "other_payment",
   CONFIRM_PAYMENT: "confirm_payment",

@@ -1,4 +1,4 @@
-import { Checkbox, Col, Form, Input, InputNumber, Row, Select, TreeSelect } from "antd";
+import { Checkbox, Col, Form, Input, InputNumber, Row, TreeSelect } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { CustomModalFormModel } from "model/modal/modal.model";
 import { OrderSourceModel } from "model/response/order/order-source.response";
@@ -6,8 +6,7 @@ import React, { useEffect, useState } from "react";
 import * as CONSTANTS from "utils/Constants";
 import { StyledComponent } from "./styles";
 import TreeDepartment from "screens/settings/department/component/TreeDepartment";
-import { fullTextSearch, strForSearch } from "utils/StringUtils";
-import { REVENUE_GROUP } from "utils/Constants";
+import { strForSearch } from "utils/StringUtils";
 
 type FormValuesType = {
   company_id: number;
@@ -19,7 +18,6 @@ type FormValuesType = {
   is_active: boolean;
   is_default: boolean;
   reference_id?: number;
-  revenue_group: string;
 };
 
 const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) => {
@@ -54,7 +52,6 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
           department: formItem.department,
           is_active: formItem.active,
           is_default: formItem.default,
-          revenue_group: formItem.revenue_group,
           reference_id: formItem.reference_id,
         }
       : {
@@ -67,7 +64,6 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
           is_active: false,
           is_default: false,
           reference_id: undefined,
-          revenue_group: undefined,
         };
 
   /**
@@ -218,30 +214,6 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
                 maxLength={10}
                 placeholder="Nhập mã tham chiếu"
               />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row>
-          <Col span={24}>
-            <Form.Item
-              rules={[{ required: true, message: "Vui lòng chọn nhóm doanh thu!" }]}
-              name="revenue_group"
-              label="Nhóm doanh thu"
-            >
-              <Select
-                allowClear
-                showSearch
-                filterOption={(input, option) => fullTextSearch(input, option?.children)}
-                placeholder="Chọn nhóm doanh thu"
-              >
-                {REVENUE_GROUP.map((revenueItem) => {
-                  return (
-                    <Select.Option value={revenueItem.value}>
-                      {revenueItem.name}
-                    </Select.Option>
-                  )
-                })}
-              </Select>
             </Form.Item>
           </Col>
         </Row>
