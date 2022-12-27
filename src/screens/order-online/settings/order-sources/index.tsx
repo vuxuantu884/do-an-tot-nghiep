@@ -43,8 +43,6 @@ import { getSourcesWithParamsService } from "service/order/order.service";
 import { DepartmentGetListAction } from "domain/actions/account/account.action";
 import TreeDepartment from "component/tree-node/tree-department";
 import SourceModal from "./SourceModal";
-import { fullTextSearch } from "utils/StringUtils";
-import { EnumRevenueGroups, REVENUE_GROUP } from "utils/Constants";
 
 type formValuesType = {
   name: string | undefined;
@@ -121,7 +119,7 @@ function OrderSources(props: PropTypes) {
       dataIndex: "code",
       visible: true,
       className: "columnTitle",
-      width: "10%",
+      width: "15%",
       render: (value) => {
         if (value) {
           return (
@@ -165,46 +163,10 @@ function OrderSources(props: PropTypes) {
       },
     },
     {
-      title: "Nhóm danh thu",
-      dataIndex: "revenue_group",
-      visible: true,
-      width: "15%",
-      align: "center",
-      render: (value) => {
-        let revenueLabel = "";
-        switch (value) {
-          case EnumRevenueGroups.revenue_facebook:
-            revenueLabel = "Doanh thu Facebook";
-            break;
-          case EnumRevenueGroups.revenue_zalo:
-            revenueLabel = "Doanh thu Zalo";
-            break;
-          case EnumRevenueGroups.revenue_tmdt:
-            revenueLabel = "Doanh thu sàn TMĐT";
-            break;
-          case EnumRevenueGroups.revenue_tiktok:
-            revenueLabel = "Doanh thu Tiktok";
-            break;
-          case EnumRevenueGroups.revenue_app:
-            revenueLabel = "Doanh thu App";
-            break;
-          case EnumRevenueGroups.revenue_web:
-            revenueLabel = "Doanh thu Web";
-            break;
-          default: break;
-        }
-        return (
-          <div>
-            {revenueLabel}
-          </div>
-        )
-      },
-    },
-    {
       title: "Áp dụng",
       dataIndex: "active",
       visible: true,
-      width: "15%",
+      width: "20%",
       align: "center",
       render: (value) => {
         if (value) {
@@ -217,7 +179,7 @@ function OrderSources(props: PropTypes) {
       title: "Mặc định",
       dataIndex: "default",
       visible: true,
-      width: "10%",
+      width: "15%",
       align: "center",
       render: (value) => {
         if (value) {
@@ -382,7 +344,6 @@ function OrderSources(props: PropTypes) {
 
   const handleFormOrderSource = {
     create: (formValues: OrderSourceModel) => {
-      formValues.name = formValues.name?.trim();
       dispatch(
         actionAddOrderSource(handleFormOrderSourceFormatFormValues(formValues), () => {
           setIsShowModalOrderSource(false);
@@ -391,7 +352,6 @@ function OrderSources(props: PropTypes) {
       );
     },
     edit: (formValues: OrderSourceModel) => {
-      formValues.name = formValues.name?.trim();
       if (modalSingleOrderSource) {
         dispatch(
           actionEditOrderSource(
@@ -446,7 +406,6 @@ function OrderSources(props: PropTypes) {
       name: queryParamsParsed.name,
       department_ids: queryParamsParsed.department_ids,
       active: queryParamsParsed.active,
-      revenue_groups: queryParamsParsed.revenue_groups,
     };
     setQueryParams(currentParams);
     fetchData(currentParams);
@@ -473,14 +432,6 @@ function OrderSources(props: PropTypes) {
     );
     // eslint-disable-next-line
   }, [dispatch]);
-
-  const handleResetRevenueGroup = () => {
-    const resultParams = {
-      ...queryParams,
-      revenue_groups: ''
-    };
-    handleNavigateByQueryParams(resultParams);
-  };
 
   return (
     <StyledComponent>
@@ -516,26 +467,6 @@ function OrderSources(props: PropTypes) {
                   </Form.Item>
                   <Form.Item style={{ width: 305 }} name="department_ids">
                     <TreeDepartment listDepartment={listDepartments} style={{ width: "100%" }} />
-                  </Form.Item>
-                  <Form.Item
-                    style={{ width: 200 }}
-                    name="revenue_groups"
-                  >
-                    <Select
-                      allowClear
-                      showSearch
-                      onClear={handleResetRevenueGroup}
-                      filterOption={(input, option) => fullTextSearch(input, option?.children)}
-                      placeholder="Chọn nhóm doanh thu"
-                    >
-                      {REVENUE_GROUP.map((revenueItem) => {
-                        return (
-                          <Select.Option value={revenueItem.value}>
-                            {revenueItem.name}
-                          </Select.Option>
-                        )
-                      })}
-                    </Select>
                   </Form.Item>
                   <Form.Item name="active" style={{ width: 200 }}>
                     <Select
