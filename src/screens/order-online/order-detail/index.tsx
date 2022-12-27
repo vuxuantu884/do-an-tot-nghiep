@@ -748,12 +748,12 @@ const OrderDetail = (props: PropTypes) => {
         .createOrUpdate(id, resultParams)
         .then((response) => {
           if (isFetchApiSuccessful(response)) {
-            showSuccess("Lưu đơn đặc biệt thành công");
+            showSuccess("Lưu loại đơn hàng thành công");
             setOrderDetail(response.data);
             setSpecialOrderView(SpecialOrderType.detail);
             resolve();
           } else {
-            handleFetchApiError(response, "Lưu đơn đặc biệt", dispatch);
+            handleFetchApiError(response, "Lưu loại đơn hàng", dispatch);
             reject();
           }
         })
@@ -769,7 +769,7 @@ const OrderDetail = (props: PropTypes) => {
       .delete(id)
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
-          showSuccess("Xóa đơn đặc biệt thành công");
+          showSuccess("Xóa loại đơn hàng thành công");
           setOrderDetail((orderDetail) => {
             if (orderDetail) {
               return {
@@ -781,7 +781,7 @@ const OrderDetail = (props: PropTypes) => {
           });
           setSpecialOrderView(SpecialOrderType.detail);
         } else {
-          handleFetchApiError(response, "Xóa đơn đặc biệt", dispatch);
+          handleFetchApiError(response, "Xóa loại đơn hàng", dispatch);
         }
       })
       .finally(() => {
