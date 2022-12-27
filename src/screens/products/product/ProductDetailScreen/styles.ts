@@ -23,6 +23,23 @@ export const StyledComponent = styled.div`
         .container-view {
           padding: 20px;
         }
+        .divider-row {
+          margin-top: 0px;
+        }
+        .tooltip-price {
+          cursor: pointer;
+        }
+        .tax-alert {
+          width: fit-content;
+          &-title {
+            color: #666666;
+          }
+          &-content {
+            margin-left: 3px;
+            color: #222222;
+            font-weight: 500;
+          }
+        }
       }
     }
     &-image {
@@ -48,9 +65,16 @@ export const StyledComponent = styled.div`
       z-index: 99999;
       background-color: rgba(0, 0, 0, 0.2);
     }
+    .status {
+      .text-success {
+        color: #2a2a86;
+      }
+    }
   }
   .label-switch {
-    margin-left: 10px;
+    margin-right: 10px;
+    color: #262626;
+    font-weight: 500;
   }
   .data-content {
     color: #222222;
@@ -222,5 +246,4 @@ export const StyledComponent = styled.div`
   .variant-price-title {
     margin-bottom: 10px;
   }
-
 `;

@@ -1,4 +1,5 @@
 import {
+  DollarOutlined,
   EyeInvisibleOutlined,
   InfoCircleOutlined,
   Loading3QuartersOutlined,
@@ -7,9 +8,11 @@ import {
   UnorderedListOutlined,
 } from "@ant-design/icons";
 import {
+  Alert,
   Button,
   Card,
   Col,
+  Divider,
   Image,
   Input,
   Modal,
@@ -48,10 +51,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation, useParams } from "react-router";
 import { Link } from "react-router-dom";
 import Slider from "react-slick";
-import { formatCurrencyValue, SupportedCurrencyType } from "utils/AppUtils";
 import {
   convertLabelSelected,
   findAvatarProduct,
+  formatPriceWithCurrency,
   getFirstProductAvatarByVariantResponse,
   ProductDetailTabName,
 } from "screens/products/helper";
@@ -70,6 +73,9 @@ import { StoreResponse } from "model/core/store.model";
 import { getAllPublicSimpleStoreApi } from "service/core/store.service";
 import { enumStoreStatus } from "model/warranty/warranty.model";
 import { TabAdvertisingHistory } from "../tab";
+import useFetchTaxConfig from "hook/useFetchTaxConfig";
+import { TaxConfigCountry } from "model/core/tax.model";
+import { VN_CODE } from "screens/settings/tax/helper";
 
 const LIMIT_PAGE = 10;
 const LIMIT_PAGE_DETAIL = 500;
@@ -147,6 +153,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
       total: 0,
     },
   });
+  const { taxConfig } = useFetchTaxConfig();
   const idNumber = parseInt(id);
   const [canUpdateSaleable] = useAuthorization({
     acceptPermissions: [ProductPermission.update_saleable],
@@ -549,6 +556,62 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
     }
   }, [data?.name, setTitle]);
 
+  const renderVariantPrice = (currentVariant: VariantResponse) => {
+    const { cost_price, import_price, retail_price, wholesale_price, currency_code } =
+      currentVariant.variant_prices[0];
+    const hidePriceVariant = (
+      <Tooltip className="tooltip-price" title="Bạn không có quyền xem giá" placement="top">
+        <EyeInvisibleOutlined />
+      </Tooltip>
+    );
+    return (
+      <>
+        <RowDetail
+          title="Giá buôn"
+          value={formatPriceWithCurrency(wholesale_price, currency_code)}
+        />
+        <RowDetail title="Giá bán" value={formatPriceWithCurrency(retail_price, currency_code)} />
+        <RowDetail
+          title="Giá nhập"
+          value={
+            canReadImportPrice
+              ? formatPriceWithCurrency(import_price, currency_code)
+              : hidePriceVariant
+          }
+        />
+        <RowDetail
+          title="Giá vốn"
+          value={
+            canReadCost ? formatPriceWithCurrency(cost_price, currency_code) : hidePriceVariant
+          }
+        />
+      </>
+    );
+  };
+
+  const renderTaxConfig = () => {
+    const VNTaxConfig = taxConfig?.data.find(
+      (country: TaxConfigCountry) => country.country_code === VN_CODE,
+    );
+    if (taxConfig) {
+      return (
+        <Alert
+          message={
+            <span className="tax-alert-title">
+              Giá {taxConfig.tax_included ? "đã" : "chưa"} bao gồm thuế:
+              <span className="tax-alert-content">Thuế VAT - {VNTaxConfig?.tax_rate}%</span>
+            </span>
+          }
+          type="warning"
+          showIcon
+          icon={<DollarOutlined />}
+          className="tax-alert"
+        />
+      );
+    }
+    return <Alert className="tax-alert" message="Không có cấu hình thuế!" type="error" showIcon />;
+  };
+
   return (
     <StyledComponent className="product-detail">
       <ContentContainer
@@ -612,7 +675,6 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                             }),
                           );
                         }}
-                        className="ant-switch-success"
                         defaultChecked
                       />
 
@@ -789,18 +851,14 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                                 <b>THÔNG TIN PHIÊN BẢN</b>
                               </div>
                               <div className="header-view-right">
+                                <label className="label-switch">Cho phép bán:</label>
                                 {canUpdateSaleable && (
                                   <Switch
                                     onChange={changeChecked}
-                                    className="ant-switch-success"
                                     disabled={data.status === "inactive"}
                                     checked={currentVariant.saleable}
                                   />
                                 )}
-
-                                <label className="label-switch">
-                                  {currentVariant.saleable ? "Cho phép bán" : "Không cho phép bán"}
-                                </label>
                               </div>
                             </div>
                             <div className="container-view">
@@ -829,52 +887,6 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                                         : ""
                                     }
                                   />
-                                  <div className="variant-price-container">
-                                    {[
-                                      { title: "Giá buôn", index: "wholesale_price" },
-                                      { title: "Giá nhập", index: "import_price" },
-                                      { title: "Giá vốn", index: "cost_price" },
-                                      { title: "Thuế", index: "tax_percent" },
-                                    ].map((item, idx) => {
-                                      const prices = currentVariant.variant_prices[0];
-                                      let priceValue: React.ReactNode = "";
-
-                                      if (prices[item.index] === null) {
-                                        if (
-                                          (idx === 1 && !canReadImportPrice) ||
-                                          (idx === 2 && !canReadCost)
-                                        ) {
-                                          priceValue = (
-                                            <Tooltip
-                                              title={`Bạn không có quyền xem ${item.title}`}
-                                              placement="top"
-                                            >
-                                              <EyeInvisibleOutlined
-                                                style={{ color: "gray", cursor: "pointer" }}
-                                              />
-                                            </Tooltip>
-                                          );
-                                        }
-                                      } else {
-                                        if ([0, 1, 2].includes(idx)) {
-                                          priceValue = formatCurrencyValue(
-                                            prices[item.index],
-                                            ".",
-                                            ",",
-                                            prices.currency_code.toUpperCase() as SupportedCurrencyType,
-                                          );
-                                        } else {
-                                          priceValue = `${prices[item.index]} %`;
-                                        }
-                                      }
-                                      return (
-                                        <div key={idx} className="variant-prices">
-                                          <div className="variant-price-title">{item.title}</div>
-                                          <div className="variant-price-value">{priceValue}</div>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
                                 </Col>
                                 <Col className="view-right" span={24} md={10}>
                                   <div className="image-view">
@@ -929,6 +941,22 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                                       </React.Fragment>
                                     )}
                                   </div>
+                                </Col>
+                              </Row>
+                              <Row>
+                                <Col span={24} md={14}>
+                                  <Divider className="divider-row" />
+                                  {renderVariantPrice(currentVariant)}
+                                </Col>
+                              </Row>
+                              <Row>
+                                <Col span={24} md={14}>
+                                  <Divider className="divider-row" />
+                                  <RowDetail
+                                    title="Áp dụng thuế"
+                                    value={currentVariant.taxable ? "Có" : "Không"}
+                                  />
+                                  {currentVariant.taxable && renderTaxConfig()}
                                 </Col>
                               </Row>
                               {isLoadingVariantUpdate && (
