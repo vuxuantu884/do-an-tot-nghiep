@@ -87,6 +87,9 @@ const DepartmentOverview = React.lazy(() => import("screens/settings/department/
 const DepartmentDetailScreen = React.lazy(() => import("screens/settings/department/Detail"));
 const DepartmentUpdateScreen = React.lazy(() => import("screens/settings/department/Update"));
 
+//VAT: Cấu hình VAT
+const ConfigTaxScreen = React.lazy(() => import("screens/settings/tax/ConfigTaxScreen"));
+
 const setting: Array<RouteMenu> = [
   {
     path: UrlConfig.ACCOUNTS,
@@ -569,6 +572,19 @@ const setting: Array<RouteMenu> = [
         subMenu: [],
       },
     ],
+  },
+  {
+    path: UrlConfig.TAX_SETTINGS,
+    exact: true,
+    title: "Cài đặt cấu hình thuế",
+    subTitle: "",
+    icon: "icon-dot",
+    component: ConfigTaxScreen,
+    key: UrlConfig.TAX_SETTINGS,
+    isShow: true,
+    header: null,
+    permissions: [],
+    subMenu: [],
   },
 ];
 

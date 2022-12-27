@@ -26,6 +26,7 @@ const UrlConfig = {
   THIRD_PARTY_LOGISTICS_INTEGRATION: `/${SETTINGS}/third-party-logistics-integration`,
   ORDER_SETTINGS: `/${SETTINGS}/orders`,
   SMS_SETTINGS: `/${SETTINGS}/sms`,
+  TAX_SETTINGS: `/${SETTINGS}/tax`,
   CUSTOMER: `/customers`,
   CUSTOMER2: `/customer`,
   MARKETING: `/marketing`,

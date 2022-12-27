@@ -18,10 +18,45 @@ export const StyledComponent = styled.div`
           &-left {
           }
           &-right {
+            display: flex;
+            &-tax {
+              margin-right: 15px;
+              &-title {
+                margin-right: 10px;
+              }
+            }
           }
         }
         .container-view {
           padding: 20px;
+          .variant-image {
+            display: flex;
+            align-items: center;
+            &-label {
+              width: 150px;
+              color: #000000;
+              font-weight: 500;
+              margin-right: 10px;
+            }
+            .upload-btn {
+              color: #2a2a86;
+            }
+          }
+        }
+        .divider-row {
+          margin-top: 0px;
+          margin-bottom: 20px;
+        }
+        .tax-alert {
+          margin-bottom: 20px;
+          &-title {
+            color: #666666;
+          }
+          &-content {
+            margin-left: 3px;
+            color: #222222;
+            font-weight: 500;
+          }
         }
       }
     }
@@ -38,6 +73,9 @@ export const StyledComponent = styled.div`
     }
     &.status {
       width: 250px;
+      .text-success {
+        color: #2a2a86;
+      }
     }
   }
   .label-switch {
