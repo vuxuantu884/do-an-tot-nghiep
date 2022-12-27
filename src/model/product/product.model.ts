@@ -387,6 +387,7 @@ export interface ProductRequestView {
   component: string | null;
   advantages: string | null;
   defect: string | null;
+  taxable: boolean;
 }
 
 export interface ProductUpdateView {

@@ -16,7 +16,17 @@ export const StyledComponent = styled.div`
     }
     &.status {
       width: 250px;
+      .text-success {
+        color: #2a2a86;
+      }
     }
+  }
+  .tax-description {
+    color: #8c8c8c;
+  }
+  .tax-rate {
+    color: #262626;
+    font-weight: 500;
   }
   .a-container {
     display: flex;
