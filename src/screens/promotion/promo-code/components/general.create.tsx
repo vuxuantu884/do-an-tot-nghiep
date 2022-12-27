@@ -225,6 +225,7 @@ const GeneralCreate = (props: any) => {
             <Col span={24}>
               <Form.Item name="sale_type" label={<b>Loại khuyến mãi</b>}>
                 <Select
+                  autoClearSearchValue={false}
                   showArrow
                   placeholder="Chọn loại mã khuyến mãi"
                   onChange={(value: string) => setType(value)}
@@ -619,6 +620,7 @@ const GeneralCreate = (props: any) => {
                   ]}
                 >
                   <Select
+                    autoClearSearchValue={false}
                     disabled={allSource}
                     placeholder="Chọn nguồn đơn hàng"
                     mode="multiple"

@@ -157,6 +157,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
             </Item>
             <Item name={InventoryQueryField.store_ids} className="store_ids">
               <CustomSelect
+                autoClearSearchValue={false}
                 showSearch
                 optionFilterProp="children"
                 showArrow

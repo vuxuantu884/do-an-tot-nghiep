@@ -236,6 +236,7 @@ function GeneralConditionForm({
               ]}
             >
               <Select
+                autoClearSearchValue={false}
                 disabled={allChannel}
                 placeholder="Chọn kênh bán hàng"
                 mode="multiple"

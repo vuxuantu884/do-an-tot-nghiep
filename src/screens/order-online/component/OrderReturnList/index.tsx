@@ -24,7 +24,6 @@ import { OrderLineItemResponse } from "model/response/order/order.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import NumberFormat from "react-number-format";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import ExportModal from "screens/order-online/modal/export.modal";
@@ -492,7 +491,7 @@ function OrderReturnList(props: PropTypes) {
                     </div>
                   </div>
                   <div className="quantity quantityWidth">
-                    <NumberFormat value={formatNumber(item.quantity)} displayType={"text"} />
+                    <span className="item-point">{formatNumber(item.quantity)} </span>
                   </div>
                   <div className="price priceWidth">
                     <div>
@@ -525,12 +524,7 @@ function OrderReturnList(props: PropTypes) {
       render: (record: any) => (
         <>
           <Tooltip title="Hoàn tiền">
-            <NumberFormat
-              value={formatCurrency(record.total)}
-              className="total-amount-black"
-              displayType={"text"}
-              //style={{ fontWeight: 500, color: "#27ae60"}}
-            />
+            <span className="total-amount-black">{formatCurrency(record.total)}</span>
           </Tooltip>
           {record.discounts.length > 0 ? (
             <Tooltip title="Khuyến mại đơn hàng">
@@ -553,11 +547,7 @@ function OrderReturnList(props: PropTypes) {
         <>
           <Tooltip title="Tiền trả khách" className="item-tooltip">
             <img src={IconPaymentReturn} alt="" />
-            <NumberFormat
-              value={formatNumber(record.money_refund)}
-              className="item-card"
-              displayType={"text"}
-            />
+            <span className="item-card">{formatCurrency(record.money_refund)}</span>
           </Tooltip>
         </>
       ),
@@ -573,11 +563,7 @@ function OrderReturnList(props: PropTypes) {
         <>
           <Tooltip title="Tiền hoàn" className="item-tooltip">
             <img src={IconPaymentPoint} alt="" />
-            <NumberFormat
-              value={formatNumber(record.point_refund || 0)}
-              className="item-point"
-              displayType={"text"}
-            />
+            <span className="item-point">{formatNumber(record.point_refund || 0)}</span>
           </Tooltip>
         </>
       ),

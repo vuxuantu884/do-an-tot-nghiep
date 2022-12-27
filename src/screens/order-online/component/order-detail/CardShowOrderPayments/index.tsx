@@ -31,6 +31,8 @@ import {
   checkIfMomoTypePayment,
   checkIfOrderHasNoPayment,
   checkIfOrderPageType,
+  checkIfVcbTypePayment,
+  checkIfVnPayTypePayment,
 } from "utils/OrderUtils";
 import { showSuccess } from "utils/ToastUtils";
 import UpdatePaymentCard from "../../UpdatePaymentCard";
@@ -256,6 +258,12 @@ function CardShowOrderPayments(props: PropTypes) {
       if (!checkIfMomoPayment(payment)) {
         if (checkIfMomoTypePayment(payment)) {
           return `Momo QR`;
+        }
+        if (checkIfVnPayTypePayment(payment)) {
+          return `Vnpay QR`;
+        }
+        if (checkIfVcbTypePayment(payment)) {
+          return `Vcb QR`;
         }
         return payment.payment_method;
       }

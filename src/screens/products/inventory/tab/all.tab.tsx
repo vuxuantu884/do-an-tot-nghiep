@@ -30,9 +30,10 @@ import { generateQuery } from "utils/AppUtils";
 import {
   ellipseName,
   findAvatar,
-  findPrice, FINISH_PROCESS_PERCENT,
+  findPrice,
+  FINISH_PROCESS_PERCENT,
   formatCurrencyForProduct,
-  START_PROCESS_PERCENT
+  START_PROCESS_PERCENT,
 } from "screens/products/helper";
 import {
   COLUMN_CONFIG_TYPE,
@@ -180,7 +181,11 @@ const AllTab: React.FC<any> = (props) => {
             is_online: true,
             order_status: OrderStatus.FINALIZED,
             searched_product: newSku,
+            fulfillment_status: [FulFillmentStatus.CANCELLED, FulFillmentStatus.UNSHIPPED],
             sub_status_code: [
+              ORDER_SUB_STATUS.first_call_attempt,
+              ORDER_SUB_STATUS.second_call_attempt,
+              ORDER_SUB_STATUS.third_call_attempt,
               ORDER_SUB_STATUS.awaiting_coordinator_confirmation,
               ORDER_SUB_STATUS.coordinator_confirming,
               ORDER_SUB_STATUS.awaiting_saler_confirmation,
@@ -190,6 +195,8 @@ const AllTab: React.FC<any> = (props) => {
               ORDER_SUB_STATUS.merchandise_packed,
               ORDER_SUB_STATUS.awaiting_shipper,
               ORDER_SUB_STATUS.out_of_stock,
+              ORDER_SUB_STATUS.delivery_service_cancelled,
+              ORDER_SUB_STATUS.customer_confirming,
             ],
             channel_codes: channelCodesFilter,
             store_ids: store_ids,
@@ -817,6 +824,10 @@ const AllTab: React.FC<any> = (props) => {
   const [columnsDrill, setColumnsDrill] =
     useState<Array<ICustomTableColumType<InventoryResponse>>>(defaultColumnsDrill);
 
+  useEffect(() => {
+    setColumnsDrill(defaultColumnsDrill);
+  }, [defaultColumnsDrill]);
+
   const openColumn = useCallback(() => {
     setShowSettingColumn(true);
   }, []);
@@ -1230,7 +1241,8 @@ const AllTab: React.FC<any> = (props) => {
   }, [listExportFile, checkExportFile, statusExport]);
 
   useEffect(() => {
-    if (listExportFileDetail.length === 0 || statusExportDetail === STATUS_IMPORT_EXPORT.JOB_FINISH) return;
+    if (listExportFileDetail.length === 0 || statusExportDetail === STATUS_IMPORT_EXPORT.JOB_FINISH)
+      return;
     checkExportFileDetail();
 
     const getFileInterval = setInterval(checkExportFileDetail, 3000);

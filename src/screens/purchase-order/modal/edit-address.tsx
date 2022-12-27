@@ -129,6 +129,7 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (props: EditAddressMod
           <Col xs={24} lg={12}>
             <Item name="country_id" label="Quốc gia">
               <Select
+                autoClearSearchValue={false}
                 defaultValue={VietNamId}
                 showSearch
                 placeholder="Chọn quốc gia"
@@ -147,6 +148,7 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (props: EditAddressMod
           <Col xs={24} lg={12}>
             <Item label="Khu vực" name="district_id">
               <Select
+                autoClearSearchValue={false}
                 showSearch
                 onSelect={onChangeDistrict}
                 className="selector"
@@ -177,6 +179,7 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (props: EditAddressMod
           <Col xs={24} lg={12}>
             <Item label="Phường xã" name="ward_id">
               <Select
+                autoClearSearchValue={false}
                 showSearch
                 onSelect={onChangeWard}
                 className="selector"

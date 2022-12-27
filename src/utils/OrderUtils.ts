@@ -17,6 +17,7 @@ import {
   FulFillmentReturnStatus,
   FulFillmentStatus,
   PaymentMethodCode,
+  PaymentMethodType,
   PRODUCT_TYPE,
   ShipmentMethod,
   WEIGHT_UNIT,
@@ -378,21 +379,27 @@ export const checkIfOrderHasNotFinishPaymentMomo = (
 
 export const checkActiveCancelPackOrder = (
   orderDetail: OrderResponse | null | undefined,
-  permissions: Array<string>
+  permissions: Array<string>,
 ) => {
   if (!permissions.includes(ORDER_PERMISSIONS.CANCEL_PACKED)) {
-    return orderDetail?.sub_status_code === ORDER_SUB_STATUS.merchandise_packed || orderDetail?.sub_status_code === ORDER_SUB_STATUS.awaiting_shipper;
+    return (
+      orderDetail?.sub_status_code === ORDER_SUB_STATUS.merchandise_packed ||
+      orderDetail?.sub_status_code === ORDER_SUB_STATUS.awaiting_shipper
+    );
   }
-  return false
+  return false;
 };
 export const checkActiveCancelConfirmOrder = (
   orderDetail: OrderResponse | null | undefined,
-  permissions: Array<string>
+  permissions: Array<string>,
 ) => {
   if (!permissions.includes(ORDER_PERMISSIONS.CANCEL_CONFIRMED)) {
-    return orderDetail?.fulfillment_status === FulFillmentStatus.PICKED || orderDetail?.fulfillment_status === FulFillmentStatus.UNSHIPPED;
+    return (
+      orderDetail?.fulfillment_status === FulFillmentStatus.PICKED ||
+      orderDetail?.fulfillment_status === FulFillmentStatus.UNSHIPPED
+    );
   }
-  return false
+  return false;
 };
 
 export const checkIfExpiredPayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
@@ -499,14 +506,28 @@ export const getDefaultReceiveReturnStoreIdFormValue = (
   return currentStores?.length === 1
     ? currentStores[0].store_id
     : currentStores && currentStores?.length > 1 && OrderDetail?.store_id
-      ? currentStores?.find((single) => single.store_id === OrderDetail?.store_id)?.store_id ||
+    ? currentStores?.find((single) => single.store_id === OrderDetail?.store_id)?.store_id ||
       undefined
-      : undefined;
+    : undefined;
 };
 
 export const checkIfMomoTypePayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
   return (
     payment?.type?.toLowerCase() === "momo" &&
+    payment.payment_method_code === PaymentMethodCode.QR_CODE
+  );
+};
+
+export const checkIfVnPayTypePayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
+  return (
+    payment?.type?.toLowerCase() === "vn_pay" &&
+    payment.payment_method_code === PaymentMethodCode.QR_CODE
+  );
+};
+
+export const checkIfVcbTypePayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
+  return (
+    payment?.type?.toLowerCase() === "vcb_qr" &&
     payment.payment_method_code === PaymentMethodCode.QR_CODE
   );
 };
@@ -540,9 +561,13 @@ export const changeTypeQrCode = (
     (payment) => payment.code === PaymentMethodCode.QR_CODE,
   );
 
-  const qrPaymentMethodCodes = [PaymentMethodCode.VN_PAY, PaymentMethodCode.MOMO];
+  const qrPaymentMethodTypes = [
+    PaymentMethodType.VN_PAY,
+    PaymentMethodType.MOMO,
+    PaymentMethodType.VCB_QR,
+  ];
 
-  qrPaymentMethodCodes.forEach((qrCode) => {
+  qrPaymentMethodTypes.forEach((qrCode) => {
     const paymentIndex = payments.findIndex((payment) => payment.payment_method_code === qrCode);
 
     if (paymentIndex > -1) {

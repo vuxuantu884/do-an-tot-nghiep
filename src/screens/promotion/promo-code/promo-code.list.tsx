@@ -657,6 +657,7 @@ const ListCode = () => {
 
               <Item name="use_status">
                 <Select
+                  autoClearSearchValue={false}
                   showArrow
                   showSearch
                   allowClear
@@ -674,6 +675,7 @@ const ListCode = () => {
 
               <Item name="state">
                 <Select
+                  autoClearSearchValue={false}
                   showArrow
                   showSearch
                   style={{ minWidth: "200px" }}

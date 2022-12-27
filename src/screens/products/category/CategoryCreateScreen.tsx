@@ -110,7 +110,7 @@ const AddCategory: React.FC = () => {
                 name="goods"
                 label="Ngành hàng"
               >
-                <Select placeholder="Ngành hàng" showSearch allowClear>
+                <Select autoClearSearchValue={false} placeholder="Ngành hàng" showSearch allowClear>
                   {goods?.map((item, index) => (
                     <Select.Option key={index} value={item.value}>
                       {item.name}

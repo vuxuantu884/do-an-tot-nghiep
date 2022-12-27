@@ -21,11 +21,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
-import {
-  OFFSET_HEADER_TABLE,
-  POStatus,
-  STATUS_IMPORT_EXPORT,
-} from "utils/Constants";
+import { OFFSET_HEADER_TABLE, POStatus, STATUS_IMPORT_EXPORT } from "utils/Constants";
 import {
   ConvertDateToUtc,
   ConvertUtcToLocalDate,
@@ -306,6 +302,14 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           return (
             <>
               {value}
+              {record?.activated_date && (
+                <div>
+                  <span className="fs-12 text-muted">Ngày duyệt: </span>
+                  <span className="fs-12 text-title">
+                    {ConvertUtcToLocalDate(record.activated_date, DATE_FORMAT.DDMMYY_HHmm)}
+                  </span>
+                </div>
+              )}
               {record.stock_in_date && (
                 <div>
                   <span className="fs-12 text-muted">Ngày nhận: </span>
@@ -314,11 +318,11 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
                   </span>
                 </div>
               )}
-              {record?.activated_date && (
+              {record?.cancelled_date && record.status === POStatus.CANCELLED && (
                 <div>
-                  <span className="fs-12 text-muted">Ngày duyệt: </span>
+                  <span className="fs-12 text-muted">Ngày hủy: </span>
                   <span className="fs-12 text-title">
-                    {ConvertUtcToLocalDate(record.activated_date, DATE_FORMAT.DDMMYY_HHmm)}
+                    {ConvertUtcToLocalDate(record.cancelled_date, DATE_FORMAT.DDMMYY_HHmm)}
                   </span>
                 </div>
               )}

@@ -296,6 +296,7 @@ const PRAutoCreateForm: React.FC<ProcurementFormProps> = (props: ProcurementForm
               ]}
             >
               <Select
+                autoClearSearchValue={false}
                 allowClear
                 showSearch
                 showArrow

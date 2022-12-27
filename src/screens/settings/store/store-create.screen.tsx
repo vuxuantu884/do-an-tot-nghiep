@@ -365,6 +365,7 @@ const StoreCreateScreen: React.FC = () => {
                     name="district_id"
                   >
                     <Select
+                      autoClearSearchValue={false}
                       showSearch
                       showArrow
                       optionFilterProp="children"
@@ -389,6 +390,7 @@ const StoreCreateScreen: React.FC = () => {
                     rules={[{ required: true, message: "Vui lòng chọn phường/xã" }]}
                   >
                     <Select
+                      autoClearSearchValue={false}
                       placeholder="Chọn phường/xã"
                       showSearch
                       optionFilterProp="children"
@@ -443,6 +445,7 @@ const StoreCreateScreen: React.FC = () => {
                     name="type"
                   >
                     <Select
+                      autoClearSearchValue={false}
                       showSearch
                       showArrow
                       optionFilterProp="children"

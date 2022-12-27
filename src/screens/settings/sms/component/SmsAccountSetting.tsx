@@ -93,7 +93,7 @@ const SmsAccountSetting: React.FC<any> = (props: any) => {
               rules={[{ required: true, message: "Vui lòng chọn cổng SMS" }]}
               className="left-item"
             >
-              <Select showSearch placeholder="Chọn cổng SMS" allowClear disabled={!allowUpdateSms}>
+              <Select autoClearSearchValue={false} showSearch placeholder="Chọn cổng SMS" allowClear disabled={!allowUpdateSms}>
                 {SMS_TYPE.map((sms: any) => (
                   <Select.Option key={sms.key} value={sms.value}>
                     {sms.label}
@@ -159,6 +159,7 @@ const SmsAccountSetting: React.FC<any> = (props: any) => {
               className="left-item"
             >
               <Select
+                autoClearSearchValue={false}
                 showSearch
                 placeholder="Chọn trạng thái"
                 allowClear

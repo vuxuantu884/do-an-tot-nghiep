@@ -119,12 +119,12 @@ const ProcurementListScreen: React.FC<RouteComponentProps> = () => {
             >
               <TabProducts />
             </TabPane>
-            <TabPane
+            {/* <TabPane
               tab={<Link to={ProcurementTabUrl.LOGS}>Lịch sử phiếu nhập kho</Link>}
               key={ProcurementTabUrl.LOGS}
             >
               <TabLogs />
-            </TabPane>
+            </TabPane> */}
           </Tabs>
         </Card>
       </ContentContainer>

@@ -647,6 +647,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                             label="Kho nhận hàng"
                           >
                             <Select
+                              autoClearSearchValue={false}
                               allowClear
                               showSearch
                               showArrow
@@ -875,6 +876,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                           label="Kho nhận hàng"
                         >
                           <Select
+                            autoClearSearchValue={false}
                             showSearch
                             showArrow
                             allowClear

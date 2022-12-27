@@ -433,6 +433,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
             </Item>
             <Item name="adjusted_store_id">
               <CustomSelect
+                autoClearSearchValue={false}
                 style={{
                   width: 300,
                 }}
@@ -512,6 +513,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                     <div className="font-weight-500">Loại kiểm kho</div>
                     <Item name="audit_type" style={{ margin: "10px 0px" }}>
                       <CustomSelect
+                        autoClearSearchValue={false}
                         mode="multiple"
                         showSearch
                         showArrow

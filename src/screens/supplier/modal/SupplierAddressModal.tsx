@@ -106,6 +106,7 @@ const SupplierAddressModal: React.FC<SupplierAddressModalProps> = (
           <Col span={24}>
             <Form.Item label="Khu vực" name="district_id">
               <Select
+                autoClearSearchValue={false}
                 showSearch
                 onSelect={(value: number) => onSelectDistrict(value)}
                 placeholder="Chọn khu vực"
