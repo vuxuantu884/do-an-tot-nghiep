@@ -11,7 +11,7 @@ import {
   OrderResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { calculateVariantPointInOrderService } from "service/order/order.service";
@@ -44,6 +44,26 @@ function UpdateProductCard(props: PropTypes) {
     useState<OrderDetailWithCalculatePointVariantModel | null>(null);
 
   const orderTotal = OrderDetail?.total || 0;
+
+  const totalLineAmountBeforeLineDiscount = useMemo(() => {
+    let result = 0;
+    OrderDetail?.items.forEach((item) => {
+      result = result + item.amount;
+    });
+    return result;
+  }, [OrderDetail?.items]);
+
+  const totalLineDiscountDiscount = useMemo(() => {
+    let result = 0;
+    OrderDetail?.items.forEach((item) => {
+      let itemDiscountAmount = 0;
+      if (item.discount_items && item.discount_items[0]?.amount) {
+        itemDiscountAmount = item.discount_items[0].amount;
+      }
+      result = result + itemDiscountAmount;
+    });
+    return result;
+  }, [OrderDetail?.items]);
 
   const dispatch = useDispatch();
   const productColumn = {
@@ -431,26 +451,18 @@ function UpdateProductCard(props: PropTypes) {
           </Col>
           <Col xs={24} lg={12}>
             <Row className="payment-row" justify="space-between">
-              <div className="font-weight-500">Tổng tiền:</div>
+              <div className="font-weight-500">Thành tiền:</div>
               <div className="font-weight-500">
-                {props.OrderDetail?.total_line_amount_after_line_discount !== undefined &&
+                {formatCurrency(totalLineAmountBeforeLineDiscount)}
+                {/* {props.OrderDetail?.total_line_amount_after_line_discount !== undefined &&
                   props.OrderDetail?.total_line_amount_after_line_discount !== null &&
-                  formatCurrency(props.OrderDetail?.total_line_amount_after_line_discount)}
-              </div>
-            </Row>
-
-            <Row className="payment-row" justify="space-between">
-              <div className="font-weight-500">Tổng chiết khấu đơn:</div>
-              <div className="font-weight-500">
-                {props.OrderDetail?.total_discount
-                  ? formatCurrency(props.OrderDetail?.total_discount)
-                  : "-"}
+                  formatCurrency(props.OrderDetail?.total_line_amount_after_line_discount)} */}
               </div>
             </Row>
 
             <Row className="payment-row" justify="space-between" align="middle">
               <Space align="center">
-                Chiết khấu:
+                Chiết khấu đơn hàng:
                 {props.OrderDetail?.discounts && props.OrderDetail?.discounts.length > 0 && (
                   <div>
                     <Tag
@@ -477,6 +489,21 @@ function UpdateProductCard(props: PropTypes) {
                   : "-"}
               </div>
             </Row>
+
+            <Row className="payment-row" justify="space-between" align="middle">
+              <Space align="center">Tổng chiết khấu sản phẩm:</Space>
+              <div className="font-weight-400 ">{formatCurrency(totalLineDiscountDiscount)}</div>
+            </Row>
+
+            <Row className="payment-row" justify="space-between">
+              <div className="font-weight-500">Tổng chiết khấu đơn:</div>
+              <div className="font-weight-500">
+                {props.OrderDetail?.total_discount
+                  ? formatCurrency(props.OrderDetail?.total_discount)
+                  : "-"}
+              </div>
+            </Row>
+
             <Row className="payment-row" justify="space-between" align="middle">
               <Space align="center">Mã giảm giá:</Space>
               <div
@@ -492,13 +519,13 @@ function UpdateProductCard(props: PropTypes) {
             <Row className="payment-row" justify="space-between">
               <div className="font-weight-500 78">Phí ship báo khách:</div>
               <div className="font-weight-500 payment-row-money">
-                {formatCurrency(shippingFeeInformedCustomer || 0)}
+                {shippingFeeInformedCustomer ? formatCurrency(shippingFeeInformedCustomer) : "-"}
               </div>
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text 67">
-                {totalAmountReturnProducts ? "Tổng tiền hàng mua:" : "Khách cần trả:"}
+                {totalAmountReturnProducts ? "Tổng tiền hàng mua:" : "Khách phải trả:"}
               </strong>
               <strong>{formatCurrency(orderTotal)}</strong>
             </Row>

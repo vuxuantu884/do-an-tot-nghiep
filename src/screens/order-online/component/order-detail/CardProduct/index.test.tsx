@@ -612,7 +612,7 @@ describe("Chi tiết sản phẩm Footer", () => {
         const totalOrderElementArray = Array.prototype.slice.call(
           productFooterChildrenCount[6]?.children,
         );
-        expect(totalOrderElementArray[0].innerHTML).toEqual("Khách cần trả:");
+        expect(totalOrderElementArray[0].innerHTML).toEqual("Khách phải trả:");
       }
     });
   });

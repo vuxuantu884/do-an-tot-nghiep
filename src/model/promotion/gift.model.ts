@@ -2,7 +2,8 @@ import { BaseObject } from "model/base/base.response";
 import { BaseQuery } from "../base/base.query";
 import React from "react";
 import {
-  CustomerSelectionOption, DiscountConditionRule,
+  CustomerSelectionOption,
+  DiscountConditionRule,
   PrerequisiteSubtotalRange,
   WeekDays,
   DateDuration,
@@ -154,6 +155,7 @@ export interface PromotionGift extends BaseObject {
   type?: string;
   usage_limit?: number;
   usage_limit_per_customer?: number;
+  is_registered?: boolean;
 }
 
 export interface GiftSearchQuery extends BaseQuery {

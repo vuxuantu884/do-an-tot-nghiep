@@ -413,6 +413,100 @@ export const DISCOUNT_STATUS = [
   },
 ];
 
+export const initEntilements = {
+  entitled_variant_ids: [],
+  entitled_product_ids: [],
+  selectedProducts: [],
+  prerequisite_variant_ids: [],
+  entitled_category_ids: [],
+  prerequisite_quantity_ranges: [
+    {
+      greater_than_or_equal_to: 1,
+      less_than_or_equal_to: null,
+      allocation_limit: undefined,
+      value: 0,
+      value_type: DiscountUnitType.FIXED_PRICE.value,
+    },
+  ],
+};
+
+export const columnFixedPrice = [
+  {
+    title: "STT",
+    align: "center",
+    width: "5%",
+    render: (value: any, item: any, index: number) => index + 1,
+  },
+  {
+    title: "Sản phẩm",
+    dataIndex: "sku",
+    visible: true,
+    align: "left",
+    width: "20%",
+    render: (sku: string, item: ProductEntitlements, index: number) => {
+      let url = `${UrlConfig.PRODUCT}/${item.product_id}`;
+      if (item.variant_id) {
+        url = `${url}/variants/${item.variant_id}`;
+      }
+      return (
+        <div>
+          <Link to={url} target="_blank">
+            {sku}
+          </Link>
+          <br />
+          <div>{item.title}</div>
+        </div>
+      );
+    },
+  },
+  {
+    title: "Giá bán",
+    align: "center",
+    dataIndex: "retail_price",
+    render: (value: number) => (value >= 0 ? formatCurrency(value) : "-"),
+  },
+  {
+    title: "Giá cố định",
+    align: "center",
+    dataIndex: "entitlement",
+    render: (entitlement: EntilementFormModel, record: ProductEntitlements) => {
+      if (
+        Array.isArray(entitlement?.prerequisite_quantity_ranges) &&
+        entitlement.prerequisite_quantity_ranges?.length > 0
+      ) {
+        return (
+          <span style={{ color: "#E24343" }}>
+            {formatCurrency(entitlement.prerequisite_quantity_ranges[0].value || "")}
+          </span>
+        );
+      } else {
+        return "";
+      }
+    },
+  },
+  {
+    title: "SL Tối thiểu",
+    align: "center",
+    dataIndex: "entitlement",
+    render: (entitlement: EntilementFormModel) => {
+      if (
+        Array.isArray(entitlement?.prerequisite_quantity_ranges) &&
+        entitlement.prerequisite_quantity_ranges?.length > 0
+      ) {
+        return (
+          <span>
+            {formatCurrency(
+              entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to || "",
+            )}
+          </span>
+        );
+      } else {
+        return "";
+      }
+    },
+  },
+];
+
 export const columnDiscountQuantity = [
   {
     title: "STT",
@@ -493,84 +587,6 @@ export const columnDiscountQuantity = [
         entitlement.prerequisite_quantity_ranges?.length > 0
       ) {
         return entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to;
-      }
-    },
-  },
-];
-
-export const columnFixedPrice = [
-  {
-    title: "STT",
-    align: "center",
-    width: "5%",
-    render: (value: any, item: any, index: number) => index + 1,
-  },
-  {
-    title: "Sản phẩm",
-    dataIndex: "sku",
-    visible: true,
-    align: "left",
-    width: "20%",
-    render: (sku: string, item: ProductEntitlements, index: number) => {
-      let url = `${UrlConfig.PRODUCT}/${item.product_id}`;
-      if (item.variant_id) {
-        url = `${url}/variants/${item.variant_id}`;
-      }
-      return (
-        <div>
-          <Link to={url} target="_blank">
-            {sku}
-          </Link>
-          <br />
-          <div>{item.title}</div>
-        </div>
-      );
-    },
-  },
-  {
-    title: "Giá bán",
-    align: "center",
-    visible: false,
-    dataIndex: "retail_price",
-    render: (value: number) => (value >= 0 ? formatCurrency(value) : "-"),
-  },
-  {
-    title: "Giá cố định",
-    align: "center",
-    dataIndex: "entitlement",
-    render: (entitlement: EntilementFormModel, record: ProductEntitlements) => {
-      if (
-        Array.isArray(entitlement?.prerequisite_quantity_ranges) &&
-        entitlement.prerequisite_quantity_ranges?.length > 0
-      ) {
-        return (
-          <span style={{ color: "#E24343" }}>
-            {formatCurrency(entitlement.prerequisite_quantity_ranges[0].value || "")}
-          </span>
-        );
-      } else {
-        return "";
-      }
-    },
-  },
-  {
-    title: "SL Tối thiểu",
-    align: "center",
-    dataIndex: "entitlement",
-    render: (entitlement: EntilementFormModel) => {
-      if (
-        Array.isArray(entitlement?.prerequisite_quantity_ranges) &&
-        entitlement.prerequisite_quantity_ranges?.length > 0
-      ) {
-        return (
-          <span>
-            {formatCurrency(
-              entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to || "",
-            )}
-          </span>
-        );
-      } else {
-        return "";
       }
     },
   },

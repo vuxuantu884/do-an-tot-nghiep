@@ -39,6 +39,8 @@ function GiftForm({
     setUnlimitedQuantity,
     usageLimitPerCustomer,
     setUsageLimitPerCustomer,
+    registerWithMinistry,
+    setRegisterWithMinistry,
   } = giftContext;
 
   const onChangeGiftMethod = (value: GIFT_METHOD_ENUM) => {
@@ -217,6 +219,20 @@ function GiftForm({
               ]}
             >
               <Input.TextArea placeholder="Nhập mô tả cho khuyến mại" autoSize={{ minRows: 5 }} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item style={{ marginBottom: 28 }}>
+              <Space>
+                <Switch
+                  checked={registerWithMinistry}
+                  onChange={(value) => {
+                    setRegisterWithMinistry(value);
+                  }}
+                />
+                Đã đăng ký Bộ công thương
+              </Space>
             </Form.Item>
           </Col>
         </Row>

@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const StyledComponent = styled.div`
   .row-detail {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     font-size: 14px;
     display: flex;
     flex-direction: row;

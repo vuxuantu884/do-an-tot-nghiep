@@ -2,6 +2,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
+  Checkbox,
   Col,
   Form,
   FormInstance,
@@ -72,7 +73,12 @@ const FixedAndQuantityGroup = (props: Props) => {
   const productSearchRef = createRef<CustomAutoComplete>();
 
   const discountUpdateContext = useContext(DiscountContext);
-  const { discountMethod } = discountUpdateContext;
+  const {
+    discountAllProduct,
+    discountMethod,
+    discountProductHaveExclude,
+    setDiscountProductHaveExclude,
+  } = discountUpdateContext;
 
   const selectedProductParentRef = useRef<ProductResponse | null>(null);
   const variantsOfSelectedProductRef = useRef<Array<VariantResponse>>([]);
@@ -97,6 +103,10 @@ const FixedAndQuantityGroup = (props: Props) => {
 
   const dataSourceForm: Array<ProductEntitlements> =
     form.getFieldValue("entitlements")[name]?.selectedProducts;
+
+  const hanldeDiscountProductHaveExclude = useCallback(() => {
+    setDiscountProductHaveExclude(!discountProductHaveExclude);
+  }, [discountProductHaveExclude, setDiscountProductHaveExclude]);
 
   const handlePageChange = (page: number, pageSize?: number) => {
     if (!pageSize) {
@@ -448,6 +458,16 @@ const FixedAndQuantityGroup = (props: Props) => {
       </Row>
 
       <div>
+        <Form.Item style={{ margin: 0 }}>
+          {discountAllProduct && (
+            <Checkbox
+              onClick={hanldeDiscountProductHaveExclude}
+              checked={discountProductHaveExclude}
+            >
+              Kèm danh sách loại trừ
+            </Checkbox>
+          )}
+        </Form.Item>
         <Form.Item>
           <Input.Group className="display-flex">
             <CustomAutoComplete
@@ -472,11 +492,13 @@ const FixedAndQuantityGroup = (props: Props) => {
               options={renderResult}
               ref={productSearchRef}
               textEmpty={"Không tìm thấy sản phẩm"}
+              disabled={discountAllProduct && !discountProductHaveExclude}
             />
             <Button
               icon={<img src={DuplicatePlus} style={{ marginRight: 8 }} alt="" />}
               onClick={() => handleVisibleManyProduct(name)}
               style={{ width: 132, marginLeft: 10 }}
+              disabled={discountAllProduct && !discountProductHaveExclude}
             >
               Chọn nhiều
             </Button>

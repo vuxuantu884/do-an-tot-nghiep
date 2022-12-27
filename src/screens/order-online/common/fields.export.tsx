@@ -167,3 +167,84 @@ export const fields_order_offline = [
   { value: "internalNote", name: "Mô tả" },
   { value: "coupon", name: "Mã coupon" },
 ];
+export const select_type_especially_order = [
+  {
+    value: 'orders-exchange',
+    label: 'Đơn trả',
+  },
+  {
+    value: 'orders-recall',
+    label: 'Thu hồi đổi trả',
+  },
+  {
+    value: 'orders-partial',
+    label: 'Giao hàng 1 phần',
+  },
+  {
+    value: 'cod-exchange',
+    label: 'Đổi COD',
+  },
+  {
+    value: 'transfer',
+    label: 'Chuyển khoản/ VNPay/ Momo',
+  },
+  {
+    value: 'collect-support',
+    label: 'Thu, chi hộ',
+  },
+  {
+    value: 'orders-split',
+    label: 'Tách đơn',
+  },
+  {
+    value: 'orders-embroider',
+    label: 'Đơn in thêu',
+  },
+  {
+    value: 'orders-continue-deliver',
+    label: 'Đơn giao tiếp',
+  },
+  {
+    value: 'orders-cancel',
+    label: 'Đơn hoàn, huỷ',
+  },
+]
+
+export const select_reason_especially_order = ['Kho-Đóng sai, thiếu',
+  'Kho-SP lỗi, bẩn',
+  'Sale-Sai số : chật',
+  'Sale-Sai số : rộng',
+  'Sale-Sai thông tin',
+  'Sale-Đơn trùng',
+  'Sale-Khách chưa chốt',
+  'Sale-Sai SP',
+  'Sale-Khách không nghe máy ( chưa chốt đơn)',
+  'SP-Không thích chất liệu',
+  'SP-Không ưng màu',
+  'SP-Không ưng thiết kế',
+  'SP-Không thích sau thử',
+  'SP-Không giống hình ( màu)',
+  'Khách-Boom hàng',
+  'Khách-Không nghe máy( khi đã chốt)',
+  'Khách-Bận không nhận',
+  'Khách-Không check được',
+  'Khách-Mua tại cửa hàng',
+  'Khách-Hủy đơn',
+  'VĐ-Tách đơn sai ( CK,SP)',
+  'VĐ-Tách đơn không báo',
+  'VĐ-Tách đơn 1 SP hết hàng',
+  'VĐ-Điều đơn chậm',
+  'HVC-Giao trễ',
+  'HVC-Thái độ shipper',
+  'HVC-Hoàn không lý do',
+  'HVC-Dán nhầm bill',
+  'COD-Sale lên đơn sai chiết khấu',
+  'COD-Miễn ship cho khách',
+  'COD-Thay đổi CTCK',
+  'COD-Gom hàng gửi 1 lần',
+  'COD-Đóng thiếu hàng'].map((val)=>{
+  return {
+    value:val,
+    label:val
+  }
+})

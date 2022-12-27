@@ -13,7 +13,6 @@ import {
   InventoryTransferDetailItem,
   InventoryTransferSearchQuery,
   LineItem,
-  Store,
 } from "model/inventory/transfer";
 import CustomTable from "component/table/CustomTable";
 import purify from "dompurify";
@@ -38,7 +37,6 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import {
   BarsOutlined,
   CopyOutlined,
-  PaperClipOutlined,
   PrinterOutlined,
   ExportOutlined,
   CloseCircleOutlined,
@@ -48,7 +46,7 @@ import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
 
 import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { useHistory } from "react-router-dom";
-import { AccountResponse, AccountStoreResponse } from "model/account/account.model";
+import { AccountResponse } from "model/account/account.model";
 
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import DeleteTicketModal from "screens/inventory/common/DeleteTicketPopup";
@@ -72,6 +70,7 @@ import CustomPagination from "component/table/CustomPagination";
 import queryString from "query-string";
 import EditPopover from "../../../../inventory-defects/ListInventoryDefect/components/EditPopover";
 import { primaryColor } from "utils/global-styles/variables";
+import { StoreResponse } from "../../../../../model/core/store.model";
 const { Text } = Typography;
 
 let firstLoad = true;
@@ -112,8 +111,8 @@ const initQuery: InventoryTransferSearchQuery = {
 };
 
 type InventoryTransferTabProps = {
-  accountStores?: Array<AccountStoreResponse>;
-  stores?: Array<Store>;
+  accountStores?: Array<StoreResponse>;
+  stores?: Array<StoreResponse>;
   accounts?: Array<AccountResponse>;
   setAccounts?: (e: any) => any;
   activeTab?: string;
@@ -441,6 +440,20 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       },
     },
     {
+      title: "Ghi chú hệ thống",
+      dataIndex: "forward_store_name",
+      visible: true,
+      align: "left",
+      width: "220px",
+      render: (item: string, row: InventoryTransferDetailItem) => {
+        return row.forward_store_id ? (
+          <div className="single">
+            Chuyển tiếp từ kho {item} đến kho {row.to_store_name}
+          </div>
+        ) : <></>
+      },
+    },
+    {
       title: "Ngày chuyển",
       dataIndex: "transfer_date",
       visible: true,
@@ -463,26 +476,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       align: "center",
       width: "100px",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYY_HHmm)}</div>,
-    },
-    {
-      title: "Tệp đính kèm",
-      dataIndex: "attached_files",
-      visible: true,
-      align: "center",
-      width: "220px",
-      render: (item: any) => {
-        return (
-          <span>
-            {item?.map((link: string) => {
-              return (
-                <a className="file-pin" target="_blank" rel="noreferrer" href={link}>
-                  <PaperClipOutlined /> {link}
-                </a>
-              );
-            })}
-          </span>
-        );
-      },
     },
     {
       title: "Người tạo",
@@ -1132,7 +1125,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     }
 
     let accountStoreSelected =
-      accountStores && accountStores.length > 0 ? accountStores.map((i) => i.store_id).join(',') : null;
+      accountStores && accountStores.length > 0 ? accountStores.map((i) => i.id).join(',') : null;
 
     switch (activeTab) {
       // case InventoryTransferTabUrl.LIST:

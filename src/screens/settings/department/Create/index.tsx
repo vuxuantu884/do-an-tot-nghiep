@@ -38,6 +38,7 @@ const DepartmentCreateScreen: React.FC = () => {
     (value: DepartmentRequest) => {
       setLoading(true);
       value.status = "active";
+      value.name = value.name?.trim();
       dispatch(
         departmentCreateAction(value, (result) => {
           setLoading(false);

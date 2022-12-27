@@ -1,6 +1,6 @@
 import { AccountStoreResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
-import { OrderPageTypeModel } from "model/order/order.model";
+import { OrderPageTypeModel, OrderType, SpecialOrderValue } from "model/order/order.model";
 import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
 import {
   FulFillmentResponse,
@@ -30,6 +30,7 @@ import {
   ORDER_SUB_STATUS,
 } from "./Order.constants";
 import { ORDER_PERMISSIONS } from "../config/permissions/order.permission";
+import { select_type_especially_order } from "../screens/order-online/common/fields.export";
 
 export const isOrderDetailHasPointPayment = (
   OrderDetail: OrderResponse | null | undefined,
@@ -117,7 +118,6 @@ export const checkIfFulfillmentIsAtStore = (fulfillment: FulFillmentResponse) =>
 
 export const calculateSumWeightResponse = (items?: OrderLineItemResponse[]) => {
   let totalWeight = 0;
-  console.log("items", items);
   if (items) {
     items.forEach((item) => {
       let itemWeightByUnit = item.weight;
@@ -127,7 +127,6 @@ export const calculateSumWeightResponse = (items?: OrderLineItemResponse[]) => {
       totalWeight = totalWeight + itemWeightByUnit * item.quantity;
     });
   }
-  console.log("totalWeight", totalWeight);
   return totalWeight;
 };
 
@@ -488,7 +487,7 @@ export const checkIfOrderPageType = {
   isOtherPage: (orderPageType: string) => orderPageType === OrderPageTypeModel.other,
 };
 
-export const getArrayFromObject = (obj: object) => {
+export const getArrayFromObject = <Type>(obj: { [name: string]: Type }): Array<Type> => {
   return Object.entries(obj).map((single) => {
     const [, value] = single;
     return value;
@@ -584,4 +583,132 @@ export const changeTypeQrCode = (
   });
 
   return payments;
+};
+
+export const formatTags = (
+  values: SpecialOrderValue,
+  oldTags: string
+) => {
+  if (values.type) {
+    let newTags = `special_order+${values.type}`
+    const listItemSpecialType: OrderType = {
+      'orders-exchange': ['order_return'],
+      'orders-recall': ['order_care', 'order_original', 'product'],
+      'orders-partial': ['order_care', 'product', 'amount'],
+      'cod-exchange': ['order_care', 'amount', 'reason'],
+      'transfer': ['line_transfer'],
+      'collect-support': ['order_care', 'amount'],
+      'orders-split': ['order_care', 'order_original'],
+      'orders-embroider': ['amount'],
+      'orders-continue-deliver': ['order_care', 'order_return'],
+      'orders-cancel': ['order_care', 'reason'],
+    }
+
+    listItemSpecialType[values.type].forEach((val: string) => {
+      if (val === 'product' || val === 'order_return' || val === 'order_original') {
+        // @ts-ignore
+        values[val] = values[val].join(';')
+      }
+      newTags = newTags + `+${values[val]}`
+    })
+
+    if (oldTags) {
+      let isSpecialTags: boolean = false;
+      let arrOldTags = oldTags.split(',')
+      arrOldTags = arrOldTags.map((tag) => {
+        if (tag.trim().startsWith('special_order')) {
+          isSpecialTags = true
+          return newTags
+        } else return tag.trim()
+      })
+      if (!isSpecialTags) {
+        arrOldTags = arrOldTags.concat(newTags)
+      }
+
+      return arrOldTags.join(',')
+
+    }
+    return newTags
+  } else return oldTags
+}
+
+export const convertTagToArrayField = (tag: string) => {
+  if (!tag) return false;
+  let splitTag = tag.split(',').filter((tag) => tag.trim().startsWith('special_order'))
+  if (splitTag.length === 0) return false
+  const listItemSpecialType = {
+    'orders-exchange': ['order_return'],
+    'orders-recall': ['order_care', 'order_original', 'product'],
+    'orders-partial': ['order_care', 'product', 'amount'],
+    'cod-exchange': ['order_care', 'amount', 'reason'],
+    'transfer': ['line_transfer'],
+    'collect-support': ['order_care', 'amount'],
+    'orders-split': ['order_care', 'order_original'],
+    'orders-embroider': ['amount'],
+    'orders-continue-deliver': ['order_care', 'order_return'],
+    'orders-cancel': ['order_care', 'reason'],
+  };
+  let splitTagSpecial = splitTag[0].split('+');
+  splitTagSpecial.shift();
+  let typeName = select_type_especially_order.find((type) => type.value === splitTagSpecial[0])
+  let tagFieldObject: { field: string, value: string | string[] }[] = []
+  // @ts-ignore
+  if (!Boolean(listItemSpecialType[splitTagSpecial[0]])) return false
+  if (typeName) {
+    tagFieldObject = [{ field: 'type', value: typeName.label }];
+  }
+  // @ts-ignore
+  listItemSpecialType[splitTagSpecial[0]].every((field, index) => {
+    if (field === 'order_original' || field === 'product' || field === 'order_return') {
+      let fieldTag = { field, value: splitTagSpecial[index + 1].split(';') }
+      tagFieldObject = [...tagFieldObject, fieldTag]
+      return true
+    } else {
+
+      let fieldTag = { field, value: splitTagSpecial[index + 1] }
+      tagFieldObject = [...tagFieldObject, fieldTag]
+      return true
+    }
+  });
+  return tagFieldObject
+};
+export const convertTagToObject = (tag: string) => {
+  if (!tag) return false;
+  let splitTag = tag.split(',').filter((tag) => tag.trim().startsWith('special_order'))
+  if (splitTag.length === 0) return false
+  const listItemSpecialType = {
+    'orders-exchange': ['order_return'],
+    'orders-recall': ['order_care', 'order_original', 'product'],
+    'orders-partial': ['order_care', 'product', 'amount'],
+    'cod-exchange': ['order_care', 'amount', 'reason'],
+    'transfer': ['line_transfer'],
+    'collect-support': ['order_care', 'amount'],
+    'orders-split': ['order_care', 'order_original'],
+    'orders-embroider': ['amount'],
+    'orders-continue-deliver': ['order_care', 'order_return'],
+    'orders-cancel': ['order_care', 'reason'],
+  };
+  let splitTagSpecial = splitTag[0].split('+');
+  splitTagSpecial.shift();
+  let typeName = select_type_especially_order.find((type) => type.value === splitTagSpecial[0])
+  let tagFieldObject: { [key: string]: string | string[] } = {}
+  // @ts-ignore
+  if (!Boolean(listItemSpecialType[splitTagSpecial[0]])) return false
+  if (typeName) {
+    tagFieldObject = { 'type': typeName.label };
+  }
+  // @ts-ignore
+  listItemSpecialType[splitTagSpecial[0]].every((field, index) => {
+    if (field === 'order_original' || field === 'product' || field === 'order_return') {
+      let fieldTag = { [field]: splitTagSpecial[index + 1].split(';') }
+      tagFieldObject = { ...tagFieldObject, ...fieldTag }
+      return true
+    } else {
+
+      let fieldTag = { [field]: splitTagSpecial[index + 1] }
+      tagFieldObject = { ...tagFieldObject, ...fieldTag }
+      return true
+    }
+  });
+  return tagFieldObject
 };
