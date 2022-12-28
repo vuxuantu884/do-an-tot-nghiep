@@ -20,6 +20,12 @@ const removeToken = () => {
   localStorage.removeItem(ACCESS_TOKEN);
 };
 
+const removeTourGuide = () => {
+  localStorage.removeItem("isShowSummaryTour");
+  localStorage.removeItem("isShowAuditTour");
+  localStorage.removeItem("isShowForwardTourVar");
+};
+
 export const clearLocalStorage = () => {
   localStorage.clear();
 };
@@ -99,4 +105,5 @@ export {
   setWithExpiry,
   setSaveSearchhLocalStorage,
   getSaveSearchLocalStorage,
+  removeTourGuide
 };

@@ -12,6 +12,8 @@ type GiftProviderVariable = {
   setUnlimitedQuantity: (item: boolean) => void;
   usageLimitPerCustomer: boolean;
   setUsageLimitPerCustomer: (item: boolean) => void;
+  registerWithMinistry: boolean;
+  setRegisterWithMinistry: (item: boolean) => void;
 };
 
 export const GiftContext = createContext<GiftProviderVariable>({} as GiftProviderVariable);
@@ -23,6 +25,7 @@ function GiftProvider(props: { children: ReactNode }) {
 
   const [unlimitedQuantity, setUnlimitedQuantity] = useState<boolean>(true);
   const [usageLimitPerCustomer, setUsageLimitPerCustomer] = useState<boolean>(true);
+  const [registerWithMinistry, setRegisterWithMinistry] = useState<boolean>(false);
 
   return (
     <GiftContext.Provider
@@ -38,6 +41,8 @@ function GiftProvider(props: { children: ReactNode }) {
         setUnlimitedQuantity,
         usageLimitPerCustomer,
         setUsageLimitPerCustomer,
+        registerWithMinistry,
+        setRegisterWithMinistry,
       }}
     />
   );

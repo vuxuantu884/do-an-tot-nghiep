@@ -215,7 +215,6 @@ const ProductCreateScreen: React.FC = () => {
   const [isCollectionLoading, setCollectionLoading] = useState(false);
   const [isSizeLoading, setIsSizeLoading] = useState(false);
   const [isColorLoading, setIsColorLoading] = useState(false);
-  const [isProductCollectionRequired, setIsProductCollectionRequired] = useState(false);
   const [careLabels, setCareLabels] = useState<any[]>([]);
   const [careLabelsString, setCareLabelsString] = useState("");
   const [collections, setCollections] = useState<PageResponse<CollectionResponse>>({
@@ -263,9 +262,6 @@ const ProductCreateScreen: React.FC = () => {
         });
 
         const rootParent = parents.filter((parent) => !parent.parent);
-        setIsProductCollectionRequired(
-          rootParent?.length > 0 && rootParent[0].name === "Thời trang",
-        );
 
         if (rootParent.length > 0 && rootParent[0].name === "Thời trang") {
           form.resetFields(["product_collections"]);
@@ -281,7 +277,6 @@ const ProductCreateScreen: React.FC = () => {
           category_id: null,
         });
         form.resetFields(["category_id", "product_collections"]);
-        setIsProductCollectionRequired(false);
       }
     },
     [form, listCategory, lstCategoryAll],
@@ -961,16 +956,12 @@ const ProductCreateScreen: React.FC = () => {
                     <Item
                       label="Nhóm hàng"
                       name="product_collections"
-                      rules={
-                        isProductCollectionRequired
-                          ? [
-                              {
-                                required: true,
-                                message: "Vui lòng chọn nhóm hàng",
-                              },
-                            ]
-                          : []
-                      }
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn nhóm hàng",
+                        },
+                      ]}
                     >
                       <BaseSelectPaging
                         metadata={collections.metadata}

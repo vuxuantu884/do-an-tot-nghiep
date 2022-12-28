@@ -71,6 +71,36 @@ export interface ReturnSearchQuery {
   returned_store_ids?: number[] | null;
 }
 
+export interface CustomReturnOrderSearchQueryModel {
+  page?: number;
+  limit?: number;
+  sort_type?: string | null;
+  sort_column?: string | null;
+  search_term?: string | null;
+  created_on_min?: string | null;
+  created_on_max?: string | null;
+  // created_on_predefined?: string|null;
+  received_on_min?: string | null;
+  received_on_max?: string | null;
+  received_predefined?: string | null;
+  payment_status?: [];
+  assignee_code?: [];
+  price_min?: number | null;
+  price_max?: number | null;
+  store_ids?: [];
+  is_received?: [];
+  assignee_codes?: [];
+  account_codes?: [];
+  sub_reason_ids?: [];
+  is_online?: boolean | null;
+  source_ids?: [];
+  channel_codes?: [];
+  marketer_codes?: [];
+  coordinator_codes?: [];
+  searched_product?: string | null;
+  returned_store_ids?: number[] | null;
+}
+
 export interface ReasonReturn {
   id: number;
   code: string;

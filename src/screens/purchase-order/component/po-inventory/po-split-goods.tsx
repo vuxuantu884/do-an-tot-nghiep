@@ -154,7 +154,7 @@ export const PoSplitGoods = (props: IProps) => {
         line_items.forEach((item) => {
           const dataItem = dataSource.find((dataSourceItem) => dataSourceItem.sku === item.sku);
           if (dataItem) {
-            dataResult.push(dataItem);
+            dataResult.push({ ...dataItem, product_id: item.product_id });
           }
         });
         setDataSource(dataResult || []);

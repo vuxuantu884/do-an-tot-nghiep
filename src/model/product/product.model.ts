@@ -221,6 +221,7 @@ export interface VariantSearchQuery extends BaseQuery {
   variant_ids?: string;
   remain?: string;
   collections?: string;
+  skus?: string[];
 }
 export interface ProductWrapperSearchQuery extends BaseQuery {
   info?: string;

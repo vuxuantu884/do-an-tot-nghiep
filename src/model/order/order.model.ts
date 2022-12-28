@@ -14,6 +14,7 @@ import {
 } from "model/response/order/order.response";
 import { ORDER_TYPES } from "utils/Order.constants";
 import { HandoverResponse } from "./../handover/handover.response";
+import { SpecialOrderResponseModel } from "./special-order.model";
 
 export interface OrderItemModel {
   product_id: number;
@@ -139,6 +140,7 @@ export interface OrderModel extends BaseObject {
   bill: OrderBillResponseModel | null;
   actual_quantity?: number | null;
   uniform?: boolean | null;
+  special_order?: SpecialOrderResponseModel;
 }
 
 export interface OrderSearchQuery {
@@ -181,7 +183,7 @@ export interface OrderSearchQuery {
   cancelled_on_max: string | null;
   cancelled_on_predefined: string | null;
   order_status: [];
-  sub_status_code?: [];
+  sub_status_code?: string[];
   fulfillment_status: [];
   payment_status: [];
   return_status: [];
@@ -225,55 +227,88 @@ export interface OrderSearchQuery {
   returned_store_ids?: number[] | null;
 }
 
-export interface OrderSearchQueryModel {
-  page: number;
-  limit: number;
+export interface CustomOrderSearchQueryModel {
+  page?: number | null;
+  limit?: number | null;
   is_online?: string | null;
-  is_split?: string | null;
-  sort_type: string | null;
-  sort_column: string | null;
-  code: string | null;
-  store_ids: [];
-  source_ids: Array<any> | [];
-  variant_ids: [];
-  customer_ids: Array<number>;
-  issued_on_min: string | null;
-  issued_on_max: string | null;
-  issued_on_predefined: string | null;
-  finalized_on_min: string | null;
-  finalized_on_max: string | null;
-  finalized_on_predefined: string | null;
-  ship_on_min: string | null;
-  ship_on_max: string | null;
-  ship_on_predefined: string | null;
-  expected_receive_on_min: string | null;
-  expected_receive_on_max: string | null;
-  expected_receive_predefined: string | null;
-  completed_on_min: string | null;
-  completed_on_max: string | null;
-  completed_on_predefined: string | null;
-  cancelled_on_min: string | null;
-  cancelled_on_max: string | null;
-  cancelled_on_predefined: string | null;
-  order_status: [];
-  sub_status_code?: [];
-  fulfillment_status: [];
-  payment_status: [];
-  return_status: [];
+  is_split?: boolean;
+  sort_type?: string | null;
+  sort_column?: string | null;
+  code?: string | null;
+  store_ids?: Array<any>;
+  source_ids?: Array<any> | [];
+  variant_ids?: [];
+  customer_ids?: Array<number>;
+  issued_on_min?: string | null;
+  issued_on_max?: string | null;
+  issued_on_predefined?: string | null;
+  finalized_on_min?: string | null;
+  finalized_on_max?: string | null;
+  last_coordinator_confirm_on_min?: string | null;
+  last_coordinator_confirm_on_max?: string | null;
+  finalized_on_predefined?: string | null;
+  ship_on_min?: string | null;
+  ship_on_max?: string | null;
+  ship_on_predefined?: string | null;
+  expected_receive_on_min?: string | null;
+  expected_receive_on_max?: string | null;
+  expected_receive_predefined?: string | null;
+  returning_date_min?: string | null;
+  returning_date_max?: string | null;
+  returned_date_min?: string | null;
+  returned_date_max?: string | null;
+  exported_on_min?: string | null;
+  exported_on_max?: string | null;
+  exported_on_predefined?: string | null;
+  completed_on_min?: string | null;
+  completed_on_max?: string | null;
+  completed_on_predefined?: string | null;
+  cancelled_on_min?: string | null;
+  cancelled_on_max?: string | null;
+  cancelled_on_predefined?: string | null;
+  order_status?: [];
+  sub_status_code?: string[];
+  fulfillment_status?: [];
+  payment_status?: [];
+  return_status?: [];
   account_codes?: [];
+  created_by?: [];
   assignee_codes?: [];
-  price_min: number | undefined;
-  price_max: number | undefined;
-  payment_method_ids: [];
-  delivery_types: [];
-  delivery_provider_ids: [];
+  coordinator_codes?: [];
+  marketer_codes?: [];
+  price_min?: number | undefined;
+  price_max?: number | undefined;
+  payment_method_ids?: [];
+  delivery_types?: [];
+  delivery_provider_ids?: [];
   shipper_ids?: [];
   shipper_codes?: [];
-  note: string | null;
-  customer_note: string | null;
-  tags: [];
-  reference_code: string | null;
+  note?: string | null;
+  customer_note?: string | null;
+  tags?: [];
+  marketing_campaign?: [];
+  reference_code?: string | null;
   search_term?: string | null;
+  services?: [];
+  channel_codes?: Array<any> | [];
+  tracking_codes?: Array<string> | [];
+  searched_product?: string | null;
+  discount_codes?: string[] | null;
+  //record
+  in_goods_receipt?: number | null;
+  //webApp
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_content?: string | null;
+  utm_term?: string | null;
+  utm_id?: string | null;
+  utm_campaign?: string | null;
+  affiliate?: string | null;
+  //
+  is_expired_payment?: boolean | string | null;
+  uniform?: boolean | string | null;
+  expired_at?: number | null;
+  returned_store_ids?: number[] | null;
 }
 
 export interface EcommerceOrderSearchQuery extends OrderSearchQuery {
@@ -390,4 +425,12 @@ export interface ChangeShippingFeeApplyOrderSettingParamModel {
   customerShippingAddressCityId?: number | null;
   transportService?: string | null | undefined;
   orderProductsAmount?: number;
+}
+
+export type OrderType = {
+  [key: string]: any;
+};
+
+export interface SpecialOrderValue {
+  [key: string]: string;
 }

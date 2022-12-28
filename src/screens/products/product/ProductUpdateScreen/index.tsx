@@ -1026,7 +1026,16 @@ const ProductDetailScreen: React.FC = () => {
                           </Item>
                         </Col>
                         <Col span={24} md={12} sm={24}>
-                          <Item label="Nhóm hàng" name="product_collections">
+                          <Item
+                            label="Nhóm hàng"
+                            name="product_collections"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Vui lòng chọn nhóm hàng",
+                              },
+                            ]}
+                          >
                             <SelectPaging
                               metadata={collections.metadata}
                               showSearch={false}

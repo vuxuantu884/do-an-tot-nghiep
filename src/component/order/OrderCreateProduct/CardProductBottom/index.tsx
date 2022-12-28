@@ -73,12 +73,12 @@ function CardProductBottom(props: PropTypes) {
                   className="font-weight-400 discountTitle"
                   onClick={showDiscountModal}
                 >
-                  Chiết khấu:
+                  Chiết khấu đơn hàng:
                 </Typography.Link>
               ) : (
                 <div>
                   <Tooltip title="Tắt chiết khấu tự động để nhập chiết khấu đơn hàng">
-                    Chiết khấu
+                    Chiết khấu đơn hàng
                     <span className="noteTooltip">
                       <InfoCircleOutlined />
                     </span>
@@ -180,7 +180,7 @@ function CardProductBottom(props: PropTypes) {
           <Row className="paymentRow" justify="space-between">
             <strong className="font-size-text">
               {totalAmountCustomerNeedToPay >= 0 || !returnOrderInformation
-                ? `Khách cần phải trả:`
+                ? `Khách phải trả:`
                 : `Cần trả lại khách:`}
             </strong>
             <strong className="text-success font-size-price">

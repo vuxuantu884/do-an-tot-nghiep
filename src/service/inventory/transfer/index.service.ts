@@ -15,6 +15,8 @@ import {
   StockTransferSubmit,
   Store,
   StoreStatus,
+  GetTopReceivedStoreParam,
+  ForwardStoreData
 } from "model/inventory/transfer";
 import * as queryString from "query-string";
 import { VariantResponse } from "../../../model/product/product.model";
@@ -214,7 +216,21 @@ const TransferService = {
     return BaseAxios.put(
       `${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/reload-stock`,
     );
-  }
+  },
+
+  // get top received store
+  getTopReceivedStoreApi: (params: GetTopReceivedStoreParam): Promise<BaseResponse<Store>> => {
+    return BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/top-received-store`, {
+      params
+    });
+  },
+
+  forwardStoreApi: (
+    id: number,
+    data: ForwardStoreData,
+  ): Promise<BaseResponse<string>> => {
+    return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${id}/forward`, data);
+  },
 };
 
 export const {
@@ -235,4 +251,6 @@ export const {
   adjustmentInventory,
   getTransferRecordNumberApi,
   updateAvailableApi,
+  getTopReceivedStoreApi,
+  forwardStoreApi
 } = TransferService;

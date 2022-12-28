@@ -70,6 +70,28 @@ export interface InventoryDefectResponse {
   name: string;
 }
 
+export interface InventoryDefectHistoryResponse {
+  id: number;
+  code: string;
+  version: number;
+  created_by: string;
+  created_name: string;
+  created_date: string;
+  updated_by: string;
+  updated_name: string;
+  updated_date: string;
+  store_id: number;
+  store: string;
+  variant_id: number;
+  product_id: number;
+  sku: string;
+  defect: number;
+  note: string;
+  quantity_adj: number | null;
+  name: string | null;
+  variant_image: string | null;
+}
+
 export interface DeleteInventoryDefects {
   ids: string;
 }

@@ -378,6 +378,7 @@ export enum COLUMN_CONFIG_TYPE {
   COLUMN_PRODUCT_PRICE = "column_product_price",
   COLUMN_INVENTORY_ADJUSTMENT = "column_inventory_adjustment",
   COLUMN_INVENTORY_DEFECT = "column_inventory_defect",
+  COLUMN_INVENTORY_DEFECT_HISTORY = "column_inventory_defect_history",
   INVENTORY_DEFECTS = "inventory_defects",
 }
 
