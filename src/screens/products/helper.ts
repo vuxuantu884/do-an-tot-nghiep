@@ -1,3 +1,4 @@
+import { formatCurrency, isNullOrUndefined } from "./../../utils/AppUtils";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import {
   ProductRequest,
@@ -9,7 +10,7 @@ import {
   VariantRequest,
   VariantRequestView,
   VariantResponse,
-  VariantUpdateRequest
+  VariantUpdateRequest,
 } from "model/product/product.model";
 import { cloneDeep } from "lodash";
 import { RcFile, UploadFile } from "antd/lib/upload/interface";
@@ -22,8 +23,10 @@ import { showWarning } from "utils/ToastUtils";
 import { CompareObject } from "utils/CompareObject";
 import { careInformationByTitle } from "./component/CareInformation/CareValues";
 
-const URL_TEMPLATE = "https://yody-prd-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock_67f18ffe-23a3-4a67-b8f7-9a09bc6d0e36_original.xlsx";
-const URL_IMPORT_PRODUCT_TEMPLATE = "https://yody-prd-media.s3.ap-southeast-1.amazonaws.com/yody-file/product-import_cd692c40-5818-4d7b-b259-01a47c3b0275_original.xlsx";
+const URL_TEMPLATE =
+  "https://yody-prd-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock_67f18ffe-23a3-4a67-b8f7-9a09bc6d0e36_original.xlsx";
+const URL_IMPORT_PRODUCT_TEMPLATE =
+  "https://yody-prd-media.s3.ap-southeast-1.amazonaws.com/yody-file/product-import_cd692c40-5818-4d7b-b259-01a47c3b0275_original.xlsx";
 
 const START_PROCESS_PERCENT = 0;
 const FINISH_PROCESS_PERCENT = 100;
@@ -36,7 +39,7 @@ enum ProgressStatuses {
   NORMAL = "normal",
   ACTIVE = "active",
   SUCCESS = "success",
-  EXCEPTION = "exception"
+  EXCEPTION = "exception",
 }
 
 enum ImportResponseStatuses {
@@ -142,11 +145,49 @@ const ACTIONS_INDEX_TAB_PRODUCT = {
 
 const HISTORY_PRICE_PRODUCT_TYPES = ["ADD_PRODUCT", "UPDATE_PRODUCT", "DELETE_PRODUCT"];
 
-const getArrCategory = (
-  i: CategoryResponse,
-  level: number,
-  parent: CategoryResponse | null,
-) => {
+const ProductField = {
+  goods: "goods",
+  category_id: "category_id",
+  collections: "collections",
+  product_collections: "product_collections",
+  code: "code",
+  name: "name",
+  width: "width",
+  height: "height",
+  length: "length",
+  length_unit: "length_unit",
+  weight: "weight",
+  weight_unit: "weight_unit",
+  tags: "tags",
+  brand: "brand",
+  unit: "unit",
+  content: "content",
+  description: "description",
+  designer_code: "designer_code",
+  made_in_id: "made_in_id",
+  merchandiser_code: "merchandiser_code",
+  care_labels: "care_labels",
+  specifications: "specifications",
+  status: "status",
+  saleable: "saleable",
+  variant_prices: "variant_prices",
+  retail_price: "retail_price",
+  currency: "currency",
+  import_price: "import_price",
+  wholesale_price: "wholesale_price",
+  cost_price: "cost_price",
+  tax_percent: "tax_percent",
+  material_id: "material_id",
+  suppliers: "suppliers",
+  material: "material",
+  component: "component",
+  advantages: "advantages",
+  defect: "defect",
+  taxable: "taxable",
+  variants: "variants",
+};
+
+const getArrCategory = (i: CategoryResponse, level: number, parent: CategoryResponse | null) => {
   let arr: Array<CategoryView> = [];
   let parentTemp = null;
   if (parent !== null) {
@@ -267,7 +308,7 @@ const convertProductViewToRequest = (
       color_id: item.color_id,
       size_id: item.size_id,
       barcode: null,
-      taxable: false,
+      taxable: pr.taxable,
       saleable: item.saleable ?? pr.saleable,
       deleted: false,
       sku: item.sku,
@@ -312,7 +353,7 @@ const convertProductViewToRequest = (
     defect: pr.defect,
   };
   return productRequest;
-}
+};
 
 const findAvatar = (images: Array<VariantImage>): VariantImage | null => {
   let image: VariantImage | null = null;
@@ -322,7 +363,7 @@ const findAvatar = (images: Array<VariantImage>): VariantImage | null => {
     }
   });
   return image;
-}
+};
 
 const findPrice = (
   prices: Array<VariantPricesResponse>,
@@ -335,7 +376,7 @@ const findPrice = (
     }
   });
   return price;
-}
+};
 const convertVariantResponseToRequest = (variant: VariantResponse) => {
   let variantUpdateRequest: VariantUpdateRequest = {
     id: variant.id,
@@ -361,7 +402,7 @@ const convertVariantResponseToRequest = (variant: VariantResponse) => {
     variant_images: variant.variant_images,
   };
   return variantUpdateRequest;
-}
+};
 
 const findAvatarProduct = (product: ProductResponse | null) => {
   let avatar = null;
@@ -375,7 +416,7 @@ const findAvatarProduct = (product: ProductResponse | null) => {
     }, []);
   }
   return avatar;
-}
+};
 
 const convertAvatarToFileList = (arrImg: Array<VariantImage>) => {
   let arr: Array<UploadFile> = [];
@@ -388,12 +429,9 @@ const convertAvatarToFileList = (arrImg: Array<VariantImage>) => {
     });
   });
   return arr;
-}
+};
 
-const convertVariantPrices = (
-  variants: Array<VariantResponse>,
-  variantActive: VariantResponse,
-) => {
+const convertVariantPrices = (variants: Array<VariantResponse>, variantActive: VariantResponse) => {
   variants.forEach((item) => {
     const variantDefect = ArrDefects.find((e) => item.sku.indexOf(e.code) !== -1);
 
@@ -424,10 +462,10 @@ const ellipseName = (str: string | undefined) => {
     window.screen.width >= 1920
       ? splitEllipsis(strName, 100, 30)
       : window.screen.width >= 1600
-        ? (splitEllipsis(strName, 60, 30))
-        : window.screen.width >= 1366
-          ? (splitEllipsis(strName, 47, 30))
-          : strName;
+      ? splitEllipsis(strName, 60, 30)
+      : window.screen.width >= 1366
+      ? splitEllipsis(strName, 47, 30)
+      : strName;
   return strName;
 };
 
@@ -461,14 +499,14 @@ const handleChangeMaterial = (material: MaterialResponse | false, form: FormInst
 };
 
 const findPathTreeById = (object: any, targetId: number) => {
-  if(object.id === targetId) return [targetId];
-  if(!object.children) return false;
+  if (object.id === targetId) return [targetId];
+  if (!object.children) return false;
   let path;
-  object.children.find((o: any) => path = findPathTreeById(o, targetId));
+  object.children.find((o: any) => (path = findPathTreeById(o, targetId)));
   if (path) {
     return [object.id].concat(path);
   }
-}
+};
 
 const getFirstProductAvatarByVariantResponse = (variants: Array<VariantResponse>) => {
   let isFind = false;
@@ -639,7 +677,7 @@ const validateNumberValue = (value: string): validateReturnType => {
   }
 
   return { value: parseFloat(value).toFixed(3) };
-}
+};
 
 const checkFile = (file: any, type: string, mess: boolean = false) => {
   let check = true;
@@ -717,12 +755,12 @@ const convertLabelSelected = (itemSelected: string[]) => {
             active: true,
           });
         }
-      })
+      });
     });
   });
 
   return careLabels;
-}
+};
 
 const beforeUploadImage = (file: RcFile, maxFileSize: number) => {
   const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
@@ -736,6 +774,11 @@ const beforeUploadImage = (file: RcFile, maxFileSize: number) => {
   return isJpgOrPng && isSatisfyCondition ? true : Upload.LIST_IGNORE;
 };
 
+const formatPriceWithCurrency = (price: number | null, currency: string = "") => {
+  if (isNullOrUndefined(price)) return "";
+  return formatCurrency(price ?? 0) + " " + currency;
+};
+
 export {
   ArrDefects,
   DOCUMENT_TYPES,
@@ -747,6 +790,7 @@ export {
   START_PROCESS_PERCENT,
   FINISH_PROCESS_PERCENT,
   PRODUCT_ACTION_TYPES,
+  ProductField,
   ProgressStatuses,
   ConExportImport,
   ProductDetailTabName,
@@ -776,5 +820,6 @@ export {
   checkFile,
   backAction,
   convertLabelSelected,
-  beforeUploadImage
-}
+  beforeUploadImage,
+  formatPriceWithCurrency,
+};

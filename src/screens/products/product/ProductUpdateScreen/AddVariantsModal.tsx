@@ -361,7 +361,7 @@ function AddVariantsModal(props: Props) {
 
   return (
     <>
-      <Button onClick={openModalAddVersion} type="link" icon={<PlusOutlined />}>
+      <Button onClick={openModalAddVersion} type="primary" icon={<PlusOutlined />}>
         Thêm phiên bản
       </Button>
       <Modal
