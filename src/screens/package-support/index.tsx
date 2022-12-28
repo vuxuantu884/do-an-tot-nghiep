@@ -9,8 +9,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
-import { getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receipts.action";
 import { getPackInfo, setPackInfo } from "utils/LocalStorageUtils";
 import { PackModel, PackModelDefaultValue } from "model/pack/pack.model";
 import { hideLoading, showLoading } from "domain/actions/loading.action";

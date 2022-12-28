@@ -54,8 +54,7 @@ const PackInfoComponent: React.FC = () => {
 
   const [packFulFillmentResponse, setPackFulFillmentResponse] = useState<PackFulFillmentResponse>();
   const [variantResponse, setVariantResponse] = useState<VariantResponse[]>();
-  // const [packFulFillmentResponse, setPackFulFillmentResponse] = useState<Array<any>>([]);
-  const [itemProductList, setItemProductList] = useState<OrderLineItemResponseExt[]>([]);
+  const [itemProducts, setItemProducts] = useState<OrderLineItemResponseExt[]>([]);
 
   const [disableStoreId, setDisableStoreId] = useState(false);
   const [disableDeliveryProviderId, setDisableDeliveryProviderId] = useState(false);
@@ -139,7 +138,6 @@ const PackInfoComponent: React.FC = () => {
 
   const eventKeyboardFunction = useCallback(
     (event: KeyboardEvent) => {
-      // console.log(event.key);
       if (["F3"].indexOf(event.key) !== -1) {
         event.preventDefault();
         event.stopPropagation();
@@ -265,7 +263,7 @@ const PackInfoComponent: React.FC = () => {
     setDisableOrder(false);
 
     setPackFulFillmentResponse(undefined);
-    setItemProductList([]);
+    setItemProducts([]);
 
     formRef.current?.setFieldsValue({
       product_request: "",
@@ -307,7 +305,10 @@ const PackInfoComponent: React.FC = () => {
     let request = {
       id: packFulFillmentResponse?.id,
       code: packFulFillmentResponse?.code,
-      items: packFulFillmentResponse?.items,
+      items: itemProducts.map((p) => ({
+        sku: p.sku,
+        quantity: p.quantity,
+      })),
     };
 
     let packData: PackModel = {
@@ -327,10 +328,6 @@ const PackInfoComponent: React.FC = () => {
             setPackInfo(packData);
             orderRequestElement?.focus();
             showSuccess("Đóng gói đơn hàng thành công");
-
-            // setTimeout(() => {
-            //   // handleTrackingConfirm(request.code || "");
-            // }, 3000);
           }
         },
         (error: string[]) => {
@@ -347,11 +344,11 @@ const PackInfoComponent: React.FC = () => {
   }, [
     btnClearPackElement,
     dispatch,
+    itemProducts,
     orderRequestElement,
     packFulFillmentResponse,
     setSinglePack,
     singlePack,
-    // handleTrackingConfirm,
   ]);
 
   /**
@@ -369,37 +366,36 @@ const PackInfoComponent: React.FC = () => {
         return Number(item.pick) + qualityRequest > Number(item.quantity);
       };
 
-      let itemProductListCopy = [...itemProductList];
+      let itemProductsCopy = [...itemProducts];
 
       /**
        * xác định sản phẩm cần nhặt
        */
-      let indexPack = itemProductListCopy.findIndex(
+      let indexPack = itemProductsCopy.findIndex(
         (p) =>
           p.sku === productRequest.trim() ||
           p.variant_barcode === productRequest.trim() ||
           fullTextSearch(productRequest.trim(), p.reference_barcode || ""),
       );
+
       if (indexPack === -1) {
         showModalErrorAudio("Sản phẩm này không có trong đơn hàng");
         return;
       }
 
-      if (isQuantityOfPicksNotTrue(qualityRequest, itemProductListCopy[indexPack])) {
+      let itemProduct = itemProductsCopy[indexPack];
+
+      if (isQuantityOfPicksNotTrue(qualityRequest, itemProduct)) {
         showModalErrorAudio("Số lượng nhặt không đúng");
         return;
       }
 
-      itemProductListCopy[indexPack].pick += Number(qualityRequest);
+      itemProduct.pick += Number(qualityRequest);
 
-      if (itemProductListCopy[indexPack].pick === itemProductListCopy[indexPack].quantity)
-        itemProductListCopy[indexPack].color = "#27AE60";
+      if (itemProduct.pick === itemProduct.quantity) itemProduct.color = "#27AE60";
 
-      setItemProductList([...itemProductListCopy]);
-      if (
-        Number(itemProductListCopy[indexPack].quantity) ===
-        Number(itemProductListCopy[indexPack].pick)
-      ) {
+      setItemProducts([...itemProductsCopy]);
+      if (Number(itemProduct.quantity) === Number(itemProduct.pick)) {
         formRef.current?.setFieldsValue({ product_request: "" });
       }
       formRef.current?.setFieldsValue({ qualityRequest: "" });
@@ -407,11 +403,11 @@ const PackInfoComponent: React.FC = () => {
       /**
        * nhặt đủ thì cho đóng gói luôn
        */
-      if (isItemsQuantityEqualPick(itemProductListCopy)) {
+      if (isItemsQuantityEqualPick(itemProductsCopy)) {
         handlePackedFulfillment();
       }
     },
-    [formRef, handlePackedFulfillment, itemProductList],
+    [formRef, handlePackedFulfillment, itemProducts],
   );
 
   const FinishPack = useCallback(() => {
@@ -477,7 +473,7 @@ const PackInfoComponent: React.FC = () => {
     if (packFulFillmentResponse) {
       let item: OrderLineItemResponseExt[] = [];
       packFulFillmentResponse.items.forEach(function (i: OrderLineItemResponse) {
-        let reference_barcodes = variantResponse?.find(
+        let reference_barcode = variantResponse?.find(
           (p) => p.barcode === i.variant_barcode,
         )?.reference_barcodes;
         let indexDuplicate = item.findIndex((p) => p.variant_id === i.variant_id);
@@ -491,10 +487,10 @@ const PackInfoComponent: React.FC = () => {
             ...i,
             pick: 0,
             color: "#E24343",
-            reference_barcode: reference_barcodes,
+            reference_barcode: reference_barcode,
           });
       });
-      setItemProductList(item);
+      setItemProducts(item);
     }
   }, [packFulFillmentResponse, variantResponse]);
 
@@ -745,7 +741,7 @@ const PackInfoComponent: React.FC = () => {
             </Form.Item>
           </div>
         </Form>
-        {itemProductList && itemProductList.length > 0 && (
+        {itemProducts && itemProducts.length > 0 && (
           <div className="pack-row pack-row-bottom" style={{ gap: 20 }}>
             <div style={{ width: "50%" }}>
               <span className="customer-detail-text">
@@ -803,12 +799,12 @@ const PackInfoComponent: React.FC = () => {
             }}
             rowKey={(record) => record.id}
             columns={columns}
-            dataSource={itemProductList}
+            dataSource={itemProducts}
             className="order-product-pick"
             tableLayout="fixed"
             pagination={false}
             footer={() =>
-              itemProductList && itemProductList.length > 0 ? (
+              itemProducts && itemProducts.length > 0 ? (
                 <div className="row-footer-custom yd-color-black-dark">
                   <div
                     style={{
@@ -827,7 +823,7 @@ const PackInfoComponent: React.FC = () => {
                     }}
                   >
                     {formatCurrency(
-                      itemProductList.reduce(
+                      itemProducts.reduce(
                         (a: number, b: OrderProductListModel) => a + b.quantity,
                         0,
                       ),
@@ -841,7 +837,7 @@ const PackInfoComponent: React.FC = () => {
                     }}
                   >
                     {formatCurrency(
-                      itemProductList.reduce(
+                      itemProducts.reduce(
                         (a: number, b: OrderProductListModel) => a + Number(b.pick),
                         0,
                       ),
@@ -855,7 +851,7 @@ const PackInfoComponent: React.FC = () => {
           />
         </Row>
 
-        {itemProductList && itemProductList.length > 0 && (
+        {itemProducts && itemProducts.length > 0 && (
           <div className="pack-row">
             <Button style={{ padding: "0px 25px" }} onClick={onClickClearPack} id="btnClearPack">
               Hủy đóng gói
