@@ -266,6 +266,7 @@ function KDCompany() {
                           keyDriverGroupLv1,
                           departmentLv2: department_lv3,
                         })}`}
+                        target="_blank"
                       >
                         <span className="deparment-name-horizontal">{text}</span>
                       </Link>
@@ -279,6 +280,7 @@ function KDCompany() {
                           "default-screen": defaultScreen,
                           keyDriverGroupLv1,
                         })}`}
+                        target="_blank"
                       >
                         <span className="deparment-name-horizontal">{text}</span>
                       </Link>
