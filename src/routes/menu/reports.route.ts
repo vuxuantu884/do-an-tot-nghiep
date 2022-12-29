@@ -32,6 +32,8 @@ const PotentialImporting = React.lazy(
 
 const KeyDriverOfflineV2 = React.lazy(() => import("screens/reports/key-driver-offline-v2"));
 
+const InventoryBalance = React.lazy(() => import("screens/reports/inventory-balance"));
+
 export const KDOfflineV1Url = "/kd-offline-v1";
 
 const reports: Array<RouteMenu> = [
@@ -277,6 +279,18 @@ const reports: Array<RouteMenu> = [
         subMenu: [],
       },
     ],
+  },
+  {
+    path: REPORTS_URL.INVENTORY_BALANCE,
+    permissions: [],
+    exact: true,
+    title: "Báo cáo xuất nhập tồn kho",
+    icon: "icon-dot",
+    component: InventoryBalance,
+    key: "menureport3",
+    isShow: true,
+    header: null,
+    subMenu: [],
   },
 ];
 

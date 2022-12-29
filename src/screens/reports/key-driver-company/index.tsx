@@ -41,7 +41,7 @@ import {
   setCompanyTableColumns,
 } from "../common/helpers/set-company-table-columns";
 import { KDTableHeader, setObjectiveColumns } from "../common/helpers/set-objective-columns";
-import { KeyDriverStyle } from "../common/kd-report/index.style";
+import { KeyDriverStyle } from "../common/styles/key-driver.style";
 import KDCompanyProvider, { KDCompanyContext } from "./provider/kd-company-provider";
 
 const baseColumns: any = [

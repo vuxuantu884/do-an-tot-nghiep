@@ -45,7 +45,7 @@ import {
   getAllKeyDriverByGroupLevel,
   setTableHorizontalColumns,
 } from "../common/helpers/set-table-horizontal-columns";
-import { KeyDriverStyle } from "../common/kd-report/index.style";
+import { KeyDriverStyle } from "../common/styles/key-driver.style";
 import KeyDriverOfflineProvider, {
   KeyDriverOfflineContext,
 } from "./provider/key-driver-offline-provider";
