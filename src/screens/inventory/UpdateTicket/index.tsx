@@ -1,6 +1,6 @@
 import React, { createRef, FC, useCallback, useEffect, useMemo, useState } from "react";
 import "./index.scss";
-import UrlConfig from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import {
   AutoComplete,
@@ -74,6 +74,7 @@ import { searchVariantsApi } from "service/product/product.service";
 import ModalShowError from "../common/ModalShowError";
 import { HttpStatus } from "config/http-status.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { STATUS_INVENTORY_TRANSFER } from "../constants";
 const { Option } = Select;
 
 const VARIANTS_FIELD = "line_items";
@@ -125,6 +126,19 @@ const UpdateTicket: FC = () => {
   const idNumber = parseInt(id);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!initDataForm) return;
+
+    const confirmStatus = STATUS_INVENTORY_TRANSFER.CONFIRM.status;
+    const requestedStatus = STATUS_INVENTORY_TRANSFER.REQUESTED.status;
+
+    if (initDataForm.status !== confirmStatus && initDataForm.status !== requestedStatus) {
+      if (CopyId || stateImport) return;
+
+      window.open(`${BASE_NAME_ROUTER}${UrlConfig.INVENTORY_TRANSFERS}/${idNumber}`, "_self");
+    }
+  }, [CopyId, idNumber, initDataForm, stateImport]);
 
   const onResult = useCallback(
     (result: InventoryTransferDetailItem | false) => {
