@@ -1052,6 +1052,7 @@ function OrderCreateProduct(props: PropType) {
       gifts: [],
       position: undefined,
       available: variant.available,
+      taxable: variant.taxable,
     };
     return orderLine;
   };
@@ -1139,6 +1140,7 @@ function OrderCreateProduct(props: PropType) {
         reason: value > 0 ? highestValueSuggestDiscount.title : "",
         promotion_id:
           value > 0 ? highestValueSuggestDiscount.price_rule_id || undefined : undefined,
+        taxable: highestValueSuggestDiscount.is_registered,
       };
       let itemResult = {
         ..._item,
@@ -1249,6 +1251,7 @@ function OrderCreateProduct(props: PropType) {
             value: discountAmount,
             amount: discountAmount,
             rate: discountRate,
+            taxable: discountOrder.is_registered || false,
           };
         }
       } else {
@@ -1850,6 +1853,7 @@ function OrderCreateProduct(props: PropType) {
         reason: null,
         source: null,
         value: _value,
+        taxable: false,
       };
       if (coupon) {
         handleApplyCouponWhenInsertCoupon(coupon);
@@ -1958,6 +1962,7 @@ function OrderCreateProduct(props: PropType) {
           reason: null,
           source: null,
           value: _value,
+          taxable: false,
         };
         if (promotion?.discount_code && promotion.value) {
           let _rate = (promotion.value / totalOrderAmount) * 100;
