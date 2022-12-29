@@ -132,6 +132,7 @@ export interface OrderLineItemResponse {
   warranty: string;
   tax_rate: number;
   tax_include: boolean | null;
+  taxable?: boolean | null;
   line_amount_after_line_discount: number;
   discount_items: Array<OrderItemDiscountResponse>;
   discount_rate: number;
@@ -694,6 +695,7 @@ export interface PromotionResponse extends BaseObject {
   cancelled_date: any;
   suggested_discounts: any;
   prerequisite_quantity_gte: any;
+  is_registered?: boolean;
 }
 
 export interface ParamPromotion {

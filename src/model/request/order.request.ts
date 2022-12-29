@@ -303,6 +303,8 @@ export interface OrderLineItemRequest {
   gifts: Array<OrderLineItemRequest>;
   available: number | null;
   maxQuantityToApplyDiscount?: number; // số lượng tối đa để hưởng chiết khấu nếu có
+  taxable?: boolean | null;
+  isLineItemSemiAutomatic?: boolean; //là sản phẩm có chiết khấu bán tự động
 }
 
 export interface OrderItemDiscountRequest {
@@ -316,6 +318,8 @@ export interface OrderItemDiscountRequest {
   reason: string | null;
   source?: string | null;
   type?: string;
+  taxable?: boolean;
+  sub_type?: string | null;
 }
 
 export interface OrderDiscountRequest {
@@ -329,6 +333,9 @@ export interface OrderDiscountRequest {
   reason?: string | null;
   source?: string | null;
   type?: string;
+  taxable?: boolean;
+  isOrderSemiAutomatic?: boolean;
+  sub_type?: string | null;
 }
 
 export interface UpdateFulFillmentStatusRequest {

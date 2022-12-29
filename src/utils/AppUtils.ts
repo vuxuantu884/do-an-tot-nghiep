@@ -11,10 +11,7 @@ import { CityView, DistrictResponse } from "model/content/district.model";
 import { LineItem } from "model/inventory/transfer";
 import { OrderModel } from "model/order/order.model";
 import { RouteMenu } from "model/other";
-import {
-  VariantImage,
-  VariantPricesResponse,
-} from "model/product/product.model";
+import { VariantImage, VariantPricesResponse } from "model/product/product.model";
 import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
   OrderDiscountRequest,
@@ -529,9 +526,14 @@ export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
 };
 
 export const getTotalAmountAfterDiscount = (items: Array<OrderLineItemRequest>) => {
-  let total = 0;
-  items.forEach((a) => (total = total + a.line_amount_after_line_discount));
-  return total;
+  // let total = 0;
+  // items.forEach((a) => (total = total + a.line_amount_after_line_discount));
+  // return total;
+
+  console.log("getTotalAmountAfterDiscount", items);
+  return items
+    .map((item) => item.line_amount_after_line_discount)
+    .reduce((prev, next) => prev + next);
 };
 
 export const getOrderTotalPaymentAmount = (payments: Array<OrderPaymentResponse>) => {

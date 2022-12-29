@@ -1,6 +1,7 @@
 import { Input, Select, Typography } from "antd";
 import OrderNumberInputCustom from "component/custom/order/order-number-input.custom";
 import _ from "lodash";
+import { DiscountValueType } from "model/promotion/price-rules.model";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useState } from "react";
 import {
@@ -20,6 +21,7 @@ type PropTypes = {
   index: number;
   discountRate: number;
   discountAmount: number;
+  discountType: string;
   items?: Array<OrderLineItemRequest>;
   handleCardItems: (_items: Array<OrderLineItemRequest>) => void;
   disabled?: boolean;
@@ -29,7 +31,8 @@ type PropTypes = {
 function DiscountGroup(props: PropTypes) {
   const { items, disabled = false } = props;
   const { Text } = Typography;
-  const [selected, setSelected] = useState(DISCOUNT_TYPE.MONEY);
+  console.log("DiscountGroup discountType", props.discountType);
+  const [selected, setSelected] = useState(props.discountType);
   let showResult = true;
 
   const changeDiscountType = (value: string) => {
@@ -65,6 +68,7 @@ function DiscountGroup(props: PropTypes) {
         ];
       }
       let _itemDiscount = _item.discount_items[0];
+
       let _price = _items[props.index].price;
       if (selected === DISCOUNT_TYPE.MONEY) {
         if (_items[props.index].amount < v) {
@@ -74,6 +78,7 @@ function DiscountGroup(props: PropTypes) {
         _itemDiscount.amount = v;
         _itemDiscount.rate = (v / _items[props.index].amount) * 100;
         _itemDiscount.value = v / _items[props.index].quantity;
+        _itemDiscount.sub_type = DiscountValueType.FIXED_AMOUNT;
       } else {
         if (100 < v) {
           v = 100;
@@ -82,7 +87,11 @@ function DiscountGroup(props: PropTypes) {
         _itemDiscount.value = Math.round((v * _price) / 100);
         _itemDiscount.rate = v;
         _itemDiscount.amount = (v * _items[props.index].amount) / 100;
+        _itemDiscount.sub_type = DiscountValueType.PERCENTAGE;
       }
+
+      _itemDiscount.type = selected;
+      _itemDiscount.taxable = false;
       _item.discount_value = getLineItemDiscountValue(_item);
       _item.discount_amount = getLineItemDiscountAmount(_item);
       _item.discount_rate = getLineItemDiscountRate(_item);
@@ -90,7 +99,7 @@ function DiscountGroup(props: PropTypes) {
       if (_item.discount_items.length === 0 || !_item.discount_items[0]?.amount) {
         // _item.discount_items = [];
       }
-      // console.log('_items', _items)
+      console.log("_items", _items);
       props.handleCardItems(_items);
     },
     [items, props, selected],

@@ -90,6 +90,7 @@ import {
   checkIfOrderHasNoPayment,
   checkIfOrderHasNotFinishPaymentMomo,
   checkIfOrderHasShipmentCod,
+  convertDiscountType,
 } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
@@ -171,6 +172,7 @@ export default function Order(props: PropTypes) {
   const [modalAction, setModalAction] = useState<modalActionType>("edit");
   const isFirstLoad = useRef(true);
   const handleCustomer = (_objCustomer: CustomerResponse | null) => {
+    setCountFinishingUpdateCustomer((prev) => prev + 1);
     setCustomer(_objCustomer);
     if (_objCustomer) {
       const shippingAddressItem = _objCustomer.shipping_addresses.find(
@@ -531,16 +533,19 @@ export default function Order(props: PropTypes) {
       rate: promotion?.rate,
       value: promotion?.value,
       amount: promotion?.value,
-      promotion_id: null,
-      reason: "",
+      promotion_id: promotion.promotion_id,
+      promotion_title: promotion.promotion_title,
+      taxable: promotion.taxable,
+      reason: promotion.promotion_title,
       source: "",
-      discount_code: coupon,
+      discount_code: promotion.discount_code,
       order_id: null,
+      type: promotion.sub_type || "",
     };
     let listDiscountRequest = [];
     if (coupon) {
       listDiscountRequest.push({
-        discount_code: coupon,
+        discount_code: promotion.discount_code,
         rate: promotion?.rate,
         value: promotion?.value,
         amount: promotion?.value,
@@ -548,17 +553,23 @@ export default function Order(props: PropTypes) {
         reason: "",
         source: "",
         order_id: null,
+        promotion_title: promotion.promotion_title,
+        taxable: promotion.taxable,
+        type: promotion.sub_type || "",
       });
     } else if (promotion?.promotion_id) {
       listDiscountRequest.push({
-        discount_code: null,
+        discount_code: promotion.discount_code,
         rate: promotion?.rate,
         value: promotion?.value,
         amount: promotion?.value,
-        promotion_id: promotion?.promotion_id,
+        promotion_id: promotion.promotion_id,
+        promotion_title: promotion.promotion_title,
+        taxable: promotion.taxable,
         reason: promotion.reason,
         source: "",
         order_id: null,
+        type: promotion.sub_type || "",
       });
     } else if (!promotion) {
       return [];
@@ -597,7 +608,7 @@ export default function Order(props: PropTypes) {
 
   const handleUpdateOrder = (valuesCalculateReturnAmount: OrderRequest) => {
     console.log("valuesCalculateReturnAmount", valuesCalculateReturnAmount);
-    // return;
+    //return;
     dispatch(showLoading());
     try {
       if (!isFinalized) {
@@ -662,7 +673,14 @@ export default function Order(props: PropTypes) {
     }
 
     values.tags = tags;
-    values.items = items.concat(itemGifts);
+    const _item = items.concat(itemGifts);
+    values.items = _item.map((p) => {
+      let _discountItems = p.discount_items[0];
+      if (_discountItems) {
+        _discountItems.type = _discountItems.sub_type || "";
+      }
+      return p;
+    });
     values.discounts = lstDiscount;
     values.shipping_address =
       shippingAddress && levelOrder <= 3
@@ -983,6 +1001,9 @@ export default function Order(props: PropTypes) {
               return item.type !== Type.GIFT;
             })
             .map((item) => {
+              const _discountItem = item.discount_items.filter(
+                (single) => single.amount && single.value,
+              );
               return {
                 id: item.id,
                 sku: item.sku,
@@ -1005,6 +1026,7 @@ export default function Order(props: PropTypes) {
                 warranty: item.warranty,
                 tax_rate: item.tax_rate,
                 tax_include: item.tax_include,
+                taxable: item.taxable,
                 composite: false,
                 product: item.product,
                 is_composite: false,
@@ -1038,7 +1060,23 @@ export default function Order(props: PropTypes) {
               setPayments(new_payments);
             }
           }
+          //convert type, discount item
+          responseItems = responseItems.map((item) => {
+            const _discountItem = item.discount_items[0];
+            if (_discountItem) {
+              const _type = _discountItem.type || "";
+              _discountItem.sub_type = _type;
+              _discountItem.type = convertDiscountType(_type);
 
+              return {
+                ...item,
+                isLineItemSemiAutomatic: true,
+                discount_items: [_discountItem],
+              };
+            } else {
+              return { ...item };
+            }
+          });
           setItems(responseItems);
           setOrderProductsAmount(response.total_line_amount_after_line_discount);
           form.setFieldsValue({
@@ -1078,7 +1116,15 @@ export default function Order(props: PropTypes) {
             setTag(response.tags);
           }
           if (response?.discounts && response?.discounts[0]) {
-            setPromotion(response?.discounts[0]);
+            console.log("response?.discounts[0]", response?.discounts[0]);
+            setPromotion({
+              ...response?.discounts[0],
+              promotion_title:
+                response?.discounts[0].promotion_title || response?.discounts[0].reason,
+              sub_type: response?.discounts[0].type,
+              type: convertDiscountType(response?.discounts[0].type),
+              isOrderSemiAutomatic: true,
+            });
             if (response.discounts[0].discount_code) {
               setCoupon(response.discounts[0].discount_code);
             }
@@ -1323,7 +1369,6 @@ export default function Order(props: PropTypes) {
       dispatch(
         getLoyaltyPoint(customer.id, (data) => {
           setLoyaltyPoint(data);
-          setCountFinishingUpdateCustomer((prev) => prev + 1);
         }),
       );
       const shippingAddressItem = customer.shipping_addresses.find((p: any) => p.default === true);
@@ -1364,7 +1409,6 @@ export default function Order(props: PropTypes) {
       }
     } else {
       setLoyaltyPoint(null);
-      setCountFinishingUpdateCustomer((prev) => prev + 1);
       setShippingAddress(null);
     }
   }, [dispatch, customer, OrderDetail?.shipping_address]);
