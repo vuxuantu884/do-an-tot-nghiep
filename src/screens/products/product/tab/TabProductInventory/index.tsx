@@ -14,6 +14,7 @@ import { OrderStatus, ORDER_SUB_STATUS } from "utils/Order.constants";
 import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { STATUS_INVENTORY_TRANSFER } from "screens/inventory/constants";
+import { InventoryTransferPendingStatus } from "screens/inventory/helper";
 
 type TabProductInventoryProps = {
   data: PageResponse<InventoryResponse>;
@@ -98,7 +99,7 @@ const TabProductInventory: React.FC<TabProductInventoryProps> = (
               STATUS_INVENTORY_TRANSFER.PENDING.status,
             ],
             condition: sku,
-            pending: "excess",
+            pending: InventoryTransferPendingStatus.EXCESS,
           });
           linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}/export-import-list?${onHoldQuery}`;
           break;
@@ -112,7 +113,7 @@ const TabProductInventory: React.FC<TabProductInventoryProps> = (
               STATUS_INVENTORY_TRANSFER.PENDING.status,
             ],
             condition: sku,
-            pending: "missing",
+            pending: InventoryTransferPendingStatus.MISSING,
           });
           linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}/export-import-list?${onWayQuery}`;
           break;
@@ -123,7 +124,7 @@ const TabProductInventory: React.FC<TabProductInventoryProps> = (
             condition: sku,
             to_store_id: store_ids,
             status: [STATUS_INVENTORY_TRANSFER.TRANSFERRING.status],
-            pending: "missing",
+            pending: InventoryTransferPendingStatus.MISSING,
           });
           linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}/export-import-list?${onTransferringQuery}`;
           break;
