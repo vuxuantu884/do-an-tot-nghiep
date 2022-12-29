@@ -117,7 +117,7 @@ const EditNote: React.FC<EditNoteProps> = (props: EditNoteProps) => {
                   marginRight: 3,
                   fontStyle: "italic",
                 }}
-                title="Chương trình khuyến mạ 3"
+                title="Chương trình khuyến mại"
               >
                 <img
                   src={giftIcon}

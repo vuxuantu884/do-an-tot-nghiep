@@ -360,10 +360,6 @@ const WebAppOrders: React.FC = () => {
   const editNote = (newNote: string, noteType: string, orderID: number, record: OrderModel) => {
     let params: any = {};
     if (noteType === "note") {
-      if (promotionUtils.checkIfPrivateNoteHasPromotionText(record.note || "")) {
-        let promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
-        newNote = promotionUtils.combinePrivateNoteAndPromotionTitle(newNote, promotionText);
-      }
       params.note = newNote;
     }
     if (noteType === "customer_note") {
@@ -744,14 +740,14 @@ const WebAppOrders: React.FC = () => {
             <Divider />
             <div className="single">
               <EditNote
-                note={promotionUtils.getPrivateNoteFromResponse(record.note || "")}
+                note={record.note}
                 title="Nội bộ: "
                 color={primaryColor}
                 onOk={(newNote) => {
                   editNote(newNote, "note", record.id, record);
                 }}
                 isDisable={record.status === OrderStatus.FINISHED}
-                promotionText={promotionUtils.getPromotionTextFromResponse(record.note || "")}
+                promotionText={promotionUtils.getAllPromotionTitle(record)}
               />
             </div>
           </div>

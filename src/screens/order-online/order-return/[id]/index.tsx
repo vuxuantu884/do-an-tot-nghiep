@@ -494,10 +494,6 @@ const ScreenReturnDetail = (props: PropTypes) => {
 
   const editNote = useCallback(
     (note, customerNote, orderID) => {
-      if (promotionUtils.checkIfPrivateNoteHasPromotionText(OrderDetail?.note || "")) {
-        let promotionText = promotionUtils.getPromotionTextFromResponse(OrderDetail?.note || "");
-        note = promotionUtils.combinePrivateNoteAndPromotionTitle(note, promotionText);
-      }
       updateNoteOrderReturnService(orderID, note, customerNote).then((response) => {
         if (isFetchApiSuccessful(response)) {
           let orderDetailCopy: any = { ...OrderDetail };

@@ -578,11 +578,21 @@ export default function Order() {
       createOrder(handleCreateOrUpdateSpecialOrder);
     };
     const specialOrderType = specialOrderForm.getFieldValue("type");
+    console.log("specialOrderType", specialOrderType);
     if (specialOrderType) {
-      specialOrderForm.validateFields().then((specialOrderFormValue) => {
-        console.log("specialOrderFormValue", specialOrderFormValue);
-        handleCreateOrderWithSpecialOrder(specialOrderFormValue);
-      });
+      specialOrderForm
+        .validateFields()
+        .then((specialOrderFormValue) => {
+          console.log("specialOrderFormValue", specialOrderFormValue);
+          handleCreateOrderWithSpecialOrder(specialOrderFormValue);
+        })
+        .catch((error) => {
+          console.log("error", error);
+          const { errorFields } = error;
+          const element: any = document.getElementById(errorFields[0].name.join(""));
+          scrollAndFocusToDomElement(element);
+          isUserCanCreateOrder.current = true;
+        });
     } else {
       createOrder();
     }
@@ -630,10 +640,6 @@ export default function Order() {
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
     values.export_bill = billingAddress?.tax_code ? true : false;
     values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
-    values.note = promotionUtils.combinePrivateNoteAndPromotionTitle(
-      values.note || "",
-      promotionTitle,
-    );
 
     console.log("isOrderSemiAutomatic", promotion?.isOrderSemiAutomatic);
     values.automatic_discount = !promotion?.isOrderSemiAutomatic
@@ -1194,7 +1200,7 @@ export default function Order() {
               ? ""
               : response.reference_code,
           url: response.url,
-          note: promotionUtils.getPrivateNoteFromResponse(response.note || ""),
+          note: response.note,
           tags: response.tags,
           channel_id: response.channel_id,
           //automatic_discount: response.automatic_discount,

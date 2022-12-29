@@ -709,7 +709,7 @@ function OrderReturnList(props: PropTypes) {
               </div>
               <div className="single text-left">
                 <EditNote
-                  note={promotionUtils.getPrivateNoteFromResponse(record.note || "")}
+                  note={record.note}
                   title="Nội bộ: "
                   color={primaryColor}
                   onOk={(values) => {
@@ -768,10 +768,6 @@ function OrderReturnList(props: PropTypes) {
 
   const editNote = useCallback(
     (orderReturnID, note, customer_note, record: OrderModel) => {
-      if (promotionUtils.checkIfPrivateNoteHasPromotionText(record.note || "")) {
-        let promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
-        note = promotionUtils.combinePrivateNoteAndPromotionTitle(note, promotionText);
-      }
       updateNoteOrderReturnService(orderReturnID, note, customer_note).then((response) => {
         if (isFetchApiSuccessful(response)) {
           onSuccessEditNote(orderReturnID, note, customer_note);
