@@ -1,5 +1,4 @@
 import { Card, Col, Row, Tag } from "antd";
-import { promotionUtils } from "component/order/promotion.utils";
 import { OrderResponse } from "model/response/order/order.response";
 import EditOrderNote from "screens/order-online/component/EditOrderNote";
 import TextWithLineBreak from "screens/order-online/component/TextWithLineBreak";
@@ -19,7 +18,7 @@ function SidebarOrderDetailExtraInformation(props: PropTypes) {
   const { OrderDetail, editNote } = props;
 
   const noteFormValue = {
-    note: promotionUtils.getPrivateNoteFromResponse(OrderDetail?.note || ""),
+    note: OrderDetail?.note,
     customer_note: OrderDetail?.customer_note,
   };
   const detailArr = [
@@ -54,9 +53,7 @@ function SidebarOrderDetailExtraInformation(props: PropTypes) {
       ),
       value:
         OrderDetail?.note !== "" ? (
-          <TextWithLineBreak
-            note={promotionUtils.getPrivateNoteFromResponse(OrderDetail?.note || "")}
-          />
+          <TextWithLineBreak note={OrderDetail?.note} />
         ) : (
           "Không có ghi chú"
         ),

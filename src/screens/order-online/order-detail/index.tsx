@@ -994,10 +994,6 @@ const OrderDetail = (props: PropTypes) => {
 
   const editNote = useCallback(
     (note, customer_note, orderID) => {
-      if (promotionUtils.checkIfPrivateNoteHasPromotionText(OrderDetail?.note || "")) {
-        let promotionText = promotionUtils.getPromotionTextFromResponse(OrderDetail?.note || "");
-        note = promotionUtils.combinePrivateNoteAndPromotionTitle(note, promotionText);
-      }
       let params: any = {
         note,
         customer_note,

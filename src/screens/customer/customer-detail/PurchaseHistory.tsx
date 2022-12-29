@@ -1122,14 +1122,14 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                   </div>
                   <div className="single order-note">
                     <EditNote
-                      note={promotionUtils.getPrivateNoteFromResponse(record.note || "")}
+                      note={record.note}
                       title="Nội bộ: "
                       color={primaryColor}
                       onOk={(newNote) => {
                         editNote(newNote, "note", data.id);
                       }}
                       isDisable={data.status === OrderStatus.FINISHED}
-                      promotionText={promotionUtils.getPromotionTextFromResponse(record.note || "")}
+                      promotionText={promotionUtils.getAllPromotionTitle(record)}
                     />
                   </div>
                 </>

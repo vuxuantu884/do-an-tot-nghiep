@@ -21,6 +21,9 @@ export const StyledComponent = styled.div`
       position: relative;
       top: -2px;
     }
+    .separator {
+      margin: 0 5px;
+    }
   }
   .secondaryValue {
     color: ${dangerColor};

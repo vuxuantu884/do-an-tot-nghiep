@@ -1027,8 +1027,8 @@ export const getProductDiscountPerOrder = (
   let discountPerOrder = 0;
   if (OrderDetail?.discounts?.length && OrderDetail.discounts[0].amount > 0) {
     let taxValue = 1;
-    if (OrderDetail.discounts[0].taxable) {
-      let taxRate = product.tax_rate / 100;
+    if (OrderDetail.discounts[0].taxable && product.tax_lines && product.tax_lines[0].rate) {
+      let taxRate = product.tax_lines[0].rate;
       taxValue = 1 + taxRate;
     }
 

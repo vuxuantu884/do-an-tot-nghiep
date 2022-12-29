@@ -475,33 +475,84 @@ function UpdateProductCard(props: PropTypes) {
                 </div>
               </Row>
 
+              <Row className="payment-row" justify="space-between" align="middle">
+                <Space align="center">
+                  Chiết khấu đơn hàng:
+                  {props.OrderDetail?.discounts && props.OrderDetail?.discounts.length > 0 && (
+                    <div>
+                      <Tag
+                        style={{
+                          marginTop: 0,
+                          color: "#E24343",
+                          backgroundColor: "#F5F5F5",
+                        }}
+                        className="orders-tag orders-tag-danger"
+                      >
+                        {props.OrderDetail?.discounts[0]?.rate
+                          ? formatPercentage(props.OrderDetail?.discounts[0].rate)
+                          : 0}{" "}
+                        %
+                      </Tag>
+                    </div>
+                  )}
+                </Space>
+                <div className="font-weight-400 ">
+                  {props.OrderDetail?.discounts &&
+                  props.OrderDetail?.discounts.length > 0 &&
+                  props.OrderDetail?.discounts[0]?.amount !== null
+                    ? formatCurrency(props.OrderDetail?.discounts[0].amount)
+                    : "-"}
+                </div>
+              </Row>
+
               {OrderDetail?.discounts &&
                 OrderDetail?.discounts[0] &&
-                OrderDetail?.discounts[0].rate &&
                 OrderDetail.discounts[0].promotion_id && (
-                  <Row className="payment-row promotionRow" justify="space-between" align="middle">
-                    <div className="promotionName">
+                  <Row
+                    className="payment-row"
+                    justify="space-between"
+                    align="middle"
+                    style={{ fontSize: "0.95em", color: successColor, fontStyle: "normal" }}
+                  >
+                    <div className="promotionName" title="Tên chương trình khuyến mãi">
                       <img src={couponOrderIcon} alt="" />
                       {OrderDetail?.discounts[0]?.discount_code && (
-                        <span className="coupon">{OrderDetail?.discounts[0].discount_code} - </span>
+                        <span className="coupon">
+                          {OrderDetail?.discounts[0].discount_code}
+                          <span className="separator">-</span>
+                        </span>
                       )}
                       {OrderDetail.discounts[0]?.promotion_title ||
                         OrderDetail.discounts[0]?.reason}
                     </div>
-                    <div className="font-weight-400 ">
-                      {OrderDetail?.discounts[0].type === DiscountUnitType.PERCENTAGE.label
-                        ? `${formatPercentage(OrderDetail?.discounts[0].rate)}%`
-                        : formatCurrency(OrderDetail?.discounts[0].amount)}
-                      <span className="rate secondaryValue">
-                        (
-                        {OrderDetail?.discounts[0].type === DiscountUnitType.PERCENTAGE.label
-                          ? formatCurrency(OrderDetail?.discounts[0].amount)
-                          : `${formatPercentage(OrderDetail?.discounts[0].rate)}%`}
-                        )
-                      </span>
-                    </div>
                   </Row>
                 )}
+
+              {/* {OrderDetail?.discounts &&
+              OrderDetail?.discounts[0] &&
+              OrderDetail?.discounts[0].rate ? (
+                <Row className="payment-row promotionRow" justify="space-between" align="middle">
+                  <div className="promotionName">
+                    <img src={couponOrderIcon} alt="" />
+                    {OrderDetail?.discounts[0]?.discount_code && (
+                      <span className="coupon">{OrderDetail?.discounts[0].discount_code} - </span>
+                    )}
+                    {OrderDetail.discounts[0]?.promotion_title || OrderDetail.discounts[0]?.reason}
+                  </div>
+                  <div className="font-weight-400 ">
+                    {OrderDetail?.discounts[0].type === DiscountUnitType.PERCENTAGE.label
+                      ? `${formatPercentage(OrderDetail?.discounts[0].rate)}%`
+                      : formatCurrency(OrderDetail?.discounts[0].amount)}
+                    <span className="rate secondaryValue">
+                      (
+                      {OrderDetail?.discounts[0].type === DiscountUnitType.PERCENTAGE.label
+                        ? formatCurrency(OrderDetail?.discounts[0].amount)
+                        : `${formatPercentage(OrderDetail?.discounts[0].rate)}%`}
+                      )
+                    </span>
+                  </div>
+                </Row>
+              ) : null} */}
 
               <Row className="payment-row" justify="space-between" align="middle">
                 <Space align="center">Tổng chiết khấu sản phẩm:</Space>
@@ -517,7 +568,7 @@ function UpdateProductCard(props: PropTypes) {
                 </div>
               </Row>
 
-              <Row className="payment-row" justify="space-between" align="middle">
+              {/* <Row className="payment-row" justify="space-between" align="middle">
                 <Space align="center">Mã giảm giá:</Space>
                 <div
                   className="font-weight-500 "
@@ -527,7 +578,7 @@ function UpdateProductCard(props: PropTypes) {
                     ? handleDisplayCoupon(OrderDetail?.discounts[0]?.discount_code)
                     : "-"}
                 </div>
-              </Row>
+              </Row> */}
 
               <Row className="payment-row" justify="space-between">
                 <div className="font-weight-500 78">Phí ship báo khách:</div>

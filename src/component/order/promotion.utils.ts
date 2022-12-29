@@ -1,4 +1,5 @@
 import { OrderModel } from "model/order/order.model";
+import { CustomerOrderHistoryResponse } from "model/response/order/order.response";
 import { PromotionConstants } from "./promotion.constant";
 
 export const promotionUtils = {
@@ -41,7 +42,7 @@ export const promotionUtils = {
       .replace(PromotionConstants.promotionTitleEndText, "");
   },
   // lúc trước truyền tên chương trình khuyến mại vào reason, nên lấy thêm ở reason
-  getAllPromotionTitle: (orderDetail: OrderModel) => {
+  getAllPromotionTitle: (orderDetail: OrderModel | CustomerOrderHistoryResponse) => {
     const lineItemsPromotionTitle = orderDetail.items
       .filter((item) => {
         return item.discount_items.length > 0 && item.discount_items[0].amount > 0;

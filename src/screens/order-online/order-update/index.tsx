@@ -758,10 +758,6 @@ export default function Order(props: PropTypes) {
     values.company_id = DEFAULT_COMPANY.company_id;
 
     values.export_bill = billingAddress?.tax_code ? true : false;
-    values.note = promotionUtils.combinePrivateNoteAndPromotionTitle(
-      values.note || "",
-      promotionTitle,
-    );
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
@@ -1150,8 +1146,8 @@ export default function Order(props: PropTypes) {
             payments: new_payments,
             reference_code: response.reference_code,
             url: response.url,
-            // note: response.note,ggg
-            note: promotionUtils.getPrivateNoteFromResponse(response.note || ""),
+            note: response.note,
+            // note: promotionUtils.getPrivateNoteFromResponse(response.note || ""),
             tags: response.tags,
             marketer_code: response.marketer_code ? response.marketer_code : null,
             coordinator_code: response.coordinator_code ? response.coordinator_code : null,

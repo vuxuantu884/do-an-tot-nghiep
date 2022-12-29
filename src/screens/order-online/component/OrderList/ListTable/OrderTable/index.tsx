@@ -281,10 +281,6 @@ function OrdersTable(props: PropTypes) {
 
   const editNote = useCallback(
     (note, customer_note, orderID, record: OrderModel) => {
-      if (promotionUtils.checkIfPrivateNoteHasPromotionText(record.note || "")) {
-        let promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
-        note = promotionUtils.combinePrivateNoteAndPromotionTitle(note, promotionText);
-      }
       let params: any = {
         note,
         customer_note,
@@ -1342,7 +1338,7 @@ function OrdersTable(props: PropTypes) {
         title: "Ghi chú",
         className: "notes",
         render: (value: string, record: OrderModel) => {
-          const privateNote = promotionUtils.getPrivateNoteFromResponse(record.note || "");
+          const privateNote = record.note;
           const noteFormValue = {
             note: privateNote,
             customer_note: record.customer_note,

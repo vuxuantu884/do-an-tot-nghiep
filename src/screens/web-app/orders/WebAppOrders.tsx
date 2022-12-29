@@ -389,10 +389,6 @@ const WebAppOrders: React.FC = () => {
     (newNote, noteType, orderID, record: OrderModel) => {
       let params: any = {};
       if (noteType === "note") {
-        if (promotionUtils.checkIfPrivateNoteHasPromotionText(record.note || "")) {
-          let promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
-          newNote = promotionUtils.combinePrivateNoteAndPromotionTitle(newNote, promotionText);
-        }
         params.note = newNote;
       }
       if (noteType === "customer_note") {

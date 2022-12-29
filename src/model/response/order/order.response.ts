@@ -109,6 +109,14 @@ export interface OrderResponse extends BaseObject {
   special_order?: SpecialOrderResponseModel;
 }
 
+export interface TaxLineModel {
+  currency: string;
+  deleted: boolean | null;
+  id: number;
+  price: number | null;
+  rate: number | null;
+  title: string | null;
+}
 export interface OrderLineItemResponse {
   id: number;
   sku: string;
@@ -131,6 +139,7 @@ export interface OrderLineItemResponse {
   weight_unit: string;
   warranty: string;
   tax_rate: number;
+  tax_lines?: TaxLineModel[];
   tax_include: boolean | null;
   taxable?: boolean | null;
   line_amount_after_line_discount: number;
