@@ -176,6 +176,48 @@ function CardProductBottom(props: PropTypes) {
                         : `${formatCurrency(promotion?.value ?? 0)} đ`}
                     </span>
                     <span className="promotion-value-after">
+                      {formatCurrency(orderProductsAmount - (promotion?.value ?? 0))}
+                    </span>
+                    <Button
+                      danger
+                      ghost
+                      onClick={() => {
+                        setCoupon && setCoupon("");
+                        items && calculateChangeMoney(items, null);
+                        setIsShowDiscountOrder(false);
+                      }}
+                      disabled={levelOrder > 3}
+                    >
+                      Loại bỏ
+                    </Button>
+                  </Space>
+                </Card>
+              )}
+              {promotion && promotion.promotion_id && isShowDiscountOrder && (
+                <Card
+                  title={
+                    <>
+                      <span>Khuyến mại đang áp dụng</span>
+                      <CloseOutlined
+                        onClick={() => {
+                          setIsShowDiscountOrder(false);
+                        }}
+                      />
+                    </>
+                  }
+                  className="discount-order-card"
+                >
+                  <Space direction="horizontal">
+                    <span className="promotion-name">
+                      <img src={discountCouponIcon} alt="" width={12} />{" "}
+                      {promotion?.promotion_title}
+                    </span>
+                    <span className="promotion-value">
+                      {promotion?.type === DISCOUNT_TYPE.PERCENT
+                        ? `${formatPercentage(promotion?.rate ?? 0)} %`
+                        : `${formatCurrency(promotion?.value ?? 0)} đ`}
+                    </span>
+                    <span className="promotion-value-after">
                       {formatCurrency(orderProductsAmount - (promotion?.value ?? 0))} đ
                     </span>
                     <Button
@@ -194,8 +236,8 @@ function CardProductBottom(props: PropTypes) {
                 </Card>
               )}
             </Space>
-            <div className="font-weight-500">
-              {promotion && discountValue && discountRate ? (
+            <div className="font-weight-500 ">
+              {promotion?.promotion_id && discountValue && discountRate ? (
                 <>
                   {formatCurrency(discountValue)}{" "}
                   <span style={{ color: "red", fontWeight: 400 }}>

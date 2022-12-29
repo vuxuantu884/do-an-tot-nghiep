@@ -10,7 +10,10 @@ import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderD
 import SidebarOrderDetailUtm from "component/order/Sidebar/SidebarOrderDetailUtm";
 import SidebarOrderHistory from "component/order/Sidebar/SidebarOrderHistory";
 import SideBarOrderSpecial from "component/order/special-order/SideBarOrderSpecial";
-import { defaultSpecialOrderParams } from "component/order/special-order/SideBarOrderSpecial/helper";
+import {
+  defaultSpecialOrderParams,
+  specialOrderTypes,
+} from "component/order/special-order/SideBarOrderSpecial/helper";
 import UrlConfig from "config/url.config";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
@@ -143,6 +146,7 @@ const OrderDetail = (props: PropTypes) => {
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const dispatch = useDispatch();
   const [form] = Form.useForm();
+  const [specialOrderForm] = Form.useForm();
   const [paymentMethod, setPaymentMethod] = useState<number>(3);
 
   const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
@@ -1270,6 +1274,9 @@ const OrderDetail = (props: PropTypes) => {
                     handleDeleteSpecialOrder={handleDeleteSpecialOrder}
                     specialOrderView={specialOrderView}
                     setSpecialOrderView={setSpecialOrderView}
+                    defaultSpecialType={specialOrderTypes.orders_recall.value}
+                    orderPageType={OrderPageTypeModel.orderDetail}
+                    form={specialOrderForm}
                   />
                 )}
                 <SubStatusOrder

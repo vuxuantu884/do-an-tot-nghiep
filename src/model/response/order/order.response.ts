@@ -141,6 +141,7 @@ export interface OrderLineItemResponse {
   position?: number;
   gifts: Array<OrderLineItemResponse>;
   available: number | null;
+  distributed_order_discount?: number | null;
   order_line_item_id?: number | null;
 }
 
@@ -229,6 +230,7 @@ export interface OrderDiscountResponse {
   reason: string | null;
   source: string;
   type: string;
+  taxable: boolean;
 }
 
 // export interface OrderItemDiscountResponse {

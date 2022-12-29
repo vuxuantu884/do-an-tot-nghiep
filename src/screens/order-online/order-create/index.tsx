@@ -8,6 +8,10 @@ import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import { promotionUtils } from "component/order/promotion.utils";
 import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
+import {
+  defaultSpecialOrderParams,
+  specialOrderTypes,
+} from "component/order/special-order/SideBarOrderSpecial/helper";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
@@ -37,6 +41,7 @@ import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
+import { SpecialOrderModel } from "model/order/special-order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddressRequestModel,
@@ -66,6 +71,7 @@ import { useHistory } from "react-router-dom";
 import useFetchOrderConfig from "screens/order-online/hooks/useFetchOrderConfig";
 import useFetchPaymentMethods from "screens/order-online/hooks/useFetchPaymentMethods";
 import { getStoreBankAccountNumbersService } from "service/order/order.service";
+import { specialOrderServices } from "service/order/special-order.service";
 import {
   formatCurrency,
   getAmountPaymentRequest,
@@ -157,6 +163,7 @@ export default function Order() {
   const [tags, setTags] = useState<string>("");
   const formRef = createRef<FormInstance>();
   const [form] = Form.useForm();
+  const [specialOrderForm] = Form.useForm();
   const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] = useState<boolean>(false);
 
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
@@ -275,6 +282,8 @@ export default function Order() {
       channel_id: null,
       automatic_discount: true,
       export_bill: false,
+
+      type: undefined,
     };
   }, [userReducer.account?.code]);
 
@@ -501,39 +510,88 @@ export default function Order() {
 
   const handleCreateOrder = async (values: OrderRequest) => {
     console.log("values", values);
+    const createOrder = async (createSpecialOrder?: (orderId: number) => Promise<void>) => {
+      isUserCanCreateOrder.current = true;
+      // return;
+      dispatch(showLoading());
+      if (typeButton === OrderStatus.DRAFT) {
+        setIsSaveDraft(true);
+      } else {
+        setIsCreating(true);
+      }
+      try {
+        await dispatch(
+          orderCreateAction(
+            values,
+            (data) => {
+              if (createSpecialOrder) {
+                createSpecialOrder(data.id).then(() => createOrderCallback(data));
+              } else {
+                createOrderCallback(data);
+              }
+            },
+            () => {
+              console.log(
+                "Thời gian nhận response tạo đơn check đơn trùng:",
+                `Thời gian:${new Date().toJSON()}`,
+              );
+              console.log("data response trả về", values);
+              console.log("isUserCanCreateOrder.current", isUserCanCreateOrder.current);
+              dispatch(hideLoading());
+              setIsCreating(false);
+              setIsSaveDraft(false);
+            },
+          ),
+        );
+      } catch (error) {
+        console.log("error", error);
+      } finally {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        () => {
+          dispatch(hideLoading());
+          setIsSaveDraft(false);
+          setIsCreating(false);
+        };
+      }
+    };
+    const handleCreateOrderWithSpecialOrder = (specialOrderFormValue: any) => {
+      const handleCreateOrUpdateSpecialOrder = (orderId: number): Promise<void> => {
+        return new Promise((resolve, reject) => {
+          let resultParams = {
+            ...defaultSpecialOrderParams,
+            ...specialOrderFormValue,
+          };
+          specialOrderServices
+            .createOrUpdate(orderId, resultParams)
+            .then((response) => {
+              if (isFetchApiSuccessful(response)) {
+                resolve();
+              } else {
+                reject();
+              }
+            })
+            .catch((error) => {
+              reject();
+            });
+        });
+      };
+      createOrder(handleCreateOrUpdateSpecialOrder);
+    };
+    const specialOrderType = specialOrderForm.getFieldValue("type");
+    if (specialOrderType) {
+      specialOrderForm.validateFields().then((specialOrderFormValue) => {
+        console.log("specialOrderFormValue", specialOrderFormValue);
+        handleCreateOrderWithSpecialOrder(specialOrderFormValue);
+      });
+    } else {
+      createOrder();
+    }
+    console.log("specialOrderType", specialOrderType);
     console.log(
       "Thời gian gửi request tạo đơn check đơn trùng",
       `Thời gian: ${new Date().toJSON()}`,
     );
     console.log("isUserCanCreateOrder.current", isUserCanCreateOrder.current);
-    dispatch(showLoading());
-    if (typeButton === OrderStatus.DRAFT) {
-      setIsSaveDraft(true);
-    } else {
-      setIsCreating(true);
-    }
-    try {
-      await dispatch(
-        orderCreateAction(values, createOrderCallback, () => {
-          console.log(
-            "Thời gian nhận response tạo đơn check đơn trùng:",
-            `Thời gian:${new Date().toJSON()}`,
-          );
-          console.log("data response trả về", values);
-          console.log("isUserCanCreateOrder.current", isUserCanCreateOrder.current);
-          dispatch(hideLoading());
-          setIsCreating(false);
-          setIsSaveDraft(false);
-        }),
-      );
-    } finally {
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      () => {
-        dispatch(hideLoading());
-        setIsSaveDraft(false);
-        setIsCreating(false);
-      };
-    }
   };
 
   const onFinish = (values: OrderRequest) => {
@@ -805,6 +863,13 @@ export default function Order() {
     }
 
     return status;
+  };
+
+  const handleCreateOrUpdateSpecialOrder = (params: SpecialOrderModel): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      console.log("params", params);
+      resolve();
+    });
   };
 
   const eventFunctional = useCallback(
@@ -1466,6 +1531,9 @@ export default function Order() {
                       setReload={() => {}}
                       promotionTitle={promotionTitle}
                       setPromotionTitle={setPromotionTitle}
+                      handleCreateOrUpdateSpecialOrder={handleCreateOrUpdateSpecialOrder}
+                      orderPageType={OrderPageTypeModel.orderCreate}
+                      specialOrderForm={specialOrderForm}
                     />
                   </Col>
                 </Row>

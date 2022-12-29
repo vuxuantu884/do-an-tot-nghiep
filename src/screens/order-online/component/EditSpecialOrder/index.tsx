@@ -4,6 +4,7 @@ import { specialOrderTypes } from "component/order/special-order/SideBarOrderSpe
 import SpecialOrderCreateForm from "component/order/special-order/SpecialOrderCreateForm";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { OrderPageTypeModel } from "model/order/order.model";
 import {
   SpecialOrderFormValueModel,
   SpecialOrderModel,
@@ -199,6 +200,7 @@ function EditSpecialOrder(props: PropTypes) {
                 handleSubmitForm={handleSubmitSpecialOrderForm}
                 handleDelete={handleDeleteSpecialOrder}
                 canDelete={specialOrder ? true : false}
+                orderPageType={OrderPageTypeModel.orderCreate}
               />
             </StyledComponent>
           }

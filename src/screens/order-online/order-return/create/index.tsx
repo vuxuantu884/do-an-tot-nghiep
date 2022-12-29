@@ -356,8 +356,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
       assignee_code: isExchange ? recentAccount.accountCode : OrderDetail?.assignee_code,
       marketer_code: undefined,
       coordinator_code: OrderDetail?.coordinator_code,
-      // note: OrderDetail?.note,
-      note: promotionUtils.getPrivateNoteFromResponse(OrderDetail?.note || ""),
+      note: OrderDetail?.note,
+      // note: promotionUtils.getPrivateNoteFromResponse(OrderDetail?.note || ""),
       customer_note: OrderDetail?.customer_note,
       orderReturn_receive_return_store_id: defaultReceiveReturnStore?.id,
     };
@@ -1284,10 +1284,11 @@ const ScreenReturnCreate = (props: PropTypes) => {
       source: "",
       discount_code: promotion.discount_code,
       order_id: null,
+      taxable: promotion.taxable,
       type: promotion.sub_type || "",
       promotion_title: promotion.promotion_title,
     };
-    let listDiscountRequest = [];
+    let listDiscountRequest: OrderDiscountRequest[] = [];
     if (coupon) {
       listDiscountRequest.push({
         discount_code: promotion.discount_code,
@@ -1298,6 +1299,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         reason: "",
         source: "",
         order_id: null,
+        taxable: promotion.taxable,
         type: promotion.sub_type || "",
         promotion_title: promotion.promotion_title,
       });
@@ -1311,6 +1313,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         reason: promotion.reason,
         source: "",
         order_id: null,
+        taxable: promotion.taxable,
         type: promotion.sub_type || "",
         promotion_title: promotion.promotion_title,
       });
@@ -1391,10 +1394,10 @@ const ScreenReturnCreate = (props: PropTypes) => {
       values.url = OrderDetail ? OrderDetail.url : null;
       values.reference_code = OrderDetail ? OrderDetail.reference_code : null;
 
-      values.note = promotionUtils.combinePrivateNoteAndPromotionTitle(
-        values.note || "",
-        promotionTitle,
-      );
+      // values.note = promotionUtils.combinePrivateNoteAndPromotionTitle(
+      //   values.note || "",
+      //   promotionTitle,
+      // );
 
       return values;
     },
@@ -1415,7 +1418,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
       getOrderSource,
       form,
       orderReturnType,
-      promotionTitle,
       payments,
       totalAmountReturnProducts,
     ],
@@ -1527,9 +1529,10 @@ const ScreenReturnCreate = (props: PropTypes) => {
       let discounts = handleRecalculateOriginDiscount(itemsResult);
 
       const origin_order_id = OrderDetail.id;
-      let { account, assignee, coordinator, marketer, ...fieldReturn } = cloneDeep(OrderDetail);
+      let { account, assignee, coordinator, marketer, ...formattedOrderDetail } =
+        cloneDeep(OrderDetail);
       let orderDetailResult: ReturnRequest = {
-        ...fieldReturn,
+        ...formattedOrderDetail,
         source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
         store_id: returnStore ? returnStore.id : null,
         store: returnStore ? returnStore.name : "",

@@ -1025,17 +1025,14 @@ export const getProductDiscountPerOrder = (
   product: OrderLineItemResponse,
 ) => {
   let discountPerOrder = 0;
-  let totalDiscountAmountPerOrder = 0;
-  if (OrderDetail?.total_line_amount_after_line_discount) {
-    OrderDetail?.discounts?.forEach((singleOrderDiscount) => {
-      if (singleOrderDiscount?.amount) {
-        totalDiscountAmountPerOrder = totalDiscountAmountPerOrder + singleOrderDiscount?.amount;
-      }
-    });
-    product.discount_value = getLineItemDiscountValue(product);
-    discountPerOrder =
-      (totalDiscountAmountPerOrder / OrderDetail?.total_line_amount_after_line_discount) *
-      (product.price - product.discount_value);
+  if (OrderDetail?.discounts?.length && OrderDetail.discounts[0].amount > 0) {
+    let taxValue = 1;
+    if (OrderDetail.discounts[0].taxable) {
+      let taxRate = product.tax_rate / 100;
+      taxValue = 1 + taxRate;
+    }
+
+    discountPerOrder = (product.distributed_order_discount || 0) * taxValue;
   }
   return discountPerOrder;
 };

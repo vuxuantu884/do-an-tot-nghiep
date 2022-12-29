@@ -130,11 +130,11 @@ function CardReturnProducts(props: PropTypes) {
       <StyledComponent>
         <div className="single popOverPriceContent">
           <p>Chiết khấu/sản phẩm: </p>
-          <p>{formatCurrency(discountPerProduct)}</p>
+          <p style={{ marginLeft: 5 }}>{formatCurrency(discountPerProduct)}</p>
         </div>
         <div className="single popOverPriceContent">
           <p>Chiết khấu/đơn hàng: </p>
-          <p>{formatCurrency(discountPerOrder)}</p>
+          <p style={{ marginLeft: 5 }}>{formatCurrency(discountPerOrder)}</p>
         </div>
       </StyledComponent>
     );

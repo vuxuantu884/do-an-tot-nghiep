@@ -1348,7 +1348,7 @@ function OrdersTable(props: PropTypes) {
             customer_note: record.customer_note,
           };
 
-          const promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
+          const promotionText = promotionUtils.getAllPromotionTitle(record);
           return (
             <div className="orderNotes">
               <div className="inner">

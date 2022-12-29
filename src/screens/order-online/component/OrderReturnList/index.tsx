@@ -689,7 +689,7 @@ function OrderReturnList(props: PropTypes) {
       title: "Ghi chú",
       className: "notes",
       render: (value: string, record: any) => {
-        const promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
+        const promotionText = promotionUtils.getAllPromotionTitle(record);
         return (
           <div className="orderNotes">
             <div className="inner">

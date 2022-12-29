@@ -9,6 +9,7 @@ import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import { promotionUtils } from "component/order/promotion.utils";
 import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
+import { defaultSpecialOrderParams } from "component/order/special-order/SideBarOrderSpecial/helper";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
@@ -31,6 +32,7 @@ import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
+import { SpecialOrderModel } from "model/order/special-order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddressRequestModel,
@@ -59,6 +61,7 @@ import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverS
 import useFetchOrderConfig from "screens/order-online/hooks/useFetchOrderConfig";
 import useFetchPaymentMethods from "screens/order-online/hooks/useFetchPaymentMethods";
 import { deleteOrderService, getStoreBankAccountNumbersService } from "service/order/order.service";
+import { specialOrderServices } from "service/order/special-order.service";
 import {
   formatCurrency,
   getAccountCodeFromCodeAndName,
@@ -157,6 +160,7 @@ export default function Order(props: PropTypes) {
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
   const [form] = Form.useForm();
+  const [specialOrderForm] = Form.useForm();
 
   const deliveryServices = useFetchDeliverServices();
 
@@ -608,35 +612,88 @@ export default function Order(props: PropTypes) {
 
   const handleUpdateOrder = (valuesCalculateReturnAmount: OrderRequest) => {
     console.log("valuesCalculateReturnAmount", valuesCalculateReturnAmount);
-    //return;
-    dispatch(showLoading());
-    try {
-      if (!isFinalized) {
-        setUpdating(true);
-      } else {
-        setUpdatingConfirm(true);
+    const updateOrder = (updateSpecialOrder?: (orderId: number) => Promise<void>) => {
+      dispatch(showLoading());
+      try {
+        if (!isFinalized) {
+          setUpdating(true);
+        } else {
+          setUpdatingConfirm(true);
+        }
+        dispatch(
+          orderUpdateAction(
+            OrderDetail?.id || 0,
+            valuesCalculateReturnAmount,
+            // isFinalized ? updateAndConfirmOrderCallback : updateOrderCallback,
+            (value) => {
+              if (isFinalized) {
+                if (updateSpecialOrder) {
+                  updateSpecialOrder(OrderDetail?.id || 0).then(() => {
+                    updateAndConfirmOrderCallback(value);
+                  });
+                } else {
+                  updateAndConfirmOrderCallback(value);
+                }
+              } else {
+                if (updateSpecialOrder) {
+                  updateSpecialOrder(OrderDetail?.id || 0).then(() => {
+                    updateOrderCallback(value);
+                  });
+                } else {
+                  updateOrderCallback(value);
+                }
+              }
+            },
+            () => {
+              setUpdating(false);
+              setUpdatingConfirm(false);
+              dispatch(hideLoading());
+            },
+          ),
+        );
+      } catch {
+        isFinalized ? setUpdatingConfirm(false) : setUpdating(false);
+      } finally {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        () => {
+          dispatch(hideLoading());
+          setUpdating(false);
+          setUpdatingConfirm(false);
+        };
       }
-      dispatch(
-        orderUpdateAction(
-          OrderDetail?.id || 0,
-          valuesCalculateReturnAmount,
-          isFinalized ? updateAndConfirmOrderCallback : updateOrderCallback,
-          () => {
-            setUpdating(false);
-            setUpdatingConfirm(false);
-            dispatch(hideLoading());
-          },
-        ),
-      );
-    } catch {
-      isFinalized ? setUpdatingConfirm(false) : setUpdating(false);
-    } finally {
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      () => {
-        dispatch(hideLoading());
-        setUpdating(false);
-        setUpdatingConfirm(false);
+    };
+    const handleUpdateOrderWithSpecialOrder = (specialOrderFormValue: any) => {
+      const handleCreateOrUpdateSpecialOrder = (orderId: number): Promise<void> => {
+        return new Promise((resolve, reject) => {
+          let resultParams = {
+            ...defaultSpecialOrderParams,
+            ...specialOrderFormValue,
+          };
+          specialOrderServices
+            .createOrUpdate(orderId, resultParams)
+            .then((response) => {
+              if (isFetchApiSuccessful(response)) {
+                resolve();
+              } else {
+                reject();
+              }
+            })
+            .catch((error) => {
+              reject();
+            });
+        });
       };
+      updateOrder(handleCreateOrUpdateSpecialOrder);
+    };
+    // return;
+    const specialOrderType = specialOrderForm.getFieldValue("type");
+    if (specialOrderType) {
+      specialOrderForm.validateFields().then((specialOrderFormValue) => {
+        console.log("specialOrderFormValue", specialOrderFormValue);
+        handleUpdateOrderWithSpecialOrder(specialOrderFormValue);
+      });
+    } else {
+      updateOrder();
     }
   };
 
@@ -1237,6 +1294,13 @@ export default function Order(props: PropTypes) {
     return status;
   };
 
+  const handleCreateOrUpdateSpecialOrder = (params: SpecialOrderModel): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      console.log("params", params);
+      resolve();
+    });
+  };
+
   const checkIfShowCreatePayment = () => {
     return (
       checkIfOrderHasNoPayment(OrderDetail) &&
@@ -1807,6 +1871,9 @@ export default function Order(props: PropTypes) {
                     promotionTitle={promotionTitle}
                     setPromotionTitle={setPromotionTitle}
                     defaultReceiveReturnStore={defaultReceiveReturnStore}
+                    handleCreateOrUpdateSpecialOrder={handleCreateOrUpdateSpecialOrder}
+                    orderPageType={OrderPageTypeModel.orderUpdate}
+                    specialOrderForm={specialOrderForm}
                   />
                 </Col>
               </Row>

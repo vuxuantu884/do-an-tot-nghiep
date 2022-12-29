@@ -1,3 +1,4 @@
+import { OrderModel } from "model/order/order.model";
 import { PromotionConstants } from "./promotion.constant";
 
 export const promotionUtils = {
@@ -38,5 +39,24 @@ export const promotionUtils = {
       .replace(PromotionConstants.combinePromotionTextAndPrivateNote, "")
       .replace(promotionTitle, "")
       .replace(PromotionConstants.promotionTitleEndText, "");
+  },
+  // lúc trước truyền tên chương trình khuyến mại vào reason, nên lấy thêm ở reason
+  getAllPromotionTitle: (orderDetail: OrderModel) => {
+    const lineItemsPromotionTitle = orderDetail.items
+      .filter((item) => {
+        return item.discount_items.length > 0 && item.discount_items[0].amount > 0;
+      })
+      .map(
+        (single) =>
+          single.discount_items[0].promotion_title || single.discount_items[0].reason || "",
+      );
+    const orderPromotionTitle =
+      orderDetail.discounts &&
+      orderDetail.discounts.length > 0 &&
+      orderDetail.discounts[0].amount > 0
+        ? [orderDetail.discounts[0].promotion_title || orderDetail.discounts[0].reason || ""]
+        : [];
+    const allPromotionTitle = [...lineItemsPromotionTitle, ...orderPromotionTitle];
+    return allPromotionTitle.length > 0 ? allPromotionTitle.join(",") : "";
   },
 };

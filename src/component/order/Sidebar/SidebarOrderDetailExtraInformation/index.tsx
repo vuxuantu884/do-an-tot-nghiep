@@ -61,10 +61,10 @@ function SidebarOrderDetailExtraInformation(props: PropTypes) {
           "Không có ghi chú"
         ),
     },
-    {
-      title: "Tên CTKM: ",
-      value: promotionUtils.getPromotionTextFromResponse(OrderDetail?.note || ""),
-    },
+    // {
+    //   title: "Tên CTKM: ",
+    //   value: promotionUtils.getPromotionTextFromResponse(OrderDetail?.note || ""),
+    // },
     {
       title: "Nhãn: ",
       value: OrderDetail?.tags
