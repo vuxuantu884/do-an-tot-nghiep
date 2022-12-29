@@ -1,9 +1,12 @@
-import { CheckCircleOutlined, CloseCircleOutlined, InfoCircleOutlined } from "@ant-design/icons";
-import { Col, Divider, Row, Tag, Tooltip, Typography } from "antd";
+import { CloseOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, Row, Space, Tag, Tooltip, Typography } from "antd";
+import couponOrderIcon from "assets/icon/coupon-order.svg";
 import { OrderDiscountRequest, OrderLineItemRequest } from "model/request/order.request";
-import React from "react";
-import { formatCurrency, formatPercentage, handleDisplayCoupon } from "utils/AppUtils";
+import React, { useEffect, useMemo, useState } from "react";
+import { formatCurrency, formatPercentage } from "utils/AppUtils";
+import discountCouponIcon from "assets/icon/discount-coupon.svg";
 import { StyledComponent } from "./styles";
+import { DISCOUNT_TYPE } from "utils/Constants";
 
 type PropType = {
   levelOrder?: number;
@@ -41,24 +44,46 @@ function CardProductBottom(props: PropType) {
     totalAmountOrder,
     items,
     promotion,
-    couponInputText,
     // changeMoney,
     shippingFeeInformedToCustomer,
     returnOrderInformation,
     totalAmountCustomerNeedToPay,
-    isDisableOrderDiscount,
-    isCouponValid,
     showDiscountModal,
-    showCouponModal,
     setPromotion,
     calculateChangeMoney,
     setCoupon,
-    setCouponInputText,
-    handleRemoveAllAutomaticDiscount,
   } = props;
+
+  const isDiscountItem = useMemo(() => {
+    if (!items || (items && items.length === 0)) return false;
+    return items?.some(
+      (p) =>
+        p.discount_items[0]?.promotion_id !== null &&
+        p.discount_items[0]?.promotion_id !== undefined,
+    );
+  }, [items]);
 
   let discountRate = promotion?.rate || 0;
   let discountValue = promotion?.value || 0;
+
+  const [isShowDiscountOrder, setIsShowDiscountOrder] = useState(false);
+
+  useEffect(() => {
+    var element = document.getElementById(`promotion_order`);
+    const handleClickOutside = (event: any) => {
+      if (element && event.target !== element && !element.contains(event.target)) {
+        setIsShowDiscountOrder(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      // Unbind the event listener on clean up
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  console.log("Promotion: ", promotion);
+  console.log("PromotionId: ", promotion?.promotion_id);
 
   return (
     <StyledComponent>
@@ -76,35 +101,89 @@ function CardProductBottom(props: PropType) {
             <div className="font-weight-500">{formatCurrency(orderAmount)}</div>
           </Row>
 
-          <Row className="paymentRow" style={{ justifyContent: "space-between" }} align="middle">
-            <div style={{ display: "flex", alignItems: "center" }}>
+          {/* <Row className="paymentRow" style={{ justifyContent: "space-between" }} align="middle">
+              <div style={{ display: "flex", alignItems: "center" }}>
+                {(setPromotion && !isDisableOrderDiscount && items && items.length > 0) || true ? (
+                  <Typography.Link
+                    className="font-weight-400"
+                    onClick={showDiscountModal}
+                    style={{
+                      textDecoration: "underline",
+                      textDecorationColor: "#5D5D8A",
+                      color: "#5D5D8A",
+                    }}
+                  >
+                    Chiết khấu:
+                  </Typography.Link>
+                ) : (
+                  <div>Chiết khấu:</div>
+                )}
+
+                {items && discountRate !== 0 && (
+                  <Tag
+                    key={discountRate}
+                    style={{
+                      marginTop: 0,
+                      marginLeft: 5,
+                      color: "#E24343",
+                      backgroundColor: "#F5F5F5",
+                    }}
+                    className="orders-tag orders-tag-danger"
+                    closable={!isDisableOrderDiscount}
+                    onClose={() => {
+                      setCoupon && setCoupon("");
+                      calculateChangeMoney(items, null);
+                    }}
+                  >
+                    {discountRate ? formatPercentage(discountRate) : 0}%{" "}
+                  </Tag>
+                )}
+              </div>
+              <div className="font-weight-500 ">
+                {discountValue ? formatCurrency(discountValue) : "-"}
+              </div>
+            </Row> */}
+
+          <Row className="paymentRow" justify="space-between" align="middle">
+            <Space align="center" style={{ position: "relative" }} id="promotion_order">
               {/* ko disable chiết khấu tổng */}
-              {(setPromotion && !isDisableOrderDiscount && items && items.length > 0) || true ? (
+              {setPromotion && items && items.length > 0 && !isDiscountItem ? (
                 <Typography.Link
-                  className="font-weight-400"
-                  onClick={showDiscountModal}
-                  style={{
-                    textDecoration: "underline",
-                    textDecorationColor: "#5D5D8A",
-                    color: "#5D5D8A",
+                  className="font-weight-400 discountTitle"
+                  onClick={() => {
+                    if (promotion && promotion.promotion_id) {
+                      setIsShowDiscountOrder(!isShowDiscountOrder);
+                    } else {
+                      showDiscountModal();
+                    }
                   }}
                 >
-                  Chiết khấu:
+                  {promotion && promotion.promotion_id ? (
+                    <>
+                      <img src={couponOrderIcon} alt="" /> Áp dụng 1 chương trình khuyến mại{" "}
+                      <InfoCircleOutlined />
+                    </>
+                  ) : (
+                    <>
+                      Chương trình khuyến mại <InfoCircleOutlined />
+                    </>
+                  )}
                 </Typography.Link>
               ) : (
-                <div>Chiết khấu:</div>
+                <div>
+                  Chương trình khuyến mại
+                  <Tooltip title="Tắt chiết khấu tự động để nhập chiết khấu đơn hàng hoặc xóa chiết khấu trên sản phẩm">
+                    <span className="noteTooltip">
+                      <InfoCircleOutlined style={{ color: "#2a2a86" }} />
+                    </span>
+                  </Tooltip>
+                </div>
               )}
 
-              {items && discountRate !== 0 && (
+              {/* {items && discountRate !== 0 && (
                 <Tag
                   key={discountRate}
-                  style={{
-                    marginTop: 0,
-                    marginLeft: 5,
-                    color: "#E24343",
-                    backgroundColor: "#F5F5F5",
-                  }}
-                  className="orders-tag orders-tag-danger"
+                  className="orders-tag orders-tag-danger discountTag"
                   closable={!isDisableOrderDiscount}
                   onClose={() => {
                     setCoupon && setCoupon("");
@@ -113,14 +192,64 @@ function CardProductBottom(props: PropType) {
                 >
                   {discountRate ? formatPercentage(discountRate) : 0}%{" "}
                 </Tag>
+              )} */}
+              {promotion && promotion.promotion_id && isShowDiscountOrder && (
+                <Card
+                  title={
+                    <>
+                      <span>Khuyến mại đang áp dụng</span>
+                      <CloseOutlined
+                        onClick={() => {
+                          setIsShowDiscountOrder(false);
+                        }}
+                      />
+                    </>
+                  }
+                  className="discount-order-card"
+                >
+                  <Space direction="horizontal">
+                    <span className="promotion-name">
+                      <img src={discountCouponIcon} alt="" width={12} />{" "}
+                      {promotion?.promotion_title}
+                    </span>
+                    <span className="promotion-value">
+                      {promotion?.type === DISCOUNT_TYPE.PERCENT
+                        ? `${formatPercentage(promotion?.rate ?? 0)} %`
+                        : `${formatCurrency(promotion?.value ?? 0)} đ`}
+                    </span>
+                    <span className="promotion-value-after">
+                      {`${formatCurrency(orderAmount - (promotion?.value ?? 0))} đ`}
+                    </span>
+                    <Button
+                      danger
+                      ghost
+                      onClick={() => {
+                        setCoupon && setCoupon("");
+                        items && calculateChangeMoney(items, null);
+                        setIsShowDiscountOrder(false);
+                      }}
+                    >
+                      Loại bỏ
+                    </Button>
+                  </Space>
+                </Card>
               )}
-            </div>
+            </Space>
             <div className="font-weight-500 ">
-              {discountValue ? formatCurrency(discountValue) : "-"}
+              {promotion?.promotion_id && discountValue && discountRate ? (
+                <>
+                  {formatCurrency(discountValue)}{" "}
+                  <span style={{ color: "red", fontWeight: 400 }}>
+                    ({formatPercentage(discountRate)}%)
+                  </span>
+                </>
+              ) : (
+                "-"
+              )}
             </div>
           </Row>
 
-          <Row className="paymentRow" justify="space-between" align="middle">
+          {/* <Row className="paymentRow" justify="space-between" align="middle">
             <div>
               {setPromotion && !isDisableOrderDiscount && items && items.length > 0 ? (
                 <Typography.Link
@@ -193,7 +322,7 @@ function CardProductBottom(props: PropType) {
               )}
             </div>
             <div className="font-weight-500 ">-</div>
-          </Row>
+          </Row> */}
 
           <Row className="paymentRow" justify="space-between">
             <div>Phí ship báo khách:</div>
@@ -219,7 +348,7 @@ function CardProductBottom(props: PropType) {
           <Row className="paymentRow" justify="space-between">
             <strong className="font-size-text">
               {totalAmountCustomerNeedToPay >= 0 || !returnOrderInformation
-                ? `Khách cần phải trả:`
+                ? `Khách cần phải trả :`
                 : `Cần trả lại khách:`}
             </strong>
             <strong className="text-success font-size-price">
