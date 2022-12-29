@@ -12,7 +12,7 @@ import {
   Row,
   Select,
   Space,
-  Table,
+  Table, Tag,
   Upload,
 } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
@@ -57,12 +57,12 @@ import { ConvertFullAddress } from "utils/ConvertAddress";
 import { Link } from "react-router-dom";
 import { callApiNative } from "utils/ApiUtils";
 import { getAccountDetail } from "service/accounts/account.service";
-import { getStoreApi } from "service/inventory/transfer/index.service";
+import { getStoreApi, getTopReceivedStoreApi } from "service/inventory/transfer/index.service";
 import { AccountStoreResponse } from "model/account/account.model";
 import { RefSelectProps } from "antd/lib/select";
 import { strForSearch } from "utils/StringUtils";
 import { searchVariantsApi } from "service/product/product.service";
-import { HttpStatus } from "../../../config/http-status.config";
+import { HttpStatus } from "config/http-status.config";
 import ModalShowError from "../common/ModalShowError";
 
 const { Option } = Select;
@@ -83,11 +83,12 @@ const CreateTicket: FC = () => {
   const history = useHistory();
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
+  const [storesReceived, setStoresReceived] = useState<Array<Store>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
 
   const [fromStoreData, setFormStoreData] = useState<Store>();
-  const [toStoreData, setToStoreData] = useState<Store>();
+  const [toStoreData, setToStoreData] = useState<Store | null>(null);
   const [keySearch, setKeySearch] = useState<string>("");
   const productAutoCompleteRef = createRef<RefSelectProps>();
 
@@ -725,6 +726,36 @@ const CreateTicket: FC = () => {
     dispatch(creatInventoryTransferAction(continueData, createCallback));
   };
 
+  const getTopReceivedStore = async (store: Store) => {
+    const response = await callApiNative(
+      { isShowError: true },
+      dispatch,
+      getTopReceivedStoreApi,
+      { from_store_id: store.id, limit: 5 },
+    );
+
+    if (response.store_ids.length === 0) {
+      setStoresReceived([]);
+      return;
+    }
+
+    const receivedStores = response.store_ids.map((toStoreId: number) => {
+      const storeFiltered = stores.filter((store) => store.id === toStoreId);
+      return storeFiltered[0];
+    });
+
+    const receivedStoresSorted = receivedStores.sort((a: Store, b: Store) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+
+    setStoresReceived(receivedStoresSorted);
+  };
+
+  const handleSelectSuggestStore = (store: Store) => {
+    setToStoreData(store);
+    form.setFieldsValue({
+      to_store_id: store.id.toString()
+    });
+  };
+
   return (
     <ContentContainer
       title="Thêm mới phiếu chuyển hàng"
@@ -778,6 +809,7 @@ const CreateTicket: FC = () => {
                       onChange={(value: number) => {
                         stores.forEach((element) => {
                           if (element.id === value) {
+                            getTopReceivedStore(element).then();
                             setFormStoreData(element);
                             onChangeFromStore(element.id);
                           }
@@ -829,7 +861,11 @@ const CreateTicket: FC = () => {
                       showArrow
                       optionFilterProp="children"
                       showSearch
+                      allowClear
                       onChange={(value: string) => {
+                        if (!value) {
+                          setToStoreData(null);
+                        }
                         stores.forEach((element) => {
                           if (element.id === parseInt(value)) {
                             setToStoreData(element);
@@ -853,6 +889,19 @@ const CreateTicket: FC = () => {
                         ))}
                     </Select>
                   </Form.Item>
+                  {storesReceived.length > 0 && !toStoreData && <div className="font-weight-500">Chọn nhanh kho nhận:</div>}
+                  {storesReceived.length > 0 && !toStoreData && storesReceived.map((store) => {
+                    return (
+                      <Tag
+                        color="processing"
+                        className="mr-15 mb-10"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => handleSelectSuggestStore(store)}
+                      >
+                        {store.name}
+                      </Tag>
+                    );
+                  })}
                   {toStoreData && (
                     <>
                       <RowDetail title="Mã CH" value={toStoreData.code} />

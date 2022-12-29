@@ -257,4 +257,48 @@ export const StyledWrapper = styled.div`
   .ant-table-sticky-holder {
     top: 56px !important;
   }
+  
+  .adjustment-inventory-table {
+    th, td {
+      padding: 5px !important;
+    }
+  }
 `;
+
+export const StyledWrapperContentModal = styled.div`
+  .adjustment-inventory-table {
+    th, td {
+      padding: 5px;
+    }
+  }
+  .warning {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    padding: 9px 16px;
+    background: #FFFBE6;
+    border: 1px solid #FFE58F;
+    border-radius: 2px;
+  }
+  .icon-warning {
+    margin-right: 10px;
+    color: #FAAD14;
+    font-size: 20px;
+  }
+  .table-group {
+    display: flex;
+  }
+`
+
+export const StyledWrapperFooterModal = styled.div`
+  .group-btn {
+    display: flex;
+    align-items: center;
+
+    .btn-show-tour {
+      margin-right: auto;
+      border-color: #FAAD14;
+    }
+  }
+`

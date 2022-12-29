@@ -515,7 +515,6 @@ function OrderList(props: PropTypes) {
             p.fulfillments?.some((p1) => p1.status === FulFillmentStatus.SHIPPING),
           );
 
-          // console.log("isOrderShipping",isOrderShipping)
 
           if (isOrderShipping && isOrderShipping.length > 0) {
             Modal.error({

@@ -128,6 +128,10 @@ const getInventoryReportApi = (id: number | null): Promise<BaseResponse<any>> =>
   return BaseAxios.get(`${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/report`);
 };
 
+const checkIncurredRecordApi = (id?: number): Promise<BaseResponse<string>> => {
+  return BaseAxios.get(`${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/intervening-transaction`);
+};
+
 export {
   getListInventoryAdjustmentApi,
   getDetailInventorAdjustmentGetApi,
@@ -146,4 +150,5 @@ export {
   cancelInventoryTicket,
   getPrintProductService,
   getInventoryReportApi,
+  checkIncurredRecordApi,
 };

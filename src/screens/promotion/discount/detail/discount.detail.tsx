@@ -32,6 +32,7 @@ import {
   columnDiscountByRule,
   columnDiscountQuantity,
   columnFixedPrice,
+  DiscountUnitType,
   DISCOUNT_STATUS,
 } from "../../constants";
 import { DiscountStyled } from "../discount-style";
@@ -39,7 +40,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import exportIcon from "assets/icon/export.svg";
 import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
-import { generateQuery } from "utils/AppUtils";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
 import _ from "lodash";
 import { ProductResponse } from "model/product/product.model";
 import ParentProductItem from "component/item-select/parent-product-item";
@@ -167,6 +168,11 @@ const PromotionDetailScreen: React.FC = () => {
       value: <TextShowMore maxLength={50}>{dataDiscount?.description}</TextShowMore>,
       position: "left",
     },
+    {
+      name: "Đăng ký với Bộ công thương",
+      value: <span>{dataDiscount?.is_registered ? "Đã đăng ký" : "Không đăng ký"}</span>,
+      position: "left",
+    },
   ];
 
   const RenderStatus = (data: PriceRule) => {
@@ -278,13 +284,33 @@ const PromotionDetailScreen: React.FC = () => {
     //   }])
     // }
 
-    setQuantityColumn(
-      dataDiscount?.entitled_method === PriceRuleMethod.FIXED_PRICE
-        ? columnFixedPrice
-        : columnDiscountQuantity,
-    );
+    const columnFixedPriceProductHaveExclude = [...columnFixedPrice];
+    columnFixedPriceProductHaveExclude.splice(3, 1);
+
+    const columnDiscountQuantityProductHaveExclude = [...columnDiscountQuantity];
+    columnDiscountQuantityProductHaveExclude.splice(3, 2);
+
+    if (dataDiscount?.entitlements[0]?.is_apply_all && dataDiscount?.entitlements[0]?.is_exclude) {
+      setQuantityColumn(
+        dataDiscount?.entitled_method === PriceRuleMethod.FIXED_PRICE
+          ? columnFixedPriceProductHaveExclude
+          : columnDiscountQuantityProductHaveExclude,
+      );
+    } else {
+      setQuantityColumn(
+        dataDiscount?.entitled_method === PriceRuleMethod.FIXED_PRICE
+          ? columnFixedPrice
+          : columnDiscountQuantity,
+      );
+    }
+
     setIsLoadingVariantList(isVariantNotLoadYet);
-  }, [dataVariants, dataDiscount, dispatch, handleResponse, idNumber, getPriceRuleVariantData]);
+  }, [
+    dataDiscount?.entitled_method,
+    dataDiscount?.entitlements,
+    dataVariants?.items?.length,
+    getPriceRuleVariantData,
+  ]);
 
   // handle export file
   const [exportCode, setExportCode] = useState<string | null>(null);
@@ -433,6 +459,65 @@ const PromotionDetailScreen: React.FC = () => {
   };
   //<== end handle search product
 
+  const handleRenderListProductDiscount = () => {
+    return (
+      <>
+        {dataVariants && (
+          <CustomTable
+            rowKey="id"
+            dataSource={dataDiscountVariant}
+            columns={
+              dataDiscountVariant?.length > 1
+                ? quantityColumn
+                : quantityColumn.filter((column: any) => column.title !== "STT") // show only when have more than 1 entitlement
+            }
+            isLoading={isLoadingVariantList}
+            pagination={{
+              total: dataVariants.metadata?.total,
+              pageSize: dataVariants.metadata?.limit,
+              current: dataVariants.metadata?.page,
+              onChange: (page: number, limit?: number) => {
+                getPriceRuleVariantData(page, limit);
+              },
+              onShowSizeChange: (current: number, size: number) => {
+                getPriceRuleVariantData(current, size);
+              },
+              showSizeChanger: true,
+            }}
+            isShowPaginationAtHeader
+          />
+        )}
+      </>
+    );
+  };
+
+  const handleRenderValueDiscountProuduct = () => {
+    if (!dataDiscount) return <span></span>;
+    return (
+      <>
+        {dataDiscount.entitlements[0].prerequisite_quantity_ranges[0].value_type ===
+          DiscountUnitType.FIXED_PRICE.value && (
+          <span className="discount-code-product-desc">{`${formatCurrency(
+            dataDiscount.entitlements[0].prerequisite_quantity_ranges[0].value ?? 0,
+          )}${DiscountUnitType.FIXED_PRICE.label}`}</span>
+        )}
+        {dataDiscount.entitlements[0].prerequisite_quantity_ranges[0].value_type ===
+          DiscountUnitType.FIXED_AMOUNT.value && (
+          <span className="discount-code-product-desc">{`${formatCurrency(
+            dataDiscount.entitlements[0].prerequisite_quantity_ranges[0].value ?? 0,
+          )}${DiscountUnitType.FIXED_AMOUNT.label}`}</span>
+        )}
+        {dataDiscount.entitlements[0].prerequisite_quantity_ranges[0].value_type ===
+          DiscountUnitType.PERCENTAGE.value && (
+          <span className="discount-code-product-desc">
+            {`${dataDiscount.entitlements[0].prerequisite_quantity_ranges[0].value}
+      ${DiscountUnitType.PERCENTAGE.label}`}
+          </span>
+        )}{" "}
+      </>
+    );
+  };
+
   return (
     <ContentContainer
       isError={error}
@@ -456,14 +541,15 @@ const PromotionDetailScreen: React.FC = () => {
         },
       ]}
       extra={
-        allowExportProduct &&
-        <Button
-          size="large"
-          icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-          onClick={handleExportVariant}
-        >
-          Xuất file danh sách SP
-        </Button>
+        allowExportProduct && (
+          <Button
+            size="large"
+            icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+            onClick={handleExportVariant}
+          >
+            Xuất file danh sách SP
+          </Button>
+        )
       }
     >
       {dataDiscount && (
@@ -559,40 +645,16 @@ const PromotionDetailScreen: React.FC = () => {
                   </Col>
                 </Row> */}
               </Card>
-              <Card
-                className="card product-card"
-                title={
-                  <div style={{ alignItems: "center" }}>
-                    <span className="title-card">DANH SÁCH SẢN PHẨM VÀ ĐIỀU KIỆN ÁP DỤNG</span>
-                  </div>
-                }
-              >
-                <Input.Group className="display-flex" style={{ marginTop: 20 }}>
-                  <AutoComplete
-                    allowClear
-                    value={keySearchVariantDiscount}
-                    maxLength={255}
-                    dropdownMatchSelectWidth={456}
-                    style={{ width: "100%" }}
-                    dropdownClassName="product"
-                    options={renderResult}
-                    onSearch={onSearchVariant}
-                    onSelect={onSelectVariant}
-                  >
-                    <Input
-                      placeholder="Thêm sản phẩm theo tên, mã SKU, mã vạch, ..."
-                      prefix={
-                        loadingDiscountVariant ? (
-                          <LoadingOutlined style={{ color: "#2a2a86" }} />
-                        ) : (
-                          <SearchOutlined style={{ color: "#ABB4BD" }} />
-                        )
-                      }
-                    />
-                  </AutoComplete>
-                </Input.Group>
-                {dataDiscount.entitled_method === PriceRuleMethod.ORDER_THRESHOLD && (
-                  <>
+              {dataDiscount.entitled_method === PriceRuleMethod.ORDER_THRESHOLD ? (
+                <Card
+                  className="card product-card"
+                  title={
+                    <div style={{ alignItems: "center" }}>
+                      <span className="title-card">ĐIỀU KIỆN ÁP DỤNG</span>
+                    </div>
+                  }
+                >
+                  <div style={{ marginTop: 20 }}>
                     <DiscountRuleInfo dataDiscount={dataDiscount} />
                     <CustomTable
                       columns={columnDiscountByRule}
@@ -600,35 +662,79 @@ const PromotionDetailScreen: React.FC = () => {
                       pagination={false}
                       rowKey="id"
                     />
-                  </>
-                )}
+                  </div>
+                </Card>
+              ) : (
+                <Card
+                  className="card product-card"
+                  title={
+                    <div style={{ alignItems: "center" }}>
+                      <span className="title-card">DANH SÁCH SẢN PHẨM</span>
+                    </div>
+                  }
+                >
+                  <div style={{ marginTop: 20 }}>
+                    {dataDiscount?.entitlements[0]?.is_apply_all &&
+                    !dataDiscount?.entitlements[0]?.is_exclude ? (
+                      <span></span>
+                    ) : (
+                      <Input.Group className="display-flex" style={{ marginTop: 20 }}>
+                        <AutoComplete
+                          allowClear
+                          value={keySearchVariantDiscount}
+                          maxLength={255}
+                          dropdownMatchSelectWidth={456}
+                          style={{ width: "100%" }}
+                          dropdownClassName="product"
+                          options={renderResult}
+                          onSearch={onSearchVariant}
+                          onSelect={onSelectVariant}
+                        >
+                          <Input
+                            placeholder="Thêm sản phẩm theo tên, mã SKU, mã vạch, ..."
+                            prefix={
+                              loadingDiscountVariant ? (
+                                <LoadingOutlined style={{ color: "#2a2a86" }} />
+                              ) : (
+                                <SearchOutlined style={{ color: "#ABB4BD" }} />
+                              )
+                            }
+                          />
+                        </AutoComplete>
+                      </Input.Group>
+                    )}
 
-                {dataDiscount.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD && dataVariants && (
-                  <CustomTable
-                    rowKey="id"
-                    dataSource={dataDiscountVariant}
-                    columns={
-                      dataDiscountVariant?.length > 1
-                        ? quantityColumn
-                        : quantityColumn.filter((column: any) => column.title !== "STT") // show only when have more than 1 entitlement
-                    }
-                    isLoading={isLoadingVariantList}
-                    pagination={{
-                      total: dataVariants.metadata?.total,
-                      pageSize: dataVariants.metadata?.limit,
-                      current: dataVariants.metadata?.page,
-                      onChange: (page: number, limit?: number) => {
-                        getPriceRuleVariantData(page, limit);
-                      },
-                      onShowSizeChange: (current: number, size: number) => {
-                        getPriceRuleVariantData(current, size);
-                      },
-                      showSizeChanger: true,
-                    }}
-                    isShowPaginationAtHeader
-                  />
-                )}
-              </Card>
+                    {!dataDiscount?.entitlements[0]?.is_apply_all &&
+                      !dataDiscount?.entitlements[0]?.is_exclude &&
+                      handleRenderListProductDiscount()}
+
+                    {dataDiscount?.entitlements[0]?.is_apply_all &&
+                      !dataDiscount?.entitlements[0]?.is_exclude && (
+                        <div className="discount-code-product">
+                          <span>Chiết khấu</span>
+                          <div className="discount-code-product-value">
+                            {handleRenderValueDiscountProuduct()}
+                          </div>
+                          <span>cho tất cả sản phẩm</span>
+                        </div>
+                      )}
+
+                    {dataDiscount?.entitlements[0]?.is_apply_all &&
+                      dataDiscount?.entitlements[0]?.is_exclude && (
+                        <div>
+                          <div className="discount-code-product" style={{ marginTop: 12 }}>
+                            <span>Chiết khấu</span>
+                            <div className="discount-code-product-value">
+                              {handleRenderValueDiscountProuduct()}
+                            </div>
+                            <span>cho tất cả sản phẩm, loại trừ các sản phẩm sau:</span>
+                          </div>
+                          <div>{handleRenderListProductDiscount()}</div>
+                        </div>
+                      )}
+                  </div>
+                </Card>
+              )}
             </Col>
             <GeneralConditionDetail data={dataDiscount} />
           </Row>
@@ -637,17 +743,17 @@ const PromotionDetailScreen: React.FC = () => {
             backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`)}
             rightComponent={
               <Space>
-                {allowUpdateDiscount &&
+                {allowUpdateDiscount && (
                   <Link to={`${idNumber}/update`}>
                     <Button>Sửa</Button>
                   </Link>
-                }
-                
-                {allowCreateDiscount &&
+                )}
+
+                {allowCreateDiscount && (
                   <Link to={`${idNumber}/replicate`}>
                     <Button>Nhân bản</Button>
                   </Link>
-                }
+                )}
 
                 {allowUpdateDiscount && RenderActionButton()}
               </Space>

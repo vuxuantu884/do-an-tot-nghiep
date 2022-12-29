@@ -425,9 +425,10 @@ const ListInventoryDefect: React.FC = () => {
       } catch (err) {
         showError("Lỗi lấy cài đặt cột");
       }
+    } else {
+      setColumns([...initColumns]);
     }
   }, [initColumns, tableColumnConfigs, data]);
-
   const [columns, setColumns] =
     useState<Array<ICustomTableColumType<InventoryDefectResponse>>>(initColumns);
 
@@ -592,7 +593,8 @@ const ListInventoryDefect: React.FC = () => {
       const idSelected = selected.map((item) => {
         return item.id;
       });
-      await callApiNative(
+
+      const result = await callApiNative(
         { isShowError: true, isShowLoading: true },
         dispatch,
         deleteInventoryDefects,
@@ -600,9 +602,12 @@ const ListInventoryDefect: React.FC = () => {
           ids: idSelected.toString(),
         },
       );
+
+      if (result) {
+        showSuccess("Xóa sản phẩm thành công");
+        getInventoryDefects();
+      }
       setConfirmDelete(false);
-      showSuccess("Xóa sản phẩm thành công");
-      getInventoryDefects();
     } catch (err) {}
   };
 
@@ -660,7 +665,7 @@ const ListInventoryDefect: React.FC = () => {
             Lọc
           </Button>
         </Item>
-        <Item>
+        <Item style={{ margin: 0 }}>
           <ButtonSetting onClick={() => setShowSettingColumn(true)} />
         </Item>
       </Form>
@@ -737,6 +742,9 @@ const ListInventoryDefect: React.FC = () => {
 export default ListInventoryDefect;
 
 const StyledCard = styled(Card)`
+  border: none;
+  box-shadow: none;
+  margin-top: 20px;
   .page-filter-left {
     margin-right: 20px;
     .action-button {
@@ -748,5 +756,8 @@ const StyledCard = styled(Card)`
       align-items: center;
       color: #2a2a86;
     }
+  }
+  .ant-card-body {
+    padding: 0;
   }
 `;

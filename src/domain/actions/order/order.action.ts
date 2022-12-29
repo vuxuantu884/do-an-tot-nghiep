@@ -363,6 +363,7 @@ export const getReturnsAction = (
   query: ReturnSearchQuery,
   setData: (data: PageResponse<ReturnModel> | false) => void,
 ) => {
+  console.log("QUERYYYYYY=>>>>>>>>>>>>",query)
   return BaseAction(OrderType.GET_RETURNS_REQUEST, {
     query,
     setData,

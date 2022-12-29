@@ -572,6 +572,8 @@ export const addProductFromSelectToForm = (
 export const getEntilementValue = (
   entitlements: EntilementFormModel[],
   entitlementMethod: string,
+  discountAllProduct?: boolean,
+  discountProductHaveExclude?: boolean,
 ) => {
   if (entitlementMethod === PriceRuleMethod.ORDER_THRESHOLD.toString()) {
     return [];
@@ -580,17 +582,28 @@ export const getEntilementValue = (
       return null;
     }
 
-    // check không được để trống sản phẩm trong nhóm chiết khấu
-    const checkEmpty = entitlements.some(
-      (e) => e.entitled_product_ids?.length === 0 && e.entitled_variant_ids?.length === 0,
-    );
-    if (checkEmpty) {
-      throw new Error("Không được để trống sản phẩm trong nhóm chiết khấu");
+    if (discountAllProduct && !discountProductHaveExclude) {
+      delete entitlements[0].selectedProducts;
+      return [entitlements[0]];
+    } else {
+      const removeEmptyEntitlement = entitlements.filter(
+        (item) => item.selectedProducts && item.selectedProducts.length > 0,
+      );
+
+      // check không được để trống sản phẩm trong nhóm chiết khấu
+      const checkEmpty = removeEmptyEntitlement.some(
+        (e) => e.entitled_product_ids?.length === 0 && e.entitled_variant_ids?.length === 0,
+      );
+
+      if (checkEmpty) {
+        throw new Error("Không được để trống sản phẩm trong nhóm chiết khấu");
+      }
+
+      return removeEmptyEntitlement?.map((item: EntilementFormModel) => {
+        delete item.selectedProducts;
+        return item;
+      });
     }
-    return entitlements?.map((item: EntilementFormModel) => {
-      delete item.selectedProducts;
-      return item;
-    });
   }
 };
 
@@ -619,9 +632,20 @@ const checkCustomerCondition = (body: any) => {
   }
 };
 
-export const transformData = (values: any, priceRuleType = PROMO_TYPE.AUTOMATIC) => {
+export const transformData = (
+  values: any,
+  priceRuleType = PROMO_TYPE.AUTOMATIC,
+  discountAllProduct?: boolean,
+  discountProductHaveExclude?: boolean,
+) => {
   let body: any = values;
-  body.entitlements = getEntilementValue(values.entitlements, values.entitled_method);
+
+  body.entitlements = getEntilementValue(
+    values.entitlements,
+    values.entitled_method,
+    discountAllProduct,
+    discountProductHaveExclude,
+  );
 
   //checkCustomerCondition(body);
 

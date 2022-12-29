@@ -4,6 +4,7 @@ import { ApiConfig } from "config/api.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   CalculateVariantPointInOrderModel,
+  CustomOrderSearchQueryModel,
   FulfillmentsOrderPackQuery,
   OrderHistorySearch,
   OrderModel,
@@ -11,7 +12,12 @@ import {
   StoreBankAccountNumberModel,
   StoreBankAccountNumbersQueryModel,
 } from "model/order/order.model";
-import { RefundTransactionModel, ReturnModel, ReturnSearchQuery } from "model/order/return.model";
+import {
+  CustomReturnOrderSearchQueryModel,
+  RefundTransactionModel,
+  ReturnModel,
+  ReturnSearchQuery,
+} from "model/order/return.model";
 import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import {
   ConfirmDraftOrderRequest,
@@ -19,7 +25,8 @@ import {
   GetFeesRequest,
   GHNFeeRequest,
   OrderBillRequestModel,
-  OrderRequest, PromotionQuery,
+  OrderRequest,
+  PromotionQuery,
   ShippingGHTKRequest,
   SplitOrderRequest,
   UpdateFulFillmentStatusRequest,
@@ -49,7 +56,8 @@ import {
   GHNFeeResponse,
   OrderBillResponseModel,
   OrderResponse,
-  OrderReturnResponse, PromotionResponse,
+  OrderReturnResponse,
+  PromotionResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
   VTPFeeResponse,
@@ -64,7 +72,7 @@ export const getDetailOrderApi = (orderId: any): Promise<BaseResponse<OrderRespo
 };
 
 export const getListOrderApi = (
-  query: OrderSearchQuery,
+  query: OrderSearchQuery | CustomOrderSearchQueryModel,
 ): Promise<BaseResponse<PageResponse<OrderModel>>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/orders?${queryString}`);
@@ -84,7 +92,9 @@ export const getShipmentApi = (
   return BaseAxios.get(`${ApiConfig.ORDER}/shipments?${queryString}`);
 };
 
-export const getReturnApi = (query: ReturnSearchQuery): Promise<BaseResponse<ReturnModel>> => {
+export const getReturnApi = (
+  query: ReturnSearchQuery | CustomReturnOrderSearchQueryModel,
+): Promise<BaseResponse<PageResponse<ReturnModel>>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/orders/returns?${queryString}`);
 };
@@ -562,7 +572,9 @@ export const getOrderHistoryService = (
   return BaseAxios.get(`${ApiConfig.ORDER}/order-histories?${param}`);
 };
 
-export const getListPriceRuleGiftService = (query: PromotionQuery): Promise<BaseResponse<PageResponse<PromotionResponse>>> => {
+export const getListPriceRuleGiftService = (
+  query: PromotionQuery,
+): Promise<BaseResponse<PageResponse<PromotionResponse>>> => {
   let params = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.PROMOTION}/price-rule-gifts?${params}`)
+  return BaseAxios.get(`${ApiConfig.PROMOTION}/price-rule-gifts?${params}`);
 };

@@ -7,8 +7,7 @@ import { InventoryTransferTabWrapper } from "./styles";
 import {
   InventoryTransferDetailItem,
   InventoryTransferLog,
-  InventoryTransferLogSearchQuery,
-  Store,
+  InventoryTransferLogSearchQuery
 } from "model/inventory/transfer";
 import CustomTable from "component/table/CustomTable";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -22,7 +21,8 @@ import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
 import { Link } from "react-router-dom";
 import { callApiNative } from "utils/ApiUtils";
 import { searchAccountPublicApi } from "service/accounts/account.service";
-import CustomPagination from "../../../../../component/table/CustomPagination";
+import CustomPagination from "component/table/CustomPagination";
+import { StoreResponse } from "model/core/store.model";
 
 const ACTIONS_INDEX = {
   ADD_FORM_EXCEL: 1,
@@ -112,8 +112,8 @@ const actions: Array<MenuAction> = [
 ];
 
 type HistoryInventoryTransferTabProps = {
-  accountStores?: Array<AccountStoreResponse>;
-  stores?: Array<Store>;
+  accountStores?: Array<StoreResponse>;
+  stores?: Array<StoreResponse>;
   accounts?: Array<AccountResponse>;
   setAccounts?: (e: any) => any;
 };
@@ -121,7 +121,7 @@ type HistoryInventoryTransferTabProps = {
 const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = (
   props: HistoryInventoryTransferTabProps,
 ) => {
-  const { accountStores, accounts, stores, setAccounts } = props;
+  const { accounts, stores, setAccounts } = props;
   const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
   const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
   const [accountStoresSelected, setAccountStoresSelected] = useState<AccountStoreResponse | null>(
@@ -301,33 +301,10 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   useEffect(() => {
-    if (stores?.length === 0 || !Array.isArray(accountStores)) return;
-    if (accountStores?.length === 1) {
-      stores?.forEach((element) => {
-        if (element.id === accountStores[0].store_id) {
-          const newParams = {
-            ...params,
-            from_store_id: params.from_store_id ? params.from_store_id : element.id,
-          };
-          setAccountStoresSelected(element);
-          setTableLoading(true);
-          dispatch(getListLogInventoryTransferAction(newParams, setSearchResult));
-        }
-      });
-
-      return;
-    }
-
-    dispatch(getListLogInventoryTransferAction(params, setSearchResult));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountStores, dispatch, setSearchResult, stores, params]);
-
-  useEffect(() => {
-    if (accountStoresSelected !== "SECOND_SEARCH") return;
     setTableLoading(true);
     dispatch(getListLogInventoryTransferAction(params, setSearchResult));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, setSearchResult, params]);
+  }, [params]);
 
   const onSelectedChange = useCallback((selectedRow: Array<InventoryTransferDetailItem>, selected: boolean | undefined, changeRow: any) => {
     const newSelectedRowKeys = changeRow.map((row: any) => row.id);
@@ -367,6 +344,7 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
         params={params}
         stores={stores}
         actions={actions}
+        isLoading={tableLoading}
         onShowColumnSetting={() => setShowSettingColumn(true)}
         onMenuClick={() => {}}
         onFilter={onFilter}

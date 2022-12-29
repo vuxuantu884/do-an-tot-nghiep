@@ -117,3 +117,14 @@ export interface InventoryAdjustmentDetailItem {
   line_items: Array<LineItemAdjustment>;
   store: StoreResponse;
 }
+
+export interface IncurredAuditRecordType {
+  id: number;
+  parent_document_id: number;
+  code: string;
+  sku: string;
+  quantity: number;
+  on_hand: number;
+  transaction_date: string;
+  document_type: string;
+}

@@ -1,4 +1,4 @@
-import { Card, Col, Form, Input, Radio, Row, Select } from "antd";
+import { Card, Col, Form, Input, Radio, Row, Select, Space, Switch } from "antd";
 import { FormInstance } from "antd/es/form/Form";
 import {
   PriceRule,
@@ -76,7 +76,7 @@ function IssueForm(props: Props): ReactElement {
     listProductUpdateNotExclude,
     listProductUpdateHaveExclude,
   } = props;
-  const { priceRuleData } = useContext(IssueContext);
+  const { priceRuleData, registerWithMinistry, setRegisterWithMinistry } = useContext(IssueContext);
 
   const handleChangePromotionMethod = (value: string) => {
     setPromotionType(value);
@@ -111,6 +111,9 @@ function IssueForm(props: Props): ReactElement {
             >
               <Input placeholder="Nhập tên đợt phát hành" />
             </Form.Item>
+          </Col>
+
+          <Col span={12}>
             <Form.Item
               name="code"
               label="Mã đợt phát hành:"
@@ -137,6 +140,20 @@ function IssueForm(props: Props): ReactElement {
               />
             </Form.Item>
           </Col>
+
+          <Col span={12} style={{ marginTop: 30 }}>
+            <Form.Item>
+              <Space>
+                <Switch
+                  checked={registerWithMinistry}
+                  onChange={(value) => {
+                    setRegisterWithMinistry(value);
+                  }}
+                />
+                Đã đăng ký Bộ công thương
+              </Space>
+            </Form.Item>
+          </Col>
         </Row>
       </Card>
       <Card title="Loại khuyến mãi">
@@ -156,12 +173,12 @@ function IssueForm(props: Props): ReactElement {
                 >
                   Khuyến mãi theo đơn hàng
                 </Option>
-                {/*<Option*/}
-                {/*  key={PriceRuleMethod.DISCOUNT_CODE_QTY}*/}
-                {/*  value={PriceRuleMethod.DISCOUNT_CODE_QTY}*/}
-                {/*>*/}
-                {/*  Khuyến mãi theo sản phẩm*/}
-                {/*</Option>*/}
+                <Option
+                  key={PriceRuleMethod.DISCOUNT_CODE_QTY}
+                  value={PriceRuleMethod.DISCOUNT_CODE_QTY}
+                >
+                  Khuyến mãi theo sản phẩm
+                </Option>
               </Select>
             </Form.Item>
           </Col>

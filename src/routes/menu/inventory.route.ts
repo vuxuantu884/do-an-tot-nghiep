@@ -5,8 +5,7 @@ import UrlConfig, { InventoryTabUrl } from "../../config/url.config";
 import { RouteMenu } from "../../model/other";
 import { InventoryDefectsPermission } from "../../config/permissions/inventory-defects.permission";
 import { StockInOutOthersPermission } from "config/permissions/stock-in-out.permission";
-import ImportOneFromStoreMultipleToStore
-  from "../../screens/inventory/ImportInventory/ImportOneFromStoreMultipleToStore";
+import ImportOneFromStoreMultipleToStore from "../../screens/inventory/ImportInventory/ImportOneFromStoreMultipleToStore";
 const ListInventoryDefect = React.lazy(
   () => import("screens/inventory-defects/ListInventoryDefect"),
 );
@@ -21,8 +20,12 @@ const CreateTicketFromExcel = React.lazy(() => import("screens/inventory/UpdateT
 const CreateTicket = React.lazy(() => import("screens/inventory/CreateTicket/index"));
 const RequestTicket = React.lazy(() => import("screens/inventory/RequestTicket/index"));
 const ImportInventoryScreen = React.lazy(() => import("screens/inventory/ImportInventory/index"));
-const ImportMultipleInventoryScreen = React.lazy(() => import("screens/inventory/ImportInventory/ImportMultipleInventory"));
-const ImportOneStoreMultipleInventory = React.lazy(() => import("screens/inventory/ImportInventory/ImportOneStoreMultipleInventory"));
+const ImportMultipleInventoryScreen = React.lazy(
+  () => import("screens/inventory/ImportInventory/ImportMultipleInventory"),
+);
+const ImportOneStoreMultipleInventory = React.lazy(
+  () => import("screens/inventory/ImportInventory/ImportOneStoreMultipleInventory"),
+);
 
 //STOCK IN OUT
 const StockInOutOtherScreen = React.lazy(() => import("screens/stock-in-out-products"));
@@ -335,6 +338,18 @@ export const inventory: Array<RouteMenu> = [
         icon: "icon-dot",
         component: InventoryDefectCreate,
         key: "submenu34",
+        isShow: true,
+        header: null,
+        permissions: [InventoryDefectsPermission.create],
+        subMenu: [],
+      },
+      {
+        path: UrlConfig.INVENTORY_DEFECTS_HISTORY,
+        exact: true,
+        title: "Thêm hàng lỗi",
+        icon: "icon-dot",
+        component: ListInventoryDefect,
+        key: "submenu43",
         isShow: true,
         header: null,
         permissions: [InventoryDefectsPermission.create],

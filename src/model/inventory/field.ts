@@ -55,6 +55,9 @@ const HistoryInventoryQueryField = {
 const AvdHistoryInventoryFilter = {
   transaction_date: "transaction_date",
   quantity_change: "quantity_change",
+  store_ids: "store_ids",
+  condition: "condition",
+  quantity: " quantity",
 };
 
 const AvdAllFilter = {
@@ -79,6 +82,7 @@ const AvdAllFilter = {
 const AllInventoryMappingField = {
   [AvdAllFilter.category]: "Danh mục",
   [AvdAllFilter.store_ids]: "Cửa hàng",
+  [AvdAllFilter.info]: "Sản phẩm",
   [AvdAllFilter.made_in_ids]: "Xuất xứ",
   [AvdAllFilter.designer_codes]: "Thiết kế",
   [AvdAllFilter.merchandiser_codes]: "Merchandiser",
@@ -132,7 +136,9 @@ const InventoryExportField = {
 const HistoryInventoryMappingField = {
   [AvdHistoryInventoryFilter.transaction_date]: "Thời gian",
   [AvdHistoryInventoryFilter.quantity_change]: "Số lượng thay đổi",
-  quantity: "Số lượng thay đổi",
+  [AvdHistoryInventoryFilter.store_ids]: "Cửa hàng",
+  [AvdHistoryInventoryFilter.condition]: "Sản phẩm",
+  [AvdHistoryInventoryFilter.quantity]: "Số lượng thay đổi",
 };
 
 const TransferColumnField = {

@@ -221,6 +221,7 @@ export interface VariantSearchQuery extends BaseQuery {
   variant_ids?: string;
   remain?: string;
   collections?: string;
+  skus?: string[];
 }
 export interface ProductWrapperSearchQuery extends BaseQuery {
   info?: string;
@@ -387,6 +388,7 @@ export interface ProductRequestView {
   component: string | null;
   advantages: string | null;
   defect: string | null;
+  taxable: boolean;
 }
 
 export interface ProductUpdateView {

@@ -12,6 +12,7 @@ import CustomNumberInput from "component/custom/customNumberInput";
 import { formatCurrencyNotDefaultValue, isNullOrUndefined } from "utils/AppUtils";
 import rightArrow from "assets/icon/right-arrow.svg";
 import { GiftCustomerConditionStyled } from "screens/promotion/gift/gift.style";
+import moment from "moment";
 const { Option } = Select;
 
 interface Props {
@@ -73,7 +74,11 @@ export default function GiftCustomerCondition(props: Props): ReactElement {
     const customerFields = _.cloneDeep(form.getFieldsValue(Object.values(CustomerConditionField)));
 
     delete customerFields[CustomerConditionField.customer_selection];
-    if (Object.values(customerFields).every((field: any) => isNullOrUndefined(field) || field?.length === 0)) {
+    if (
+      Object.values(customerFields).every(
+        (field: any) => isNullOrUndefined(field) || field?.length === 0,
+      )
+    ) {
       form.setFields(
         Object.values(CustomerConditionField).map((field) => ({
           name: field,
@@ -196,9 +201,11 @@ export default function GiftCustomerCondition(props: Props): ReactElement {
                         const cur = currentDate.set({
                           hour: 12,
                         });
-                        const endDay = form.getFieldValue(CustomerConditionField.ends_birthday)?.set({
-                          hour: 0,
-                        });
+                        const endDay = form
+                          .getFieldValue(CustomerConditionField.ends_birthday)
+                          ?.set({
+                            hour: 0,
+                          });
                         return cur > endDay;
                       }}
                     />
@@ -223,10 +230,13 @@ export default function GiftCustomerCondition(props: Props): ReactElement {
                         const cur = currentDate.set({
                           hour: 0,
                         });
-                        const start = form.getFieldValue(CustomerConditionField.starts_birthday)?.set({
-                          hour: 12,
-                        });
-                        return start > cur;
+
+                        const start = form
+                          .getFieldValue(CustomerConditionField.starts_birthday)
+                          ?.set({
+                            hour: 12,
+                          });
+                        return cur && cur < moment(start).subtract(1, "d");
                       }}
                     />
                   </Form.Item>
@@ -302,7 +312,8 @@ export default function GiftCustomerCondition(props: Props): ReactElement {
                           ?.set({
                             hour: 12,
                           });
-                        return start > cur;
+
+                        return cur && cur < moment(start).subtract(1, "d");
                       }}
                     />
                   </Form.Item>

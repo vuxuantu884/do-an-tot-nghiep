@@ -11,6 +11,7 @@ import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import {
   CloseCircleOutlined,
   CopyOutlined,
+  DoubleRightOutlined,
   EditOutlined,
   ExportOutlined,
   ImportOutlined,
@@ -49,7 +50,11 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import InventoryStep from "./components/InventoryTransferStep";
-import { STATUS_INVENTORY_TRANSFER, STATUS_INVENTORY_TRANSFER_ARRAY } from "../constants";
+import {
+  STATUS_INVENTORY_TRANSFER,
+  STATUS_INVENTORY_TRANSFER_ARRAY,
+  SUB_STATUS_INVENTORY_TRANSFER
+} from "../constants";
 import NumberInput from "component/custom/number-input.custom";
 import { VariantResponse } from "model/product/product.model";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
@@ -86,6 +91,9 @@ import ModalShowError from "../common/ModalShowError";
 import TagStatus from "component/tag/tag-status";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import queryString from "query-string";
+import ModalForward from "../common/ModalForward";
+import ForwardRecordTour from "./components/ForwardRecordTour";
+import { DELAY_TIME_FOR_TOUR } from "../../inventory-adjustment/helper";
 
 export interface InventoryParams {
   id: string;
@@ -123,6 +131,7 @@ const DetailTicket: FC = () => {
   const productSearchRef = React.useRef<any>(null);
 
   const [isOpenModalErrors, setIsOpenModalErrors] = useState<boolean>(false);
+  const [isOpenModalForward, setIsOpenModalForward] = useState(false);
   const [errorData, setErrorData] = useState([]);
   const location = useLocation();
 
@@ -147,6 +156,9 @@ const DetailTicket: FC = () => {
     (state: RootReducerType) => state.userReducer.account?.account_stores,
   );
   const [isImport, setIsImport] = useState<boolean>(false);
+  const [isRun, setIsRun] = useState(false);
+
+  const isShowForwardTourVar = "isShowForwardTourVar";
 
   const [printContent, setPrintContent] = useState<string>("");
   const pageBreak = "<div class='pageBreak'></div>";
@@ -256,13 +268,19 @@ const DetailTicket: FC = () => {
     acceptPermissions: [InventoryTransferPermission.clone],
   });
 
+  const isDisabledCancelTicket = () => {
+    return !allowCancel || (data?.status !== STATUS_INVENTORY_TRANSFER.REQUESTED.status
+      && data?.status !== STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
+      && data?.status !== STATUS_INVENTORY_TRANSFER.CONFIRM.status)
+  };
+
   const actions: Array<MenuAction> = [
     {
       id: 1,
       name: "Hủy phiếu",
       icon: <CloseCircleOutlined />,
       color: "#E24343",
-      disabled: !allowCancel,
+      disabled: isDisabledCancelTicket(),
     },
     {
       id: 2,
@@ -893,6 +911,7 @@ const DetailTicket: FC = () => {
       align: "center",
       width: 80,
       dataIndex: "receive_on_hand",
+      key: "receive_on_hand",
       render: (value: any) => {
         return formatCurrency(value, ".");
       },
@@ -962,7 +981,7 @@ const DetailTicket: FC = () => {
 
   const onReload = useCallback(() => {
     setLoadingBtn(true);
-    dispatch(showLoading())
+    dispatch(showLoading());
     dispatch(getDetailInventoryTransferAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
@@ -1153,6 +1172,19 @@ const DetailTicket: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const openModalForward = () => {
+    setIsOpenModalForward(true);
+  };
+
+  useEffect(() => {
+    if (!localStorage.getItem(isShowForwardTourVar)) {
+      setTimeout(() => {
+        setIsRun(true);
+        localStorage.setItem(isShowForwardTourVar, "false");
+      }, DELAY_TIME_FOR_TOUR);
+    }
+  }, []);
+
   return (
     <StyledWrapper>
       <ContentContainer
@@ -1304,7 +1336,9 @@ const DetailTicket: FC = () => {
                         tableLayout="fixed"
                         scroll={{ x: "max-content" }}
                         pagination={false}
-                        columns={columnsTransfer}
+                        columns={data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
+                          ? columnsTransfer.filter((column) => column.key !== "receive_on_hand" )
+                          : columnsTransfer}
                         dataSource={dataTable}
                         summary={() => {
                           return (
@@ -1460,6 +1494,17 @@ const DetailTicket: FC = () => {
 
                   <Row className="margin-top-10" gutter={5} style={{ flexDirection: "column" }}>
                     <Col span={24} style={{ marginBottom: 6 }}>
+                      <b>Ghi chú hệ thống:</b>
+                    </Col>
+                    <Col span={24}>
+                      {data.forward_store_id && (
+                        <div>Chuyển tiếp từ kho {data.store_forward.name} đến kho {data.to_store_name}</div>
+                      )}
+                    </Col>
+                  </Row>
+
+                  <Row className="margin-top-10" gutter={5} style={{ flexDirection: "column" }}>
+                    <Col span={24} style={{ marginBottom: 6 }}>
                       <b>File đính kèm:</b>
                     </Col>
                     <Col span={24}>
@@ -1521,6 +1566,14 @@ const DetailTicket: FC = () => {
                       {" In phiếu chuyển"}
                     </Button>
                   </AuthWrapper>
+                  {data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
+                    <AuthWrapper acceptPermissions={[InventoryTransferPermission.update]}>
+                      <Button disabled={data.sub_status === SUB_STATUS_INVENTORY_TRANSFER.FORWARDED.status} className="forward-step-one" onClick={openModalForward}>
+                        {"Chuyển tiếp kho "}
+                        <DoubleRightOutlined />
+                      </Button>
+                    </AuthWrapper>
+                  )}
                   <ActionButton
                     type="text"
                     placement="topLeft"
@@ -1592,6 +1645,7 @@ const DetailTicket: FC = () => {
                       <Button
                         className="export-button"
                         type="primary"
+                        disabled={isLoadingBtn}
                         loading={isLoadingBtn}
                         onClick={() => {
                           if (data) {
@@ -1599,6 +1653,7 @@ const DetailTicket: FC = () => {
                             const secretData = {
                               secret: queryParamsParsed.secret,
                             };
+                            dispatch(showLoading());
                             dispatch(exportInventoryAction(data?.id, secretData, onReload));
                           }
                         }}
@@ -1737,6 +1792,22 @@ const DetailTicket: FC = () => {
             }}
             title={"Có một số phiếu chuyển tương tự được tạo trong 1 tháng trở lại đây. Tiếp tục thực hiện?"}
             visible={isOpenModalErrors}
+          />
+        )}
+        <ForwardRecordTour isRun={isRun} setIsRun={setIsRun} />
+        {isOpenModalForward && (
+          <ModalForward
+            currentStore={data}
+            onCancel={() => {
+              setIsOpenModalForward(false);
+              setLoadingBtn(false)
+            }}
+            onOk={() => {
+              dispatch(showLoading());
+              dispatch(getDetailInventoryTransferAction(idNumber, onResult));
+              setIsOpenModalForward(false);
+            }}
+            visible={isOpenModalForward}
           />
         )}
       </ContentContainer>

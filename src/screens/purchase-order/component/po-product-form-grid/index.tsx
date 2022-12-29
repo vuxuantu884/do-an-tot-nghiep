@@ -309,6 +309,12 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
     );
     if (indexProcurementTableData >= 0) {
       procurementTableData[indexProcurementTableData].quantity = value;
+      procurementTableData[indexProcurementTableData]?.expectedDate?.forEach(
+        (expected, indexExpected) => {
+          procurementTableData[indexProcurementTableData].expectedDate[indexExpected]["value"] =
+            (value * expectedDate[indexExpected].value) / 100;
+        },
+      );
     }
     const valueForm: PurchaseOrder = {
       ...formMain.getFieldsValue(),

@@ -11,7 +11,7 @@ import {
   ReleasePromotionListType,
 } from "model/promotion/price-rules.model";
 import moment from "moment";
-import React, { ReactElement, useCallback, useEffect, useState } from "react";
+import React, { ReactElement, useCallback, useEffect, useState, useContext } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import GeneralConditionForm from "screens/promotion/shared/general-condition.form";
@@ -19,7 +19,7 @@ import { PROMO_TYPE } from "utils/Constants";
 import { transformData } from "utils/PromotionUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import IssueForm from "../components/issue-form";
-import IssueProvider from "../components/issue-provider";
+import IssueProvider, { IssueContext } from "../components/issue-provider";
 import { IssueStyled } from "../issue-style";
 import { createPromotionReleaseAction } from "domain/actions/promotion/promo-code/promo-code.action";
 import { RelesaseCreactProduct } from "screens/promotion/shared/general-product-quantity";
@@ -38,6 +38,8 @@ function IssueCreate(props: Props): ReactElement {
   const history = useHistory();
   const [form] = Form.useForm();
   const dispatch = useDispatch();
+
+  const { registerWithMinistry } = useContext(IssueContext);
 
   const [isSetFormValues, setIsSetFormValues] = useState<boolean>(false);
 
@@ -140,6 +142,7 @@ function IssueCreate(props: Props): ReactElement {
       dispatch(showLoading());
       const body = transformData(values, PROMO_TYPE.MANUAL);
       body.activated = isActive;
+      body.is_registered = registerWithMinistry;
       dispatch(
         createPromotionReleaseAction(body, (result: PriceRule) => {
           dispatch(hideLoading());

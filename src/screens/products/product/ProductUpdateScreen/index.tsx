@@ -1,5 +1,13 @@
-import { EditOutlined, InfoCircleOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import {
+  DollarOutlined,
+  EditOutlined,
+  FileImageOutlined,
+  InfoCircleOutlined,
+  MinusOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import {
+  Alert,
   Button,
   Card,
   Checkbox,
@@ -25,8 +33,6 @@ import CustomEditor from "component/custom/custom-editor";
 import HashTag from "component/custom/hashtag";
 import NumberInput from "component/custom/number-input.custom";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
-import ColorSearchSelect from "component/custom/select-search/color-select";
-import SizeSearchSelect from "component/custom/select-search/size-search";
 import CustomSelect from "component/custom/select.custom";
 import SelectPaging from "component/custom/SelectPaging";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
@@ -36,7 +42,7 @@ import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
 import { detailMaterialAction, getMaterialAction } from "domain/actions/product/material.action";
-import { productGetDetail, productUploadAction } from "domain/actions/product/products.action";
+import { productUploadAction } from "domain/actions/product/products.action";
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
@@ -50,17 +56,13 @@ import {
   VariantImage,
   VariantRequest,
   VariantResponse,
-  ProductParams
+  ProductParams,
 } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import {
-  replaceFormatString,
-  scrollAndFocusToDomElement,
-  capitalEachWords,
-} from "utils/AppUtils";
+import { replaceFormatString, scrollAndFocusToDomElement, capitalEachWords } from "utils/AppUtils";
 import {
   formatCurrencyForProduct,
   convertAvatarToFileList,
@@ -68,37 +70,31 @@ import {
   handleChangeMaterial,
   backAction,
   convertLabelSelected,
-  beforeUploadImage
+  beforeUploadImage,
+  ProductField,
 } from "screens/products/helper";
-import {
-  showError,
-  showSuccess
-} from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import {
   ModalConfirmPrice,
   ModalPickAvatar,
   ModalUpdatePrice,
   VariantList,
   ModalUploadImages,
-  TreeCategory
+  TreeCategory,
 } from "../component";
 import AddVariantsModal from "./AddVariantsModal";
 import { StyledComponent } from "./styles";
 import { debounce, cloneDeep } from "lodash";
 import SupplierSearchSelect from "component/custom/select-search/supplier-select";
 import { callApiNative } from "utils/ApiUtils";
-import { productUpdateApi } from "service/product/product.service";
-import CareModal from "screens/products/component/CareInformation"
+import { productDetailApi, productUpdateApi } from "service/product/product.service";
+import CareModal from "screens/products/component/CareInformation";
+import useFetchTaxConfig from "hook/useFetchTaxConfig";
+import { TaxConfigCountry } from "model/core/tax.model";
+import { VN_CODE } from "screens/settings/tax/helper";
 
 const { Item } = Form;
 let tempActive: number = 0;
-
-const uploadButton = (
-  <div>
-    <PlusOutlined />
-    <div style={{ marginTop: 8 }}>Upload</div>
-  </div>
-);
 
 const ProductDetailScreen: React.FC = () => {
   const dispatch = useDispatch();
@@ -163,6 +159,7 @@ const ProductDetailScreen: React.FC = () => {
   const [canUpdateSaleable] = useAuthorization({
     acceptPermissions: [ProductPermission.update_saleable],
   });
+  const { taxConfig } = useFetchTaxConfig();
   const setCurrentVariant = useCallback(
     (newActive: number) => {
       setActive(newActive);
@@ -264,7 +261,7 @@ const ProductDetailScreen: React.FC = () => {
       for (let i = 0; i < newData.variants.length; i++) {
         if (
           newData.variants[i].name.slice(0, newData.variants[i].name.indexOf("-")).trim() ===
-          newData.name.trim() ||
+            newData.name.trim() ||
           newData.variants[i].sku.indexOf("-MAU") !== -1 ||
           newData.variants[i].sku === newData.code
         ) {
@@ -339,21 +336,18 @@ const ProductDetailScreen: React.FC = () => {
     [active, dispatch, form, idNumber, setCurrentVariant],
   );
 
-  const updatePrice = useCallback(
-    async () => {
-      setIsVisibleUpdatePrice(false);
-      let values: ProductResponse = form.getFieldsValue(true);
-      if (values) {
-        const variantRequest: Array<VariantResponse> = [
-          ...convertVariantPrices(values.variants, values.variants[active]),
-        ];
-        values = { ...values, variants: variantRequest };
-        await updateInfo(values);
-        history.push(`/products/${idNumber}`);
-      }
-    },
-    [active, form, updateInfo, history, idNumber],
-  );
+  const updatePrice = useCallback(async () => {
+    setIsVisibleUpdatePrice(false);
+    let values: ProductResponse = form.getFieldsValue(true);
+    if (values) {
+      const variantRequest: Array<VariantResponse> = [
+        ...convertVariantPrices(values.variants, values.variants[active]),
+      ];
+      values = { ...values, variants: variantRequest };
+      await updateInfo(values);
+      history.push(`/products/${idNumber}`);
+    }
+  }, [active, form, updateInfo, history, idNumber]);
 
   const updateStatus = useCallback(
     (listSelected: Array<number>, status) => {
@@ -689,8 +683,18 @@ const ProductDetailScreen: React.FC = () => {
     }
   };
 
-  const getDetail = useCallback(() => {
-    dispatch(productGetDetail(idNumber, onResult));
+  const getDetail = useCallback(async () => {
+    const response = await callApiNative(
+      { isShowLoading: true, isShowError: true },
+      dispatch,
+      productDetailApi,
+      idNumber,
+    );
+    if (response) {
+      onResult(response);
+    } else {
+      onResult(false);
+    }
   }, [dispatch, idNumber, onResult]);
 
   useEffect(() => {
@@ -785,6 +789,36 @@ const ProductDetailScreen: React.FC = () => {
     [careLabelsString, dispatch, idNumber, getDetail, history],
   );
 
+  const renderTaxConfig = () => {
+    const VNTaxConfig = taxConfig?.data.find(
+      (country: TaxConfigCountry) => country.country_code === VN_CODE,
+    );
+    if (taxConfig) {
+      return (
+        <Alert
+          message={
+            <span className="tax-alert-title">
+              Giá {taxConfig.tax_included ? "đã" : "chưa"} bao gồm thuế:
+              <span className="tax-alert-content">Thuế VAT - {VNTaxConfig?.tax_rate}%</span>
+            </span>
+          }
+          type="warning"
+          showIcon
+          icon={<DollarOutlined />}
+          className="tax-alert"
+        />
+      );
+    }
+    return <Alert className="tax-alert" message="Không có cấu hình thuế!" type="error" showIcon />;
+  };
+
+  const uploadButton = (
+    <div className="upload-btn">
+      <FileImageOutlined />
+      <div style={{ marginTop: 8 }}>Thêm hình ảnh ({fieldList.length}/6)</div>
+    </div>
+  );
+
   return (
     <StyledComponent>
       <ContentContainer
@@ -866,7 +900,6 @@ const ProductDetailScreen: React.FC = () => {
                                 variants: variants,
                               });
                             }}
-                            className="ant-switch-success"
                             checked={status === "active"}
                           />
                         </Item>
@@ -993,7 +1026,16 @@ const ProductDetailScreen: React.FC = () => {
                           </Item>
                         </Col>
                         <Col span={24} md={12} sm={24}>
-                          <Item label="Nhóm hàng" name="product_collections">
+                          <Item
+                            label="Nhóm hàng"
+                            name="product_collections"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Vui lòng chọn nhóm hàng",
+                              },
+                            ]}
+                          >
                             <SelectPaging
                               metadata={collections.metadata}
                               showSearch={false}
@@ -1234,14 +1276,25 @@ const ProductDetailScreen: React.FC = () => {
                     <Form.List name="variants">
                       {(fields, { add, remove }) => (
                         <>
-                          {fields.map(({ key, name, fieldKey, ...restField }, index) =>
-                            active === index ? (
+                          {fields.map(({ key, name, fieldKey, ...restField }, index) => {
+                            return active === index ? (
                               <React.Fragment key={key}>
                                 <div className="header-view">
                                   <div className="header-view-left">
                                     <b>THÔNG TIN PHIÊN BẢN</b>
                                   </div>
                                   <div className="header-view-right">
+                                    <div className="header-view-right-tax">
+                                      <b className="header-view-right-tax-title">Áp dụng thuế:</b>
+                                      <Form.Item
+                                        valuePropName="checked"
+                                        name={[name, "taxable"]}
+                                        fieldKey={[fieldKey, "taxable"]}
+                                        noStyle
+                                      >
+                                        <Switch disabled={!canUpdateCost} />
+                                      </Form.Item>
+                                    </div>
                                     {canUpdateSaleable && (
                                       <>
                                         <b>Cho phép bán:</b>
@@ -1254,7 +1307,6 @@ const ProductDetailScreen: React.FC = () => {
                                           <Switch
                                             disabled={status === "inactive"}
                                             style={{ marginLeft: 10 }}
-                                            className="ant-switch-success"
                                             onChange={() => {
                                               getFirstAvatar();
                                             }}
@@ -1282,10 +1334,39 @@ const ProductDetailScreen: React.FC = () => {
                                     }
                                   >
                                     {({ getFieldValue }) => {
-                                      // let variants = getFieldValue("variants");
-                                      // let id = variants[active].id;
                                       return (
                                         <Row gutter={50}>
+                                          <Col span={24} className="variant-image">
+                                            <Item name={[name, "variant_images"]} hidden noStyle>
+                                              <Input />
+                                            </Item>
+                                            <div className="variant-image-label">
+                                              Hình ảnh sản phẩm
+                                            </div>
+                                            <AuthWrapper
+                                              acceptPermissions={[ProductPermission.upload_image]}
+                                            >
+                                              <Upload
+                                                style={{ width: "100%" }}
+                                                multiple
+                                                maxCount={6}
+                                                beforeUpload={handleBeforeUpload}
+                                                fileList={fieldList}
+                                                onChange={(info) => {
+                                                  changeFileList(info);
+                                                }}
+                                                customRequest={(options) => {
+                                                  customRequest(options, active);
+                                                }}
+                                                listType="picture-card"
+                                                onRemove={(file) => {
+                                                  removeFile(file, active);
+                                                }}
+                                              >
+                                                {fieldList.length >= 6 ? null : uploadButton}
+                                              </Upload>
+                                            </AuthWrapper>
+                                          </Col>
                                           <Col span={24} md={12}>
                                             <Item
                                               name={[name, "sku"]}
@@ -1336,6 +1417,20 @@ const ProductDetailScreen: React.FC = () => {
                                       </Item>
                                     </Col>
                                   </Row>
+                                  <Divider className="divider-row" />
+                                  <Form.Item
+                                    noStyle
+                                    shouldUpdate={(prevValues, currentValues) =>
+                                      prevValues.variants[active]?.taxable !==
+                                      currentValues.variants[active]?.taxable
+                                    }
+                                  >
+                                    {({ getFieldValue }) => {
+                                      const variants = getFieldValue(ProductField.variants);
+                                      const taxable = variants[active]?.taxable;
+                                      return taxable ? renderTaxConfig() : null;
+                                    }}
+                                  </Form.Item>
                                   <Form.List name={[name, "variant_prices"]}>
                                     {(fields, { add, remove }) => (
                                       <>
@@ -1345,7 +1440,7 @@ const ProductDetailScreen: React.FC = () => {
                                               <Item name={[name, "id"]} hidden noStyle>
                                                 <Input />
                                               </Item>
-                                              <Col md={4}>
+                                              <Col md={5}>
                                                 <Item
                                                   label="Giá bán"
                                                   rules={[
@@ -1360,7 +1455,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     title: (
                                                       <div>
                                                         <b>Giá bán lẻ</b> là giá mà bạn sẽ bán sản
-                                                        phẩm này cho những khách hàng đơn lẻ..
+                                                        phẩm này cho những khách hàng đơn lẻ.
                                                       </div>
                                                     ),
                                                     icon: <InfoCircleOutlined />,
@@ -1377,7 +1472,7 @@ const ProductDetailScreen: React.FC = () => {
                                                   />
                                                 </Item>
                                               </Col>
-                                              <Col md={4}>
+                                              <Col md={5}>
                                                 <Item
                                                   name={[name, "wholesale_price"]}
                                                   fieldKey={[fieldKey, "wholesale_price"]}
@@ -1406,7 +1501,7 @@ const ProductDetailScreen: React.FC = () => {
                                               <AuthWrapper
                                                 acceptPermissions={[ProductPermission.read_import]}
                                               >
-                                                <Col md={4}>
+                                                <Col md={5}>
                                                   <Item
                                                     name={[name, "import_price"]}
                                                     fieldKey={[fieldKey, "import_price"]}
@@ -1439,7 +1534,7 @@ const ProductDetailScreen: React.FC = () => {
                                               <AuthWrapper
                                                 acceptPermissions={[ProductPermission.read_cost]}
                                               >
-                                                <Col md={4}>
+                                                <Col md={5}>
                                                   <Item
                                                     name={[name, "cost_price"]}
                                                     fieldKey={[fieldKey, "cost_price"]}
@@ -1470,19 +1565,6 @@ const ProductDetailScreen: React.FC = () => {
                                                   </Item>
                                                 </Col>
                                               </AuthWrapper>
-                                              <Col md={4}>
-                                                <Item
-                                                  label="Thuế"
-                                                  name={[name, "tax_percent"]}
-                                                  fieldKey={[fieldKey, "tax_percent"]}
-                                                >
-                                                  <NumberInput
-                                                    placeholder="VD: 10"
-                                                    suffix={<span>%</span>}
-                                                    maxLength={15}
-                                                  />
-                                                </Item>
-                                              </Col>
                                               <Col md={4}>
                                                 <Item
                                                   label="Đơn vị tiền tệ"
@@ -1520,13 +1602,6 @@ const ProductDetailScreen: React.FC = () => {
                                   </Form.List>
                                   <Row gutter={50}>
                                     <Col span={24} sm={12}>
-                                      <Item name={[name, "color_id"]} label="Màu sắc">
-                                        <ColorSearchSelect disabled />
-                                      </Item>
-                                      <Item name={[name, "size_id"]} label="Kích cỡ">
-                                        <SizeSearchSelect disabled />
-                                      </Item>
-
                                       <Item
                                         label="Kích thước (dài, rộng, cao)"
                                         tooltip={{
@@ -1583,6 +1658,8 @@ const ProductDetailScreen: React.FC = () => {
                                           </Item>
                                         </Input.Group>
                                       </Item>
+                                    </Col>
+                                    <Col span={24} sm={12}>
                                       <Item
                                         required
                                         label="Khối lượng"
@@ -1629,39 +1706,11 @@ const ProductDetailScreen: React.FC = () => {
                                         </Input.Group>
                                       </Item>
                                     </Col>
-                                    <Col span={24} sm={12}>
-                                      <Item name={[name, "variant_images"]} hidden noStyle>
-                                        <Input />
-                                      </Item>
-                                      <AuthWrapper
-                                        acceptPermissions={[ProductPermission.upload_image]}
-                                      >
-                                        <Upload
-                                          style={{ width: "100%" }}
-                                          multiple
-                                          maxCount={6}
-                                          beforeUpload={handleBeforeUpload}
-                                          fileList={fieldList}
-                                          onChange={(info) => {
-                                            changeFileList(info);
-                                          }}
-                                          customRequest={(options) => {
-                                            customRequest(options, active);
-                                          }}
-                                          listType="picture-card"
-                                          onRemove={(file) => {
-                                            removeFile(file, active);
-                                          }}
-                                        >
-                                          {fieldList.length >= 6 ? null : uploadButton}
-                                        </Upload>
-                                      </AuthWrapper>
-                                    </Col>
                                   </Row>
                                 </div>
                               </React.Fragment>
-                            ) : null,
-                          )}
+                            ) : null;
+                          })}
                         </>
                       )}
                     </Form.List>
@@ -1673,7 +1722,15 @@ const ProductDetailScreen: React.FC = () => {
         )}
         <BottomBarContainer
           back="Quay lại"
-          backAction={() => backAction(form.getFieldsValue(), dataOrigin, setModalConfirm, history, UrlConfig.PRODUCT)}
+          backAction={() =>
+            backAction(
+              form.getFieldsValue(),
+              dataOrigin,
+              setModalConfirm,
+              history,
+              UrlConfig.PRODUCT,
+            )
+          }
           rightComponent={
             <Space>
               <Button onClick={resetOnClick}>Đặt lại</Button>

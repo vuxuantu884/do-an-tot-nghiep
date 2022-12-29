@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
-  InventoryExportImportTransferDetailItem, InventoryTransferDetailItem,
-  InventoryTransferImportExportSearchQuery,
-  Store,
+  InventoryExportImportTransferDetailItem,
+  InventoryTransferDetailItem,
+  InventoryTransferImportExportSearchQuery
 } from "model/inventory/transfer";
 import CustomTable from "component/table/CustomTable";
 
@@ -45,6 +45,7 @@ import { STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Constants";
 import moment from "moment";
 import * as XLSX from "xlsx";
 import { TransferExportLineItemField } from "model/inventory/field";
+import { StoreResponse } from "../../../../../model/core/store.model";
 const { TextArea } = Input;
 
 const initQuery: InventoryTransferImportExportSearchQuery = {
@@ -74,7 +75,7 @@ const initQuery: InventoryTransferImportExportSearchQuery = {
 
 type InventoryTransferTabProps = {
   accountStores?: Array<AccountStoreResponse>;
-  stores?: Array<Store>;
+  stores?: Array<StoreResponse>;
   accounts?: Array<AccountResponse>;
   setAccounts?: (e: any) => any;
   activeTab?: string;
@@ -804,6 +805,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
   return (
     <ExportImportTransferTabWrapper>
       <InventoryExportFilters
+        isLoading={tableLoading}
         activeTab={activeTab}
         accounts={accounts}
         params={params}

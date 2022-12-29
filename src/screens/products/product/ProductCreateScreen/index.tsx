@@ -21,6 +21,7 @@ import {
   Switch,
   Table,
   TreeSelect,
+  Typography,
 } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
@@ -68,6 +69,7 @@ import {
   convertProductViewToRequest,
   findAvatar,
   formatCurrencyForProduct,
+  ProductField,
 } from "screens/products/helper";
 import { DEFAULT_COMPANY, VietNamId } from "utils/Constants";
 import { ProductHelper } from "utils";
@@ -82,6 +84,11 @@ import { useFetchMerchans } from "hook/useFetchMerchans";
 import BaseSelect from "component/base/BaseSelect/BaseSelect";
 import CareModal from "screens/products/component/CareInformation";
 import { uniqBy } from "lodash";
+import { TaxConfigCountry } from "model/core/tax.model";
+import { VN_CODE } from "screens/settings/tax/helper";
+import useAuthorization from "hook/useAuthorization";
+import { ProductPermission } from "config/permissions/product.permission";
+import useFetchTaxConfig from "hook/useFetchTaxConfig";
 const { TreeNode } = TreeSelect;
 const { Item, List } = Form;
 const { Option } = Select;
@@ -127,6 +134,7 @@ const initialRequest: ProductRequestView = {
   component: null,
   advantages: null,
   defect: null,
+  taxable: true,
 };
 
 const ProductCreateScreen: React.FC = () => {
@@ -164,6 +172,9 @@ const ProductCreateScreen: React.FC = () => {
     brand: DEFAULT_COMPANY.company.toLocaleLowerCase(),
     merchandiser_code: userReducer && userReducer.account ? userReducer.account.code : null,
   };
+  const [allowUpdateTax] = useAuthorization({
+    acceptPermissions: [ProductPermission.update_cost],
+  });
   //end init
 
   //state
@@ -204,7 +215,6 @@ const ProductCreateScreen: React.FC = () => {
   const [isCollectionLoading, setCollectionLoading] = useState(false);
   const [isSizeLoading, setIsSizeLoading] = useState(false);
   const [isColorLoading, setIsColorLoading] = useState(false);
-  const [isProductCollectionRequired, setIsProductCollectionRequired] = useState(false);
   const [careLabels, setCareLabels] = useState<any[]>([]);
   const [careLabelsString, setCareLabelsString] = useState("");
   const [collections, setCollections] = useState<PageResponse<CollectionResponse>>({
@@ -213,6 +223,7 @@ const ProductCreateScreen: React.FC = () => {
   });
   const [valueSearch, setValueSearch] = useState<string>("");
   const { fetchMerchans, merchans, isLoadingMerchans } = useFetchMerchans();
+  const { taxConfig } = useFetchTaxConfig();
   //end category
   //end state
 
@@ -251,9 +262,6 @@ const ProductCreateScreen: React.FC = () => {
         });
 
         const rootParent = parents.filter((parent) => !parent.parent);
-        setIsProductCollectionRequired(
-          rootParent?.length > 0 && rootParent[0].name === "Thời trang",
-        );
 
         if (rootParent.length > 0 && rootParent[0].name === "Thời trang") {
           form.resetFields(["product_collections"]);
@@ -269,7 +277,6 @@ const ProductCreateScreen: React.FC = () => {
           category_id: null,
         });
         form.resetFields(["category_id", "product_collections"]);
-        setIsProductCollectionRequired(false);
       }
     },
     [form, listCategory, lstCategoryAll],
@@ -750,6 +757,22 @@ const ProductCreateScreen: React.FC = () => {
     getCollections("", 1);
   }, [getCollections]);
 
+  const renderTaxConfig = () => {
+    const VNTaxConfig = taxConfig?.data.find(
+      (country: TaxConfigCountry) => country.country_code === VN_CODE,
+    );
+    return taxConfig ? (
+      <>
+        <p className="tax-description">
+          Giá {taxConfig.tax_included ? "đã" : "chưa"} bao gồm thuế!
+        </p>
+        <div className="tax-rate">Thuế VAT: {VNTaxConfig?.tax_rate}%</div>
+      </>
+    ) : (
+      <Typography.Text type="danger">Không có cấu hình thuế!</Typography.Text>
+    );
+  };
+
   return (
     <Form form={form} onFinish={createProduct} initialValues={initialForm} layout="vertical">
       <Item noStyle name="product_type" hidden>
@@ -796,7 +819,6 @@ const ProductCreateScreen: React.FC = () => {
                             setStatus(checked ? "active" : "inactive");
                             form.setFieldsValue({ saleable: checked });
                           }}
-                          className="ant-switch-success"
                           defaultChecked
                         />
                       </Item>
@@ -934,16 +956,12 @@ const ProductCreateScreen: React.FC = () => {
                     <Item
                       label="Nhóm hàng"
                       name="product_collections"
-                      rules={
-                        isProductCollectionRequired
-                          ? [
-                              {
-                                required: true,
-                                message: "Vui lòng chọn nhóm hàng",
-                              },
-                            ]
-                          : []
-                      }
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn nhóm hàng",
+                        },
+                      ]}
                     >
                       <BaseSelectPaging
                         metadata={collections.metadata}
@@ -1215,6 +1233,33 @@ const ProductCreateScreen: React.FC = () => {
                   />
                 </Item>
               </Card>
+              <Card
+                title="Thuế"
+                extra={
+                  <Space>
+                    <Item name={ProductField.taxable} noStyle>
+                      <Switch
+                        disabled={!allowUpdateTax}
+                        onChange={(checked: boolean) =>
+                          form.setFieldsValue({ [ProductField.taxable]: checked })
+                        }
+                        defaultChecked
+                      />
+                    </Item>
+                  </Space>
+                }
+              >
+                <Item shouldUpdate={(prev, cur) => prev.taxable !== cur.taxable} noStyle>
+                  {({ getFieldValue }) => {
+                    const isTaxed = getFieldValue(ProductField.taxable);
+                    return isTaxed ? (
+                      renderTaxConfig()
+                    ) : (
+                      <div className="tax-description">Không áp dụng!</div>
+                    );
+                  }}
+                </Item>
+              </Card>
             </Col>
           </Row>
           <Row gutter={24}>
@@ -1225,7 +1270,7 @@ const ProductCreateScreen: React.FC = () => {
                     <>
                       {fields.map(({ key, name, fieldKey }) => (
                         <Row key={key} gutter={16}>
-                          <Col md={3}>
+                          <Col md={5}>
                             <Item
                               label="Giá bán"
                               rules={[
@@ -1254,7 +1299,7 @@ const ProductCreateScreen: React.FC = () => {
                               />
                             </Item>
                           </Col>
-                          <Col md={3}>
+                          <Col md={5}>
                             <Item
                               name={[name, "wholesale_price"]}
                               fieldKey={[fieldKey, "wholesale_price"]}
@@ -1277,7 +1322,7 @@ const ProductCreateScreen: React.FC = () => {
                               />
                             </Item>
                           </Col>
-                          <Col md={3}>
+                          <Col md={5}>
                             <Item
                               name={[name, "import_price"]}
                               fieldKey={[fieldKey, "import_price"]}
@@ -1302,7 +1347,7 @@ const ProductCreateScreen: React.FC = () => {
                               />
                             </Item>
                           </Col>
-                          <Col md={3}>
+                          <Col md={5}>
                             <Item
                               name={[name, "cost_price"]}
                               fieldKey={[fieldKey, "cost_price"]}
@@ -1327,21 +1372,7 @@ const ProductCreateScreen: React.FC = () => {
                               />
                             </Item>
                           </Col>
-                          <Col md={3}>
-                            <Item
-                              label="Thuế"
-                              name={[name, "tax_percent"]}
-                              fieldKey={[fieldKey, "tax_percent"]}
-                            >
-                              <NumberInput
-                                isFloat
-                                placeholder="VD: 10"
-                                suffix={<span>%</span>}
-                                maxLength={15}
-                              />
-                            </Item>
-                          </Col>
-                          <Col md={3}>
+                          <Col md={4}>
                             <Item
                               label="Đơn vị tiền tệ"
                               tooltip={{
@@ -1394,7 +1425,7 @@ const ProductCreateScreen: React.FC = () => {
                   <div className="extra-cards">
                     <b>Cho phép bán:</b>
                     <Item valuePropName="checked" name="saleable" noStyle>
-                      <Switch disabled={status === "inactive"} className="ant-switch-success" />
+                      <Switch disabled={status === "inactive"} />
                     </Item>
                   </div>
                 }

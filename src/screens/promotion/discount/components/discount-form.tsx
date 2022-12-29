@@ -17,6 +17,7 @@ import { MAX_FIXED_DISCOUNT_VALUE, priorityOptions } from "../../constants";
 import { DiscountContext } from "./discount-provider";
 import GroupDiscountList from "./group-discount-list";
 import DiscountTypeOrderThreshold from "./discount-type-order-threshold";
+import { DiscountFormStyle } from "../discount-style";
 const { Option } = Select;
 interface Props {
   form: FormInstance;
@@ -24,7 +25,6 @@ interface Props {
   usageLimitPerCustomerProps: boolean;
   idNumber?: number;
   originalEntitlements?: any;
-  setGetIndexRemoveDiscount?: (index: any) => void;
 }
 
 function DiscountUpdateForm({
@@ -33,11 +33,11 @@ function DiscountUpdateForm({
   usageLimitPerCustomerProps,
   idNumber,
   originalEntitlements,
-  setGetIndexRemoveDiscount,
 }: Props): ReactElement {
   const discountUpdateContext = useContext(DiscountContext);
 
-  const { discountMethod, setDiscountMethod } = discountUpdateContext;
+  const { discountMethod, setDiscountMethod, registerWithMinistry, setRegisterWithMinistry } =
+    discountUpdateContext;
 
   const [unlimitedQuantity, setUnlimitedQuantity] = useState<boolean>(false);
   const [usageLimitPerCustomer, setUsageLimitPerCustomer] = useState<boolean>(false);
@@ -48,7 +48,7 @@ function DiscountUpdateForm({
   }, [unlimitedUsageProps, usageLimitPerCustomerProps]);
 
   return (
-    <div>
+    <DiscountFormStyle>
       <Card
         title={
           <div className="d-flex">
@@ -189,19 +189,42 @@ function DiscountUpdateForm({
               </Col>
             </Row>
           </Col>
-          <Col span={12}>
-            <Form.Item
-              name="description"
-              label="Mô tả"
-              rules={[
-                {
-                  max: 500,
-                  message: "Mô tả không được vượt quá 500 ký tự",
-                },
-              ]}
-            >
-              <Input.TextArea placeholder="Nhập mô tả cho khuyến mại" autoSize={{ minRows: 5 }} />
-            </Form.Item>
+          <Col span={12} className="discount-desc-with-ministry">
+            <Row gutter={30}>
+              <Col span={24}>
+                <Form.Item
+                  name="description"
+                  label="Mô tả"
+                  rules={[
+                    {
+                      max: 500,
+                      message: "Mô tả không được vượt quá 500 ký tự",
+                    },
+                  ]}
+                >
+                  <Input.TextArea
+                    placeholder="Nhập mô tả cho khuyến mại"
+                    autoSize={{ minRows: 5 }}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={30}>
+              <Col span={24}>
+                <Form.Item style={{ marginBottom: 28 }}>
+                  <Space>
+                    <Switch
+                      checked={registerWithMinistry}
+                      onChange={(value) => {
+                        setRegisterWithMinistry(value);
+                      }}
+                    />
+                    Đã đăng ký Bộ công thương
+                  </Space>
+                </Form.Item>
+              </Col>
+            </Row>
           </Col>
         </Row>
       </Card>
@@ -232,12 +255,11 @@ function DiscountUpdateForm({
               form={form}
               idNumber={idNumber}
               originalEntitlements={originalEntitlements}
-              setGetIndexRemoveDiscount={setGetIndexRemoveDiscount}
             />
           )}
         </Row>
       </Card>
-    </div>
+    </DiscountFormStyle>
   );
 }
 
