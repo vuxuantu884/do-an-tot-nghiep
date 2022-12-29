@@ -8,6 +8,7 @@ export interface AppliedDiscountResponseModel {
   value: number | null;
   value_type: string | null;
   code: string | null;
+  is_registered: boolean;
 }
 
 export interface SuggestDiscountResponseModel {
@@ -17,6 +18,7 @@ export interface SuggestDiscountResponseModel {
   title: string | null;
   value: number | null;
   value_type: string | null;
+  is_registered: boolean;
 }
 
 export interface ApplyDiscountLineItemResponseModel {
@@ -34,6 +36,7 @@ export interface ApplyDiscountLineItemResponseModel {
   taxable: boolean;
   total_discount: number | null;
   variant_id: number | null;
+  product_name?: string | null;
 }
 
 export interface ApplyCouponResponseModel {
@@ -49,4 +52,17 @@ export interface ApplyCouponResponseModel {
   suggested_discounts: SuggestDiscountResponseModel[];
   tax_exempt: boolean;
   taxes_included: boolean;
+}
+
+export interface CustomApplyDiscount {
+  after_value?: number;
+  calculate_discount?: number;
+  allocation_count: number | null;
+  allocation_limit: number | null;
+  price_rule_id: number | null;
+  title: string | null;
+  value: number | null;
+  value_type: string | null;
+  is_registered: boolean;
+  code?: string | null;
 }

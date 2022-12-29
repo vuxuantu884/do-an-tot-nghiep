@@ -66,6 +66,19 @@ export const StyledComponent = styled.div`
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .discount-item {
+      color: #52c41a;
+      font-family: "Roboto";
+      font-style: normal;
+      font-weight: 600;
+      font-size: 12px;
+      line-height: 20px;
+      display: flex;
+      justify-content: flex-start;
+      img {
+        margin-right: 2px;
+      }
+    }
   }
   .splitOrder {
     display: flex;

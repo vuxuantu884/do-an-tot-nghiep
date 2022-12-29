@@ -10,29 +10,29 @@ import {
   Col,
   Radio,
   Space,
-  RadioChangeEvent
+  RadioChangeEvent,
 } from "antd";
-import {RefSelectProps} from "antd/lib/select";
+import { RefSelectProps } from "antd/lib/select";
 import imgdefault from "assets/icon/img-default.svg";
 import searchGift from "assets/icon/search.svg";
 import XCloseBtn from "assets/icon/X_close.svg";
-import {AppConfig} from "config/app.config";
-import {Type} from "config/type.config";
+import { AppConfig } from "config/app.config";
+import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
-import {searchVariantsOrderRequestAction} from "domain/actions/product/products.action";
-import {PageResponse} from "model/base/base-metadata.response";
-import {OrderDiscountModel, OrderItemModel} from "model/other/order/order-model";
-import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
-import {OrderItemDiscountRequest, OrderLineItemRequest} from "model/request/order.request";
-import React, {createRef, useCallback, useEffect, useMemo, useState} from "react";
-import {useDispatch} from "react-redux";
-import {Link} from "react-router-dom";
-import {findAvatar, findPrice, findPriceInVariant, findTaxInVariant} from "utils/AppUtils";
-import {showLoading} from "../../../../domain/actions/loading.action";
-import {PromotionGetList} from "../../../../domain/actions/order/order.action";
-import {ListDataModel} from "../../../../model/order/ListDataModel";
-import {PromotionResponse} from "../../../../model/response/order/order.response";
-import {ColAddGift, RadioGroup} from "./AddGiftModalStyle";
+import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import { PageResponse } from "model/base/base-metadata.response";
+import { OrderDiscountModel, OrderItemModel } from "model/other/order/order-model";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
+import { OrderItemDiscountRequest, OrderLineItemRequest } from "model/request/order.request";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import { findAvatar, findPrice, findPriceInVariant, findTaxInVariant } from "utils/AppUtils";
+import { showLoading } from "../../../../domain/actions/loading.action";
+import { PromotionGetList } from "../../../../domain/actions/order/order.action";
+import { ListDataModel } from "../../../../model/order/ListDataModel";
+import { PromotionResponse } from "../../../../model/response/order/order.response";
+import { ColAddGift, RadioGroup } from "./AddGiftModalStyle";
 
 type AddGiftModalProps = {
   visible: boolean;
@@ -49,7 +49,6 @@ const initQuery: VariantSearchQuery = {
   saleable: true,
   active: true,
 };
-
 export interface AddGiftRef {
   setGifts: (items: Array<OrderLineItemRequest>) => void;
 }
@@ -59,29 +58,29 @@ const renderSearch = (item: VariantResponse) => {
   return (
     <div
       className="row-search w-100"
-      style={{justifyContent: "space-between", padding: "10px 20px"}}
+      style={{ justifyContent: "space-between", padding: "10px 20px" }}
     >
       <div className="rs-left w-100">
         <img
           src={avatar === "" ? imgdefault : avatar}
           alt="anh"
           placeholder={imgdefault}
-          style={{width: 42, height: 42, marginTop: 10}}
+          style={{ width: 42, height: 42, marginTop: 10 }}
         />
         <div className="rs-info w-100">
-          <span style={{color: "#37394D"}} className="text">
+          <span style={{ color: "#37394D" }} className="text">
             {item.name}
           </span>
-          <span style={{color: "#95A1AC"}} className="text p-4">
+          <span style={{ color: "#95A1AC" }} className="text p-4">
             {item.sku}
           </span>
         </div>
       </div>
       <div className="rs-right">
-        <span style={{color: "#37394D"}} className="text t-right">
+        <span style={{ color: "#37394D" }} className="text t-right">
           {findPrice(item.variant_prices, AppConfig.currency)}
         </span>
-        <span style={{color: "#95A1AC"}} className="text t-right p-4">
+        <span style={{ color: "#95A1AC" }} className="text t-right p-4">
           Có thể bán:
           <span
             style={{
@@ -99,14 +98,25 @@ const renderSearch = (item: VariantResponse) => {
   );
 };
 
+interface CurrentPromotionModel {
+  promotion_id: number;
+  promotion_title: string;
+  promotion_value: string;
+  taxable: boolean;
+}
+
 const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => {
-  const {visible, onCancel, onOk, storeId} = props;
+  const { visible, onCancel, onOk, storeId } = props;
   const dispatch = useDispatch();
   const [keysearch, setKeysearch] = useState("");
-  const [data, setData] = useState({items: [], metadata: {}} as unknown as ListDataModel<PromotionResponse>);
-  const [currentPromotionId, setCurrentPromotionId] = useState<number | null>(null);
-  const [currentPromotionValue, setCurrentPromotionValue] = useState<string | null>(null);
-  const [currentPromotionTitle, setCurrentPromotionTitle] = useState<string | null>(null);
+  const [data, setData] = useState({
+    items: [],
+    metadata: {},
+  } as unknown as ListDataModel<PromotionResponse>);
+  // const [currentPromotionId, setCurrentPromotionId] = useState<number | null>(null);
+  // const [currentPromotionValue, setCurrentPromotionValue] = useState<string | null>(null);
+  // const [currentPromotionTitle, setCurrentPromotionTitle] = useState<string | null>(null);
+  const [currentPromotion, setCurrentPromotion] = useState<CurrentPromotionModel | null>();
   const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse>>({
     metadata: {
       limit: 0,
@@ -117,33 +127,51 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
   });
   const autoCompleteRef = createRef<RefSelectProps>();
 
-
   useEffect(() => {
     if (visible) {
-      if(props.items.length>0 &&props.items[0]?.discount_items.length>0&&props.items[0]?.discount_items[0].promotion_id){
-        let {promotion_title,promotion_id}= props.items[0]?.discount_items[0]
-        setCurrentPromotionValue(`${promotion_id}-${promotion_title}`)
-        setCurrentPromotionTitle(promotion_title||null)
-        setCurrentPromotionId(promotion_id)
+      if (
+        props.items.length > 0 &&
+        props.items[0]?.discount_items.length > 0 &&
+        props.items[0]?.discount_items[0].promotion_id
+      ) {
+        let { promotion_title, promotion_id, taxable } = props.items[0]?.discount_items[0];
+        // setCurrentPromotionValue(`${promotion_id}-${promotion_title}`)
+        // setCurrentPromotionTitle(promotion_title||null)
+        // setCurrentPromotionId(promotion_id)
+        setCurrentPromotion({
+          promotion_id: promotion_id,
+          promotion_title: promotion_title || "",
+          taxable: taxable || false,
+          promotion_value: `${promotion_id}-${promotion_title}-${taxable}`,
+        });
       }
       dispatch(showLoading());
       dispatch(
-        PromotionGetList((response: ListDataModel<PromotionResponse>) => {
-          setData(response);
-        }, {states: 'ACTIVE', page: 1})
+        PromotionGetList(
+          (response: ListDataModel<PromotionResponse>) => {
+            setData(response);
+          },
+          { states: "ACTIVE", page: 1 },
+        ),
       );
     }
   }, [dispatch, visible]);
-  const deleteItem = useCallback((index) => {
-    console.log("INDEX", index)
-    console.log("INDEX", props.items)
-    props.items.splice(index, 1);
-    props.onUpdateData(props.items);
-  }, [props],);
-  const update = useCallback((index: number, value: number) => {
-    props.items[index].quantity = value;
-    props.onUpdateData(props.items);
-  }, [props],);
+  const deleteItem = useCallback(
+    (index) => {
+      console.log("INDEX", index);
+      console.log("INDEX", props.items);
+      props.items.splice(index, 1);
+      props.onUpdateData(props.items);
+    },
+    [props],
+  );
+  const update = useCallback(
+    (index: number, value: number) => {
+      props.items[index].quantity = value;
+      props.onUpdateData(props.items);
+    },
+    [props],
+  );
 
   const columns = [
     {
@@ -158,7 +186,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
               {a.sku}
             </Link>
           </div>
-          <Badge status="default" text={a.variant} style={{marginLeft: 7}}/>
+          <Badge status="default" text={a.variant} style={{ marginLeft: 7 }} />
         </div>
       ),
     },
@@ -182,7 +210,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
             minLength={1}
             maxLength={4}
             onFocus={(e) => e.target.select()}
-            style={{textAlign: "right"}}
+            style={{ textAlign: "right" }}
           />
         </div>
       ),
@@ -196,14 +224,14 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
       width: 60,
       render: (a: any, b: any, index: number) => {
         return (
-          <div style={{textAlign: "right"}}>
+          <div style={{ textAlign: "right" }}>
             <Button
               type="text"
               onClick={() => deleteItem(index)}
               className="yody-pos-delete-item ant-btn-custom"
-              style={{padding: "0 15px"}}
+              style={{ padding: "0 15px" }}
             >
-              <img src={XCloseBtn} alt=""/>
+              <img src={XCloseBtn} alt="" />
             </Button>
           </div>
         );
@@ -211,12 +239,15 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
     },
   ];
 
-  const onChangeProductSearch = useCallback((value) => {
-    setKeysearch(value);
-    initQuery.info = value;
-    initQuery.store_ids = storeId;
-    dispatch(searchVariantsOrderRequestAction(initQuery, setResultSearch));
-  }, [dispatch, storeId],);
+  const onChangeProductSearch = useCallback(
+    (value) => {
+      setKeysearch(value);
+      initQuery.info = value;
+      initQuery.store_ids = storeId;
+      dispatch(searchVariantsOrderRequestAction(initQuery, setResultSearch));
+    },
+    [dispatch, storeId],
+  );
 
   const convertResultSearch = useMemo(() => {
     let options: any[] = [];
@@ -266,72 +297,86 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
       gifts: [],
       position: undefined,
       available: variant.available,
+      taxable: variant.taxable,
     };
     return orderLine;
   }, []);
 
-  const onVariantSelect = useCallback((v, o) => {
-    let newV = parseInt(v);
-    let orderDiscountModel: OrderItemDiscountRequest = {
-      rate: 100,
-      value: 0,
-      amount: 0,
-      promotion_id: currentPromotionId || null,
-      promotion_title: currentPromotionTitle || null,
-      order_id: 0,
-      discount_code: '',
-      reason: '',
-      source: '',
-      type: '',
-    }
-    let _items = [...props.items];
-    let indexSearch = resultSearch.items.findIndex((i) => i.id === newV);
-    let index = _items.findIndex((i) => i.variant_id === newV);
-    let r: VariantResponse = resultSearch.items[indexSearch];
-    const item: OrderLineItemRequest = createItem(r);
-    if (r.id === newV) {
-      if (index === -1) {
-        item.type = Type.GIFT;
-        item.discount_items = [{...orderDiscountModel}]
-        _items.push(item);
-      } else {
-        let lastIndex = index;
-        _items.forEach((value, _index) => {
-          if (_index > lastIndex) {
-            lastIndex = _index;
-          }
-        });
-        _items[lastIndex].quantity += 1;
+  const onVariantSelect = useCallback(
+    (v, o) => {
+      let newV = parseInt(v);
+      let orderDiscountModel: OrderItemDiscountRequest = {
+        rate: 100,
+        value: 0,
+        amount: 0,
+        promotion_id: currentPromotion?.promotion_id || null,
+        promotion_title: currentPromotion?.promotion_title || null,
+        order_id: 0,
+        discount_code: "",
+        reason: "",
+        source: "",
+        type: "",
+        taxable: currentPromotion?.taxable,
+      };
+      let _items = [...props.items];
+      let indexSearch = resultSearch.items.findIndex((i) => i.id === newV);
+      let index = _items.findIndex((i) => i.variant_id === newV);
+      let r: VariantResponse = resultSearch.items[indexSearch];
+      const item: OrderLineItemRequest = createItem(r);
+      if (r.id === newV) {
+        if (index === -1) {
+          item.type = Type.GIFT;
+          item.discount_items = [{ ...orderDiscountModel }];
+          _items.push(item);
+        } else {
+          let lastIndex = index;
+          _items.forEach((value, _index) => {
+            if (_index > lastIndex) {
+              lastIndex = _index;
+            }
+          });
+          _items[lastIndex].quantity += 1;
+        }
       }
-    }
-    props.onUpdateData(_items);
-    setKeysearch("");
-  }, [props, resultSearch.items, createItem],);
+      props.onUpdateData(_items);
+      setKeysearch("");
+    },
+    [props, resultSearch.items, createItem],
+  );
 
   const onOkPress = useCallback(() => {
     onOk();
-    setCurrentPromotionValue(null)
-    setCurrentPromotionTitle(null)
-    setCurrentPromotionId(null)
-
+    // setCurrentPromotionValue(null)
+    // setCurrentPromotionTitle(null)
+    // setCurrentPromotionId(null)
+    setCurrentPromotion(null);
   }, [onOk]);
-  const onCancelPress = useCallback((e) => {
-    onCancel(e);
-    setCurrentPromotionValue(null)
-    setCurrentPromotionTitle(null)
-    setCurrentPromotionId(null)  }, [onCancel]);
+  const onCancelPress = useCallback(
+    (e) => {
+      onCancel(e);
+      // setCurrentPromotionValue(null)
+      // setCurrentPromotionTitle(null)
+      // setCurrentPromotionId(null)
+      setCurrentPromotion(null);
+    },
+    [onCancel],
+  );
   const onChangePaginationPromotion = (page: number) => {
     dispatch(showLoading());
     dispatch(
-      PromotionGetList((response: ListDataModel<PromotionResponse>) => {
-        setData(response);
-      }, {states: 'ACTIVE', page})
+      PromotionGetList(
+        (response: ListDataModel<PromotionResponse>) => {
+          setData(response);
+        },
+        { states: "ACTIVE", page },
+      ),
     );
-  }
+  };
 
   const onChangePromotionRadio = (e: RadioChangeEvent) => {
-    let idPromotion = e.target.value.split('-')[0];
-    let titlePromotion = e.target.value.split('-')[1];
+    let idPromotion = e.target.value.split("-")[0];
+    let titlePromotion = e.target.value.split("-")[1];
+    let taxablePromotion = e.target.value.split("-")[2];
     let orderDiscountModel: OrderItemDiscountRequest = {
       rate: 100,
       value: 0,
@@ -339,20 +384,29 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
       promotion_id: idPromotion || null,
       promotion_title: titlePromotion || null,
       order_id: 0,
-      discount_code: '',
-      reason: '',
-      source: '',
-      type: '',
-    }
-    let itemsGift = [...props.items]
+      discount_code: "",
+      reason: "",
+      source: "",
+      type: "",
+      taxable: taxablePromotion ? Boolean(taxablePromotion) : false,
+    };
+    let itemsGift = [...props.items];
 
-    itemsGift.forEach((element: OrderLineItemRequest) => element.discount_items = [{...orderDiscountModel}])
+    itemsGift.forEach(
+      (element: OrderLineItemRequest) => (element.discount_items = [{ ...orderDiscountModel }]),
+    );
     props.onUpdateData(itemsGift);
 
-    setCurrentPromotionValue(e.target.value);
-    setCurrentPromotionId(idPromotion);
-    setCurrentPromotionTitle(titlePromotion);
-  }
+    // setCurrentPromotionValue(e.target.value);
+    // setCurrentPromotionId(idPromotion);
+    // setCurrentPromotionTitle(titlePromotion);
+    setCurrentPromotion({
+      promotion_id: idPromotion,
+      promotion_title: titlePromotion,
+      promotion_value: e.target.value,
+      taxable: taxablePromotion,
+    });
+  };
   return (
     <Modal
       centered
@@ -368,17 +422,24 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
       <Row>
         <Col span={10}>
           <h4>Chương trình quà tặng</h4>
-          <RadioGroup value={currentPromotionValue} onChange={onChangePromotionRadio}>
+          <RadioGroup value={currentPromotion?.promotion_value} onChange={onChangePromotionRadio}>
             <Space direction="vertical">
-              {
-                data && data?.items.map((item: PromotionResponse, idx: number) => {
-                  return <Radio key={item.id} value={`${item.id}-${item.title}`}>{item.title}</Radio>
-                })
-              }
+              {data &&
+                data?.items.map((item: PromotionResponse, idx: number) => {
+                  return (
+                    <Radio key={item.id} value={`${item.id}-${item.title}-${item.is_registered}`}>
+                      {item.title}
+                    </Radio>
+                  );
+                })}
             </Space>
           </RadioGroup>
-          <Pagination defaultCurrent={1} onChange={onChangePaginationPromotion} pageSize={20}
-                      total={data?.metadata.total}/>
+          <Pagination
+            defaultCurrent={1}
+            onChange={onChangePaginationPromotion}
+            pageSize={20}
+            total={data?.metadata.total}
+          />
         </Col>
         <ColAddGift span={14}>
           <h4>Thêm quà tặng</h4>
@@ -391,12 +452,12 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
             className="w-100"
             onSearch={onChangeProductSearch}
             options={convertResultSearch}
-            style={{width: "100%", marginBottom: "10px"}}
+            style={{ width: "100%", marginBottom: "10px" }}
           >
             <Input
               className="yody-pos-gift-modal-input"
               placeholder="Tìm kiếm và chọn quà tặng"
-              prefix={<img src={searchGift} alt=""/>}
+              prefix={<img src={searchGift} alt="" />}
             />
           </AutoComplete>
           <Table

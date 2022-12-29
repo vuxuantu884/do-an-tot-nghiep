@@ -84,6 +84,7 @@ export const FulFillmentReturnStatus = {
 export const DISCOUNT_TYPE = {
   MONEY: "money",
   PERCENT: "percent",
+  COUPON: " coupon",
 };
 
 export const PaymentMethodOption = {
@@ -338,12 +339,28 @@ export const TIKTOK = {
   channel_code: "tiktok",
 };
 
+export const WEBSITE = {
+  channel_id: 4,
+  channel_code: "website",
+};
+
 export const ECOMMERCE_CHANNEL_CODES = [
   TIKI.channel_code,
   LAZADA.channel_code,
   SENDO.channel_code,
   SHOPEE.channel_code,
   TIKTOK.channel_code,
+];
+
+// shopee, lazada, tiki, tiktok, website, app, landingpage
+export const ECOMMERCE_CHANNEL_CODES_UPDATE_ORDER = [
+  SHOPEE.channel_code,
+  LAZADA.channel_code,
+  TIKI.channel_code,
+  TIKTOK.channel_code,
+  WEBSITE.channel_code,
+  YODY_APP.channel_code,
+  YODY_LANDING_PAGE.channel_code,
 ];
 
 export const SHIPPING_REQUIREMENT = {

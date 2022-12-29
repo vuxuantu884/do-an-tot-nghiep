@@ -1282,24 +1282,28 @@ const ScreenReturnCreate = (props: PropTypes) => {
       promotion_id: null,
       reason: "",
       source: "",
-      discount_code: coupon,
+      discount_code: promotion.discount_code,
       order_id: null,
+      type: promotion.sub_type || "",
+      promotion_title: promotion.promotion_title,
     };
     let listDiscountRequest = [];
     if (coupon) {
       listDiscountRequest.push({
-        discount_code: coupon,
+        discount_code: promotion.discount_code,
         rate: promotion?.rate,
         value: promotion?.value,
         amount: promotion?.value,
-        promotion_id: null,
+        promotion_id: promotion?.promotion_id,
         reason: "",
         source: "",
         order_id: null,
+        type: promotion.sub_type || "",
+        promotion_title: promotion.promotion_title,
       });
     } else if (promotion?.promotion_id) {
       listDiscountRequest.push({
-        discount_code: null,
+        discount_code: promotion.discount_code,
         rate: promotion?.rate,
         value: promotion?.value,
         amount: promotion?.value,
@@ -1307,6 +1311,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
         reason: promotion.reason,
         source: "",
         order_id: null,
+        type: promotion.sub_type || "",
+        promotion_title: promotion.promotion_title,
       });
     } else if (!promotion) {
       return [];
@@ -1349,7 +1355,16 @@ const ScreenReturnCreate = (props: PropTypes) => {
       }
       values.tags = tags;
       // values.items = listExchangeProducts;
-      values.items = listExchangeProducts.concat(itemGifts);
+      //values.items = listExchangeProducts.concat(itemGifts);
+
+      const _item = listExchangeProducts.concat(itemGifts);
+      values.items = _item.map((p) => {
+        let _discountItems = p.discount_items[0];
+        if (_discountItems) {
+          _discountItems.type = _discountItems.sub_type || "";
+        }
+        return p;
+      });
       values.discounts = lstDiscount;
       let _shippingAddressRequest: any = {
         ...shippingAddress,
@@ -1507,6 +1522,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
       let itemsResult = items.filter((single) => {
         return single.quantity > 0;
       });
+
+      console.log("itemsResult long test", itemsResult);
       let discounts = handleRecalculateOriginDiscount(itemsResult);
 
       const origin_order_id = OrderDetail.id;
@@ -1600,7 +1617,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         order_exchange,
       };
       console.log("valuesExchange", valuesExchange);
-      // return;
+      //return;
       if (checkPointFocus(order_exchange)) {
         if (!order_exchange?.customer_id) {
           showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng!");
