@@ -225,6 +225,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       });
     }
   };
+
   const handleChangeAllPriceLineItem = (price: number) => {
     const lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
     if (lineItems.length > 0) {
@@ -251,6 +252,75 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         }
       });
 
+      formMain.setFieldsValue({
+        line_items: [...lineItems],
+      });
+
+      const currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+        POField.procurements,
+      );
+      const newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+        currentProcument,
+        lineItems,
+        poLineItemType,
+      );
+      formMain.setFieldsValue({
+        procurements: newProcument,
+      });
+    }
+  };
+
+  const handleChangeAllRetailPriceLineItem = (retail_price: number) => {
+    const lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
+    if (lineItems.length > 0) {
+      lineItems.forEach((lineItem: PurchaseOrderLineItem, index: number) => {
+        if (poLineItemType === POLineItemType.SUPPLEMENT && lineItem.id) {
+          return;
+        } else if (
+          poLineItemType === POLineItemType.SUPPLEMENT &&
+          lineItem.type === POLineItemType.SUPPLEMENT &&
+          !lineItem.id
+        ) {
+          lineItem.retail_price = retail_price;
+          updateOldLineItem(lineItem);
+          lineItems[index] = lineItem;
+          return;
+        } else if (
+          poLineItemType !== POLineItemType.SUPPLEMENT &&
+          lineItem.type !== POLineItemType.SUPPLEMENT
+        ) {
+          lineItem.retail_price = retail_price;
+          updateOldLineItem(lineItem);
+          lineItems[index] = lineItem;
+          return;
+        }
+      });
+
+      formMain.setFieldsValue({
+        line_items: [...lineItems],
+      });
+
+      const currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
+        POField.procurements,
+      );
+      const newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
+        currentProcument,
+        lineItems,
+        poLineItemType,
+      );
+      formMain.setFieldsValue({
+        procurements: newProcument,
+      });
+    }
+  };
+
+  const handleChangeRetailPriceLineItem = (retail_price: number, item: PurchaseOrderLineItem) => {
+    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
+    const indexOfItem = lineItems.findIndex((a) => a.sku === item.sku);
+
+    if (lineItems[indexOfItem]) {
+      lineItems[indexOfItem].retail_price = retail_price;
+      updateOldLineItem(lineItems[indexOfItem]);
       formMain.setFieldsValue({
         line_items: [...lineItems],
       });
@@ -920,7 +990,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     width: 175,
                     dataIndex: "price",
                     render: (value, item, index) => {
-                      const disabled = Boolean(item.type === POLineItemType.SUPPLEMENT && item.id);
                       return (
                         <NumberInput
                           className="hide-number-handle"
@@ -931,7 +1000,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           onChange={(inputValue) => {
                             handleChangePriceLineItem(inputValue || 0, item);
                           }}
-                          disabled={disabled}
                         />
                       );
                     },
@@ -965,7 +1033,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     width: 100,
                     dataIndex: "tax_rate",
                     render: (value, item) => {
-                      const disabled = Boolean(item.type === POLineItemType.SUPPLEMENT && item.id);
                       return (
                         <NumberInput
                           className="product-item-vat"
@@ -978,17 +1045,65 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           min={0}
                           maxLength={3}
                           max={100}
-                          disabled={disabled}
                         />
                       );
                     },
                   },
                   {
-                    title: "Giá bán",
-                    width: 100,
-                    align: "center",
+                    title: (
+                      <div
+                        style={{
+                          width: "100%",
+                          textAlign: "right",
+                        }}
+                      >
+                        <div>
+                          Giá bán
+                          <span
+                            style={{
+                              color: "#737373",
+                              fontSize: "12px",
+                              fontWeight: "normal",
+                            }}
+                          >
+                            {" "}
+                            ₫
+                          </span>
+                        </div>
+                        <NumberInput
+                          style={{ width: "80%" }}
+                          min={0}
+                          format={(a: string) => formatCurrency(a ? a : 0, "")}
+                          replace={(value?: string) => {
+                            let parseValue = 0;
+                            if (value) {
+                              parseValue = parseLocaleNumber(value);
+                            }
+                            return parseValue + "";
+                          }}
+                          onPressEnter={(e) => {
+                            const value = parseLocaleNumber(e.target.value);
+                            handleChangeAllRetailPriceLineItem(value);
+                          }}
+                        />
+                      </div>
+                    ),
+                    width: 175,
                     dataIndex: "retail_price",
-                    render: (price) => formatCurrency(price) || 0,
+                    render: (value, item, index) => {
+                      return (
+                        <NumberInput
+                          className="hide-number-handle"
+                          min={0}
+                          format={(a: string) => formatCurrency(a ? a : 0)}
+                          replace={(a: string) => replaceFormatString(a)}
+                          value={item.retail_price > 0 ? item.retail_price : value}
+                          onChange={(inputValue) => {
+                            handleChangeRetailPriceLineItem(inputValue || 0, item);
+                          }}
+                        />
+                      );
+                    },
                   },
                   {
                     dataIndex: "line_amount_after_line_discount",

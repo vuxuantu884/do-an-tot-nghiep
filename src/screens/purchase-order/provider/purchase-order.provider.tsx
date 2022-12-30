@@ -1,7 +1,7 @@
 import { FormInstance } from "antd/es/form/Form";
 import { EnumOptionValueOrPercent } from "config/enum.config";
 import { useFetchMerchans } from "hook/useFetchMerchans";
-import { groupBy } from "lodash";
+import { cloneDeep, groupBy } from "lodash";
 import { ProcurementLineItemField } from "model/procurement/field";
 import { POLineItemType, PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import {
@@ -194,7 +194,7 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
       (formMain.getFieldsValue()?.procurements as PurchaseProcument[]) || [];
     const lineItems: PurchaseOrderLineItem[] =
       (formMain.getFieldsValue()?.line_items as PurchaseOrderLineItem[]) || [];
-    let lineItemsBackUp = JSON.parse(JSON.stringify(lineItems)) as PurchaseOrderLineItem[];
+    let lineItemsBackUp = cloneDeep(lineItems) as PurchaseOrderLineItem[];
     const procurementsBackUp = procurements.map((procurement) => {
       procurement.procurement_items.forEach((procurementItem, indexProcurementItem) => {
         const indexLineItem = lineItems.findIndex(
@@ -244,7 +244,7 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
       }
       return {
         ...procurement,
-        procurement_items: [...procurement.procurement_items, ...procurementItem],
+        procurement_items: [...procurement.procurement_items, ...cloneDeep(procurementItem)],
       };
     });
     const procurementsFilter = groupBy(
