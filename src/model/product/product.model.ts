@@ -344,6 +344,7 @@ export interface VariantRequestView {
   saleable?: boolean;
   defect_code?: string;
   type?: number;
+  taxable?: boolean;
 }
 
 export interface VariantPriceViewRequest {
