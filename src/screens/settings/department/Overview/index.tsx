@@ -1,4 +1,4 @@
-import { Card } from "antd";
+import { Card, Tooltip } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
@@ -7,16 +7,25 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import ArrowRight from "assets/icon/arrow-left.svg";
 import ArrowRightGray from "assets/icon/arrow-right-gray.svg";
+import StarIcon from "assets/icon/star.svg";
+import DetailIcon from "assets/icon/detail.svg";
 import "./index.scss";
 import { convertDepartment } from "utils/AppUtils";
 import { useHistory } from "react-router-dom";
+import { DepartmentView } from "model/account/department.model";
+
+type selectedKeysType = {
+  id: number,
+  parentId: number | undefined,
+  level: number,
+};
 
 const DepartmentOverviewScreen: React.FC = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const [departments, setDepartment] = useState<any>([]);
-  const [selectedKeys, setSelectedKeys] = useState<any>([]);
-  const [isShowFirstLv, setIsShowFirstLv] = useState<boolean>(false);
+  const [selectedKeys, setSelectedKeys] = useState<selectedKeysType[]>([]);
+  const [isShowFirstLv, setIsShowFirstLv] = useState(false);
 
   const backAction = () => {
     history.push(`${UrlConfig.DEPARTMENT}`);
@@ -43,7 +52,7 @@ const DepartmentOverviewScreen: React.FC = () => {
     );
   }, [dispatch]);
 
-  const isExistEl = (id: number) => {
+  const isExistEl = (id: number | undefined) => {
     if (selectedKeys.length === 0) return false;
 
     const selectedKeyFiltered = selectedKeys.filter((i: any) => i.id === id);
@@ -51,7 +60,7 @@ const DepartmentOverviewScreen: React.FC = () => {
     return selectedKeyFiltered.length > 0;
   };
 
-  const changeSelectedKeys = (key: number, parentId: number, level: number) => {
+  const changeSelectedKeys = (key: number, parentId: number | undefined, level: number) => {
     let newSelectedKeys = [...selectedKeys];
 
     if (isExistEl(key)) {
@@ -72,7 +81,8 @@ const DepartmentOverviewScreen: React.FC = () => {
     setSelectedKeys(newSelectedKeys);
   };
 
-  const goToDepartmentDetail = (id: number) => {
+  const goToDepartmentDetail = (event: React.MouseEvent<HTMLDivElement>, id: number) => {
+    event.stopPropagation();
     window.open(`${BASE_NAME_ROUTER}${UrlConfig.DEPARTMENT}/${id}`, "_blank")
   };
 
@@ -93,53 +103,83 @@ const DepartmentOverviewScreen: React.FC = () => {
       ]}
     >
       <Card title="Sơ đồ tổ chức phòng ban công ty thời trang số 1 Việt Nam">
-        <div className="department-tree">
-          <div className={`level-one ${isShowFirstLv ? "active" : ""}`}>
-            <div className="center level-text fixed-header">Cấp 1</div>
-            <div className="department-tree-level" onClick={() => setIsShowFirstLv(!isShowFirstLv)}>
-              <div className="text-left">YODY</div>
-              <img
-                className="icon-right"
-                src={isShowFirstLv ? ArrowRight : ArrowRightGray}
-                alt=""
-              />
-            </div>
+        <div className="container-overview">
+          <div className="header-tree">
+            <div className="center level-text">Cấp 1</div>
+            {departments && Object.keys(departments).map((i: string) => {
+              return <div className={`center level-text`}>Cấp {Number(i) + 2}</div>
+            })}
           </div>
-          {isShowFirstLv &&
-            Object.keys(departments).map((i: any) => {
-              return (
-                <div className="other-level">
-                  <div className="center level-text fixed-header">Cấp {Number(i) + 2}</div>
-                  {departments[i].map((d: any) => {
-                    return (
-                      <div
-                        className={`cursor-p department-tree-level ${
-                          isExistEl(d.id) || isExistEl(d.parent?.id)
-                            ? `${isExistEl(d.id) ? "active" : ""}`
-                            : d.level !== 0
-                            ? "d-none"
-                            : ""
-                        }`}
-                        onClick={() => goToDepartmentDetail(d.id)}
-                      >
-                        <div className="text-left">{d.name}</div>
-                        {d.isHaveChild && (
-                          <img
-                            onClick={(e) => {
-                              e.stopPropagation();
+          <div className="department-tree">
+            <div className="level-one">
+              <div className="department-tree-level-wrapper mt-38">
+                <div className={`department-tree-level ${isShowFirstLv ? "active" : ""}`} onClick={() => setIsShowFirstLv(!isShowFirstLv)}>
+                  <div className="left-content">
+                    <div className="font-weight-500">YODY</div>
+                    <div><img
+                      className="mr-5"
+                      src={StarIcon}
+                      alt="star"
+                    />Nguyễn Việt Hòa</div>
+                  </div>
+                  <img
+                    className="icon-right"
+                    src={isShowFirstLv ? ArrowRight : ArrowRightGray}
+                    alt=""
+                  />
+                </div>
+              </div>
+            </div>
+            {isShowFirstLv &&
+              Object.keys(departments).map((i: string) => {
+                console.log(departments[i])
+                return (
+                  <div className="other-level">
+                    {departments[i].map((d: DepartmentView, index: number) => {
+                      return (
+                        <div className={`department-tree-level-wrapper ${index === 0 && 'mt-38'}`}>
+                          <div
+                            className={`cursor-p department-tree-level ${
+                              isExistEl(d.id) || isExistEl(d.parent?.id)
+                                ? `${isExistEl(d.id) ? "active" : ""}`
+                                : d.level !== 0
+                                  ? "d-none"
+                                  : ""
+                            }`}
+                            onClick={() => {
                               d.isHaveChild && changeSelectedKeys(d.id, d.parent?.id, d.level);
                             }}
-                            className="icon-right"
-                            src={isExistEl(d.id) ? ArrowRight : ArrowRightGray}
-                            alt=""
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              );
-            })}
+                          >
+                            <div className="left-content">
+                              <div className="font-weight-500">
+                                {d.name}
+                                <Tooltip title="Xem chi tiết" className="icon-detail">
+                                  <img
+                                    onClick={(event) => goToDepartmentDetail(event, d.id)} src={DetailIcon} alt="detail"
+                                  />
+                                </Tooltip>
+                              </div>
+                              <div><img
+                                className="mr-5"
+                                src={StarIcon}
+                                alt="star"
+                              />{d.manager ? d.manager : "---"}</div>
+                            </div>
+                            {d.isHaveChild && (
+                              <img
+                                className="icon-right"
+                                src={isExistEl(d.id) ? ArrowRight : ArrowRightGray}
+                                alt=""
+                              />
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+          </div>
         </div>
       </Card>
       <BottomBarContainer back="Quay lại trang danh sách" backAction={backAction} />
