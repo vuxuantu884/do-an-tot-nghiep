@@ -3,7 +3,7 @@ import ContentContainer from "component/container/content.container";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
-import InventoryBalanceFilter from "../common/\bcomponents/inventory-balance-filter";
+import InventoryBalanceFilter from "../common/component/inventory-balance-filter";
 import { inventoryBalanceColumns } from "../common/constant/inventory-balance/inventory-balance-columns";
 import { fetchInventoryBalanceList } from "../common/services/fetch-inventory-balance-list";
 import { InventoryBalanceStyle } from "../common/styles/inventory-balance.style";
