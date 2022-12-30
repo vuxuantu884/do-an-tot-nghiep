@@ -235,10 +235,10 @@ function CreateWarranty(props: Props) {
     customer: "",
     customer_mobile: "",
     customer_address: "",
-    store_id: null,
-    assignee_code: null,
-    appointment_date: null,
-    delivery_method: null,
+    store_id: undefined,
+    assignee_code: undefined,
+    appointment_date: undefined,
+    delivery_method: undefined,
   };
 
   const handleChangeCustomer = useCallback(
@@ -625,10 +625,6 @@ function CreateWarranty(props: Props) {
                   }
                 }),
               );
-              warrantyForm.setFieldsValue({
-                store_id: data.store_id,
-                assignee_code: data.assignee_code,
-              });
               const newWarrantyItems = data.items.map((item, index) => {
                 return {
                   ...item,
