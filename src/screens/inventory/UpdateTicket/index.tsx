@@ -74,6 +74,7 @@ import { searchVariantsApi } from "service/product/product.service";
 import ModalShowError from "../common/ModalShowError";
 import { HttpStatus } from "config/http-status.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { MAXIMUM_QUANTITY_LENGTH, MINIMUM_QUANTITY } from "../helper";
 const { Option } = Select;
 
 const VARIANTS_FIELD = "line_items";
@@ -880,7 +881,8 @@ const UpdateTicket: FC = () => {
           <NumberInput
             isFloat={false}
             id={`item-quantity-${index}`}
-            min={0}
+            min={MINIMUM_QUANTITY}
+            maxLength={MAXIMUM_QUANTITY_LENGTH}
             value={value}
             className="border-input"
             onChange={(quantity) => {

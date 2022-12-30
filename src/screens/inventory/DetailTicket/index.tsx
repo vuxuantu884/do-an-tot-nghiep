@@ -94,6 +94,7 @@ import queryString from "query-string";
 import ModalForward from "../common/ModalForward";
 import ForwardRecordTour from "./components/ForwardRecordTour";
 import { DELAY_TIME_FOR_TOUR } from "../../inventory-adjustment/helper";
+import { MAXIMUM_QUANTITY_LENGTH, MINIMUM_QUANTITY } from "../helper";
 
 export interface InventoryParams {
   id: string;
@@ -881,7 +882,8 @@ const DetailTicket: FC = () => {
               }
               isFloat={false}
               id={`item-quantity-${index}`}
-              min={0}
+              min={MINIMUM_QUANTITY}
+              maxLength={MAXIMUM_QUANTITY_LENGTH}
               value={value ? value : 0}
               onChange={(quantity) => {
                 onRealQuantityChange(quantity, index);
