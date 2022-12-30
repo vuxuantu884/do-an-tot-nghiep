@@ -49,7 +49,7 @@ const AccountUpdateScreen = React.lazy(
   () => import("screens/settings/account/account.update.screen"),
 );
 const AccountUpdatePassScreen = React.lazy(
-  () => import("screens/settings/account/account.update.pass.screen"),
+  () => import("screens/settings/account/ChangePassword/ChangePassword"),
 );
 
 //store
