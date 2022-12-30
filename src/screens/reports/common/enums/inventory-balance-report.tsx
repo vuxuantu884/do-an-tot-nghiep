@@ -1,5 +1,5 @@
 export enum InventoryBalanceFilterForm {
   TimeRange = "timeRange",
-  Inventories = "inventories",
+  Inventory = "inventory",
   Skus = "skus",
 }

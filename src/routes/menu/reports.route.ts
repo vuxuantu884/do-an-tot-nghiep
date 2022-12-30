@@ -287,7 +287,7 @@ const reports: Array<RouteMenu> = [
     title: "Báo cáo xuất nhập tồn kho",
     icon: "icon-dot",
     component: InventoryBalance,
-    key: "menureport3",
+    key: "menureport5",
     isShow: true,
     header: null,
     subMenu: [],

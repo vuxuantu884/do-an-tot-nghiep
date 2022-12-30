@@ -21,8 +21,6 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
           return { label: value, value };
         })
       : [];
-    console.log("selectedOptions", selectedOptions);
-
     const opt = { label: keySearch, value: keySearch };
     setFinalOptions(() => {
       if (!skus?.includes(keySearch)) {
@@ -34,13 +32,13 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
 
   const onApplyFilter = () => {
     const conditionFilter = form.getFieldsValue();
-    const { timeRange, inventories, skus } = conditionFilter;
-    if (!timeRange || !inventories) {
+    const { timeRange, inventory, skus } = conditionFilter;
+    if (!timeRange || !inventory) {
       return;
     }
     const startDate = timeRange[0].format(DATE_FORMAT.YYYYMMDD);
     const endDate = timeRange[1].format(DATE_FORMAT.YYYYMMDD);
-    applyFilter({ startDate, endDate, listSKU: skus?.join(","), storeIds: inventories.join(",") });
+    applyFilter({ startDate, endDate, listSKU: skus?.join(","), storeName: inventory });
   };
   return (
     <Form form={form} name="form-filter">
@@ -57,7 +55,7 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
             <AnalyticsDatePicker className="input-width-sm" />
           </Form.Item>
           <Form.Item
-            name={InventoryBalanceFilterForm.Inventories}
+            name={InventoryBalanceFilterForm.Inventory}
             label="Kho/Cửa hàng"
             labelCol={{ span: 24 }}
             rules={[{ required: true, message: "Vui lòng chọn kho/cửa hàng" }]}
