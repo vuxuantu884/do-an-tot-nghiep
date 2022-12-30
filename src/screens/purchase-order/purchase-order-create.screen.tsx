@@ -338,7 +338,6 @@ const POCreateScreen: React.FC = () => {
       const lineItems: any[] = isGridMode
         ? combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate)
         : formMain.getFieldsValue()[POField.line_items];
-      console.log("lineItems", lineItems);
       if (!lineItems?.every((item) => item.price)) {
         throw new Error("Vui lòng điền giá nhập cho sản phẩm đã có số lượng để tạo đơn thành công");
       }
@@ -571,11 +570,12 @@ const POCreateScreen: React.FC = () => {
         <div style={{ width: "100%" }}>
           <PoProductContainer isEditMode={true} isDisableSwitch={false} form={formMain}>
             {isGridMode ? (
-              <POProductFormNew formMain={formMain} isEditMode={true} />
+              <POProductFormNew formMain={formMain} isEditMode={true} isEditPrice={true} />
             ) : (
               <POProductFormOld
                 poLineItemType={POLineItemType.NORMAL}
                 isEdit={true}
+                isEditPrice={true}
                 formMain={formMain}
               />
             )}
