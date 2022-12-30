@@ -64,6 +64,7 @@ import { strForSearch } from "utils/StringUtils";
 import { searchVariantsApi } from "service/product/product.service";
 import { HttpStatus } from "config/http-status.config";
 import ModalShowError from "../common/ModalShowError";
+import { MAXIMUM_QUANTITY_LENGTH, MINIMUM_QUANTITY } from "../helper";
 
 const { Option } = Select;
 
@@ -695,15 +696,13 @@ const CreateTicket: FC = () => {
         <NumberInput
           isFloat={false}
           id={`item-quantity-${index}`}
-          min={0}
+          min={MINIMUM_QUANTITY}
+          maxLength={MAXIMUM_QUANTITY_LENGTH}
           value={value}
           className="border-input"
           onChange={(quantity) => {
             onQuantityChange(quantity, index);
           }}
-          // onBlur={() => {
-          //   checkError(index);
-          // }}
         />
       ),
     },
