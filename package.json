@@ -68,8 +68,7 @@
     "uuid": "^8.3.2",
     "web-vitals": "^1.0.1",
     "world_countries_lists": "^2.6.0",
-    "xlsx": "^0.18.5",
-    "yup": "^0.32.11"
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "dotenv -e .env.development react-scripts start",

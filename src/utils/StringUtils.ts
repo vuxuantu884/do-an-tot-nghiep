@@ -1,15 +1,11 @@
-export const normalizeText = (text: string) => {
-  return text
-    ? text
+export const strForSearch = (str: String) => {
+  return str
+    ? str
         .normalize("NFD")
+        .toLowerCase()
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/đ/g, "d")
-        .replace(/Đ/g, "D")
-    : text;
-};
-
-export const strForSearch = (str: string | String) => {
-  return normalizeText(str.toString()).toLowerCase();
+    : str;
 };
 
 export const fullTextSearch = (textSearch: string, value: string) => {
