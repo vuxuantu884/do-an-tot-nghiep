@@ -241,6 +241,13 @@ const DiscountOrderModalSearch: React.FC<Props> = (props: Props) => {
                   if (e.target.value.length !== 0 && data.length !== 0) {
                     setShowSearchPromotion(true);
                   }
+                  if (e.target.value.length === 0) {
+                    console.log("333333333");
+                    if (_type === DISCOUNT_TYPE.MONEY && suggestedDiscounts.length === 0) {
+                      setSuggestedDiscounts(initOrderSuggestDiscounts);
+                      setShowSearchPromotion(true);
+                    }
+                  }
                 }}
                 prefix={
                   isLoading ? (
