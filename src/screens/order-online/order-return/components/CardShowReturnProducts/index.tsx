@@ -152,6 +152,7 @@ function CardShowReturnProducts(props: PropTypes) {
         let discountPerOrder = OrderDetail?.order_return_origin
           ? getProductDiscountPerOrder(OrderDetail?.order_return_origin, record)
           : getProductDiscountPerOrder(OrderDetail, record);
+        console.log("discountPerOrder", discountPerOrder);
         return (
           <div>
             {formatCurrency(discountPerOrder)}

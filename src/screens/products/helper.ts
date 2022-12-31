@@ -65,6 +65,8 @@ enum EInventoryStatus {
   IN_COMING = "in_coming",
   TRANSFERRING = "transferring",
   ON_WAY = "on_way",
+  DEFECT = "defect",
+  SHIPPING = "shipping",
 }
 
 enum ProductHistoryDocumentTypes {

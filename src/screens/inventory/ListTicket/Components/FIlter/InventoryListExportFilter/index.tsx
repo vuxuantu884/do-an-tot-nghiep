@@ -13,7 +13,7 @@ import { BaseFilterWrapper, InventoryExportFiltersWrapper } from "./styles";
 import "assets/css/custom-filter.scss";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
-import { formatDateFilter, formatDateTimeFilter } from "utils/DateUtils";
+import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { useDispatch } from "react-redux";
 import { StoreResponse } from "model/core/store.model";
@@ -107,52 +107,34 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
       ...values,
       condition: values.condition ? values.condition.trim() : null,
       from_created_date: formAdv.getFieldValue("from_created_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("from_created_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getStartOfDayCommon(formAdv.getFieldValue("from_created_date"))?.format()
         : null,
       to_created_date: formAdv.getFieldValue("to_created_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("to_created_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getEndOfDayCommon(formAdv.getFieldValue("to_created_date"))?.format()
         : null,
       from_transfer_date: formAdv.getFieldValue("from_transfer_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("from_transfer_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getStartOfDayCommon(formAdv.getFieldValue("from_transfer_date"))?.format()
         : null,
       to_transfer_date: formAdv.getFieldValue("to_transfer_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("to_transfer_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getEndOfDayCommon(formAdv.getFieldValue("to_transfer_date"))?.format()
         : null,
       from_receive_date: formAdv.getFieldValue("from_receive_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("from_receive_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getStartOfDayCommon(formAdv.getFieldValue("from_receive_date"))?.format()
         : null,
       to_receive_date: formAdv.getFieldValue("to_receive_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("to_receive_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getEndOfDayCommon(formAdv.getFieldValue("to_receive_date"))?.format()
         : null,
       from_cancel_date: formAdv.getFieldValue("from_cancel_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("from_cancel_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getStartOfDayCommon(formAdv.getFieldValue("from_cancel_date"))?.format()
         : null,
       to_cancel_date: formAdv.getFieldValue("to_cancel_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("to_cancel_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getEndOfDayCommon(formAdv.getFieldValue("to_cancel_date"))?.format()
+        : null,
+      from_pending_date: formAdv.getFieldValue("from_pending_date")
+        ? getStartOfDayCommon(formAdv.getFieldValue("from_pending_date"))?.format()
+        : null,
+      to_pending_date: formAdv.getFieldValue("to_pending_date")
+        ? getEndOfDayCommon(formAdv.getFieldValue("to_pending_date"))?.format()
         : null,
     };
     onFilter && onFilter(valuesForm);
@@ -235,6 +217,15 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
             });
           formAdv.resetFields(["from_cancel_date", "to_cancel_date"]);
           break;
+        case "pending_date":
+          onFilter &&
+          onFilter({
+            ...params,
+            from_pending_date: null,
+            to_pending_date: null,
+          });
+          formAdv.resetFields(["from_pending_date", "to_pending_date"]);
+          break;
         default:
           break;
       }
@@ -247,10 +238,40 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
       const valuesForm = {
         ...values,
         condition: values.condition ? values.condition.trim() : null,
+        from_created_date: formAdv.getFieldValue("from_created_date")
+          ? getStartOfDayCommon(formAdv.getFieldValue("from_created_date"))?.format()
+          : null,
+        to_created_date: formAdv.getFieldValue("to_created_date")
+          ? getEndOfDayCommon(formAdv.getFieldValue("to_created_date"))?.format()
+          : null,
+        from_transfer_date: formAdv.getFieldValue("from_transfer_date")
+          ? getStartOfDayCommon(formAdv.getFieldValue("from_transfer_date"))?.format()
+          : null,
+        to_transfer_date: formAdv.getFieldValue("to_transfer_date")
+          ? getEndOfDayCommon(formAdv.getFieldValue("to_transfer_date"))?.format()
+          : null,
+        from_receive_date: formAdv.getFieldValue("from_receive_date")
+          ? getStartOfDayCommon(formAdv.getFieldValue("from_receive_date"))?.format()
+          : null,
+        to_receive_date: formAdv.getFieldValue("to_receive_date")
+          ? getEndOfDayCommon(formAdv.getFieldValue("to_receive_date"))?.format()
+          : null,
+        from_cancel_date: formAdv.getFieldValue("from_cancel_date")
+          ? getStartOfDayCommon(formAdv.getFieldValue("from_cancel_date"))?.format()
+          : null,
+        to_cancel_date: formAdv.getFieldValue("to_cancel_date")
+          ? getEndOfDayCommon(formAdv.getFieldValue("to_cancel_date"))?.format()
+          : null,
+        from_pending_date: formAdv.getFieldValue("from_pending_date")
+          ? getStartOfDayCommon(formAdv.getFieldValue("from_pending_date"))?.format()
+          : null,
+        to_pending_date: formAdv.getFieldValue("to_pending_date")
+          ? getEndOfDayCommon(formAdv.getFieldValue("to_pending_date"))?.format()
+          : null,
       };
       onFilter && onFilter(valuesForm);
     },
-    [onFilter],
+    [formAdv, onFilter],
   );
 
   let filters = useMemo(() => {
@@ -313,11 +334,11 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
     if (initialValues.from_created_date || initialValues.to_created_date) {
       let textCreatedDate =
         (initialValues.from_created_date
-          ? moment(initialValues.from_created_date).format("DD-MM-YYYY HH:mm")
+          ? moment(initialValues.from_created_date).format("DD-MM-YYYY")
           : "??") +
         " ~ " +
         (initialValues.to_created_date
-          ? moment(initialValues.to_created_date).format("DD-MM-YYYY HH:mm")
+          ? moment(initialValues.to_created_date).format("DD-MM-YYYY")
           : "??");
       list.push({
         key: "created_date",
@@ -352,11 +373,11 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
     if (initialValues.from_transfer_date || initialValues.to_transfer_date) {
       let textTransferDate =
         (initialValues.from_transfer_date
-          ? moment(initialValues.from_transfer_date).format("DD-MM-YYYY HH:mm")
+          ? moment(initialValues.from_transfer_date).format("DD-MM-YYYY")
           : "??") +
         " ~ " +
         (initialValues.to_transfer_date
-          ? moment(initialValues.to_transfer_date).format("DD-MM-YYYY HH:mm")
+          ? moment(initialValues.to_transfer_date).format("DD-MM-YYYY")
           : "??");
       list.push({
         key: "transfer_date",
@@ -391,11 +412,11 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
     if (initialValues.from_receive_date || initialValues.to_receive_date) {
       let textReceiveDate =
         (initialValues.from_receive_date
-          ? moment(initialValues.from_receive_date).format("DD-MM-YYYY HH:mm")
+          ? moment(initialValues.from_receive_date).format("DD-MM-YYYY")
           : "??") +
         " ~ " +
         (initialValues.to_receive_date
-          ? moment(initialValues.to_receive_date).format("DD-MM-YYYY HH:mm")
+          ? moment(initialValues.to_receive_date).format("DD-MM-YYYY")
           : "??");
       list.push({
         key: "receive_date",
@@ -430,11 +451,11 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
     if (initialValues.from_cancel_date || initialValues.to_cancel_date) {
       let textCancelDate =
         (initialValues.from_cancel_date
-          ? moment(initialValues.from_cancel_date).format("DD-MM-YYYY HH:mm")
+          ? moment(initialValues.from_cancel_date).format("DD-MM-YYYY")
           : "??") +
         " ~ " +
         (initialValues.to_cancel_date
-          ? moment(initialValues.to_cancel_date).format("DD-MM-YYYY HH:mm")
+          ? moment(initialValues.to_cancel_date).format("DD-MM-YYYY")
           : "??");
       list.push({
         key: "cancel_date",
@@ -446,11 +467,11 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
     if (initialValues.from_pending_date || initialValues.to_pending_date) {
       let textPendingDate =
         (initialValues.from_pending_date
-          ? moment(initialValues.from_pending_date).format("DD-MM-YYYY HH:mm")
+          ? moment(initialValues.from_pending_date).format("DD-MM-YYYY")
           : "??") +
         " ~ " +
         (initialValues.to_pending_date
-          ? moment(initialValues.to_pending_date).format("DD-MM-YYYY HH:mm")
+          ? moment(initialValues.to_pending_date).format("DD-MM-YYYY")
           : "??");
       list.push({
         key: "pending_date",
@@ -575,8 +596,6 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
                     activeButton={dateClick}
                     setActiveButton={setDateClick}
                     formRef={formRef}
-                    format="DD/MM/YYYY HH:mm"
-                    showTime
                   />
                 </Col>
               </Row>
@@ -594,8 +613,6 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
                     activeButton={dateClick}
                     setActiveButton={setDateClick}
                     formRef={formRef}
-                    format="DD/MM/YYYY HH:mm"
-                    showTime
                   />
                 </Col>
               </Row>
@@ -613,8 +630,6 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
                     activeButton={dateClick}
                     setActiveButton={setDateClick}
                     formRef={formRef}
-                    format="DD/MM/YYYY HH:mm"
-                    showTime
                   />
                 </Col>
               </Row>
@@ -625,15 +640,13 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
                   </Item>
                 </Col>
                 <Col span={12}>
-                  <div className="label-date">Ngày Hủy</div>
+                  <div className="label-date">Ngày hủy</div>
                   <CustomFilterDatePicker
                     fieldNameFrom="from_cancel_date"
                     fieldNameTo="to_cancel_date"
                     activeButton={dateClick}
                     setActiveButton={setDateClick}
                     formRef={formRef}
-                    format="DD/MM/YYYY HH:mm"
-                    showTime
                   />
                 </Col>
               </Row>
@@ -651,8 +664,6 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
                     activeButton={dateClick}
                     setActiveButton={setDateClick}
                     formRef={formRef}
-                    format="DD/MM/YYYY HH:mm"
-                    showTime
                   />
                 </Col>
               </Row>

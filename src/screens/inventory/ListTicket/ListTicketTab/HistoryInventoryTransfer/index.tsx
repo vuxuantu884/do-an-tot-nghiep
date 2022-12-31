@@ -14,7 +14,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { AccountResponse, AccountStoreResponse } from "model/account/account.model";
+import { AccountResponse } from "model/account/account.model";
 import { generateQuery } from "utils/AppUtils";
 import { useHistory } from "react-router";
 import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
@@ -124,9 +124,6 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
   const { accounts, stores, setAccounts } = props;
   const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
   const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
-  const [accountStoresSelected, setAccountStoresSelected] = useState<AccountStoreResponse | null>(
-    null,
-  );
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const query = useQuery();
   const [tableLoading, setTableLoading] = useState(true);
@@ -349,8 +346,6 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
         onMenuClick={() => {}}
         onFilter={onFilter}
         onClearFilter={() => onClearFilter()}
-        accountStoresSelected={accountStoresSelected}
-        setAccountStoresSelected={(value) => setAccountStoresSelected(value)}
       />
       <CustomPagination
         pagination={{

@@ -1,3 +1,5 @@
+import { OrderModel } from "model/order/order.model";
+import { CustomerOrderHistoryResponse, OrderResponse } from "model/response/order/order.response";
 import { PromotionConstants } from "./promotion.constant";
 
 export const promotionUtils = {
@@ -34,9 +36,40 @@ export const promotionUtils = {
     let promotionTitle = promotionUtils.getPromotionTextFromResponse(
       orderPrivateNoteIncludePromotionTitle,
     );
+    console.log("promotionTitle", promotionTitle);
+    console.log("orderPrivateNoteIncludePromotionTitle", orderPrivateNoteIncludePromotionTitle);
     return orderPrivateNoteIncludePromotionTitle
       .replace(PromotionConstants.combinePromotionTextAndPrivateNote, "")
       .replace(promotionTitle, "")
       .replace(PromotionConstants.promotionTitleEndText, "");
+  },
+  // lúc trước truyền tên chương trình khuyến mại vào reason, nên lấy thêm ở reason
+  getAllPromotionTitle: (orderDetail: OrderResponse | CustomerOrderHistoryResponse) => {
+    const lineItemsPromotionTitle = orderDetail.items
+      .filter((item) => {
+        return item.discount_items.length > 0 && item.discount_items[0].amount > 0;
+      })
+      .map(
+        (single) =>
+          single.discount_items[0].promotion_title || single.discount_items[0].reason || "",
+      );
+    const orderPromotionTitle =
+      orderDetail.discounts &&
+      orderDetail.discounts.length > 0 &&
+      orderDetail.discounts[0].amount > 0
+        ? [orderDetail.discounts[0].promotion_title || orderDetail.discounts[0].reason || ""]
+        : [];
+
+    // thêm tên chương trình ở ghi chú nội bộ
+    const promotionTitleByPrivateNote = promotionUtils.getPromotionTextFromResponse(
+      orderDetail.note || "",
+    );
+    const promotionTitleByPrivateNoteArr = [promotionTitleByPrivateNote];
+    const allPromotionTitle = [
+      ...lineItemsPromotionTitle,
+      ...orderPromotionTitle,
+      ...promotionTitleByPrivateNoteArr,
+    ].filter((single) => single);
+    return allPromotionTitle.length > 0 ? allPromotionTitle.join(",") : "";
   },
 };

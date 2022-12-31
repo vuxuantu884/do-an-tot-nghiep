@@ -10,6 +10,7 @@ import {
   OrderLineItemWithCalculateVariantPointModel,
   OrderResponse,
 } from "model/response/order/order.response";
+import discountCouponSuccess from "assets/icon/discount-coupon-success.svg";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -23,13 +24,19 @@ import {
   handleFetchApiError,
   isFetchApiSuccessful,
 } from "utils/AppUtils";
+import couponOrderIcon from "assets/icon/coupon-order.svg";
 import { successColor } from "utils/global-styles/variables";
+import { StyledComponent } from "./styles";
+import { DiscountUnitType } from "screens/promotion/constants";
+import { OrderStatus, FulFillmentStatus } from "utils/Constants";
+import { checkIfOrderSplit } from "utils/OrderUtils";
 
 type PropTypes = {
   shippingFeeInformedCustomer: number | null;
   OrderDetail: OrderResponse | null;
   totalAmountReturnProducts?: number;
   paymentMethods: PaymentMethodResponse[];
+  setVisibleOrderSplitModal?: (v: boolean) => void;
 };
 
 function UpdateProductCard(props: PropTypes) {
@@ -140,6 +147,16 @@ function UpdateProductCard(props: PropTypes) {
             })}
           {l.note && (
             <div style={{ fontStyle: "italic", fontSize: "0.93em", marginTop: 5 }}>{l.note}</div>
+          )}
+          {/* lúc trước để tên khuyến mại vào reason, nên giờ thêm vào nếu ko có title */}
+          {l.discount_items[0] && l.discount_items[0].promotion_id && (
+            <div className="discount-item">
+              {l.discount_items[0]?.discount_code && (
+                <span className="coupon">{l.discount_items[0].discount_code} - </span>
+              )}
+              <img src={discountCouponSuccess} alt="" width={12} />{" "}
+              {l.discount_items[0]?.promotion_title || l.discount_items[0]?.reason}
+            </div>
           )}
         </div>
       );
@@ -288,275 +305,339 @@ function UpdateProductCard(props: PropTypes) {
   };
 
   return (
-    <Card
-      className="margin-top-20"
-      title={
-        <div className="d-flex">
-          <span className="title-card">SẢN PHẨM</span>
-        </div>
-      }
-      id="product_store_in_order"
-      extra={
-        <Row>
-          <Space>
-            <div className="view-inventory-box">
-              <Button type="link" className="p-0" style={{ color: "#000000" }}>
-                <Space>
-                  <img src={storeBlueIcon} alt="" />
-                  <Link
-                    target="_blank"
-                    to={`${UrlConfig.ORDER}?page=1&limit=30&store_ids=${OrderDetail?.store_id}`}
+    <StyledComponent>
+      <Card
+        className="margin-top-20"
+        title={
+          <div className="d-flex">
+            <span className="title-card">SẢN PHẨM</span>
+          </div>
+        }
+        id="product_store_in_order"
+        extra={
+          <Row>
+            <Space>
+              {checkIfOrderSplit(OrderDetail) && (
+                <div className="view-inventory-box">
+                  <Button
+                    ghost
+                    onClick={() =>
+                      props.setVisibleOrderSplitModal && props.setVisibleOrderSplitModal(true)
+                    }
                   >
-                    {OrderDetail?.store}
-                  </Link>
-                </Space>
-              </Button>
-            </div>
-          </Space>
-        </Row>
-      }
-    >
-      <div>
-        <Row className="sale-product-box" justify="space-between">
-          <Table
-            id="product_store_in_order_table"
-            locale={{
-              emptyText: !OrderDetail ? (
-                <Button
-                  type="text"
-                  className="font-weight-500"
-                  style={{
-                    color: "#2A2A86",
-                    background: "rgba(42,42,134,0.05)",
-                    borderRadius: 5,
-                    padding: 8,
-                    height: "auto",
-                    marginTop: 15,
-                    marginBottom: 15,
-                  }}
-                >
-                  Thêm sản phẩm ngay (F3)
-                </Button>
-              ) : null,
-            }}
-            rowKey={(record) => record.id}
-            columns={columns}
-            dataSource={orderDetailCalculatePointInVariant?.items.filter(
-              (item) => item.type === Type.NORMAL || item.type === Type.SERVICE,
-            )}
-            className="sale-product-box-table2 w-100"
-            tableLayout="fixed"
-            pagination={false}
-            footer={() =>
-              orderDetailCalculatePointInVariant &&
-              orderDetailCalculatePointInVariant?.items.length > 0 ? (
-                <div className="row-footer-custom">
-                  <div
-                    className="yody-foot-total-text"
-                    style={{
-                      width: "35%",
-                      float: "left",
-                      fontWeight: 700,
-                      padding: "0 16px",
-                    }}
-                  >
-                    TỔNG
-                  </div>
-                  <div
-                    style={{
-                      width: "10%",
-                      float: "left",
-                      textAlign: "center",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {orderDetailCalculatePointInVariant?.items &&
-                      getTotalQuantity(orderDetailCalculatePointInVariant?.items)}
-                  </div>
-
-                  <div
-                    style={{
-                      width: "15%",
-                      float: "left",
-                      textAlign: "right",
-                      fontWeight: 400,
-                      padding: "0 16px",
-                    }}
-                  >
-                    {formatCurrency(
-                      orderDetailCalculatePointInVariant?.items.reduce((a, b) => a + b.amount, 0),
-                    )}
-                  </div>
-                  <div
-                    style={{
-                      width: "15%",
-                      float: "left",
-                      textAlign: "right",
-                      fontWeight: 400,
-                      padding: "0 16px",
-                    }}
-                  >
-                    {formatCurrency(
-                      orderDetailCalculatePointInVariant?.items.reduce(
-                        (a, b) => a + (b.amount - b.line_amount_after_line_discount),
-                        0,
-                      ),
-                    )}
-                  </div>
-                  <div
-                    style={{
-                      width: "10%",
-                      float: "left",
-                      textAlign: "right",
-                      fontWeight: 400,
-                      padding: "0 16px",
-                    }}
-                  >
-                    {getTotalLineItemsPointAdd(orderDetailCalculatePointInVariant?.items) || "-"}
-                  </div>
-                  <div
-                    style={{
-                      width: "15%",
-                      float: "left",
-                      textAlign: "right",
-                      color: "#000000",
-                      fontWeight: 700,
-                      padding: "0 16px",
-                    }}
-                  >
-                    {formatCurrency(
-                      orderDetailCalculatePointInVariant?.items.reduce(
-                        (a, b) => a + b.line_amount_after_line_discount,
-                        0,
-                      ),
-                    )}
-                  </div>
+                    Tách đơn
+                  </Button>
                 </div>
-              ) : (
-                <div />
-              )
-            }
-          />
-        </Row>
+              )}
 
-        <Row
-          className="sale-product-box-payment"
-          gutter={24}
-          style={{ paddingTop: 20, paddingRight: "15px" }}
-        >
-          <Col xs={24} lg={12}>
-            {/* <div className="payment-row">
+              <div className="view-inventory-box">
+                <Button type="link" className="p-0" style={{ color: "#000000" }}>
+                  <Space>
+                    <img src={storeBlueIcon} alt="" />
+                    <Link
+                      target="_blank"
+                      to={`${UrlConfig.ORDER}?page=1&limit=30&store_ids=${OrderDetail?.store_id}`}
+                    >
+                      {OrderDetail?.store}
+                    </Link>
+                  </Space>
+                </Button>
+              </div>
+            </Space>
+          </Row>
+        }
+      >
+        <div>
+          <Row className="sale-product-box" justify="space-between">
+            <Table
+              id="product_store_in_order_table"
+              locale={{
+                emptyText: !OrderDetail ? (
+                  <Button
+                    type="text"
+                    className="font-weight-500"
+                    style={{
+                      color: "#2A2A86",
+                      background: "rgba(42,42,134,0.05)",
+                      borderRadius: 5,
+                      padding: 8,
+                      height: "auto",
+                      marginTop: 15,
+                      marginBottom: 15,
+                    }}
+                  >
+                    Thêm sản phẩm ngay (F3)
+                  </Button>
+                ) : null,
+              }}
+              rowKey={(record) => record.id}
+              columns={columns}
+              dataSource={orderDetailCalculatePointInVariant?.items.filter(
+                (item) => item.type === Type.NORMAL || item.type === Type.SERVICE,
+              )}
+              className="sale-product-box-table2 w-100"
+              tableLayout="fixed"
+              pagination={false}
+              footer={() =>
+                orderDetailCalculatePointInVariant &&
+                orderDetailCalculatePointInVariant?.items.length > 0 ? (
+                  <div className="row-footer-custom">
+                    <div
+                      className="yody-foot-total-text"
+                      style={{
+                        width: "35%",
+                        float: "left",
+                        fontWeight: 700,
+                        padding: "0 16px",
+                      }}
+                    >
+                      TỔNG
+                    </div>
+                    <div
+                      style={{
+                        width: "10%",
+                        float: "left",
+                        textAlign: "center",
+                        fontWeight: 400,
+                      }}
+                    >
+                      {orderDetailCalculatePointInVariant?.items &&
+                        getTotalQuantity(orderDetailCalculatePointInVariant?.items)}
+                    </div>
+
+                    <div
+                      style={{
+                        width: "15%",
+                        float: "left",
+                        textAlign: "right",
+                        fontWeight: 400,
+                        padding: "0 16px",
+                      }}
+                    >
+                      {formatCurrency(
+                        orderDetailCalculatePointInVariant?.items.reduce((a, b) => a + b.amount, 0),
+                      )}
+                    </div>
+                    <div
+                      style={{
+                        width: "15%",
+                        float: "left",
+                        textAlign: "right",
+                        fontWeight: 400,
+                        padding: "0 16px",
+                      }}
+                    >
+                      {formatCurrency(
+                        orderDetailCalculatePointInVariant?.items.reduce(
+                          (a, b) => a + (b.amount - b.line_amount_after_line_discount),
+                          0,
+                        ),
+                      )}
+                    </div>
+                    <div
+                      style={{
+                        width: "10%",
+                        float: "left",
+                        textAlign: "right",
+                        fontWeight: 400,
+                        padding: "0 16px",
+                      }}
+                    >
+                      {getTotalLineItemsPointAdd(orderDetailCalculatePointInVariant?.items) || "-"}
+                    </div>
+                    <div
+                      style={{
+                        width: "15%",
+                        float: "left",
+                        textAlign: "right",
+                        color: "#000000",
+                        fontWeight: 700,
+                        padding: "0 16px",
+                      }}
+                    >
+                      {formatCurrency(
+                        orderDetailCalculatePointInVariant?.items.reduce(
+                          (a, b) => a + b.line_amount_after_line_discount,
+                          0,
+                        ),
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div />
+                )
+              }
+            />
+          </Row>
+
+          <Row
+            className="sale-product-box-payment"
+            gutter={24}
+            style={{ paddingTop: 20, paddingRight: "15px" }}
+          >
+            <Col xs={24} lg={12}>
+              {/* <div className="payment-row">
               <Checkbox className="margin-bottom-15">Bỏ chiết khấu tự động</Checkbox>
             </div> */}
-          </Col>
-          <Col xs={24} lg={12}>
-            <Row className="payment-row" justify="space-between">
-              <div className="font-weight-500">Thành tiền:</div>
-              <div className="font-weight-500">
-                {formatCurrency(totalLineAmountBeforeLineDiscount)}
-                {/* {props.OrderDetail?.total_line_amount_after_line_discount !== undefined &&
+            </Col>
+            <Col xs={24} lg={12}>
+              <Row className="payment-row" justify="space-between">
+                <div className="font-weight-500">Thành tiền:</div>
+                <div className="font-weight-500">
+                  {formatCurrency(totalLineAmountBeforeLineDiscount)}
+                  {/* {props.OrderDetail?.total_line_amount_after_line_discount !== undefined &&
                   props.OrderDetail?.total_line_amount_after_line_discount !== null &&
                   formatCurrency(props.OrderDetail?.total_line_amount_after_line_discount)} */}
-              </div>
-            </Row>
-
-            <Row className="payment-row" justify="space-between" align="middle">
-              <Space align="center">
-                Chiết khấu đơn hàng:
-                {props.OrderDetail?.discounts && props.OrderDetail?.discounts.length > 0 && (
-                  <div>
-                    <Tag
-                      style={{
-                        marginTop: 0,
-                        color: "#E24343",
-                        backgroundColor: "#F5F5F5",
-                      }}
-                      className="orders-tag orders-tag-danger"
-                    >
-                      {props.OrderDetail?.discounts[0]?.rate
-                        ? formatPercentage(props.OrderDetail?.discounts[0].rate)
-                        : 0}{" "}
-                      %
-                    </Tag>
-                  </div>
-                )}
-              </Space>
-              <div className="font-weight-400 ">
-                {props.OrderDetail?.discounts &&
-                props.OrderDetail?.discounts.length > 0 &&
-                props.OrderDetail?.discounts[0]?.amount !== null
-                  ? formatCurrency(props.OrderDetail?.discounts[0].amount)
-                  : "-"}
-              </div>
-            </Row>
-
-            <Row className="payment-row" justify="space-between" align="middle">
-              <Space align="center">Tổng chiết khấu sản phẩm:</Space>
-              <div className="font-weight-400 ">{formatCurrency(totalLineDiscountDiscount)}</div>
-            </Row>
-
-            <Row className="payment-row" justify="space-between">
-              <div className="font-weight-500">Tổng chiết khấu đơn:</div>
-              <div className="font-weight-500">
-                {props.OrderDetail?.total_discount
-                  ? formatCurrency(props.OrderDetail?.total_discount)
-                  : "-"}
-              </div>
-            </Row>
-
-            <Row className="payment-row" justify="space-between" align="middle">
-              <Space align="center">Mã giảm giá:</Space>
-              <div
-                className="font-weight-500 "
-                style={{ color: successColor, textTransform: "uppercase" }}
-              >
-                {OrderDetail?.discounts && OrderDetail?.discounts[0]?.discount_code
-                  ? handleDisplayCoupon(OrderDetail?.discounts[0]?.discount_code)
-                  : "-"}
-              </div>
-            </Row>
-
-            <Row className="payment-row" justify="space-between">
-              <div className="font-weight-500 78">Phí ship báo khách:</div>
-              <div className="font-weight-500 payment-row-money">
-                {shippingFeeInformedCustomer ? formatCurrency(shippingFeeInformedCustomer) : "-"}
-              </div>
-            </Row>
-            <Divider className="margin-top-5 margin-bottom-5" />
-            <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text 67">
-                {totalAmountReturnProducts ? "Tổng tiền hàng mua:" : "Khách phải trả:"}
-              </strong>
-              <strong>{formatCurrency(orderTotal)}</strong>
-            </Row>
-            {totalAmountReturnProducts ? (
-              <Row className="payment-row" justify="space-between">
-                <strong className="font-size-text">Tổng tiền hàng trả:</strong>
-                <strong>{formatCurrency(totalAmountReturnProducts)}</strong>
+                </div>
               </Row>
-            ) : null}
-            {totalAmountReturnProducts ? (
-              <React.Fragment>
-                <Divider
-                  className="margin-top-5 margin-bottom-5"
-                  style={{ height: "auto", margin: " 5px 0" }}
-                />
-                <Row className="payment-row" justify="space-between">
-                  <strong className="font-size-text 55" style={{ fontWeight: "bold" }}>
-                    {orderTotal - totalAmountReturnProducts < 0
-                      ? "Cần trả khách:"
-                      : "Khách cần trả:"}
-                  </strong>
-                  <strong className="text-success font-size-price">
-                    {formatCurrency(Math.abs(orderTotal - totalAmountReturnProducts))}
-                  </strong>
+
+              <Row className="payment-row" justify="space-between" align="middle">
+                <Space align="center">
+                  Chiết khấu đơn hàng:
+                  {props.OrderDetail?.discounts && props.OrderDetail?.discounts.length > 0 && (
+                    <div>
+                      <Tag
+                        style={{
+                          marginTop: 0,
+                          color: "#E24343",
+                          backgroundColor: "#F5F5F5",
+                        }}
+                        className="orders-tag orders-tag-danger"
+                      >
+                        {props.OrderDetail?.discounts[0]?.rate
+                          ? formatPercentage(props.OrderDetail?.discounts[0].rate)
+                          : 0}{" "}
+                        %
+                      </Tag>
+                    </div>
+                  )}
+                </Space>
+                <div className="font-weight-400 ">
+                  {props.OrderDetail?.discounts &&
+                  props.OrderDetail?.discounts.length > 0 &&
+                  props.OrderDetail?.discounts[0]?.amount !== null
+                    ? formatCurrency(props.OrderDetail?.discounts[0].amount)
+                    : "-"}
+                </div>
+              </Row>
+
+              {OrderDetail?.discounts &&
+                OrderDetail?.discounts[0] &&
+                OrderDetail.discounts[0].promotion_id && (
+                  <Row
+                    className="payment-row"
+                    justify="space-between"
+                    align="middle"
+                    style={{ fontSize: "0.95em", color: successColor, fontStyle: "normal" }}
+                  >
+                    <div className="promotionName" title="Tên chương trình khuyến mãi">
+                      <img src={couponOrderIcon} alt="" />
+                      {OrderDetail?.discounts[0]?.discount_code && (
+                        <span className="coupon">
+                          {OrderDetail?.discounts[0].discount_code}
+                          <span className="separator">-</span>
+                        </span>
+                      )}
+                      {OrderDetail.discounts[0]?.promotion_title ||
+                        OrderDetail.discounts[0]?.reason}
+                    </div>
+                  </Row>
+                )}
+
+              {/* {OrderDetail?.discounts &&
+              OrderDetail?.discounts[0] &&
+              OrderDetail?.discounts[0].rate ? (
+                <Row className="payment-row promotionRow" justify="space-between" align="middle">
+                  <div className="promotionName">
+                    <img src={couponOrderIcon} alt="" />
+                    {OrderDetail?.discounts[0]?.discount_code && (
+                      <span className="coupon">{OrderDetail?.discounts[0].discount_code} - </span>
+                    )}
+                    {OrderDetail.discounts[0]?.promotion_title || OrderDetail.discounts[0]?.reason}
+                  </div>
+                  <div className="font-weight-400 ">
+                    {OrderDetail?.discounts[0].type === DiscountUnitType.PERCENTAGE.label
+                      ? `${formatPercentage(OrderDetail?.discounts[0].rate)}%`
+                      : formatCurrency(OrderDetail?.discounts[0].amount)}
+                    <span className="rate secondaryValue">
+                      (
+                      {OrderDetail?.discounts[0].type === DiscountUnitType.PERCENTAGE.label
+                        ? formatCurrency(OrderDetail?.discounts[0].amount)
+                        : `${formatPercentage(OrderDetail?.discounts[0].rate)}%`}
+                      )
+                    </span>
+                  </div>
                 </Row>
-              </React.Fragment>
-            ) : null}
-          </Col>
-        </Row>
-      </div>
-    </Card>
+              ) : null} */}
+
+              <Row className="payment-row" justify="space-between" align="middle">
+                <Space align="center">Tổng chiết khấu sản phẩm:</Space>
+                <div className="font-weight-400 ">{formatCurrency(totalLineDiscountDiscount)}</div>
+              </Row>
+
+              <Row className="payment-row" justify="space-between">
+                <div className="font-weight-500">Tổng chiết khấu đơn:</div>
+                <div className="font-weight-500">
+                  {props.OrderDetail?.total_discount
+                    ? formatCurrency(props.OrderDetail?.total_discount)
+                    : "-"}
+                </div>
+              </Row>
+
+              {/* <Row className="payment-row" justify="space-between" align="middle">
+                <Space align="center">Mã giảm giá:</Space>
+                <div
+                  className="font-weight-500 "
+                  style={{ color: successColor, textTransform: "uppercase" }}
+                >
+                  {OrderDetail?.discounts && OrderDetail?.discounts[0]?.discount_code
+                    ? handleDisplayCoupon(OrderDetail?.discounts[0]?.discount_code)
+                    : "-"}
+                </div>
+              </Row> */}
+
+              <Row className="payment-row" justify="space-between">
+                <div className="font-weight-500 78">Phí ship báo khách:</div>
+                <div className="font-weight-500 payment-row-money">
+                  {shippingFeeInformedCustomer ? formatCurrency(shippingFeeInformedCustomer) : "-"}
+                </div>
+              </Row>
+              <Divider className="margin-top-5 margin-bottom-5" />
+              <Row className="payment-row" justify="space-between">
+                <strong className="font-size-text 67 ">
+                  {totalAmountReturnProducts ? "Tổng tiền hàng mua:" : "Khách phải trả:"}
+                </strong>
+                <strong className="totalAmount">{formatCurrency(orderTotal)}</strong>
+              </Row>
+              {totalAmountReturnProducts ? (
+                <Row className="payment-row" justify="space-between">
+                  <strong className="font-size-text">Tổng tiền hàng trả:</strong>
+                  <strong>{formatCurrency(totalAmountReturnProducts)}</strong>
+                </Row>
+              ) : null}
+              {totalAmountReturnProducts ? (
+                <React.Fragment>
+                  <Divider
+                    className="margin-top-5 margin-bottom-5"
+                    style={{ height: "auto", margin: " 5px 0" }}
+                  />
+                  <Row className="payment-row" justify="space-between">
+                    <strong className="font-size-text 55" style={{ fontWeight: "bold" }}>
+                      {orderTotal - totalAmountReturnProducts < 0
+                        ? "Cần trả khách:"
+                        : "Khách cần trả:"}
+                    </strong>
+                    <strong className="text-success font-size-price">
+                      {formatCurrency(Math.abs(orderTotal - totalAmountReturnProducts))}
+                    </strong>
+                  </Row>
+                </React.Fragment>
+              ) : null}
+            </Col>
+          </Row>
+        </div>
+      </Card>
+    </StyledComponent>
   );
 }
 

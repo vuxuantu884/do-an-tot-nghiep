@@ -151,7 +151,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     defaultStoreId,
     defaultSourceId,
     fbAdsId,
-    campaignId
+    campaignId,
   } = props;
   const dispatch = useDispatch();
 
@@ -611,7 +611,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
       !shippingAddress?.full_address
     );
   };
-  
+
   const getTagsValue = () => {
     let mergedTags = tags;
     if (fbAdsId) {
@@ -619,16 +619,17 @@ export default function Order(props: OrdersCreatePermissionProps) {
       mergedTags = mergedTags + fbAdsIdTag;
     }
     if (campaignId) {
-      const campaignIdTag = mergedTags !== "" ? `,campaign_id: ${campaignId}` : `campaign_id: ${campaignId}`;
+      const campaignIdTag =
+        mergedTags !== "" ? `,campaign_id: ${campaignId}` : `campaign_id: ${campaignId}`;
       mergedTags = mergedTags + campaignIdTag;
     }
     if (fbPageId) {
       const fbPageIdTag = mergedTags !== "" ? `,page_id: ${fbPageId}` : `page_id: ${fbPageId}`;
       mergedTags = mergedTags + fbPageIdTag;
     }
-    
+
     return mergedTags;
-  }
+  };
 
   const onFinish = (values: OrderRequest) => {
     values.channel_id = FACEBOOK.channel_id;

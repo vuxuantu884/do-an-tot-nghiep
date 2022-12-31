@@ -61,6 +61,7 @@ import { strForSearch } from "utils/StringUtils";
 import { searchVariantsApi } from "service/product/product.service";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { MAXIMUM_QUANTITY_LENGTH, MINIMUM_QUANTITY } from "../helper";
 
 const { Option } = Select;
 
@@ -638,15 +639,13 @@ const RequestTicket: FC = () => {
         <NumberInput
           isFloat={false}
           id={`item-quantity-${index}`}
-          min={0}
+          min={MINIMUM_QUANTITY}
+          maxLength={MAXIMUM_QUANTITY_LENGTH}
           value={value}
           className="border-input"
           onChange={(quantity) => {
             onQuantityChange(quantity, index);
           }}
-          // onBlur={() => {
-          //   checkError(index);
-          // }}
         />
       ),
     },
@@ -705,7 +704,6 @@ const RequestTicket: FC = () => {
                     labelCol={{ span: 24, offset: 0 }}
                   >
                     <Select
-                      autoClearSearchValue={false}
                       placeholder="Chọn kho gửi"
                       showArrow
                       optionFilterProp="children"
@@ -758,7 +756,6 @@ const RequestTicket: FC = () => {
                     labelCol={{ span: 24, offset: 0 }}
                   >
                     <Select
-                      autoClearSearchValue={false}
                       placeholder="Chọn kho nhận"
                       showArrow
                       optionFilterProp="children"

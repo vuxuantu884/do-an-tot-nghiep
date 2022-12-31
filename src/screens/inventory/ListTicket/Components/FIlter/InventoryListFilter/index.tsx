@@ -17,7 +17,7 @@ import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
-import { formatDateFilter, formatDateTimeFilter } from "utils/DateUtils";
+import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 import { InventoryTransferTabUrl } from "config/url.config";
 import { useQuery } from "utils/useQuery";
 import TreeStore from "component/TreeStore";
@@ -157,65 +157,35 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
       ...values,
       condition: values.condition ? values.condition.trim() : null,
       from_created_date: formAdv.getFieldValue("from_created_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("from_created_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getStartOfDayCommon(formAdv.getFieldValue("from_created_date"))?.format()
         : null,
       to_created_date: formAdv.getFieldValue("to_created_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("to_created_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getEndOfDayCommon(formAdv.getFieldValue("to_created_date"))?.format()
         : null,
       from_transfer_date: formAdv.getFieldValue("from_transfer_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("from_transfer_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getStartOfDayCommon(formAdv.getFieldValue("from_transfer_date"))?.format()
         : null,
       to_transfer_date: formAdv.getFieldValue("to_transfer_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("to_transfer_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getEndOfDayCommon(formAdv.getFieldValue("to_transfer_date"))?.format()
         : null,
       from_receive_date: formAdv.getFieldValue("from_receive_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("from_receive_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getStartOfDayCommon(formAdv.getFieldValue("from_receive_date"))?.format()
         : null,
       to_receive_date: formAdv.getFieldValue("to_receive_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("to_receive_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getEndOfDayCommon(formAdv.getFieldValue("to_receive_date"))?.format()
         : null,
       from_cancel_date: formAdv.getFieldValue("from_cancel_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("from_cancel_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getStartOfDayCommon(formAdv.getFieldValue("from_cancel_date"))?.format()
         : null,
       to_cancel_date: formAdv.getFieldValue("to_cancel_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("to_cancel_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getEndOfDayCommon(formAdv.getFieldValue("to_cancel_date"))?.format()
         : null,
       from_pending_date: formAdv.getFieldValue("from_pending_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("from_pending_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
+        ? getStartOfDayCommon(formAdv.getFieldValue("from_pending_date"))?.format()
         : null,
       to_pending_date: formAdv.getFieldValue("to_pending_date")
-        ? formatDateTimeFilter(
-            formAdv.getFieldValue("to_pending_date"),
-            "DD/MM/YYYY HH:mm",
-          )?.format()
-        : null,
+        ? getEndOfDayCommon(formAdv.getFieldValue("to_pending_date"))?.format()
+        : null
     };
     onFilter && onFilter(valuesForm);
   }, [formAdv, onFilter]);
@@ -555,7 +525,6 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
                 placeholder="Kho gửi"
                 listStore={stores}
                 style={{ width: 200 }}
-                autoClearSearchValue={false}
               />
             </Item>
             <Item name="to_store_id" className="select-item">
@@ -564,7 +533,6 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
                 placeholder="Kho nhận"
                 listStore={stores}
                 style={{ width: 200 }}
-                autoClearSearchValue={false}
               />
             </Item>
             <Item name="condition" className="input-search">
@@ -651,8 +619,6 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
                     activeButton={dateClick}
                     setActiveButton={setDateClick}
                     formRef={formRef}
-                    format="DD/MM/YYYY HH:mm"
-                    showTime
                   />
                 </Col>
               </Row>
@@ -670,8 +636,6 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
                     activeButton={dateClick}
                     setActiveButton={setDateClick}
                     formRef={formRef}
-                    format="DD/MM/YYYY HH:mm"
-                    showTime
                   />
                 </Col>
               </Row>
@@ -689,8 +653,6 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
                     activeButton={dateClick}
                     setActiveButton={setDateClick}
                     formRef={formRef}
-                    format="DD/MM/YYYY HH:mm"
-                    showTime
                   />
                 </Col>
               </Row>
@@ -701,15 +663,13 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
                   </Item>
                 </Col>
                 <Col span={12}>
-                  <div className="label-date">Ngày Hủy</div>
+                  <div className="label-date">Ngày hủy</div>
                   <CustomFilterDatePicker
                     fieldNameFrom="from_cancel_date"
                     fieldNameTo="to_cancel_date"
                     activeButton={dateClick}
                     setActiveButton={setDateClick}
                     formRef={formRef}
-                    format="DD/MM/YYYY HH:mm"
-                    showTime
                   />
                 </Col>
               </Row>
@@ -727,8 +687,6 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
                     activeButton={dateClick}
                     setActiveButton={setDateClick}
                     formRef={formRef}
-                    format="DD/MM/YYYY HH:mm"
-                    showTime
                   />
                 </Col>
               </Row>

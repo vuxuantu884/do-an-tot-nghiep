@@ -1,7 +1,19 @@
 import React, { createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
-import { AutoComplete, Button, Card, Checkbox, Col, Form, Input, Row, Space, Table, Tag } from "antd";
+import {
+  AutoComplete,
+  Button,
+  Card,
+  Checkbox,
+  Col,
+  Form,
+  Input,
+  Row,
+  Space,
+  Table,
+  Tag,
+} from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import purify from "dompurify";
 import imgDefIcon from "assets/img/img-def.svg";
@@ -33,7 +45,7 @@ import {
   getFeesAction,
   inventoryGetSenderStoreAction,
   inventoryGetVariantByStoreAction,
-  receivedInventoryTransferAction
+  receivedInventoryTransferAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { InventoryTransferDetailItem, LineItem, Store } from "model/inventory/transfer";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -52,7 +64,7 @@ import InventoryStep from "./components/InventoryTransferStep";
 import {
   STATUS_INVENTORY_TRANSFER,
   STATUS_INVENTORY_TRANSFER_ARRAY,
-  SUB_STATUS_INVENTORY_TRANSFER
+  SUB_STATUS_INVENTORY_TRANSFER,
 } from "../constants";
 import NumberInput from "component/custom/number-input.custom";
 import { VariantResponse } from "model/product/product.model";
@@ -94,6 +106,7 @@ import { updateNoteTransferApi } from "service/inventory/transfer/index.service"
 import ModalForward from "../common/ModalForward";
 import ForwardRecordTour from "./components/ForwardRecordTour";
 import { DELAY_TIME_FOR_TOUR } from "../../inventory-adjustment/helper";
+import { MAXIMUM_QUANTITY_LENGTH, MINIMUM_QUANTITY } from "../helper";
 
 export interface InventoryParams {
   id: string;
@@ -213,7 +226,7 @@ const DetailTicket: FC = () => {
         form.setFieldsValue({ note: result.note });
         // setDataShipment(result.shipment);
         setIsVisibleInventoryShipment(false);
-        setIsReceiveAllProducts(result.received_method === 'received_all');
+        setIsReceiveAllProducts(result.received_method === "received_all");
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -266,9 +279,12 @@ const DetailTicket: FC = () => {
   });
 
   const isDisabledCancelTicket = () => {
-    return !allowCancel || (data?.status !== STATUS_INVENTORY_TRANSFER.REQUESTED.status
-      && data?.status !== STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
-      && data?.status !== STATUS_INVENTORY_TRANSFER.CONFIRM.status)
+    return (
+      !allowCancel ||
+      (data?.status !== STATUS_INVENTORY_TRANSFER.REQUESTED.status &&
+        data?.status !== STATUS_INVENTORY_TRANSFER.TRANSFERRING.status &&
+        data?.status !== STATUS_INVENTORY_TRANSFER.CONFIRM.status)
+    );
   };
 
   const actions: Array<MenuAction> = [
@@ -499,7 +515,7 @@ const DetailTicket: FC = () => {
         setDataTable(result.line_items);
         dispatch(getDetailInventoryTransferAction(idNumber, onResult));
       } else {
-        dispatch(showLoading())
+        dispatch(showLoading());
       }
     },
     [dispatch, idNumber, onResult],
@@ -507,7 +523,7 @@ const DetailTicket: FC = () => {
 
   const updateNoteApi = async (note: string) => {
     setIsLoadingBtnSave(true);
-    dispatch(showLoading())
+    dispatch(showLoading());
     if (data && dataTable) {
       setIsDisableEditNote(true);
 
@@ -517,11 +533,11 @@ const DetailTicket: FC = () => {
       };
 
       const response = await callApiNative(
-          { isShowError: true },
-          dispatch,
-          updateNoteTransferApi,
-          data.id,
-          newNote,
+        { isShowError: true },
+        dispatch,
+        updateNoteTransferApi,
+        data.id,
+        newNote,
       );
 
       setIsDisableEditNote(false);
@@ -537,7 +553,7 @@ const DetailTicket: FC = () => {
   const onReceive = useCallback(() => {
     if (data && dataTable) {
       setLoadingBtn(true);
-      dispatch(showLoading())
+      dispatch(showLoading());
       data.line_items = dataTable;
       let dataUpdate: any = {};
 
@@ -570,7 +586,7 @@ const DetailTicket: FC = () => {
       dataUpdate.exception_items = data?.exception_items;
       dataUpdate.note = data?.note;
       dataUpdate.version = data?.version;
-      dataUpdate.received_method = isReceiveAllProducts ? 'received_all' : 'other';
+      dataUpdate.received_method = isReceiveAllProducts ? "received_all" : "other";
       dispatch(receivedInventoryTransferAction(data.id, dataUpdate, createCallback));
     }
   }, [createCallback, data, dataTable, dispatch, isReceiveAllProducts, stores]);
@@ -852,7 +868,8 @@ const DetailTicket: FC = () => {
               }
               isFloat={false}
               id={`item-quantity-${index}`}
-              min={0}
+              min={MINIMUM_QUANTITY}
+              maxLength={MAXIMUM_QUANTITY_LENGTH}
               value={value ? value : 0}
               onChange={(quantity) => {
                 onRealQuantityChange(quantity, index);
@@ -893,13 +910,16 @@ const DetailTicket: FC = () => {
       width: 40,
       dataIndex: "transfer_quantity",
       render: (value: string, row: any, index: number) => {
-        const isExistInOriginList = originalDataTable.length > 0 ? originalDataTable.filter((item: VariantResponse) => {
-          return item.sku === row.sku;
-        }).length > 0 : false;
+        const isExistInOriginList =
+          originalDataTable.length > 0
+            ? originalDataTable.filter((item: VariantResponse) => {
+                return item.sku === row.sku;
+              }).length > 0
+            : false;
         if (
-          (isExistInOriginList && data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
-            || data?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
-          || data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status
+          (isExistInOriginList && data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) ||
+          data?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status ||
+          data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status
         ) {
           return false;
         }
@@ -983,8 +1003,9 @@ const DetailTicket: FC = () => {
         ...item,
         id: newDataTableFiltered.length > 0 ? newDataTableFiltered[0].id : item.id,
         real_quantity: realQuantity,
-        transfer_quantity: newDataTableFiltered.length > 0 ? newDataTableFiltered[0].transfer_quantity : 0
-      }
+        transfer_quantity:
+          newDataTableFiltered.length > 0 ? newDataTableFiltered[0].transfer_quantity : 0,
+      };
     });
     setDataTable([...newDataTable, ...newData]);
     setIsImport(false);
@@ -1234,19 +1255,19 @@ const DetailTicket: FC = () => {
                   data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) && (
                   <Card
                     title={
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <div style={{ display: "flex", alignItems: "center" }}>
                         <div>Danh sách sản phẩm</div>
                         <div className="tag-receive-all">
-                          {isReceiveAllProducts && data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status && (
-                            <TagStatus type="success">Nhận tất cả</TagStatus>
-                          )}
+                          {isReceiveAllProducts &&
+                            data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status && (
+                              <TagStatus type="success">Nhận tất cả</TagStatus>
+                            )}
                         </div>
                       </div>
                     }
                     bordered={false}
                     extra={
                       <>
-
                         {data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
                           <>
                             <Checkbox
@@ -1307,9 +1328,11 @@ const DetailTicket: FC = () => {
                         tableLayout="fixed"
                         scroll={{ x: "max-content" }}
                         pagination={false}
-                        columns={data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
-                          ? columnsTransfer.filter((column) => column.key !== "receive_on_hand" )
-                          : columnsTransfer}
+                        columns={
+                          data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
+                            ? columnsTransfer.filter((column) => column.key !== "receive_on_hand")
+                            : columnsTransfer
+                        }
                         dataSource={dataTable}
                         summary={() => {
                           return (
@@ -1469,7 +1492,9 @@ const DetailTicket: FC = () => {
                     </Col>
                     <Col span={24}>
                       {data.forward_store_id && (
-                        <div>Chuyển tiếp từ kho {data.store_forward.name} đến kho {data.to_store_name}</div>
+                        <div>
+                          Chuyển tiếp từ kho {data.store_forward.name} đến kho {data.to_store_name}
+                        </div>
                       )}
                     </Col>
                   </Row>
@@ -1539,7 +1564,13 @@ const DetailTicket: FC = () => {
                   </AuthWrapper>
                   {data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
                     <AuthWrapper acceptPermissions={[InventoryTransferPermission.update]}>
-                      <Button disabled={data.sub_status === SUB_STATUS_INVENTORY_TRANSFER.FORWARDED.status} className="forward-step-one" onClick={openModalForward}>
+                      <Button
+                        disabled={
+                          data.sub_status === SUB_STATUS_INVENTORY_TRANSFER.FORWARDED.status
+                        }
+                        className="forward-step-one"
+                        onClick={openModalForward}
+                      >
                         {"Chuyển tiếp kho "}
                         <DoubleRightOutlined />
                       </Button>
@@ -1751,7 +1782,7 @@ const DetailTicket: FC = () => {
           <ModalShowError
             onCancel={() => {
               setIsOpenModalErrors(false);
-              setLoadingBtn(false)
+              setLoadingBtn(false);
             }}
             loading={isLoadingBtn}
             errorData={errorData}
@@ -1761,7 +1792,9 @@ const DetailTicket: FC = () => {
               setIsOpenModalErrors(false);
               setLoadingBtn(false);
             }}
-            title={"Có một số phiếu chuyển tương tự được tạo trong 1 tháng trở lại đây. Tiếp tục thực hiện?"}
+            title={
+              "Có một số phiếu chuyển tương tự được tạo trong 1 tháng trở lại đây. Tiếp tục thực hiện?"
+            }
             visible={isOpenModalErrors}
           />
         )}
@@ -1771,7 +1804,7 @@ const DetailTicket: FC = () => {
             currentStore={data}
             onCancel={() => {
               setIsOpenModalForward(false);
-              setLoadingBtn(false)
+              setLoadingBtn(false);
             }}
             onOk={() => {
               dispatch(showLoading());

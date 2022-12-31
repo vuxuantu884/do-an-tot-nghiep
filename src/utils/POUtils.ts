@@ -466,6 +466,10 @@ export function initSchemaLineItem(
         color: variant.color,
         color_code: variant.color_code ?? variant.sku,
         lineItemPrice: price, // giá nhập, không có thì mặc định là 0
+        retail_price:
+          mode === "CREATE"
+            ? variant.variant_prices[0]?.retail_price || 0
+            : lineItem?.retail_price || 0,
       };
     },
   );
@@ -567,6 +571,7 @@ export function initValueLineItem(
     map.set(c.color, {
       price: c.lineItemPrice || 0,
       sizeValues: initSizeValue,
+      retail_price: c.retail_price,
     });
   });
   return map;
@@ -605,10 +610,6 @@ export const combineLineItemToSubmitData = (
           const indexLineItem = (line_items || [])?.findIndex(
             (line_item) => line_item.variant_id === pair.variantId,
           );
-          const retail_price =
-            line_items && indexLineItem >= 0
-              ? line_items[indexLineItem].retail_price
-              : pair.retailPrice;
           const cost_price =
             line_items && indexLineItem >= 0 && line_items[indexLineItem].cost_price
               ? line_items[indexLineItem].cost_price
@@ -623,7 +624,7 @@ export const combineLineItemToSubmitData = (
             product: pair.product,
             barcode: pair.barcode,
             variant_image: pair.variant_image,
-            retail_price: retail_price,
+            retail_price: value.retail_price,
             cost_price: cost_price,
             receipt_quantity: pair?.receipt_quantity || 0,
             planned_quantity: pair?.planned_quantity || 0,
@@ -816,7 +817,7 @@ export const checkCanEditDraft = (form: FormInstance, isEdit: boolean) => {
 
 export const checkCanEditPrice = (form: FormInstance, isEdit: boolean, canUpdatePrice: boolean) => {
   const stt = form.getFieldValue(POField.status);
-  return isEdit && stt === POStatus.FINALIZED && canUpdatePrice;
+  return isEdit && (stt === POStatus.DRAFT || stt === POStatus.WAITING_APPROVAL) && canUpdatePrice;
 };
 
 export const isExpandsSupplement = (form: FormInstance, isEdit: boolean) => {

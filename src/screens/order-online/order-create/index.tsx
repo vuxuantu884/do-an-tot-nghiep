@@ -8,6 +8,10 @@ import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import { promotionUtils } from "component/order/promotion.utils";
 import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
+import {
+  defaultSpecialOrderParams,
+  specialOrderTypes,
+} from "component/order/special-order/SideBarOrderSpecial/helper";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
@@ -37,6 +41,7 @@ import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
+import { SpecialOrderModel } from "model/order/special-order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddressRequestModel,
@@ -66,6 +71,7 @@ import { useHistory } from "react-router-dom";
 import useFetchOrderConfig from "screens/order-online/hooks/useFetchOrderConfig";
 import useFetchPaymentMethods from "screens/order-online/hooks/useFetchPaymentMethods";
 import { getStoreBankAccountNumbersService } from "service/order/order.service";
+import { specialOrderServices } from "service/order/special-order.service";
 import {
   formatCurrency,
   getAmountPaymentRequest,
@@ -92,6 +98,7 @@ import {
   TaxTreatment,
 } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
+import { convertDiscountType } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import CardCustomer from "../component/CardCustomer";
@@ -156,11 +163,10 @@ export default function Order() {
   const [tags, setTags] = useState<string>("");
   const formRef = createRef<FormInstance>();
   const [form] = Form.useForm();
+  const [specialOrderForm] = Form.useForm();
   const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] = useState<boolean>(false);
 
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
-
-  console.log("payments", payments);
 
   // const [orderBillRequest, setOrderBillRequest] = useState<OrderBillRequestFormModel | undefined>(undefined);
 
@@ -189,6 +195,7 @@ export default function Order() {
   const [isCloneOrderFromPOS, setIsCloneOrderFromPOS] = useState(false);
 
   const handleCustomer = (_objCustomer: CustomerResponse | null) => {
+    setCountFinishingUpdateCustomer((prev) => prev + 1);
     setCustomer(_objCustomer);
   };
   const onChangeShippingAddress = (_objShippingAddress: ShippingAddress | null) => {
@@ -275,6 +282,8 @@ export default function Order() {
       channel_id: null,
       automatic_discount: true,
       export_bill: false,
+
+      type: undefined,
     };
   }, [userReducer.account?.code]);
 
@@ -414,7 +423,11 @@ export default function Order() {
     if (!promotion || !promotion.amount || !promotion.value) {
       return [];
     } else {
-      return [promotion];
+      const _promotion: OrderDiscountRequest = {
+        ...promotion,
+        type: promotion.sub_type || "",
+      };
+      return [_promotion];
     }
   };
 
@@ -497,40 +510,98 @@ export default function Order() {
 
   const handleCreateOrder = async (values: OrderRequest) => {
     console.log("values", values);
+    const createOrder = async (createSpecialOrder?: (orderId: number) => Promise<void>) => {
+      isUserCanCreateOrder.current = true;
+      //return;
+      dispatch(showLoading());
+      if (typeButton === OrderStatus.DRAFT) {
+        setIsSaveDraft(true);
+      } else {
+        setIsCreating(true);
+      }
+      try {
+        await dispatch(
+          orderCreateAction(
+            values,
+            (data) => {
+              if (createSpecialOrder) {
+                createSpecialOrder(data.id).then(() => createOrderCallback(data));
+              } else {
+                createOrderCallback(data);
+              }
+            },
+            () => {
+              console.log(
+                "Thời gian nhận response tạo đơn check đơn trùng:",
+                `Thời gian:${new Date().toJSON()}`,
+              );
+              console.log("data response trả về", values);
+              console.log("isUserCanCreateOrder.current", isUserCanCreateOrder.current);
+              dispatch(hideLoading());
+              setIsCreating(false);
+              setIsSaveDraft(false);
+            },
+          ),
+        );
+      } catch (error) {
+        console.log("error", error);
+      } finally {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        () => {
+          dispatch(hideLoading());
+          setIsSaveDraft(false);
+          setIsCreating(false);
+        };
+      }
+    };
+    const handleCreateOrderWithSpecialOrder = (specialOrderFormValue: any) => {
+      const handleCreateOrUpdateSpecialOrder = (orderId: number): Promise<void> => {
+        return new Promise((resolve, reject) => {
+          let resultParams = {
+            ...defaultSpecialOrderParams,
+            ...specialOrderFormValue,
+          };
+          specialOrderServices
+            .createOrUpdate(orderId, resultParams)
+            .then((response) => {
+              if (isFetchApiSuccessful(response)) {
+                resolve();
+              } else {
+                reject();
+              }
+            })
+            .catch((error) => {
+              reject();
+            });
+        });
+      };
+      createOrder(handleCreateOrUpdateSpecialOrder);
+    };
+    const specialOrderType = specialOrderForm.getFieldValue("type");
+    console.log("specialOrderType", specialOrderType);
+    if (specialOrderType) {
+      specialOrderForm
+        .validateFields()
+        .then((specialOrderFormValue) => {
+          console.log("specialOrderFormValue", specialOrderFormValue);
+          handleCreateOrderWithSpecialOrder(specialOrderFormValue);
+        })
+        .catch((error) => {
+          console.log("error", error);
+          const { errorFields } = error;
+          const element: any = document.getElementById(errorFields[0].name.join(""));
+          scrollAndFocusToDomElement(element);
+          isUserCanCreateOrder.current = true;
+        });
+    } else {
+      createOrder();
+    }
+    console.log("specialOrderType", specialOrderType);
     console.log(
       "Thời gian gửi request tạo đơn check đơn trùng",
       `Thời gian: ${new Date().toJSON()}`,
     );
     console.log("isUserCanCreateOrder.current", isUserCanCreateOrder.current);
-    // return;
-    dispatch(showLoading());
-    if (typeButton === OrderStatus.DRAFT) {
-      setIsSaveDraft(true);
-    } else {
-      setIsCreating(true);
-    }
-    try {
-      await dispatch(
-        orderCreateAction(values, createOrderCallback, () => {
-          console.log(
-            "Thời gian nhận response tạo đơn check đơn trùng:",
-            `Thời gian:${new Date().toJSON()}`,
-          );
-          console.log("data response trả về", values);
-          console.log("isUserCanCreateOrder.current", isUserCanCreateOrder.current);
-          dispatch(hideLoading());
-          setIsCreating(false);
-          setIsSaveDraft(false);
-        }),
-      );
-    } finally {
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      () => {
-        dispatch(hideLoading());
-        setIsSaveDraft(false);
-        setIsCreating(false);
-      };
-    }
   };
 
   const onFinish = (values: OrderRequest) => {
@@ -546,7 +617,14 @@ export default function Order() {
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
     values.tags = tags;
-    values.items = items.concat(itemGifts);
+    const _item = items.concat(itemGifts);
+    values.items = _item.map((p) => {
+      let _discountItems = p.discount_items[0];
+      if (_discountItems) {
+        _discountItems.type = _discountItems.sub_type || "";
+      }
+      return p;
+    });
     values.discounts = lstDiscount;
     let _shippingAddressRequest: any = {
       ...shippingAddress,
@@ -562,10 +640,12 @@ export default function Order() {
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
     values.export_bill = billingAddress?.tax_code ? true : false;
     values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
-    values.note = promotionUtils.combinePrivateNoteAndPromotionTitle(
-      values.note || "",
-      promotionTitle,
-    );
+
+    console.log("isOrderSemiAutomatic", promotion?.isOrderSemiAutomatic);
+    values.automatic_discount = !promotion?.isOrderSemiAutomatic
+      ? values.automatic_discount
+      : false;
+    console.log("automatic_discount values", values.automatic_discount);
     // values.bill = orderBillRequest;
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
@@ -791,6 +871,13 @@ export default function Order() {
     return status;
   };
 
+  const handleCreateOrUpdateSpecialOrder = (params: SpecialOrderModel): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      console.log("params", params);
+      resolve();
+    });
+  };
+
   const eventFunctional = useCallback(
     (event: KeyboardEvent) => {
       if (["F6", "F9"].indexOf(event.key) !== -1) {
@@ -898,10 +985,27 @@ export default function Order() {
         .map((item) => {
           return {
             ...item,
+            taxable: item.taxable,
+
             discount_items: item.discount_items.filter((single) => single.amount && single.value),
             gifts: getGiftResponse(item),
           };
         });
+      responseItems = responseItems.map((item) => {
+        const _discountItem = item.discount_items[0];
+        if (_discountItem) {
+          const _type = _discountItem.type || "";
+          _discountItem.sub_type = _type;
+          _discountItem.type = convertDiscountType(_type);
+
+          return {
+            ...item,
+            discount_items: [_discountItem],
+          };
+        } else {
+          return { ...item };
+        }
+      });
       setItems(responseItems);
       dispatch(changeOrderLineItemsAction(responseItems));
       return responseItems;
@@ -1038,11 +1142,17 @@ export default function Order() {
         if (response.tags) {
           setTags(response.tags);
         }
-        if (response?.discounts && response?.discounts[0]) {
-          setPromotion(response?.discounts[0]);
-          if (response.discounts[0].discount_code) {
-            setCoupon(response.discounts[0].discount_code);
-          }
+        if (response?.discounts && response?.discounts[0] && !response.discounts[0].discount_code) {
+          setPromotion({
+            ...response?.discounts[0],
+            promotion_title:
+              response?.discounts[0].promotion_title || response?.discounts[0].reason,
+            sub_type: response?.discounts[0].type,
+            type: convertDiscountType(response?.discounts[0].type),
+          });
+          // if (response.discounts[0].discount_code) {
+          //   setCoupon(response.discounts[0].discount_code);
+          // }
         }
         let newDatingShip = initialForm.dating_ship;
         let newShipperCode = initialForm.shipper_code;
@@ -1090,10 +1200,11 @@ export default function Order() {
               ? ""
               : response.reference_code,
           url: response.url,
-          note: promotionUtils.getPrivateNoteFromResponse(response.note || ""),
+          note: response.note,
           tags: response.tags,
           channel_id: response.channel_id,
-          automatic_discount: response.automatic_discount,
+          //automatic_discount: response.automatic_discount,
+          automatic_discount: true,
           uniform: response.uniform,
         });
         form.resetFields();
@@ -1159,6 +1270,7 @@ export default function Order() {
               dispatch(
                 getCustomerDetailAction(customer_id, (responseCustomer) => {
                   setCustomer(responseCustomer);
+                  handleResponseCloneOrder(response);
                   dispatch(changeOrderCustomerAction(responseCustomer));
                   responseCustomer.shipping_addresses.forEach((item) => {
                     if (item.default === true) {
@@ -1168,7 +1280,6 @@ export default function Order() {
                 }),
               );
             }
-            handleResponseCloneOrder(response);
           }),
         );
       } else {
@@ -1190,7 +1301,6 @@ export default function Order() {
       dispatch(
         getLoyaltyPoint(customer.id, (data) => {
           setLoyaltyPoint(data);
-          setCountFinishingUpdateCustomer((prev) => prev + 1);
         }),
       );
       setVisibleCustomer(true);
@@ -1212,7 +1322,6 @@ export default function Order() {
       // setBillingAddress(null)
     } else {
       setLoyaltyPoint(null);
-      setCountFinishingUpdateCustomer((prev) => prev + 1);
     }
   }, [dispatch, customer, userReducer]);
 
@@ -1428,6 +1537,9 @@ export default function Order() {
                       setReload={() => {}}
                       promotionTitle={promotionTitle}
                       setPromotionTitle={setPromotionTitle}
+                      handleCreateOrUpdateSpecialOrder={handleCreateOrUpdateSpecialOrder}
+                      orderPageType={OrderPageTypeModel.orderCreate}
+                      specialOrderForm={specialOrderForm}
                     />
                   </Col>
                 </Row>

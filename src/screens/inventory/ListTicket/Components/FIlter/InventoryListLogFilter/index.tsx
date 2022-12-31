@@ -18,6 +18,7 @@ import { AppConfig } from "config/app.config";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
+import TreeStore from "component/TreeStore";
 import { StoreResponse } from "model/core/store.model";
 
 const ACTIONS_STATUS_ARRAY = [
@@ -61,8 +62,6 @@ type InventoryFilterProps = {
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
   stores?: Array<StoreResponse>;
-  accountStoresSelected?: any;
-  setAccountStoresSelected?: (value: any) => void;
 };
 
 const { Item } = Form;
@@ -76,8 +75,8 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
     onClearFilter,
     onFilter,
     onShowColumnSetting,
-    accounts,
-    setAccountStoresSelected,
+    stores,
+    accounts
   } = props;
   const [formAdv] = Form.useForm();
   const formRef = createRef<FormInstance>();
@@ -93,6 +92,16 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
   const initialValues = useMemo(() => {
     return filterFromParams;
   }, [filterFromParams]);
+
+  useEffect(() => {
+    formSearchRef.current?.setFieldsValue({
+      ...params,
+      from_store_id: params.from_store_id ? Array.isArray(params.from_store_id)
+        ? params.from_store_id.map((storeId) => Number(storeId)) : [Number(params.from_store_id)] : [],
+      to_store_id: params.to_store_id ? Array.isArray(params.to_store_id)
+        ? params.to_store_id.map((storeId) => Number(storeId)) : [Number(params.to_store_id)] : [],
+    });
+  }, [formSearchRef, params]);
 
   useEffect(() => {
     if (
@@ -113,11 +122,6 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
   const loadingFilter = useMemo(() => {
     return !!isLoading;
   }, [isLoading]);
-
-  const onFilterClick = useCallback(() => {
-    setVisible(false);
-    formRef.current?.submit();
-  }, [formRef]);
 
   const onClearFilterClick = useCallback(() => {
     onClearFilter && onClearFilter();
@@ -167,6 +171,19 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
 
   const onFinish = useCallback(
     (values) => {
+      const valuesForm = {
+        ...values,
+        condition: values.condition ? values.condition.trim() : null,
+      };
+      onFilter && onFilter(valuesForm);
+    },
+    [onFilter],
+  );
+
+  const onFilterClick = useCallback(() => {
+      setVisible(false);
+      let values = formAdv.getFieldsValue(true);
+
       if (values?.from_total_variant > values?.to_total_variant) {
         values = {
           ...values,
@@ -198,11 +215,9 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
           ? getEndOfDayCommon(formAdv.getFieldValue("to_created_date"))?.format()
           : null,
       };
-
-      setAccountStoresSelected && setAccountStoresSelected("SECOND_SEARCH");
       onFilter && onFilter(valuesForm);
     },
-    [formAdv, onFilter, setAccountStoresSelected],
+    [formAdv, onFilter],
   );
 
   let filters = useMemo(() => {
@@ -291,6 +306,22 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
             initialValues={initialValues}
             layout="inline"
           >
+            <Item name="from_store_id" className="select-item">
+              <TreeStore
+                name="from_store_id"
+                placeholder="Kho gửi"
+                listStore={stores}
+                style={{ width: 200 }}
+              />
+            </Item>
+            <Item name="to_store_id" className="select-item">
+              <TreeStore
+                name="to_store_id"
+                placeholder="Kho nhận"
+                listStore={stores}
+                style={{ width: 200 }}
+              />
+            </Item>
             <Item name="condition" className="input-search">
               <Input
                 prefix={<img src={search} alt="" />}
@@ -332,7 +363,6 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
       >
         {visible && (
           <Form
-            onFinish={onFinish}
             ref={formRef}
             form={formAdv}
             // initialValues={initialValues}

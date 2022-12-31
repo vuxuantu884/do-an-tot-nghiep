@@ -9,6 +9,7 @@ import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import { promotionUtils } from "component/order/promotion.utils";
 import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
+import { defaultSpecialOrderParams } from "component/order/special-order/SideBarOrderSpecial/helper";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
@@ -31,6 +32,7 @@ import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
+import { SpecialOrderModel } from "model/order/special-order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddressRequestModel,
@@ -59,6 +61,7 @@ import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverS
 import useFetchOrderConfig from "screens/order-online/hooks/useFetchOrderConfig";
 import useFetchPaymentMethods from "screens/order-online/hooks/useFetchPaymentMethods";
 import { deleteOrderService, getStoreBankAccountNumbersService } from "service/order/order.service";
+import { specialOrderServices } from "service/order/special-order.service";
 import {
   formatCurrency,
   getAccountCodeFromCodeAndName,
@@ -90,6 +93,7 @@ import {
   checkIfOrderHasNoPayment,
   checkIfOrderHasNotFinishPaymentMomo,
   checkIfOrderHasShipmentCod,
+  convertDiscountType,
 } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
@@ -156,6 +160,7 @@ export default function Order(props: PropTypes) {
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
   const [form] = Form.useForm();
+  const [specialOrderForm] = Form.useForm();
 
   const deliveryServices = useFetchDeliverServices();
 
@@ -171,6 +176,7 @@ export default function Order(props: PropTypes) {
   const [modalAction, setModalAction] = useState<modalActionType>("edit");
   const isFirstLoad = useRef(true);
   const handleCustomer = (_objCustomer: CustomerResponse | null) => {
+    setCountFinishingUpdateCustomer((prev) => prev + 1);
     setCustomer(_objCustomer);
     if (_objCustomer) {
       const shippingAddressItem = _objCustomer.shipping_addresses.find(
@@ -531,16 +537,19 @@ export default function Order(props: PropTypes) {
       rate: promotion?.rate,
       value: promotion?.value,
       amount: promotion?.value,
-      promotion_id: null,
-      reason: "",
+      promotion_id: promotion.promotion_id,
+      promotion_title: promotion.promotion_title,
+      taxable: promotion.taxable,
+      reason: promotion.promotion_title,
       source: "",
-      discount_code: coupon,
+      discount_code: promotion.discount_code,
       order_id: null,
+      type: promotion.sub_type || "",
     };
     let listDiscountRequest = [];
     if (coupon) {
       listDiscountRequest.push({
-        discount_code: coupon,
+        discount_code: promotion.discount_code,
         rate: promotion?.rate,
         value: promotion?.value,
         amount: promotion?.value,
@@ -548,17 +557,23 @@ export default function Order(props: PropTypes) {
         reason: "",
         source: "",
         order_id: null,
+        promotion_title: promotion.promotion_title,
+        taxable: promotion.taxable,
+        type: promotion.sub_type || "",
       });
     } else if (promotion?.promotion_id) {
       listDiscountRequest.push({
-        discount_code: null,
+        discount_code: promotion.discount_code,
         rate: promotion?.rate,
         value: promotion?.value,
         amount: promotion?.value,
-        promotion_id: promotion?.promotion_id,
+        promotion_id: promotion.promotion_id,
+        promotion_title: promotion.promotion_title,
+        taxable: promotion.taxable,
         reason: promotion.reason,
         source: "",
         order_id: null,
+        type: promotion.sub_type || "",
       });
     } else if (!promotion) {
       return [];
@@ -597,35 +612,88 @@ export default function Order(props: PropTypes) {
 
   const handleUpdateOrder = (valuesCalculateReturnAmount: OrderRequest) => {
     console.log("valuesCalculateReturnAmount", valuesCalculateReturnAmount);
-    // return;
-    dispatch(showLoading());
-    try {
-      if (!isFinalized) {
-        setUpdating(true);
-      } else {
-        setUpdatingConfirm(true);
+    const updateOrder = (updateSpecialOrder?: (orderId: number) => Promise<void>) => {
+      dispatch(showLoading());
+      try {
+        if (!isFinalized) {
+          setUpdating(true);
+        } else {
+          setUpdatingConfirm(true);
+        }
+        dispatch(
+          orderUpdateAction(
+            OrderDetail?.id || 0,
+            valuesCalculateReturnAmount,
+            // isFinalized ? updateAndConfirmOrderCallback : updateOrderCallback,
+            (value) => {
+              if (isFinalized) {
+                if (updateSpecialOrder) {
+                  updateSpecialOrder(OrderDetail?.id || 0).then(() => {
+                    updateAndConfirmOrderCallback(value);
+                  });
+                } else {
+                  updateAndConfirmOrderCallback(value);
+                }
+              } else {
+                if (updateSpecialOrder) {
+                  updateSpecialOrder(OrderDetail?.id || 0).then(() => {
+                    updateOrderCallback(value);
+                  });
+                } else {
+                  updateOrderCallback(value);
+                }
+              }
+            },
+            () => {
+              setUpdating(false);
+              setUpdatingConfirm(false);
+              dispatch(hideLoading());
+            },
+          ),
+        );
+      } catch {
+        isFinalized ? setUpdatingConfirm(false) : setUpdating(false);
+      } finally {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        () => {
+          dispatch(hideLoading());
+          setUpdating(false);
+          setUpdatingConfirm(false);
+        };
       }
-      dispatch(
-        orderUpdateAction(
-          OrderDetail?.id || 0,
-          valuesCalculateReturnAmount,
-          isFinalized ? updateAndConfirmOrderCallback : updateOrderCallback,
-          () => {
-            setUpdating(false);
-            setUpdatingConfirm(false);
-            dispatch(hideLoading());
-          },
-        ),
-      );
-    } catch {
-      isFinalized ? setUpdatingConfirm(false) : setUpdating(false);
-    } finally {
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      () => {
-        dispatch(hideLoading());
-        setUpdating(false);
-        setUpdatingConfirm(false);
+    };
+    const handleUpdateOrderWithSpecialOrder = (specialOrderFormValue: any) => {
+      const handleCreateOrUpdateSpecialOrder = (orderId: number): Promise<void> => {
+        return new Promise((resolve, reject) => {
+          let resultParams = {
+            ...defaultSpecialOrderParams,
+            ...specialOrderFormValue,
+          };
+          specialOrderServices
+            .createOrUpdate(orderId, resultParams)
+            .then((response) => {
+              if (isFetchApiSuccessful(response)) {
+                resolve();
+              } else {
+                reject();
+              }
+            })
+            .catch((error) => {
+              reject();
+            });
+        });
       };
+      updateOrder(handleCreateOrUpdateSpecialOrder);
+    };
+    // return;
+    const specialOrderType = specialOrderForm.getFieldValue("type");
+    if (specialOrderType) {
+      specialOrderForm.validateFields().then((specialOrderFormValue) => {
+        console.log("specialOrderFormValue", specialOrderFormValue);
+        handleUpdateOrderWithSpecialOrder(specialOrderFormValue);
+      });
+    } else {
+      updateOrder();
     }
   };
 
@@ -662,7 +730,14 @@ export default function Order(props: PropTypes) {
     }
 
     values.tags = tags;
-    values.items = items.concat(itemGifts);
+    const _item = items.concat(itemGifts);
+    values.items = _item.map((p) => {
+      let _discountItems = p.discount_items[0];
+      if (_discountItems) {
+        _discountItems.type = _discountItems.sub_type || "";
+      }
+      return p;
+    });
     values.discounts = lstDiscount;
     values.shipping_address =
       shippingAddress && levelOrder <= 3
@@ -683,10 +758,6 @@ export default function Order(props: PropTypes) {
     values.company_id = DEFAULT_COMPANY.company_id;
 
     values.export_bill = billingAddress?.tax_code ? true : false;
-    values.note = promotionUtils.combinePrivateNoteAndPromotionTitle(
-      values.note || "",
-      promotionTitle,
-    );
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
@@ -983,6 +1054,9 @@ export default function Order(props: PropTypes) {
               return item.type !== Type.GIFT;
             })
             .map((item) => {
+              const _discountItem = item.discount_items.filter(
+                (single) => single.amount && single.value,
+              );
               return {
                 id: item.id,
                 sku: item.sku,
@@ -1005,6 +1079,7 @@ export default function Order(props: PropTypes) {
                 warranty: item.warranty,
                 tax_rate: item.tax_rate,
                 tax_include: item.tax_include,
+                taxable: item.taxable,
                 composite: false,
                 product: item.product,
                 is_composite: false,
@@ -1038,7 +1113,23 @@ export default function Order(props: PropTypes) {
               setPayments(new_payments);
             }
           }
+          //convert type, discount item
+          responseItems = responseItems.map((item) => {
+            const _discountItem = item.discount_items[0];
+            if (_discountItem) {
+              const _type = _discountItem.type || "";
+              _discountItem.sub_type = _type;
+              _discountItem.type = convertDiscountType(_type);
 
+              return {
+                ...item,
+                isLineItemSemiAutomatic: true,
+                discount_items: [_discountItem],
+              };
+            } else {
+              return { ...item };
+            }
+          });
           setItems(responseItems);
           setOrderProductsAmount(response.total_line_amount_after_line_discount);
           form.setFieldsValue({
@@ -1055,8 +1146,8 @@ export default function Order(props: PropTypes) {
             payments: new_payments,
             reference_code: response.reference_code,
             url: response.url,
-            // note: response.note,ggg
-            note: promotionUtils.getPrivateNoteFromResponse(response.note || ""),
+            note: response.note,
+            // note: promotionUtils.getPrivateNoteFromResponse(response.note || ""),
             tags: response.tags,
             marketer_code: response.marketer_code ? response.marketer_code : null,
             coordinator_code: response.coordinator_code ? response.coordinator_code : null,
@@ -1078,7 +1169,15 @@ export default function Order(props: PropTypes) {
             setTag(response.tags);
           }
           if (response?.discounts && response?.discounts[0]) {
-            setPromotion(response?.discounts[0]);
+            console.log("response?.discounts[0]", response?.discounts[0]);
+            setPromotion({
+              ...response?.discounts[0],
+              promotion_title:
+                response?.discounts[0].promotion_title || response?.discounts[0].reason,
+              sub_type: response?.discounts[0].type,
+              type: convertDiscountType(response?.discounts[0].type),
+              isOrderSemiAutomatic: true,
+            });
             if (response.discounts[0].discount_code) {
               setCoupon(response.discounts[0].discount_code);
             }
@@ -1189,6 +1288,13 @@ export default function Order(props: PropTypes) {
     }
 
     return status;
+  };
+
+  const handleCreateOrUpdateSpecialOrder = (params: SpecialOrderModel): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      console.log("params", params);
+      resolve();
+    });
   };
 
   const checkIfShowCreatePayment = () => {
@@ -1323,7 +1429,6 @@ export default function Order(props: PropTypes) {
       dispatch(
         getLoyaltyPoint(customer.id, (data) => {
           setLoyaltyPoint(data);
-          setCountFinishingUpdateCustomer((prev) => prev + 1);
         }),
       );
       const shippingAddressItem = customer.shipping_addresses.find((p: any) => p.default === true);
@@ -1364,7 +1469,6 @@ export default function Order(props: PropTypes) {
       }
     } else {
       setLoyaltyPoint(null);
-      setCountFinishingUpdateCustomer((prev) => prev + 1);
       setShippingAddress(null);
     }
   }, [dispatch, customer, OrderDetail?.shipping_address]);
@@ -1763,6 +1867,9 @@ export default function Order(props: PropTypes) {
                     promotionTitle={promotionTitle}
                     setPromotionTitle={setPromotionTitle}
                     defaultReceiveReturnStore={defaultReceiveReturnStore}
+                    handleCreateOrUpdateSpecialOrder={handleCreateOrUpdateSpecialOrder}
+                    orderPageType={OrderPageTypeModel.orderUpdate}
+                    specialOrderForm={specialOrderForm}
                   />
                 </Col>
               </Row>

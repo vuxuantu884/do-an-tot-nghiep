@@ -10,16 +10,26 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment, { Moment } from "moment";
-import { formatCurrency, sortFulfillments } from "./AppUtils";
+import {
+  formatCurrency,
+  getLineAmountAfterLineDiscount,
+  getLineItemDiscountAmount,
+  getLineItemDiscountRate,
+  getLineItemDiscountValue,
+  sortFulfillments,
+} from "./AppUtils";
 import {
   DELIVERY_SERVICE_PROVIDER_CODE,
+  DISCOUNT_TYPE,
   ECOMMERCE_CHANNEL_CODES,
+  ECOMMERCE_CHANNEL_CODES_UPDATE_ORDER,
   FulFillmentReturnStatus,
   FulFillmentStatus,
   PaymentMethodCode,
   PaymentMethodType,
   PRODUCT_TYPE,
   ShipmentMethod,
+  WEB_APP_CHANNEL_CODES,
   WEIGHT_UNIT,
 } from "./Constants";
 import { FulfillmentStatus } from "./FulfillmentStatus.constant";
@@ -31,6 +41,7 @@ import {
 } from "./Order.constants";
 import { ORDER_PERMISSIONS } from "../config/permissions/order.permission";
 import { select_type_especially_order } from "../screens/order-online/common/fields.export";
+import { DiscountValueType } from "model/promotion/price-rules.model";
 
 export const isOrderDetailHasPointPayment = (
   OrderDetail: OrderResponse | null | undefined,
@@ -461,6 +472,7 @@ export const checkIfExpiredOrCancelledPayment = (
 };
 
 export const checkIfEcommerceByOrderChannelCode = (orderChannelCode?: string | null) => {
+  console.log("orderChannelCode", orderChannelCode);
   if (!orderChannelCode) {
     return false;
   }
@@ -468,6 +480,25 @@ export const checkIfEcommerceByOrderChannelCode = (orderChannelCode?: string | n
     orderChannelCode.toLowerCase(),
   );
 };
+
+export const checkIfWebAppByOrderChannelCode = (orderChannelCode?: string | null) => {
+  if (!orderChannelCode) {
+    return false;
+  }
+  return WEB_APP_CHANNEL_CODES.map((code) => code.toLowerCase()).includes(
+    orderChannelCode.toLowerCase(),
+  );
+};
+
+export const checkIfEcommerceByOrderChannelCodeUpdateOrder = (orderChannelCode?: string | null) => {
+  if (!orderChannelCode) {
+    return false;
+  }
+  return ECOMMERCE_CHANNEL_CODES_UPDATE_ORDER.map((code) => code.toLowerCase()).includes(
+    orderChannelCode.toLowerCase(),
+  );
+};
+
 export const getTotalAmountBeforeDiscount = (items: Array<OrderLineItemRequest>) => {
   let total = 0;
   items.forEach((a) => {
@@ -585,130 +616,234 @@ export const changeTypeQrCode = (
   return payments;
 };
 
-export const formatTags = (
-  values: SpecialOrderValue,
-  oldTags: string
-) => {
+export const formatTags = (values: SpecialOrderValue, oldTags: string) => {
   if (values.type) {
-    let newTags = `special_order+${values.type}`
+    let newTags = `special_order+${values.type}`;
     const listItemSpecialType: OrderType = {
-      'orders-exchange': ['order_return'],
-      'orders-recall': ['order_care', 'order_original', 'product'],
-      'orders-partial': ['order_care', 'product', 'amount'],
-      'cod-exchange': ['order_care', 'amount', 'reason'],
-      'transfer': ['line_transfer'],
-      'collect-support': ['order_care', 'amount'],
-      'orders-split': ['order_care', 'order_original'],
-      'orders-embroider': ['amount'],
-      'orders-continue-deliver': ['order_care', 'order_return'],
-      'orders-cancel': ['order_care', 'reason'],
-    }
+      "orders-exchange": ["order_return"],
+      "orders-recall": ["order_care", "order_original", "product"],
+      "orders-partial": ["order_care", "product", "amount"],
+      "cod-exchange": ["order_care", "amount", "reason"],
+      transfer: ["line_transfer"],
+      "collect-support": ["order_care", "amount"],
+      "orders-split": ["order_care", "order_original"],
+      "orders-embroider": ["amount"],
+      "orders-continue-deliver": ["order_care", "order_return"],
+      "orders-cancel": ["order_care", "reason"],
+    };
 
     listItemSpecialType[values.type].forEach((val: string) => {
-      if (val === 'product' || val === 'order_return' || val === 'order_original') {
+      if (val === "product" || val === "order_return" || val === "order_original") {
         // @ts-ignore
-        values[val] = values[val].join(';')
+        values[val] = values[val].join(";");
       }
-      newTags = newTags + `+${values[val]}`
-    })
+      newTags = newTags + `+${values[val]}`;
+    });
 
     if (oldTags) {
       let isSpecialTags: boolean = false;
-      let arrOldTags = oldTags.split(',')
+      let arrOldTags = oldTags.split(",");
       arrOldTags = arrOldTags.map((tag) => {
-        if (tag.trim().startsWith('special_order')) {
-          isSpecialTags = true
-          return newTags
-        } else return tag.trim()
-      })
+        if (tag.trim().startsWith("special_order")) {
+          isSpecialTags = true;
+          return newTags;
+        } else return tag.trim();
+      });
       if (!isSpecialTags) {
-        arrOldTags = arrOldTags.concat(newTags)
+        arrOldTags = arrOldTags.concat(newTags);
       }
 
-      return arrOldTags.join(',')
-
+      return arrOldTags.join(",");
     }
-    return newTags
-  } else return oldTags
-}
+    return newTags;
+  } else return oldTags;
+};
 
 export const convertTagToArrayField = (tag: string) => {
   if (!tag) return false;
-  let splitTag = tag.split(',').filter((tag) => tag.trim().startsWith('special_order'))
-  if (splitTag.length === 0) return false
+  let splitTag = tag.split(",").filter((tag) => tag.trim().startsWith("special_order"));
+  if (splitTag.length === 0) return false;
   const listItemSpecialType = {
-    'orders-exchange': ['order_return'],
-    'orders-recall': ['order_care', 'order_original', 'product'],
-    'orders-partial': ['order_care', 'product', 'amount'],
-    'cod-exchange': ['order_care', 'amount', 'reason'],
-    'transfer': ['line_transfer'],
-    'collect-support': ['order_care', 'amount'],
-    'orders-split': ['order_care', 'order_original'],
-    'orders-embroider': ['amount'],
-    'orders-continue-deliver': ['order_care', 'order_return'],
-    'orders-cancel': ['order_care', 'reason'],
+    "orders-exchange": ["order_return"],
+    "orders-recall": ["order_care", "order_original", "product"],
+    "orders-partial": ["order_care", "product", "amount"],
+    "cod-exchange": ["order_care", "amount", "reason"],
+    transfer: ["line_transfer"],
+    "collect-support": ["order_care", "amount"],
+    "orders-split": ["order_care", "order_original"],
+    "orders-embroider": ["amount"],
+    "orders-continue-deliver": ["order_care", "order_return"],
+    "orders-cancel": ["order_care", "reason"],
   };
-  let splitTagSpecial = splitTag[0].split('+');
+  let splitTagSpecial = splitTag[0].split("+");
   splitTagSpecial.shift();
-  let typeName = select_type_especially_order.find((type) => type.value === splitTagSpecial[0])
-  let tagFieldObject: { field: string, value: string | string[] }[] = []
+  let typeName = select_type_especially_order.find((type) => type.value === splitTagSpecial[0]);
+  let tagFieldObject: { field: string; value: string | string[] }[] = [];
   // @ts-ignore
-  if (!Boolean(listItemSpecialType[splitTagSpecial[0]])) return false
+  if (!Boolean(listItemSpecialType[splitTagSpecial[0]])) return false;
   if (typeName) {
-    tagFieldObject = [{ field: 'type', value: typeName.label }];
+    tagFieldObject = [{ field: "type", value: typeName.label }];
   }
   // @ts-ignore
   listItemSpecialType[splitTagSpecial[0]].every((field, index) => {
-    if (field === 'order_original' || field === 'product' || field === 'order_return') {
-      let fieldTag = { field, value: splitTagSpecial[index + 1].split(';') }
-      tagFieldObject = [...tagFieldObject, fieldTag]
-      return true
+    if (field === "order_original" || field === "product" || field === "order_return") {
+      let fieldTag = { field, value: splitTagSpecial[index + 1].split(";") };
+      tagFieldObject = [...tagFieldObject, fieldTag];
+      return true;
     } else {
-
-      let fieldTag = { field, value: splitTagSpecial[index + 1] }
-      tagFieldObject = [...tagFieldObject, fieldTag]
-      return true
+      let fieldTag = { field, value: splitTagSpecial[index + 1] };
+      tagFieldObject = [...tagFieldObject, fieldTag];
+      return true;
     }
   });
-  return tagFieldObject
+  return tagFieldObject;
 };
 export const convertTagToObject = (tag: string) => {
   if (!tag) return false;
-  let splitTag = tag.split(',').filter((tag) => tag.trim().startsWith('special_order'))
-  if (splitTag.length === 0) return false
+  let splitTag = tag.split(",").filter((tag) => tag.trim().startsWith("special_order"));
+  if (splitTag.length === 0) return false;
   const listItemSpecialType = {
-    'orders-exchange': ['order_return'],
-    'orders-recall': ['order_care', 'order_original', 'product'],
-    'orders-partial': ['order_care', 'product', 'amount'],
-    'cod-exchange': ['order_care', 'amount', 'reason'],
-    'transfer': ['line_transfer'],
-    'collect-support': ['order_care', 'amount'],
-    'orders-split': ['order_care', 'order_original'],
-    'orders-embroider': ['amount'],
-    'orders-continue-deliver': ['order_care', 'order_return'],
-    'orders-cancel': ['order_care', 'reason'],
+    "orders-exchange": ["order_return"],
+    "orders-recall": ["order_care", "order_original", "product"],
+    "orders-partial": ["order_care", "product", "amount"],
+    "cod-exchange": ["order_care", "amount", "reason"],
+    transfer: ["line_transfer"],
+    "collect-support": ["order_care", "amount"],
+    "orders-split": ["order_care", "order_original"],
+    "orders-embroider": ["amount"],
+    "orders-continue-deliver": ["order_care", "order_return"],
+    "orders-cancel": ["order_care", "reason"],
   };
-  let splitTagSpecial = splitTag[0].split('+');
+  let splitTagSpecial = splitTag[0].split("+");
   splitTagSpecial.shift();
-  let typeName = select_type_especially_order.find((type) => type.value === splitTagSpecial[0])
-  let tagFieldObject: { [key: string]: string | string[] } = {}
+  let typeName = select_type_especially_order.find((type) => type.value === splitTagSpecial[0]);
+  let tagFieldObject: { [key: string]: string | string[] } = {};
   // @ts-ignore
-  if (!Boolean(listItemSpecialType[splitTagSpecial[0]])) return false
+  if (!Boolean(listItemSpecialType[splitTagSpecial[0]])) return false;
   if (typeName) {
-    tagFieldObject = { 'type': typeName.label };
+    tagFieldObject = { type: typeName.label };
   }
   // @ts-ignore
   listItemSpecialType[splitTagSpecial[0]].every((field, index) => {
-    if (field === 'order_original' || field === 'product' || field === 'order_return') {
-      let fieldTag = { [field]: splitTagSpecial[index + 1].split(';') }
-      tagFieldObject = { ...tagFieldObject, ...fieldTag }
-      return true
+    if (field === "order_original" || field === "product" || field === "order_return") {
+      let fieldTag = { [field]: splitTagSpecial[index + 1].split(";") };
+      tagFieldObject = { ...tagFieldObject, ...fieldTag };
+      return true;
     } else {
-
-      let fieldTag = { [field]: splitTagSpecial[index + 1] }
-      tagFieldObject = { ...tagFieldObject, ...fieldTag }
-      return true
+      let fieldTag = { [field]: splitTagSpecial[index + 1] };
+      tagFieldObject = { ...tagFieldObject, ...fieldTag };
+      return true;
     }
   });
-  return tagFieldObject
+  return tagFieldObject;
+};
+export const lineItemsConvertInSearchPromotion = (
+  _item: OrderLineItemRequest,
+  keyword: string,
+  type?: string,
+) => {
+  let _itemChange: any = {
+    original_unit_price: _item.price,
+    product_id: _item.product_id,
+    quantity: _item.quantity,
+    sku: _item.sku,
+    variant_id: _item.variant_id,
+  };
+  if (
+    _item.discount_items[0]?.discount_code &&
+    _item.discount_items[0]?.discount_code.length !== 0
+  ) {
+    _itemChange.applied_discount = {
+      code: _item.discount_items[0].discount_code,
+    };
+  } else if (type === DISCOUNT_TYPE.MONEY) {
+    _itemChange.keyword = keyword;
+    _itemChange.search_type = DiscountValueType.FIXED_PRICE;
+  } else if (type === DISCOUNT_TYPE.PERCENT) {
+    _itemChange.keyword = keyword;
+    _itemChange.search_type = DiscountValueType.PERCENTAGE;
+  } else if (type === DISCOUNT_TYPE.COUPON) {
+    _itemChange.applied_discount = {
+      code: keyword,
+    };
+  }
+
+  return _itemChange;
+};
+export const getLineItemStandardized = (_item: OrderLineItemRequest) => {
+  let newItem = { ..._item };
+  newItem.discount_value = getLineItemDiscountValue(newItem);
+  newItem.discount_amount = getLineItemDiscountAmount(newItem);
+  newItem.discount_rate = getLineItemDiscountRate(newItem);
+  newItem.line_amount_after_line_discount = getLineAmountAfterLineDiscount(newItem);
+
+  return newItem;
+};
+
+export const removeDiscountLineItem = (_item: OrderLineItemRequest) => {
+  _item.isLineItemSemiAutomatic = false;
+  _item.discount_amount = 0;
+  _item.discount_items = [];
+  _item.discount_rate = 0;
+  _item.discount_value = 0;
+  _item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(_item);
+};
+
+export const convertDiscountType = (type: string) => {
+  let customType = "";
+  switch (type) {
+    case DiscountValueType.FIXED_AMOUNT:
+      customType = DISCOUNT_TYPE.MONEY;
+      break;
+    case DiscountValueType.FIXED_PRICE:
+      customType = DISCOUNT_TYPE.MONEY;
+      break;
+    case DiscountValueType.PERCENTAGE:
+      customType = DISCOUNT_TYPE.PERCENT;
+      break;
+  }
+
+  return customType;
+};
+
+export const compareProducts = (
+  itemsDefault: OrderLineItemRequest[],
+  newItems?: OrderLineItemRequest[],
+) => {
+  if (!newItems) return false;
+  if (itemsDefault.length !== newItems.length) return false;
+
+  let check = true;
+  itemsDefault.forEach((item, index) => {
+    if (newItems[index].sku !== item.sku) {
+      check = false;
+      return;
+    } else if (newItems[index].quantity !== item.quantity) {
+      check = false;
+      return;
+    } else if (newItems[index].price !== item.price) {
+      check = false;
+      return;
+    } else if (
+      (item.discount_items[0]?.promotion_id || null) !==
+      (newItems[index].discount_items[0]?.promotion_id || null)
+    ) {
+      check = false;
+      return;
+    }
+  });
+
+  return check;
+};
+
+export const checkIfOrderSplit = (OrderDetail: OrderResponse | null) => {
+  return (
+    OrderDetail?.status === OrderStatus.DRAFT ||
+    (OrderDetail?.status === OrderStatus.FINALIZED &&
+      OrderDetail.fulfillment_status === FulFillmentStatus.UNSHIPPED) ||
+    (OrderDetail?.status === OrderStatus.FINALIZED &&
+      OrderDetail.fulfillment_status === FulFillmentStatus.PICKED) ||
+    (OrderDetail?.status === OrderStatus.FINALIZED &&
+      OrderDetail.fulfillment_status === FulFillmentStatus.PACKED)
+  );
 };

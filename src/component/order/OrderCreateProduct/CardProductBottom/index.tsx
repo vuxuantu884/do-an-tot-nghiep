@@ -1,26 +1,19 @@
-import { CheckCircleOutlined, CloseCircleOutlined, InfoCircleOutlined } from "@ant-design/icons";
-import { Col, Divider, Row, Space, Tag, Tooltip, Typography } from "antd";
+import { Col, Divider, Row } from "antd";
 import { OrderDiscountRequest, OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
-import { formatCurrency, formatPercentage, handleDisplayCoupon } from "utils/AppUtils";
-import { dangerColor, successColor } from "utils/global-styles/variables";
+import { formatCurrency } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
+import PromotionApply from "./PromotionApply";
 
 type PropTypes = {
-  orderProductsAmount: number;
   items: OrderLineItemRequest[] | undefined;
+  orderProductsAmount: number;
   promotion: OrderDiscountRequest | null;
   totalAmountCustomerNeedToPay: number;
   shippingFeeInformedToCustomer?: number | null;
   totalOrderAmount: number;
-  isDisableOrderDiscount?: boolean;
-  isCouponValid?: boolean;
-  couponInputText?: string;
+  levelOrder?: number;
   showDiscountModal: () => void;
-  showCouponModal: () => void;
-  setPromotion?: (value: OrderDiscountRequest | null) => void;
-  setCoupon?: (value: string) => void;
-  setCouponInputText?: (value: string) => void;
   calculateChangeMoney: (
     _items: Array<OrderLineItemRequest>,
     _promotion?: OrderDiscountRequest | null | undefined,
@@ -28,32 +21,20 @@ type PropTypes = {
   returnOrderInformation?: {
     totalAmountReturn: number;
   };
-  handleRemoveAllAutomaticDiscount: () => void;
+  isEcommerceByOrderChannelCode?: boolean;
 };
 
 function CardProductBottom(props: PropTypes) {
   const {
     orderProductsAmount,
     totalOrderAmount,
-    items,
     promotion,
-    couponInputText,
     shippingFeeInformedToCustomer,
     returnOrderInformation,
     totalAmountCustomerNeedToPay,
-    isDisableOrderDiscount,
-    isCouponValid,
-    showDiscountModal,
-    showCouponModal,
-    setPromotion,
-    calculateChangeMoney,
-    setCoupon,
-    setCouponInputText,
-    handleRemoveAllAutomaticDiscount,
   } = props;
 
-  const discountRate = promotion?.rate || 0;
-  const discountValue = promotion?.value || 0;
+  console.log("promotion CardProductBottom", promotion);
 
   return (
     <StyledComponent>
@@ -64,48 +45,16 @@ function CardProductBottom(props: PropTypes) {
             <div>Tổng tiền:</div>
             <div className="font-weight-500">{formatCurrency(orderProductsAmount)}</div>
           </Row>
+          <PromotionApply
+            isEcommerceByOrderChannelCode={props.isEcommerceByOrderChannelCode}
+            items={props.items}
+            promotion={props.promotion}
+            levelOrder={props.levelOrder}
+            showDiscountModal={props.showDiscountModal}
+            calculateChangeMoney={props.calculateChangeMoney}
+          />
 
-          <Row className="paymentRow" justify="space-between" align="middle">
-            <Space align="center">
-              {/* ko disable chiết khấu tổng */}
-              {(setPromotion && !isDisableOrderDiscount && items && items.length > 0) || true ? (
-                <Typography.Link
-                  className="font-weight-400 discountTitle"
-                  onClick={showDiscountModal}
-                >
-                  Chiết khấu đơn hàng:
-                </Typography.Link>
-              ) : (
-                <div>
-                  <Tooltip title="Tắt chiết khấu tự động để nhập chiết khấu đơn hàng">
-                    Chiết khấu đơn hàng
-                    <span className="noteTooltip">
-                      <InfoCircleOutlined />
-                    </span>
-                  </Tooltip>
-                </div>
-              )}
-
-              {items && discountRate !== 0 && (
-                <Tag
-                  key={discountRate}
-                  className="orders-tag orders-tag-danger discountTag"
-                  closable={!isDisableOrderDiscount}
-                  onClose={() => {
-                    setCoupon && setCoupon("");
-                    calculateChangeMoney(items, null);
-                  }}
-                >
-                  {discountRate ? formatPercentage(discountRate) : 0}%{" "}
-                </Tag>
-              )}
-            </Space>
-            <div className="font-weight-500 ">
-              {discountValue ? formatCurrency(discountValue) : "-"}
-            </div>
-          </Row>
-
-          <Row className="paymentRow" justify="space-between" align="middle">
+          {/* <Row className="paymentRow" justify="space-between" align="middle">
             <Space align="center">
               {setPromotion && !isDisableOrderDiscount && items && items.length > 0 ? (
                 <Typography.Link className="font-weight-400 couponTitle" onClick={showCouponModal}>
@@ -154,7 +103,7 @@ function CardProductBottom(props: PropTypes) {
               )}
             </Space>
             <div className="font-weight-500 ">-</div>
-          </Row>
+          </Row> */}
 
           <Row className="paymentRow" justify="space-between">
             <div>Phí ship báo khách:</div>

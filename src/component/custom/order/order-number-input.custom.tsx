@@ -124,10 +124,11 @@ function OrderNumberInputCustom(props: PropTypes) {
   );
   useEffect(() => {
     // console.log('value', value)
-    setData(value !== null && value !== undefined && value !== "" ? value.toString() : "3333");
+    setData(value !== null && value !== undefined && value !== "" ? value.toString() : "0");
   }, [value]);
 
-  // console.log('data', data)
+  console.log("data", data);
+  console.log("value", value);
 
   return (
     <Input

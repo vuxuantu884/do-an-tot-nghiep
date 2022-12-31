@@ -402,6 +402,15 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
     }
   };
 
+  const onChangeRetailPrice = (value: number, color: string, schemaIndex: number) => {
+    const newpoLineItemGridValue = [...poLineItemGridValue];
+    const colorValue = newpoLineItemGridValue[schemaIndex].get(color);
+    if (colorValue) {
+      colorValue.retail_price = value;
+      setPoLineItemGridValue(newpoLineItemGridValue);
+    }
+  };
+
   /**
    * Thay đổi số lượng ô nhập đơn giá cho tất cả các màu
    * @param value
@@ -413,6 +422,19 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
       const mapLength = valueLine.size;
       for (let i = 0; i < mapLength; i++) {
         mapIterator.next().value.price = value;
+      }
+    });
+
+    setPoLineItemGridValue(newpoLineItemGridValue);
+  };
+
+  const changeRetailPriceHeader = (value: number) => {
+    const newpoLineItemGridValue = [...poLineItemGridValue];
+    newpoLineItemGridValue.forEach((valueLine: Map<string, POLineItemGridValue>) => {
+      const mapIterator = valueLine.values();
+      const mapLength = valueLine.size;
+      for (let i = 0; i < mapLength; i++) {
+        mapIterator.next().value.retail_price = value;
       }
     });
 
@@ -627,7 +649,7 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
       title: (
         <div>
           <p> Giá nhập</p>
-          {(isEditMode || isEditPrice) && (
+          {isEditMode && isEditPrice && (
             <NumberInput
               min={0}
               style={{ height: "32px" }}
@@ -645,7 +667,7 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
       render: (color: string, row: PODataSourceGrid) => {
         const { schemaIndex } = row;
         const sizeQtyOfColorObject = poLineItemGridValue[schemaIndex].get(color);
-        return isEditMode || isEditPrice ? (
+        return isEditMode && isEditPrice ? (
           <NumberInput
             min={0}
             style={{ height: "32px" }}
@@ -660,11 +682,40 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
       },
     },
     {
-      title: "Giá bán",
-      width: 70,
+      title: (
+        <div>
+          <p> Giá bán</p>
+          {isEditMode && isEditPrice && (
+            <NumberInput
+              min={0}
+              style={{ height: "32px" }}
+              onChange={(value) => changeRetailPriceHeader(value || 0)}
+              format={(a: string) => formatCurrency(a)}
+              replace={(a: string) => replaceFormatString(a)}
+            />
+          )}
+        </div>
+      ),
+      dataIndex: "color",
+      className: "price-column",
+      width: 120,
       align: "center",
-      dataIndex: "retail_price",
-      render: (price) => formatCurrency(price) || 0,
+      render: (color: string, row: PODataSourceGrid) => {
+        const { schemaIndex } = row;
+        const sizeQtyOfColorObject = poLineItemGridValue[schemaIndex].get(color);
+        return isEditMode && isEditPrice ? (
+          <NumberInput
+            min={0}
+            style={{ height: "32px" }}
+            value={sizeQtyOfColorObject?.retail_price ?? 0}
+            onChange={(value) => onChangeRetailPrice(value ?? 0, color, schemaIndex)}
+            format={(a: string) => formatCurrency(a)}
+            replace={(a: string) => replaceFormatString(a)}
+          />
+        ) : (
+          formatCurrency(sizeQtyOfColorObject?.retail_price ?? 0)
+        );
+      },
     },
     {
       title: "Thành tiền",
