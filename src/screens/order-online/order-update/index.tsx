@@ -33,6 +33,7 @@ import { modalActionType } from "model/modal/modal.model";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { SpecialOrderModel } from "model/order/special-order.model";
+import { DiscountValueType } from "model/promotion/price-rules.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddressRequestModel,
@@ -730,7 +731,16 @@ export default function Order(props: PropTypes) {
     }
 
     values.tags = tags;
-    const _item = items.concat(itemGifts);
+    const _itemGifts = itemGifts.map((p) => {
+      let _discountItems = p.discount_items[0];
+      if (_discountItems) {
+        _discountItems.type = DiscountValueType.PERCENTAGE;
+        _discountItems.sub_type = DiscountValueType.PERCENTAGE;
+      }
+      return p;
+    });
+    console.log("zac 1111", _itemGifts);
+    const _item = items.concat(_itemGifts);
     values.items = _item.map((p) => {
       let _discountItems = p.discount_items[0];
       if (_discountItems) {
@@ -738,6 +748,8 @@ export default function Order(props: PropTypes) {
       }
       return p;
     });
+
+    
     values.discounts = lstDiscount;
     values.shipping_address =
       shippingAddress && levelOrder <= 3
@@ -1120,7 +1132,6 @@ export default function Order(props: PropTypes) {
               const _type = _discountItem.type || "";
               _discountItem.sub_type = _type;
               _discountItem.type = convertDiscountType(_type);
-
               return {
                 ...item,
                 isLineItemSemiAutomatic: true,
@@ -1131,6 +1142,7 @@ export default function Order(props: PropTypes) {
             }
           });
           setItems(responseItems);
+          console.log("responseItems 1123", responseItems);
           setOrderProductsAmount(response.total_line_amount_after_line_discount);
           form.setFieldsValue({
             ...initialForm,
