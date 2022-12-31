@@ -17,22 +17,22 @@ type Props = {
 const SelectedPromotion: React.FC<Props> = (props: Props) => {
   return (
     <StyledComponent>
-      <Card
-        id={props.id}
-        className="card-promotion"
-        title={
-          <React.Fragment>
-            <div className="title-promotion-name">Tên chương trình</div>
-            <div className="title-promotion-before">Giá trị giảm</div>
-            <div className="title-promotion-after">Giá sau ck</div>
-            <div className="title-promotion-close">
-              <CloseOutlined onClick={() => props.handClose && props.handClose()} />
-            </div>
-          </React.Fragment>
-        }
-      >
-        {props.data.length !== 0 ? (
-          props.data.map((p) => (
+      {props.data.length !== 0 ? (
+        <Card
+          id={props.id}
+          className="card-promotion"
+          title={
+            <React.Fragment>
+              <div className="title-promotion-name">Tên chương trình</div>
+              <div className="title-promotion-before">Giá trị giảm</div>
+              <div className="title-promotion-after">Giá sau ck</div>
+              <div className="title-promotion-close">
+                <CloseOutlined onClick={() => props.handClose && props.handClose()} />
+              </div>
+            </React.Fragment>
+          }
+        >
+          {props.data.map((p) => (
             <React.Fragment>
               <div className="row-item">
                 <div className="row-item-name">
@@ -57,11 +57,11 @@ const SelectedPromotion: React.FC<Props> = (props: Props) => {
                 </div>
               </div>
             </React.Fragment>
-          ))
-        ) : (
-          <div>không tìm thấy kết quả</div>
-        )}
-      </Card>
+          ))}
+        </Card>
+      ) : (
+        <div className="card-error-notfount">không tìm thấy kết quả</div>
+      )}
     </StyledComponent>
   );
 };

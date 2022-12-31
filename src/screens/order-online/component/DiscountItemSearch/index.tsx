@@ -200,7 +200,9 @@ function DiscountItemSearch(props: PropTypes) {
                 setSuggestedDiscounts(suggestedDiscounts);
                 setShowSearchPromotion(true);
               } else {
-                showError(`Không có chương trình thỏa mãn cho sản phẩm`);
+                //showError(`Không có chương trình thỏa mãn cho sản phẩm`);
+                setShowSearchPromotion(true);
+                setSuggestedDiscounts([]);
               }
             } else if (type === DISCOUNT_TYPE.COUPON) {
               const _applyDiscount = response.data.line_items[0].applied_discount;

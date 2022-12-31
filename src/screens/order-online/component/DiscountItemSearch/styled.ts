@@ -99,6 +99,19 @@ export const StyledComponent = styled.div`
       }
     }
   }
+
+  .card-error-notfount {
+    position: absolute;
+    top: 2;
+    top: 44px;
+    right: 6px;
+    width: 200px;
+    z-index: 1000;
+    border-radius: 10px;
+    box-shadow: 0 0 2px 1px #eee;
+    background: #eee;
+    color: red;
+  }
   .input {
     padding: 7px 27px 7px 14px;
   }
