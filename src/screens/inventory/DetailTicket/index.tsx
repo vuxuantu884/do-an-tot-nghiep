@@ -46,7 +46,6 @@ import {
   inventoryGetSenderStoreAction,
   inventoryGetVariantByStoreAction,
   receivedInventoryTransferAction,
-  updateInventoryTransferAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { InventoryTransferDetailItem, LineItem, Store } from "model/inventory/transfer";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -103,6 +102,7 @@ import ModalShowError from "../common/ModalShowError";
 import TagStatus from "component/tag/tag-status";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import queryString from "query-string";
+import { updateNoteTransferApi } from "service/inventory/transfer/index.service";
 import ModalForward from "../common/ModalForward";
 import ForwardRecordTour from "./components/ForwardRecordTour";
 import { DELAY_TIME_FOR_TOUR } from "../../inventory-adjustment/helper";
@@ -113,8 +113,6 @@ export interface InventoryParams {
 }
 
 let barCode = "";
-
-let version = 0;
 
 const DetailTicket: FC = () => {
   const history = useHistory();
@@ -225,7 +223,6 @@ const DetailTicket: FC = () => {
         setOriginalDataTable(newDataTable);
 
         setData(result);
-        version = result.version;
         form.setFieldsValue({ note: result.note });
         // setDataShipment(result.shipment);
         setIsVisibleInventoryShipment(false);
@@ -524,58 +521,32 @@ const DetailTicket: FC = () => {
     [dispatch, idNumber, onResult],
   );
 
-  const updateCallback = useCallback(
-    (result: InventoryTransferDetailItem) => {
-      setIsDisableEditNote(false);
-      dispatch(hideLoading());
-      if (!result) return;
-      showSuccess("Đổi dữ liệu thành công");
-      onReload();
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-
-  const updateNoteApi = (key: string) => {
+  const updateNoteApi = async (note: string) => {
     setIsLoadingBtnSave(true);
     dispatch(showLoading());
     if (data && dataTable) {
       setIsDisableEditNote(true);
-      data.line_items = dataTable;
-      let dataUpdate: any = {};
 
-      stores.forEach((store) => {
-        if (store.id === Number(data?.from_store_id)) {
-          dataUpdate.store_transfer = {
-            id: data?.store_transfer?.id,
-            store_id: store.id,
-            hotline: store.hotline,
-            address: store.address,
-            name: store.name,
-            code: store.code,
-          };
-        }
-        if (store.id === Number(data?.to_store_id)) {
-          dataUpdate.store_receive = {
-            id: data?.store_receive?.id,
-            store_id: store.id,
-            hotline: store.hotline,
-            address: store.address,
-            name: store.name,
-            code: store.code,
-          };
-        }
-      });
-      dataUpdate.from_store_id = data?.from_store_id;
-      dataUpdate.to_store_id = data?.to_store_id;
-      dataUpdate.attached_files = data?.attached_files;
-      dataUpdate.line_items = data?.line_items;
-      dataUpdate.exception_items = data?.exception_items;
-      dataUpdate.note = key;
-      dataUpdate.version = version;
-      version = version + 1;
+      const newNote = {
+        version: data?.version,
+        note,
+      };
 
-      dispatch(updateInventoryTransferAction(data.id, dataUpdate, updateCallback));
+      const response = await callApiNative(
+        { isShowError: true },
+        dispatch,
+        updateNoteTransferApi,
+        data.id,
+        newNote,
+      );
+
+      setIsDisableEditNote(false);
+      dispatch(hideLoading());
+
+      if (response) {
+        showSuccess("Đổi dữ liệu thành công");
+        onReload();
+      }
     }
   };
 
