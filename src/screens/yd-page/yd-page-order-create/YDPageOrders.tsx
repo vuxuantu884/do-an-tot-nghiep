@@ -642,7 +642,14 @@ export default function Order(props: OrdersCreatePermissionProps) {
     let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
 
     values.tags = getTagsValue();
-    values.items = items.concat(itemGifts);
+    const _item = items.concat(itemGifts);
+    values.items = _item.map((p) => {
+      let _discountItems = p.discount_items[0];
+      if (_discountItems) {
+        _discountItems.type = _discountItems.sub_type || "";
+      }
+      return p;
+    });
     values.discounts = lstDiscount;
     values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
