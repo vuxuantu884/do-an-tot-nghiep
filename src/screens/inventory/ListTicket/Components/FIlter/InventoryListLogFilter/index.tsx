@@ -123,11 +123,6 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
     return !!isLoading;
   }, [isLoading]);
 
-  const onFilterClick = useCallback(() => {
-    setVisible(false);
-    formRef.current?.submit();
-  }, [formRef]);
-
   const onClearFilterClick = useCallback(() => {
     onClearFilter && onClearFilter();
 
@@ -176,6 +171,19 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
 
   const onFinish = useCallback(
     (values) => {
+      const valuesForm = {
+        ...values,
+        condition: values.condition ? values.condition.trim() : null,
+      };
+      onFilter && onFilter(valuesForm);
+    },
+    [onFilter],
+  );
+
+  const onFilterClick = useCallback(() => {
+      setVisible(false);
+      let values = formAdv.getFieldsValue(true);
+
       if (values?.from_total_variant > values?.to_total_variant) {
         values = {
           ...values,
@@ -355,7 +363,6 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
       >
         {visible && (
           <Form
-            onFinish={onFinish}
             ref={formRef}
             form={formAdv}
             // initialValues={initialValues}
