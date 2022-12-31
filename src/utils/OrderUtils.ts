@@ -805,3 +805,45 @@ export const convertDiscountType = (type: string) => {
 
   return customType;
 };
+
+export const compareProducts = (
+  itemsDefault: OrderLineItemRequest[],
+  newItems?: OrderLineItemRequest[],
+) => {
+  if (!newItems) return false;
+  if (itemsDefault.length !== newItems.length) return false;
+
+  let check = true;
+  itemsDefault.forEach((item, index) => {
+    if (newItems[index].sku !== item.sku) {
+      check = false;
+      return;
+    } else if (newItems[index].quantity !== item.quantity) {
+      check = false;
+      return;
+    } else if (newItems[index].price !== item.price) {
+      check = false;
+      return;
+    } else if (
+      (item.discount_items[0]?.promotion_id || null) !==
+      (newItems[index].discount_items[0]?.promotion_id || null)
+    ) {
+      check = false;
+      return;
+    }
+  });
+
+  return check;
+};
+
+export const checkIfOrderSplit = (OrderDetail: OrderResponse | null) => {
+  return (
+    OrderDetail?.status === OrderStatus.DRAFT ||
+    (OrderDetail?.status === OrderStatus.FINALIZED &&
+      OrderDetail.fulfillment_status === FulFillmentStatus.UNSHIPPED) ||
+    (OrderDetail?.status === OrderStatus.FINALIZED &&
+      OrderDetail.fulfillment_status === FulFillmentStatus.PICKED) ||
+    (OrderDetail?.status === OrderStatus.FINALIZED &&
+      OrderDetail.fulfillment_status === FulFillmentStatus.PACKED)
+  );
+};

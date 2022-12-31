@@ -512,7 +512,7 @@ export default function Order() {
     console.log("values", values);
     const createOrder = async (createSpecialOrder?: (orderId: number) => Promise<void>) => {
       isUserCanCreateOrder.current = true;
-      // return;
+      //return;
       dispatch(showLoading());
       if (typeButton === OrderStatus.DRAFT) {
         setIsSaveDraft(true);
@@ -1270,6 +1270,7 @@ export default function Order() {
               dispatch(
                 getCustomerDetailAction(customer_id, (responseCustomer) => {
                   setCustomer(responseCustomer);
+                  handleResponseCloneOrder(response);
                   dispatch(changeOrderCustomerAction(responseCustomer));
                   responseCustomer.shipping_addresses.forEach((item) => {
                     if (item.default === true) {
@@ -1279,7 +1280,6 @@ export default function Order() {
                 }),
               );
             }
-            handleResponseCloneOrder(response);
           }),
         );
       } else {

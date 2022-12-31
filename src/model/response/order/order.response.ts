@@ -152,6 +152,7 @@ export interface OrderLineItemResponse {
   available: number | null;
   distributed_order_discount?: number | null;
   order_line_item_id?: number | null;
+  single_distributed_order_discount?: number | null;
 }
 
 export interface ReturnProductModel extends OrderLineItemResponse {

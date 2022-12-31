@@ -115,7 +115,7 @@ import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import {
   checkIfEcommerceByOrderChannelCode,
   checkIfEcommerceByOrderChannelCodeUpdateOrder,
-  checkIfWebAppByOrderChannelCode,
+  compareProducts,
   getLineItemStandardized,
   lineItemsConvertInSearchPromotion,
   removeDiscountLineItem,
@@ -284,24 +284,17 @@ function OrderCreateProduct(props: PropTypes) {
   );
   const dispatch = useDispatch();
 
+  const isShouldUpdateCouponRef = useRef(orderDetail || props.isPageOrderUpdate ? false : true);
+  const isShouldUpdateDiscountRef = useRef(orderDetail || props.isPageOrderUpdate ? false : true);
   /**
    * kiểm tra đơn hàng sàn đối với update đơn hàng
    */
   const isEcommerceByOrderChannelCodeisUpdate = useMemo(() => {
     return (
       checkIfEcommerceByOrderChannelCodeUpdateOrder(orderDetail?.channel_code) &&
-      props.isPageOrderUpdate
+      (props.isPageOrderUpdate || props.isCreateReturn)
     );
-  }, [orderDetail?.channel_code, props.isPageOrderUpdate]);
-
-  console.log("isShowDiscountByInsert", isShowDiscountByInsert);
-  console.log("isCreateReturn", isCreateReturn);
-  console.log("orderDetail", orderDetail);
-  console.log(
-    "checkIfEcommerceByOrderChannelCode(orderDetail?.channel_code)",
-    checkIfEcommerceByOrderChannelCode(orderDetail?.channel_code),
-  );
-
+  }, [orderDetail?.channel_code, props.isPageOrderUpdate, props.isCreateReturn]);
   const discountRequestModel: DiscountRequestModel = {
     order_id: orderDetail?.id || null,
     customer_id: customer?.id || null,
@@ -363,11 +356,6 @@ function OrderCreateProduct(props: PropTypes) {
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
-  // const [storeSearchIds, setStoreSearchIds] = useState<PageResponse<StoreResponse>>();
-  // console.log('props.isPageOrderUpdate', props.isPageOrderUpdate)
-  const isShouldUpdateCouponRef = useRef(orderDetail || props.isPageOrderUpdate ? false : true);
-  const isShouldUpdateDiscountRef = useRef(orderDetail || props.isPageOrderUpdate ? false : true);
-  // console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
   console.log("promotion", promotion);
   const discountRate = promotion?.rate || 0;
   const discountValue = promotion?.value || 0;
@@ -2613,17 +2601,21 @@ function OrderCreateProduct(props: PropTypes) {
    */
   useEffect(() => {
     if (isShouldUpdateDiscountRef.current && items && items?.length > 0) {
-      console.log("isAutomaticDiscount  1234");
       let _items = [...items];
       const isLineItemSemiAutomatic = _items.some((p) => p.isLineItemSemiAutomatic); // xác định là ck line item thủ công
       const isOrderSemiAutomatic = promotion?.isOrderSemiAutomatic; //xác định là ck đơn hàng thủ công
       if (isLineItemSemiAutomatic || isOrderSemiAutomatic) {
-        handUpdateDiscountWhenChangingOrderInformation(_items);
+        if (!props.isPageOrderUpdate) {
+          handUpdateDiscountWhenChangingOrderInformation(_items);
+        } else if (
+          !compareProducts(orderDetail?.items || [], items) ||
+          orderDetail?.customer_id !== customer?.id
+        ) {
+          handUpdateDiscountWhenChangingOrderInformation(_items);
+        }
       } else if (isAutomaticDiscount) {
         handleApplyDiscount(items);
       }
-
-      // console.log("items items", items)
     } else isShouldUpdateDiscountRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeId, orderSourceId, countFinishingUpdateCustomer]);
@@ -2710,7 +2702,9 @@ function OrderCreateProduct(props: PropTypes) {
           <Space size={window.innerWidth > 1366 ? 20 : 10}>
             <Checkbox
               onChange={() => setSplitLine(!splitLine)}
-              disabled={levelOrder > 3 || isOrderFinishedOrCancel(orderDetail)}
+              disabled={
+                isCreateReturn ? false : levelOrder > 3 || isOrderFinishedOrCancel(orderDetail)
+              }
             >
               Tách dòng
             </Checkbox>
@@ -2726,7 +2720,10 @@ function OrderCreateProduct(props: PropTypes) {
             <Form.Item name="automatic_discount" valuePropName="checked">
               <Checkbox
                 disabled={
-                  levelOrder > 3 || isLoadingDiscount || isEcommerceByOrderChannelCodeisUpdate
+                  levelOrder > 3 ||
+                  isLoadingDiscount ||
+                  props.isPageOrderUpdate ||
+                  isEcommerceByOrderChannelCodeisUpdate
                 }
                 value={isAutomaticDiscount}
                 onChange={(e) => {
@@ -2911,21 +2908,13 @@ function OrderCreateProduct(props: PropTypes) {
           <CardProductBottom
             totalOrderAmount={totalOrderAmount}
             calculateChangeMoney={calculateChangeMoney}
-            setCoupon={setCoupon}
             promotion={promotion}
-            setPromotion={setPromotion}
             showDiscountModal={() => setVisiblePickDiscount(true)}
-            showCouponModal={() => setIsVisiblePickCoupon(true)}
             orderProductsAmount={orderProductsAmount}
             items={items}
             shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
             returnOrderInformation={returnOrderInformation}
             totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-            isAutomaticDiscount={isAutomaticDiscount}
-            isCouponValid={isCouponValid}
-            couponInputText={couponInputText}
-            setCouponInputText={setCouponInputText}
-            handleRemoveAllAutomaticDiscount={handleRemoveAllAutomaticDiscount}
             levelOrder={levelOrder}
             isEcommerceByOrderChannelCode={isEcommerceByOrderChannelCodeisUpdate}
           />
