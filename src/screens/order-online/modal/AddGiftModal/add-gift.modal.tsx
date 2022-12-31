@@ -23,6 +23,7 @@ import { searchVariantsOrderRequestAction } from "domain/actions/product/product
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderDiscountModel, OrderItemModel } from "model/other/order/order-model";
 import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
+import { DiscountValueType } from "model/promotion/price-rules.model";
 import { OrderItemDiscountRequest, OrderLineItemRequest } from "model/request/order.request";
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -315,7 +316,8 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
         discount_code: "",
         reason: "",
         source: "",
-        type: "",
+        type: DiscountValueType.PERCENTAGE,
+        sub_type: DiscountValueType.PERCENTAGE,
         taxable: currentPromotion?.taxable,
       };
       let _items = [...props.items];
@@ -341,7 +343,14 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
       props.onUpdateData(_items);
       setKeysearch("");
     },
-    [props, resultSearch.items, createItem],
+    [
+      currentPromotion?.promotion_id,
+      currentPromotion?.promotion_title,
+      currentPromotion?.taxable,
+      props,
+      resultSearch.items,
+      createItem,
+    ],
   );
 
   const onOkPress = useCallback(() => {
@@ -387,7 +396,8 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
       discount_code: "",
       reason: "",
       source: "",
-      type: "",
+      sub_type: DiscountValueType.PERCENTAGE,
+      type: DiscountValueType.PERCENTAGE,
       taxable: taxablePromotion ? Boolean(taxablePromotion) : false,
     };
     let itemsGift = [...props.items];
