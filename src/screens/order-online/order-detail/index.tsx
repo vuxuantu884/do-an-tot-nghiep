@@ -97,6 +97,7 @@ import {
   checkIfFinishedPayment,
   checkIfMomoPayment,
   checkIfOrderHasNotFinishPaymentMomo,
+  checkIfOrderSplit,
   isDeliveryOrderReturned,
 } from "utils/OrderUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -117,6 +118,7 @@ import UpdateCustomerCard from "../component/update-customer-card";
 import UpdateShipmentCard from "../component/UpdateShipmentCard";
 import useGetDefaultReturnOrderReceivedStore from "../hooks/useGetDefaultReturnOrderReceivedStore";
 import CancelOrderModal from "../modal/cancel-order.modal";
+import OrderSplitModel from "../modal/OrderSplitModal";
 import CardReturnReceiveProducts from "../order-return/components/CardReturnReceiveProducts";
 import { StyledComponent, UniformText } from "./styles";
 
@@ -181,6 +183,7 @@ const OrderDetail = (props: PropTypes) => {
   const [paymentMethods, setListPaymentMethods] = useState<Array<PaymentMethodResponse>>([]);
   const [visibleCancelModal, setVisibleCancelModal] = useState<boolean>(false);
   const [visibleLogisticConfirmModal, setVisibleLogisticConfirmModal] = useState<boolean>(false);
+  const [visibleOrderSplitModal, setVisibleOrderSplitModal] = useState<boolean>(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [orderCancelFulfillmentReasonResponse, setOrderCancelFulfillmentReasonResponse] =
     useState<OrderReasonModel | null>(null);
@@ -1153,6 +1156,7 @@ const OrderDetail = (props: PropTypes) => {
                   shippingFeeInformedCustomer={shippingFeeInformedCustomer}
                   totalAmountReturnProducts={OrderDetail?.order_return_origin?.money_amount}
                   paymentMethods={paymentMethods}
+                  setVisibleOrderSplitModal={setVisibleOrderSplitModal}
                 />
                 {/*--- end product ---*/}
 
@@ -1323,6 +1327,13 @@ const OrderDetail = (props: PropTypes) => {
           onCancel={cancelPrepareGoodsModal}
           OrderDetail={OrderDetail}
         />
+        {checkIfOrderSplit(OrderDetail) && visibleOrderSplitModal && (
+          <OrderSplitModel
+            setVisible={setVisibleOrderSplitModal}
+            visible={visibleOrderSplitModal}
+            OrderDetail={OrderDetail}
+          />
+        )}
       </ContentContainer>
     </StyledComponent>
   );

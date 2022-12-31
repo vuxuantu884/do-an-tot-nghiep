@@ -28,12 +28,15 @@ import couponOrderIcon from "assets/icon/coupon-order.svg";
 import { successColor } from "utils/global-styles/variables";
 import { StyledComponent } from "./styles";
 import { DiscountUnitType } from "screens/promotion/constants";
+import { OrderStatus, FulFillmentStatus } from "utils/Constants";
+import { checkIfOrderSplit } from "utils/OrderUtils";
 
 type PropTypes = {
   shippingFeeInformedCustomer: number | null;
   OrderDetail: OrderResponse | null;
   totalAmountReturnProducts?: number;
   paymentMethods: PaymentMethodResponse[];
+  setVisibleOrderSplitModal?: (v: boolean) => void;
 };
 
 function UpdateProductCard(props: PropTypes) {
@@ -314,6 +317,19 @@ function UpdateProductCard(props: PropTypes) {
         extra={
           <Row>
             <Space>
+              {checkIfOrderSplit(OrderDetail) && (
+                <div className="view-inventory-box">
+                  <Button
+                    ghost
+                    onClick={() =>
+                      props.setVisibleOrderSplitModal && props.setVisibleOrderSplitModal(true)
+                    }
+                  >
+                    Tách đơn
+                  </Button>
+                </div>
+              )}
+
               <div className="view-inventory-box">
                 <Button type="link" className="p-0" style={{ color: "#000000" }}>
                   <Space>

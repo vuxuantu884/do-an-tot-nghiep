@@ -54,6 +54,7 @@ function DiscountItemSearch(props: PropTypes) {
   const [suggestedDiscounts, setSuggestedDiscounts] = useState<SuggestDiscountResponseModel[]>([]);
   let showResult = true;
 
+  const disableInput = props.item?.discount_items[0] ? true : disabled;
   useEffect(() => {
     if (initItemSuggestDiscounts.length > 0) {
       if (suggestedDiscounts.length === 0) {
@@ -61,8 +62,6 @@ function DiscountItemSearch(props: PropTypes) {
       }
     }
   }, [initItemSuggestDiscounts, suggestedDiscounts.length]);
-
-  const disableInput = props.item?.discount_items[0]?.promotion_id ? true : disabled;
 
   const getAfterValue = (discount: any, totalAcount: number) => {
     if (discount.value_type === DiscountValueType.PERCENTAGE) {
@@ -379,7 +378,7 @@ function DiscountItemSearch(props: PropTypes) {
             }}
           />
 
-          {props.item?.discount_items[0]?.promotion_id && !disabled && (
+          {props.item?.discount_items[0] && !disabled && (
             <CloseCircleOutlined className="close-discount-item" onClick={removeDiscountItem} />
           )}
 

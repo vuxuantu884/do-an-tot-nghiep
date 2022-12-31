@@ -135,6 +135,7 @@ import {
 } from "utils/Order.constants";
 import {
   changeTypeQrCode,
+  checkIfEcommerceByOrderChannelCodeUpdateOrder,
   checkIfEcommerceByOrderChannelCode,
   checkIfWebAppByOrderChannelCode,
   findPaymentMethodByCode,
@@ -350,9 +351,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
       billing_address: null,
       payments: [],
       channel_id: null,
-      automatic_discount: true,
+      automatic_discount: !checkIfEcommerceByOrderChannelCodeUpdateOrder(OrderDetail?.channel_code),
     };
-  }, [userReducer.account?.code]);
+  }, [userReducer.account?.code, OrderDetail]);
 
   const [returnPaymentMethodCode, setReturnPaymentMethodCode] = useState(PaymentMethodCode.CASH);
 
@@ -1925,6 +1926,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   handleChangeShippingFeeApplyOrderSettings={
                     handleChangeShippingFeeApplyOrderSettings
                   }
+                  orderDetail={OrderDetail}
                   isShowDiscountByInsert={isShowDiscountByInsert}
                   initItemSuggestDiscounts={leftItemSuggestDiscounts}
                   isWebAppOrder={checkIfWebAppByOrderChannelCode(OrderDetail?.channel_code)}
