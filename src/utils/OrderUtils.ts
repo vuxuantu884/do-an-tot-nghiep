@@ -29,6 +29,7 @@ import {
   PaymentMethodType,
   PRODUCT_TYPE,
   ShipmentMethod,
+  WEB_APP_CHANNEL_CODES,
   WEIGHT_UNIT,
 } from "./Constants";
 import { FulfillmentStatus } from "./FulfillmentStatus.constant";
@@ -471,10 +472,20 @@ export const checkIfExpiredOrCancelledPayment = (
 };
 
 export const checkIfEcommerceByOrderChannelCode = (orderChannelCode?: string | null) => {
+  console.log("orderChannelCode", orderChannelCode);
   if (!orderChannelCode) {
     return false;
   }
   return ECOMMERCE_CHANNEL_CODES.map((code) => code.toLowerCase()).includes(
+    orderChannelCode.toLowerCase(),
+  );
+};
+
+export const checkIfWebAppByOrderChannelCode = (orderChannelCode?: string | null) => {
+  if (!orderChannelCode) {
+    return false;
+  }
+  return WEB_APP_CHANNEL_CODES.map((code) => code.toLowerCase()).includes(
     orderChannelCode.toLowerCase(),
   );
 };

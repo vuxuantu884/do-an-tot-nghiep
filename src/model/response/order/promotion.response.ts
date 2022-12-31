@@ -21,6 +21,12 @@ export interface SuggestDiscountResponseModel {
   is_registered: boolean;
 }
 
+export interface LineItemCreateReturnSuggestDiscountResponseModel
+  extends SuggestDiscountResponseModel {
+  price: number;
+  quantity: number;
+}
+
 export interface ApplyDiscountLineItemResponseModel {
   applied_discount: AppliedDiscountResponseModel | null;
   category_id: number | null;

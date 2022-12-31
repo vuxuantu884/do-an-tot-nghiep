@@ -1,6 +1,6 @@
 import { Input, Select, Typography } from "antd";
 import _ from "lodash";
-import { OrderLineItemRequest } from "model/request/order.request";
+import { OrderItemDiscountRequest, OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import {
   formatCurrency,
@@ -40,10 +40,11 @@ type PropTypes = {
   param: any;
   onBlur?: () => void;
   handleApplyDiscountItem: (v: OrderLineItemRequest) => void;
+  initItemSuggestDiscounts: SuggestDiscountResponseModel[];
 };
 
 function DiscountItemSearch(props: PropTypes) {
-  const { disabled = false } = props;
+  const { disabled = false, initItemSuggestDiscounts } = props;
   const dispatch = useDispatch();
   const { Text } = Typography;
   const inputRef = useRef<any>();
@@ -52,6 +53,14 @@ function DiscountItemSearch(props: PropTypes) {
   const [showSearchPromotion, setShowSearchPromotion] = useState(false);
   const [suggestedDiscounts, setSuggestedDiscounts] = useState<SuggestDiscountResponseModel[]>([]);
   let showResult = true;
+
+  useEffect(() => {
+    if (initItemSuggestDiscounts.length > 0) {
+      if (suggestedDiscounts.length === 0) {
+        setSuggestedDiscounts(initItemSuggestDiscounts);
+      }
+    }
+  }, [initItemSuggestDiscounts, suggestedDiscounts.length]);
 
   const disableInput = props.item?.discount_items[0]?.promotion_id ? true : disabled;
 
@@ -82,6 +91,7 @@ function DiscountItemSearch(props: PropTypes) {
   }, [suggestedDiscounts]);
   const handleBeforeApplyDiscount = useCallback(
     (discountItem: CustomApplyDiscount) => {
+      console.log("5555555555");
       if (!props.item) {
         return;
       }
@@ -153,15 +163,18 @@ function DiscountItemSearch(props: PropTypes) {
         _itemDiscount.type = DISCOUNT_TYPE.MONEY;
       }
       _item.isLineItemSemiAutomatic = true; //là chiết khấu bán tự động
+      _item.isLineItemHasSpecialDiscountInReturn =
+        initItemSuggestDiscounts.length > 0 ? true : false; //là chiết khấu khi tạo đổi
       _item.discount_value = getLineItemDiscountValue(_item);
       _item.discount_amount = getLineItemDiscountAmount(_item);
       _item.discount_rate = getLineItemDiscountRate(_item);
       _item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(_item);
       //console.log("handleBeforeApplyDiscount", _item);
+      console.log("_item333", _item);
       props.handleApplyDiscountItem(_item);
       setShowSearchPromotion(false);
     },
-    [props],
+    [initItemSuggestDiscounts.length, props],
   );
   const changeDiscountType = (value: string) => {
     setSelected(value);
@@ -223,15 +236,21 @@ function DiscountItemSearch(props: PropTypes) {
     if (!props.item) return;
     let _item = { ...props.item };
     _item.isLineItemSemiAutomatic = false;
+    _item.isLineItemHasSpecialDiscountInReturn = false;
     _item.discount_amount = 0;
     _item.discount_items = [];
     _item.discount_rate = 0;
     _item.discount_value = 0;
     _item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(_item);
     props.handleApplyDiscountItem(_item);
-    setSuggestedDiscounts([]);
+    if (initItemSuggestDiscounts.length === 0) {
+      setSuggestedDiscounts([]);
+    } else {
+      setSuggestedDiscounts(initItemSuggestDiscounts);
+    }
     setSelected(DISCOUNT_TYPE.MONEY);
-  }, [props]);
+  }, [initItemSuggestDiscounts, props]);
+
   const ChangeValueDiscount = useCallback(
     (keyWord) => {
       if (keyWord.length <= 0) {
@@ -339,6 +358,8 @@ function DiscountItemSearch(props: PropTypes) {
             onFocus={(e) => {
               e.target.setSelectionRange(0, e.target.value.length);
               if (e.target.value.length !== 0 && data.length !== 0) {
+                setShowSearchPromotion(true);
+              } else if (e.target.value.length === 0 && data.length !== 0) {
                 setShowSearchPromotion(true);
               }
             }}

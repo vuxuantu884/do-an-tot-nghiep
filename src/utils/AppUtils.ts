@@ -1024,15 +1024,46 @@ export const getProductDiscountPerOrder = (
   OrderDetail: OrderResponse | null | undefined,
   product: OrderLineItemResponse,
 ) => {
-  let discountPerOrder = 0;
-  if (OrderDetail?.discounts?.length && OrderDetail.discounts[0].amount > 0) {
+  // đối với đơn có trường distributed_order_discount
+  const getDiscountPerOrderIfHasDistributedOrderDiscount = () => {
     let taxValue = 1;
-    if (OrderDetail.discounts[0].taxable && product.tax_lines && product.tax_lines[0].rate) {
+    if (
+      OrderDetail?.discounts?.length &&
+      OrderDetail.discounts[0].taxable &&
+      product.tax_lines &&
+      product.tax_lines[0].rate
+    ) {
       let taxRate = product.tax_lines[0].rate;
       taxValue = 1 + taxRate;
     }
 
-    discountPerOrder = (product.distributed_order_discount || 0) * taxValue;
+    return (product.distributed_order_discount || 0) * taxValue;
+  };
+
+  // đối với đơn cũ không có trường distributed_order_discount
+  const getDiscountPerOrderIfHasNotDistributedOrderDiscount = () => {
+    let totalDiscountAmountPerOrder = 0;
+    let result = 0;
+    if (OrderDetail?.total_line_amount_after_line_discount) {
+      OrderDetail?.discounts?.forEach((singleOrderDiscount) => {
+        if (singleOrderDiscount?.amount) {
+          totalDiscountAmountPerOrder = totalDiscountAmountPerOrder + singleOrderDiscount?.amount;
+        }
+      });
+      product.discount_value = getLineItemDiscountValue(product);
+      result =
+        (totalDiscountAmountPerOrder / OrderDetail?.total_line_amount_after_line_discount) *
+        (product.price - product.discount_value);
+    }
+    return result;
+  };
+  let discountPerOrder = 0;
+  if (OrderDetail?.discounts?.length && OrderDetail.discounts[0].amount > 0) {
+    if (product.distributed_order_discount) {
+      discountPerOrder = getDiscountPerOrderIfHasDistributedOrderDiscount();
+    } else {
+      discountPerOrder = getDiscountPerOrderIfHasNotDistributedOrderDiscount();
+    }
   }
   return discountPerOrder;
 };

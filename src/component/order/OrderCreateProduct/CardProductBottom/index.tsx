@@ -151,7 +151,7 @@ function CardProductBottom(props: PropTypes) {
                   {discountRate ? formatPercentage(discountRate) : 0}%{" "}
                 </Tag>
               )}
-              {promotion && promotion.promotion_id && isShowDiscountOrder && (
+              {((promotion && promotion.promotion_id) || true) && isShowDiscountOrder && (
                 <Card
                   title={
                     <>

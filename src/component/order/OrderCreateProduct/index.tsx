@@ -62,6 +62,7 @@ import {
   CustomApplyDiscount,
   SuggestDiscountResponseModel,
   AppliedDiscountResponseModel,
+  LineItemCreateReturnSuggestDiscountResponseModel,
 } from "model/response/order/promotion.response";
 import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import React, {
@@ -114,6 +115,7 @@ import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import {
   checkIfEcommerceByOrderChannelCode,
   checkIfEcommerceByOrderChannelCodeUpdateOrder,
+  checkIfWebAppByOrderChannelCode,
   getLineItemStandardized,
   lineItemsConvertInSearchPromotion,
   removeDiscountLineItem,
@@ -126,6 +128,7 @@ import DiscountItemSearch from "screens/order-online/component/DiscountItemSearc
 import DiscountOrderModalSearch from "screens/order-online/component/DiscountOrderModalSearch";
 import { DiscountValueType } from "model/promotion/price-rules.model";
 import DiscountGroup from "screens/order-online/component/discount-group";
+import { DiscountUnitType } from "screens/promotion/constants";
 
 type PropTypes = {
   storeId: number | null;
@@ -168,6 +171,12 @@ type PropTypes = {
   handleChangeShippingFeeApplyOrderSettings: (
     value: ChangeShippingFeeApplyOrderSettingParamModel,
   ) => void;
+  isShowDiscountByInsert?: boolean;
+  isWebAppOrder?: boolean;
+  isEcommerceOrder?: boolean;
+  initItemSuggestDiscounts?: LineItemCreateReturnSuggestDiscountResponseModel[];
+  initOrderSuggestDiscounts?: SuggestDiscountResponseModel[];
+  handleApplyDiscountItemCallback?: (item: OrderLineItemRequest) => void;
 };
 
 var barcode = "";
@@ -260,9 +269,15 @@ function OrderCreateProduct(props: PropTypes) {
     isReturnOffline,
     setPromotionTitle,
     handleChangeShippingFeeApplyOrderSettings,
+    isShowDiscountByInsert,
+    isWebAppOrder,
+    isEcommerceOrder,
+    initItemSuggestDiscounts,
+    initOrderSuggestDiscounts,
+    handleApplyDiscountItemCallback,
   } = props;
 
-  // console.log('items', items)
+  console.log("items666", items);
   // console.log('promotion', promotion)
   const orderCustomer = useSelector(
     (state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer,
@@ -278,6 +293,15 @@ function OrderCreateProduct(props: PropTypes) {
       props.isPageOrderUpdate
     );
   }, [orderDetail?.channel_code, props.isPageOrderUpdate]);
+
+  console.log("isShowDiscountByInsert", isShowDiscountByInsert);
+  console.log("isCreateReturn", isCreateReturn);
+  console.log("orderDetail", orderDetail);
+  console.log(
+    "checkIfEcommerceByOrderChannelCode(orderDetail?.channel_code)",
+    checkIfEcommerceByOrderChannelCode(orderDetail?.channel_code),
+  );
+
   const discountRequestModel: DiscountRequestModel = {
     order_id: orderDetail?.id || null,
     customer_id: customer?.id || null,
@@ -682,6 +706,9 @@ function OrderCreateProduct(props: PropTypes) {
       _item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(_item);
 
       handUpdateDiscountWhenChangingOrderInformation(_items, index);
+      if (_item.discount_items && _item.discount_items[0]) {
+        handleApplyDiscountItemCallback && handleApplyDiscountItemCallback(_item);
+      }
     }
   };
 
@@ -951,8 +978,12 @@ function OrderCreateProduct(props: PropTypes) {
     className: "yody-table-discount text-right",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       const isDiscountOrder = promotion && promotion?.promotion_id ? true : false;
+      const initItemSuggestDiscountResult = initItemSuggestDiscounts?.filter((single) => {
+        return single.quantity >= l.quantity && single.price === l.price;
+      });
+      console.log("itemss111", l);
 
-      return !isEcommerceByOrderChannelCodeisUpdate ? (
+      return !isShowDiscountByInsert && !isEcommerceByOrderChannelCodeisUpdate ? (
         <div className="site-input-group-wrapper saleorder-input-group-wrapper discountGroup columnBody__discount">
           <DiscountItemSearch
             index={index}
@@ -978,11 +1009,13 @@ function OrderCreateProduct(props: PropTypes) {
               console.log("discount search item ", _item);
               console.log("discount search item ", _items);
               calculateChangeMoney(_items);
+              handleApplyDiscountItemCallback && handleApplyDiscountItemCallback(_item);
             }}
+            initItemSuggestDiscounts={initItemSuggestDiscountResult || []}
           />
         </div>
       ) : (
-        <div className="site-input-group-wrapper saleorder-input-group-wrapper discountGroup columnBody__discount">
+        <div className="site-input-group-wrapper saleorder-input-group-wrapper discountGroup columnBody__discount 555">
           <DiscountGroup
             price={l.price}
             index={index}
@@ -1016,6 +1049,17 @@ function OrderCreateProduct(props: PropTypes) {
             onBlur={() => {
               setIsLineItemChanging(true);
             }}
+            handleApplyDiscountItem={(_item) => {
+              if (!items) return;
+              let _items = [...items];
+              _items[index] = _item;
+              console.log("discount search item ", _item);
+              console.log("discount search item ", _items);
+              calculateChangeMoney(_items);
+              handleApplyDiscountItemCallback && handleApplyDiscountItemCallback(_item);
+            }}
+            initItemSuggestDiscounts={initItemSuggestDiscountResult || []}
+            isShowSuggestDiscount={isWebAppOrder}
           />
         </div>
       );
@@ -1165,7 +1209,11 @@ function OrderCreateProduct(props: PropTypes) {
   const removeAutomaticDiscountItem = (item: OrderLineItemRequest) => {
     if (item.discount_items) {
       for (let i = 0; i < item.discount_items.length; i++) {
-        if (item.discount_items[i].promotion_id && !item.isLineItemSemiAutomatic) {
+        if (
+          item.discount_items[i].promotion_id &&
+          !item.isLineItemSemiAutomatic &&
+          !item.isLineItemHasSpecialDiscountInReturn
+        ) {
           item.discount_items.splice(i, 1);
         }
       }
@@ -1226,13 +1274,13 @@ function OrderCreateProduct(props: PropTypes) {
     if (!highestValueSuggestDiscount) {
       return [];
     }
-    if (highestValueSuggestDiscount.value_type === "FIXED_AMOUNT") {
+    if (highestValueSuggestDiscount.value_type === DiscountUnitType.FIXED_AMOUNT.value) {
       value = highestValueSuggestDiscount.value ? highestValueSuggestDiscount.value : 0;
-    } else if (highestValueSuggestDiscount.value_type === "PERCENTAGE") {
+    } else if (highestValueSuggestDiscount.value_type === DiscountUnitType.PERCENTAGE.value) {
       value = highestValueSuggestDiscount.value
         ? item.price * (highestValueSuggestDiscount.value / 100)
         : 0;
-    } else if (highestValueSuggestDiscount.value_type === "FIXED_PRICE") {
+    } else if (highestValueSuggestDiscount.value_type === DiscountUnitType.FIXED_PRICE.value) {
       value = highestValueSuggestDiscount.value
         ? item.price - highestValueSuggestDiscount.value
         : 0;
@@ -1269,6 +1317,7 @@ function OrderCreateProduct(props: PropTypes) {
       discount_items: [discountItem],
     };
     itemResult.isLineItemSemiAutomatic = false;
+    itemResult.isLineItemHasSpecialDiscountInReturn = false;
     itemResult.discount_value = getLineItemDiscountValue(itemResult);
     itemResult.discount_rate = getLineItemDiscountRate(itemResult);
     itemResult.discount_amount = getLineItemDiscountAmount(itemResult);
@@ -2013,6 +2062,7 @@ function OrderCreateProduct(props: PropTypes) {
         taxable: discountOrder?.is_registered,
         type: type,
         isOrderSemiAutomatic: true,
+        isOrderHasSpecialDiscountInReturn: true,
         sub_type: discountOrder?.value_type || "",
       };
 
@@ -2442,7 +2492,10 @@ function OrderCreateProduct(props: PropTypes) {
             const suggestedDiscounts = lineItemRes.suggested_discounts;
             const applyDiscount = lineItemRes.applied_discount;
             const promotionId = _item.discount_items[0]?.promotion_id;
-            if (!isDiscount(suggestedDiscounts, applyDiscount, promotionId)) {
+            if (
+              !_item.isLineItemHasSpecialDiscountInReturn &&
+              !isDiscount(suggestedDiscounts, applyDiscount, promotionId)
+            ) {
               removeDiscountLineItem(_item);
             }
 
@@ -2903,6 +2956,7 @@ function OrderCreateProduct(props: PropTypes) {
                   variant_id: _item.variant_id,
                 })),
               }}
+              initOrderSuggestDiscounts={initOrderSuggestDiscounts || []}
             />
             {/* <PickCouponModal
               couponInputText={couponInputText}

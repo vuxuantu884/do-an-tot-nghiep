@@ -1338,7 +1338,7 @@ function OrdersTable(props: PropTypes) {
         title: "Ghi chú",
         className: "notes",
         render: (value: string, record: OrderModel) => {
-          const privateNote = record.note;
+          const privateNote = promotionUtils.getPrivateNoteFromResponse(record.note || "");
           const noteFormValue = {
             note: privateNote,
             customer_note: record.customer_note,

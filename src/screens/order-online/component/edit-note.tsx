@@ -104,9 +104,12 @@ const EditNote: React.FC<EditNoteProps> = (props: EditNoteProps) => {
       </Popover>
 
       {!isGroupButton && (
-        <span>
-          {title && <strong>{title}</strong>}
-          <span className="noteText">
+        <div>
+          <span>
+            {title && <strong>{title}</strong>}
+            <TextWithLineBreak note={note} />
+          </span>
+          <div className="noteText">
             {promotionText ? (
               <span
                 className="promotionText"
@@ -132,9 +135,8 @@ const EditNote: React.FC<EditNoteProps> = (props: EditNoteProps) => {
                 {promotionText}.
               </span>
             ) : null}
-            <TextWithLineBreak note={note} />
-          </span>
-        </span>
+          </div>
+        </div>
       )}
     </div>
   );
