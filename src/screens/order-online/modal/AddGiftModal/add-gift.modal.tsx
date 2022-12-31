@@ -318,7 +318,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
         source: "",
         type: DiscountValueType.PERCENTAGE,
         sub_type: DiscountValueType.PERCENTAGE,
-        taxable: currentPromotion?.taxable,
+        taxable: false,
       };
       let _items = [...props.items];
       let indexSearch = resultSearch.items.findIndex((i) => i.id === newV);
@@ -328,7 +328,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
       if (r.id === newV) {
         if (index === -1) {
           item.type = Type.GIFT;
-          item.discount_items = [{ ...orderDiscountModel }];
+          item.discount_items = [{ ...orderDiscountModel, taxable: item.taxable || false }];
           _items.push(item);
         } else {
           let lastIndex = index;
@@ -346,7 +346,6 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
     [
       currentPromotion?.promotion_id,
       currentPromotion?.promotion_title,
-      currentPromotion?.taxable,
       props,
       resultSearch.items,
       createItem,
@@ -398,7 +397,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
       source: "",
       sub_type: DiscountValueType.PERCENTAGE,
       type: DiscountValueType.PERCENTAGE,
-      taxable: taxablePromotion ? Boolean(taxablePromotion) : false,
+      taxable: false,
     };
     let itemsGift = [...props.items];
 
