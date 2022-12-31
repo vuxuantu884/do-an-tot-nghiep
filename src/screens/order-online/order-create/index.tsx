@@ -42,6 +42,7 @@ import { modalActionType } from "model/modal/modal.model";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { SpecialOrderModel } from "model/order/special-order.model";
+import { DiscountValueType } from "model/promotion/price-rules.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddressRequestModel,
@@ -617,7 +618,15 @@ export default function Order() {
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
     values.tags = tags;
-    const _item = items.concat(itemGifts);
+    const _itemGifts = itemGifts.map((p) => {
+      let _discountItems = p.discount_items[0];
+      if (_discountItems) {
+        _discountItems.type = DiscountValueType.PERCENTAGE;
+        _discountItems.sub_type = DiscountValueType.PERCENTAGE;
+      }
+      return p;
+    });
+    const _item = items.concat(_itemGifts);
     values.items = _item.map((p) => {
       let _discountItems = p.discount_items[0];
       if (_discountItems) {
