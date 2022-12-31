@@ -817,13 +817,14 @@ function OrderCreateProduct(props: PropTypes) {
               placeholder="Ghi chú"
             />
           </div>
-          {l.discount_items[0] && l.discount_items[0].promotion_id && (
-            <div className="discount-item">
-              {" "}
-              <img src={discountCouponSuccess} alt="" width={12} />{" "}
-              {l.discount_items[0]?.promotion_title || l.discount_items[0]?.reason}
-            </div>
-          )}
+          {l.discount_items[0] &&
+            (l.discount_items[0].promotion_title || l.discount_items[0].reason) && (
+              <div className="discount-item">
+                {" "}
+                <img src={discountCouponSuccess} alt="" width={12} />{" "}
+                {l.discount_items[0]?.promotion_title || l.discount_items[0]?.reason}
+              </div>
+            )}
         </div>
       );
     },
