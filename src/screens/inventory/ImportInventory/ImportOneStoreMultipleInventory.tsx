@@ -608,7 +608,6 @@ const ImportOneStoreMultipleInventory: FC = () => {
                       labelCol={{ span: 24, offset: 0 }}
                     >
                       <Select
-                        autoClearSearchValue={false}
                         disabled={disabled}
                         placeholder="Chọn kho gửi"
                         showArrow
@@ -654,7 +653,6 @@ const ImportOneStoreMultipleInventory: FC = () => {
                       labelCol={{ span: 24, offset: 0 }}
                     >
                       <Select
-                        autoClearSearchValue={false}
                         disabled={disabled}
                         placeholder="Chọn kho nhận"
                         showArrow
