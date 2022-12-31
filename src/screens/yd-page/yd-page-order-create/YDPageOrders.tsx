@@ -494,11 +494,15 @@ export default function Order(props: OrdersCreatePermissionProps) {
   };
 
   const createDiscountRequest = () => {
-    let listDiscountRequest = [];
-    if (promotion) {
-      listDiscountRequest.push(promotion);
+    if (!promotion || !promotion.amount || !promotion.value) {
+      return [];
+    } else {
+      const _promotion: OrderDiscountRequest = {
+        ...promotion,
+        type: promotion.sub_type || "",
+      };
+      return [_promotion];
     }
-    return listDiscountRequest;
   };
 
   const handleRefreshInfoOrderSuccess = () => {
