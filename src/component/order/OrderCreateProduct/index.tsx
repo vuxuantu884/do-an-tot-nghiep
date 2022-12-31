@@ -968,7 +968,7 @@ function OrderCreateProduct(props: PropTypes) {
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       const isDiscountOrder = promotion && promotion?.promotion_id ? true : false;
       const initItemSuggestDiscountResult = initItemSuggestDiscounts?.filter((single) => {
-        return single.quantity >= l.quantity && single.price === l.price;
+        return single.price * single.quantity <= l.quantity * l.price;
       });
       console.log("itemss111", l);
 
