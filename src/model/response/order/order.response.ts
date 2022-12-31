@@ -261,6 +261,7 @@ export interface OrderItemDiscountResponse {
   reason: string | null;
   source?: string | null;
   type?: string;
+  taxable?: boolean;
 }
 
 export interface OrderPaymentResponse extends BaseObject {

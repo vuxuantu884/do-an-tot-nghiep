@@ -45,6 +45,7 @@ type PropTypes = {
   isAlreadyShowWarningPoint: boolean;
   paymentMethods: PaymentMethodResponse[];
   handleIfCalculateMoneyRefundFailed: () => void;
+  handleChangeReturnProductQuantityCallback: () => void;
 };
 
 function CardReturnProductContainer(props: PropTypes) {
@@ -60,11 +61,13 @@ function CardReturnProductContainer(props: PropTypes) {
     isAlreadyShowWarningPoint,
     paymentMethods,
     handleIfCalculateMoneyRefundFailed,
+    handleChangeReturnProductQuantityCallback,
   } = props;
 
   const dispatch = useDispatch();
 
   const createOrderReturnContext = useContext(CreateOrderReturnContext);
+  console.log("createOrderReturnContext", createOrderReturnContext);
 
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(true);
 
@@ -315,6 +318,7 @@ function CardReturnProductContainer(props: PropTypes) {
       setIsCheckReturnAll(true);
     }
     checkIfIsCanReturn(resultListReturnProducts);
+    handleChangeReturnProductQuantityCallback();
   };
 
   // const pointAmountUsing = useMemo(() => {

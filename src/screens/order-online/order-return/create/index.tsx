@@ -1,3 +1,4 @@
+import { deepClone } from "@datadog/browser-core";
 import { Button, Card, Col, Form, FormInstance, Modal, Row } from "antd";
 import { RefSelectProps } from "antd/lib/select";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -55,6 +56,7 @@ import {
   ExchangeRequest,
   FulFillmentRequest,
   OrderDiscountRequest,
+  OrderItemDiscountRequest,
   OrderLineItemRequest,
   OrderPaymentRequest,
   OrderRequest,
@@ -73,6 +75,10 @@ import {
   StoreCustomResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import {
+  LineItemCreateReturnSuggestDiscountResponseModel,
+  SuggestDiscountResponseModel,
+} from "model/response/order/promotion.response";
 import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TiWarningOutline } from "react-icons/ti";
@@ -85,6 +91,7 @@ import useCalculateShippingFee from "screens/order-online/hooks/useCalculateShip
 import useGetDefaultReturnOrderReceivedStore from "screens/order-online/hooks/useGetDefaultReturnOrderReceivedStore";
 import useGetOrderDetail from "screens/order-online/hooks/useGetOrderDetail";
 import useHandleMomoCreateShipment from "screens/order-online/hooks/useHandleMomoCreateShipment";
+import { DiscountUnitType } from "screens/promotion/constants";
 import SplashScreen from "screens/splash.screen";
 import {
   getPrintOrderReturnContentService,
@@ -96,6 +103,7 @@ import {
   getAmountPayment,
   getAmountPaymentRequest,
   getListItemsCanReturn,
+  getProductDiscountPerOrder,
   getTotalAmountAfterDiscount,
   getTotalOrderDiscount,
   handleDelayActionWhenInsertTextInSearchInput,
@@ -125,7 +133,13 @@ import {
   RETURN_MONEY_TYPE,
   RETURN_TYPE_VALUES,
 } from "utils/Order.constants";
-import { changeTypeQrCode, findPaymentMethodByCode } from "utils/OrderUtils";
+import {
+  changeTypeQrCode,
+  checkIfEcommerceByOrderChannelCode,
+  checkIfWebAppByOrderChannelCode,
+  findPaymentMethodByCode,
+  removeDiscountLineItem,
+} from "utils/OrderUtils";
 import { showError } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -514,7 +528,40 @@ const ScreenReturnCreate = (props: PropTypes) => {
     }
     setShipmentMethod(value);
   };
-
+  const handleApplyDiscountItemCallback = (items: OrderLineItemRequest[]) => {
+    let result = deepClone(initItemSuggestDiscounts);
+    console.log("items", items);
+    items.forEach((item) => {
+      let appliedDiscount =
+        item.discount_items && item.discount_items.length > 0 ? item.discount_items[0] : null;
+      if (appliedDiscount) {
+        let appliedIndex = result.findIndex(
+          (single) =>
+            single.title === appliedDiscount?.promotion_title &&
+            single.value === appliedDiscount.value,
+        );
+        console.log("item", item);
+        console.log("appliedIndex", appliedIndex);
+        if (appliedIndex > -1) {
+          result[appliedIndex].quantity = result[appliedIndex].quantity - item.quantity;
+          console.log("result", result);
+          result = result.filter((single) => single.quantity > 0);
+        }
+      }
+    });
+    setLeftItemSuggestDiscounts(result);
+  };
+  const handleChangeReturnProductQuantityCallback = () => {
+    listExchangeProducts.forEach((single) => {
+      if (single.isLineItemHasSpecialDiscountInReturn) {
+        removeDiscountLineItem(single);
+      }
+    });
+    if (promotion?.isOrderHasSpecialDiscountInReturn) {
+      setPromotion(null);
+    }
+    onChangeInfoProduct(listExchangeProducts);
+  };
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
     _promotion?: OrderDiscountRequest | null,
@@ -525,6 +572,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     if (_promotion !== undefined) {
       setPromotion(_promotion);
     }
+    handleApplyDiscountItemCallback(_items);
   };
 
   // ko dùng useCallback trường hợp tính sai do máy cấu hình yếu: test
@@ -980,6 +1028,13 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const checkIfHasReturnProduct = listReturnProducts.some((single) => {
     return single.quantity > 0;
   });
+
+  const isShowDiscountByInsert = useMemo(() => {
+    return (
+      checkIfEcommerceByOrderChannelCode(OrderDetail?.channel_code) ||
+      checkIfWebAppByOrderChannelCode(OrderDetail?.channel_code)
+    );
+  }, [OrderDetail?.channel_code]);
 
   const onReturn = useCallback(() => {
     // if (orderReturnType === RETURN_TYPE_VALUES.offline && !isOrderFromPOS(OrderDetail)) {
@@ -1620,7 +1675,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         order_exchange,
       };
       console.log("valuesExchange", valuesExchange);
-      //return;
+      // return;
       if (checkPointFocus(order_exchange)) {
         if (!order_exchange?.customer_id) {
           showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng!");
@@ -1827,6 +1882,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   isAlreadyShowWarningPoint={isAlreadyShowWarningPoint}
                   paymentMethods={paymentMethods}
                   handleIfCalculateMoneyRefundFailed={handleIfCalculateMoneyRefundFailed}
+                  handleChangeReturnProductQuantityCallback={
+                    handleChangeReturnProductQuantityCallback
+                  }
                 />
 
                 <OrderCreateProduct
@@ -1867,6 +1925,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   handleChangeShippingFeeApplyOrderSettings={
                     handleChangeShippingFeeApplyOrderSettings
                   }
+                  isShowDiscountByInsert={isShowDiscountByInsert}
+                  initItemSuggestDiscounts={leftItemSuggestDiscounts}
+                  isWebAppOrder={checkIfWebAppByOrderChannelCode(OrderDetail?.channel_code)}
+                  isEcommerceOrder={isEcommerceOrder}
+                  initOrderSuggestDiscounts={initOrderSuggestDiscount}
+                  // handleApplyDiscountItemCallback={handleApplyDiscountItemCallback}
                 />
                 {/* hiện tại đang ẩn cái hoàn tiền khi trả */}
                 {/* {!isExchange && ( */}
@@ -2559,6 +2623,102 @@ const ScreenReturnCreate = (props: PropTypes) => {
       setIsReceivedReturnProducts(true);
     }
   }, [orderReturnType]);
+
+  // khuyến mại
+  const [leftItemSuggestDiscounts, setLeftItemSuggestDiscounts] = useState<
+    LineItemCreateReturnSuggestDiscountResponseModel[]
+  >([]);
+  const [initOrderSuggestDiscount, setInitOrderSuggestDiscount] = useState<
+    SuggestDiscountResponseModel[]
+  >([]);
+
+  const initItemSuggestDiscounts = useMemo(() => {
+    let result: LineItemCreateReturnSuggestDiscountResponseModel[] = [];
+    result = listReturnProducts
+      .filter((single) => single.discount_items.length > 0 && single.quantity > 0)
+      .map((product) => {
+        let discount = product.discount_items[0];
+        let discountValue = discount.amount / product.quantity;
+        let discountRate = (discount.amount / product.amount) * 100;
+        let value =
+          discount.type === DiscountUnitType.PERCENTAGE.value ? discountRate : discountValue;
+        return {
+          allocation_count: null,
+          allocation_limit: null,
+          price_rule_id: discount.promotion_id || null,
+          is_registered: discount.taxable || false,
+          title: discount.promotion_title || null,
+          value,
+          value_type: discount.type || DiscountUnitType.FIXED_AMOUNT.value,
+          price: product.price,
+          quantity: product.quantity,
+        };
+      });
+    return result;
+  }, [listReturnProducts]);
+
+  const isEcommerceOrder = checkIfEcommerceByOrderChannelCode(OrderDetail?.channel_code);
+
+  let initSuggestDiscountValue = useMemo(() => {
+    return [
+      {
+        price_rule_id: 2571,
+        title: "Sale 10k",
+        value_type: "FIXED_AMOUNT",
+        value: 15000,
+        allocation_limit: null,
+        allocation_count: 1,
+        is_registered: false,
+      },
+    ];
+  }, []);
+  console.log("listReturnProducts", listReturnProducts);
+  console.log("leftItemSuggestDiscounts", leftItemSuggestDiscounts);
+
+  useEffect(() => {
+    setLeftItemSuggestDiscounts(initItemSuggestDiscounts);
+  }, [initItemSuggestDiscounts]);
+
+  useEffect(() => {
+    const calculateDistributedOrderDiscount = () => {
+      let result = 0;
+      if (listReturnProducts.length > 0) {
+        listReturnProducts.forEach((single) => {
+          if (single.quantity > 0) {
+            let lineItemDistributedOrderDiscount =
+              getProductDiscountPerOrder(OrderDetail, single) * single.quantity;
+            result = result + lineItemDistributedOrderDiscount;
+          }
+        });
+      }
+      return result;
+    };
+    const getInitOrderSuggestDiscount = () => {
+      let result: SuggestDiscountResponseModel[] = [];
+      if (
+        OrderDetail?.discounts &&
+        OrderDetail?.discounts?.length > 0 &&
+        OrderDetail?.discounts[0].amount > 0 &&
+        listReturnProducts.length > 0
+      ) {
+        let orderDiscount = OrderDetail?.discounts[0];
+        let value = calculateDistributedOrderDiscount();
+        let orderDiscountResult: SuggestDiscountResponseModel = {
+          allocation_count: null,
+          allocation_limit: null,
+          price_rule_id: orderDiscount.promotion_id || null,
+          is_registered: orderDiscount.taxable || false,
+          title: orderDiscount.promotion_title || null,
+          value,
+          value_type: DiscountUnitType.FIXED_AMOUNT.value,
+        };
+        result = [orderDiscountResult];
+      }
+      return result;
+    };
+    let initOrderSuggestDiscountValue = getInitOrderSuggestDiscount();
+    setInitOrderSuggestDiscount(initOrderSuggestDiscountValue);
+  }, [OrderDetail, listReturnProducts]);
 
   const permissions = useMemo(() => {
     if (orderReturnType === RETURN_TYPE_VALUES.online) {

@@ -305,6 +305,7 @@ export interface OrderLineItemRequest {
   maxQuantityToApplyDiscount?: number; // số lượng tối đa để hưởng chiết khấu nếu có
   taxable?: boolean | null;
   isLineItemSemiAutomatic?: boolean; //là sản phẩm có chiết khấu bán tự động
+  isLineItemHasSpecialDiscountInReturn?: boolean;
 }
 
 export interface OrderItemDiscountRequest {
@@ -335,6 +336,7 @@ export interface OrderDiscountRequest {
   type?: string;
   taxable?: boolean;
   isOrderSemiAutomatic?: boolean;
+  isOrderHasSpecialDiscountInReturn?: boolean;
   sub_type?: string | null;
 }
 

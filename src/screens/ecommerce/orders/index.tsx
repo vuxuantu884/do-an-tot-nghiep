@@ -1141,7 +1141,7 @@ const EcommerceOrders: React.FC = () => {
                       editNote(values.note, values.customer_note, record.id, record);
                     }}
                     noteFormValue={{
-                      note: record.note,
+                      note: promotionUtils.getPrivateNoteFromResponse(record.note || ""),
                       customer_note: record.customer_note,
                     }}
                     isDisable={record.status === OrderStatus.CANCELLED}
@@ -1157,7 +1157,7 @@ const EcommerceOrders: React.FC = () => {
                       editNote(values.note, values.customer_note, record.id, record);
                     }}
                     noteFormValue={{
-                      note: record.note,
+                      note: promotionUtils.getPrivateNoteFromResponse(record.note || ""),
                       customer_note: record.customer_note,
                     }}
                     isDisable={record.status === OrderStatus.CANCELLED}

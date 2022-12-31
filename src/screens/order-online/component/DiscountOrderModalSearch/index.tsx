@@ -12,6 +12,7 @@ import {
 } from "utils/AppUtils";
 import {
   CustomApplyDiscount,
+  LineItemCreateReturnSuggestDiscountResponseModel,
   SuggestDiscountResponseModel,
 } from "model/response/order/promotion.response";
 import { useDispatch } from "react-redux";
@@ -33,9 +34,12 @@ type Props = {
   amount: number;
   param: any;
   isEcommerceByOrderChannelCodeisUpdate?: boolean;
+  initOrderSuggestDiscounts: SuggestDiscountResponseModel[];
 };
 
 const DiscountOrderModalSearch: React.FC<Props> = (props: Props) => {
+  const { initOrderSuggestDiscounts } = props;
+  console.log("initOrderSuggestDiscounts", initOrderSuggestDiscounts);
   const dispatch = useDispatch();
   const inputRef = useRef<any>();
   const [showSearchPromotion, setShowSearchPromotion] = useState(false);
@@ -126,11 +130,16 @@ const DiscountOrderModalSearch: React.FC<Props> = (props: Props) => {
   const ChangeValueDiscount = useCallback(
     (keyWord) => {
       if (keyWord.length <= 0) {
+        if (_type === DISCOUNT_TYPE.MONEY) {
+          setSuggestedDiscounts(initOrderSuggestDiscounts);
+          setShowSearchPromotion(true);
+        }
         return;
       }
+      setShowSearchPromotion(false);
       handleSearchPromotionApply(keyWord, _type);
     },
-    [_type, handleSearchPromotionApply],
+    [_type, handleSearchPromotionApply, initOrderSuggestDiscounts],
   );
 
   const handleChangeSelect = (type: string) => {
@@ -313,6 +322,13 @@ const DiscountOrderModalSearch: React.FC<Props> = (props: Props) => {
                 e.target.setSelectionRange(0, e.target.value.length);
                 if (e.target.value.length !== 0 && data.length !== 0) {
                   setShowSearchPromotion(true);
+                }
+                if (e.target.value.length === 0) {
+                  console.log("333333333");
+                  if (_type === DISCOUNT_TYPE.MONEY && suggestedDiscounts.length === 0) {
+                    setSuggestedDiscounts(initOrderSuggestDiscounts);
+                    setShowSearchPromotion(true);
+                  }
                 }
               }}
               prefix={

@@ -352,6 +352,12 @@ export const ECOMMERCE_CHANNEL_CODES = [
   TIKTOK.channel_code,
 ];
 
+export const WEB_APP_CHANNEL_CODES = [
+  WEBSITE.channel_code,
+  YODY_APP.channel_code,
+  YODY_LANDING_PAGE.channel_code,
+];
+
 // shopee, lazada, tiki, tiktok, website, app, landingpage
 export const ECOMMERCE_CHANNEL_CODES_UPDATE_ORDER = [
   SHOPEE.channel_code,
