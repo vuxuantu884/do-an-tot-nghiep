@@ -88,12 +88,12 @@ const customerOrderLineItemRequest = (item: OrderLineItemRequest) => {
       amount: discount.value * item.quantity,
       value: discount.value,
       rate: discount.rate,
-      discount_code: "",
-      promotion_id: undefined,
+      discount_code: discount.discount_code,
+      promotion_id: discount.promotion_id,
       type: discount.type,
       promotion_title: discount.promotion_title,
       taxable: discount.taxable,
-      reason: "",
+      reason: discount.reason,
     };
     item.discount_items = [discountItems];
   }
