@@ -526,7 +526,11 @@ export default function Order() {
             values,
             (data) => {
               if (createSpecialOrder) {
-                createSpecialOrder(data.id).then(() => createOrderCallback(data));
+                createSpecialOrder(data.id)
+                  .then(() => createOrderCallback(data))
+                  .catch((error) => {
+                    dispatch(hideLoading());
+                  });
               } else {
                 createOrderCallback(data);
               }
@@ -568,7 +572,8 @@ export default function Order() {
               if (isFetchApiSuccessful(response)) {
                 resolve();
               } else {
-                reject();
+                handleFetchApiError(response, "Loại đơn hàng", dispatch);
+                resolve();
               }
             })
             .catch((error) => {

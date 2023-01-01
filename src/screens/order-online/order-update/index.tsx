@@ -678,7 +678,8 @@ export default function Order(props: PropTypes) {
               if (isFetchApiSuccessful(response)) {
                 resolve();
               } else {
-                reject();
+                handleFetchApiError(response, "Loại đơn hàng", dispatch);
+                resolve();
               }
             })
             .catch((error) => {
