@@ -99,7 +99,7 @@ import {
   TaxTreatment,
 } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
-import { convertDiscountType } from "utils/OrderUtils";
+import { convertDiscountItem, convertDiscountType } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import CardCustomer from "../component/CardCustomer";
@@ -426,7 +426,7 @@ export default function Order() {
     } else {
       const _promotion: OrderDiscountRequest = {
         ...promotion,
-        type: promotion.sub_type || "",
+        type: promotion.sub_type || DiscountValueType.FIXED_AMOUNT,
       };
       return [_promotion];
     }
@@ -630,7 +630,7 @@ export default function Order() {
     values.items = _item.map((p) => {
       let _discountItems = p.discount_items[0];
       if (_discountItems) {
-        _discountItems.type = _discountItems.sub_type || "";
+        _discountItems.type = _discountItems.sub_type || DiscountValueType.FIXED_AMOUNT;
       }
       return p;
     });
@@ -1001,19 +1001,27 @@ export default function Order() {
           };
         });
       responseItems = responseItems.map((item) => {
-        const _discountItem = item.discount_items[0];
-        if (_discountItem) {
-          const _type = _discountItem.type || "";
-          _discountItem.sub_type = _type;
-          _discountItem.type = convertDiscountType(_type);
+        item = convertDiscountItem(item);
+        return {
+          ...item,
+          gifts: item.gifts.map((p) => {
+            p = convertDiscountItem(p);
+            return p;
+          }),
+        };
+        // const _discountItem = item.discount_items[0];
+        // if (_discountItem) {
+        //   const _type = _discountItem.type || "";
+        //   _discountItem.sub_type = _type;
+        //   _discountItem.type = convertDiscountType(_type);
 
-          return {
-            ...item,
-            discount_items: [_discountItem],
-          };
-        } else {
-          return { ...item };
-        }
+        //   return {
+        //     ...item,
+        //     discount_items: [_discountItem],
+        //   };
+        // } else {
+        //   return { ...item };
+        // }
       });
       setItems(responseItems);
       dispatch(changeOrderLineItemsAction(responseItems));

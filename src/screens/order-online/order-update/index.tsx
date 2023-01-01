@@ -94,6 +94,7 @@ import {
   checkIfOrderHasNoPayment,
   checkIfOrderHasNotFinishPaymentMomo,
   checkIfOrderHasShipmentCod,
+  convertDiscountItem,
   convertDiscountType,
 } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
@@ -545,7 +546,7 @@ export default function Order(props: PropTypes) {
       source: "",
       discount_code: promotion.discount_code,
       order_id: null,
-      type: promotion.sub_type || "",
+      type: promotion.sub_type || DiscountValueType.FIXED_AMOUNT,
     };
     let listDiscountRequest = [];
     if (coupon) {
@@ -560,7 +561,7 @@ export default function Order(props: PropTypes) {
         order_id: null,
         promotion_title: promotion.promotion_title,
         taxable: promotion.taxable,
-        type: promotion.sub_type || "",
+        type: promotion.sub_type || DiscountValueType.FIXED_AMOUNT,
       });
     } else if (promotion?.promotion_id) {
       listDiscountRequest.push({
@@ -574,7 +575,7 @@ export default function Order(props: PropTypes) {
         reason: promotion.reason,
         source: "",
         order_id: null,
-        type: promotion.sub_type || "",
+        type: promotion.sub_type || DiscountValueType.FIXED_AMOUNT,
       });
     } else if (!promotion) {
       return [];
@@ -613,6 +614,7 @@ export default function Order(props: PropTypes) {
 
   const handleUpdateOrder = (valuesCalculateReturnAmount: OrderRequest) => {
     console.log("valuesCalculateReturnAmount", valuesCalculateReturnAmount);
+    //return;
     const updateOrder = (updateSpecialOrder?: (orderId: number) => Promise<void>) => {
       dispatch(showLoading());
       try {
@@ -744,12 +746,11 @@ export default function Order(props: PropTypes) {
     values.items = _item.map((p) => {
       let _discountItems = p.discount_items[0];
       if (_discountItems) {
-        _discountItems.type = _discountItems.sub_type || "";
+        _discountItems.type = _discountItems.sub_type || DiscountValueType.FIXED_AMOUNT;
       }
       return p;
     });
 
-    
     values.discounts = lstDiscount;
     values.shipping_address =
       shippingAddress && levelOrder <= 3
@@ -1066,9 +1067,6 @@ export default function Order(props: PropTypes) {
               return item.type !== Type.GIFT;
             })
             .map((item) => {
-              const _discountItem = item.discount_items.filter(
-                (single) => single.amount && single.value,
-              );
               return {
                 id: item.id,
                 sku: item.sku,
@@ -1127,19 +1125,27 @@ export default function Order(props: PropTypes) {
           }
           //convert type, discount item
           responseItems = responseItems.map((item) => {
-            const _discountItem = item.discount_items[0];
-            if (_discountItem) {
-              const _type = _discountItem.type || "";
-              _discountItem.sub_type = _type;
-              _discountItem.type = convertDiscountType(_type);
-              return {
-                ...item,
-                isLineItemSemiAutomatic: true,
-                discount_items: [_discountItem],
-              };
-            } else {
-              return { ...item };
-            }
+            item = convertDiscountItem(item);
+            return {
+              ...item,
+              gifts: item.gifts.map((p) => {
+                p = convertDiscountItem(p);
+                return p;
+              }),
+            };
+            // const _discountItem = item.discount_items[0];
+            // if (_discountItem) {
+            //   const _type = _discountItem.type || "";
+            //   _discountItem.sub_type = _type;
+            //   _discountItem.type = convertDiscountType(_type);
+            //   return {
+            //     ...item,
+            //     isLineItemSemiAutomatic: true,
+            //     discount_items: [_discountItem],
+            //   };
+            // } else {
+            //   return { ...item };
+            // }
           });
           setItems(responseItems);
           console.log("responseItems 1123", responseItems);
@@ -1186,7 +1192,7 @@ export default function Order(props: PropTypes) {
               ...response?.discounts[0],
               promotion_title:
                 response?.discounts[0].promotion_title || response?.discounts[0].reason,
-              sub_type: response?.discounts[0].type,
+              sub_type: response?.discounts[0].type || DiscountValueType.FIXED_AMOUNT,
               type: convertDiscountType(response?.discounts[0].type),
               isOrderSemiAutomatic: true,
             });
