@@ -42,6 +42,7 @@ import {
 import { ORDER_PERMISSIONS } from "../config/permissions/order.permission";
 import { select_type_especially_order } from "../screens/order-online/common/fields.export";
 import { DiscountValueType } from "model/promotion/price-rules.model";
+import _ from "lodash";
 
 export const isOrderDetailHasPointPayment = (
   OrderDetail: OrderResponse | null | undefined,
@@ -801,6 +802,9 @@ export const convertDiscountType = (type: string) => {
     case DiscountValueType.PERCENTAGE:
       customType = DISCOUNT_TYPE.PERCENT;
       break;
+    default:
+      customType = DISCOUNT_TYPE.MONEY;
+      break;
   }
 
   return customType;
@@ -846,4 +850,19 @@ export const checkIfOrderSplit = (OrderDetail: OrderResponse | null) => {
     (OrderDetail?.status === OrderStatus.FINALIZED &&
       OrderDetail.fulfillment_status === FulFillmentStatus.PACKED)
   );
+};
+
+export const convertDiscountItem = (item: OrderLineItemRequest) => {
+  const _discountItem = _.cloneDeep(item.discount_items);
+  if (_discountItem && _discountItem[0]) {
+    const _type = _discountItem[0].type || DiscountValueType.FIXED_AMOUNT;
+    _discountItem[0].sub_type = _type;
+    _discountItem[0].type = convertDiscountType(_type);
+  }
+
+  return {
+    ...item,
+    isLineItemSemiAutomatic: true,
+    discount_items: _discountItem,
+  };
 };
