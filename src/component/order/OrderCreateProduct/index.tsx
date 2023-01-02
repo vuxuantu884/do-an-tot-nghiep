@@ -967,10 +967,14 @@ function OrderCreateProduct(props: PropTypes) {
     className: "yody-table-discount text-right",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       const isDiscountOrder = promotion && promotion?.promotion_id ? true : false;
-      const initItemSuggestDiscountResult = initItemSuggestDiscounts?.filter((single) => {
-        return single.price * single.quantity <= l.quantity * l.price;
-      });
+      // lúc trước để tiền sản phẩm đổi có số tiền lớn hơn trả mới cho
+      // nhưng giờ để hết, kể cả ít tiền hơn
+      // const initItemSuggestDiscountResult = initItemSuggestDiscounts?.filter((single) => {
+      //   return single.price * single.quantity <= l.quantity * l.price;
+      // });
       console.log("itemss111", l);
+
+      const initItemSuggestDiscountResult = initItemSuggestDiscounts;
 
       return !isShowDiscountByInsert && !isEcommerceByOrderChannelCodeisUpdate ? (
         <div className="site-input-group-wrapper saleorder-input-group-wrapper discountGroup columnBody__discount">
