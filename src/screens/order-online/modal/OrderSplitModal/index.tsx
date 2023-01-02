@@ -1,13 +1,13 @@
 import React, { useMemo, useCallback, useEffect, useState } from "react";
 import { StyledComponent } from "./styled";
-import { Button, Divider, Modal, Spin, Table } from "antd";
+import { Button, Divider, Modal, Spin } from "antd";
 import "assets/css/_modal.scss";
 import { InventoryResponse } from "model/inventory";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreResponse } from "model/core/store.model";
 import { StoreSearchListAction } from "domain/actions/core/store.action";
-import { OrderResponse } from "model/response/order/order.response";
+import { OrderLineItemResponse, OrderResponse } from "model/response/order/order.response";
 import { OrderSplitModel } from "./_model";
 import OrderSplit from "./OrderSqlit";
 import _ from "lodash";
@@ -19,6 +19,7 @@ import { createRequest } from "./helper";
 import { orderCreateAction } from "domain/actions/order/order.action";
 import UrlConfig from "config/url.config";
 import { showError, showModalSuccess } from "utils/ToastUtils";
+import { Type } from "config/type.config";
 
 type Props = {
   visible?: boolean;
@@ -85,6 +86,9 @@ const OrderSplitModal: React.FC<Props> = (props: Props) => {
     props.setVisible && props.setVisible(false);
   };
 
+  /**
+   * thêm một đơn tách
+   */
   const handleAddOrderSplit = useCallback(() => {
     if (!props.OrderDetail) return;
     if (orderSplits.length === 10) {
@@ -92,12 +96,22 @@ const OrderSplitModal: React.FC<Props> = (props: Props) => {
       return;
     }
     const _order: OrderSplitModel = _.cloneDeep(props.OrderDetail);
-    const _items = _order.items.map((item) => {
-      return {
-        ...item,
-        single_distributed_order_discount: (item.distributed_order_discount ?? 0) / item.quantity,
-      };
-    });
+    let getGiftResponse = (itemNormal: OrderLineItemResponse) => {
+      return _order.items.filter((item) => {
+        return item.type === Type.GIFT && item.position === itemNormal.position;
+      });
+    };
+    const _items = _order.items
+      .filter((item) => {
+        return item.type !== Type.GIFT;
+      })
+      .map((item) => {
+        return {
+          ...item,
+          single_distributed_order_discount: (item.distributed_order_discount ?? 0) / item.quantity,
+          gifts: getGiftResponse(item),
+        };
+      });
     _order.items = _items;
 
     _order.store_id = null;
@@ -107,6 +121,9 @@ const OrderSplitModal: React.FC<Props> = (props: Props) => {
     setOrderSplit(_orderSplits);
   }, [orderSplits, props.OrderDetail]);
 
+  /**
+   * Cập nhập thông tin cho đơn tách
+   */
   const handleChangeOrderSplit = useCallback(
     (order: OrderSplitModel, index: number) => {
       let _orderSplits: OrderSplitModel[] = [...orderSplits];
@@ -116,6 +133,9 @@ const OrderSplitModal: React.FC<Props> = (props: Props) => {
     [orderSplits],
   );
 
+  /**
+   * xóa đơn tách
+   */
   const handleRemoveOrderSplit = useCallback(
     (index: number) => {
       let _orderSplits: OrderSplitModel[] = _.cloneDeep(orderSplits);
@@ -191,12 +211,19 @@ const OrderSplitModal: React.FC<Props> = (props: Props) => {
       // }, 3000);
     };
     createOrder(firstIndex);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, initialRequest, orderSplits]);
 
+  /**
+   * lấy toàn bộ thông tin cửa hàng
+   */
   useEffect(() => {
     dispatch(StoreSearchListAction("", setStoreArrayResponse));
   }, [dispatch]);
 
+  /**
+   * lấy thông tin tồn kho bao gôm sản phẩm và quà tặng
+   */
   useEffect(() => {
     if (items && items != null && items?.length > 0) {
       let variant_id: Array<number> = [];
@@ -205,15 +232,30 @@ const OrderSplitModal: React.FC<Props> = (props: Props) => {
     }
   }, [dispatch, items, items?.length]);
 
+  /**
+   * mở modal thì hiển thị trước 1 đơn tách
+   */
   useEffect(() => {
     if (!props.OrderDetail) return;
     const _order: OrderSplitModel = _.cloneDeep(props.OrderDetail);
-    const _items = _order.items.map((item) => {
-      return {
-        ...item,
-        single_distributed_order_discount: (item.distributed_order_discount ?? 0) / item.quantity,
-      };
-    });
+    let getGiftResponse = (itemNormal: OrderLineItemResponse) => {
+      return _order.items.filter((item) => {
+        return item.type === Type.GIFT && item.position === itemNormal.position;
+      });
+    };
+    const _items = _order.items
+      .filter((item) => {
+        return item.type !== Type.GIFT;
+      })
+      .map((item) => {
+        return {
+          ...item,
+          single_distributed_order_discount: (item.distributed_order_discount ?? 0) / item.quantity,
+          gifts: getGiftResponse(item),
+        };
+      });
+
+    console.log("item split", _items);
     _order.items = _items;
     _order.store_id = null;
     _order.store = null;
