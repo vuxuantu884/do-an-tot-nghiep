@@ -4,7 +4,7 @@ import { StyledComponent } from "./styled";
 import { LineItemOrderSplitModel, OrderSplitModel } from "./_model";
 import NumberInput from "component/custom/number-input.custom";
 import { CloseCircleOutlined } from "@ant-design/icons";
-import { Button, Card, Row, Table } from "antd";
+import { Button, Card, Table } from "antd";
 import InventoryModal from "../inventory.modal";
 import { InventoryResponse } from "model/inventory";
 import { StoreResponse } from "model/core/store.model";
@@ -24,6 +24,7 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
   const [randomKeyTable, setRandomKeyTable] = useState(0);
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
   const [data, setData] = useState<LineItemOrderSplitModel[]>([]);
+  // const [columnsItem, setColumnsItem] = useState<OrderLineItemRequest[]>([]);
 
   const items = useMemo(() => {
     return orderSplit?.items || [];
@@ -60,6 +61,24 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
             )}
           </React.Fragment>
         );
+      },
+    },
+    {
+      title: "Quà tặng",
+      dataIndex: "gifts",
+      key: "gifts",
+      visible: true,
+      align: "left",
+      width: "20%",
+      className: "product-name",
+      render: (value: any, record: LineItemOrderSplitModel, index: number) => {
+        console.log("LineItemOrderSplitModel column", record.gifts);
+        return record?.gifts?.map((p) => (
+          <React.Fragment>
+            <div className="sku">{p.sku}</div>
+            <div className="variant">{p.variant}</div>
+          </React.Fragment>
+        ));
       },
     },
     {
@@ -172,6 +191,11 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
 
   useEffect(() => {
     const _data = items.map((item, index) => {
+      const _gifts = item.gifts.map((p) => ({
+        sku: p.sku,
+        variant: p.variant,
+        available: p.available,
+      }));
       return {
         index: index,
         sku: item.sku,
@@ -184,12 +208,14 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
         store_name: null,
         discount_items: item.discount_items[0] || null,
         distributed_order_discount: item.distributed_order_discount ?? 0,
+        gifts: _gifts,
       };
     });
+
+    console.log("LineItemOrderSplitModel data", _data);
     setData(_data);
   }, [items]);
 
-  console.log("orderSplits", orderSplit?.store);
   return (
     <StyledComponent>
       <Card

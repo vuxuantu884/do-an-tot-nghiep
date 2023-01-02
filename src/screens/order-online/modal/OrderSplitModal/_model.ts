@@ -17,4 +17,11 @@ export interface LineItemOrderSplitModel {
   store_name: string | null;
   discount_items: OrderItemDiscountResponse | null;
   distributed_order_discount: number;
+  gifts?: LineItemGifts[];
+}
+
+interface LineItemGifts {
+  sku: string;
+  variant: string;
+  available: number | null;
 }

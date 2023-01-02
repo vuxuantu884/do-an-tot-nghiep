@@ -2,6 +2,7 @@ import { Type } from "config/type.config";
 import _ from "lodash";
 import { DiscountValueType } from "model/promotion/price-rules.model";
 import {
+  FulFillmentRequest,
   OrderItemDiscountRequest,
   OrderLineItemRequest,
   OrderRequest,
@@ -14,6 +15,7 @@ import {
   getLineItemDiscountValue,
   getTotalAmount,
   getTotalAmountAfterDiscount,
+  getTotalQuantity,
   totalAmount,
 } from "utils/AppUtils";
 import { ADMIN_ORDER, DEFAULT_COMPANY, OrderStatus } from "utils/Constants";
@@ -21,9 +23,10 @@ import { OrderSplitModel } from "./_model";
 
 export const createRequest = (initialRequest: OrderRequest, response: OrderSplitModel) => {
   const responseItems = createItem(response.items);
-  let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(responseItems);
+  const responseItemsGift = createItemGifts(response.items) || [];
   const discountOrder = customerOrderDiscountRequest(response, responseItems);
-  let _initialRequest = {
+  const total_line_amount_after_line_discount = getTotalAmountAfterDiscount(responseItems);
+  let _request: OrderRequest = {
     ...initialRequest,
     store_id: response.store_id,
     customer_note: response.customer_note,
@@ -37,9 +40,9 @@ export const createRequest = (initialRequest: OrderRequest, response: OrderSplit
     channel_id: ADMIN_ORDER.channel_id,
     company_id: DEFAULT_COMPANY.company_id,
     tags: response.tags,
-    items: responseItems,
+    items: responseItems.concat(responseItemsGift),
     discounts: discountOrder,
-    shipping_address: { ...response.shipping_address, id: null },
+    shipping_address: { ...response.shipping_address, id: null } as any,
     billing_address: response.billing_address,
     customer_id: response.customer_id,
     customer_ward: response.customer_ward,
@@ -53,30 +56,38 @@ export const createRequest = (initialRequest: OrderRequest, response: OrderSplit
     action: OrderStatus.FINALIZED,
     total: getTotalAmount(responseItems),
   };
+  _request.fulfillments = createFulFillmentRequest(_request as OrderRequest);
 
-  return _initialRequest;
+  return _request;
 };
 const createItem = (responseItem: OrderLineItemResponse[]) => {
   let requestItems: OrderLineItemRequest[] = _.cloneDeep(responseItem);
-  let getGiftResponse = (itemNormal: OrderLineItemResponse) => {
-    return responseItem.filter((item) => {
-      return item.type === Type.GIFT && item.position === itemNormal.position;
-    });
-  };
-  requestItems = responseItem
-    .filter((item) => {
-      return item.type !== Type.GIFT;
-    })
-    .map((item) => {
-      customerOrderLineItemRequest(item);
-      return {
-        ...item,
-        taxable: item.taxable,
-        discount_items: item.discount_items.filter((single) => single.amount && single.value),
-        gifts: getGiftResponse(item),
-      };
-    });
+  requestItems = responseItem.map((item) => {
+    customerOrderLineItemRequest(item);
+    return {
+      ...item,
+      taxable: item.taxable,
+      discount_items: item.discount_items.filter((single) => single.amount && single.value),
+    };
+  });
   return requestItems;
+};
+
+const createItemGifts = (items: OrderLineItemRequest[]) => {
+  let _itemGifts: OrderLineItemRequest[] = [];
+  for (let i = 0; i < items.length; i++) {
+    if (!items[i].gifts) {
+      return;
+    }
+    _itemGifts = [..._itemGifts, ...items[i].gifts];
+  }
+  _itemGifts.forEach((item) => {
+    item.discount_items = item.discount_items.filter(
+      (single) => (single.amount && single.value) || single.promotion_id,
+    );
+  });
+
+  return _itemGifts;
 };
 
 const customerOrderLineItemRequest = (item: OrderLineItemRequest) => {
@@ -122,7 +133,7 @@ const customerOrderDiscountRequest = (
     promotion.type === DiscountValueType.FIXED_AMOUNT ||
     promotion.type === DiscountValueType.FIXED_PRICE
   ) {
-    _value = getProductDiscountPerOrder(response);
+    _value = getProductDiscountPerOrderSplit(response);
     _rate = _.round((_value / totalOrderAmount) * 100);
   } else if (promotion.type === DiscountValueType.PERCENTAGE) {
     _rate = promotion?.rate || 0;
@@ -149,17 +160,41 @@ const customerOrderDiscountRequest = (
   return [_promotion];
 };
 
-export const totalQuantitySplit = (data: any, indexItems?: number) => {
-  let _data = indexItems ? data.filter((p: any) => p.index === indexItems) : data;
+const createFulFillmentRequest = (orderRequest: OrderRequest) => {
+  const discountOrder = orderRequest?.discounts ? orderRequest?.discounts[0] : null;
+  let _fulfillment: FulFillmentRequest = {
+    store_id: orderRequest.store_id,
+    account_code: orderRequest.account_code,
+    assignee_code: orderRequest.assignee_code,
+    delivery_type: "",
+    stock_location_id: null,
+    payment_status: "",
+    total: orderRequest.total,
+    total_tax: null,
+    total_discount: discountOrder?.value || null,
+    total_quantity: getTotalQuantity(orderRequest.items),
+    discount_rate: discountOrder?.rate || null,
+    discount_value: discountOrder?.value || null,
+    discount_amount: null,
+    total_line_amount_after_line_discount: orderRequest.total_line_amount_after_line_discount,
+    shipment: null,
+    items: orderRequest.items,
+  };
 
-  const totalQuantitySplit = _data
-    .map((item: any) => item.quantity)
-    .reduce((prev: number, next: number) => prev + next);
-
-  return totalQuantitySplit;
+  return [_fulfillment];
 };
 
-export const getProductDiscountPerOrder = (OrderDetail: OrderSplitModel) => {
+// export const totalQuantitySplit = (data: any, indexItems?: number) => {
+//   let _data = indexItems ? data.filter((p: any) => p.index === indexItems) : data;
+
+//   const _totalQuantitySplit = _data
+//     .map((item: any) => item.quantity)
+//     .reduce((prev: number, next: number) => prev + next);
+
+//   return _totalQuantitySplit;
+// };
+
+export const getProductDiscountPerOrderSplit = (OrderDetail: OrderSplitModel) => {
   const distributedOrderDiscountCustom = OrderDetail.items
     .map((item) => {
       let discountPerOrder = 0;
