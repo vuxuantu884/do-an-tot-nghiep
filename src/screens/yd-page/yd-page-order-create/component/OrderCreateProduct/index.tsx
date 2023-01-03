@@ -551,9 +551,10 @@ function OrderCreateProduct(props: PropType) {
         }
         _itemGifts = [..._itemGifts, ...items[i].gifts];
       }
-      // console.log('_itemGifts', _itemGifts);
       _itemGifts.forEach((item) => {
-        item.discount_items = item.discount_items.filter((single) => single.amount && single.value);
+        item.discount_items = item.discount_items.filter(
+          (single) => (single.amount && single.value) || single.promotion_id,
+        );
       });
 
       props.setItemGift(_itemGifts);
