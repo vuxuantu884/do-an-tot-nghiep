@@ -68,7 +68,7 @@ function SpecialOrderDetail(props: Props) {
 
     {
       title: "Số tiền",
-      content: isNullOrUndefined(specialOrder?.amount)
+      content: !isNullOrUndefined(specialOrder?.amount)
         ? formatCurrency(specialOrder?.amount || 0)
         : null,
     },
