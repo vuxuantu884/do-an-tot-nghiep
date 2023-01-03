@@ -69,6 +69,9 @@ function EditSpecialOrder(props: PropTypes) {
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           showSuccess("Xóa loại đơn hàng thành công");
+          form.setFieldsValue({
+            type: undefined,
+          });
           onEditSpecialOrderSuccess(orderId, undefined);
         } else {
           handleFetchApiError(response, "Xóa loại đơn hàng", dispatch);
@@ -200,7 +203,7 @@ function EditSpecialOrder(props: PropTypes) {
                 handleSubmitForm={handleSubmitSpecialOrderForm}
                 handleDelete={handleDeleteSpecialOrder}
                 canDelete={specialOrder ? true : false}
-                orderPageType={OrderPageTypeModel.orderCreate}
+                orderPageType={OrderPageTypeModel.other}
               />
             </StyledComponent>
           }

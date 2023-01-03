@@ -71,6 +71,7 @@ import {
   handleFetchApiError,
   isFetchApiSuccessful,
   replaceFormatString,
+  scrollAndFocusToDomElement,
   sortFulfillments,
   totalAmount,
 } from "utils/AppUtils";
@@ -612,6 +613,32 @@ export default function Order(props: PropTypes) {
     }
   };
 
+  const handleCreateOrUpdateSpecialOrder = (
+    orderId: number,
+    specialOrderFormValue: any,
+  ): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      let resultParams = {
+        ...defaultSpecialOrderParams,
+        ...specialOrderFormValue,
+      };
+      specialOrderServices
+        .createOrUpdate(orderId, resultParams)
+        .then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            showSuccess("Cập nhật loại đơn hàng thành công");
+            resolve();
+          } else {
+            handleFetchApiError(response, "Loại đơn hàng", dispatch);
+            resolve();
+          }
+        })
+        .catch((error) => {
+          reject();
+        });
+    });
+  };
+
   const handleUpdateOrder = (valuesCalculateReturnAmount: OrderRequest) => {
     console.log("valuesCalculateReturnAmount", valuesCalculateReturnAmount);
     //return;
@@ -665,37 +692,27 @@ export default function Order(props: PropTypes) {
         };
       }
     };
+
     const handleUpdateOrderWithSpecialOrder = (specialOrderFormValue: any) => {
-      const handleCreateOrUpdateSpecialOrder = (orderId: number): Promise<void> => {
-        return new Promise((resolve, reject) => {
-          let resultParams = {
-            ...defaultSpecialOrderParams,
-            ...specialOrderFormValue,
-          };
-          specialOrderServices
-            .createOrUpdate(orderId, resultParams)
-            .then((response) => {
-              if (isFetchApiSuccessful(response)) {
-                resolve();
-              } else {
-                handleFetchApiError(response, "Loại đơn hàng", dispatch);
-                resolve();
-              }
-            })
-            .catch((error) => {
-              reject();
-            });
-        });
-      };
-      updateOrder(handleCreateOrUpdateSpecialOrder);
+      updateOrder((orderId) => handleCreateOrUpdateSpecialOrder(orderId, specialOrderFormValue));
     };
     // return;
     const specialOrderType = specialOrderForm.getFieldValue("type");
-    if (specialOrderType) {
-      specialOrderForm.validateFields().then((specialOrderFormValue) => {
-        console.log("specialOrderFormValue", specialOrderFormValue);
-        handleUpdateOrderWithSpecialOrder(specialOrderFormValue);
-      });
+    if (specialOrderType || OrderDetail?.special_order?.type) {
+      specialOrderForm
+        .validateFields()
+        .then((specialOrderFormValue) => {
+          console.log("specialOrderFormValue", specialOrderFormValue);
+          handleUpdateOrderWithSpecialOrder(specialOrderFormValue);
+        })
+        .catch((error) => {
+          if (error?.errorFields) {
+            const errorFields = error?.errorFields;
+            const element: any = document.getElementById(errorFields[0].name.join(""));
+            scrollAndFocusToDomElement(element);
+          }
+          console.log("error", error);
+        });
     } else {
       updateOrder();
     }
@@ -1309,13 +1326,6 @@ export default function Order(props: PropTypes) {
     return status;
   };
 
-  const handleCreateOrUpdateSpecialOrder = (params: SpecialOrderModel): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      console.log("params", params);
-      resolve();
-    });
-  };
-
   const checkIfShowCreatePayment = () => {
     return (
       checkIfOrderHasNoPayment(OrderDetail) &&
@@ -1886,7 +1896,9 @@ export default function Order(props: PropTypes) {
                     promotionTitle={promotionTitle}
                     setPromotionTitle={setPromotionTitle}
                     defaultReceiveReturnStore={defaultReceiveReturnStore}
-                    handleCreateOrUpdateSpecialOrder={handleCreateOrUpdateSpecialOrder}
+                    handleCreateOrUpdateSpecialOrder={(params: SpecialOrderModel) =>
+                      handleCreateOrUpdateSpecialOrder(OrderDetail?.id || 0, params)
+                    }
                     orderPageType={OrderPageTypeModel.orderUpdate}
                     specialOrderForm={specialOrderForm}
                   />

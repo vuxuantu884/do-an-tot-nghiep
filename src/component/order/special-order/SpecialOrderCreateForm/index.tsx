@@ -61,6 +61,9 @@ function SpecialOrderCreateForm(props: Props) {
   console.log("initialFormValue33", initialFormValue);
   const isOrderCreatePage = checkIfOrderPageType.isOrderCreatePage(orderPageType);
   const isOrderUpdatePage = checkIfOrderPageType.isOrderUpdatePage(orderPageType);
+  const isOrderOtherPage = checkIfOrderPageType.isOtherPage(orderPageType);
+
+  const isShowCreateForm = isOrderCreatePage || isOrderOtherPage;
 
   const [initAccountCodeAccountData, setInitAccountCodeAccountData] = useState<
     Array<AccountResponse>
@@ -157,9 +160,7 @@ function SpecialOrderCreateForm(props: Props) {
           hidden={
             selectedSpecialOrder && exceptOrderTypeSelectArr.includes(selectedSpecialOrder.value)
           }
-          rules={[
-            { required: !isOrderCreatePage && !isOrderUpdatePage, message: "Vui lòng chọn loại!" },
-          ]}
+          rules={[{ required: !isOrderCreatePage, message: "Vui lòng chọn loại!" }]}
         >
           <Select
             allowClear
@@ -198,7 +199,7 @@ function SpecialOrderCreateForm(props: Props) {
                 }
                 name="order_carer_code"
                 // name={
-                //   !isOrderCreatePage
+                //   !isShowCreateForm
                 //     ? "order_carer_code "
                 //     : "order_create_page_special_order_order_carer_code"
                 // }
@@ -233,7 +234,7 @@ function SpecialOrderCreateForm(props: Props) {
                 }
                 name="order_original_code"
                 // name={
-                //   !isOrderCreatePage
+                //   !isShowCreateForm
                 //     ? "order_original_code "
                 //     : "order_create_page_special_order_order_original_code"
                 // }
@@ -266,7 +267,7 @@ function SpecialOrderCreateForm(props: Props) {
                 label="Đơn trả"
                 name="order_return_code"
                 // name={
-                //   !isOrderCreatePage
+                //   !isShowCreateForm
                 //     ? "order_return_code "
                 //     : "order_create_page_special_order_order_return_code"
                 // }

@@ -625,6 +625,7 @@ function CreateWarranty(props: Props) {
                   }
                 }),
               );
+
               const newWarrantyItems = data.items.map((item, index) => {
                 return {
                   ...item,
@@ -659,6 +660,18 @@ function CreateWarranty(props: Props) {
     }
     isFirstLoad.current = false;
   }, [addItemsWarranty, dispatch, orderID, warrantyForm]);
+
+  useEffect(() => {
+    if (stores.length === 1) {
+      warrantyForm.setFieldsValue({
+        store_id: stores[0]?.id,
+      });
+    } else {
+      warrantyForm.setFieldsValue({
+        store_id: undefined,
+      });
+    }
+  }, [stores, warrantyForm]);
 
   return (
     <StyledComponent>
