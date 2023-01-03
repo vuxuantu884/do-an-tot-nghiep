@@ -328,7 +328,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
       if (r.id === newV) {
         if (index === -1) {
           item.type = Type.GIFT;
-          item.discount_items = [{ ...orderDiscountModel, taxable: item.taxable || false }];
+          item.discount_items = [orderDiscountModel];
           _items.push(item);
         } else {
           let lastIndex = index;
@@ -382,9 +382,9 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
   };
 
   const onChangePromotionRadio = (e: RadioChangeEvent) => {
-    let idPromotion = e.target.value.split("-")[0];
-    let titlePromotion = e.target.value.split("-")[1];
-    let taxablePromotion = e.target.value.split("-")[2];
+    let idPromotion = e.target.value.split("|")[0];
+    let titlePromotion = e.target.value.split("|")[1];
+    let taxablePromotion = e.target.value.split("|")[2];
     let orderDiscountModel: OrderItemDiscountRequest = {
       rate: 100,
       value: 0,
@@ -436,7 +436,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
               {data &&
                 data?.items.map((item: PromotionResponse, idx: number) => {
                   return (
-                    <Radio key={item.id} value={`${item.id}-${item.title}-${item.is_registered}`}>
+                    <Radio key={item.id} value={`${item.id}|${item.title}|${item.is_registered}`}>
                       {item.title}
                     </Radio>
                   );
