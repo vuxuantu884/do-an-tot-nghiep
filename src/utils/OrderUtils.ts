@@ -866,3 +866,13 @@ export const convertDiscountItem = (item: OrderLineItemRequest) => {
     discount_items: _discountItem,
   };
 };
+
+export const getPositionLineItem = (items: OrderLineItemRequest[]) => {
+  const _position = items.map((p) => p.position || 0);
+  if (!_position || (_position && _position.length === 0)) {
+    return items.length + 1;
+  } else {
+    const maxPosition = _position.reduce((a, b) => (a > b ? a : b));
+    return maxPosition + 1;
+  }
+};
