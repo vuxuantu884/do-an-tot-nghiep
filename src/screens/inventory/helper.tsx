@@ -5,11 +5,21 @@ const ImportStatuses = {
   READING: "reading",
   PROCESSING: "processing",
   FINISH: "finish",
-  ERROR: "error"
+  ERROR: "error",
 };
 
-const EXCEL_FILE_TYPE_XLS = "https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_327a5d28-35ad-4bd1-a78f-1a7e34a53645_original.xls";
-const EXCEL_FILE_TYPE_XLSX = "https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_d51d5a2c-0470-4ff4-854b-afa19e709ff9_original.xlsx";
+const MINIMUM_QUANTITY= 0;
+const MAXIMUM_QUANTITY_LENGTH = 5;
+
+const EXCEL_FILE_TYPE_XLS =
+  "https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_327a5d28-35ad-4bd1-a78f-1a7e34a53645_original.xls";
+const EXCEL_FILE_TYPE_XLSX =
+  "https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_d51d5a2c-0470-4ff4-854b-afa19e709ff9_original.xlsx";
+
+enum InventoryTransferPendingStatus {
+  EXCESS = "excess",
+  MISSING = "missing",
+}
 
 const beforeUploadFile = (file: any) => {
   const isExcelFile =
@@ -28,8 +38,11 @@ const beforeUploadFile = (file: any) => {
 };
 
 export {
+  MAXIMUM_QUANTITY_LENGTH,
+  MINIMUM_QUANTITY,
   EXCEL_FILE_TYPE_XLS,
   EXCEL_FILE_TYPE_XLSX,
   ImportStatuses,
-  beforeUploadFile
-}
+  InventoryTransferPendingStatus,
+  beforeUploadFile,
+};

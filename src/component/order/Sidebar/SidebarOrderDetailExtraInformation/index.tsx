@@ -22,6 +22,7 @@ function SidebarOrderDetailExtraInformation(props: PropTypes) {
     note: promotionUtils.getPrivateNoteFromResponse(OrderDetail?.note || ""),
     customer_note: OrderDetail?.customer_note,
   };
+  console.log("noteFormValue", noteFormValue);
   const detailArr = [
     {
       title: (
@@ -63,7 +64,7 @@ function SidebarOrderDetailExtraInformation(props: PropTypes) {
     },
     {
       title: "Tên CTKM: ",
-      value: promotionUtils.getPromotionTextFromResponse(OrderDetail?.note || ""),
+      value: OrderDetail ? promotionUtils.getAllPromotionTitle(OrderDetail) : null,
     },
     {
       title: "Nhãn: ",

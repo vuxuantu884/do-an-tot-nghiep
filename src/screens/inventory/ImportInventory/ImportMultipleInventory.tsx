@@ -167,7 +167,6 @@ const ImportMultipleInventory: FC = () => {
       newDataTable.set(file.uid, {
         ...newDataTable.get(file.uid),
         toStore: <Select
-          autoClearSearchValue={false}
           onChange={(e) => changeToStore(file, e)}
           value={e}
           style={{ width: '100%' }}
@@ -248,7 +247,6 @@ const ImportMultipleInventory: FC = () => {
               </span>,
               storeReceive: null,
               toStore: <Select
-                autoClearSearchValue={false}
                 onChange={(e) => changeToStore(file, e)}
                 disabled={disabled}
                 style={{ width: '100%' }}
@@ -708,7 +706,6 @@ const ImportMultipleInventory: FC = () => {
                     labelCol={{ span: 2, offset: 0 }}
                   >
                     <Select
-                      autoClearSearchValue={false}
                       onChange={checkSameStore}
                       disabled={disabled}
                       placeholder="Chọn kho gửi"

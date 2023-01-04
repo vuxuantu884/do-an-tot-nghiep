@@ -67,6 +67,7 @@ import iconShippingFeePay3PL from "screens/order-online/component/OrderList/List
 import iconWeight from "screens/order-online/component/OrderList/ListTable/OrderTable/images/iconWeight.svg";
 import IconStore from "screens/order-online/component/OrderList/ListTable/OrderTable/images/store.svg";
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
+import giftIcon from "assets/icon/gift.svg";
 
 type Props = {
   customer?: CustomerResponse;
@@ -380,10 +381,6 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
     (newNote, noteType, orderID, record: CustomerOrderHistoryResponse) => {
       let params: any = {};
       if (noteType === "note") {
-        if (promotionUtils.checkIfPrivateNoteHasPromotionText(record.note || "")) {
-          let promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
-          newNote = promotionUtils.combinePrivateNoteAndPromotionTitle(newNote, promotionText);
-        }
         params.note = newNote;
       }
       if (noteType === "customer_note") {
@@ -923,6 +920,7 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
           render: (record: CustomerOrderHistoryResponse) => {
             const isOrderReturn = checkIfOrderReturn(record);
             const orderReturnReason = record.return_reason?.name || record.reason?.name || ""; // cập nhật lại khi BE thay đổi theo SO
+            const promotionText = promotionUtils.getAllPromotionTitle(record);
             return (
               <div className="orderNotes">
                 {isOrderReturn ? (
@@ -945,18 +943,23 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
                     </div>
                     <div className="single order-note">
                       <EditNote
-                        note={promotionUtils.getPrivateNoteFromResponse(record.note || "")}
+                        note={promotionUtils.getPrivateNoteFromResponse(record?.note || "")}
                         title="Nội bộ: "
                         color={primaryColor}
                         onOk={(newNote) => {
                           editNote(newNote, "note", record.id, record);
                         }}
                         isDisable={record.status === OrderStatus.FINISHED}
-                        promotionText={promotionUtils.getPromotionTextFromResponse(
-                          record.note || "",
-                        )}
                       />
                     </div>
+                    {promotionText ? (
+                      <div className="single">
+                        <span className="promotionText" title="Chương trình khuyến mại">
+                          <img src={giftIcon} alt="" className="iconGift" />
+                          {promotionText}
+                        </span>
+                      </div>
+                    ) : null}
                   </>
                 )}
               </div>

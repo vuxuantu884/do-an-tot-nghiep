@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { DOCUMENT_TYPES, ellipseName } from "screens/products/helper";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
-import { OFFSET_HEADER_TABLE, TYPE_EXPORT } from "utils/Constants";
+import { MAX_PAGE_INVENTORY_HISTORY, OFFSET_HEADER_TABLE, TYPE_EXPORT } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showWarning } from "utils/ToastUtils";
 import { getQueryParams } from "utils/useQuery";
@@ -422,9 +422,13 @@ const HistoryTab: React.FC<any> = (props) => {
         sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         pagination={{
           pageSize: data.metadata.limit,
-          total: data.metadata.total,
+          total:
+            data.metadata.total >= MAX_PAGE_INVENTORY_HISTORY * data.metadata.limit
+              ? MAX_PAGE_INVENTORY_HISTORY * data.metadata.limit
+              : data.metadata.total,
           current: data.metadata.page,
           showSizeChanger: true,
+
           onChange: onPageChange,
           onShowSizeChange: onPageChange,
         }}

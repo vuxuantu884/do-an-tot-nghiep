@@ -4,6 +4,7 @@ import { specialOrderTypes } from "component/order/special-order/SideBarOrderSpe
 import SpecialOrderCreateForm from "component/order/special-order/SpecialOrderCreateForm";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { OrderPageTypeModel } from "model/order/order.model";
 import {
   SpecialOrderFormValueModel,
   SpecialOrderModel,
@@ -68,6 +69,9 @@ function EditSpecialOrder(props: PropTypes) {
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           showSuccess("Xóa loại đơn hàng thành công");
+          form.setFieldsValue({
+            type: undefined,
+          });
           onEditSpecialOrderSuccess(orderId, undefined);
         } else {
           handleFetchApiError(response, "Xóa loại đơn hàng", dispatch);
@@ -199,6 +203,7 @@ function EditSpecialOrder(props: PropTypes) {
                 handleSubmitForm={handleSubmitSpecialOrderForm}
                 handleDelete={handleDeleteSpecialOrder}
                 canDelete={specialOrder ? true : false}
+                orderPageType={OrderPageTypeModel.other}
               />
             </StyledComponent>
           }

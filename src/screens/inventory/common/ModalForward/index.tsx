@@ -88,7 +88,6 @@ const ModalForward: React.FC<ModalForwardProps> = (props: ModalForwardProps) => 
         <Select
           value={forwardStoreValue}
           style={{ width: "100%" }}
-          autoClearSearchValue={false}
           placeholder="Chọn kho chuyển tiếp"
           showArrow
           optionFilterProp="children"

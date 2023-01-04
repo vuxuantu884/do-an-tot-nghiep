@@ -1,7 +1,7 @@
 import { Modal, Input, Table, Button, AutoComplete, Badge } from "antd";
 import XCloseBtn from "assets/icon/X_close.svg";
 import searchGift from "assets/icon/search.svg";
-import React, { createRef, useCallback, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { RefSelectProps } from "antd/lib/select";
 import { useDispatch } from "react-redux";
 import { findAvatar, findPrice, findPriceInVariant, findTaxInVariant } from "utils/AppUtils";
@@ -13,8 +13,12 @@ import { OrderItemModel } from "model/other/order/order-model";
 import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
-import { OrderLineItemRequest } from "model/request/order.request";
+import { OrderItemDiscountRequest, OrderLineItemRequest } from "model/request/order.request";
 import UrlConfig from "config/url.config";
+import { showLoading } from "domain/actions/loading.action";
+import { PromotionGetList } from "domain/actions/order/order.action";
+import { ListDataModel } from "model/order/ListDataModel";
+import { PromotionResponse } from "model/response/order/order.response";
 
 type AddGiftModalProps = {
   visible: boolean;
@@ -80,10 +84,23 @@ const renderSearch = (item: VariantResponse) => {
   );
 };
 
+interface CurrentPromotionModel {
+  promotion_id: number;
+  promotion_title: string;
+  promotion_value: string;
+  taxable: boolean;
+}
+
 const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => {
   const { visible, onCancel, onOk, storeId } = props;
   const dispatch = useDispatch();
   const [keysearch, setKeysearch] = useState("");
+
+  const [data, setData] = useState({
+    items: [],
+    metadata: {},
+  } as unknown as ListDataModel<PromotionResponse>);
+  const [currentPromotion, setCurrentPromotion] = useState<CurrentPromotionModel | null>();
   const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse>>({
     metadata: {
       limit: 0,
@@ -93,6 +110,35 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
     items: [],
   });
   const autoCompleteRef = createRef<RefSelectProps>();
+  useEffect(() => {
+    if (visible) {
+      if (
+        props.items.length > 0 &&
+        props.items[0]?.discount_items.length > 0 &&
+        props.items[0]?.discount_items[0].promotion_id
+      ) {
+        let { promotion_title, promotion_id, taxable } = props.items[0]?.discount_items[0];
+        // setCurrentPromotionValue(`${promotion_id}-${promotion_title}`)
+        // setCurrentPromotionTitle(promotion_title||null)
+        // setCurrentPromotionId(promotion_id)
+        setCurrentPromotion({
+          promotion_id: promotion_id,
+          promotion_title: promotion_title || "",
+          taxable: taxable || false,
+          promotion_value: `${promotion_id}-${promotion_title}-${taxable}`,
+        });
+      }
+      dispatch(showLoading());
+      dispatch(
+        PromotionGetList(
+          (response: ListDataModel<PromotionResponse>) => {
+            setData(response);
+          },
+          { states: "ACTIVE", page: 1 },
+        ),
+      );
+    }
+  }, [dispatch, props.items, visible]);
   const deleteItem = useCallback(
     (index) => {
       props.items.splice(index, 1);
@@ -207,6 +253,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
       variant: variant.name,
       variant_barcode: variant.barcode,
       product_type: variant.product.product_type,
+      product_code: variant.product_code || "",
       quantity: 1,
       price: price,
       amount: price,
@@ -231,6 +278,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
       gifts: [],
       position: undefined,
       available: variant.available,
+      taxable: variant.taxable,
     };
     return orderLine;
   }, []);
@@ -238,6 +286,19 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
   const onVariantSelect = useCallback(
     (v, o) => {
       let newV = parseInt(v);
+      let orderDiscountModel: OrderItemDiscountRequest = {
+        rate: 100,
+        value: 0,
+        amount: 0,
+        promotion_id: currentPromotion?.promotion_id || null,
+        promotion_title: currentPromotion?.promotion_title || null,
+        order_id: 0,
+        discount_code: "",
+        reason: "",
+        source: "",
+        type: "",
+        taxable: currentPromotion?.taxable,
+      };
       let _items = [...props.items];
       let indexSearch = resultSearch.items.findIndex((i) => i.id === newV);
       let index = _items.findIndex((i) => i.variant_id === newV);
@@ -246,6 +307,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
       if (r.id === newV) {
         if (index === -1) {
           item.type = Type.GIFT;
+          item.discount_items = [{ ...orderDiscountModel }];
           _items.push(item);
         } else {
           let lastIndex = index;
@@ -260,8 +322,8 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
       props.onUpdateData(_items);
       setKeysearch("");
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [props, resultSearch.items, createItem],
-    // autoCompleteRef, dispatch, resultSearch
   );
 
   const onOkPress = useCallback(() => {

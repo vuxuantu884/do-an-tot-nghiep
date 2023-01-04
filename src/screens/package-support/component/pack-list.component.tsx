@@ -1,4 +1,4 @@
-import { Button, Card, Popconfirm, Row } from "antd";
+import { Card } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
@@ -7,7 +7,6 @@ import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { OrderResponse, PackFulFillmentResponse } from "model/response/order/order.response";
 import { useSelector } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { DeleteOutlined } from "@ant-design/icons";
 import { PackModel, PackModelDefaultValue } from "model/pack/pack.model";
 import { setPackInfo } from "utils/LocalStorageUtils";
 import { PagingParam, ResultPaging } from "model/paging";
@@ -51,7 +50,6 @@ function PackListComponent() {
       if (singlePack && singlePack.fulfillments) {
         let fulfillments = [...singlePack.fulfillments];
         const index = fulfillments.findIndex((p) => p.code === code);
-        // console.log("order", fulfillments)
         fulfillments.splice(index, 1);
         let packData: PackModel = {
           ...new PackModelDefaultValue(),
@@ -212,8 +210,6 @@ function PackListComponent() {
 
     setIsFulFillmentPack([...isFulFillmentPackCopy]);
   };
-
-  // console.log("isFulFillmentPack",isFulFillmentPack)
 
   return (
     <Card title="Đơn đã đóng gói " bordered={false} className="pack-success-card">

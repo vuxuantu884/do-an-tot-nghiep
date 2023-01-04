@@ -109,6 +109,14 @@ export interface OrderResponse extends BaseObject {
   special_order?: SpecialOrderResponseModel;
 }
 
+export interface TaxLineModel {
+  currency: string;
+  deleted: boolean | null;
+  id: number;
+  price: number | null;
+  rate: number | null;
+  title: string | null;
+}
 export interface OrderLineItemResponse {
   id: number;
   sku: string;
@@ -131,7 +139,9 @@ export interface OrderLineItemResponse {
   weight_unit: string;
   warranty: string;
   tax_rate: number;
+  tax_lines?: TaxLineModel[];
   tax_include: boolean | null;
+  taxable?: boolean | null;
   line_amount_after_line_discount: number;
   discount_items: Array<OrderItemDiscountResponse>;
   discount_rate: number;
@@ -140,7 +150,9 @@ export interface OrderLineItemResponse {
   position?: number;
   gifts: Array<OrderLineItemResponse>;
   available: number | null;
+  distributed_order_discount?: number | null;
   order_line_item_id?: number | null;
+  single_distributed_order_discount?: number | null;
 }
 
 export interface ReturnProductModel extends OrderLineItemResponse {
@@ -228,6 +240,7 @@ export interface OrderDiscountResponse {
   reason: string | null;
   source: string;
   type: string;
+  taxable: boolean;
 }
 
 // export interface OrderItemDiscountResponse {
@@ -249,6 +262,7 @@ export interface OrderItemDiscountResponse {
   reason: string | null;
   source?: string | null;
   type?: string;
+  taxable?: boolean;
 }
 
 export interface OrderPaymentResponse extends BaseObject {
@@ -694,6 +708,7 @@ export interface PromotionResponse extends BaseObject {
   cancelled_date: any;
   suggested_discounts: any;
   prerequisite_quantity_gte: any;
+  is_registered?: boolean;
 }
 
 export interface ParamPromotion {

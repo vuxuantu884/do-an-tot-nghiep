@@ -106,7 +106,6 @@ function AddVariantsModal(props: Props) {
           cost_price,
           currency_code,
           import_price,
-          tax_percent,
           retail_price,
           wholesale_price,
           height,
@@ -130,13 +129,13 @@ function AddVariantsModal(props: Props) {
           composites: [],
           product_id: productId,
           saleable: true,
+          taxable: true,
           variant_prices: [
             {
               cost_price,
               currency_code,
               import_price,
               retail_price,
-              tax_percent,
               wholesale_price,
             },
           ],
@@ -469,7 +468,7 @@ function AddVariantsModal(props: Props) {
             </Col>
           </Row>
           <Row gutter={20}>
-            <Col md={4}>
+            <Col md={5}>
               <Item
                 label="Giá bán"
                 rules={[
@@ -497,7 +496,7 @@ function AddVariantsModal(props: Props) {
                 />
               </Item>
             </Col>
-            <Col md={4}>
+            <Col md={5}>
               <Item
                 name={[modalInputField, "wholesale_price"]}
                 label="Giá buôn"
@@ -519,7 +518,7 @@ function AddVariantsModal(props: Props) {
                 />
               </Item>
             </Col>
-            <Col md={4}>
+            <Col md={5}>
               <Item
                 name={[modalInputField, "import_price"]}
                 label="Giá nhập"
@@ -541,7 +540,7 @@ function AddVariantsModal(props: Props) {
                 />
               </Item>
             </Col>
-            <Col md={4}>
+            <Col md={5}>
               <Item
                 name={[modalInputField, "cost_price"]}
                 label="Giá vốn"
@@ -563,21 +562,6 @@ function AddVariantsModal(props: Props) {
                   maxLength={15}
                   disabled
                 />
-              </Item>
-            </Col>
-            <Col md={4}>
-              <Item
-                label="Thuế"
-                name={[modalInputField, "tax_percent"]}
-                rules={[
-                  {
-                    type: "number",
-                    max: 100,
-                    message: "Phần trăm thuế phải nhỏ hơn 100",
-                  },
-                ]}
-              >
-                <NumberInput placeholder="VD: 10" suffix={<span>%</span>} maxLength={15} />
               </Item>
             </Col>
             <Col md={4}>

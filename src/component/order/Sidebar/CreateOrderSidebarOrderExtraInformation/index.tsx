@@ -62,7 +62,7 @@ function CreateOrderSidebarOrderExtraInformation(props: PropTypes): JSX.Element 
           //maxLength={500}
         />
       </Form.Item>
-      <div className="promotionTitle ant-form-item">
+      {/* <div className="promotionTitle ant-form-item">
         <div className="ant-form-item-label">
           <label>
             <Tooltip title="Chú ý: Khi có load lại chương trình khuyến mại, sẽ cập nhật lại hết tên chương trình">
@@ -74,7 +74,7 @@ function CreateOrderSidebarOrderExtraInformation(props: PropTypes): JSX.Element 
           </label>
         </div>
         <Input value={promotionTitle} onChange={(e) => setPromotionTitle(e.target.value)} />
-      </div>
+      </div> */}
       <Form.Item
         label={`Nhãn ${moreTextIfIsReturn || ""}`}
         tooltip={{

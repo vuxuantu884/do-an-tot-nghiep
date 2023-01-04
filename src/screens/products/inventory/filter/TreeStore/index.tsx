@@ -112,7 +112,6 @@ const TreeStore = (props: Props) => {
 
   return (
     <TreeSelect
-      autoClearSearchValue={false}
       showArrow
       placeholder={placeholder}
       treeDefaultExpandAll

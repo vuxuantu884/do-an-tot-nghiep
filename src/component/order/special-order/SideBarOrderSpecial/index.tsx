@@ -1,5 +1,6 @@
 import { EditOutlined } from "@ant-design/icons";
-import { Button, Card, Form, Row } from "antd";
+import { Button, Card, Form, FormInstance, Row } from "antd";
+import { OrderPageTypeModel } from "model/order/order.model";
 import {
   SpecialOrderFormValueModel,
   SpecialOrderModel,
@@ -13,24 +14,29 @@ import { specialOrderTypes } from "./helper";
 import { StyledComponent } from "./styles";
 
 type Props = {
+  defaultSpecialType: string | undefined;
+  form: FormInstance<any>;
   specialOrder?: SpecialOrderResponseModel;
   handleDeleteSpecialOrder: () => void;
   handleCreateOrUpdateSpecialOrder: (param: SpecialOrderModel) => Promise<void>;
   specialOrderView: SpecialOrderType;
   setSpecialOrderView: React.Dispatch<React.SetStateAction<SpecialOrderType>>;
+  orderPageType: OrderPageTypeModel;
 };
 
 const SideBarOrderSpecial: React.FC<Props> = (props: Props) => {
   const {
     specialOrder,
+    form,
     handleDeleteSpecialOrder,
     handleCreateOrUpdateSpecialOrder,
     specialOrderView,
     setSpecialOrderView,
+    defaultSpecialType,
+    orderPageType,
   } = props;
   console.log("specialOrder", specialOrder);
-  const [form] = Form.useForm();
-  const defaultSpecialType = specialOrderTypes.orders_recall.value;
+  // const defaultSpecialType = initDisplayOrderSpecialType || specialOrderTypes.orders_recall.value;
 
   const [displayOrderSpecialType, setDisplayOrderSpecialType] = useState<string | undefined>(
     defaultSpecialType,
@@ -43,7 +49,7 @@ const SideBarOrderSpecial: React.FC<Props> = (props: Props) => {
     order_original_code: specialOrder?.order_original_code || undefined,
     order_carer_code: specialOrder?.order_carer_code || undefined,
     skus: variantSkus.length > 0 ? variantSkus : undefined,
-    amount: specialOrder?.amount || undefined,
+    amount: specialOrder?.amount ?? undefined,
     order_return_code: specialOrder?.order_return_code || undefined,
     reason: specialOrder?.reason || undefined,
   };
@@ -119,6 +125,7 @@ const SideBarOrderSpecial: React.FC<Props> = (props: Props) => {
           handleDelete={handleDeleteSpecialOrder}
           canDelete={specialOrder ? true : false}
           initialFormValue={initialFormValue}
+          orderPageType={orderPageType}
         />
       </div>
     </React.Fragment>

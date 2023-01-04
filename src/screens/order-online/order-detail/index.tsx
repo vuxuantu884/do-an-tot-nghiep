@@ -10,7 +10,10 @@ import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderD
 import SidebarOrderDetailUtm from "component/order/Sidebar/SidebarOrderDetailUtm";
 import SidebarOrderHistory from "component/order/Sidebar/SidebarOrderHistory";
 import SideBarOrderSpecial from "component/order/special-order/SideBarOrderSpecial";
-import { defaultSpecialOrderParams } from "component/order/special-order/SideBarOrderSpecial/helper";
+import {
+  defaultSpecialOrderParams,
+  specialOrderTypes,
+} from "component/order/special-order/SideBarOrderSpecial/helper";
 import UrlConfig from "config/url.config";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
@@ -94,6 +97,7 @@ import {
   checkIfFinishedPayment,
   checkIfMomoPayment,
   checkIfOrderHasNotFinishPaymentMomo,
+  checkIfOrderSplit,
   isDeliveryOrderReturned,
 } from "utils/OrderUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -114,6 +118,7 @@ import UpdateCustomerCard from "../component/update-customer-card";
 import UpdateShipmentCard from "../component/UpdateShipmentCard";
 import useGetDefaultReturnOrderReceivedStore from "../hooks/useGetDefaultReturnOrderReceivedStore";
 import CancelOrderModal from "../modal/cancel-order.modal";
+import OrderSplitModel from "../modal/OrderSplitModal";
 import CardReturnReceiveProducts from "../order-return/components/CardReturnReceiveProducts";
 import { StyledComponent, UniformText } from "./styles";
 
@@ -143,6 +148,7 @@ const OrderDetail = (props: PropTypes) => {
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const dispatch = useDispatch();
   const [form] = Form.useForm();
+  const [specialOrderForm] = Form.useForm();
   const [paymentMethod, setPaymentMethod] = useState<number>(3);
 
   const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
@@ -177,6 +183,7 @@ const OrderDetail = (props: PropTypes) => {
   const [paymentMethods, setListPaymentMethods] = useState<Array<PaymentMethodResponse>>([]);
   const [visibleCancelModal, setVisibleCancelModal] = useState<boolean>(false);
   const [visibleLogisticConfirmModal, setVisibleLogisticConfirmModal] = useState<boolean>(false);
+  const [visibleOrderSplitModal, setVisibleOrderSplitModal] = useState<boolean>(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [orderCancelFulfillmentReasonResponse, setOrderCancelFulfillmentReasonResponse] =
     useState<OrderReasonModel | null>(null);
@@ -990,10 +997,6 @@ const OrderDetail = (props: PropTypes) => {
 
   const editNote = useCallback(
     (note, customer_note, orderID) => {
-      if (promotionUtils.checkIfPrivateNoteHasPromotionText(OrderDetail?.note || "")) {
-        let promotionText = promotionUtils.getPromotionTextFromResponse(OrderDetail?.note || "");
-        note = promotionUtils.combinePrivateNoteAndPromotionTitle(note, promotionText);
-      }
       let params: any = {
         note,
         customer_note,
@@ -1153,6 +1156,7 @@ const OrderDetail = (props: PropTypes) => {
                   shippingFeeInformedCustomer={shippingFeeInformedCustomer}
                   totalAmountReturnProducts={OrderDetail?.order_return_origin?.money_amount}
                   paymentMethods={paymentMethods}
+                  setVisibleOrderSplitModal={setVisibleOrderSplitModal}
                 />
                 {/*--- end product ---*/}
 
@@ -1270,6 +1274,9 @@ const OrderDetail = (props: PropTypes) => {
                     handleDeleteSpecialOrder={handleDeleteSpecialOrder}
                     specialOrderView={specialOrderView}
                     setSpecialOrderView={setSpecialOrderView}
+                    defaultSpecialType={specialOrderTypes.orders_recall.value}
+                    orderPageType={OrderPageTypeModel.orderDetail}
+                    form={specialOrderForm}
                   />
                 )}
                 <SubStatusOrder
@@ -1320,6 +1327,13 @@ const OrderDetail = (props: PropTypes) => {
           onCancel={cancelPrepareGoodsModal}
           OrderDetail={OrderDetail}
         />
+        {checkIfOrderSplit(OrderDetail) && visibleOrderSplitModal && (
+          <OrderSplitModel
+            setVisible={setVisibleOrderSplitModal}
+            visible={visibleOrderSplitModal}
+            OrderDetail={OrderDetail}
+          />
+        )}
       </ContentContainer>
     </StyledComponent>
   );

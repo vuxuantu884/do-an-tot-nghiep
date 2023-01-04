@@ -595,10 +595,6 @@ const EcommerceOrders: React.FC = () => {
 
   const editNote = useCallback(
     (note, customer_note, orderID, record: OrderModel) => {
-      if (promotionUtils.checkIfPrivateNoteHasPromotionText(record.note || "")) {
-        let promotionText = promotionUtils.getPromotionTextFromResponse(record.note || "");
-        note = promotionUtils.combinePrivateNoteAndPromotionTitle(note, promotionText);
-      }
       let params: any = {
         note,
         customer_note,
@@ -1145,7 +1141,7 @@ const EcommerceOrders: React.FC = () => {
                       editNote(values.note, values.customer_note, record.id, record);
                     }}
                     noteFormValue={{
-                      note: record.note,
+                      note: promotionUtils.getPrivateNoteFromResponse(record.note || ""),
                       customer_note: record.customer_note,
                     }}
                     isDisable={record.status === OrderStatus.CANCELLED}
@@ -1154,7 +1150,7 @@ const EcommerceOrders: React.FC = () => {
                 <div className="single">
                   <EditNote
                     // note={record.note}
-                    note={promotionUtils.getPrivateNoteFromResponse(record.note || "")}
+                    note={record.note}
                     title="NB: "
                     color={primaryColor}
                     onOk={(values) => {

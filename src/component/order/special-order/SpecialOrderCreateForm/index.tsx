@@ -6,6 +6,7 @@ import OrderCustomSearchSelect, {
 import ProductSkuMultiSelect from "component/order/ProductSkuMultiSelect";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { AccountResponse } from "model/account/account.model";
+import { OrderPageTypeModel } from "model/order/order.model";
 import {
   SpecialOrderFormValueModel,
   SpecialOrderModel,
@@ -21,7 +22,7 @@ import {
   replaceFormat,
 } from "utils/AppUtils";
 import { ORDER_SUB_STATUS } from "utils/Order.constants";
-import { getArrayFromObject } from "utils/OrderUtils";
+import { checkIfOrderPageType, getArrayFromObject } from "utils/OrderUtils";
 import {
   orderSpecialReason,
   specialOrderDisplayField,
@@ -39,6 +40,7 @@ type Props = {
   form: FormInstance<any>;
   handleSubmitForm: (value: SpecialOrderModel) => void;
   canDelete: boolean;
+  orderPageType: OrderPageTypeModel;
 };
 
 function SpecialOrderCreateForm(props: Props) {
@@ -52,10 +54,16 @@ function SpecialOrderCreateForm(props: Props) {
     handleSubmitForm,
     handleDelete,
     canDelete,
+    orderPageType,
   } = props;
   const dispatch = useDispatch();
 
   console.log("initialFormValue33", initialFormValue);
+  const isOrderCreatePage = checkIfOrderPageType.isOrderCreatePage(orderPageType);
+  const isOrderUpdatePage = checkIfOrderPageType.isOrderUpdatePage(orderPageType);
+  const isOrderOtherPage = checkIfOrderPageType.isOtherPage(orderPageType);
+
+  const isShowCreateForm = isOrderCreatePage || isOrderOtherPage;
 
   const [initAccountCodeAccountData, setInitAccountCodeAccountData] = useState<
     Array<AccountResponse>
@@ -152,7 +160,7 @@ function SpecialOrderCreateForm(props: Props) {
           hidden={
             selectedSpecialOrder && exceptOrderTypeSelectArr.includes(selectedSpecialOrder.value)
           }
-          rules={[{ required: true, message: "Vui lòng chọn loại!" }]}
+          rules={[{ required: !isOrderCreatePage, message: "Vui lòng chọn loại!" }]}
         >
           <Select
             allowClear
@@ -183,9 +191,28 @@ function SpecialOrderCreateForm(props: Props) {
           <React.Fragment>
             {checkIfDisplayField(specialOrderDisplayField.nhanVienCSDH) && (
               <Form.Item
-                label="Nhân viên CSĐH"
+                // label="Nhân viên CSĐH"
+                label={
+                  displayOrderSpecialType === specialOrderTypes.orders_split.value
+                    ? "Nhân viên thao tác"
+                    : "Nhân viên CSĐH"
+                }
                 name="order_carer_code"
-                rules={[{ required: true, message: "Vui lòng chọn nhân viên CSĐH!" }]}
+                // name={
+                //   !isShowCreateForm
+                //     ? "order_carer_code "
+                //     : "order_create_page_special_order_order_carer_code"
+                // }
+                // rules={[{ required: true, message: "Vui lòng chọn nhân viên CSĐH!" }]}
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      displayOrderSpecialType === specialOrderTypes.orders_split.value
+                        ? "Vui lòng chọn nhân viên thao tác"
+                        : "Vui lòng chọn nhân viên CSĐH",
+                  },
+                ]}
               >
                 <AccountCustomSearchSelect
                   placeholder="Tìm theo họ tên hoặc mã nhân viên"
@@ -199,9 +226,28 @@ function SpecialOrderCreateForm(props: Props) {
 
             {checkIfDisplayField(specialOrderDisplayField.donGoc) && (
               <Form.Item
-                label="Đơn gốc"
+                // label="Đơn gốc"
+                label={
+                  displayOrderSpecialType === specialOrderTypes.orders_split.value
+                    ? "Đơn tách"
+                    : "Đơn gốc"
+                }
                 name="order_original_code"
-                rules={[{ required: true, message: "Vui lòng chọn đơn gốc!" }]}
+                // name={
+                //   !isShowCreateForm
+                //     ? "order_original_code "
+                //     : "order_create_page_special_order_order_original_code"
+                // }
+                // rules={[{ required: true, message: "Vui lòng chọn đơn gốc!" }]}
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      displayOrderSpecialType === specialOrderTypes.orders_split.value
+                        ? "Vui lòng chọn đơn tách"
+                        : "Vui lòng chọn đơn gốc",
+                  },
+                ]}
               >
                 <OrderCustomSearchSelect
                   placeholder="Tìm theo mã đơn hàng"
@@ -220,6 +266,11 @@ function SpecialOrderCreateForm(props: Props) {
               <Form.Item
                 label="Đơn trả"
                 name="order_return_code"
+                // name={
+                //   !isShowCreateForm
+                //     ? "order_return_code "
+                //     : "order_create_page_special_order_order_return_code"
+                // }
                 rules={[{ required: true, message: "Vui lòng chọn đơn trả!" }]}
               >
                 <OrderCustomSearchSelect
@@ -239,6 +290,7 @@ function SpecialOrderCreateForm(props: Props) {
               <Form.Item
                 label="Sản phẩm"
                 name="skus"
+                // name={!isOrderCreatePage ? "skus " : "order_create_page_special_order_skus"}
                 rules={[{ required: true, message: "Vui lòng chọn sản phẩm!" }]}
               >
                 <ProductSkuMultiSelect placeholder="Tìm sản phẩm" />
@@ -249,6 +301,7 @@ function SpecialOrderCreateForm(props: Props) {
               <Form.Item
                 label="Số tiền"
                 name="amount"
+                // name={!isOrderCreatePage ? "amount " : "order_create_page_special_order_amount"}
                 rules={[
                   {
                     required: true,
@@ -282,6 +335,7 @@ function SpecialOrderCreateForm(props: Props) {
               <Form.Item
                 label="Lý do"
                 name="reason"
+                // name={!isOrderCreatePage ? "reason " : "order_create_page_special_order_reason"}
                 hidden={
                   selectedSpecialOrder &&
                   exceptOrderTypeSelectArr.includes(selectedSpecialOrder.value)
@@ -298,34 +352,36 @@ function SpecialOrderCreateForm(props: Props) {
                 </Select>
               </Form.Item>
             )}
-            <Space direction="horizontal" align="end" className="row-btn buttonWrapper">
-              <Button
-                onClick={() => {
-                  handleCancel();
-                }}
-              >
-                Hủy
-              </Button>
-              <Button
-                danger
-                disabled={!canDelete}
-                onClick={() => {
-                  handleDelete();
-                }}
-              >
-                Xóa
-              </Button>
-              <Button
-                type="primary"
-                onClick={() => {
-                  form.validateFields().then(() => {
-                    form.submit();
-                  });
-                }}
-              >
-                Lưu
-              </Button>
-            </Space>
+            {!isOrderCreatePage && !isOrderUpdatePage && (
+              <Space direction="horizontal" align="end" className="row-btn buttonWrapper">
+                <Button
+                  onClick={() => {
+                    handleCancel();
+                  }}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  danger
+                  disabled={!canDelete}
+                  onClick={() => {
+                    handleDelete();
+                  }}
+                >
+                  Xóa
+                </Button>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    form.validateFields().then(() => {
+                      form.submit();
+                    });
+                  }}
+                >
+                  Lưu
+                </Button>
+              </Space>
+            )}
           </React.Fragment>
         )}
       </Form>

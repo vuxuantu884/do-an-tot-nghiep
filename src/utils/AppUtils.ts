@@ -11,10 +11,7 @@ import { CityView, DistrictResponse } from "model/content/district.model";
 import { LineItem } from "model/inventory/transfer";
 import { OrderModel } from "model/order/order.model";
 import { RouteMenu } from "model/other";
-import {
-  VariantImage,
-  VariantPricesResponse,
-} from "model/product/product.model";
+import { VariantImage, VariantPricesResponse } from "model/product/product.model";
 import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
   OrderDiscountRequest,
@@ -529,9 +526,14 @@ export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
 };
 
 export const getTotalAmountAfterDiscount = (items: Array<OrderLineItemRequest>) => {
-  let total = 0;
-  items.forEach((a) => (total = total + a.line_amount_after_line_discount));
-  return total;
+  // let total = 0;
+  // items.forEach((a) => (total = total + a.line_amount_after_line_discount));
+  // return total;
+
+  console.log("getTotalAmountAfterDiscount", items);
+  return items
+    .map((item) => item.line_amount_after_line_discount)
+    .reduce((prev, next) => prev + next);
 };
 
 export const getOrderTotalPaymentAmount = (payments: Array<OrderPaymentResponse>) => {
@@ -1022,18 +1024,46 @@ export const getProductDiscountPerOrder = (
   OrderDetail: OrderResponse | null | undefined,
   product: OrderLineItemResponse,
 ) => {
+  // đối với đơn có trường distributed_order_discount
+  const getDiscountPerOrderIfHasDistributedOrderDiscount = () => {
+    let taxValue = 1;
+    if (
+      OrderDetail?.discounts?.length &&
+      OrderDetail.discounts[0].taxable &&
+      product.tax_lines &&
+      product.tax_lines[0].rate
+    ) {
+      let taxRate = product.tax_lines[0].rate;
+      taxValue = 1 + taxRate;
+    }
+
+    return (product.distributed_order_discount || 0) * taxValue;
+  };
+
+  // đối với đơn cũ không có trường distributed_order_discount
+  const getDiscountPerOrderIfHasNotDistributedOrderDiscount = () => {
+    let totalDiscountAmountPerOrder = 0;
+    let result = 0;
+    if (OrderDetail?.total_line_amount_after_line_discount) {
+      OrderDetail?.discounts?.forEach((singleOrderDiscount) => {
+        if (singleOrderDiscount?.amount) {
+          totalDiscountAmountPerOrder = totalDiscountAmountPerOrder + singleOrderDiscount?.amount;
+        }
+      });
+      product.discount_value = getLineItemDiscountValue(product);
+      result =
+        (totalDiscountAmountPerOrder / OrderDetail?.total_line_amount_after_line_discount) *
+        (product.price - product.discount_value);
+    }
+    return result;
+  };
   let discountPerOrder = 0;
-  let totalDiscountAmountPerOrder = 0;
-  if (OrderDetail?.total_line_amount_after_line_discount) {
-    OrderDetail?.discounts?.forEach((singleOrderDiscount) => {
-      if (singleOrderDiscount?.amount) {
-        totalDiscountAmountPerOrder = totalDiscountAmountPerOrder + singleOrderDiscount?.amount;
-      }
-    });
-    product.discount_value = getLineItemDiscountValue(product);
-    discountPerOrder =
-      (totalDiscountAmountPerOrder / OrderDetail?.total_line_amount_after_line_discount) *
-      (product.price - product.discount_value);
+  if (OrderDetail?.discounts?.length && OrderDetail.discounts[0].amount > 0) {
+    if (product.distributed_order_discount) {
+      discountPerOrder = getDiscountPerOrderIfHasDistributedOrderDiscount();
+    } else {
+      discountPerOrder = getDiscountPerOrderIfHasNotDistributedOrderDiscount();
+    }
   }
   return discountPerOrder;
 };

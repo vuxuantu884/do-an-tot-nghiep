@@ -125,6 +125,21 @@ export const StyledCustomerDetail = styled(StyledCustomerInfo)`
       padding-left: 3px;
     }
   }
+  .promotionText {
+    color: rgb(42, 42, 134);
+    font-size: 0.93rem;
+    font-weight: 500;
+    margin-right: 3px;
+    font-style: italic;
+  }
+  .iconGift {
+    margin-right: 3px;
+    position: relative;
+    margin-top: -3px;
+  }
+  .orderNotes .single.order-note svg {
+    top: 0;
+  }
 `;
 
 export const nameQuantityWidth = 200;

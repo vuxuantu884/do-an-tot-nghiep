@@ -172,6 +172,7 @@ export interface POLineItemColor {
   color_code: string;
   color: string;
   lineItemPrice?: number; // Giá của line-item : giá nhập| init lần đầu để mapping sang Object value. không dùng
+  retail_price: number;
 }
 export interface POLineItemGridSchema {
   productId: number;
@@ -208,6 +209,7 @@ export declare type POLineItemGridValue = {
    *  }
    * ]
    */
+  retail_price: number;
   price: number;
   sizeValues: Array<POPairSizeQuantity>;
 };

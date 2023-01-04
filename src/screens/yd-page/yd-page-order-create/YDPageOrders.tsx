@@ -9,7 +9,6 @@ import {
   changeShippingServiceConfigAction,
   orderConfigSaga,
   orderCreateAction,
-  // DeliveryServicesGetList,
   OrderDetailAction,
   PaymentMethodGetList,
 } from "domain/actions/order/order.action";
@@ -31,7 +30,6 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   OrderLineItemResponse,
   OrderPaymentResponse,
-  // DeliveryServiceResponse,
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
@@ -44,7 +42,7 @@ import {
   getAmountPaymentRequest,
   getTotalAmount,
   getTotalAmountAfterDiscount,
-  // handleCalculateShippingFeeApplyOrderSetting,
+  getTotalQuantity,
   isNullOrUndefined,
   scrollAndFocusToDomElement,
   totalAmount,
@@ -81,11 +79,7 @@ import {
 } from "model/response/settings/order-settings.response";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { YDpageCustomerRequest } from "model/request/customer.request";
-import {
-  getLoyaltyPoint,
-  getLoyaltyRate,
-  getLoyaltyUsage,
-} from "../../../domain/actions/loyalty/loyalty.action";
+import { getLoyaltyPoint, getLoyaltyRate, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import { modalActionType } from "model/modal/modal.model";
 import _ from "lodash";
 import "./styles.scss";
@@ -97,6 +91,7 @@ import { dangerColor, yellowColor } from "utils/global-styles/variables";
 import NumberFormat from "react-number-format";
 import { AppConfig } from "config/app.config";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
+import { DiscountValueType } from "model/promotion/price-rules.model";
 
 let typeButton = "";
 
@@ -151,7 +146,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     defaultStoreId,
     defaultSourceId,
     fbAdsId,
-    campaignId
+    campaignId,
   } = props;
   const dispatch = useDispatch();
 
@@ -374,29 +369,29 @@ export default function Order(props: OrdersCreatePermissionProps) {
       delivery_type: "",
       stock_location_id: null,
       payment_status: "",
-      total: orderAmount,
+      total: totalAmountOrder,
       total_tax: null,
-      total_discount: null,
-      total_quantity: null,
+      total_discount: promotion?.value || null,
+      total_quantity: getTotalQuantity(items),
       discount_rate: promotion?.rate || null,
       discount_value: promotion?.value || null,
       discount_amount: null,
-      total_line_amount_after_line_discount: null,
+      total_line_amount_after_line_discount: getTotalAmountAfterDiscount(items),
       shipment: shipmentRequest,
-      items: items,
+      items: [...items, ...itemGifts],
     };
 
-    let listFulfillmentRequest = [];
+    let fulfillmentRequests = [];
     if (
       paymentMethod !== PaymentMethodOption.POST_PAYMENT ||
       shipmentMethod === ShipmentMethodOption.SELF_DELIVER ||
       shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
     ) {
-      listFulfillmentRequest.push(request);
+      fulfillmentRequests.push(request);
     }
 
     if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
-      request.delivery_type = "pick_at_store";
+      request.delivery_type = ShipmentMethod.PICK_AT_STORE;
     }
 
     if (
@@ -405,9 +400,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
       typeButton === OrderStatus.FINALIZED
     ) {
       request.shipment = null;
-      listFulfillmentRequest.push(request);
+      fulfillmentRequests.push(request);
     }
-    return listFulfillmentRequest;
+    return fulfillmentRequests;
   };
 
   const createShipmentRequest = (value: OrderRequest) => {
@@ -425,6 +420,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
       shipping_fee_paid_to_three_pls: null,
       expected_received_date: value.dating_ship?.utc().format(),
       reference_status: "",
+      shipping_fee_informed_to_customer: null,
       reference_status_explanation: "",
       cod: null,
       cancel_reason: "",
@@ -459,30 +455,14 @@ export default function Order(props: OrdersCreatePermissionProps) {
           service: thirdPL.service,
           shipper_code: value.shipper_code,
           shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
-          cod:
-            orderAmount +
-            (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-            getAmountPaymentRequest(payments) -
-            (promotion?.value || 0),
+          cod: totalAmountCustomerNeedToPay,
         };
 
       case ShipmentMethodOption.PICK_AT_STORE:
-        objShipment.delivery_service_provider_type = "pick_at_store";
-        let newCod = orderAmount;
-        if (shippingFeeInformedToCustomer !== null) {
-          if (orderAmount + shippingFeeInformedToCustomer - getAmountPaymentRequest(payments) > 0) {
-            newCod =
-              orderAmount + shippingFeeInformedToCustomer - getAmountPaymentRequest(payments);
-          }
-        } else {
-          if (orderAmount - getAmountPaymentRequest(payments) > 0) {
-            newCod = orderAmount - getAmountPaymentRequest(payments);
-          }
-        }
         return {
           ...objShipment,
-          delivery_service_provider_type: "pick_at_store",
-          cod: newCod,
+          delivery_service_provider_type: ShipmentMethod.PICK_AT_STORE,
+          cod: totalAmountCustomerNeedToPay,
         };
 
       case ShipmentMethodOption.DELIVER_LATER:
@@ -494,11 +474,15 @@ export default function Order(props: OrdersCreatePermissionProps) {
   };
 
   const createDiscountRequest = () => {
-    let listDiscountRequest = [];
-    if (promotion) {
-      listDiscountRequest.push(promotion);
+    if (!promotion || !promotion.amount || !promotion.value) {
+      return [];
+    } else {
+      const _promotion: OrderDiscountRequest = {
+        ...promotion,
+        type: promotion.sub_type || DiscountValueType.FIXED_AMOUNT,
+      };
+      return [_promotion];
     }
-    return listDiscountRequest;
   };
 
   const handleRefreshInfoOrderSuccess = () => {
@@ -611,7 +595,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
       !shippingAddress?.full_address
     );
   };
-  
+
   const getTagsValue = () => {
     let mergedTags = tags;
     if (fbAdsId) {
@@ -619,16 +603,17 @@ export default function Order(props: OrdersCreatePermissionProps) {
       mergedTags = mergedTags + fbAdsIdTag;
     }
     if (campaignId) {
-      const campaignIdTag = mergedTags !== "" ? `,campaign_id: ${campaignId}` : `campaign_id: ${campaignId}`;
+      const campaignIdTag =
+        mergedTags !== "" ? `,campaign_id: ${campaignId}` : `campaign_id: ${campaignId}`;
       mergedTags = mergedTags + campaignIdTag;
     }
     if (fbPageId) {
       const fbPageIdTag = mergedTags !== "" ? `,page_id: ${fbPageId}` : `page_id: ${fbPageId}`;
       mergedTags = mergedTags + fbPageIdTag;
     }
-    
+
     return mergedTags;
-  }
+  };
 
   const onFinish = (values: OrderRequest) => {
     values.channel_id = FACEBOOK.channel_id;
@@ -641,9 +626,19 @@ export default function Order(props: OrdersCreatePermissionProps) {
     let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
 
     values.tags = getTagsValue();
-    values.items = items.concat(itemGifts);
+    const _item = items.concat(itemGifts);
+    values.items = _item.map((p) => {
+      let _discountItems = p.discount_items[0];
+      if (_discountItems) {
+        _discountItems.type = _discountItems.sub_type || DiscountValueType.FIXED_AMOUNT;
+      }
+      return p;
+    });
     values.discounts = lstDiscount;
-    values.shipping_address = shippingAddress;
+    values.shipping_address = {
+      ...shippingAddress,
+      id: null,
+    };
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
@@ -674,17 +669,13 @@ export default function Order(props: OrdersCreatePermissionProps) {
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments.filter((payment) => payment.amount !== 0);
-      values.total = getTotalAmount(values.items);
+      values.total = totalAmountOrder;
       if (
         values?.fulfillments &&
         values.fulfillments.length > 0 &&
         values.fulfillments[0].shipment
       ) {
-        values.fulfillments[0].shipment.cod =
-          orderAmount +
-          (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-          getAmountPaymentRequest(payments) -
-          (promotion?.value || 0);
+        values.fulfillments[0].shipment.cod = totalAmountCustomerNeedToPay;
       }
     }
 
@@ -1218,27 +1209,16 @@ export default function Order(props: OrdersCreatePermissionProps) {
     );
   }, [dispatch]);
 
-  // khách cần trả
-  const getAmountPayment = (items: Array<OrderPaymentRequest> | null) => {
-    let value = 0;
-    if (items !== null) {
-      if (items.length > 0) {
-        items.forEach((a) => (value = value + a.paid_amount));
-      }
-    }
-    return value;
-  };
-
   /**
    * tổng số tiền đã trả
    */
-  const totalAmountPayment = getAmountPayment(payments);
+  const totalAmountPayment = getAmountPaymentRequest(payments);
 
   /**
    * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
    */
   const totalAmountOrder = useMemo(() => {
-    return (
+    return Math.round(
       orderAmount +
       (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
       (promotion?.value || 0)
@@ -1249,7 +1229,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
    * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
    */
   const totalAmountCustomerNeedToPay = useMemo(() => {
-    return totalAmountOrder - totalAmountPayment;
+    return Math.round(totalAmountOrder - totalAmountPayment);
   }, [totalAmountOrder, totalAmountPayment]);
 
   //handle create info order
@@ -1675,7 +1655,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
               <Col span={14}> Đã thanh toán: </Col>
               <Col span={10} style={{ color: "#2a2a86", textAlign: "right" }}>
                 <span style={{ color: yellowColor }}>
-                  {formatCurrency(getAmountPayment(newOrderData.payments))}
+                  {formatCurrency(getAmountPaymentRequest(newOrderData.payments))}
                 </span>
               </Col>
             </Row>

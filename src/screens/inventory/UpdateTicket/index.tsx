@@ -1,6 +1,6 @@
 import React, { createRef, FC, useCallback, useEffect, useMemo, useState } from "react";
 import "./index.scss";
-import UrlConfig from "config/url.config";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import {
   AutoComplete,
@@ -74,6 +74,8 @@ import { searchVariantsApi } from "service/product/product.service";
 import ModalShowError from "../common/ModalShowError";
 import { HttpStatus } from "config/http-status.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { MAXIMUM_QUANTITY_LENGTH, MINIMUM_QUANTITY } from "../helper";
+import { STATUS_INVENTORY_TRANSFER } from "../constants";
 const { Option } = Select;
 
 const VARIANTS_FIELD = "line_items";
@@ -125,6 +127,19 @@ const UpdateTicket: FC = () => {
   const idNumber = parseInt(id);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!initDataForm) return;
+
+    const confirmStatus = STATUS_INVENTORY_TRANSFER.CONFIRM.status;
+    const requestedStatus = STATUS_INVENTORY_TRANSFER.REQUESTED.status;
+
+    if (initDataForm.status !== confirmStatus && initDataForm.status !== requestedStatus) {
+      if (CopyId || stateImport) return;
+
+      window.open(`${BASE_NAME_ROUTER}${UrlConfig.INVENTORY_TRANSFERS}/${idNumber}`, "_self");
+    }
+  }, [CopyId, idNumber, initDataForm, stateImport]);
 
   const onResult = useCallback(
     (result: InventoryTransferDetailItem | false) => {
@@ -709,7 +724,16 @@ const UpdateTicket: FC = () => {
         }
       }
     },
-    [CopyId, checkDuplicateRecord, createCallback, dataTable, dispatch, initDataForm, stateImport, stores],
+    [
+      CopyId,
+      checkDuplicateRecord,
+      createCallback,
+      dataTable,
+      dispatch,
+      initDataForm,
+      stateImport,
+      stores,
+    ],
   );
 
   const onDeleteTicket = (value: string | undefined) => {
@@ -880,7 +904,8 @@ const UpdateTicket: FC = () => {
           <NumberInput
             isFloat={false}
             id={`item-quantity-${index}`}
-            min={0}
+            min={MINIMUM_QUANTITY}
+            maxLength={MAXIMUM_QUANTITY_LENGTH}
             value={value}
             className="border-input"
             onChange={(quantity) => {
@@ -911,12 +936,7 @@ const UpdateTicket: FC = () => {
 
   const updateAvailable = async () => {
     dispatch(showLoading());
-    const res = await callApiNative(
-      { isShowError: false },
-      dispatch,
-      updateAvailableApi,
-      id
-    );
+    const res = await callApiNative({ isShowError: false }, dispatch, updateAvailableApi, id);
 
     dispatch(hideLoading());
 
@@ -986,7 +1006,6 @@ const UpdateTicket: FC = () => {
                       labelCol={{ span: 24, offset: 0 }}
                     >
                       <Select
-                        autoClearSearchValue={false}
                         placeholder="Chọn kho gửi"
                         showArrow
                         showSearch
@@ -1049,7 +1068,6 @@ const UpdateTicket: FC = () => {
                       labelCol={{ span: 24, offset: 0 }}
                     >
                       <Select
-                        autoClearSearchValue={false}
                         placeholder="Chọn kho nhận"
                         showArrow
                         showSearch
@@ -1209,10 +1227,7 @@ const UpdateTicket: FC = () => {
                 )}
 
                 {!CopyId && !stateImport && (
-                  <Button
-                    type="primary"
-                    onClick={updateAvailable}
-                  >
+                  <Button type="primary" onClick={updateAvailable}>
                     Cập nhật lại tồn
                   </Button>
                 )}
@@ -1268,7 +1283,9 @@ const UpdateTicket: FC = () => {
           }}
           errorData={errorData}
           onOk={() => continueData && continuesCreateData(continueData)}
-          title={"Có một số phiếu chuyển tương tự được tạo trong 1 tháng trở lại đây. Tiếp tục thực hiện?"}
+          title={
+            "Có một số phiếu chuyển tương tự được tạo trong 1 tháng trở lại đây. Tiếp tục thực hiện?"
+          }
           visible={isOpenModalErrors}
         />
       )}

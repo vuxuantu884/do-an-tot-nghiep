@@ -66,6 +66,9 @@ export const StyledComponent = styled.div`
   .support {
     display: flex;
     column-gap: 24px;
+    .hotline {
+      white-space: nowrap;
+    }
     .phone-number {
       font-weight: bold;
       color: ${color.black};
@@ -84,6 +87,21 @@ export const StyledComponent = styled.div`
       margin-right: 8px;
       width: 20px;
       height: 20px;
+    }
+  }
+  @media (max-width: 1280px) {
+    .support {
+      column-gap: 12px;
+      &-content {
+        display: none;
+      }
+      &-icon {
+        width: 24px;
+        height: 24px;
+      }
+    }
+    .hotline {
+      margin-right: 8px;
     }
   }
 `;

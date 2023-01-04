@@ -5,4 +5,37 @@
   .classxx {
     width: 25px !important;
   }
+
+  .discount-item {
+    color: #52c41a;
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 20px;
+    display: flex;
+    justify-content: flex-start;
+    img {
+      margin-right: 2px;
+    }
+  }
+
+  .discount-order-card {
+    left: -12px !important;
+    top: 26px !important;
+    width: 381px !important;
+  }
+
+  .card-promotion {
+    width: 380px !important;
+    right: -12px !important;
+
+    .row-item {
+      padding: 6px 0 !important;
+    }
+    .ant-card-body .row-item-apply .ant-btn {
+      padding: 6px !important;
+      margin-right: 3px !important;
+    }
+  }
 }

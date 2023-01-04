@@ -3,7 +3,7 @@ import UrlConfig from "config/url.config";
 import { SpecialOrderResponseModel } from "model/order/special-order.model";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, isNullOrUndefined } from "utils/AppUtils";
 import { getArrayFromObject } from "utils/OrderUtils";
 import { specialOrderTypes } from "../SideBarOrderSpecial/helper";
 import { StyledComponent } from "./styles";
@@ -68,7 +68,9 @@ function SpecialOrderDetail(props: Props) {
 
     {
       title: "Số tiền",
-      content: specialOrder?.amount ? formatCurrency(specialOrder?.amount) : null,
+      content: !isNullOrUndefined(specialOrder?.amount)
+        ? formatCurrency(specialOrder?.amount || 0)
+        : null,
     },
     {
       title: "Lý do",
