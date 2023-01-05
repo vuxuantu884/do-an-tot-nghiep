@@ -1027,18 +1027,21 @@ export const getProductDiscountPerOrder = (
   // đối với đơn có trường distributed_order_discount
   const getDiscountPerOrderIfHasDistributedOrderDiscount = () => {
     let taxValue = 1;
-    if (
-      OrderDetail?.discounts?.length &&
-      OrderDetail.discounts[0].taxable &&
-      product.tax_lines &&
-      product.tax_lines[0].rate
-    ) {
-      let taxRate = product.tax_lines[0].rate;
+    if (OrderDetail?.discounts?.length && product.tax_lines && product.tax_lines[0]?.rate) {
+      let taxRate = OrderDetail.discounts[0].taxable ? product.tax_lines[0]?.rate : 0;
       taxValue = 1 + taxRate;
     }
-
-    return (product.distributed_order_discount || 0) * taxValue;
+    console.log(
+      "product.single_distributed_order_discount",
+      product.single_distributed_order_discount,
+    );
+    console.log("taxValue", taxValue);
+    return (product.single_distributed_order_discount || 0) * taxValue;
   };
+  console.log(
+    "getDiscountPerOrderIfHasDistributedOrderDiscount",
+    getDiscountPerOrderIfHasDistributedOrderDiscount(),
+  );
 
   // đối với đơn cũ không có trường distributed_order_discount
   const getDiscountPerOrderIfHasNotDistributedOrderDiscount = () => {
@@ -1057,8 +1060,13 @@ export const getProductDiscountPerOrder = (
     }
     return result;
   };
+  console.log(
+    "getDiscountPerOrderIfHasNotDistributedOrderDiscount",
+    getDiscountPerOrderIfHasNotDistributedOrderDiscount(),
+  );
   let discountPerOrder = 0;
   if (OrderDetail?.discounts?.length && OrderDetail.discounts[0].amount > 0) {
+    // tạm thời FE tính, ko dùng của BE
     if (product.distributed_order_discount) {
       discountPerOrder = getDiscountPerOrderIfHasDistributedOrderDiscount();
     } else {

@@ -242,13 +242,10 @@ function CardReturnProducts(props: PropTypes) {
       align: "right",
       width: "15%",
       render: (value: OrderLineItemRequest, record: ReturnProductModel, index: number) => {
-        const discountPerProduct = getProductDiscountPerProduct(record);
-        const discountPerOrder = getProductDiscountPerOrder(OrderDetail, record);
+        const pricePerOrder = getReturnPricePerOrder(OrderDetail, record);
         return (
           <div className="yody-pos-varian-name">
-            {formatCurrency(
-              Math.round((value.price - discountPerProduct - discountPerOrder) * value.quantity),
-            )}
+            {formatCurrency(Math.round(pricePerOrder * record.quantity))}
           </div>
         );
       },
