@@ -152,7 +152,12 @@ function UpdateProductCard(props: PropTypes) {
           {l.discount_items[0] && l.discount_items[0].promotion_id && (
             <div className="discount-item">
               {l.discount_items[0]?.discount_code && (
-                <span className="coupon">{l.discount_items[0].discount_code} - </span>
+                <span className="coupon">
+                  <Tooltip title="Mã khuyến mãi">
+                    ( {l.discount_items[0].discount_code.trim().toUpperCase()} )
+                  </Tooltip>
+                  <span className="separator">-</span>
+                </span>
               )}
               <img src={discountCouponSuccess} alt="" width={12} />{" "}
               {l.discount_items[0]?.promotion_title || l.discount_items[0]?.reason}
