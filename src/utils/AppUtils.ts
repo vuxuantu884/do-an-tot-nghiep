@@ -1027,8 +1027,8 @@ export const getProductDiscountPerOrder = (
   // đối với đơn có trường distributed_order_discount
   const getDiscountPerOrderIfHasDistributedOrderDiscount = () => {
     let taxValue = 1;
-    if (OrderDetail?.discounts?.length && product.tax_lines && product.tax_lines[0].rate) {
-      let taxRate = OrderDetail.discounts[0].taxable ? product.tax_lines[0].rate : 0;
+    if (OrderDetail?.discounts?.length && product.tax_lines && product.tax_lines[0]?.rate) {
+      let taxRate = OrderDetail.discounts[0].taxable ? product.tax_lines[0]?.rate : 0;
       taxValue = 1 + taxRate;
     }
     console.log(
