@@ -483,6 +483,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
               amount: 0,
             };
           }),
+          single_distributed_order_discount:
+            (single.distributed_order_discount ?? 0) / single.quantity,
         };
       });
       // console.log('returnProduct', returnProduct)

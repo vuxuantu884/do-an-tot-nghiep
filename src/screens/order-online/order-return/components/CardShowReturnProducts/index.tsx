@@ -140,7 +140,7 @@ function CardShowReturnProducts(props: PropTypes) {
     },
     {
       title: () => (
-        <div>
+        <div className="46">
           <span style={{ color: "#222222" }}>Chiết khấu/đơn hàng</span>
           <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
         </div>
@@ -149,9 +149,15 @@ function CardShowReturnProducts(props: PropTypes) {
       width: "15%",
       key: "total",
       render: (value: OrderLineItemRequest, record: ReturnProductModel, index: number) => {
+        const recordResult: ReturnProductModel = {
+          ...record,
+          single_distributed_order_discount:
+            (record.distributed_order_discount ?? 0) / record.quantity,
+        };
+        console.log("recordResult", recordResult);
         let discountPerOrder = OrderDetail?.order_return_origin
-          ? getProductDiscountPerOrder(OrderDetail?.order_return_origin, record)
-          : getProductDiscountPerOrder(OrderDetail, record);
+          ? getProductDiscountPerOrder(OrderDetail?.order_return_origin, recordResult)
+          : getProductDiscountPerOrder(OrderDetail, recordResult);
         console.log("discountPerOrder", discountPerOrder);
         return (
           <div>
@@ -181,11 +187,16 @@ function CardShowReturnProducts(props: PropTypes) {
       key: "price",
       width: "15%",
       render: (value: number, record: ReturnProductModel, index: number) => {
+        const recordResult: ReturnProductModel = {
+          ...record,
+          single_distributed_order_discount:
+            (record.distributed_order_discount ?? 0) / record.quantity,
+        };
         let discountPerProduct = getProductDiscountPerProduct(record);
         // nếu là page đổi trả hàng thì có order_return_origin
         let discountPerOrder = OrderDetail?.order_return_origin
-          ? getProductDiscountPerOrder(OrderDetail?.order_return_origin, record)
-          : getProductDiscountPerOrder(OrderDetail, record);
+          ? getProductDiscountPerOrder(OrderDetail?.order_return_origin, recordResult)
+          : getProductDiscountPerOrder(OrderDetail, recordResult);
         return (
           <Popover
             content={renderPopOverPriceContent(discountPerProduct, discountPerOrder)}
@@ -206,10 +217,15 @@ function CardShowReturnProducts(props: PropTypes) {
       align: "right",
       key: "total",
       render: (value: OrderLineItemRequest, record: ReturnProductModel, index: number) => {
-        let discountPerProduct = getProductDiscountPerProduct(record);
+        const recordResult: ReturnProductModel = {
+          ...record,
+          single_distributed_order_discount:
+            (record.distributed_order_discount ?? 0) / record.quantity,
+        };
+        let discountPerProduct = getProductDiscountPerProduct(recordResult);
         let discountPerOrder = OrderDetail?.order_return_origin
-          ? getProductDiscountPerOrder(OrderDetail?.order_return_origin, record)
-          : getProductDiscountPerOrder(OrderDetail, record);
+          ? getProductDiscountPerOrder(OrderDetail?.order_return_origin, recordResult)
+          : getProductDiscountPerOrder(OrderDetail, recordResult);
         return (
           <div className="yody-pos-varian-name">
             {formatCurrency(
