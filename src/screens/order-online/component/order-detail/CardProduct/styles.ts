@@ -8,8 +8,6 @@ export const StyledComponent = styled.div`
     font-weight: 500;
     font-size: 12px;
     line-height: 20px;
-    display: flex;
-    justify-content: flex-start;
     img {
       margin-right: 2px;
     }
@@ -21,9 +19,9 @@ export const StyledComponent = styled.div`
       position: relative;
       top: -2px;
     }
-    .separator {
-      margin: 0 5px;
-    }
+  }
+  .separator {
+    margin: 0 5px;
   }
   .secondaryValue {
     color: ${dangerColor};
@@ -32,5 +30,8 @@ export const StyledComponent = styled.div`
   }
   .totalAmount {
     color: ${primaryColor};
+  }
+  .coupon {
+    /* color: ${primaryColor}; */
   }
 `;
