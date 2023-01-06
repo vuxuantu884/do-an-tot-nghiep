@@ -980,6 +980,7 @@ export default function Order(props: PropTypes) {
       dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
       getStoreBankAccountNumbersService({
         store_ids: [storeId],
+        status: true,
       })
         .then((response) => {
           if (isFetchApiSuccessful(response)) {
@@ -1401,6 +1402,7 @@ export default function Order(props: PropTypes) {
       dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
       getStoreBankAccountNumbersService({
         store_ids: [storeId],
+        status: true,
       })
         .then((response) => {
           if (isFetchApiSuccessful(response)) {

@@ -937,6 +937,7 @@ const OrderDetail = (props: PropTypes) => {
       );
       getStoreBankAccountNumbersService({
         store_ids: [OrderDetail?.store_id],
+        status: true,
       })
         .then((response) => {
           if (isFetchApiSuccessful(response)) {
