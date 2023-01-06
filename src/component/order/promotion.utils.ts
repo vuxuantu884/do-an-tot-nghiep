@@ -1,4 +1,3 @@
-import { OrderModel } from "model/order/order.model";
 import { CustomerOrderHistoryResponse, OrderResponse } from "model/response/order/order.response";
 import { PromotionConstants } from "./promotion.constant";
 
@@ -47,7 +46,10 @@ export const promotionUtils = {
   getAllPromotionTitle: (orderDetail: OrderResponse | CustomerOrderHistoryResponse) => {
     const lineItemsPromotionTitle = orderDetail.items
       .filter((item) => {
-        return item.discount_items.length > 0 && item.discount_items[0].amount > 0;
+        return (
+          item.discount_items.length > 0 &&
+          (item.discount_items[0].amount > 0 || item.discount_items[0].promotion_id)
+        );
       })
       .map(
         (single) =>

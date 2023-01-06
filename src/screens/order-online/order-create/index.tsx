@@ -937,6 +937,7 @@ export default function Order() {
       );
       getStoreBankAccountNumbersService({
         store_ids: [storeId],
+        status: true,
       })
         .then((response) => {
           if (isFetchApiSuccessful(response)) {

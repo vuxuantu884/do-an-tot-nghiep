@@ -335,6 +335,7 @@ export interface DuplicateOrderDetailQuery extends OrderSearchQuery {
 
 export interface StoreBankAccountNumbersQueryModel {
   store_ids: number[];
+  status?: boolean;
 }
 
 export interface StoreBankAccountNumberModel {

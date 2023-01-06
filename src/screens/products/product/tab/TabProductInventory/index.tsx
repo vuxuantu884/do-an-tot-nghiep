@@ -3,7 +3,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
 import { EInventoryStatus, formatCurrencyForProduct } from "screens/products/helper";
 import { Link } from "react-router-dom";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import UrlConfig from "config/url.config";
 import { ChannelResponse } from "model/response/product/channel.response";
 import useGetChannels from "hook/order/useGetChannels";
@@ -27,6 +27,22 @@ const TabProductInventory: React.FC<TabProductInventoryProps> = (
 ) => {
   const { data, isLoadingInventories } = props;
   const channels = useGetChannels();
+
+  const inventoryData = useMemo(() => {
+    return data.items.filter(
+      (el: InventoryResponse) =>
+        el.on_hand ||
+        el.committed ||
+        el.defect ||
+        el.in_coming ||
+        el.on_hold ||
+        el.on_way ||
+        el.shipping ||
+        el.transferring ||
+        el.available ||
+        el.total_stock,
+    );
+  }, [data]);
 
   const goDocument = useCallback(
     (inventoryStatus: string, sku: string, variantName: string, store_id?: number) => {
@@ -159,7 +175,7 @@ const TabProductInventory: React.FC<TabProductInventoryProps> = (
     <div>
       <CustomTable
         className="small-padding"
-        dataSource={data.items}
+        dataSource={inventoryData}
         pagination={false}
         isLoading={isLoadingInventories}
         sticky={{ offsetHeader: 55, offsetScroll: 10 }}
