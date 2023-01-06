@@ -101,6 +101,19 @@ export const fields_order_online = [
   { value: "paymentWallet", name: "Tham chiếu ví điện tử" },
   { value: "paymentWalletAmount", name: "Thanh toán ví điện tử" },
   { value: "subReasonName", name: "Lý do chi tiết hủy" },
+
+  { value: "specialType", name: "Loại đơn hàng(ĐĐB)" },
+  { value: "specialAmount", name: "COD thực thu(ĐĐB)" },
+  { value: "specialOrderCarerCode", name: "Mã NV CSĐH(ĐĐB)" },
+  { value: "specialOrderCarerName", name: "Tên NV CSĐH(ĐĐB)" },
+  { value: "specialOrderOriginalCode", name: "Đơn gốc(ĐĐB)" },
+  { value: "specialOrderReturnCode", name: "Đơn trả(ĐĐB)" },
+  { value: "specialReason", name: "Lý do(ĐĐB)" },
+
+  { value: "itemPromotionTitle", name: "CTKM trên Sản phẩm" },
+  { value: "promotionTitle", name: "CTKM trên Tổng đơn" },
+  { value: "totalTaxLine", name: "VAT từng Sản phẩm" },
+  { value: "totalTax", name: "VAT đơn hàng" },
 ];
 export const fields_shipment = [
   // {value: "stt", name: "ID"},
@@ -130,6 +143,7 @@ export const fields_return = [
   { value: "totalAmount", name: "Giá trị" },
   { value: "returnMethod", name: "Phương thức trả" },
   { value: "store", name: "Cửa hàng" },
+  { value: "totalTax", name: "VAT tổng đơn" },
 ];
 
 export const fields_order_offline = [
