@@ -39,4 +39,6 @@ export const ORDER_PERMISSIONS = {
   orders_return_online: "orders_return_online", // trả lại chuyển hàng
   orders_return_at_the_store: "orders_return_at_the_store", // trả tại quầy online
   orders_return_offline: "orders_return_offline", // trả tại quầy offline
+  // EXPORT
+  orders_export_vat: "orders_export_vat",
 };
