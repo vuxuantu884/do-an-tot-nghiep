@@ -117,6 +117,7 @@ import {
   checkIfEcommerceByOrderChannelCodeUpdateOrder,
   compareProducts,
   getLineItemStandardized,
+  getPositionLineItem,
   lineItemsConvertInSearchPromotion,
   removeDiscountLineItem,
 } from "utils/OrderUtils";
@@ -1860,7 +1861,8 @@ function OrderCreateProduct(props: PropTypes) {
         let index = _items.findIndex((i) => i.variant_id === newV);
         let r: VariantResponse = resultSearchVariant.items[indexSearch];
         const item: OrderLineItemRequest = createItem(r);
-        item.position = items.length + 1;
+        item.position = getPositionLineItem(items);
+
         if (r.id === newV && checkInventory(item) === true) {
           if (splitLine || index === -1) {
             _items.unshift(item);
@@ -2182,7 +2184,7 @@ function OrderCreateProduct(props: PropTypes) {
       _promotion = null;
     }
 
-    console.log("_promotion calculateChangeMoney", _promotion);
+    console.log("_items calculateChangeMoney", _items);
     props.changeInfo(_items, _promotion);
     fillCustomNote(_items);
     dispatch(changeOrderLineItemsAction(_items));
