@@ -985,9 +985,8 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                       tabBarExtraContent={
                         <>
                           <TreeStore
-                            name="store_ids"
                             placeholder="Chọn cửa hàng"
-                            listStore={((stores || []) as StoreResponse[]).filter(
+                            storeByDepartmentList={((stores || []) as StoreResponse[]).filter(
                               (store) => store.status === enumStoreStatus.ACTIVE,
                             )}
                             style={{ minWidth: "220px" }}

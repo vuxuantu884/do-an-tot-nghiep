@@ -25,7 +25,7 @@ import { getListChannelRequest } from "domain/actions/order/order.action";
 import useHandleFilterConfigsVersion2 from "hook/useHandleFilterConfigsVersion2";
 import { isEqual } from "lodash";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { OrderSearchQuery, OrderTypeModel } from "model/order/order.model";
 import { FilterConfig } from "model/other";
 import { VariantResponse } from "model/product/product.model";
@@ -2030,9 +2030,8 @@ function OrdersFilter(props: Props): JSX.Element {
                 <Col span={8} xxl={8}>
                   <Item name="store_ids" label="Kho cửa hàng">
                     <TreeStore
-                      name="store_ids"
                       placeholder="Cửa hàng"
-                      listStore={listStore}
+                      storeByDepartmentList={listStore as unknown as StoreByDepartment[]}
                       style={{ width: "100%" }}
                       autoClearSearchValue={false}
                     />
@@ -2629,9 +2628,9 @@ function OrdersFilter(props: Props): JSX.Element {
                 <Col span={8} xxl={8} hidden={orderType !== ORDER_TYPES.online}>
                   <Item name="returned_store_ids" label="Kho nhận hàng hoàn:">
                     <TreeStore
-                      name="returned_store_ids"
                       placeholder="Cửa hàng"
-                      listStore={listStore}
+                      // treeData={listStore}
+                      storeByDepartmentList={listStore as unknown as StoreByDepartment[]}
                       style={{ width: "100%" }}
                       autoClearSearchValue={false}
                     />

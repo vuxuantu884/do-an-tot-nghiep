@@ -39,12 +39,12 @@ import { PositionResponse } from "model/account/position.model";
 import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
 import { CountryResponse } from "model/content/country.model";
 import { CityView, DistrictResponse } from "model/content/district.model";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/TreeStore";
 import { convertDistrict } from "utils/AppUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -528,10 +528,8 @@ const AccountCreateScreen: React.FC = () => {
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item name="store_ids" label="Cửa hàng">
                 <TreeStore
-                  form={formRef}
-                  name="store_ids"
                   placeholder="Chọn cửa hàng"
-                  listStore={listStore}
+                  storeByDepartmentList={listStore as unknown as StoreByDepartment[]}
                   style={{ width: "100%" }}
                 />
               </Form.Item>

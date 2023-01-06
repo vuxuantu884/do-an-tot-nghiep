@@ -21,7 +21,7 @@ import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/
 import { InventoryTransferTabUrl } from "config/url.config";
 import { useQuery } from "utils/useQuery";
 import TreeStore from "component/TreeStore";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 
 type OrderFilterProps = {
   accountStores?: Array<StoreResponse>;
@@ -105,7 +105,6 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
     let accountStoreSelected =
       accountStores && accountStores.length > 0 ? accountStores.map((i) => i.id) : [];
 
-
     if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE) {
       formSearchRef.current?.setFieldsValue({
         ...params,
@@ -185,7 +184,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
         : null,
       to_pending_date: formAdv.getFieldValue("to_pending_date")
         ? getEndOfDayCommon(formAdv.getFieldValue("to_pending_date"))?.format()
-        : null
+        : null,
     };
     onFilter && onFilter(valuesForm);
   }, [formAdv, onFilter]);
@@ -521,18 +520,16 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
           >
             <Item name="from_store_id" className="select-item">
               <TreeStore
-                name="from_store_id"
                 placeholder="Kho gửi"
-                listStore={stores}
-                style={{ width: 200 }}
+                storeByDepartmentList={stores as unknown as StoreByDepartment[]}
+                style={{ width: 280 }}
               />
             </Item>
             <Item name="to_store_id" className="select-item">
               <TreeStore
-                name="to_store_id"
                 placeholder="Kho nhận"
-                listStore={stores}
-                style={{ width: 200 }}
+                storeByDepartmentList={stores as unknown as StoreByDepartment[]}
+                style={{ width: 280 }}
               />
             </Item>
             <Item name="condition" className="input-search">
@@ -698,12 +695,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
         {filters &&
           filters.map((filter: any, index) => {
             return (
-              <Tag
-                key={index}
-                className="tag"
-                closable
-                onClose={(e) => onCloseTag(e, filter)}
-              >
+              <Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>
                 {filter.name}: {filter.value}
               </Tag>
             );

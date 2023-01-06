@@ -1,12 +1,12 @@
 import { Button, Col, Form, Input, Row, Select } from "antd";
 import { FilterStockInOutStyle, StockInOutStatusStyle } from "./filter-style";
 import search from "assets/img/search.svg";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/TreeStore";
 import { useForm } from "antd/lib/form/Form";
 import { FilterOutlined } from "@ant-design/icons";
 import ButtonSetting from "component/table/ButtonSetting";
 import { createRef, useCallback, useEffect, useState } from "react";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import {
   StockInOutAdvancedFilter,
   StockInOutAdvancedFilterMapping,
@@ -375,10 +375,8 @@ const StockInOutFilter: React.FC<StockInOutFilterProps> = (props: StockInOutFilt
               <Item name={StockInOutBaseFilter.stores} className="stores">
                 <TreeStore
                   style={{ minWidth: 200 }}
-                  form={formBase}
-                  name={StockInOutBaseFilter.stores}
                   placeholder="Tìm kho hàng"
-                  listStore={allStore}
+                  storeByDepartmentList={allStore as unknown as StoreByDepartment[]}
                 />
               </Item>
               <Item name={StockInOutBaseFilter.type}>

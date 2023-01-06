@@ -6,13 +6,13 @@ import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import _ from "lodash";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerVisitorsFilter, LocalStorageKey } from "model/report/customer-visitors";
 import moment from "moment";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/TreeStore";
 import { getCustomerVisitors, updateCustomerVisitors } from "service/report/analytics.service";
 import { callApiNative } from "utils/ApiUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
@@ -453,10 +453,8 @@ function CustomerVisitors() {
                 ]}
               >
                 <TreeStore
-                  form={form}
-                  name={CustomerVisitorsFilter.StoreIds}
                   placeholder="Chọn cửa hàng"
-                  listStore={stores}
+                  storeByDepartmentList={stores as unknown as StoreByDepartment[]}
                   onChange={() => onChangeStore()}
                 />
               </Form.Item>

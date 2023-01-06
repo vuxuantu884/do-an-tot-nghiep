@@ -7,7 +7,7 @@ import BaseFilter from "component/filter/base.filter";
 import { StyledButton } from "component/filter/component/range-picker.custom";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { InventoryQuery, HistoryInventoryQuery } from "model/inventory";
 import {
   AvdHistoryInventoryFilter,
@@ -24,12 +24,9 @@ import {
   getStartOfDayCommon,
 } from "utils/DateUtils";
 import { QuantityButtonStyle } from "./history-filter.style";
-import TreeStore from "./TreeStore";
+import TreeStore from "component/TreeStore";
 import CustomSelect from "../../../../component/custom/select.custom";
 import { DOCUMENT_TYPES } from "screens/products/helper";
-import BaseFilterResult from "component/base/BaseFilterResult";
-import { useArray } from "hook/useArray";
-import { cloneDeep } from "lodash";
 
 interface HistoryInventoryFilterProps {
   params: HistoryInventoryQuery;
@@ -193,10 +190,8 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
               style={{ minWidth: "220px" }}
             >
               <TreeStore
-                form={formBaseFilter}
-                name={HistoryInventoryQueryField.store_ids}
                 placeholder="Chọn cửa hàng"
-                listStore={listStore}
+                storeByDepartmentList={listStore as unknown as StoreByDepartment[]}
               />
             </Item>
             <Item name={HistoryInventoryQueryField.document_type} className="search">

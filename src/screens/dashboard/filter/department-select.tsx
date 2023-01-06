@@ -1,11 +1,11 @@
 import { SelectProps } from "antd";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { AccountStoreResponse } from "model/account/account.model";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { ReactElement, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/TreeStore";
 import { DashboardContext } from "../provider/dashboard-provider";
 interface Props extends SelectProps<number> {}
 
@@ -44,8 +44,7 @@ function DepartmentSelect(props: Props): ReactElement {
   }, [dispatch]);
   return (
     <TreeStore
-      listStore={assignedStore}
-      name=""
+      storeByDepartmentList={assignedStore as unknown as StoreByDepartment[]}
       style={{ width: "250px" }}
       onChange={handleOnChange}
       placeholder={"Chọn bộ phận"}

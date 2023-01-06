@@ -3,7 +3,7 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import _ from "lodash";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   CustomerPhoneSMSCountersFilter,
@@ -19,7 +19,7 @@ import moment from "moment";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffectOnce } from "react-use";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/TreeStore";
 import {
   getCustomerPhoneSMSCounters,
   updateCustomerPhoneSMSCounters,
@@ -316,10 +316,8 @@ function CustomerPhoneSMSCounters() {
                 help={false}
               >
                 <TreeStore
-                  form={form}
-                  name={CustomerPhoneSMSCountersFilter.StoreIds}
                   placeholder="Chọn cửa hàng"
-                  listStore={stores}
+                  storeByDepartmentList={stores as unknown as StoreByDepartment[]}
                 />
               </Form.Item>
               <Form.Item

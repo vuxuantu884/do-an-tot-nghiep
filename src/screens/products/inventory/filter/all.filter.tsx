@@ -42,7 +42,7 @@ import { FILTER_CONFIG_TYPE } from "utils/Constants";
 import { primaryColor } from "utils/global-styles/variables";
 import { showSuccess } from "utils/ToastUtils";
 import FormSaveFilter from "./components/FormSaveFilter";
-import TreeStore from "./TreeStore";
+import TreeStore from "component/TreeStore";
 import { generateQuery } from "utils/AppUtils";
 import { useHistory } from "react-router-dom";
 import { InventoryTabUrl } from "config/url.config";
@@ -59,8 +59,6 @@ import { callApiNative } from "utils/ApiUtils";
 import { SizeResponse } from "model/product/size.model";
 import { sizeSearchAction } from "domain/actions/product/size.action";
 import SizeSearchSelect from "component/custom/select-search/size-search";
-import BaseFilterResult from "component/base/BaseFilterResult";
-import { useArray } from "hook/useArray";
 
 export interface InventoryFilterProps {
   params: any;
@@ -743,11 +741,9 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
           </Item>
           <Item name={InventoryQueryField.store_ids} className="store" style={{ minWidth: 300 }}>
             <TreeStore
-              form={formBaseFilter}
-              name={InventoryQueryField.store_ids}
               placeholder="Chọn cửa hàng"
               autoClearSearchValue={false}
-              listStore={listStore}
+              storeByDepartmentList={listStore}
               onChange={onChangeStore}
             />
           </Item>
@@ -823,10 +819,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
               <Item name={AvdInventoryFilter.store_ids} className="store" label="Cửa hàng">
                 <TreeStore
                   autoClearSearchValue={false}
-                  form={formBaseFilter}
-                  name={InventoryQueryField.store_ids}
                   placeholder="Chọn cửa hàng"
-                  listStore={listStore}
+                  storeByDepartmentList={listStore}
                   onChange={onChangeStore}
                 />
               </Item>

@@ -1,4 +1,4 @@
-import { Button, Card, Col, Form, Input, Row, Select, Space, TreeSelect } from "antd";
+import { Button, Card, Col, Form, Input, Row, Space, TreeSelect } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import AccountSearchSelect from "component/custom/select-search/account-select";
@@ -42,8 +42,6 @@ const DepartmentUpdateScreen: React.FC = () => {
     acceptPermissions: [DepartmentsPermissions.UPDATE],
     not: false,
   });
-
-  const levels = [1, 2, 3, 4, 5, 6, 7];
 
   const onFinish = useCallback(
     (value: DepartmentRequest) => {
@@ -212,17 +210,6 @@ const DepartmentUpdateScreen: React.FC = () => {
               <Col span={8}>
                 <Form.Item name="address" label="Địa chỉ liên hệ">
                   <Input maxLength={255} placeholder="Địa chỉ liên hệ" />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={50}>
-              <Col span={8}>
-                <Form.Item name="level" label="Cấp độ">
-                  <Select placeholder="Chọn cấp độ">
-                    {levels.map((item) => {
-                      return <Select.Option value={item}>{item}</Select.Option>;
-                    })}
-                  </Select>
                 </Form.Item>
               </Col>
             </Row>

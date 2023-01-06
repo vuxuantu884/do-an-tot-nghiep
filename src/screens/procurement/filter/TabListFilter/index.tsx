@@ -13,7 +13,7 @@ import { SupplierResponse } from "model/core/supplier.model";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/TreeStore";
 import { ProcurementStatus, ProcurementStatusName } from "utils/Constants";
 import { FilterProcurementStyleWrapper } from "../styles";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
@@ -363,17 +363,16 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
               <Item
                 name={ProcurementFilterBasicEnum.StoreIds}
                 className="stores"
-                style={{ minWidth: 200 }}
               >
                 <TreeStore
-                  form={formBase}
-                  name={ProcurementFilterBasicEnum.StoreIds}
+                  style={{ width: 250 }}
                   placeholder="Kho nhận"
-                  listStore={listStore}
+                  storeByDepartmentList={listStore}
                 />
               </Item>
               <Item className="suppliers">
                 <SupplierSearchSelect
+                  style={{ width: "100%" }}
                   label
                   name={ProcurementFilterBasicEnum.Suppliers}
                   mode="multiple"
@@ -385,7 +384,7 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
                 <CustomSelect
                   maxTagCount="responsive"
                   mode="multiple"
-                  style={{ minWidth: 180 }}
+                  style={{ width: 120 }}
                   showArrow
                   placeholder="Chọn trạng thái"
                   notFoundContent="Không tìm thấy kết quả"

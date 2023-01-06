@@ -127,7 +127,7 @@ const InventoryListScreen: React.FC = () => {
       ? userReducer.account?.account_stores.map((item) => {
       const storeFiltered = stores.filter((store) => store.id === item.store_id);
       return storeFiltered[0];
-      }) : [];
+      }).filter((item => item)) : [];
     setAccountStores(newMyStores);
   }, [stores, userReducer.account?.account_stores]);
 
