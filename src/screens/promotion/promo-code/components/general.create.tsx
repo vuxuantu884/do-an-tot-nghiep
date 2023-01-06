@@ -25,7 +25,7 @@ import moment from "moment";
 import React, { createRef, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/TreeStore";
 import { CustomerContitionFormlStyle } from "screens/promotion/shared/condition.style";
 import ProductItem from "screens/purchase-order/component/product-item";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
@@ -35,6 +35,7 @@ import CustomerFilter from "../../shared/cusomer-condition.form";
 import { IssueContext } from "../../issue/components/issue-provider";
 import "../promo-code.scss";
 import ChooseDiscount from "./choose-discount.create";
+import { StoreByDepartment } from "../../../../model/core/store.model";
 
 const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option;
@@ -538,10 +539,8 @@ const GeneralCreate = (props: any) => {
                   ]}
                 >
                   <TreeStore
-                    form={form}
-                    name="prerequisite_store_ids"
                     placeholder="Chọn cửa hàng"
-                    listStore={listStore}
+                    storeByDepartmentList={listStore as unknown as StoreByDepartment[]}
                     style={{ width: "100%" }}
                     disabled={allStore}
                   />

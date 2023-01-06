@@ -39,13 +39,13 @@ import { PositionResponse } from "model/account/position.model";
 import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
 import { CountryResponse } from "model/content/country.model";
 import { CityView, DistrictResponse } from "model/content/district.model";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useParams } from "react-router-dom";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/TreeStore";
 import { convertDistrict } from "utils/AppUtils";
 import { CompareObject } from "utils/CompareObject";
 import { RegUtil } from "utils/RegUtils";
@@ -547,9 +547,8 @@ const AccountUpdateScreen: React.FC = () => {
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item name="store_ids" style={{minWidth: 220}} label="Chọn cửa hàng">
                 <TreeStore
-                  name="store_ids"
                   placeholder="Chọn cửa hàng"
-                  listStore={listStore}
+                  storeByDepartmentList={listStore as unknown as StoreByDepartment[]}
                   style={{ width: "100%" }}
                 />
               </Form.Item>

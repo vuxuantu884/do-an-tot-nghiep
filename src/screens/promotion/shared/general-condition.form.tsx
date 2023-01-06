@@ -14,13 +14,13 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 import { getListAllSourceRequest } from "domain/actions/product/source.action";
 import _ from "lodash";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { SourceResponse } from "model/response/order/source.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import moment from "moment";
 import React, { ReactElement, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/TreeStore";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { getDayOptions } from "utils/PromotionUtils";
 import { dayOfWeekOptions, PROMOTION_TYPE } from "screens/promotion/constants";
@@ -199,10 +199,8 @@ function GeneralConditionForm({
               ]}
             >
               <TreeStore
-                form={form}
-                name="prerequisite_store_ids"
                 placeholder="Chọn cửa hàng"
-                listStore={listStore}
+                storeByDepartmentList={listStore as unknown as StoreByDepartment[]}
                 style={{ width: "100%" }}
                 disabled={allStore}
               />

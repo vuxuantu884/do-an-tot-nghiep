@@ -751,7 +751,7 @@ const CreateTicket: FC = () => {
   const handleSelectSuggestStore = (store: Store) => {
     setToStoreData(store);
     form.setFieldsValue({
-      to_store_id: store.id.toString()
+      to_store_id: store?.id.toString()
     });
   };
 
@@ -895,7 +895,7 @@ const CreateTicket: FC = () => {
                         style={{ cursor: "pointer" }}
                         onClick={() => handleSelectSuggestStore(store)}
                       >
-                        {store.name}
+                        {store?.name}
                       </Tag>
                     );
                   })}

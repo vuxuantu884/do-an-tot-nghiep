@@ -12,9 +12,9 @@ import { FilterProcurementStyleWrapper } from "../styles";
 import search from "assets/img/search.svg";
 import ButtonSetting from "component/table/ButtonSetting";
 import { FilterOutlined } from "@ant-design/icons";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/TreeStore";
 import { useForm, FormInstance } from "antd/es/form/Form";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { callApiNative } from "utils/ApiUtils";
 import { getStoreApi } from "service/inventory/transfer/index.service";
 import { ProcurementTabUrl } from "config/url.config";
@@ -215,13 +215,11 @@ const TabProductsFilter: React.FC<ProcurementItemsFilterProps> = (
           <Item
             name={ProcurementFilterBasicEnum.StoreIds}
             className="stores"
-            style={{ minWidth: 200 }}
           >
             <TreeStore
-              form={formBase}
-              name={ProcurementFilterBasicEnum.StoreIds}
+              style={{ width: 350 }}
               placeholder="Chọn kho nhận"
-              listStore={allStore}
+              storeByDepartmentList={allStore as unknown as StoreByDepartment[]}
             />
           </Item>
           <div className="btn-action">

@@ -17,7 +17,7 @@ import UrlConfig from "config/url.config";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 import useHandleFilterConfigsVersion2 from "hook/useHandleFilterConfigsVersion2";
 import { AccountResponse } from "model/account/account.model";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { OrderTypeModel } from "model/order/order.model";
 import { ReturnSearchQuery } from "model/order/return.model";
 import { FilterConfig } from "model/other";
@@ -28,7 +28,7 @@ import { ChannelResponse } from "model/response/product/channel.response";
 import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/TreeStore";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
@@ -890,9 +890,8 @@ function ReturnFilter(props: Props) {
                     ))}
                   </CustomSelect> */}
                     <TreeStore
-                      name="store_ids"
                       placeholder="Cửa hàng"
-                      listStore={listStore}
+                      storeByDepartmentList={listStore as unknown as StoreByDepartment[]}
                       style={{ width: "100%" }}
                       autoClearSearchValue={false}
                     />

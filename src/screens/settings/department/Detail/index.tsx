@@ -157,9 +157,6 @@ const DepartmentCreateScreen: React.FC = () => {
                     />
                   </Col>
                   <Col span={24}>
-                    <RowDetail title="Cấp độ" value={data.level} />
-                  </Col>
-                  <Col span={24}>
                     <RowDetail title="Trực thuộc" value={convertToDepartmentName(data.parent_id)} />
                   </Col>
                 </Row>

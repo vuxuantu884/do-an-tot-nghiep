@@ -5,8 +5,8 @@ import { POReturnFiltersWrapper } from "./style";
 import search from "assets/img/search.svg";
 import BaseSelectMerchans from "component/base/BaseSelect/BaseSelectMerchans";
 import { useFetchMerchans } from "hook/useFetchMerchans";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
-import { StoreResponse } from "model/core/store.model";
+import TreeStore from "component/TreeStore";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { SupplierResponse } from "model/core/supplier.model";
 import { useDispatch } from "react-redux";
 import SupplierSearchSelect from "component/filter/component/supplier-select";
@@ -203,10 +203,8 @@ const PurchaseOrderReturnFilter: React.FC<POReturnFilterProps> = (props: PORetur
                 style={{ minWidth: 250 }}
               >
                 <TreeStore
-                  form={formBaseFilter}
-                  name={POReturnFilterField.store_ids}
                   placeholder="Chọn kho trả hàng"
-                  listStore={allStore}
+                  storeByDepartmentList={allStore as unknown as StoreByDepartment[]}
                 />
               </Item>
               <Item className="suppliers" style={{ minWidth: 260 }}>
