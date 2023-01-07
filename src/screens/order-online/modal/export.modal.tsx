@@ -1,8 +1,15 @@
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Col, Modal, Progress, Radio, Row, Space } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { fields_order_online, fields_order_offline } from "../common/fields.export";
+import {
+  fields_order_online,
+  fields_order_offline,
+  fields_return,
+  fields_shipment,
+} from "../common/fields.export";
 import { ORDER_EXPORT_TYPE } from "utils/Order.constants";
+import useAuthorization from "hook/useAuthorization";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 type ExportModalProps = {
   visible: boolean;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
@@ -32,6 +39,23 @@ const ExportModal: React.FC<ExportModalProps> = (props: ExportModalProps) => {
     setIsLoopInfoIfOrderHasMoreThanTwoProducts,
   } = props;
   // statusExport: 1 not export, 2 exporting, 3 export success, 4 export error
+  const [allowExportVat] = useAuthorization({
+    acceptPermissions: [ORDER_PERMISSIONS.orders_export_vat],
+  });
+
+  const checkExportPermission = useCallback(
+    (fields: { value: string; name: string }[], vatField: string[]) => {
+      let result = fields.filter((single) => {
+        if (allowExportVat) {
+          return true;
+        }
+        return !vatField.includes(single.value);
+      });
+      return result;
+    },
+    [allowExportVat],
+  );
+
   const text = useMemo(() => {
     switch (type) {
       case ORDER_EXPORT_TYPE.ECOMMERCE:
@@ -69,18 +93,24 @@ const ExportModal: React.FC<ExportModalProps> = (props: ExportModalProps) => {
   const fields = useMemo(() => {
     switch (type) {
       case ORDER_EXPORT_TYPE.ECOMMERCE:
-      case "orders_online":
-        return fields_order_online;
-      case "orders_offline":
-        return fields_order_offline;
+      case "orders_online": {
+        const vatFields = ["totalTaxLine", "totalTax"];
+        return checkExportPermission(fields_order_online, vatFields);
+      }
+      case "orders_offline": {
+        const vatFields = ["totalTaxLine", "totalTax"];
+        return checkExportPermission(fields_order_offline, vatFields);
+      }
       // case "shipments":
       //   return fields_shipment
-      // case "returns":
-      //   return fields_return
+      case "returns": {
+        const vatFields = ["totalTax"];
+        return checkExportPermission(fields_return, vatFields);
+      }
       default:
         return [];
     }
-  }, [type]);
+  }, [checkExportPermission, type]);
   const [optionExport, setOptionExport] = useState<number>(
     selected
       ? 3

@@ -14,7 +14,6 @@ import {
   Col,
   Divider,
   Image,
-  Input,
   Modal,
   Popover,
   Row,
@@ -29,6 +28,7 @@ import classNames from "classnames";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
+import TreeStore from "component/TreeStore";
 import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig from "config/url.config";
 import {
@@ -37,7 +37,13 @@ import {
   inventoryGetHistoryAction,
 } from "domain/actions/inventory/inventory.action";
 import { productGetDetail, productUpdateAction } from "domain/actions/product/products.action";
+import useAuthorization from "hook/useAuthorization";
+import useFetchTaxConfig from "hook/useFetchTaxConfig";
+import { cloneDeep } from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
+import { SupplierResponse } from "model/core/supplier.model";
+import { TaxConfigCountry } from "model/core/tax.model";
 import {
   AdvertisingHistoryResponse,
   HistoryInventoryResponse,
@@ -46,6 +52,7 @@ import {
 import { CollectionCreateRequest } from "model/product/collection.model";
 import { ProductParams, ProductResponse, VariantResponse } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { enumStoreStatus } from "model/warranty/warranty.model";
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation, useParams } from "react-router";
@@ -58,24 +65,14 @@ import {
   getFirstProductAvatarByVariantResponse,
   ProductDetailTabName,
 } from "screens/products/helper";
-import { showSuccess } from "utils/ToastUtils";
-import { RowDetail, ProductSteps, VariantList } from "../component";
-import { TabProductHistory, TabProductInventory } from "../tab";
-import { StyledComponent } from "./styles";
-import useAuthorization from "hook/useAuthorization";
-import { callApiNative } from "utils/ApiUtils";
-import { productUpdateApi } from "service/product/product.service";
-import { cloneDeep, debounce } from "lodash";
-import { fullTextSearch } from "utils/StringUtils";
-import { SupplierResponse } from "model/core/supplier.model";
-import TreeStore from "component/TreeStore";
-import { StoreResponse } from "model/core/store.model";
-import { getAllPublicSimpleStoreApi } from "service/core/store.service";
-import { enumStoreStatus } from "model/warranty/warranty.model";
-import { TabAdvertisingHistory } from "../tab";
-import useFetchTaxConfig from "hook/useFetchTaxConfig";
-import { TaxConfigCountry } from "model/core/tax.model";
 import { VN_CODE } from "screens/settings/tax/helper";
+import { getAllPublicSimpleStoreApi } from "service/core/store.service";
+import { productUpdateApi } from "service/product/product.service";
+import { callApiNative } from "utils/ApiUtils";
+import { showSuccess } from "utils/ToastUtils";
+import { ProductSteps, RowDetail, VariantList } from "../component";
+import { TabAdvertisingHistory, TabProductHistory, TabProductInventory } from "../tab";
+import { StyledComponent } from "./styles";
 
 const LIMIT_PAGE = 10;
 const LIMIT_PAGE_DETAIL = 500;
@@ -101,6 +98,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
 
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
   const [valueStores, setValueStores] = useState<Array<number>>([]);
+  const [valueStoresInv, setValueStoresInv] = useState<Array<number>>([]);
   const tabRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<string>(ProductDetailTabName.INVENTORY);
   const { id, variantId } = useParams<ProductParams>();
@@ -108,7 +106,6 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingVariantUpdate, setIsLoadingVariantUpdate] = useState(false);
   const [isLoadingSwitch, setIsLoadingSwitch] = useState(false);
-  const [keySearch, setKeySearch] = useState<string>();
 
   const [isLoadingVariant, setIsLoadingVariant] = useState(false);
   const [active, setActive] = useState<number>(0);
@@ -138,14 +135,6 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   });
 
   const [dataInventoryOrg, setDataInventoryOrg] = useState<PageResponse<InventoryResponse>>({
-    items: [],
-    metadata: {
-      limit: 30,
-      page: 1,
-      total: 0,
-    },
-  });
-  const [dataHistoryOrg, setDataHistoryOrg] = useState<PageResponse<HistoryInventoryResponse>>({
     items: [],
     metadata: {
       limit: 30,
@@ -345,10 +334,8 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
     setIsLoadingHis(false);
     if (!result) {
       setDataHistory({ ...(initialDataInventory as PageResponse<HistoryInventoryResponse>) });
-      setDataHistoryOrg({ ...(initialDataInventory as PageResponse<HistoryInventoryResponse>) });
     } else {
       setDataHistory(result);
-      setDataHistoryOrg(result);
     }
   }, []);
 
@@ -431,6 +418,18 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
     }
   };
 
+  const changeInvStore = (storeIds: number[]) => {
+    setValueStoresInv(storeIds);
+    if (storeIds.length > 0) {
+      const newVariantInvItems = dataInventoryOrg.items.filter((el: InventoryResponse) =>
+        storeIds.includes(el.store_id),
+      );
+      setDataInventory({ ...dataInventoryOrg, items: [...newVariantInvItems] });
+    } else {
+      setDataInventory(dataInventoryOrg);
+    }
+  };
+
   const getAllStores = async () => {
     callApiNative({ isShowLoading: false }, dispatch, getAllPublicSimpleStoreApi).then((res) => {
       setStores(res);
@@ -509,46 +508,6 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
       tabRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [tabRef, hash, tab]);
-
-  const debounceSearch = useMemo(
-    () =>
-      debounce((code: string) => {
-        if (activeTab === ProductDetailTabName.INVENTORY) {
-          const variantsInv = cloneDeep(dataInventoryOrg);
-          if (variantsInv.items && variantsInv.items.length === 0) return;
-          if (!code || code === "") {
-            changeDataInventory(1);
-            return;
-          }
-
-          variantsInv.items = variantsInv.items.filter((e) => {
-            return fullTextSearch(code, e.store.toLowerCase());
-          });
-          setDataInventory({ ...dataInventoryOrg, items: [...variantsInv.items] });
-          return;
-        }
-
-        const variantsHis = cloneDeep(dataHistoryOrg);
-        if (variantsHis.items && variantsHis.items.length === 0) return;
-        if (!code || code === "") {
-          changeDataHistory(1);
-          return;
-        }
-
-        variantsHis.items = variantsHis.items.filter((e) => {
-          return fullTextSearch(code, e.store.toLowerCase());
-        });
-        setDataHistory({ ...dataHistoryOrg, items: [...variantsHis.items] });
-      }, 300),
-    [activeTab, dataHistoryOrg, dataInventoryOrg, changeDataHistory, changeDataInventory],
-  );
-
-  const changeKeySearch = useCallback(
-    (code: string) => {
-      debounceSearch(code);
-    },
-    [debounceSearch],
-  );
 
   useEffect(() => {
     if (data?.name) {
@@ -984,24 +943,34 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                     <Tabs
                       tabBarExtraContent={
                         <>
-                          <TreeStore
-                            name="store_ids"
-                            placeholder="Chọn cửa hàng"
-                            listStore={((stores || []) as StoreResponse[]).filter(
-                              (store) => store.status === enumStoreStatus.ACTIVE,
-                            )}
-                            style={{ minWidth: "220px" }}
-                            value={valueStores}
-                            onChange={onChangeStore}
-                          />
+                          {activeTab === ProductDetailTabName.HISTORY && (
+                            <TreeStore
+                              placeholder="Chọn cửa hàng"
+                              storeByDepartmentList={((stores || []) as StoreResponse[]).filter(
+                                (store) => store.status === enumStoreStatus.ACTIVE,
+                              )}
+                              style={{ minWidth: "220px" }}
+                              value={valueStores}
+                              onChange={onChangeStore}
+                            />
+                          )}
+                          {activeTab === ProductDetailTabName.INVENTORY && (
+                            <TreeStore
+                              placeholder="Chọn cửa hàng"
+                              storeByDepartmentList={((stores || []) as StoreResponse[]).filter(
+                                (store) => store.status === enumStoreStatus.ACTIVE,
+                              )}
+                              style={{ minWidth: "220px" }}
+                              value={valueStoresInv}
+                              onChange={changeInvStore}
+                            />
+                          )}
                         </>
                       }
                       style={{ overflow: "initial" }}
                       defaultActiveKey={activeTab}
                       onChange={(e) => {
                         setActiveTab(e);
-                        setKeySearch("");
-                        changeKeySearch("");
                       }}
                     >
                       <Tabs.TabPane tab="Danh sách tồn kho" key={ProductDetailTabName.INVENTORY}>

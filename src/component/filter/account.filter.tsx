@@ -13,12 +13,12 @@ import { PositionResponse } from "model/account/position.model";
 import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import moment from "moment";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { CgArrowRight } from "react-icons/cg";
 import { useDispatch } from "react-redux";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/TreeStore";
 import { FilterAccountAdvancedStyles } from "screens/settings/account/account.search.style";
 import { fullTextSearch } from "utils/StringUtils";
 import BaseFilter from "./base.filter";
@@ -208,7 +208,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
               <Row>
                 <Col span={24}>
                   <Form.Item name="store_ids" label="Cửa hàng">
-                    <TreeStore name="store_ids" listStore={listStore} form={formRef} />
+                    <TreeStore storeByDepartmentList={listStore as unknown as StoreByDepartment[]} />
                   </Form.Item>
                 </Col>
               </Row>

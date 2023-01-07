@@ -2329,6 +2329,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       );
       getStoreBankAccountNumbersService({
         store_ids: [storeId],
+        status: true,
       })
         .then((response) => {
           if (isFetchApiSuccessful(response)) {

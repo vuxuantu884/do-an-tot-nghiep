@@ -9,7 +9,7 @@ import SelectRangeDateCustom, {
   convertSelectedDateOption,
   handleSelectedDate,
 } from "component/filter/SelectRangeDateCustom";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/TreeStore";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 // import { departmentDetailAction } from "domain/actions/account/department.action";
@@ -22,7 +22,7 @@ import { getListAllSourceRequest } from "domain/actions/product/source.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ProvinceModel } from "model/content/district.model";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { CustomerSearchQuery } from "model/query/customer.query";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { SourceResponse } from "model/response/order/source.response";
@@ -2375,9 +2375,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                   className="right-filter"
                 >
                   <TreeStore
-                    name="assign_store_ids"
                     placeholder="Chọn cửa hàng"
-                    listStore={listStore}
+                    storeByDepartmentList={listStore as unknown as StoreByDepartment[]}
                     getPopupContainer={(trigger: any) => trigger.parentElement}
                   />
                 </Form.Item>
@@ -2386,9 +2385,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
               <div className="base-filter-row">
                 <Form.Item name="store_ids" label={<b>Kho cửa hàng</b>} className="left-filter">
                   <TreeStore
-                    name="store_ids"
                     placeholder="Chọn cửa hàng"
-                    listStore={listStore}
+                    storeByDepartmentList={listStore as unknown as StoreByDepartment[]}
                     getPopupContainer={(trigger: any) => trigger.parentElement}
                   />
                 </Form.Item>
@@ -3085,9 +3083,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                   className="left-filter"
                 >
                   <TreeStore
-                    name="store_of_first_order_offline_ids"
                     placeholder="Chọn cửa hàng"
-                    listStore={listStore}
+                    storeByDepartmentList={listStore as unknown as StoreByDepartment[]}
                     getPopupContainer={(trigger: any) => trigger.parentElement}
                   />
                 </Form.Item>
@@ -3102,9 +3099,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                   className="center-filter"
                 >
                   <TreeStore
-                    name="store_of_last_order_offline_ids"
                     placeholder="Chọn cửa hàng"
-                    listStore={listStore}
+                    storeByDepartmentList={listStore as unknown as StoreByDepartment[]}
                     getPopupContainer={(trigger: any) => trigger.parentElement}
                   />
                 </Form.Item>

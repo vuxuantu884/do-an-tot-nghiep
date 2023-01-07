@@ -21,9 +21,9 @@ import { CustomerGroups } from "domain/actions/customer/customer.action";
 import { PriceRuleMethod } from "model/promotion/price-rules.model";
 import { DiscountUnitType } from "screens/promotion/constants";
 import SmsConfigPromotionModal from "screens/settings/sms/component/SmsConfigPromotionModal";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/TreeStore";
 import { getAllPublicSimpleStoreAction } from "domain/actions/core/store.action";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { StyledSmsConfigMessage } from "screens/settings/sms/styles";
 
 import { PlusOutlined } from "@ant-design/icons";
@@ -510,9 +510,8 @@ const SmsCustomerBirthday: React.FC = () => {
                       </div>
                       <TreeStore
                         id={`store-id-${smsFormIndex}`}
-                        name="store_ids"
                         placeholder="Chọn cửa hàng"
-                        listStore={storeList}
+                        storeByDepartmentList={storeList as unknown as StoreByDepartment[]}
                         value={smsForm.store_ids}
                         onChange={(value) => onChangeTreeStore(value, smsFormIndex)}
                         getPopupContainer={(trigger: any) => trigger.parentElement}

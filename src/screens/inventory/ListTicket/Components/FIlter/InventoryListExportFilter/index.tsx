@@ -14,9 +14,9 @@ import "assets/css/custom-filter.scss";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/TreeStore";
 import { useDispatch } from "react-redux";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { callApiNative } from "utils/ApiUtils";
 import { getStoreApi } from "service/inventory/transfer/index.service";
 import CustomSelect from "component/custom/select.custom";
@@ -507,13 +507,13 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
             initialValues={initialValues}
             layout="inline"
           >
-            <Item name="from_store_id" className="select-item" style={{ width: "170px" }}>
-              <TreeStore name="from_store_id" placeholder="Kho gửi" listStore={listStore} />
+            <Item name="from_store_id" className="select-item">
+              <TreeStore style={{ width: 280 }} placeholder="Kho gửi" storeByDepartmentList={listStore as unknown as StoreByDepartment[]} />
             </Item>
-            <Item name="to_store_id" className="select-item" style={{ width: "170px" }}>
-              <TreeStore name="to_store_id" placeholder="Kho nhận" listStore={listStore} />
+            <Item name="to_store_id" className="select-item">
+              <TreeStore style={{ width: 280 }} placeholder="Kho nhận" storeByDepartmentList={listStore as unknown as StoreByDepartment[]} />
             </Item>
-            <Item style={{ width: "calc(100% - 650px)" }} name="condition" className="input-search">
+            <Item style={{ width: "calc(100% - 880px)" }} name="condition" className="input-search">
               <Input
                 className="input-search"
                 prefix={<img src={search} alt="" />}

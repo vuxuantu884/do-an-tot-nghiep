@@ -1,5 +1,5 @@
 import moment from "moment";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { SourceResponse } from "model/response/order/source.response";
 import search from "assets/img/search.svg";
 import { DiscountSearchQuery } from "model/query/discount.query";
@@ -16,7 +16,7 @@ import useAuthorization from "hook/useAuthorization";
 import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
 import BaseFilter from "component/filter/base.filter";
 import { FilterOutlined } from "@ant-design/icons";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import TreeStore from "component/TreeStore";
 import { useDispatch } from "react-redux";
 import { convertItemToArray, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import {
@@ -951,9 +951,8 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                   case SearchVariantField.store_ids:
                     component = (
                       <TreeStore
-                        name="store_ids"
                         placeholder="Chọn 1 hoặc nhiều cửa hàng"
-                        listStore={listStore}
+                        storeByDepartmentList={listStore as unknown as StoreByDepartment[]}
                         getPopupContainer={(trigger: any) => trigger.parentElement}
                       />
                     );

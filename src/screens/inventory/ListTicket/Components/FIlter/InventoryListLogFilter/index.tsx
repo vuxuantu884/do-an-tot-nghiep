@@ -19,7 +19,7 @@ import AccountSearchPaging from "component/custom/select-search/account-select-p
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 import TreeStore from "component/TreeStore";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 
 const ACTIONS_STATUS_ARRAY = [
   {
@@ -76,7 +76,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
     onFilter,
     onShowColumnSetting,
     stores,
-    accounts
+    accounts,
   } = props;
   const [formAdv] = Form.useForm();
   const formRef = createRef<FormInstance>();
@@ -96,10 +96,16 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
   useEffect(() => {
     formSearchRef.current?.setFieldsValue({
       ...params,
-      from_store_id: params.from_store_id ? Array.isArray(params.from_store_id)
-        ? params.from_store_id.map((storeId) => Number(storeId)) : [Number(params.from_store_id)] : [],
-      to_store_id: params.to_store_id ? Array.isArray(params.to_store_id)
-        ? params.to_store_id.map((storeId) => Number(storeId)) : [Number(params.to_store_id)] : [],
+      from_store_id: params.from_store_id
+        ? Array.isArray(params.from_store_id)
+          ? params.from_store_id.map((storeId) => Number(storeId))
+          : [Number(params.from_store_id)]
+        : [],
+      to_store_id: params.to_store_id
+        ? Array.isArray(params.to_store_id)
+          ? params.to_store_id.map((storeId) => Number(storeId))
+          : [Number(params.to_store_id)]
+        : [],
     });
   }, [formSearchRef, params]);
 
@@ -181,44 +187,42 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
   );
 
   const onFilterClick = useCallback(() => {
-      setVisible(false);
-      let values = formAdv.getFieldsValue(true);
+    setVisible(false);
+    let values = formAdv.getFieldsValue(true);
 
-      if (values?.from_total_variant > values?.to_total_variant) {
-        values = {
-          ...values,
-          from_total_variant: values?.to_total_variant,
-          to_total_variant: values?.from_total_variant,
-        };
-      }
-      if (values?.from_total_quantity > values?.to_total_quantity) {
-        values = {
-          ...values,
-          from_total_quantity: values?.to_total_quantity,
-          to_total_quantity: values?.from_total_quantity,
-        };
-      }
-      if (values?.from_total_amount > values?.to_total_amount) {
-        values = {
-          ...values,
-          from_total_amount: values?.to_total_amount,
-          to_total_amount: values?.from_total_amount,
-        };
-      }
-      const valuesForm = {
+    if (values?.from_total_variant > values?.to_total_variant) {
+      values = {
         ...values,
-        condition: values.condition ? values.condition.trim() : null,
-        from_created_date: formAdv.getFieldValue("from_created_date")
-          ? getStartOfDayCommon(formAdv.getFieldValue("from_created_date"))?.format()
-          : null,
-        to_created_date: formAdv.getFieldValue("to_created_date")
-          ? getEndOfDayCommon(formAdv.getFieldValue("to_created_date"))?.format()
-          : null,
+        from_total_variant: values?.to_total_variant,
+        to_total_variant: values?.from_total_variant,
       };
-      onFilter && onFilter(valuesForm);
-    },
-    [formAdv, onFilter],
-  );
+    }
+    if (values?.from_total_quantity > values?.to_total_quantity) {
+      values = {
+        ...values,
+        from_total_quantity: values?.to_total_quantity,
+        to_total_quantity: values?.from_total_quantity,
+      };
+    }
+    if (values?.from_total_amount > values?.to_total_amount) {
+      values = {
+        ...values,
+        from_total_amount: values?.to_total_amount,
+        to_total_amount: values?.from_total_amount,
+      };
+    }
+    const valuesForm = {
+      ...values,
+      condition: values.condition ? values.condition.trim() : null,
+      from_created_date: formAdv.getFieldValue("from_created_date")
+        ? getStartOfDayCommon(formAdv.getFieldValue("from_created_date"))?.format()
+        : null,
+      to_created_date: formAdv.getFieldValue("to_created_date")
+        ? getEndOfDayCommon(formAdv.getFieldValue("to_created_date"))?.format()
+        : null,
+    };
+    onFilter && onFilter(valuesForm);
+  }, [formAdv, onFilter]);
 
   let filters = useMemo(() => {
     let list = [];
@@ -308,18 +312,16 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
           >
             <Item name="from_store_id" className="select-item">
               <TreeStore
-                name="from_store_id"
                 placeholder="Kho gửi"
-                listStore={stores}
-                style={{ width: 200 }}
+                storeByDepartmentList={stores as unknown as StoreByDepartment[]}
+                style={{ width: 300 }}
               />
             </Item>
             <Item name="to_store_id" className="select-item">
               <TreeStore
-                name="to_store_id"
                 placeholder="Kho nhận"
-                listStore={stores}
-                style={{ width: 200 }}
+                storeByDepartmentList={stores as unknown as StoreByDepartment[]}
+                style={{ width: 300 }}
               />
             </Item>
             <Item name="condition" className="input-search">

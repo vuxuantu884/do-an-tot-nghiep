@@ -20,8 +20,8 @@ import isEqual from "lodash/isEqual";
 import { isArray } from "lodash";
 import BaseFilterResult from "component/base/BaseFilterResult";
 import { getStoreApi } from "service/inventory/transfer/index.service";
-import { StoreResponse } from "model/core/store.model";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
+import TreeStore from "component/TreeStore";
 import CustomSelect from "component/custom/select.custom";
 import { ProcurementStatus, ProcurementStatusName } from "utils/Constants";
 import CustomFilter from "component/table/custom.filter";
@@ -338,10 +338,8 @@ function TabCurrentFilter(props: ProcurementFilterProps) {
                 style={{ minWidth: 250, maxWidth: 300 }}
               >
                 <TreeStore
-                  form={formBase}
-                  name={ProcurementFilterBasicEnum.StoreIds}
                   placeholder="Chọn kho nhận"
-                  listStore={stores}
+                  storeByDepartmentList={stores as unknown as StoreByDepartment[]}
                 />
               </Item>
               <Item className="suppliers" style={{ minWidth: 200, maxWidth: 250 }}>
