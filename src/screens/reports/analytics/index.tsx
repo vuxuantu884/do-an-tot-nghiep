@@ -1,4 +1,4 @@
-import { Button, Card, Checkbox, Form, Input, Table } from "antd";
+import { Button, Card, Checkbox, Form, Input, List, Table } from "antd";
 import Color from "assets/css/export-variable.module.scss";
 import search from "assets/img/search.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
@@ -149,6 +149,8 @@ function Analytics() {
     }),
     REPORT_TEMPLATES,
   );
+
+  const templates = require.context("assets/icon/analytic", true, /\.(jpg|jpeg|png|svg)$/);
   return (
     <ContentContainer
       title={`Danh sách ${REPORT_NAMES[matchPath].toLocaleLowerCase()}`}
@@ -196,13 +198,28 @@ function Analytics() {
           )}
 
           {[UrlConfig.ANALYTIC_FINACE].includes(matchPath) && (
-            <ListAnalyticsBlock
-              matchPath={matchPath}
-              data={REPORT_TEMPLATES.filter((item) => {
-                return item.alias.includes(matchPath);
-              })}
-              title="Báo cáo lợi nhuận"
-            ></ListAnalyticsBlock>
+            <div>
+              <ListAnalyticsBlock
+                matchPath={matchPath}
+                data={REPORT_TEMPLATES.filter((item) => {
+                  return item.alias.includes(matchPath);
+                })}
+                title="Báo cáo lợi nhuận"
+              ></ListAnalyticsBlock>
+              <Card title={"Báo cáo tồn kho"} className="template-report">
+                <Link to={`${matchPath}/inventory-balance`} key={"inventory-balance-report"}>
+                  <List.Item className="pointer">
+                    <div className={`template-report__card `}>
+                      <div className="template-report__icon ">
+                        <img src={templates(`./san-pham.svg`)} alt={"XNT"} />
+                      </div>
+                      <div className="template-report__type">Báo cáo</div>
+                      <div className="template-report__name">Xuất nhập tồn kho</div>
+                    </div>
+                  </List.Item>
+                </Link>
+              </Card>
+            </div>
           )}
 
           {[UrlConfig.ANALYTIC_CUSTOMER].includes(matchPath) && (

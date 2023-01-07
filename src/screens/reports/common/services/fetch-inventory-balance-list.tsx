@@ -19,7 +19,7 @@ export async function fetchInventoryBalanceList(
   console.log("response", response);
 
   if (!response) {
-    showError("Xảy ra lỗi");
+    showError("Xảy ra lỗi. Vui lòng thử lại.");
   }
   return response || [];
 }

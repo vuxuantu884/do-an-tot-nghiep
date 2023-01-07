@@ -8,17 +8,26 @@ export const InventoryBalanceStyle = styled.div`
       table > tbody > tr > td {
         border-right: 1px solid #d9d9d9 !important;
         border-bottom: 1px solid #d9d9d9 !important;
+        padding: 4px;
       }
     }
     .ant-table-thead > tr > th {
       border-right: 1px solid #d9d9d9 !important;
       border-bottom: 1px solid #d9d9d9 !important;
       white-space: pre-line;
+      padding: 4px;
     }
-    // .ant-table-thead th {
-    //   overflow-wrap: normal;
-    //   word-break: normal;
-    //   width: 100px !important;
-    // }
+  }
+  .mb-2 {
+    margin-bottom: 1rem;
+  }
+
+  .ant-form-item {
+    margin: 0;
+  }
+
+  .btn-filter {
+    margin-right: 10px;
+    margin-left: 10px;
   }
 `;

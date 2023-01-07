@@ -143,6 +143,18 @@ const reports: Array<RouteMenu> = [
         header: null,
         subMenu: [],
       },
+      {
+        path: `${UrlConfig.ANALYTIC_FINACE}/${REPORTS_URL.INVENTORY_BALANCE}`,
+        permissions: [],
+        exact: true,
+        title: "Báo cáo xuất nhập tồn kho",
+        icon: "icon-dot",
+        component: InventoryBalance,
+        key: "menureport5",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
     ],
   },
   {
@@ -279,18 +291,6 @@ const reports: Array<RouteMenu> = [
         subMenu: [],
       },
     ],
-  },
-  {
-    path: REPORTS_URL.INVENTORY_BALANCE,
-    permissions: [],
-    exact: true,
-    title: "Báo cáo xuất nhập tồn kho",
-    icon: "icon-dot",
-    component: InventoryBalance,
-    key: "menureport5",
-    isShow: true,
-    header: null,
-    subMenu: [],
   },
 ];
 

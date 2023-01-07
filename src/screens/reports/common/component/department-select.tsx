@@ -50,7 +50,7 @@ function DepartmentSelect(props: Props): ReactElement {
   }, [dispatch]);
   return (
     <Select
-      placeholder="Chọn kho/cửa hàng"
+      placeholder="Kho/cửa hàng"
       showArrow
       showSearch
       optionFilterProp="children"
