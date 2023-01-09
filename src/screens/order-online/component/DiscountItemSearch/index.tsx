@@ -56,11 +56,12 @@ function DiscountItemSearch(props: PropTypes) {
 
   const disableInput = props.item?.discount_items[0] ? true : disabled;
   useEffect(() => {
-    if (initItemSuggestDiscounts.length > 0) {
-      if (suggestedDiscounts.length === 0) {
-        setSuggestedDiscounts(initItemSuggestDiscounts);
-      }
-    }
+    // if (initItemSuggestDiscounts.length > 0) {
+    //   if (suggestedDiscounts.length === 0) {
+    //     setSuggestedDiscounts(initItemSuggestDiscounts);
+    //   }
+    // }
+    setSuggestedDiscounts(initItemSuggestDiscounts);
   }, [initItemSuggestDiscounts, suggestedDiscounts.length]);
 
   const getAfterValue = (discount: any, totalAcount: number) => {
