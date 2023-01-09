@@ -36,8 +36,11 @@ function InventoryBalance() {
 
   return (
     <ContentContainer
-      title={`Báo cáo xuất nhập tồn`}
-      breadcrumb={[{ name: "Báo cáo" }, { name: "Báo cáo xuất nhập tồn" }]}
+      title={`Báo cáo xuất - nhập - tồn (Kế toán)`}
+      breadcrumb={[
+        { name: "Danh sách báo cáo tài chính", path: "/analytics/finance" },
+        { name: "Báo cáo xuất - nhập - tồn (Kế toán)" },
+      ]}
     >
       <InventoryBalanceFilter applyFilter={setConditionFilter}></InventoryBalanceFilter>
       <InventoryBalanceStyle>

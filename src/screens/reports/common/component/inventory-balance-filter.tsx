@@ -2,16 +2,19 @@ import { FilterOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Form, Row, Select } from "antd";
 import BaseFilter from "component/filter/base.filter";
 import { CityByCountryAction } from "domain/actions/content/content.action";
+import { AccountStoreResponse } from "model/account/account.model";
 import { ProvinceModel } from "model/content/district.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { useCallback, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffectOnce } from "react-use";
 import AnalyticsDatePicker from "screens/reports/analytics/shared/analytics-date-picker";
 import { VietNamId } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { searchNumberString, strForSearch } from "utils/StringUtils";
 import { showWarning } from "utils/ToastUtils";
 import { InventoryBalanceFilterForm } from "../enums/inventory-balance-report";
-import { fetchProductInfo } from "../services/fetch-inventory-balance-list";
+import { fetchProductInfo, fetchStoreByProvince } from "../services/fetch-inventory-balance-list";
 import { InventoryBalanceFilterStyle } from "../styles/inventory-balance-filter.style";
 import DepartmentSelect from "./department-select";
 
@@ -47,6 +50,43 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
     });
   };
 
+  const [assignedStore, setAssignedStore] = useState<AccountStoreResponse[]>([]);
+
+  const myStores: AccountStoreResponse[] =
+    useSelector((state: RootReducerType) => state.userReducer.account?.account_stores) || [];
+
+  const fetchStores = async () => {
+    const { province } = form.getFieldsValue();
+    const response = await fetchStoreByProvince(dispatch, province);
+    if (!response) {
+      setAssignedStore(myStores);
+      return;
+    }
+    if (myStores.length) {
+      const stores = myStores.filter((item) => {
+        return response.data.findIndex((storeItem: any) => storeItem.id === item.store_id) !== -1;
+      });
+      setAssignedStore(stores);
+    } else {
+      setAssignedStore(
+        response.data.map((item: any) => {
+          return {
+            store_id: item.id,
+            store: item.name,
+          };
+        }),
+      );
+    }
+  };
+
+  useEffectOnce(() => {
+    fetchStores();
+  });
+
+  const onReloadStore = () => {
+    fetchStores();
+  };
+
   const onApplyFilter = useCallback(() => {
     const conditionFilter = form.getFieldsValue();
     const { timeRange, inventory, skuCodes, productGroupLv1, productGroupLv2 } = conditionFilter;
@@ -58,7 +98,7 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
     applyFilter({
       startDate,
       endDate,
-      listSKU: skuCodes?.join(","),
+      listSKU: skuCodes?.map((item: any) => JSON.parse(item).sku_code).join(","),
       storeName: inventory,
       listProductGroupLv1: productGroupLv1 || "ALL",
       listProductGroupLv2: productGroupLv2 || "ALL",
@@ -127,7 +167,6 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
 
   const onChangeSkuCodes = () => {
     const { skuCodes } = form.getFieldsValue();
-    console.log("skuCodes", skuCodes);
     form.setFieldsValue({
       skuNames: skuCodes,
     });
@@ -159,7 +198,6 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
       }),
     );
   }, [dispatch]);
-  console.log("listProvinces", listProvinces);
 
   return (
     <>
@@ -197,9 +235,10 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
                           }
                           return false;
                         }}
+                        onChange={onReloadStore}
                       >
                         {listProvinces.map((item, index) => (
-                          <Option key={"province" + index} value={JSON.stringify(item)}>
+                          <Option key={"province" + index} value={item.name}>
                             {item.name}
                           </Option>
                         ))}
@@ -211,7 +250,10 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
                       name={InventoryBalanceFilterForm.Inventory}
                       rules={[{ required: true, message: "Vui lòng chọn kho/cửa hàng" }]}
                     >
-                      <DepartmentSelect form={form}></DepartmentSelect>
+                      <DepartmentSelect
+                        form={form}
+                        assignedStore={assignedStore}
+                      ></DepartmentSelect>
                     </Form.Item>
                   </Col>
                   <Col>

@@ -219,7 +219,7 @@ function Analytics() {
                               <img src={templates(`./san-pham.svg`)} alt={"XNT"} />
                             </div>
                             <div className="template-report__type">Báo cáo</div>
-                            <div className="template-report__name">Xuất nhập tồn kho</div>
+                            <div className="template-report__name">XUẤT - NHẬP - TỒN (KẾ TOÁN)</div>
                           </div>
                         </List.Item>
                       </Link>
