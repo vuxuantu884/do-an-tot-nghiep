@@ -207,17 +207,25 @@ function Analytics() {
                 title="Báo cáo lợi nhuận"
               ></ListAnalyticsBlock>
               <Card title={"Báo cáo tồn kho"} className="template-report">
-                <Link to={`${matchPath}/inventory-balance`} key={"inventory-balance-report"}>
-                  <List.Item className="pointer">
-                    <div className={`template-report__card `}>
-                      <div className="template-report__icon ">
-                        <img src={templates(`./san-pham.svg`)} alt={"XNT"} />
-                      </div>
-                      <div className="template-report__type">Báo cáo</div>
-                      <div className="template-report__name">Xuất nhập tồn kho</div>
-                    </div>
-                  </List.Item>
-                </Link>
+                <List
+                  grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 4, xxl: 5 }}
+                  dataSource={[1]}
+                  renderItem={() => {
+                    return (
+                      <Link to={`${matchPath}/inventory-balance`} key={"inventory-balance-report"}>
+                        <List.Item className="pointer">
+                          <div className={`template-report__card `}>
+                            <div className="template-report__icon ">
+                              <img src={templates(`./san-pham.svg`)} alt={"XNT"} />
+                            </div>
+                            <div className="template-report__type">Báo cáo</div>
+                            <div className="template-report__name">Xuất nhập tồn kho</div>
+                          </div>
+                        </List.Item>
+                      </Link>
+                    );
+                  }}
+                />
               </Card>
             </div>
           )}
