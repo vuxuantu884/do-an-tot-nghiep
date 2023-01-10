@@ -3,7 +3,7 @@ import BaseResponse from "base/base.response";
 import currencyFormatter from "currency.js";
 import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import _, { cloneDeep, sortBy } from "lodash";
+import _, { cloneDeep, round, sortBy } from "lodash";
 import { AccountStoreResponse } from "model/account/account.model";
 import { DepartmentResponse, DepartmentView } from "model/account/department.model";
 import { BaseMetadata } from "model/base/base-metadata.response";
@@ -56,6 +56,7 @@ import {
 } from "./OrderUtils";
 import { RegUtil } from "./RegUtils";
 import { showError, showSuccess } from "./ToastUtils";
+import { AppConfig } from "config/app.config";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -875,7 +876,9 @@ export const reCalculateOrderItem = (orderLineItems: OrderLineItemResponse[]) =>
       discount_items: item.discount_items.map((discount) => {
         return {
           ...discount,
-          value: item.quantity ? discount.amount / item.quantity : discount.value,
+          value: item.quantity
+            ? mathRoundAmount(discount.amount / item.quantity)
+            : mathRoundAmount(discount.value),
         };
       }),
     };
@@ -1950,3 +1953,10 @@ export function capitalEachWords(str: string) {
     .map((item) => _.capitalize(item))
     .join(" ");
 }
+export const mathRoundPercentage = (percentage: number) => {
+  return round(percentage, AppConfig.mathRoundPrecision.percentage);
+};
+
+export const mathRoundAmount = (amount: number) => {
+  return round(amount, AppConfig.mathRoundPrecision.amount);
+};
