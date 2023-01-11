@@ -10,14 +10,6 @@ export const inventoryBalanceColumns: any[] = [
         key: "no",
         fixed: "left",
         width: 60,
-        // onCell: (record: any, index: number) => {
-        //   console.log("record", record.colSpan);
-        //   const { colSpan } = record;
-        //   if (index === 0) {
-        //     return { colSpan: 4 };
-        //   }
-        //   return {};
-        // },
       },
     ],
   },
@@ -368,11 +360,11 @@ export const inventoryBalanceColumns: any[] = [
       ...child,
       width: child.width ? child.width : 120,
       className: "text-center",
-      render: (text: string | number | null) => {
+      render: (text: string | number | null, row: any) => {
         return text && typeof text === "number" ? (
-          <span>{formatCurrency(text)}</span>
+          <span className={row.className}>{formatCurrency(text) ?? "-"}</span>
         ) : (
-          <span>{text}</span>
+          <span className={row.className}>{text ?? "-"}</span>
         );
       },
     };

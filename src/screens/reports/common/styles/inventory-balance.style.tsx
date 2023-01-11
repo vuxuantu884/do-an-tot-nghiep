@@ -34,4 +34,8 @@ export const InventoryBalanceStyle = styled.div`
   th.text-center {
     text-align: center !important;
   }
+
+  .font-weight-bold {
+    font-weight: bold;
+  }
 `;

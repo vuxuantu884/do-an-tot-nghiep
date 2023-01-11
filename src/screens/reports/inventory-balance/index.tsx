@@ -28,7 +28,10 @@ function InventoryBalance() {
       item.no = index + 1;
     });
     const { data, summary } = response;
-    response.data = [{ ...summary, no: "TỔNG", colSpan: 12 }, ...data];
+    response.data = [
+      { ...summary, no: "TỔNG", colSpan: 12, className: "font-weight-bold" },
+      ...data,
+    ];
     setDataSource(response.data);
   }, [conditionFilter, dispatch]);
 
