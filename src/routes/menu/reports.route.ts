@@ -145,7 +145,7 @@ const reports: Array<RouteMenu> = [
       },
       {
         path: `${UrlConfig.ANALYTIC_FINACE}/${REPORTS_URL.INVENTORY_BALANCE}`,
-        permissions: [],
+        permissions: [ReportPermissions.reports_view_report_xnt],
         exact: true,
         title: "Báo cáo xuất nhập tồn kho",
         icon: "icon-dot",

@@ -5,6 +5,7 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { AppConfig } from "config/app.config";
+import { ReportPermissions } from "config/permissions/report.permisstion";
 import REPORT_TEMPLATES, { REPORT_CUBES, REPORT_NAMES } from "config/report/report-templates";
 import UrlConfig, { REPORTS_URL } from "config/url.config";
 import _ from "lodash";
@@ -206,27 +207,34 @@ function Analytics() {
                 })}
                 title="Báo cáo lợi nhuận"
               ></ListAnalyticsBlock>
-              <Card title={"Báo cáo tồn kho"} className="template-report">
-                <List
-                  grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 4, xxl: 5 }}
-                  dataSource={[1]}
-                  renderItem={() => {
-                    return (
-                      <Link to={`${matchPath}/inventory-balance`} key={"inventory-balance-report"}>
-                        <List.Item className="pointer">
-                          <div className={`template-report__card `}>
-                            <div className="template-report__icon ">
-                              <img src={templates(`./san-pham.svg`)} alt={"XNT"} />
+              {allPermissions.includes(ReportPermissions.reports_view_report_xnt) && (
+                <Card title={"Báo cáo tồn kho"} className="template-report">
+                  <List
+                    grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 4, xxl: 5 }}
+                    dataSource={[1]}
+                    renderItem={() => {
+                      return (
+                        <Link
+                          to={`${matchPath}/inventory-balance`}
+                          key={"inventory-balance-report"}
+                        >
+                          <List.Item className="pointer">
+                            <div className={`template-report__card `}>
+                              <div className="template-report__icon ">
+                                <img src={templates(`./san-pham.svg`)} alt={"XNT"} />
+                              </div>
+                              <div className="template-report__type">Báo cáo</div>
+                              <div className="template-report__name">
+                                XUẤT - NHẬP - TỒN (KẾ TOÁN)
+                              </div>
                             </div>
-                            <div className="template-report__type">Báo cáo</div>
-                            <div className="template-report__name">XUẤT - NHẬP - TỒN (KẾ TOÁN)</div>
-                          </div>
-                        </List.Item>
-                      </Link>
-                    );
-                  }}
-                />
-              </Card>
+                          </List.Item>
+                        </Link>
+                      );
+                    }}
+                  />
+                </Card>
+              )}
             </div>
           )}
 
