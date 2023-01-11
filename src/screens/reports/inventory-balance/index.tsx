@@ -27,6 +27,8 @@ function InventoryBalance() {
     response.data.forEach((item: any, index: number) => {
       item.no = index + 1;
     });
+    const { data, summary } = response;
+    response.data = [{ ...summary, no: "TỔNG", colSpan: 12 }, ...data];
     setDataSource(response.data);
   }, [conditionFilter, dispatch]);
 
@@ -65,7 +67,6 @@ function InventoryBalance() {
               defaultPageSize: 50,
               pageSizeOptions: ["10", "20", "30", "50"],
             }}
-            sortDirections={["descend", "ascend", null]}
           />
         </Card>
       </InventoryBalanceStyle>

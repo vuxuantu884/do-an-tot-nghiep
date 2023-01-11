@@ -9,7 +9,15 @@ export const inventoryBalanceColumns: any[] = [
         dataIndex: "no",
         key: "no",
         fixed: "left",
-        width: 40,
+        width: 60,
+        // onCell: (record: any, index: number) => {
+        //   console.log("record", record.colSpan);
+        //   const { colSpan } = record;
+        //   if (index === 0) {
+        //     return { colSpan: 4 };
+        //   }
+        //   return {};
+        // },
       },
     ],
   },
@@ -54,11 +62,13 @@ export const inventoryBalanceColumns: any[] = [
         title: "Product group level 1",
         dataIndex: "product_group_leve1",
         key: "product_group_leve1",
+        width: 150,
       },
       {
         title: "Product group level 2",
         dataIndex: "product_group_leve2",
         key: "product_group_leve2",
+        width: 150,
       },
     ],
   },
@@ -134,6 +144,7 @@ export const inventoryBalanceColumns: any[] = [
         dataIndex: "t13",
         key: "t13",
         align: "right",
+        width: 150,
       },
       {
         title: "Giá trị (Amount)",
@@ -151,36 +162,42 @@ export const inventoryBalanceColumns: any[] = [
         dataIndex: "n01",
         key: "n01",
         align: "right",
+        width: 135,
       },
       {
         title: "Giá trị mua từ NCC",
         dataIndex: "n07",
         key: "n07",
         align: "right",
+        width: 135,
       },
       {
         title: "Nhận hàng chuyển kho",
         dataIndex: "n02",
         key: "n02",
         align: "right",
+        width: 160,
       },
       {
         title: "Giá trị nhận chuyển kho",
         dataIndex: "n08",
         key: "n08",
         align: "right",
+        width: 160,
       },
       {
         title: "Khách hàng trả lại",
         dataIndex: "n03",
         key: "n03",
         align: "right",
+        width: 135,
       },
       {
         title: "Giá trị khách trả lại",
         dataIndex: "n09",
         key: "n09",
         align: "right",
+        width: 135,
       },
       {
         title: "Nhập khác",
@@ -205,6 +222,7 @@ export const inventoryBalanceColumns: any[] = [
         dataIndex: "n11",
         key: "n11",
         align: "right",
+        width: 145,
       },
     ],
   },
@@ -216,12 +234,14 @@ export const inventoryBalanceColumns: any[] = [
         dataIndex: "n06",
         key: "n06",
         align: "right",
+        width: 170,
       },
       {
         title: "Tổng giá trị nhập kho",
         dataIndex: "n12",
         key: "n12",
         align: "right",
+        width: 150,
       },
     ],
   },
@@ -251,6 +271,7 @@ export const inventoryBalanceColumns: any[] = [
         dataIndex: "x04",
         key: "x04",
         align: "right",
+        width: 160,
       },
       {
         title: "Xuất bán",
@@ -287,6 +308,7 @@ export const inventoryBalanceColumns: any[] = [
         dataIndex: "x10",
         key: "x10",
         align: "right",
+        width: 150,
       },
     ],
   },
@@ -298,12 +320,14 @@ export const inventoryBalanceColumns: any[] = [
         dataIndex: "x11",
         key: "x11",
         align: "right",
+        width: 160,
       },
       {
         title: "Tổng giá trị xuất kho",
         dataIndex: "x12",
         key: "x12",
         align: "right",
+        width: 160,
       },
     ],
   },
@@ -315,12 +339,14 @@ export const inventoryBalanceColumns: any[] = [
         dataIndex: "t39",
         key: "t39",
         align: "right",
+        width: 135,
       },
       {
         title: "Giá trị (Amount)",
         dataIndex: "t40",
         key: "t40",
         align: "right",
+        width: 135,
       },
     ],
   },
@@ -332,6 +358,7 @@ export const inventoryBalanceColumns: any[] = [
         dataIndex: "t41",
         key: "t41",
         align: "right",
+        width: 150,
       },
     ],
   },
@@ -340,14 +367,15 @@ export const inventoryBalanceColumns: any[] = [
     return {
       ...child,
       width: child.width ? child.width : 120,
-      className: "width-auto",
-      render: (text: string | number | null) =>
-        text && typeof text === "number" ? (
+      className: "text-center",
+      render: (text: string | number | null) => {
+        return text && typeof text === "number" ? (
           <span>{formatCurrency(text)}</span>
         ) : (
           <span>{text}</span>
-        ),
+        );
+      },
     };
   });
-  return { ...item, width: item.width ? item.width : 120, className: "width-auto" };
+  return { ...item, width: item.width ? item.width : 120, className: "text-center" };
 });

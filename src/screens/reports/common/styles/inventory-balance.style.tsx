@@ -30,4 +30,8 @@ export const InventoryBalanceStyle = styled.div`
     margin-right: 10px;
     margin-left: 10px;
   }
+
+  th.text-center {
+    text-align: center !important;
+  }
 `;
