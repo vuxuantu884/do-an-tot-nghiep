@@ -41,10 +41,11 @@ type PropTypes = {
   onBlur?: () => void;
   handleApplyDiscountItem: (v: OrderLineItemRequest) => void;
   initItemSuggestDiscounts: SuggestDiscountResponseModel[];
+  isCreateReturn?: boolean;
 };
 
 function DiscountItemSearch(props: PropTypes) {
-  const { disabled = false, initItemSuggestDiscounts } = props;
+  const { disabled = false, initItemSuggestDiscounts, isCreateReturn } = props;
   const dispatch = useDispatch();
   const { Text } = Typography;
   const inputRef = useRef<any>();
@@ -56,12 +57,13 @@ function DiscountItemSearch(props: PropTypes) {
 
   const disableInput = props.item?.discount_items[0] ? true : disabled;
   useEffect(() => {
-    if (initItemSuggestDiscounts.length > 0) {
-      if (suggestedDiscounts.length === 0) {
-        setSuggestedDiscounts(initItemSuggestDiscounts);
-      }
+    // if (initItemSuggestDiscounts.length > 0) {
+    // }
+    if (isCreateReturn && discountValue.length === 0) {
+      setSuggestedDiscounts(initItemSuggestDiscounts);
     }
-  }, [initItemSuggestDiscounts, suggestedDiscounts.length]);
+    setSuggestedDiscounts(initItemSuggestDiscounts);
+  }, [discountValue.length, initItemSuggestDiscounts, isCreateReturn]);
 
   const getAfterValue = (discount: any, totalAcount: number) => {
     if (discount.value_type === DiscountValueType.PERCENTAGE) {

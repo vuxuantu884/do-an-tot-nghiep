@@ -26,6 +26,8 @@ import {
   getProductDiscountPerProduct,
   handleFetchApiError,
   isFetchApiSuccessful,
+  mathRoundAmount,
+  mathRoundPercentage,
 } from "utils/AppUtils";
 import { isOrderDetailHasPointPayment } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
@@ -289,7 +291,8 @@ function CardReturnProductContainer(props: PropTypes) {
         (discount) => {
           return {
             ...discount,
-            amount: value * discount.value,
+            rate: mathRoundPercentage(discount.rate),
+            amount: mathRoundAmount(value * discount.value),
           };
         },
       );

@@ -1006,6 +1006,7 @@ function OrderCreateProduct(props: PropTypes) {
               handleApplyDiscountItemCallback && handleApplyDiscountItemCallback(_item);
             }}
             initItemSuggestDiscounts={initItemSuggestDiscountResult || []}
+            isCreateReturn={isCreateReturn}
           />
         </div>
       ) : (
