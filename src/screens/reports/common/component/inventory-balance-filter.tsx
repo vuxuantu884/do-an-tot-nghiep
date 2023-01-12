@@ -401,11 +401,11 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
                       onSearch={(value) =>
                         addAdditionalOptions(InventoryBalanceFilterForm.SkuCodes, value)
                       }
-                      // filterOption={(input, option) => {
-                      //   return option?.sku_code && input
-                      //     ? searchNumberString(input, option?.sku_code as string)
-                      //     : false;
-                      // }}
+                      filterOption={(input, option) => {
+                        return option?.props.children && input
+                          ? searchNumberString(input, option?.props.children as string)
+                          : false;
+                      }}
                       onFocus={onGetProductSku}
                       onChange={onChangeSkuCodes}
                     >
