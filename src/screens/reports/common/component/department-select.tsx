@@ -26,7 +26,6 @@ function DepartmentSelect(props: Props): ReactElement {
       showArrow
       showSearch
       optionFilterProp="children"
-      style={{ width: "200px" }}
       maxTagCount={"responsive"}
       filterOption={(input: String, option: any) => {
         if (option.props.value) {

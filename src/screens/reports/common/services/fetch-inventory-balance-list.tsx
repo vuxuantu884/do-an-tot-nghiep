@@ -22,7 +22,7 @@ export async function fetchInventoryBalanceList(
   console.log("response", response);
 
   if (!response) {
-    showError("Xảy ra lỗi. Vui lòng thử lại.");
+    showError("Xảy ra lỗi khi lấy dữ liệu báo cáo xuất - nhập - tồn. Vui lòng thử lại.");
   }
   return response || [];
 }
@@ -38,7 +38,7 @@ export async function fetchProductInfo(
     { ...params },
   );
   if (!response) {
-    showError("Xảy ra lỗi. Vui lòng thử lại.");
+    showError("Xảy ra lỗi khi lấy thông tin sản phẩm. Vui lòng thử lại.");
   }
   return response;
 }
@@ -51,7 +51,7 @@ export async function fetchStoreByProvince(dispatch: Dispatch<any>, province?: s
     province,
   );
   if (!response) {
-    showError("Xảy ra lỗi. Vui lòng thử lại.");
+    showError("Xảy ra lỗi khi lấy kho/cửa hàng theo tỉnh thành. Vui lòng thử lại.");
   }
   return response;
 }
