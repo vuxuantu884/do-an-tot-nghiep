@@ -16,7 +16,6 @@ import {
   AccountGetByIdService,
   AccountUpdateService,
   AccountDeleteService,
-  powerBIEmbededApi,
   accountUpdatePassScreenService,
   getAccountDetail,
   updateMeService,
@@ -245,26 +244,6 @@ function* ShipperExternalSaga(action: YodyAction) {
   } catch (error) {}
 }
 
-function* powerBIEmbededSaga(action: YodyAction) {
-  let { params, setData } = action.payload;
-  try {
-    let response: BaseResponse<PageResponse<AccountResponse>> = yield call(
-      powerBIEmbededApi,
-      params,
-    );
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        break;
-    }
-  } catch (error) {}
-}
-
 function* getAccountMeSaga(action: YodyAction) {
   let { onResult } = action.payload;
   //TODO: Handle token here
@@ -342,7 +321,6 @@ export function* accountSaga() {
   yield takeLatest(AccountType.UPDATE_ACCOUNT_REQUEST, AccountUpdateSaga);
   yield takeLatest(AccountType.UPDATE_PASSS_REQUEST, AccountUpdatePassSaga);
   yield takeLatest(AccountType.DELETE_ACCOUNT_REQUEST, AccountDeleteSaga);
-  yield takeLatest(AccountType.POWER_BI_EMBEDED_REQUEST, powerBIEmbededSaga);
   yield takeLatest(AccountType.GET_ACCOUNT_ME, getAccountMeSaga);
   yield takeLatest(AccountType.UPDATE_ME, updateMeSaga);
   yield takeEvery(AccountType.SEARCH_ACCOUNT_PUBLIC, searchAccountPublicSaga);

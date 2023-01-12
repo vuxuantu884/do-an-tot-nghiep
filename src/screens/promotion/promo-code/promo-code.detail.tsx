@@ -915,7 +915,7 @@ const PromotionDetailScreen: React.FC = () => {
                       ) : (
                         <>
                           <div className="discount-code-product">
-                            Chiết khấu
+                            <span>Chiết khấu</span>
                             {data.rule?.value_type === DiscountUnitType.PERCENTAGE.value && (
                               <span className="discount-code-product-desc">{`${data.rule?.value}${DiscountUnitType.PERCENTAGE.label}`}</span>
                             )}
@@ -924,7 +924,7 @@ const PromotionDetailScreen: React.FC = () => {
                                 data.rule?.value,
                               )}${DiscountUnitType.FIXED_AMOUNT.label}`}</span>
                             )}
-                            cho tất cả sản phẩm, loại trừ các sản phẩm sau:
+                            <span>cho tất cả sản phẩm, <strong>loại trừ</strong> các sản phẩm sau:</span>
                           </div>
                         </>
                       )}

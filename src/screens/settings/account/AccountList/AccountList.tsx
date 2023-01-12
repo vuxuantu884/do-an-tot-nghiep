@@ -1,11 +1,10 @@
-import { DeleteOutlined } from "@ant-design/icons";
 import { Button, Card, Row, Space, Switch } from "antd";
 import uploadIcon from "assets/icon/upload.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import AccountFilter from "component/filter/account.filter";
 import ButtonCreate from "component/header/ButtonCreate";
-import { MenuAction } from "component/table/ActionButton";
+import ModalConfirm from "component/modal/ModalConfirm";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { AccountPermissions } from "config/permissions/account.permisssion";
@@ -17,8 +16,6 @@ import {
   DepartmentGetListAction,
   PositionGetListAction,
 } from "domain/actions/account/account.action";
-import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
-import useAuthorization from "hook/useAuthorization";
 import {
   AccountResponse,
   AccountSearchQuery,
@@ -31,33 +28,18 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
+import { resetPasswordApi } from "service/accounts/account.service";
+import { callApiNative } from "utils/ApiUtils";
 import { generateQuery } from "utils/AppUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { SearchContainer } from "../account.search.style";
 import ImportExcel from "../components/me-contact/ImportExcel";
 import FullNameAccount from "./FullNameAccount";
-import { convertDataApiToDataSrcTable } from "./helper";
+import { ACTIONS_KEY_SELECT_ACCOUNT, convertDataApiToDataSrcTable } from "./helper";
 import TagList from "./TagList";
-
-const ACTIONS_INDEX = {
-  DELETE: 1,
-};
-
-const actionsDefault: Array<MenuAction> = [
-  {
-    id: ACTIONS_INDEX.DELETE,
-    name: "Xóa",
-    icon: <DeleteOutlined />,
-  },
-];
-
-const initQuery: AccountSearchQuery = {
-  info: "",
-  code: "",
-};
 
 const DEFAULT_TYPICAL_OPTION = 2;
 
@@ -72,29 +54,13 @@ const ListAccountScreen: React.FC = () => {
   const [accountSelected, setAccountSelected] = useState<Array<AccountResponse>>([]);
   const [isImport, setIsImport] = useState<boolean>(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
+  const [isShowModalResetPassword, setIsShowModalResetPassword] = useState(false);
 
-  //phân quyền
-  const [allowDeleteAcc] = useAuthorization({
-    acceptPermissions: [AccountPermissions.DELETE],
-  });
-
-  const actions = useMemo(() => {
-    return actionsDefault.filter((item) => {
-      if (item.id === ACTIONS_INDEX.DELETE) {
-        return allowDeleteAcc;
-      }
-      return false;
-    });
-  }, [allowDeleteAcc]);
-
-  const listStatus = useSelector((state: RootReducerType) => {
-    return state.bootstrapReducer.data?.account_status;
-  });
-  let dataQuery: AccountSearchQuery = {
-    ...initQuery,
+  const [params, setPrams] = useState<AccountSearchQuery>({
+    info: "",
+    code: "",
     ...getQueryParams(query),
-  };
-  let [params, setPrams] = useState<AccountSearchQuery>(dataQuery);
+  });
   const [data, setData] = useState<PageResponse<AccountResponse>>({
     metadata: {
       limit: 0,
@@ -147,7 +113,8 @@ const ListAccountScreen: React.FC = () => {
     setTableLoading(false);
     setData(listResult);
   }, []);
-  const deleteCallback = useCallback(
+
+  const deleteAccount = useCallback(
     (result: boolean) => {
       if (result) {
         setAccountSelected([]);
@@ -159,30 +126,43 @@ const ListAccountScreen: React.FC = () => {
     [dispatch, params, setSearchResult],
   );
 
-  const onMenuClick = useCallback(
+  const resetPassword = useCallback(async (accountIds) => {
+    if (!Array.isArray(accountIds)) {
+      return;
+    }
+    const response = await callApiNative(
+      { isShowLoading: true, isShowError: true },
+      dispatch,
+      resetPasswordApi,
+      accountIds,
+    );
+    if (response) {
+      console.log(response);
+      showSuccess("Đặt lại mật khẩu thành công");
+    }
+    setIsShowModalResetPassword(false);
+  }, []);
+
+  const handleMenuClick = useCallback(
     (index: number) => {
       if (accountSelected.length > 0) {
-        let id = accountSelected[0].id;
+        const id = accountSelected[0].id;
         switch (index) {
-          case 1:
-            dispatch(AccountDeleteAction(id, deleteCallback));
+          case ACTIONS_KEY_SELECT_ACCOUNT.DELETE:
+            dispatch(AccountDeleteAction(id, deleteAccount));
+            break;
+          case ACTIONS_KEY_SELECT_ACCOUNT.RESET_PASSWORD:
+            setIsShowModalResetPassword(true);
             break;
         }
       }
     },
-    [accountSelected, deleteCallback, dispatch],
-  );
-
-  const ActionComponent = useChangeHeaderToAction(
-    "Mã nhân viên",
-    accountSelected.length === 1,
-    onMenuClick,
-    actions,
+    [accountSelected, deleteAccount, dispatch, resetPassword],
   );
 
   const defaultColumns: Array<ICustomTableColumType<AccountResponse>> = [
     {
-      title: <ActionComponent />,
+      title: "Mã nhân viên",
       fixed: "left",
       width: 130,
       visible: true,
@@ -303,7 +283,7 @@ const ListAccountScreen: React.FC = () => {
     },
   ];
 
-  let [columns, setColumns] =
+  const [columns, setColumns] =
     useState<Array<ICustomTableColumType<AccountResponse>>>(defaultColumns);
 
   const columnFinal = useMemo(() => {
@@ -368,15 +348,14 @@ const ListAccountScreen: React.FC = () => {
       <SearchContainer>
         <Card>
           <AccountFilter
-            onMenuClick={onMenuClick}
-            actions={actions}
+            selectedAccount={accountSelected}
             onFilter={onFilter}
             params={params}
             listDepartment={listDepartment}
             listPosition={listPosition}
-            listStatus={listStatus}
             onClearFilter={onClearFilter}
             onClickOpen={() => setShowSettingColumn(true)}
+            onMenuClick={handleMenuClick}
           />
           <CustomTable
             isRowSelection
@@ -416,6 +395,15 @@ const ListAccountScreen: React.FC = () => {
           data={columns}
         />
       </SearchContainer>
+      {isShowModalResetPassword && (
+        <ModalConfirm
+          visible={true}
+          title="Đặt lại mật khẩu"
+          subTitle="Bạn có chắc chắn muốn đặt lại mật khẩu cho tài khoản này?"
+          onOk={() => resetPassword(accountSelected.map((acc) => acc.id))}
+          onCancel={() => setIsShowModalResetPassword(false)}
+        />
+      )}
     </ContentContainer>
   );
 };

@@ -104,7 +104,7 @@ const FixedAndQuantityGroup = (props: Props) => {
   const dataSourceForm: Array<ProductEntitlements> =
     form.getFieldValue("entitlements")[name]?.selectedProducts;
 
-  const hanldeDiscountProductHaveExclude = useCallback(() => {
+  const handleDiscountProductHaveExclude = useCallback(() => {
     setDiscountProductHaveExclude(!discountProductHaveExclude);
   }, [discountProductHaveExclude, setDiscountProductHaveExclude]);
 
@@ -461,7 +461,7 @@ const FixedAndQuantityGroup = (props: Props) => {
         <Form.Item style={{ margin: 0 }}>
           {discountAllProduct && (
             <Checkbox
-              onClick={hanldeDiscountProductHaveExclude}
+              onClick={handleDiscountProductHaveExclude}
               checked={discountProductHaveExclude}
             >
               Kèm danh sách loại trừ
@@ -469,7 +469,7 @@ const FixedAndQuantityGroup = (props: Props) => {
           )}
         </Form.Item>
         <Form.Item>
-          <Input.Group className="display-flex">
+          <Input.Group style={{ display: "flex" }}>
             <CustomAutoComplete
               key={`${key}-product_search`}
               id="#product_search"
@@ -504,6 +504,16 @@ const FixedAndQuantityGroup = (props: Props) => {
             </Button>
           </Input.Group>
         </Form.Item>
+        {discountProductHaveExclude &&
+          <div className="discount-product-table-title">
+            <span>Danh sách sản phẩm </span>
+            <span style={{ color: "#e24343" }}>loại trừ</span>
+            <span> khi chiết khấu cho tất cả sản phẩm</span>
+          </div>
+        }
+        {!discountAllProduct &&
+          <div className="discount-product-table-title">Danh sách sản phẩm áp dụng</div>
+        }
         <CustomTable
           className="product-table"
           bordered

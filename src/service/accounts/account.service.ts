@@ -14,7 +14,7 @@ import { AuthenLogoutRequest, AuthenRequest } from "model/auth/roles.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
-
+import { stringify } from "query-string";
 export const getAccountDetail = (): Promise<BaseResponse<AccountResponse>> => {
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/me`);
 };
@@ -85,18 +85,12 @@ export const externalShipperApi = (): Promise<BaseResponse<PageResponse<any>>> =
   return BaseAxios.get(`${ApiConfig.ORDER}/delivery-partners`);
 };
 
-export const powerBIEmbededApi = (params: any): Promise<BaseResponse<any>> => {
-  return BaseAxios.post(
-    `${ApiConfig.ACCOUNTS}/power-bi/groups/${params.group_id}/reports/${params.report_id}`,
-    {
-      access_level: "View",
-      allow_save_as: "false",
-    },
-  );
-};
-
 export const accountUpdatePassScreenService = (
   request: AccountRequest,
 ): Promise<BaseResponse<AccountResponse>> => {
   return BaseAxios.put(`${ApiConfig.ACCOUNTS}/user/update-password`, request);
+};
+
+export const resetPasswordApi = (accountIds: number[]): Promise<BaseResponse<AccountResponse>> => {
+  return BaseAxios.put(`${ApiConfig.ACCOUNTS}/accounts/reset-passwords`, { ids: accountIds });
 };

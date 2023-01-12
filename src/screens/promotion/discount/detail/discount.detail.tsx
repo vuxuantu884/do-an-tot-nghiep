@@ -290,7 +290,7 @@ const PromotionDetailScreen: React.FC = () => {
     const columnDiscountQuantityProductHaveExclude = [...columnDiscountQuantity];
     columnDiscountQuantityProductHaveExclude.splice(3, 2);
 
-    if (dataDiscount?.entitlements[0]?.is_apply_all && dataDiscount?.entitlements[0]?.is_exclude) {
+    if (dataDiscount?.entitlements[0]?.is_exclude) {
       setQuantityColumn(
         dataDiscount?.entitled_method === PriceRuleMethod.FIXED_PRICE
           ? columnFixedPriceProductHaveExclude
@@ -717,21 +717,21 @@ const PromotionDetailScreen: React.FC = () => {
                           </div>
                           <span>cho tất cả sản phẩm</span>
                         </div>
-                      )}
+                      )
+                    }
 
-                    {dataDiscount?.entitlements[0]?.is_apply_all &&
-                      dataDiscount?.entitlements[0]?.is_exclude && (
-                        <div>
-                          <div className="discount-code-product" style={{ marginTop: 12 }}>
-                            <span>Chiết khấu</span>
-                            <div className="discount-code-product-value">
-                              {handleRenderValueDiscountProuduct()}
-                            </div>
-                            <span>cho tất cả sản phẩm, loại trừ các sản phẩm sau:</span>
+                    {dataDiscount?.entitlements[0]?.is_exclude && (
+                      <div>
+                        <div className="discount-code-product" style={{ marginTop: 12 }}>
+                          <span>Chiết khấu</span>
+                          <div className="discount-code-product-value">
+                            {handleRenderValueDiscountProuduct()}
                           </div>
-                          <div>{handleRenderListProductDiscount()}</div>
+                          <span>cho tất cả sản phẩm, <strong>loại trừ</strong> các sản phẩm sau:</span>
                         </div>
-                      )}
+                        <div>{handleRenderListProductDiscount()}</div>
+                      </div>
+                    )}
                   </div>
                 </Card>
               )}

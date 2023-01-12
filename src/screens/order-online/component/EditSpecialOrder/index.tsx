@@ -46,6 +46,7 @@ function EditSpecialOrder(props: PropTypes) {
     amount: specialOrder?.amount || undefined,
     order_return_code: specialOrder?.order_return_code || undefined,
     reason: specialOrder?.reason || undefined,
+    ecommerce: specialOrder?.ecommerce || undefined,
   };
 
   const [form] = Form.useForm();

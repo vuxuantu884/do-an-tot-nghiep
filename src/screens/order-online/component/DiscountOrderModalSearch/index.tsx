@@ -12,7 +12,6 @@ import {
 } from "utils/AppUtils";
 import {
   CustomApplyDiscount,
-  LineItemCreateReturnSuggestDiscountResponseModel,
   SuggestDiscountResponseModel,
 } from "model/response/order/promotion.response";
 import { useDispatch } from "react-redux";
@@ -33,7 +32,7 @@ type Props = {
   rate: number;
   amount: number;
   param: any;
-  isEcommerceByOrderChannelCodeisUpdate?: boolean;
+  isCustomOriginalHandmadeDiscount?: boolean;
   initOrderSuggestDiscounts: SuggestDiscountResponseModel[];
 };
 
@@ -199,7 +198,7 @@ const DiscountOrderModalSearch: React.FC<Props> = (props: Props) => {
         </Row>
 
         <Row className="row-discount-input">
-          {_type !== DISCOUNT_TYPE.COUPON && props.isEcommerceByOrderChannelCodeisUpdate && (
+          {_type !== DISCOUNT_TYPE.COUPON && props.isCustomOriginalHandmadeDiscount && (
             <React.Fragment>
               <Input
                 className="input-discount-coupon"
@@ -289,7 +288,7 @@ const DiscountOrderModalSearch: React.FC<Props> = (props: Props) => {
               </Button>
             </React.Fragment>
           )}
-          {_type !== DISCOUNT_TYPE.COUPON && !props.isEcommerceByOrderChannelCodeisUpdate && (
+          {_type !== DISCOUNT_TYPE.COUPON && !props.isCustomOriginalHandmadeDiscount && (
             <Input
               //className={_type === DISCOUNT_TYPE.COUPON ? "input-discount-coupon" : undefined}
               onChange={(v) => {

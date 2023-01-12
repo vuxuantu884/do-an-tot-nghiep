@@ -337,7 +337,7 @@ export const FACEBOOK = {
 
 export const TIKTOK = {
   channel_id: 20,
-  channel_code: "tiktok",
+  channel_code: "TIKTOK",
 };
 
 export const WEBSITE = {
@@ -361,13 +361,13 @@ export const WEB_APP_CHANNEL_CODES = [
 
 // shopee, lazada, tiki, tiktok, website, app, landingpage
 export const ECOMMERCE_CHANNEL_CODES_UPDATE_ORDER = [
-  SHOPEE.channel_code,
-  LAZADA.channel_code,
-  TIKI.channel_code,
-  TIKTOK.channel_code,
-  WEBSITE.channel_code,
-  YODY_APP.channel_code,
-  YODY_LANDING_PAGE.channel_code,
+  SHOPEE,
+  LAZADA,
+  TIKI,
+  TIKTOK,
+  WEBSITE,
+  YODY_APP,
+  YODY_LANDING_PAGE,
 ];
 
 export const SHIPPING_REQUIREMENT = {

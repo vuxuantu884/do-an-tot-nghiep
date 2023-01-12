@@ -1,5 +1,5 @@
 import { DownOutlined } from "@ant-design/icons";
-import { Button, Dropdown, DropDownProps, Menu } from "antd";
+import { Button, Dropdown, DropDownProps, Menu, Space } from "antd";
 import { ButtonType } from "antd/lib/button/button.d";
 import { CSSProperties } from "react";
 
@@ -52,8 +52,10 @@ const ActionButton: React.FC<ActionProps> = (props: ActionProps) => {
         className="action-button"
         style={props.buttonStyle}
       >
-        <div style={{ marginRight: 10 }}>{props.buttonText ?? "Thao tác"}</div>
-        <DownOutlined />
+        <Space>
+          <span style={{ marginRight: 10 }}>{props.buttonText ?? "Thao tác"}</span>
+          <DownOutlined />
+        </Space>
       </Button>
     </Dropdown>
   );

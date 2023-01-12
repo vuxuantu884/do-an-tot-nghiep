@@ -12,7 +12,7 @@ import {
   SpecialOrderModel,
   SpecialOrderOrderTypeInFormModel,
 } from "model/order/special-order.model";
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import {
@@ -21,8 +21,12 @@ import {
   isFetchApiSuccessful,
   replaceFormat,
 } from "utils/AppUtils";
-import { ORDER_SUB_STATUS } from "utils/Order.constants";
-import { checkIfOrderPageType, getArrayFromObject } from "utils/OrderUtils";
+import { ECOMMERCE_CHANNEL_CODES_UPDATE_ORDER } from "utils/Constants";
+import {
+  checkIfEcommerceByOrderChannelCodeUpdateOrder,
+  checkIfOrderPageType,
+  getArrayFromObject,
+} from "utils/OrderUtils";
 import {
   orderSpecialReason,
   specialOrderDisplayField,
@@ -41,6 +45,7 @@ type Props = {
   handleSubmitForm: (value: SpecialOrderModel) => void;
   canDelete: boolean;
   orderPageType: OrderPageTypeModel;
+  setOrderSpecialEcommerce?: (v?: string) => void;
 };
 
 function SpecialOrderCreateForm(props: Props) {
@@ -58,12 +63,20 @@ function SpecialOrderCreateForm(props: Props) {
   } = props;
   const dispatch = useDispatch();
 
-  console.log("initialFormValue33", initialFormValue);
   const isOrderCreatePage = checkIfOrderPageType.isOrderCreatePage(orderPageType);
   const isOrderUpdatePage = checkIfOrderPageType.isOrderUpdatePage(orderPageType);
-  const isOrderOtherPage = checkIfOrderPageType.isOtherPage(orderPageType);
+  // const isOrderDetailPage = checkIfOrderPageType.isOrderDetailPage(orderPageType);
 
-  const isShowCreateForm = isOrderCreatePage || isOrderOtherPage;
+  const isEditSpecialOrder = useMemo(() => {
+    if (
+      !isOrderCreatePage &&
+      initialFormValue?.type === specialOrderTypes.orders_replace.value &&
+      checkIfEcommerceByOrderChannelCodeUpdateOrder(initialFormValue.ecommerce)
+    ) {
+      return false;
+    }
+    return true;
+  }, [initialFormValue?.ecommerce, initialFormValue?.type, isOrderCreatePage]);
 
   const [initAccountCodeAccountData, setInitAccountCodeAccountData] = useState<
     Array<AccountResponse>
@@ -175,12 +188,19 @@ function SpecialOrderCreateForm(props: Props) {
               }
             }}
             placeholder="Chọn loại đơn hàng"
+            disabled={!isEditSpecialOrder}
           >
             {Array.isArray(specialOrderTypesArr) &&
               specialOrderTypesArr
                 .filter((type) => !exceptOrderTypeSelectArr.includes(type.value))
                 .map((p) => (
-                  <Select.Option value={p.value} key={p.value}>
+                  <Select.Option
+                    value={p.value}
+                    key={p.value}
+                    disabled={
+                      !isOrderCreatePage && p.value === specialOrderTypes.orders_replace.value
+                    }
+                  >
                     {p.title}
                   </Select.Option>
                 ))}
@@ -258,6 +278,10 @@ function SpecialOrderCreateForm(props: Props) {
                     limit: 10,
                   }}
                   orderType={SpecialOrderOrderTypeInFormModel.order}
+                  disabled={
+                    !isOrderCreatePage &&
+                    displayOrderSpecialType === specialOrderTypes.orders_replace.value
+                  }
                 />
               </Form.Item>
             )}
@@ -335,7 +359,6 @@ function SpecialOrderCreateForm(props: Props) {
               <Form.Item
                 label="Lý do"
                 name="reason"
-                // name={!isOrderCreatePage ? "reason " : "order_create_page_special_order_reason"}
                 hidden={
                   selectedSpecialOrder &&
                   exceptOrderTypeSelectArr.includes(selectedSpecialOrder.value)
@@ -349,6 +372,31 @@ function SpecialOrderCreateForm(props: Props) {
                         {reason.title}
                       </Select.Option>
                     ))}
+                </Select>
+              </Form.Item>
+            )}
+            {checkIfDisplayField(specialOrderDisplayField.san) && (
+              <Form.Item
+                label="Sàn"
+                name="ecommerce"
+                rules={[{ required: true, message: "Vui lòng sàn!" }]}
+              >
+                <Select
+                  allowClear
+                  showSearch
+                  showArrow
+                  placeholder="Chọn sàn"
+                  onChange={(value) => {
+                    props.setOrderSpecialEcommerce &&
+                      props.setOrderSpecialEcommerce(value as string);
+                  }}
+                  disabled={!isOrderCreatePage}
+                >
+                  {ECOMMERCE_CHANNEL_CODES_UPDATE_ORDER.map((reason, index) => (
+                    <Select.Option value={reason.channel_code} key={index}>
+                      {reason.channel_code}
+                    </Select.Option>
+                  ))}
                 </Select>
               </Form.Item>
             )}

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useCallback, useState } from "react";
 import YDPageOrders from "./yd-page-order-create/YDPageOrders";
 import YDPageCustomer from "screens/yd-page/yd-page-customer/YDPageCustomer";
@@ -20,12 +19,19 @@ import {
   setFpageDefaultPhone,
 } from "domain/actions/ecommerce/ecommerce.actions";
 
-import { showError } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { YDpageCustomerRequest } from "model/request/customer.request";
 
 import { BillingAddressRequestModel, ShippingAddress } from "model/request/order.request";
 import { DistrictGetByCountryAction } from "domain/actions/content/content.action";
 import { VietNamId } from "utils/Constants";
+import {
+  addUnichatCustomerPhone,
+  deleteUnichatCustomerPhone,
+  getUnichatCustomerInfo,
+  setUnichatDefaultPhone,
+  SOCIAL_CHANNEL,
+} from "screens/yd-page/helper";
 import "screens/yd-page/index.scss";
 
 const { TabPane } = Tabs;
@@ -58,6 +64,7 @@ function YDPageAdmin() {
   const [customer, setCustomer] = React.useState<CustomerResponse | null>(null);
   const [newCustomerInfo, setNewCustomerInfo] = useState<YDpageCustomerRequest>(initCustomerInfo);
   const [isClearOrderTab, setIsClearOrderTab] = useState<boolean>(false);
+  const [socialChannel] = React.useState<string | null | undefined>(queryString?.get("socialChannel"));
   const [fbCustomerId] = React.useState<string | null>(queryString?.get("fbCustomerId"));
   const [customerFbName] = React.useState<string | null>(queryString?.get("fbName"));
   const [defaultSourceId] = React.useState<number | null>(
@@ -104,7 +111,11 @@ function YDPageAdmin() {
       switch (cmd) {
         case "phone_updated":
           if (fbCustomerId) {
-            dispatch(getYDPageCustomerInfo(fbCustomerId, setYDPageCustomerInfo));
+            if (socialChannel === SOCIAL_CHANNEL.UNICHAT) {
+              getUnichatCustomerInfo(fbCustomerId, setYDPageCustomerInfo);
+            } else {
+              dispatch(getYDPageCustomerInfo(fbCustomerId, setYDPageCustomerInfo));
+            }
           }
           break;
         default:
@@ -115,14 +126,17 @@ function YDPageAdmin() {
     return () => {
       window.removeEventListener("message", handleEvent, false);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dispatch, fbCustomerId, socialChannel]);
 
   useEffect(() => {
     if (fbCustomerId) {
-      dispatch(getYDPageCustomerInfo(fbCustomerId, setYDPageCustomerInfo));
+      if (socialChannel === SOCIAL_CHANNEL.UNICHAT) {
+        getUnichatCustomerInfo(fbCustomerId, setYDPageCustomerInfo);
+      } else {
+        dispatch(getYDPageCustomerInfo(fbCustomerId, setYDPageCustomerInfo));
+      }
     }
-  }, [fbCustomerId, dispatch, setYDPageCustomerInfo]);
+  }, [fbCustomerId, dispatch, setYDPageCustomerInfo, socialChannel]);
 
   const searchByPhoneCallback = useCallback((value: any) => {
     setIsEditCustomer(false);
@@ -171,15 +185,22 @@ function YDPageAdmin() {
   const addFpPhone = useCallback(
     (phone: string, callback: () => void) => {
       if (fbCustomerId) {
-        dispatch(
-          addFpagePhone(fbCustomerId, phone, (customerInfo: YDPageCustomerResponse) => {
-            setYDPageCustomerInfo(customerInfo);
+        if (socialChannel === SOCIAL_CHANNEL.UNICHAT) {
+          addUnichatCustomerPhone(fbCustomerId, phone, () => {
+            getUnichatCustomerInfo(fbCustomerId, setYDPageCustomerInfo);
             callback();
-          }),
-        );
+          });
+        } else {
+          dispatch(
+            addFpagePhone(fbCustomerId, phone, (customerInfo: YDPageCustomerResponse) => {
+              setYDPageCustomerInfo(customerInfo);
+              callback();
+            }),
+          );
+        }
       }
     },
-    [fbCustomerId, dispatch],
+    [fbCustomerId, socialChannel, dispatch],
   );
 
   const deleteFpPhone = useCallback(
@@ -188,22 +209,35 @@ function YDPageAdmin() {
         showError("Không được xóa số điện thoại mặc định");
       } else {
         if (fbCustomerId) {
-          dispatch(deleteFpagePhone(fbCustomerId, phone, setYDPageCustomerInfo));
+          if (socialChannel === SOCIAL_CHANNEL.UNICHAT) {
+            deleteUnichatCustomerPhone(fbCustomerId, phone, setYDPageCustomerInfo);
+          } else {
+            dispatch(deleteFpagePhone(fbCustomerId, phone, setYDPageCustomerInfo));
+          }
         }
       }
     },
-    [customerDefaultPhone, fbCustomerId, dispatch],
+    [customerDefaultPhone, fbCustomerId, socialChannel, dispatch],
   );
 
   const setFpDefaultPhone = useCallback(
     (phone: string) => {
+      if (phone === customerDefaultPhone)  return;
+
       if (fbCustomerId) {
         setCustomerPhone(phone);
         setCustomerDefaultPhone(phone);
-        dispatch(setFpageDefaultPhone(fbCustomerId, phone, setYDPageCustomerInfo));
+        if (socialChannel === SOCIAL_CHANNEL.UNICHAT) {
+          setUnichatDefaultPhone(fbCustomerId, phone, () => {
+            getUnichatCustomerInfo(fbCustomerId, setYDPageCustomerInfo);
+            showSuccess("Cập nhật số điện thoại mặc định thành công");
+          });
+        } else {
+          dispatch(setFpageDefaultPhone(fbCustomerId, phone, setYDPageCustomerInfo));
+        }
       }
     },
-    [fbCustomerId, dispatch],
+    [customerDefaultPhone, fbCustomerId, socialChannel, dispatch],
   );
 
   useEffect(() => {
@@ -271,6 +305,7 @@ function YDPageAdmin() {
             deleteFpPhone={deleteFpPhone}
             setFpDefaultPhone={setFpDefaultPhone}
             setCustomerDefaultPhone={setCustomerDefaultPhone}
+            socialChannel={socialChannel}
           />
         </TabPane>
         <TabPane key="2" tab={<div>TẠO ĐƠN</div>}>

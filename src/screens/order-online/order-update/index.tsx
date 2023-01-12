@@ -90,6 +90,7 @@ import { DATE_FORMAT } from "utils/DateUtils";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 import {
   canCreateShipment,
+  checkIfEcommerceByOrderChannelCodeUpdateOrder,
   checkIfFulfillmentCancelled,
   checkIfOrderCancelled,
   checkIfOrderHasNoPayment,
@@ -150,6 +151,10 @@ export default function Order(props: PropTypes) {
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<number | null>(
     null,
   );
+  const [isSpecialOrderEcommerce, setIsSpecialOrderEcommerce] = useState({
+    isEcommerce: false,
+    isChange: false,
+  });
 
   const paymentMethods = useFetchPaymentMethods();
 
@@ -1244,6 +1249,12 @@ export default function Order(props: PropTypes) {
           if (response?.payments) {
             setPayments(response.payments);
           }
+          if (checkIfEcommerceByOrderChannelCodeUpdateOrder(response.special_order?.ecommerce)) {
+            setIsSpecialOrderEcommerce({
+              isEcommerce: true,
+              isChange: false,
+            });
+          }
         }
       }),
     );
@@ -1696,6 +1707,7 @@ export default function Order(props: PropTypes) {
                     handleChangeShippingFeeApplyOrderSettings={
                       handleChangeShippingFeeApplyOrderSettings
                     }
+                    isSpecialOrderEcommerce={isSpecialOrderEcommerce}
                   />
                   <CardShowOrderPayments
                     OrderDetail={OrderDetail}
@@ -1903,6 +1915,21 @@ export default function Order(props: PropTypes) {
                     }
                     orderPageType={OrderPageTypeModel.orderUpdate}
                     specialOrderForm={specialOrderForm}
+                    specialOrder={OrderDetail?.special_order}
+                    setIsSpecialOrderEcommerce={(value: boolean) => {
+                      console.log("setIsSpecialOrderEcommerce", value);
+                      if (value) {
+                        setIsSpecialOrderEcommerce({
+                          isEcommerce: value,
+                          isChange: false,
+                        });
+                      } else {
+                        setIsSpecialOrderEcommerce({
+                          isEcommerce: value,
+                          isChange: true,
+                        });
+                      }
+                    }}
                   />
                 </Col>
               </Row>

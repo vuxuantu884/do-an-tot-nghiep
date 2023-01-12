@@ -102,6 +102,9 @@ export const ImportFileDiscountStyled = styled.div`
 `;
 
 export const DiscountDetailListStyled = styled.div`
+  .product-row-action {
+    margin-bottom: 24px;
+  }
   .discount-all-product {
     color: #ffffff;
     background-color: #2a2a86;
@@ -120,6 +123,12 @@ export const DiscountDetailListStyled = styled.div`
   .ant-input-search .ant-input-group .ant-input-affix-wrapper {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
+  }
+  
+  .discount-product-table-title {
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: bolder;
   }
 `;
 

@@ -165,8 +165,13 @@ const DiscountUpdate = () => {
       values.entitlements = values.entitlements?.concat(_originalEntitlements);
 
       if (values.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD) {
-        values.entitlements[0].is_apply_all = discountAllProduct;
+        values.entitlements[0].is_apply_all = discountProductHaveExclude ? false : discountAllProduct;
         values.entitlements[0].is_exclude = discountProductHaveExclude;
+
+        if (discountAllProduct && !discountProductHaveExclude) {
+          values.entitlements[0].entitled_product_ids = [];
+          values.entitlements[0].entitled_variant_ids = [];
+        }
       }
 
       try {
@@ -290,16 +295,10 @@ const DiscountUpdate = () => {
   useEffect(() => {
     if (_.isEmpty(discountData)) return;
 
-    discountData.entitlements[0]?.is_apply_all &&
-      setDiscountAllProduct(discountData.entitlements[0]?.is_apply_all);
-  }, [discountData, setDiscountAllProduct]);
-
-  useEffect(() => {
-    if (_.isEmpty(discountData)) return;
-
-    discountData.entitlements[0]?.is_exclude &&
-      setDiscountProductHaveExclude(discountData.entitlements[0]?.is_exclude);
-  }, [discountData, setDiscountProductHaveExclude]);
+    const _discountAllProduct = discountData.entitlements[0]?.is_exclude || discountData.entitlements[0]?.is_apply_all || false;
+    setDiscountAllProduct(_discountAllProduct);
+    setDiscountProductHaveExclude(discountData.entitlements[0]?.is_exclude || false);
+  }, [discountData, setDiscountAllProduct, setDiscountProductHaveExclude]);
 
   return (
     <ContentContainer

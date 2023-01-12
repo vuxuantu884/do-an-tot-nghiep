@@ -4,6 +4,7 @@ const ACCESS_TOKEN = "access_token";
 const SETTING_APP = "setting_app";
 const PACKINFO_APP = "packinfo_app";
 const YDPAGE_SOURCE = "ydpage_source";
+const UNICHAT_SOURCE = "unichat_source";
 
 export const ACCOUNT_CODE_LOCAL_STORAGE = "accountCode";
 export const DELIVER_SERVICES_LOCAL_STORAGE = "deliver_services";
@@ -60,6 +61,14 @@ const getYdpageSource = (): string | null => {
   return localStorage.getItem(YDPAGE_SOURCE);
 };
 
+const setUnichatSource = (source: string) => {
+  localStorage.setItem(UNICHAT_SOURCE, source);
+};
+
+const getUnichatSource = (): string | null => {
+  return localStorage.getItem(UNICHAT_SOURCE);
+};
+
 function setWithExpiry(key: string, value: string | boolean, ttl: number) {
   const item = {
     value: value,
@@ -101,6 +110,8 @@ export {
   removePackInfo,
   setYdpageSource,
   getYdpageSource,
+  setUnichatSource,
+  getUnichatSource,
   getWithExpiry,
   setWithExpiry,
   setSaveSearchhLocalStorage,
