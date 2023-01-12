@@ -49,11 +49,14 @@ function* searchVariantSaga(action: YodyAction) {
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        console.log(response);
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
+        break;
+      case HttpStatus.BAD_REQUEST:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
         break;
       default:
         response.errors.forEach((e) => showError(e));
@@ -104,6 +107,10 @@ function* searchProductWrapperSaga(action: YodyAction) {
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
+        break;
+      case HttpStatus.BAD_REQUEST:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
         break;
       default:
         response.errors.forEach((e) => showError(e));
@@ -186,7 +193,6 @@ function* searchVariantOrderSaga(action: YodyAction) {
       }
     }
   } catch (error) {
-    console.log("onSearch",error)
     handleError && handleError();
     showError("Có lỗi khi tìm kiếm sản phẩm! Vui lòng thử lại sau!");
   }

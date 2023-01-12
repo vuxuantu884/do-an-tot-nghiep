@@ -261,6 +261,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                 }
                 prefix={<img src={search} alt="" />}
                 placeholder="Tìm kiếm theo Tên/Mã sản phẩm"
+                maxLength={255}
               />
             </Item>
             <Item>
