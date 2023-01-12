@@ -716,6 +716,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
               prefix={<img src={search} alt="" />}
               style={{ width: "100%" }}
               placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
+              maxLength={255}
               allowClear
             />
           </Item>
