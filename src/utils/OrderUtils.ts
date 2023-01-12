@@ -43,6 +43,7 @@ import { ORDER_PERMISSIONS } from "../config/permissions/order.permission";
 import { select_type_especially_order } from "../screens/order-online/common/fields.export";
 import { DiscountValueType } from "model/promotion/price-rules.model";
 import _ from "lodash";
+import { Type } from "config/type.config";
 
 export const isOrderDetailHasPointPayment = (
   OrderDetail: OrderResponse | null | undefined,
@@ -875,4 +876,32 @@ export const getPositionLineItem = (items: OrderLineItemRequest[]) => {
     const maxPosition = _position.reduce((a, b) => (a > b ? a : b));
     return maxPosition + 1;
   }
+};
+
+/**
+ * fix vị trí item quà tặng order
+ */
+export const fixOrderPositionItem = (OrderDetail: OrderResponse) => {
+  const gifts = OrderDetail.items.filter((item) => item.type === Type.GIFT) || [];
+  // thêm leftPositionQuantity để biết xem quà tặng đã add vào sản phẩm chưa
+  const resultGifts = gifts.map((gift) => {
+    return {
+      ...gift,
+      leftPositionQuantity: 1,
+    };
+  });
+  OrderDetail.items.forEach((item) => {
+    if (item.type !== Type.SERVICE) {
+      let giftItems = resultGifts.filter((itemGift) => itemGift.position === item.position);
+      let itemGifts: OrderLineItemResponse[] = [];
+      giftItems.forEach((gift) => {
+        if (gift.leftPositionQuantity) {
+          itemGifts.push(gift);
+          gift.leftPositionQuantity = 0;
+        }
+      });
+      item.gifts = itemGifts;
+    }
+  });
+  return OrderDetail;
 };

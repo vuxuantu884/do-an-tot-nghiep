@@ -29,7 +29,7 @@ import { successColor } from "utils/global-styles/variables";
 import { StyledComponent } from "./styles";
 import { DiscountUnitType } from "screens/promotion/constants";
 import { OrderStatus, FulFillmentStatus } from "utils/Constants";
-import { checkIfOrderSplit } from "utils/OrderUtils";
+import { checkIfOrderSplit, fixOrderPositionItem } from "utils/OrderUtils";
 
 type PropTypes = {
   shippingFeeInformedCustomer: number | null;
@@ -120,24 +120,24 @@ function UpdateProductCard(props: PropTypes) {
               </div>
             </div>
           </div>
-          {gift.length > 0 &&
-            gift[0]?.discount_items.length > 0 &&
-            gift[0]?.discount_items[0]?.promotion_title && (
+          {l.gifts.length > 0 &&
+            l.gifts[0]?.discount_items.length > 0 &&
+            l.gifts[0]?.discount_items[0]?.promotion_title && (
               <div className="yody-pos-addition yody-pos-gift 2">
                 <div>
-                  <Tag color="green">{gift[0]?.discount_items[0]?.promotion_title}</Tag>
+                  <Tag color="green">{l.gifts[0]?.discount_items[0]?.promotion_title}</Tag>
                 </div>
               </div>
             )}
-          {props.OrderDetail?.items
-            .filter(
+          {l.gifts
+            ?.filter(
               (item) =>
                 item.position === l.position && item.type === Type.GIFT && l.type !== Type.SERVICE,
             )
             .map((gift) => {
               return (
                 <>
-                  <div key={gift.sku} className="yody-pos-addition yody-pos-gift 2">
+                  <div key={gift.sku} className="yody-pos-addition yody-pos-gift 23">
                     <i>
                       <img src={giftIcon} alt="" /> {gift.variant} ({gift.quantity})
                     </i>
@@ -292,18 +292,18 @@ function UpdateProductCard(props: PropTypes) {
                   };
                 }),
               };
-              setOrderDetailCalculatePointInVariant(orderDetailResult);
+              setOrderDetailCalculatePointInVariant(fixOrderPositionItem(orderDetailResult));
             } else {
               handleFetchApiError(response, "Tính điểm tiêu/tích đơn hàng", dispatch);
-              setOrderDetailCalculatePointInVariant(OrderDetail);
+              setOrderDetailCalculatePointInVariant(fixOrderPositionItem(OrderDetail));
             }
           })
           .catch(() => {
-            setOrderDetailCalculatePointInVariant(OrderDetail);
+            setOrderDetailCalculatePointInVariant(fixOrderPositionItem(OrderDetail));
           });
       }
     }
-  }, [OrderDetail, dispatch, paymentMethods]);
+  }, [OrderDetail, dispatch, paymentMethods, props.OrderDetail?.items]);
 
   const getTotalLineItemsPointAdd = (lineItems: OrderLineItemWithCalculateVariantPointModel[]) => {
     return lineItems.reduce((a, b) => a + (b?.point_add || 0), 0);
