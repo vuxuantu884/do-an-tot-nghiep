@@ -1,20 +1,26 @@
-import { Button, Divider, Space } from "antd";
+import { CopyOutlined } from "@ant-design/icons";
+import { Button, Divider, Input, Modal, Space, Tooltip } from "antd";
 import { ColumnProps } from "antd/lib/table";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import TextShowMore from "component/container/show-more/text-show-more";
+import ModalConfirm from "component/modal/ModalConfirm";
 import CustomTable from "component/table/CustomTable";
 import { AccountPermissions } from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import useAuthorization from "hook/useAuthorization";
 import { AccountJobResponse } from "model/account/account.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useRef, useState } from "react";
 import { RiEditLine } from "react-icons/ri";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
+import { resetPasswordApi } from "service/accounts/account.service";
+import { callApiNative } from "utils/ApiUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { AccountDetailContext } from "../provider/account.detail.provider";
+import { copyTextToClipboard } from "utils/AppUtils";
 
 type Job = {
   department: string;
@@ -36,19 +42,41 @@ function AccountViewTab() {
   const listGender = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.gender);
   const detailContext = useContext(AccountDetailContext);
   const { accountInfo, userCode } = detailContext;
+  const [isShowModalResetPassword, setIsShowModalResetPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+
+  const dispatch = useDispatch();
 
   const allowUpdateAcc = useAuthorization({
     acceptPermissions: [AccountPermissions.UPDATE],
   });
 
   const stores = useMemo(() => {
-    // get role_name from accountInfo?.account_roles and join with ', '
     if (accountInfo?.account_stores) {
       return accountInfo.account_stores.map((role) => role.store).join(", ");
     } else {
       return "";
     }
   }, [accountInfo]);
+
+  const resetPassword = async () => {
+    const accountId = accountInfo?.id;
+    if (!accountId) {
+      showError("Không tìm thấy tài khoản");
+      return;
+    }
+    const response = await callApiNative(
+      { isShowLoading: true, isShowError: true },
+      dispatch,
+      resetPasswordApi,
+      [accountInfo?.id],
+    );
+    if (response) {
+      setNewPassword(response);
+      showSuccess("Đặt lại mật khẩu thành công");
+    }
+    setIsShowModalResetPassword(false);
+  };
   return (
     <div className="padding-top-20">
       <table className="table-detail">
@@ -146,6 +174,9 @@ function AccountViewTab() {
         backAction={() => history.push(`${UrlConfig.ACCOUNTS}`)}
         rightComponent={
           <Space>
+            <Button danger onClick={() => setIsShowModalResetPassword(true)}>
+              Đặt lại mật khẩu
+            </Button>
             <Button onClick={() => history.push(`${UrlConfig.ACCOUNTS}/${userCode}/update`)}>
               <div style={{ display: "flex", alignItems: "center" }}>
                 {allowUpdateAcc ? (
@@ -158,6 +189,47 @@ function AccountViewTab() {
           </Space>
         }
       />
+      {isShowModalResetPassword && (
+        <ModalConfirm
+          visible={true}
+          title="Đặt lại mật khẩu"
+          subTitle="Bạn có chắc chắn muốn đặt lại mật khẩu cho tài khoản này?"
+          onOk={resetPassword}
+          onCancel={() => setIsShowModalResetPassword(false)}
+        />
+      )}
+      {newPassword && (
+        <Modal
+          visible={true}
+          title="Mật khẩu mới"
+          onCancel={() => setNewPassword("")}
+          footer={
+            <Button
+              onClick={(e) => {
+                setNewPassword("");
+                copyTextToClipboard(e, newPassword);
+              }}
+              type="primary"
+            >
+              Sao chép và đóng
+            </Button>
+          }
+        >
+          <Input.Group compact>
+            <Input
+              style={{ width: "calc(100% - 42px)", backgroundColor: "white", color: "black" }}
+              disabled
+              value={newPassword}
+            />
+            <Tooltip title="Sao chép mật khẩu">
+              <Button
+                icon={<CopyOutlined />}
+                onClick={(e) => copyTextToClipboard(e, newPassword)}
+              />
+            </Tooltip>
+          </Input.Group>
+        </Modal>
+      )}
     </div>
   );
 }

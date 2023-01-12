@@ -28,6 +28,7 @@ import { StyledComponent } from "./styles";
 import { getOrderHistoryService } from "service/order/order.service";
 import { CustomerOrderHistoryResponse } from "model/response/order/order.response";
 import { ORDER_SUB_STATUS } from "utils/Order.constants";
+import { SOCIAL_CHANNEL } from "screens/yd-page/helper";
 
 const YDPageCustomerView = (props: any) => {
   const {
@@ -44,6 +45,7 @@ const YDPageCustomerView = (props: any) => {
     deleteFpPhone,
     setFpDefaultPhone,
     setCustomerDefaultPhone,
+    socialChannel,
   } = props;
 
   const dispatch = useDispatch();
@@ -514,71 +516,73 @@ const YDPageCustomerView = (props: any) => {
           </div>
 
           {/*Ghi chú*/}
-          <div className="customer-note">
-            <div>
-              <b>Ghi chú</b>
-            </div>
-            <Form.Item
-              name="note"
-              className="note-container"
-              rules={[
-                {
-                  max: 1000,
-                  message: "Vui lòng không nhập quá 1000 kí tự",
-                },
-              ]}
-            >
-              <Input
-                disabled={!allowUpdateCustomer}
-                maxLength={1000}
-                placeholder="Nhập ghi chú"
-                value={note}
-                onChange={(e: any) => setNote(e.target.value)}
-                onPressEnter={async (e: any) => {
-                  await handleNote.get(e);
-                  await handleNote.create(e.target.value);
-                  setNote("");
-                }}
-              />
-              <Button
-                type="primary"
-                onClick={async (e: any) => {
-                  await handleNote.get(e);
-                  await handleNote.create(note);
-                  setNote("");
-                }}
-              >
-                Thêm
-              </Button>
-            </Form.Item>
-
-            {notes?.length > 0 ? (
-              notes.map((note: any, index: number) => (
-                <div className="customer-note-item" key={index}>
-                  <span key={note.id}>{note.content}</span>
-                  {allowUpdateCustomer && (
-                    <img
-                      alt="delete"
-                      onClick={() => handleNote.delete(note)}
-                      style={{
-                        width: 20,
-                        float: "right",
-                        cursor: "pointer",
-                        marginLeft: 4,
-                      }}
-                      src={XCloseBtn}
-                    />
-                  )}
-                </div>
-              ))
-            ) : (
-              <div style={{ textAlign: "right" }}>
-                <a href="#" onClick={(e) => handleNote.get(e)}>
-                  Xem ghi chú
-                </a>
+          {socialChannel !== SOCIAL_CHANNEL.UNICHAT &&
+            <div className="customer-note">
+              <div>
+                <b>Ghi chú</b>
               </div>
-            )}
-          </div>
+              <Form.Item
+                name="note"
+                className="note-container"
+                rules={[
+                  {
+                    max: 1000,
+                    message: "Vui lòng không nhập quá 1000 kí tự",
+                  },
+                ]}
+              >
+                <Input
+                  disabled={!allowUpdateCustomer}
+                  maxLength={1000}
+                  placeholder="Nhập ghi chú"
+                  value={note}
+                  onChange={(e: any) => setNote(e.target.value)}
+                  onPressEnter={async (e: any) => {
+                    await handleNote.get(e);
+                    await handleNote.create(e.target.value);
+                    setNote("");
+                  }}
+                />
+                <Button
+                  type="primary"
+                  onClick={async (e: any) => {
+                    await handleNote.get(e);
+                    await handleNote.create(note);
+                    setNote("");
+                  }}
+                >
+                  Thêm
+                </Button>
+              </Form.Item>
+
+              {notes?.length > 0 ? (
+                notes.map((note: any, index: number) => (
+                  <div className="customer-note-item" key={index}>
+                    <span key={note.id}>{note.content}</span>
+                    {allowUpdateCustomer && (
+                      <img
+                        alt="delete"
+                        onClick={() => handleNote.delete(note)}
+                        style={{
+                          width: 20,
+                          float: "right",
+                          cursor: "pointer",
+                          marginLeft: 4,
+                        }}
+                        src={XCloseBtn}
+                      />
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div style={{ textAlign: "right" }}>
+                  <a href="#" onClick={(e) => handleNote.get(e)}>
+                    Xem ghi chú
+                  </a>
+                </div>
+              )}
+            </div>
+          }
 
           {/*Lịch sử mua hàng*/}
           <div className="purchase-history">

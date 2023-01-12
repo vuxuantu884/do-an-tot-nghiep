@@ -41,7 +41,7 @@ import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
-import { SpecialOrderModel } from "model/order/special-order.model";
+import { SpecialOrderFormValueModel, SpecialOrderModel } from "model/order/special-order.model";
 import { DiscountValueType } from "model/promotion/price-rules.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -99,7 +99,11 @@ import {
   TaxTreatment,
 } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
-import { convertDiscountItem, convertDiscountType } from "utils/OrderUtils";
+import {
+  checkIfEcommerceByOrderChannelCodeUpdateOrder,
+  convertDiscountItem,
+  convertDiscountType,
+} from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import CardCustomer from "../component/CardCustomer";
@@ -166,14 +170,14 @@ export default function Order() {
   const [form] = Form.useForm();
   const [specialOrderForm] = Form.useForm();
   const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] = useState<boolean>(false);
-
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
-
-  // const [orderBillRequest, setOrderBillRequest] = useState<OrderBillRequestFormModel | undefined>(undefined);
+  const [specialOrderValue, setSpecialOrderValue] = useState<SpecialOrderFormValueModel>();
+  const [isSpecialOrderEcommerce, setIsSpecialOrderEcommerce] = useState({
+    isEcommerce: false,
+    isChange: false,
+  });
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-  // const [listOrderConfigs, setListOrderConfigs] =
-  //   useState<OrderConfigResponseModel | null>(null);
 
   const paymentMethods = useFetchPaymentMethods();
 
@@ -1227,7 +1231,9 @@ export default function Order() {
           tags: response.tags,
           channel_id: response.channel_id,
           //automatic_discount: response.automatic_discount,
-          automatic_discount: true,
+          automatic_discount:
+            !checkIfEcommerceByOrderChannelCodeUpdateOrder(response.channel_code) &&
+            !checkIfEcommerceByOrderChannelCodeUpdateOrder(response?.special_order?.ecommerce),
           uniform: response.uniform,
         });
         form.resetFields();
@@ -1287,7 +1293,39 @@ export default function Order() {
               setIsCloneOrderFromPOS(true);
               return;
             }
-            const { customer_id } = response;
+
+            const { customer_id, channel_code, special_order } = response;
+
+            const _isSpecialOrderEcommerce =
+              checkIfEcommerceByOrderChannelCodeUpdateOrder(channel_code) ||
+              checkIfEcommerceByOrderChannelCodeUpdateOrder(special_order?.ecommerce);
+            setIsSpecialOrderEcommerce({
+              isEcommerce: _isSpecialOrderEcommerce,
+              isChange: false,
+            });
+            if (checkIfEcommerceByOrderChannelCodeUpdateOrder(channel_code)) {
+              setSpecialOrderValue({
+                type: specialOrderTypes.orders_replace.value,
+                order_original_code: response.code,
+                order_carer_code: undefined,
+                skus: undefined,
+                order_return_code: undefined,
+                amount: undefined,
+                reason: undefined,
+                ecommerce: channel_code || undefined,
+              });
+            } else if (special_order) {
+              setSpecialOrderValue({
+                type: special_order.type || undefined,
+                order_original_code: special_order.order_original_code || undefined,
+                order_carer_code: special_order?.order_carer_code || undefined,
+                skus: special_order?.variant_skus ? [special_order?.variant_skus] : undefined,
+                order_return_code: special_order?.order_return_code || undefined,
+                amount: special_order?.amount || undefined,
+                reason: special_order?.reason || undefined,
+                ecommerce: special_order?.ecommerce || undefined,
+              });
+            }
 
             if (customer_id) {
               dispatch(
@@ -1482,6 +1520,7 @@ export default function Order() {
                       handleChangeShippingFeeApplyOrderSettings={
                         handleChangeShippingFeeApplyOrderSettings
                       }
+                      isSpecialOrderEcommerce={isSpecialOrderEcommerce}
                     />
                     <Card title="THANH TOÁN">
                       <OrderCreatePayments
@@ -1563,6 +1602,20 @@ export default function Order() {
                       handleCreateOrUpdateSpecialOrder={handleCreateOrUpdateSpecialOrder}
                       orderPageType={OrderPageTypeModel.orderCreate}
                       specialOrderForm={specialOrderForm}
+                      specialOrder={specialOrderValue as any}
+                      setIsSpecialOrderEcommerce={(value: boolean) => {
+                        if (value) {
+                          setIsSpecialOrderEcommerce({
+                            isEcommerce: value,
+                            isChange: false,
+                          });
+                        } else {
+                          setIsSpecialOrderEcommerce({
+                            isEcommerce: value,
+                            isChange: true,
+                          });
+                        }
+                      }}
                     />
                   </Col>
                 </Row>

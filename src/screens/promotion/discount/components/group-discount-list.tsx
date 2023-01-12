@@ -2,6 +2,7 @@ import { CheckCircleOutlined, LoadingOutlined, PlusOutlined } from "@ant-design/
 import {
   AutoComplete,
   Button,
+  Checkbox,
   Col,
   Divider,
   Form,
@@ -103,8 +104,8 @@ const GroupDiscountList = (props: Props) => {
     setDiscountProductHaveExclude,
   } = discountUpdateContext;
 
-  //Disount all product
-  const handleDicountAllProduct = useCallback(() => {
+  //Discount all product
+  const handleChangeDiscountAllProduct = useCallback(() => {
     setDiscountAllProduct(!discountAllProduct);
     setDiscountProductHaveExclude(false);
   }, [discountAllProduct, setDiscountAllProduct, setDiscountProductHaveExclude]);
@@ -449,34 +450,23 @@ const GroupDiscountList = (props: Props) => {
 
           return (
             <DiscountDetailListStyled>
-              <Row justify="end">
+              <Row justify="space-between" align="middle" className="product-row-action">
+                <Checkbox onChange={handleChangeDiscountAllProduct} checked={discountAllProduct}>Tất cả sản phẩm</Checkbox>
                 <Space size={16}>
-                  <Form.Item>
-                    <Button
-                      className={`${discountAllProduct && "discount-all-product"}`}
-                      onClick={handleDicountAllProduct}
-                    >
-                      Tất cả sản phẩm
-                    </Button>
-                  </Form.Item>
-                  <Form.Item>
-                    <Button
-                      onClick={() => setShowImportModal(true)}
-                      icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
-                      disabled={discountAllProduct}
-                    >
-                      Nhập file
-                    </Button>
-                  </Form.Item>
-                  <Form.Item>
-                    <Button
-                      onClick={addBlankEntitlement}
-                      icon={<PlusOutlined />}
-                      disabled={discountAllProduct}
-                    >
-                      Thêm chiết khấu
-                    </Button>
-                  </Form.Item>
+                  <Button
+                    onClick={() => setShowImportModal(true)}
+                    icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+                    disabled={discountAllProduct}
+                  >
+                    Nhập file
+                  </Button>
+                  <Button
+                    onClick={addBlankEntitlement}
+                    icon={<PlusOutlined />}
+                    disabled={discountAllProduct}
+                  >
+                    Thêm chiết khấu
+                  </Button>
                 </Space>
               </Row>
 

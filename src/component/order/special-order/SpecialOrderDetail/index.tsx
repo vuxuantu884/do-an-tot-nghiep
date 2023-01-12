@@ -46,9 +46,13 @@ function SpecialOrderDetail(props: Props) {
         : null,
     },
     {
+      title: "Sàn",
+      content: specialOrder?.ecommerce,
+    },
+    {
       title: "Đơn gốc",
       content: specialOrder?.order_original_code ? (
-        <Link to={`${UrlConfig.ORDER}/${specialOrder?.order_original_code}`}>
+        <Link to={`${UrlConfig.ORDER}/${specialOrder?.order_original_code}`} target="_blank">
           {specialOrder?.order_original_code}
         </Link>
       ) : null,

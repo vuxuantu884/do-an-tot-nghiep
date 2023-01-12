@@ -116,7 +116,7 @@ import { CompareObject } from "utils/CompareObject";
 import { DiscountValueType } from "model/promotion/price-rules.model";
 import discountCouponSuccess from "assets/icon/discount-coupon-success.svg";
 import {
-  getLineItemStandardized,
+  getLineItemCalculationMoney,
   lineItemsConvertInSearchPromotion,
   removeDiscountLineItem,
 } from "utils/OrderUtils";
@@ -1516,7 +1516,7 @@ function OrderCreateProduct(props: PropType) {
           const itemClone = [...items];
           const newItem = itemClone.map((single) => {
             single.discount_items = [];
-            return getLineItemStandardized(single);
+            return getLineItemCalculationMoney(single);
           });
 
           console.log("handleApplyDiscount newItem", newItem);

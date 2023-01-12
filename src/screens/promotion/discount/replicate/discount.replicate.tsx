@@ -8,6 +8,7 @@ import {
 import {
   EntilementFormModel,
   PriceRule,
+  PriceRuleMethod,
   ProductEntitlements,
 } from "model/promotion/price-rules.model";
 import moment from "moment";
@@ -25,6 +26,9 @@ import { DiscountStyled } from "../discount-style";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import _ from "lodash";
+import { PROMO_TYPE } from "utils/Constants";
+
 const DiscountReplicate = () => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
@@ -44,7 +48,15 @@ const DiscountReplicate = () => {
   const [isUsageLimitPerCustomer, setIsUsageLimitPerCustomer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const discountUpdateContext = useContext(DiscountContext);
-  const { setDiscountMethod, setDiscountData, discountData } = discountUpdateContext;
+  const {
+    setDiscountMethod,
+    setDiscountData,
+    discountData,
+    discountAllProduct,
+    setDiscountAllProduct,
+    discountProductHaveExclude,
+    setDiscountProductHaveExclude,
+  } = discountUpdateContext;
 
   const parseDataToForm = useCallback(
     (result: PriceRule) => {
@@ -125,7 +137,22 @@ const DiscountReplicate = () => {
    */
   const handleSubmit = (values: any) => {
     try {
-      const body = transformData(values);
+      if (values.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD) {
+        values.entitlements[0].is_apply_all = discountProductHaveExclude ? false : discountAllProduct;
+        values.entitlements[0].is_exclude = discountProductHaveExclude;
+
+        if (discountAllProduct && !discountProductHaveExclude) {
+          values.entitlements[0].entitled_product_ids = [];
+          values.entitlements[0].entitled_variant_ids = [];
+        }
+      }
+
+      const body = transformData(
+        values,
+        PROMO_TYPE.AUTOMATIC,
+        discountAllProduct,
+        discountProductHaveExclude,
+      );
       body.activated = activeDiscount;
       dispatch(showLoading());
       dispatch(
@@ -208,6 +235,24 @@ const DiscountReplicate = () => {
     dispatch(getPriceRuleAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
+  useEffect(() => {
+    if (_.isEmpty(discountData)) return;
+
+    const _discountAllProduct = discountData.entitlements[0]?.is_exclude || discountData.entitlements[0]?.is_apply_all || false;
+    setDiscountAllProduct(_discountAllProduct);
+    setDiscountProductHaveExclude(discountData.entitlements[0]?.is_exclude || false);
+  }, [discountData, setDiscountAllProduct, setDiscountProductHaveExclude]);
+
+  useEffect(() => {
+    if (discountAllProduct && !discountProductHaveExclude) {
+      const entitlementValue: Array<EntilementFormModel> = form.getFieldValue("entitlements");
+      entitlementValue[0].prerequisite_quantity_ranges[0].greater_than_or_equal_to = 1;
+      entitlementValue[0].prerequisite_quantity_ranges[0].value = 0;
+      entitlementValue[0].selectedProducts = [];
+      form.setFieldsValue({ entitlements: [entitlementValue[0]] });
+    }
+  }, [discountAllProduct, discountProductHaveExclude, form]);
+
   return (
     <ContentContainer
       title={`Nhân bản chiết khấu "${discountData.title}"`}
@@ -230,7 +275,7 @@ const DiscountReplicate = () => {
       <DiscountStyled>
         <Form
           form={form}
-          name="discount_update"
+          name="discount_replicate"
           onFinish={(values: any) => handleSubmit(values)}
           layout="vertical"
           scrollToFirstError

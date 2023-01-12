@@ -1,4 +1,4 @@
-import { DeleteOutlined, EyeInvisibleOutlined, EyeTwoTone, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -32,6 +32,7 @@ import {
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
+import { SupplierGetAllNoPagingAction } from "domain/actions/core/supplier.action";
 import useAuthorization from "hook/useAuthorization";
 import { AccountRequest, AccountResponse } from "model/account/account.model";
 import { DepartmentResponse } from "model/account/department.model";
@@ -39,23 +40,21 @@ import { PositionResponse } from "model/account/position.model";
 import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
 import { CountryResponse } from "model/content/country.model";
 import { CityView, DistrictResponse } from "model/content/district.model";
+import { ProcurementField } from "model/procurement/field";
 import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import TreeStore from "component/TreeStore";
 import { convertDistrict } from "utils/AppUtils";
 import { RegUtil } from "utils/RegUtils";
-import { showSuccess } from "utils/ToastUtils";
-import TreeDepartment from "../department/component/TreeDepartment";
-import { PASSWORD_RULES } from "./account.rules";
-import { SupplierGetAllNoPagingAction } from "domain/actions/core/supplier.action";
-import { ProcurementField } from "model/procurement/field";
-import { AiOutlinePlusCircle } from "react-icons/ai";
-import SupplierItem from "../../purchase-order/component/supplier-item";
-import "./styles.scss";
 import { fullTextSearch } from "utils/StringUtils";
+import { showSuccess } from "utils/ToastUtils";
+import SupplierItem from "../../purchase-order/component/supplier-item";
+import TreeDepartment from "../department/component/TreeDepartment";
+import "./styles.scss";
 
 const { Item, List } = Form;
 const { Option, OptGroup } = Select;
@@ -220,11 +219,6 @@ const AccountCreateScreen: React.FC = () => {
     return "";
   }, [statusSupplier, listAccountStatus]);
 
-  // const selectAllStore = useMemo(() => {
-  //   return listStore?.map((item) => item.id);
-  // }, [listStore]);
-  //end memo
-
   const backAction = () => {
     setModalConfirm({
       visible: true,
@@ -266,7 +260,6 @@ const AccountCreateScreen: React.FC = () => {
 
   useEffect(() => {
     dispatch(SupplierGetAllNoPagingAction(onResult));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const tagRender = (props: any) => {
@@ -350,6 +343,18 @@ const AccountCreateScreen: React.FC = () => {
             </Space>
           }
         >
+          {!isSupplier && (
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                label="Tên đăng nhập"
+                name="user_name"
+                rules={[{ required: true, message: "Vui lòng nhập tên đăng nhập" }]}
+                hidden
+              >
+                <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" disabled />
+              </Item>
+            </Col>
+          )}
           <Row className="mb-20">
             <div className="display-flex align-item">
               <Checkbox
@@ -406,17 +411,6 @@ const AccountCreateScreen: React.FC = () => {
             </Row>
           )}
           <Row gutter={24}>
-            {!isSupplier && (
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  label="Tên đăng nhập"
-                  name="user_name"
-                  rules={[{ required: true, message: "Vui lòng nhập tên đăng nhập" }]}
-                >
-                  <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" disabled />
-                </Item>
-              </Col>
-            )}
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 label="Họ và tên"
@@ -426,22 +420,49 @@ const AccountCreateScreen: React.FC = () => {
                 <Input className="r-5" placeholder="Nhập họ và tên" size="large" />
               </Item>
             </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                label="Số điện thoại"
+                name="phone"
+                rules={[
+                  { required: true, message: "Vui lòng nhập số điện thoại" },
+                  {
+                    pattern: RegUtil.PHONE,
+                    message: "Số điện thoại không đúng định dạng",
+                  },
+                ]}
+              >
+                <Input className="r-5" placeholder="Nhập số điện thoại" size="large" />
+              </Item>
+            </Col>
           </Row>
           <Row gutter={24}>
             <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                rules={[...PASSWORD_RULES, { required: true, message: "Vui lòng nhập mật khẩu" }]}
-                name="password"
-                label="Mật khẩu"
+              <Form.Item
+                name="role_id"
+                label="Nhóm phân quyền"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn nhóm phân quyền",
+                  },
+                ]}
               >
-                <Input.Password
-                  autoComplete="new-password"
-                  className="r-5"
-                  placeholder="Nhập mật khẩu"
-                  size="large"
-                  iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-                />
-              </Item>
+                <Select
+                  autoClearSearchValue={false}
+                  placeholder="Chọn vị trí"
+                  allowClear
+                  showArrow
+                  showSearch
+                  optionFilterProp="children"
+                >
+                  {listRole?.map((item) => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
@@ -511,18 +532,8 @@ const AccountCreateScreen: React.FC = () => {
           </Row>
           <Row gutter={24}>
             <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                label="Số điện thoại"
-                name="phone"
-                rules={[
-                  { required: true, message: "Vui lòng nhập số điện thoại" },
-                  {
-                    pattern: RegUtil.PHONE,
-                    message: "Số điện thoại không đúng định dạng",
-                  },
-                ]}
-              >
-                <Input className="r-5" placeholder="Nhập số điện thoại" size="large" />
+              <Item label="Ngày sinh" name="birthday">
+                <CustomDatepicker style={{ width: "100%" }} placeholder="20/01/2021" />
               </Item>
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
@@ -535,40 +546,7 @@ const AccountCreateScreen: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={24}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item label="Ngày sinh" name="birthday">
-                <CustomDatepicker style={{ width: "100%" }} placeholder="20/01/2021" />
-              </Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                name="role_id"
-                label="Nhóm phân quyền"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn nhóm phân quyền",
-                  },
-                ]}
-              >
-                <Select
-                  autoClearSearchValue={false}
-                  placeholder="Chọn vị trí"
-                  allowClear
-                  showArrow
-                  showSearch
-                  optionFilterProp="children"
-                >
-                  {listRole?.map((item) => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
+
           <Divider orientation="left">Thông tin khác</Divider>
           <Row gutter={24}>
             <Col span={24} lg={8} md={12} sm={24}>

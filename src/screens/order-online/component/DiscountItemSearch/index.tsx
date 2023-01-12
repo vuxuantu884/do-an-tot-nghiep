@@ -1,6 +1,6 @@
 import { Input, Select, Typography } from "antd";
 import _ from "lodash";
-import { OrderItemDiscountRequest, OrderLineItemRequest } from "model/request/order.request";
+import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useEffect, useState, useRef, useMemo } from "react";
 import {
   formatCurrency,

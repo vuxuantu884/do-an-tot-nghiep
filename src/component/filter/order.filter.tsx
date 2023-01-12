@@ -13,6 +13,8 @@ import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelec
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import CustomSelectWithButtonCheckAll from "component/custom/select-with-button-check-all.custom";
 import CustomSelect from "component/custom/select.custom";
+import CustomTreeSelect from "component/CustomTreeSelect";
+import { CustomByDepartment } from "component/CustomTreeSelect/model";
 import { StyledComponent } from "component/filter/order.filter.styles";
 import FilterConfigModal from "component/modal/FilterConfigModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
@@ -51,7 +53,7 @@ import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
 import { ORDER_TYPES } from "utils/Order.constants";
 import { formatDateTimeOrderFilter, getTimeFormatOrderFilterTag } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
-import TreeSource from "../treeSource";
+// import TreeSource from "../treeSource";
 import BaseFilter from "./base.filter";
 import UserCustomFilterTag from "./UserCustomFilterTag";
 
@@ -2039,10 +2041,11 @@ function OrdersFilter(props: Props): JSX.Element {
                 </Col>
                 <Col span={8} xxl={8}>
                   <Item name="source_ids" label="Nguồn đơn hàng">
-                    <TreeSource
+                    <CustomTreeSelect
                       placeholder="Nguồn đơn hàng"
-                      name="source_ids"
-                      listSource={listSource}
+                      //name="source_ids"
+                      storeByDepartmentList={listSource as unknown as CustomByDepartment[]}
+                      style={{ width: "100%" }}
                       autoClearSearchValue={false}
                     />
                   </Item>

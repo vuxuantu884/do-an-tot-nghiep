@@ -1,31 +1,27 @@
-import React, { useState } from "react";
-
-import ContentContainer from "component/container/content.container";
-
-import { StyledYDpage } from "screens/YDpage/StyledYDpage";
-import YDpageConnect from "assets/img/ydpage-connect.png";
-import FacebookIcon from "assets/icon/facebook.svg";
-import InstagramIcon from "assets/icon/instagram.svg";
-import ZaloIcon from "assets/icon/zalo.svg";
-
+import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { AppConfig } from "config/app.config";
+import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { useQuery } from "utils/useQuery";
 import { getToken, getYdpageSource, setYdpageSource } from "utils/LocalStorageUtils";
-import { useEffect } from "react";
+import { hideLoading } from "domain/actions/loading.action";
+import ContentContainer from "component/container/content.container";
 import SplashScreen from "screens/splash.screen";
+import { allSource } from "screens/social/helper";
+import { SocialStyled } from "screens/social/styles";
+import YodySocial from "assets/img/yody_social.svg";
+import ydpageImg from "assets/img/ydpage.svg";
 
 const YDPAGE_URL = AppConfig.ydPageUrl;
-const allSource = {
-  FACEBOOK: "facebook",
-};
+
 const YDpage: React.FC = () => {
+  const dispatch = useDispatch();
   const queryString = useQuery();
   const fbCode = queryString.get("code");
-
   const [source, setSource] = useState<String | null>(getYdpageSource());
   const [loadingYdpage, setLoadingYdpage] = useState<Boolean | null>(false);
   const [isLogining, setIsLogining] = useState<Boolean | null>(false);
-
+  
   const goToFacebookYDpage = () => {
     setSource(allSource.FACEBOOK);
     setYdpageSource(allSource.FACEBOOK);
@@ -46,6 +42,10 @@ const YDpage: React.FC = () => {
   }
 
   useEffect(() => {
+    dispatch(hideLoading());
+  }, [dispatch]);
+
+  useEffect(() => {
     function handleEvent(event: any) {
       const { data } = event;
       const { cmd, route } = data;
@@ -60,9 +60,14 @@ const YDpage: React.FC = () => {
             const toggleSideBtn: HTMLElement | null = document.querySelector("header button");
             toggleSideBtn?.click();
           }
+          setLoadingYdpage(false);
           break;
         case "ydpage_loaded":
           setLoadingYdpage(false);
+          break;
+        case "YDpage_logout":
+          setYdpageSource("");
+          window.location.href = `${BASE_NAME_ROUTER}${UrlConfig.SOCIAL}`;
           break;
         default:
           break;
@@ -107,51 +112,22 @@ const YDpage: React.FC = () => {
   }, [source]);
 
   return (
-    <StyledYDpage>
+    <SocialStyled>
       {!source && (
-        <ContentContainer title="Danh sách kênh trên YDPage">
+        <ContentContainer title="">
           <div className="ydpage-body">
-            <div className="left-body">
-              <div className="title">
-                <div className="label">Chọn kênh Social</div>
-                <div className="description">Bạn muốn kết nối</div>
-              </div>
-              <img className="image" src={YDpageConnect} alt="" />
+            <img className="image" src={YodySocial} alt="" />
+            <div className="text-description">
+              <div className="label">Chọn kênh Social bạn muốn kết nối</div>
+              <div className="description">Kết nối với tất cả khách hàng mọi lúc!</div>
             </div>
 
-            <div className="right-body">
-              <div>
-                <div className="row-button">
-                  <div className="social-button facebook" onClick={goToFacebookYDpage}>
-                    <img
-                      className="image"
-                      src={FacebookIcon}
-                      style={{ marginRight: "15px", height: "40px" }}
-                      alt=""
-                    />
-                    <span className="text-button">Facebook</span>
-                  </div>
-                  <div className="social-button" style={{ display: "none" }}>
-                    <img
-                      className="image"
-                      src={InstagramIcon}
-                      style={{ marginRight: "15px", height: "40px" }}
-                      alt=""
-                    />
-                    <span className="text-button">Instagram</span>
-                  </div>
-                </div>
-
-                <div className="row-button">
-                  <div className="social-button" style={{ display: "none" }}>
-                    <img
-                      className="image"
-                      src={ZaloIcon}
-                      style={{ marginRight: "15px", height: "40px" }}
-                      alt=""
-                    />
-                    <span className="text-button">Zalo</span>
-                  </div>
+            <div className="button-option">
+              <div className="social-button" style={{ marginRight: "0" }} onClick={goToFacebookYDpage}>
+                <img src={ydpageImg} style={{ marginRight: "12px" }} alt="" />
+                <div>
+                  <div className="text-button-title">Kết nối <span style={{ color: "#2A2A86" }}>Facebook</span> với YDPAGE</div>
+                  <div className="description-text">Ứng dụng quản lý và bán hàng trên Facebook dành riêng cho YODY.</div>
                 </div>
               </div>
             </div>
@@ -177,7 +153,7 @@ const YDpage: React.FC = () => {
           style={{ width: "100%", height: "100%" }}
         ></iframe>
       )}
-    </StyledYDpage>
+    </SocialStyled>
   );
 };
 
