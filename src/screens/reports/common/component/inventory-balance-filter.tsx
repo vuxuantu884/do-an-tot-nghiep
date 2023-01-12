@@ -50,19 +50,25 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
       }
       switch (propertyField) {
         case InventoryBalanceFilterForm.ProductGroupLv1:
-          if (shouldAddOption(keySearch, productGroupLv1)) {
+          const isSelectedLv1 = form.getFieldValue(propertyField)?.includes(keySearch);
+          if (shouldAddOption(keySearch, productGroupLv1) && !isSelectedLv1) {
             const opt = { label: keySearch, value: keySearch };
             setProductGroupLv1([...productGroupLv1, opt]);
           }
           break;
         case InventoryBalanceFilterForm.ProductGroupLv2:
-          if (shouldAddOption(keySearch, productGroupLv2)) {
+          const isSelectedLv2 = form.getFieldValue(propertyField)?.includes(keySearch);
+          if (shouldAddOption(keySearch, productGroupLv2) && !isSelectedLv2) {
             const opt = { label: keySearch, value: keySearch };
             setProductGroupLv2([...productGroupLv2, opt]);
           }
           break;
         case InventoryBalanceFilterForm.SkuCodes:
-          if (shouldAddOption(keySearch, productSkus, "sku_code")) {
+          const isSelectedSkus = form
+            .getFieldValue(propertyField)
+            ?.map((item: any) => item.sku_code)
+            .includes(keySearch);
+          if (shouldAddOption(keySearch, productSkus, "sku_code") && !isSelectedSkus) {
             const opt = { sku_code: keySearch, sku_name: keySearch };
             setProductSkus([...productSkus, opt]);
           }
