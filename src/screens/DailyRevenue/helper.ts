@@ -1,7 +1,21 @@
+import _ from "lodash";
+import { ShopRevenueModel } from "model/order/daily-revenue.model";
 import { PagingParam, ResultPaging } from "model/paging";
+import { AnalyticConditions } from "model/report";
 import { DailyRevenueTableModel } from "model/revenue";
 import { formatCurrency } from "utils/AppUtils";
 import { flatDataPaging } from "utils/Paging";
+import { generateRQuery } from "utils/ReportUtils";
+
+export const columnsReport = {
+  cashPayments: "cash_payments",
+  vnpayPayments: "vnpay_payments",
+  momoPayments: "momo_payments",
+  transferPayments: "transfer_payments",
+  cardPayments: "card_payments",
+  unknownPayments: "unknown_payments",
+  vcbPayments: "vcb_payments",
+};
 
 export const dailyRevenueStatus = {
   draft: {
@@ -75,4 +89,77 @@ export const filterNumberDiff = (
     value: textRemaining,
   };
   return result;
+};
+
+export const getAnalyticConditions = (where: any) => {
+  const whereParams: AnalyticConditions =
+    where &&
+    Object.keys(JSON.parse(JSON.stringify(where))).map((key: string) => {
+      const value: Array<string> = where[key];
+      const operator = _.isEqual(value, [""]) ? "!=" : "IN";
+      let values: string | Array<string> = "";
+      if (operator === "IN") {
+        values = value
+          .map((item) => encodeURIComponent(item))
+          .join(",")
+          .split(",")
+          .map((item: string) => decodeURIComponent(`'${item}'`))
+          .join(",");
+      } else {
+        values = value;
+      }
+
+      return [key, operator, ...values];
+    });
+
+  return whereParams;
+};
+
+export const getParamReport = (currentDate: string, currentStore: string) => {
+  const conditions = getAnalyticConditions({ pos_location_name: [currentStore] });
+
+  const params: any = {
+    columns: [
+      {
+        field: columnsReport.cashPayments,
+      },
+      {
+        field: columnsReport.vnpayPayments,
+      },
+      {
+        field: columnsReport.momoPayments,
+      },
+      {
+        field: columnsReport.transferPayments,
+      },
+      {
+        field: columnsReport.cardPayments,
+      },
+      {
+        field: columnsReport.unknownPayments,
+      },
+      // {
+      //   field: columnsReport.vcbPayments,
+      // },
+    ],
+    rows: ["pos_location_name", "pos_location_name", "pos_location_name"],
+    cube: "offline_sales",
+    from: currentDate,
+    to: currentDate,
+    conditions: conditions,
+    order_by: [["total_sales", "DESC"]],
+  };
+
+  const query: any = generateRQuery(params);
+
+  return {
+    q: query,
+    options: 'time:"completed_at"',
+  };
+};
+
+export const getTotalShopRevenueAmount = (value: ShopRevenueModel) => {
+  return Object.values(value)
+    .map((item) => item)
+    .reduce((prev, next) => prev + next);
 };
