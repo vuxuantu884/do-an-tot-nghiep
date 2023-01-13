@@ -10,7 +10,9 @@ import {
   DailyRevenueOtherPaymentParamsModel,
   DaiLyRevenuePermissionModel,
   DailyRevenueVisibleCardElementModel,
+  ShopRevenueModel,
 } from "model/order/daily-revenue.model";
+import { AnalyticCube, ReportProperty } from "model/report";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -27,14 +29,19 @@ import {
   isFetchApiSuccessful,
   scrollAndFocusToDomElement,
 } from "utils/AppUtils";
-import { getArrayFromObject } from "utils/OrderUtils";
+import { formatDateTimeOrderFilter, getArrayFromObject } from "utils/OrderUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import DailyRevenueProgressBar from "../components/DailyRevenueProgressBar";
 import DailyRevenueTotal from "../components/DailyRevenueTotal";
 import RevenueNote from "../components/sidebar/RevenueNote";
 import RevenueStatus from "../components/sidebar/RevenueStatus";
-import { dailyRevenueStatus } from "../helper";
+import { columnsReport, dailyRevenueStatus, getParamReport } from "../helper";
 import { StyledComponent } from "./styles";
+import { AnalyticQuery } from "model/report/analytics.model";
+import { generateRQuery } from "utils/ReportUtils";
+import { executeAnalyticsQueryService } from "service/report/analytics.service";
+import { DATE_FORMAT } from "utils/DateUtils";
+import moment from "moment";
 
 type PropTypes = {};
 
@@ -53,6 +60,7 @@ function DailyRevenueDetail(props: PropTypes) {
   const dispatch = useDispatch();
 
   const [dailyRevenueDetail, setDailyRevenueDetail] = useState<DailyRevenueDetailModel>();
+  const [shopRevenueModel, setShopRevenueModel] = useState<ShopRevenueModel>();
 
   const [visibleCardElement, setVisibleCardElement] = useState<DailyRevenueVisibleCardElementModel>(
     {
@@ -116,7 +124,6 @@ function DailyRevenueDetail(props: PropTypes) {
     allowDailyPaymentsSubmit,
     allowDailyPaymentsConfirm,
   };
-  console.log("permissions", permissions);
 
   const fetchDailyRevenueDetail = useCallback(() => {
     if (!id) {
@@ -143,6 +150,66 @@ function DailyRevenueDetail(props: PropTypes) {
       });
   }, [dispatch, id]);
 
+  const fetchDailyRevenueReport = useCallback(() => {
+    if (!storeDetail?.name) return;
+
+    const currentDate = moment(dailyRevenueDetail?.created_at).format(DATE_FORMAT.YYYY_MM_DD);
+
+    const fullParams = getParamReport(currentDate, storeDetail?.name);
+    executeAnalyticsQueryService(fullParams).then((response: any) => {
+      console.log("executeAnalyticsQueryService", response.result);
+      const indexCashPayments = response.result.columns.findIndex(
+        (p: any) => p.field === columnsReport.cashPayments,
+      );
+
+      const indexVnpayPayments = response.result.columns.findIndex(
+        (p: any) => p.field === columnsReport.vnpayPayments,
+      );
+
+      const indexMomoPayments = response.result.columns.findIndex(
+        (p: any) => p.field === columnsReport.momoPayments,
+      );
+
+      const indexTransferPayments = response.result.columns.findIndex(
+        (p: any) => p.field === columnsReport.transferPayments,
+      );
+
+      const indexCardPayments = response.result.columns.findIndex(
+        (p: any) => p.field === columnsReport.cardPayments,
+      );
+
+      const indexUnknownPayments = response.result.columns.findIndex(
+        (p: any) => p.field === columnsReport.unknownPayments,
+      );
+
+      const indexVcbPayments = response.result.columns.findIndex(
+        (p: any) => p.field === columnsReport.vcbPayments,
+      );
+
+      if (response.result.data && response.result.data.length !== 0) {
+        setShopRevenueModel({
+          cash_payments: response.result.data[0][indexCashPayments]||0,
+          vnpay_payments: response.result.data[0][indexVnpayPayments]||0,
+          momo_payments: response.result.data[0][indexMomoPayments]||0,
+          transfer_payments: response.result.data[0][indexTransferPayments]||0,
+          card_payments: response.result.data[0][indexCardPayments]||0,
+          unknown_payments: response.result.data[0][indexUnknownPayments]||0,
+          vcb_payments: response.result.data[0][indexVcbPayments]||0,
+        });
+      } else {
+        setShopRevenueModel({
+          cash_payments: 0,
+          vnpay_payments: 0,
+          momo_payments: 0,
+          transfer_payments: 0,
+          card_payments: 0,
+          unknown_payments: 0,
+          vcb_payments: 0,
+        });
+      }
+    });
+  }, [dailyRevenueDetail?.created_at, storeDetail?.name]);
+
   const handleUpdateDailyRevenueDetail = () => {
     if (!id) {
       return;
@@ -152,7 +219,6 @@ function DailyRevenueDetail(props: PropTypes) {
       .refresh(+id)
       .then((response) => {
         setDailyRevenueDetail(response);
-        console.log(`Cập nhật ${dailyRevenueDetail?.id}`);
       })
       .catch((error) => {
         console.log("error", error);
@@ -242,12 +308,10 @@ function DailyRevenueDetail(props: PropTypes) {
   };
 
   const handleClickPayMoney = (fileList: UploadFile<any>[] | undefined) => {
-    console.log("fileList", fileList);
     const uploadFiles = fileList?.map((single) => single.originFileObj) as File[] | undefined;
     if (!uploadFiles) {
       return;
     }
-    console.log("uploadFiles", uploadFiles);
     // return;
     paymentForm
       .validateFields()
@@ -353,6 +417,10 @@ function DailyRevenueDetail(props: PropTypes) {
     dispatch(showLoading());
     fetchDailyRevenueDetail();
   }, [dispatch, fetchDailyRevenueDetail, id]);
+
+  useEffect(() => {
+    fetchDailyRevenueReport();
+  }, [dispatch, fetchDailyRevenueReport]);
 
   useEffect(() => {
     const getView = () => {
@@ -513,6 +581,7 @@ function DailyRevenueDetail(props: PropTypes) {
               handleUpdateDailyRevenueDetail={handleUpdateDailyRevenueDetail}
               visibleCardElement={visibleCardElement}
               permissions={permissions}
+              shopRevenueModel={shopRevenueModel}
             />
             {visibleCardElement.shopCostAndSurchargeCard.show && (
               <Card title="Thu Chi" className="revenueCard">
