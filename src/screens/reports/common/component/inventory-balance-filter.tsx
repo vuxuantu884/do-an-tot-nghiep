@@ -6,9 +6,8 @@ import { CityByCountryAction } from "domain/actions/content/content.action";
 import { debounce } from "lodash";
 import { AccountStoreResponse } from "model/account/account.model";
 import { ProvinceModel } from "model/content/district.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useEffectOnce } from "react-use";
 import AnalyticsDatePicker from "screens/reports/analytics/shared/analytics-date-picker";
 import { VietNamId } from "utils/Constants";
@@ -83,31 +82,22 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
 
   const [assignedStore, setAssignedStore] = useState<AccountStoreResponse[]>([]);
 
-  const myStores: AccountStoreResponse[] =
-    useSelector((state: RootReducerType) => state.userReducer.account?.account_stores) || [];
-
   const fetchStores = async () => {
     const { province } = form.getFieldsValue();
     const response = await fetchStoreByProvince(dispatch, province);
     if (!response) {
-      setAssignedStore(myStores);
+      setAssignedStore([]);
       return;
     }
-    if (myStores.length) {
-      const stores = myStores.filter((item) => {
-        return response.data.findIndex((storeItem: any) => storeItem.id === item.store_id) !== -1;
-      });
-      setAssignedStore(stores);
-    } else {
-      setAssignedStore(
-        response.data.map((item: any) => {
-          return {
-            store_id: item.id,
-            store: item.name,
-          };
-        }),
-      );
-    }
+
+    setAssignedStore(
+      response.data.map((item: any) => {
+        return {
+          store_id: item.id,
+          store: item.name,
+        };
+      }),
+    );
   };
 
   useEffectOnce(() => {
