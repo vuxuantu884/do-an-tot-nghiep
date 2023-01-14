@@ -133,7 +133,7 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
   const onGetProductGroupLv1 = async () => {
     const response = await fetchProductInfo(dispatch);
     if (response) {
-      const data = response.data.productGroupLV1.map((item: any) => {
+      const data = response.data.productGroupLv1.map((item: any) => {
         const { product_group_level1 } = item;
         return {
           label: product_group_level1,
@@ -153,9 +153,9 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
       showWarning("Vui lòng chọn nhóm sản phẩm cấp 1");
       return;
     }
-    const response = await fetchProductInfo(dispatch, { productGroupLV1: productGroupLv1 });
+    const response = await fetchProductInfo(dispatch, { productGroupLv1: productGroupLv1 });
     if (response) {
-      const data = response.data.productGroupLV2.map((item: any) => {
+      const data = response.data.productGroupLv2.map((item: any) => {
         const { product_group_level2 } = item;
         return {
           label: product_group_level2,
@@ -173,7 +173,7 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
       showWarning("Vui lòng chọn nhóm sản phẩm cấp 2");
       return;
     }
-    const response = await fetchProductInfo(dispatch, { productGroupLV2: productGroupLv2 });
+    const response = await fetchProductInfo(dispatch, { productGroupLv2 });
     if (response) {
       setProductSkus(response.data.SKU);
     }

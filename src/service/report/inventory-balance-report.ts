@@ -11,8 +11,8 @@ export interface InventoryBalanceReportParams {
 }
 
 export interface InventoryBalanceFilterParams {
-  productGroupLV1?: string;
-  productGroupLV2?: string;
+  productGroupLv1?: string;
+  productGroupLv2?: string;
 }
 
 export const getInventoryBalanceReportApi = (
