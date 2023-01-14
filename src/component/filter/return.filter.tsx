@@ -28,7 +28,7 @@ import { ChannelResponse } from "model/response/product/channel.response";
 import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";

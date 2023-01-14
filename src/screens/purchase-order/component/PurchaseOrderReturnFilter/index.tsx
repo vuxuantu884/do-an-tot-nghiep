@@ -5,7 +5,7 @@ import { POReturnFiltersWrapper } from "./style";
 import search from "assets/img/search.svg";
 import BaseSelectMerchans from "component/base/BaseSelect/BaseSelectMerchans";
 import { useFetchMerchans } from "hook/useFetchMerchans";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { SupplierResponse } from "model/core/supplier.model";
 import { useDispatch } from "react-redux";

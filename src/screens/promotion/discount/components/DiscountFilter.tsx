@@ -16,7 +16,7 @@ import useAuthorization from "hook/useAuthorization";
 import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
 import BaseFilter from "component/filter/base.filter";
 import { FilterOutlined } from "@ant-design/icons";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { useDispatch } from "react-redux";
 import { convertItemToArray, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import {

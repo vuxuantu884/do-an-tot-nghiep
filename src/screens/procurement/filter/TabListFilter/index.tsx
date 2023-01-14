@@ -13,7 +13,7 @@ import { SupplierResponse } from "model/core/supplier.model";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { ProcurementStatus, ProcurementStatusName } from "utils/Constants";
 import { FilterProcurementStyleWrapper } from "../styles";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";

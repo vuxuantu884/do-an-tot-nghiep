@@ -20,7 +20,7 @@ import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 import { InventoryTransferTabUrl } from "config/url.config";
 import { useQuery } from "utils/useQuery";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 
 type OrderFilterProps = {
