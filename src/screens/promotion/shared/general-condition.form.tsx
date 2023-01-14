@@ -20,7 +20,7 @@ import { ChannelResponse } from "model/response/product/channel.response";
 import moment from "moment";
 import React, { ReactElement, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { getDayOptions } from "utils/PromotionUtils";
 import { dayOfWeekOptions, PROMOTION_TYPE } from "screens/promotion/constants";

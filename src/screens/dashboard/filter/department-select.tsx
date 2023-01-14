@@ -5,7 +5,7 @@ import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { ReactElement, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { DashboardContext } from "../provider/dashboard-provider";
 interface Props extends SelectProps<number> {}
 
