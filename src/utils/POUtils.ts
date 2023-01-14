@@ -39,6 +39,7 @@ const POUtils = {
     variants: Array<VariantResponse>,
     position: number,
     variantType: string,
+    tax_rate: number,
   ): Array<PurchaseOrderLineItem> => {
     let result: Array<PurchaseOrderLineItem> = [];
     variants.forEach((variant, index) => {
@@ -65,7 +66,7 @@ const POUtils = {
         variant_image: variant_image !== null ? variant_image.url : null,
         unit: variant.product.unit,
         tax: 0,
-        tax_rate: 0,
+        tax_rate,
         tax_included: false,
         tax_type_id: null,
         line_amount_after_line_discount: price,
