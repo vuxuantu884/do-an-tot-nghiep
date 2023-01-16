@@ -8,7 +8,6 @@ import {
 import moment from "moment";
 import React from "react";
 import RevenueReceiptCard from "screens/DailyRevenue/components/DailyRevenueCard";
-import { getTotalShopRevenueAmount } from "screens/DailyRevenue/helper";
 import { formatCurrency } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import RefreshIcon from "./images/refreshIcon.svg";
@@ -36,7 +35,7 @@ function ShopRevenueCard(props: PropTypes) {
 
   const items: ShopRevenueModel[] = shopRevenueModel ? [shopRevenueModel] : [];
 
-  const totalShopRevenueAmount = shopRevenueModel ? getTotalShopRevenueAmount(shopRevenueModel) : 0;
+  const totalShopRevenueAmount = shopRevenueModel ? shopRevenueModel.total_revenue : 0;
 
   console.log("items", items);
 
