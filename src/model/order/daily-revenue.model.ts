@@ -8,7 +8,6 @@ export interface ShopRevenueModel {
   card_payments: number;
   unknown_payments: number;
   vcb_payments: number;
-  total_revenue:number;
 }
 
 export interface DailyRevenueOtherPaymentModel extends BaseObject {

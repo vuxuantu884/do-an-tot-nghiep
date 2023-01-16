@@ -15,7 +15,6 @@ export const columnsReport = {
   cardPayments: "card_payments",
   unknownPayments: "unknown_payments",
   vcbPayments: "vcb_payments",
-  total_sales :"total_sales",
 };
 
 export const dailyRevenueStatus = {
@@ -142,9 +141,6 @@ export const getParamReport = (currentDate: string, currentStore: string) => {
       // {
       //   field: columnsReport.vcbPayments,
       // },
-      {
-        field: columnsReport.total_sales,
-      },
     ],
     rows: ["pos_location_name", "pos_location_name", "pos_location_name"],
     cube: "offline_sales",
@@ -161,65 +157,6 @@ export const getParamReport = (currentDate: string, currentStore: string) => {
     options: 'time:"completed_at"',
   };
 };
-
-export const getDataReport = (v: any)=>{
-  let result:ShopRevenueModel ={
-    cash_payments: 0,
-    vnpay_payments: 0,
-    momo_payments: 0,
-    transfer_payments: 0,
-    card_payments: 0,
-    unknown_payments: 0,
-    vcb_payments: 0,
-    total_revenue:0,
-  };
-
-  const indexCashPayments = v.columns.findIndex(
-    (p: any) => p.field === columnsReport.cashPayments,
-  );
-
-  const indexVnpayPayments = v.columns.findIndex(
-    (p: any) => p.field === columnsReport.vnpayPayments,
-  );
-
-  const indexMomoPayments = v.columns.findIndex(
-    (p: any) => p.field === columnsReport.momoPayments,
-  );
-
-  const indexTransferPayments = v.columns.findIndex(
-    (p: any) => p.field === columnsReport.transferPayments,
-  );
-
-  const indexCardPayments = v.columns.findIndex(
-    (p: any) => p.field === columnsReport.cardPayments,
-  );
-
-  const indexUnknownPayments = v.columns.findIndex(
-    (p: any) => p.field === columnsReport.unknownPayments,
-  );
-
-  const indexVcbPayments = v.columns.findIndex(
-    (p: any) => p.field === columnsReport.vcbPayments,
-  );
-  const indexTotalRevenue = v.columns.findIndex(
-    (p: any) => p.field === columnsReport.total_sales,
-  );
-
-  if (v.data && v.data.length !== 0){
-    result={
-      cash_payments: v.data[0][indexCashPayments]||0,
-      vnpay_payments: v.data[0][indexVnpayPayments]||0,
-      momo_payments: v.data[0][indexMomoPayments]||0,
-      transfer_payments: v.data[0][indexTransferPayments]||0,
-      card_payments: v.data[0][indexCardPayments]||0,
-      unknown_payments: v.data[0][indexUnknownPayments]||0,
-      vcb_payments: v.data[0][indexVcbPayments]||0,
-      total_revenue:v.data[0][indexTotalRevenue]||0,
-    }
-  }
-
-  return result;
-}
 
 export const getTotalShopRevenueAmount = (value: ShopRevenueModel) => {
   return Object.values(value)
