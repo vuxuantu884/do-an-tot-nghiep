@@ -599,6 +599,7 @@ export const changeTypeQrCode = (
   ];
 
   qrPaymentMethodTypes.forEach((qrCode) => {
+    console.log("qrCode", qrCode);
     const paymentIndex = payments.findIndex((payment) => payment.payment_method_code === qrCode);
 
     if (paymentIndex > -1) {
@@ -611,6 +612,9 @@ export const changeTypeQrCode = (
       payments[paymentIndex].code = qrPaymentMethod.code;
       payments[paymentIndex].name = qrPaymentMethod.name;
       payments[paymentIndex].type = qrCode;
+      if (qrCode === PaymentMethodCode.VN_PAY) {
+        payments[paymentIndex].type = "vnpay";
+      }
     }
   });
 
