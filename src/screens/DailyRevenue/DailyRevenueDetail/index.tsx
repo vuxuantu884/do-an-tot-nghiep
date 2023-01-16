@@ -35,7 +35,7 @@ import DailyRevenueProgressBar from "../components/DailyRevenueProgressBar";
 import DailyRevenueTotal from "../components/DailyRevenueTotal";
 import RevenueNote from "../components/sidebar/RevenueNote";
 import RevenueStatus from "../components/sidebar/RevenueStatus";
-import { columnsReport, dailyRevenueStatus, getParamReport } from "../helper";
+import { columnsReport, dailyRevenueStatus, getDataReport, getParamReport } from "../helper";
 import { StyledComponent } from "./styles";
 import { AnalyticQuery } from "model/report/analytics.model";
 import { generateRQuery } from "utils/ReportUtils";
@@ -158,55 +158,8 @@ function DailyRevenueDetail(props: PropTypes) {
     const fullParams = getParamReport(currentDate, storeDetail?.name);
     executeAnalyticsQueryService(fullParams).then((response: any) => {
       console.log("executeAnalyticsQueryService", response.result);
-      const indexCashPayments = response.result.columns.findIndex(
-        (p: any) => p.field === columnsReport.cashPayments,
-      );
-
-      const indexVnpayPayments = response.result.columns.findIndex(
-        (p: any) => p.field === columnsReport.vnpayPayments,
-      );
-
-      const indexMomoPayments = response.result.columns.findIndex(
-        (p: any) => p.field === columnsReport.momoPayments,
-      );
-
-      const indexTransferPayments = response.result.columns.findIndex(
-        (p: any) => p.field === columnsReport.transferPayments,
-      );
-
-      const indexCardPayments = response.result.columns.findIndex(
-        (p: any) => p.field === columnsReport.cardPayments,
-      );
-
-      const indexUnknownPayments = response.result.columns.findIndex(
-        (p: any) => p.field === columnsReport.unknownPayments,
-      );
-
-      const indexVcbPayments = response.result.columns.findIndex(
-        (p: any) => p.field === columnsReport.vcbPayments,
-      );
-
-      if (response.result.data && response.result.data.length !== 0) {
-        setShopRevenueModel({
-          cash_payments: response.result.data[0][indexCashPayments]||0,
-          vnpay_payments: response.result.data[0][indexVnpayPayments]||0,
-          momo_payments: response.result.data[0][indexMomoPayments]||0,
-          transfer_payments: response.result.data[0][indexTransferPayments]||0,
-          card_payments: response.result.data[0][indexCardPayments]||0,
-          unknown_payments: response.result.data[0][indexUnknownPayments]||0,
-          vcb_payments: response.result.data[0][indexVcbPayments]||0,
-        });
-      } else {
-        setShopRevenueModel({
-          cash_payments: 0,
-          vnpay_payments: 0,
-          momo_payments: 0,
-          transfer_payments: 0,
-          card_payments: 0,
-          unknown_payments: 0,
-          vcb_payments: 0,
-        });
-      }
+      const result = getDataReport(response.result);
+      setShopRevenueModel(result);
     });
   }, [dailyRevenueDetail?.created_at, storeDetail?.name]);
 
