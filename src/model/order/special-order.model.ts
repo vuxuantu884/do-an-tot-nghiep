@@ -14,6 +14,7 @@ export interface SpecialOrderFormValueModel {
   order_return_code: string | undefined;
   amount: number | undefined;
   reason: string | undefined;
+  ecommerce: string | undefined;
 }
 
 export interface SpecialOrderModel {
@@ -24,6 +25,7 @@ export interface SpecialOrderModel {
   order_return_code: string | undefined | null;
   amount: number | undefined | null;
   reason: string | undefined | null;
+  ecommerce: string | undefined | null;
 }
 
 export interface SpecialOrderResponseModel extends BaseObject {
@@ -36,6 +38,7 @@ export interface SpecialOrderResponseModel extends BaseObject {
   variant_skus: string | null;
   amount: number | null;
   reason: string | null;
+  ecommerce: string | null;
 }
 
 export enum SpecialOrderOrderTypeInFormModel {

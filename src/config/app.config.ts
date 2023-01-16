@@ -5,6 +5,8 @@ export const AppConfig = {
   baseApi: process.env.REACT_APP_BASE_API,
   timeOut: process.env.REACT_APP_TIME_OUT ? parseInt(process.env.REACT_APP_TIME_OUT) : 20000,
   ydPageUrl: process.env.REACT_APP_YDPAGE_URL,
+  unichatApi: process.env.REACT_APP_UNICHAT_API,
+  unichatUrl: process.env.REACT_APP_UNICHAT_URL,
   currency: "VND",
   price_type: "retail_price",
   import_price: "import_price",

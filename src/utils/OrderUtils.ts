@@ -43,6 +43,7 @@ import { ORDER_PERMISSIONS } from "../config/permissions/order.permission";
 import { select_type_especially_order } from "../screens/order-online/common/fields.export";
 import { DiscountValueType } from "model/promotion/price-rules.model";
 import _ from "lodash";
+import { Type } from "config/type.config";
 
 export const isOrderDetailHasPointPayment = (
   OrderDetail: OrderResponse | null | undefined,
@@ -473,7 +474,6 @@ export const checkIfExpiredOrCancelledPayment = (
 };
 
 export const checkIfEcommerceByOrderChannelCode = (orderChannelCode?: string | null) => {
-  console.log("orderChannelCode", orderChannelCode);
   if (!orderChannelCode) {
     return false;
   }
@@ -495,7 +495,7 @@ export const checkIfEcommerceByOrderChannelCodeUpdateOrder = (orderChannelCode?:
   if (!orderChannelCode) {
     return false;
   }
-  return ECOMMERCE_CHANNEL_CODES_UPDATE_ORDER.map((code) => code.toLowerCase()).includes(
+  return ECOMMERCE_CHANNEL_CODES_UPDATE_ORDER.map((p) => p.channel_code.toLowerCase()).includes(
     orderChannelCode.toLowerCase(),
   );
 };
@@ -599,6 +599,7 @@ export const changeTypeQrCode = (
   ];
 
   qrPaymentMethodTypes.forEach((qrCode) => {
+    console.log("qrCode", qrCode);
     const paymentIndex = payments.findIndex((payment) => payment.payment_method_code === qrCode);
 
     if (paymentIndex > -1) {
@@ -611,6 +612,9 @@ export const changeTypeQrCode = (
       payments[paymentIndex].code = qrPaymentMethod.code;
       payments[paymentIndex].name = qrPaymentMethod.name;
       payments[paymentIndex].type = qrCode;
+      if (qrCode === PaymentMethodCode.VN_PAY) {
+        payments[paymentIndex].type = "vnpay";
+      }
     }
   });
 
@@ -771,7 +775,7 @@ export const lineItemsConvertInSearchPromotion = (
 
   return _itemChange;
 };
-export const getLineItemStandardized = (_item: OrderLineItemRequest) => {
+export const getLineItemCalculationMoney = (_item: OrderLineItemRequest) => {
   let newItem = { ..._item };
   newItem.discount_value = getLineItemDiscountValue(newItem);
   newItem.discount_amount = getLineItemDiscountAmount(newItem);
@@ -788,6 +792,15 @@ export const removeDiscountLineItem = (_item: OrderLineItemRequest) => {
   _item.discount_rate = 0;
   _item.discount_value = 0;
   _item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(_item);
+};
+
+export const removeAllDiscountLineItems = (_items: OrderLineItemRequest[]) => {
+  let newItems = _.cloneDeep(_items);
+  newItems.map((item) => {
+    return removeDiscountLineItem(item);
+  });
+
+  return newItems;
 };
 
 export const convertDiscountType = (type: string) => {
@@ -875,4 +888,32 @@ export const getPositionLineItem = (items: OrderLineItemRequest[]) => {
     const maxPosition = _position.reduce((a, b) => (a > b ? a : b));
     return maxPosition + 1;
   }
+};
+
+/**
+ * fix vị trí item quà tặng order
+ */
+export const fixOrderPositionItem = (OrderDetail: OrderResponse) => {
+  const gifts = OrderDetail.items.filter((item) => item.type === Type.GIFT) || [];
+  // thêm leftPositionQuantity để biết xem quà tặng đã add vào sản phẩm chưa
+  const resultGifts = gifts.map((gift) => {
+    return {
+      ...gift,
+      leftPositionQuantity: 1,
+    };
+  });
+  OrderDetail.items.forEach((item) => {
+    if (item.type !== Type.SERVICE) {
+      let giftItems = resultGifts.filter((itemGift) => itemGift.position === item.position);
+      let itemGifts: OrderLineItemResponse[] = [];
+      giftItems.forEach((gift) => {
+        if (gift.leftPositionQuantity) {
+          itemGifts.push(gift);
+          gift.leftPositionQuantity = 0;
+        }
+      });
+      item.gifts = itemGifts;
+    }
+  });
+  return OrderDetail;
 };

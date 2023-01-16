@@ -30,7 +30,7 @@ const Campaign = React.lazy(() => import("screens/marketing/campaign/Campaign"))
 const EcommerceConfig = React.lazy(() => import("screens/ecommerce/config"));
 const WebAppOrdersSync = React.lazy(() => import("screens/web-app/orders-sync/WebAppOrdersSync"));
 const ListTicket = React.lazy(() => import("screens/inventory/ListTicket"));
-const YDpage = React.lazy(() => import("screens/YDpage/YDpage"));
+const SocialNetworkChannel = React.lazy(() => import("screens/social/index"));
 
 const menu: Array<RouteMenu> = [
   {
@@ -180,12 +180,12 @@ const menu: Array<RouteMenu> = [
     permissions: [ORDER_PERMISSIONS.READ_POS],
   },
   {
-    path: UrlConfig.YDPAGE,
+    path: UrlConfig.SOCIAL,
     exact: true,
     title: "Kênh social",
     icon: "icon-YDpage",
-    component: YDpage,
-    key: "YDpage",
+    component: SocialNetworkChannel,
+    key: "social-network-channel",
     isShow: true,
     header: null,
     subMenu: [],

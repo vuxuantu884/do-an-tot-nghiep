@@ -1,15 +1,14 @@
 import { BaseObject } from "model/base/base.response";
 
 export interface ShopRevenueModel {
-  card_payment: number;
-  cash_payment: number;
-  transfer_payment: number;
-  vnpay_payment: number;
-  spos_payment: number;
-  mpos_payment: number;
-  momo_payment: number;
-  other_payment: number;
-  qrpay_payment: number;
+  cash_payments: number;
+  vnpay_payments: number;
+  momo_payments: number;
+  transfer_payments: number;
+  card_payments: number;
+  unknown_payments: number;
+  vcb_payments: number;
+  total_revenue: number;
 }
 
 export interface DailyRevenueOtherPaymentModel extends BaseObject {
@@ -32,7 +31,7 @@ export interface DailyRevenueDetailModel extends BaseObject, ShopRevenueModel {
   net_payment: number;
   remaining_amount: number;
   state: string;
-
+  cash_payment: number;
   deleted: false;
   deleted_at: Date;
   revision: number;

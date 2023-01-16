@@ -133,6 +133,7 @@ const HistoryInStampFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                 }
                 prefix={<img src={search} alt="" />}
                 placeholder="Tìm kiếm theo Tên/ Mã sản phẩm/ Mã tham chiếu/ Mã đơn đặt hàng/ Tên, SĐT nhà cung cấp"
+                maxLength={255}
               />
             </Item>
             <Item name={SearchBarcodePrintHistoryField.created_bys} style={{ width: 250 }}>

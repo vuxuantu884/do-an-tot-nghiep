@@ -21,7 +21,7 @@ type PropTypes = {
   returnOrderInformation?: {
     totalAmountReturn: number;
   };
-  isEcommerceByOrderChannelCode?: boolean;
+  isCustomOriginalHandmadeDiscount?: boolean;
 };
 
 function CardProductBottom(props: PropTypes) {
@@ -46,7 +46,7 @@ function CardProductBottom(props: PropTypes) {
             <div className="font-weight-500">{formatCurrency(orderProductsAmount)}</div>
           </Row>
           <PromotionApply
-            isEcommerceByOrderChannelCode={props.isEcommerceByOrderChannelCode}
+            isEcommerceByOrderChannelCode={props.isCustomOriginalHandmadeDiscount}
             items={props.items}
             promotion={props.promotion}
             levelOrder={props.levelOrder}

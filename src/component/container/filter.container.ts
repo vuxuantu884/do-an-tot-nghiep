@@ -5,14 +5,13 @@ export const FilterWrapper = styled.div`
   width: 100%;
   padding: 20px 0;
   justify-content: space-between;
+  column-gap: 12px;
   .search {
     width: 100%;
-    min-width: 250 px;
+    min-width: 250px;
   }
   .ant-form-item {
     flex: auto;
-  }
-  .ant-form-item:last-child {
     margin-right: 0;
   }
 `;

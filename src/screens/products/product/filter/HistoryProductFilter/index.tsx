@@ -13,7 +13,7 @@ type HistoryProductFilterProps = {
   onMenuClick?: (index: number) => void;
   onShowColumnSetting?: () => void;
   onFinish: (value: ProductHistoryQuery) => void;
-}
+};
 
 const { Item } = Form;
 
@@ -46,6 +46,7 @@ const HistoryProductFilter: React.FC<HistoryProductFilterProps> = (
                 prefix={<img src={search} alt="" />}
                 style={{ width: "100%" }}
                 placeholder="Tìm kiếm Tên/Mã sản phẩm"
+                maxLength={255}
               />
             </Item>
             <Item name="from_action_date" className="date">

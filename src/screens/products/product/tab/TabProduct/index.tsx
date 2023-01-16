@@ -35,11 +35,10 @@ import {
   findAvatar,
   findPrice,
   formatCurrencyForProduct,
-  ACTIONS_INDEX, START_PROCESS_PERCENT,
+  ACTIONS_INDEX,
+  START_PROCESS_PERCENT,
 } from "screens/products/helper";
-import {
-  SupportedCurrencyType,
-} from "utils/AppUtils";
+import { SupportedCurrencyType } from "utils/AppUtils";
 import { TYPE_EXPORT } from "utils/Constants";
 import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE, STATUS_IMPORT_EXPORT } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -274,8 +273,7 @@ const TabProduct: React.FC<any> = (props) => {
       setIsShowUploadModal(false);
       if (variantResponse !== null) {
         dispatch(showLoading());
-        let variantRequest: VariantUpdateRequest =
-          convertVariantResponseToRequest(variantResponse);
+        let variantRequest: VariantUpdateRequest = convertVariantResponseToRequest(variantResponse);
         variantRequest.variant_images = variant_images;
         dispatch(
           variantUpdateAction(variantResponse.id, variantRequest, () => {
@@ -342,10 +340,10 @@ const TabProduct: React.FC<any> = (props) => {
           window.screen.width >= 1920
             ? splitEllipsis(strName, 100, 30)
             : window.screen.width >= 1600
-              ? (splitEllipsis(strName, 60, 30))
-              : window.screen.width >= 1366
-                ? (splitEllipsis(strName, 47, 30))
-                : strName;
+            ? splitEllipsis(strName, 60, 30)
+            : window.screen.width >= 1366
+            ? splitEllipsis(strName, 47, 30)
+            : strName;
         return (
           <div>
             <Link
@@ -373,11 +371,11 @@ const TabProduct: React.FC<any> = (props) => {
         const prices: VariantPricesResponse | null = findPrice(value, AppConfig.currency);
         return prices && prices.cost_price
           ? formatCurrencyValue(
-            prices.cost_price,
-            ".",
-            ",",
-            prices.currency_code.toUpperCase() as SupportedCurrencyType,
-          )
+              prices.cost_price,
+              ".",
+              ",",
+              prices.currency_code.toUpperCase() as SupportedCurrencyType,
+            )
           : "";
       },
     },
@@ -392,11 +390,11 @@ const TabProduct: React.FC<any> = (props) => {
         const prices: VariantPricesResponse | null = findPrice(value, AppConfig.currency);
         return prices && prices.import_price
           ? formatCurrencyValue(
-            prices.import_price,
-            ".",
-            ",",
-            prices.currency_code.toUpperCase() as SupportedCurrencyType,
-          )
+              prices.import_price,
+              ".",
+              ",",
+              prices.currency_code.toUpperCase() as SupportedCurrencyType,
+            )
           : "";
       },
     },
@@ -411,11 +409,11 @@ const TabProduct: React.FC<any> = (props) => {
         const prices: VariantPricesResponse | null = findPrice(value, AppConfig.currency);
         return prices && prices.retail_price
           ? formatCurrencyValue(
-            prices.retail_price,
-            ".",
-            ",",
-            prices.currency_code.toUpperCase() as SupportedCurrencyType,
-          )
+              prices.retail_price,
+              ".",
+              ",",
+              prices.currency_code.toUpperCase() as SupportedCurrencyType,
+            )
           : "";
       },
     },
@@ -591,7 +589,11 @@ const TabProduct: React.FC<any> = (props) => {
   const actionExport = {
     Ok: async (typeExport: string) => {
       setIsLoadingExport(true);
-      if (typeExport === TYPE_EXPORT.selected && variantsSelected && variantsSelected.length === 0) {
+      if (
+        typeExport === TYPE_EXPORT.selected &&
+        variantsSelected &&
+        variantsSelected.length === 0
+      ) {
         showWarning("Bạn chưa chọn sản phẩm để xuất file");
         setIsVExportProduct(false);
         return;

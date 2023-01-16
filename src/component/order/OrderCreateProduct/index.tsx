@@ -78,7 +78,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AddGiftModal from "screens/order-online/modal/AddGiftModal/add-gift.modal";
 import InventoryModal from "screens/order-online/modal/inventory.modal";
-import PickCouponModal from "screens/order-online/modal/pick-coupon.modal";
 import { applyDiscountService } from "service/promotion/discount/discount.service";
 import {
   findAvatar,
@@ -99,7 +98,6 @@ import {
   haveAccess,
   isFetchApiSuccessful,
   isOrderFinishedOrCancel,
-  isOrderFromPOS,
   replaceFormatString,
 } from "utils/AppUtils";
 import {
@@ -116,9 +114,10 @@ import {
   checkIfEcommerceByOrderChannelCode,
   checkIfEcommerceByOrderChannelCodeUpdateOrder,
   compareProducts,
-  getLineItemStandardized,
+  getLineItemCalculationMoney,
   getPositionLineItem,
   lineItemsConvertInSearchPromotion,
+  removeAllDiscountLineItems,
   removeDiscountLineItem,
 } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
@@ -178,6 +177,10 @@ type PropTypes = {
   initItemSuggestDiscounts?: LineItemCreateReturnSuggestDiscountResponseModel[];
   initOrderSuggestDiscounts?: SuggestDiscountResponseModel[];
   handleApplyDiscountItemCallback?: (item: OrderLineItemRequest) => void;
+  isSpecialOrderEcommerce?: {
+    isEcommerce: boolean;
+    isChange: boolean;
+  };
 };
 
 var barcode = "";
@@ -272,13 +275,13 @@ function OrderCreateProduct(props: PropTypes) {
     handleChangeShippingFeeApplyOrderSettings,
     isShowDiscountByInsert,
     isWebAppOrder,
-    isEcommerceOrder,
     initItemSuggestDiscounts,
     initOrderSuggestDiscounts,
     handleApplyDiscountItemCallback,
   } = props;
 
   console.log("items666", items);
+
   // console.log('promotion', promotion)
   const orderCustomer = useSelector(
     (state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer,
@@ -288,14 +291,31 @@ function OrderCreateProduct(props: PropTypes) {
   const isShouldUpdateCouponRef = useRef(orderDetail || props.isPageOrderUpdate ? false : true);
   const isShouldUpdateDiscountRef = useRef(orderDetail || props.isPageOrderUpdate ? false : true);
   /**
-   * kiểm tra đơn hàng sàn đối với update đơn hàng
+   * Giảm giá thủ công tùy chỉnh
+   * xử lí cho các trường hợp:
+   * update đơn hàng sàn
+   * tạo đơn đổi trả đơn hàng sàn
+   * sao chép đơn hàng sàn
    */
-  const isEcommerceByOrderChannelCodeisUpdate = useMemo(() => {
-    return (
+
+  const isCustomOriginalHandmadeDiscount = useMemo(() => {
+    if (
       checkIfEcommerceByOrderChannelCodeUpdateOrder(orderDetail?.channel_code) &&
       (props.isPageOrderUpdate || props.isCreateReturn)
-    );
-  }, [orderDetail?.channel_code, props.isPageOrderUpdate, props.isCreateReturn]);
+    ) {
+      return true;
+    }
+    if (props.isSpecialOrderEcommerce?.isEcommerce) return true;
+
+    return false;
+  }, [
+    orderDetail?.channel_code,
+    props.isPageOrderUpdate,
+    props.isCreateReturn,
+    props.isSpecialOrderEcommerce?.isEcommerce,
+  ]);
+  console.log("isCustomOriginalHandmadeDiscount", isCustomOriginalHandmadeDiscount);
+
   const discountRequestModel: DiscountRequestModel = {
     order_id: orderDetail?.id || null,
     customer_id: customer?.id || null,
@@ -331,7 +351,6 @@ function OrderCreateProduct(props: PropTypes) {
   const [searchProducts, setSearchProducts] = useState(false);
   const [indexItem, setIndexItem] = useState<number>(-1);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
-  const [isVisiblePickCoupon, setIsVisiblePickCoupon] = useState(false);
   // const [discountType, setDiscountType] = useState<string>(DISCOUNT_TYPE.MONEY);
   const [isShowProductSearch, setIsShowProductSearch] = useState(true);
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(true);
@@ -342,7 +361,6 @@ function OrderCreateProduct(props: PropTypes) {
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
 
   //tách đơn
-  const [isCouponValid, setIsCouponValid] = useState(false);
   const [couponInputText, setCouponInputText] = useState(coupon);
 
   const lineItemQuantityInputTimeoutRef: MutableRefObject<any> = useRef();
@@ -357,7 +375,6 @@ function OrderCreateProduct(props: PropTypes) {
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
-  console.log("promotion", promotion);
   const discountRate = promotion?.rate || 0;
   const discountValue = promotion?.value || 0;
 
@@ -375,7 +392,7 @@ function OrderCreateProduct(props: PropTypes) {
         findProductInput?.focus();
         break;
       case "F12":
-        if (levelOrder <= 3) {
+        if (levelOrder <= 3 && !isCustomOriginalHandmadeDiscount && !props.isPageOrderUpdate) {
           form.setFieldsValue({
             automatic_discount: !isAutomaticDiscount,
           });
@@ -634,7 +651,7 @@ function OrderCreateProduct(props: PropTypes) {
         lineItemQuantityInputTimeoutRef,
         async () => {
           setIsLineItemChanging(true);
-          if ((index && index === -1) || isEcommerceByOrderChannelCodeisUpdate) {
+          if ((index && index === -1) || isCustomOriginalHandmadeDiscount) {
             calculateChangeMoney(_items);
           } else {
             checkValidLineItemSuitableDiscount(_items, index);
@@ -646,7 +663,7 @@ function OrderCreateProduct(props: PropTypes) {
       handleDelayActionWhenInsertTextInSearchInput(
         lineItemQuantityInputTimeoutRef,
         () => {
-          if (!isEcommerceByOrderChannelCodeisUpdate) {
+          if (!isCustomOriginalHandmadeDiscount) {
             setIsLineItemChanging(true);
             checkValidOrderSuitableDiscount(_items);
             console.log("là chiết khấu đơn hàng");
@@ -977,7 +994,7 @@ function OrderCreateProduct(props: PropTypes) {
 
       const initItemSuggestDiscountResult = initItemSuggestDiscounts;
 
-      return !isShowDiscountByInsert && !isEcommerceByOrderChannelCodeisUpdate ? (
+      return !isShowDiscountByInsert && !isCustomOriginalHandmadeDiscount ? (
         <div className="site-input-group-wrapper saleorder-input-group-wrapper discountGroup columnBody__discount">
           <DiscountItemSearch
             index={index}
@@ -1023,6 +1040,7 @@ function OrderCreateProduct(props: PropTypes) {
             handleCardItems={(_items) => {
               if (_items[index].discount_items && _items[index].discount_items[0]) {
                 _items[index].discount_items[0].promotion_id = undefined;
+                _items[index].discount_items[0].promotion_title = "";
                 _items[index].discount_items[0].reason = "";
               }
               handleDelayCalculateWhenChangeOrderInput(
@@ -1242,25 +1260,6 @@ function OrderCreateProduct(props: PropTypes) {
     }
   };
 
-  // const handleSplitLineItem = (items: OrderLineItemRequest[], lineItem: OrderLineItemRequest, quantity: 1, position:number) => {
-  //   items.splice(position, 0, lineItem);
-  // };
-
-  /**
-   * nếu có chiết khấu tay thì ko apply chiết khấu tự động ở line item nữa
-   */
-  const checkIfReplaceDiscountLineItem = (item: OrderLineItemRequest, newDiscountValue: number) => {
-    if (
-      (item.discount_items[0] && !item.discount_items[0].promotion_id) ||
-      item.isLineItemSemiAutomatic
-    ) {
-      return false;
-    }
-    if (newDiscountValue >= 0) {
-      return true;
-    }
-    return false;
-  };
   const calculateDiscount = (_item: OrderLineItemRequest, _highestValueSuggestDiscount: any) => {
     let item: OrderLineItemRequest = { ..._item };
     let highestValueSuggestDiscount = { ..._highestValueSuggestDiscount };
@@ -1548,7 +1547,7 @@ function OrderCreateProduct(props: PropTypes) {
           const itemClone = [...items];
           const newItem = itemClone.map((single) => {
             single.discount_items = [];
-            return getLineItemStandardized(single);
+            return getLineItemCalculationMoney(single);
           });
 
           console.log("handleApplyDiscount newItem", newItem);
@@ -1682,7 +1681,6 @@ function OrderCreateProduct(props: PropTypes) {
               } else {
                 setCouponInputText && setCouponInputText(coupon);
               }
-              setIsCouponValid(false);
               setCoupon && setCoupon("");
               setItems(_items);
               console.log("calculatesChangeMoney 16");
@@ -1691,7 +1689,6 @@ function OrderCreateProduct(props: PropTypes) {
             } else {
               setCoupon && setCoupon(coupon);
               setCouponInputText(coupon);
-              setIsCouponValid(true);
               // const discount_code = applyDiscountResponse.code || undefined;
               let couponType = applyDiscountResponse.value_type;
               let listDiscountItem: any[] = [];
@@ -1844,7 +1841,6 @@ function OrderCreateProduct(props: PropTypes) {
           dispatch(changeIsLoadingDiscountAction(false));
           dispatch(hideLoading());
         });
-      setIsVisiblePickCoupon(false);
     }
   };
 
@@ -2613,6 +2609,7 @@ function OrderCreateProduct(props: PropTypes) {
       const isOrderSemiAutomatic = promotion?.isOrderSemiAutomatic; //xác định là ck đơn hàng thủ công
       if (isLineItemSemiAutomatic || isOrderSemiAutomatic) {
         if (!props.isPageOrderUpdate) {
+          console.log("isAutomaticDiscount 112", isAutomaticDiscount);
           handUpdateDiscountWhenChangingOrderInformation(_items);
         } else if (
           !compareProducts(orderDetail?.items || [], items) ||
@@ -2621,6 +2618,7 @@ function OrderCreateProduct(props: PropTypes) {
           handUpdateDiscountWhenChangingOrderInformation(_items);
         }
       } else if (isAutomaticDiscount) {
+        console.log("isAutomaticDiscount", isAutomaticDiscount);
         handleApplyDiscount(items);
       }
     } else isShouldUpdateDiscountRef.current = true;
@@ -2673,14 +2671,18 @@ function OrderCreateProduct(props: PropTypes) {
     // } else {
     //   setIsAutomaticDiscount(form.getFieldValue("automatic_discount"));
     // }
-    setIsAutomaticDiscount(form.getFieldValue("automatic_discount"));
-  }, [form]);
+    if (isCustomOriginalHandmadeDiscount) {
+      setIsAutomaticDiscount(false);
+      form.setFieldsValue({ automatic_discount: false });
+    } else {
+      setIsAutomaticDiscount(form.getFieldValue("automatic_discount"));
+    }
+  }, [form, isCustomOriginalHandmadeDiscount]);
 
   useEffect(() => {
     if (orderDetail && orderDetail?.discounts && orderDetail?.discounts[0]?.discount_code) {
       // setCoupon && setCoupon(orderDetail?.discounts[0]?.discount_code)
       setCouponInputText(orderDetail?.discounts[0]?.discount_code);
-      setIsCouponValid(true);
     }
   }, [orderDetail]);
 
@@ -2700,6 +2702,33 @@ function OrderCreateProduct(props: PropTypes) {
       setIsAutomaticDiscount(false);
     }
   }, [coupon]);
+
+  /**
+   * xóa chiết khấu đơn hàng, chiết khấu line item,
+   * với trường hợp thay đổi loại đơn đặc biệt khác với loại thay thế, có sàn.
+   */
+  useEffect(() => {
+    console.log(
+      "calculateChangeMoney remover discount",
+      props.isSpecialOrderEcommerce?.isChange,
+      items,
+    );
+    if (props.isSpecialOrderEcommerce?.isChange === true && items) {
+      //chỉ xóa chiết khấu không có promotion_id
+      // let newItems = _.cloneDeep(items);
+      // newItems.map((item) => {
+      //   if (item.discount_items[0] && !item.discount_items[0].promotion_id) {
+      //     return removeDiscountLineItem(item);
+      //   } else {
+      //     return { ...item };
+      //   }
+      // });
+
+      const newItems = removeAllDiscountLineItems(items);
+      calculateChangeMoney(newItems, null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.isSpecialOrderEcommerce?.isChange]);
 
   return (
     <StyledComponent>
@@ -2730,7 +2759,7 @@ function OrderCreateProduct(props: PropTypes) {
                   levelOrder > 3 ||
                   isLoadingDiscount ||
                   props.isPageOrderUpdate ||
-                  isEcommerceByOrderChannelCodeisUpdate
+                  isCustomOriginalHandmadeDiscount
                 }
                 value={isAutomaticDiscount}
                 onChange={(e) => {
@@ -2923,13 +2952,13 @@ function OrderCreateProduct(props: PropTypes) {
             returnOrderInformation={returnOrderInformation}
             totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
             levelOrder={levelOrder}
-            isEcommerceByOrderChannelCode={isEcommerceByOrderChannelCodeisUpdate}
+            isCustomOriginalHandmadeDiscount={isCustomOriginalHandmadeDiscount}
           />
         )}
         {setPromotion && (
           <React.Fragment>
             <DiscountOrderModalSearch
-              isEcommerceByOrderChannelCodeisUpdate={isEcommerceByOrderChannelCodeisUpdate}
+              isCustomOriginalHandmadeDiscount={isCustomOriginalHandmadeDiscount}
               amount={orderProductsAmount}
               type={promotion?.type ?? ""}
               value={discountValue}

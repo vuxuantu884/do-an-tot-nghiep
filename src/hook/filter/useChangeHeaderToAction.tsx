@@ -1,3 +1,4 @@
+/**@deprecated: Bỏ */
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import { Fragment } from "react";

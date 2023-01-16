@@ -15,6 +15,7 @@ import AddPhoneModal from "../AddPhoneModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { GENDER_OPTIONS } from "utils/Constants";
 import { CustomerModel } from "model/request/customer.request";
+import { SOCIAL_CHANNEL } from "screens/yd-page/helper";
 
 const YDPageCustomerCreateUpdate = (props: any) => {
   const {
@@ -34,6 +35,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
     deleteFpPhone,
     setFpDefaultPhone,
     setCustomerDefaultPhone,
+    socialChannel,
   } = props;
 
   const [form] = Form.useForm();
@@ -451,63 +453,67 @@ const YDPageCustomerCreateUpdate = (props: any) => {
           <Divider style={{ margin: "8px 0" }} />
 
           {/*Ghi chú*/}
-          <div>
-            <b>Ghi chú</b>
-          </div>
-          <Form.Item
-            name="note"
-            className="note-container"
-            rules={[
-              {
-                max: 1000,
-                message: "Vui lòng không nhập quá 1000 kí tự",
-              },
-            ]}
-          >
-            <Input
-              maxLength={1000}
-              placeholder="Nhập ghi chú"
-              onPressEnter={async (e: any) => {
-                await handleNote.get(e);
-                await handleNote.create(e.target.value);
-                setNote("");
-              }}
-              onChange={(e: any) => setNote(e.target.value)}
-              value={note}
-            />
-            <Button
-              type="primary"
-              onClick={async (e: any) => {
-                await handleNote.get(e);
-                await handleNote.create(note);
-                setNote("");
-              }}
-            >
-              Thêm
-            </Button>
-          </Form.Item>
-
-          <div className="customer-note-wrapper">
-            {notes?.length > 0 ? (
-              notes.map((note: any, index: number) => (
-                <div className="customer-note-item" key={index}>
-                  <span key={note.id}>{note.content}</span>
-                  <img
-                    alt="delete"
-                    className="customer-note-btn-delete"
-                    onClick={() => handleNote.delete(note)}
-                    src={XCloseBtn}
-                  />
-                </div>
-              ))
-            ) : (
-              <div style={{ textAlign: "right" }}>
-                <a href="#" onClick={(e) => handleNote.get(e)}>
-                  Xem ghi chú
-                </a>
+          {socialChannel !== SOCIAL_CHANNEL.UNICHAT &&
+            <>
+              <div>
+                <b>Ghi chú</b>
               </div>
-            )}
-          </div>
+              <Form.Item
+                name="note"
+                className="note-container"
+                rules={[
+                  {
+                    max: 1000,
+                    message: "Vui lòng không nhập quá 1000 kí tự",
+                  },
+                ]}
+              >
+                <Input
+                  maxLength={1000}
+                  placeholder="Nhập ghi chú"
+                  onPressEnter={async (e: any) => {
+                    await handleNote.get(e);
+                    await handleNote.create(e.target.value);
+                    setNote("");
+                  }}
+                  onChange={(e: any) => setNote(e.target.value)}
+                  value={note}
+                />
+                <Button
+                  type="primary"
+                  onClick={async (e: any) => {
+                    await handleNote.get(e);
+                    await handleNote.create(note);
+                    setNote("");
+                  }}
+                >
+                  Thêm
+                </Button>
+              </Form.Item>
+
+              <div className="customer-note-wrapper">
+                {notes?.length > 0 ? (
+                  notes.map((note: any, index: number) => (
+                    <div className="customer-note-item" key={index}>
+                      <span key={note.id}>{note.content}</span>
+                      <img
+                        alt="delete"
+                        className="customer-note-btn-delete"
+                        onClick={() => handleNote.delete(note)}
+                        src={XCloseBtn}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ textAlign: "right" }}>
+                    <a href="#" onClick={(e) => handleNote.get(e)}>
+                      Xem ghi chú
+                    </a>
+                  </div>
+                )}
+              </div>
+            </>
+          }
         </Card>
       </Form>
 

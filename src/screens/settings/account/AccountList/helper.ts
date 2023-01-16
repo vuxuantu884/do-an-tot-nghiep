@@ -81,3 +81,8 @@ export const convertDataApiToDataSrcTable = (
   });
   return dataSrc;
 };
+
+export const ACTIONS_KEY_SELECT_ACCOUNT = {
+  DELETE: 1,
+  RESET_PASSWORD: 2,
+};

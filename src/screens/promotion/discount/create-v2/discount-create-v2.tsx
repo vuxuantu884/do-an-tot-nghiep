@@ -33,7 +33,7 @@ function DiscountCreateV2(): ReactElement {
     (values: any) => {
       try {
         if (values.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD) {
-          values.entitlements[0].is_apply_all = discountAllProduct;
+          values.entitlements[0].is_apply_all = discountProductHaveExclude ? false : discountAllProduct;
           values.entitlements[0].is_exclude = discountProductHaveExclude;
 
           if (discountAllProduct && !discountProductHaveExclude) {

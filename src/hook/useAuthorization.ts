@@ -8,7 +8,7 @@ export interface UseAuthorizationProps {
   acceptStoreIds?: Array<number>;
 }
 
-useAuthorization.defautProps = {
+useAuthorization.defaultProps = {
   acceptPermissions: [],
   not: false,
 };

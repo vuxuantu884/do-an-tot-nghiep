@@ -300,6 +300,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                 }
                 prefix={<img src={search} alt="" />}
                 placeholder="Tìm kiếm theo Tên/Mã/Barcode sản phẩm"
+                maxLength={255}
               />
             </Item>
             <Item>

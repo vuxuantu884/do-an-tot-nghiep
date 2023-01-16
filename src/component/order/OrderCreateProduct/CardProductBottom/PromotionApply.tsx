@@ -35,11 +35,7 @@ const PromotionApply: React.FC<Props> = (props: Props) => {
   const [isShowDiscountOrder, setIsShowDiscountOrder] = useState(false);
   const isDiscountItem = useMemo(() => {
     if (!items || (items && items.length === 0)) return false;
-    return items?.some(
-      (p) =>
-        p.discount_items[0]?.promotion_id !== null &&
-        p.discount_items[0]?.promotion_id !== undefined,
-    );
+    return items?.some((p) => p.discount_items[0]?.value && p.discount_items[0]?.rate);
   }, [items]);
 
   useEffect(() => {
@@ -127,12 +123,12 @@ const PromotionApply: React.FC<Props> = (props: Props) => {
       <Row className="paymentRow" justify="space-between" align="middle">
         <Space align="center" style={{ position: "relative" }} id="promotion_order">
           {/* ko disable chiết khấu tổng */}
-          {items && items.length > 0 && !isDiscountItem ? (
+          {(items && items.length > 0 && !isDiscountItem) || isEcommerceByOrderChannelCode ? (
             <Typography.Link
               className="font-weight-400 discountTitle"
               onClick={() => {
-                if (promotion) {
-                  !isEcommerceByOrderChannelCode && setIsShowDiscountOrder(!isShowDiscountOrder);
+                if (promotion && promotion.value && promotion.rate) {
+                  setIsShowDiscountOrder(!isShowDiscountOrder);
                 } else {
                   showDiscountModal();
                 }

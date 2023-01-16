@@ -40,7 +40,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
   const [firstCharName, setFirstCharName] = useState<string>("");
 
   useEffect(() => {
-    if (window.location.pathname.indexOf("YDpage") < 0) {
+    if (window.location.pathname.indexOf("YDpage") < 0 && window.location.pathname.indexOf("social") < 0) {
       setIsShowBtnDD(false);
       props.setIsShowHeader(true);
     }

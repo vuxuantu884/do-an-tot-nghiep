@@ -7,6 +7,7 @@ export const specialOrderDisplayField = {
   sanPham: "Sản phẩm",
   tien: "Tiền",
   lyDo: "Lý do",
+  san: "Sàn",
 };
 
 export interface SpecialOrderTypeModel {
@@ -60,6 +61,11 @@ export const specialOrderTypes: SpecialOrderTypeModel = {
     title: "Hoàn, huỷ",
     value: "orders_cancel",
     displayFields: [specialOrderDisplayField.lyDo],
+  },
+  orders_replace: {
+    title: "Thay thế",
+    value: "orders_replace",
+    displayFields: [specialOrderDisplayField.donGoc, specialOrderDisplayField.san],
   },
 };
 
@@ -210,4 +216,5 @@ export const defaultSpecialOrderParams: SpecialOrderModel = {
   order_return_code: null,
   amount: null,
   reason: null,
+  ecommerce: null,
 };
