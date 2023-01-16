@@ -8,27 +8,41 @@ import {
 } from "screens/promotion/constants";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import NumberInput from "component/custom/number-input.custom";
-import { IssueContext } from "./issue-provider";
+import { IssueContext } from "screens/promotion/issue/components/issue-provider";
 import { PriceRuleMethod } from "model/promotion/price-rules.model";
 
 interface Props {
   form: FormInstance;
-  isSetFormValues?: boolean;
-  promotionType?: string;
-  setValueChangePromotion?: (item: number) => void;
-  setTypeSelectPromotion?: (item: string) => void;
 }
 
 function IssueTypeForm(props: Props): ReactElement {
-  const { form, isSetFormValues, promotionType, setValueChangePromotion, setTypeSelectPromotion } =
-    props;
-  const { isLimitUsage, isLimitUsagePerCustomer, setIsLimitUsage, setIsLimitUsagePerCustomer } =
-    useContext(IssueContext);
+  const { form } = props;
+  const {
+    isSetFormValues,
+    isLimitUsage,
+    isLimitUsagePerCustomer,
+    setIsLimitUsage,
+    setIsLimitUsagePerCustomer,
+    setTypeSelectPromotion,
+    setValueChangePromotion,
+    promotionType,
+  } = useContext(IssueContext);
 
   const [isPercentUnit, setIsPercentUnit] = useState<boolean>(true);
 
   const handleChangeValuePromotion = (value: any) => {
-    setValueChangePromotion?.(value);
+    setValueChangePromotion && setValueChangePromotion(value);
+  };
+  const handleChangePromotionValueType = (value: string) => {
+    form.setFieldsValue({
+      [PRICE_RULE_FIELDS.rule]: {
+        value: 0,
+        value_type: value,
+      },
+    });
+    setIsPercentUnit(value === DiscountUnitType.PERCENTAGE.value);
+    setTypeSelectPromotion?.(value);
+    setValueChangePromotion(0);
   };
 
   useEffect(() => {
@@ -103,16 +117,7 @@ function IssueTypeForm(props: Props): ReactElement {
               <Form.Item name={[PRICE_RULE_FIELDS.rule, PRICE_RULE_FIELDS.value_type]} noStyle>
                 <Select
                   style={{ width: "70px" }}
-                  onChange={(value: string) => {
-                    form.setFieldsValue({
-                      [PRICE_RULE_FIELDS.rule]: {
-                        value: 0,
-                        value_type: value,
-                      },
-                    });
-                    setIsPercentUnit(value === DiscountUnitType.PERCENTAGE.value);
-                    setTypeSelectPromotion?.(value);
-                  }}
+                  onChange={handleChangePromotionValueType}
                 >
                   <Select.Option
                     key={DiscountUnitType.PERCENTAGE.value}

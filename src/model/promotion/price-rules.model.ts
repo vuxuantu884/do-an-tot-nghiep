@@ -227,4 +227,5 @@ export interface PriceRule extends BaseObject {
   usage_limit?: number;
   usage_limit_per_customer?: number;
   is_registered?: boolean;
+  is_sms_voucher?: boolean;
 }
