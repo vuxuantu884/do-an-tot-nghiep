@@ -25,6 +25,7 @@ import {
 import { callApiNative } from "utils/ApiUtils";
 import { getPermissionViewCustomizeReport } from "utils/ReportUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
+import { usersViewInventoryBalance } from "../common/constant/inventory-balance/users-view-inventory-balance";
 import { ListAnalyticsStyle } from "./index.style";
 import ModalCreateReport from "./shared/create-report-modal";
 import ModalFormAnalyticsInfo from "./shared/form-analytics-info-modal";
@@ -207,7 +208,8 @@ function Analytics() {
                 })}
                 title="Báo cáo lợi nhuận"
               ></ListAnalyticsBlock>
-              {allPermissions.includes(ReportPermissions.reports_view_report_xnt) && (
+              {(allPermissions.includes(ReportPermissions.reports_view_report_xnt) ||
+                usersViewInventoryBalance.includes(currentUsername?.toUpperCase() as string)) && (
                 <Card title={"Báo cáo tồn kho"} className="template-report">
                   <List
                     grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 4, xxl: 5 }}
