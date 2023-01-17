@@ -473,6 +473,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
       }
       setListItemCanBeReturn(reCalculateOrderItem(listItemCanReturn));
       let returnProduct: ReturnProductModel[] = listItemCanReturn.map((single) => {
+        // lấy quantity của tất cả item theo code, xong chia để lấy single_distributed_order_discount
+        const quantity = _data.items.find((item) => item.code === single.code)?.quantity;
         return {
           ...single,
           maxQuantityCanBeReturned: single.quantity,
@@ -483,11 +485,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
               amount: 0,
             };
           }),
-          single_distributed_order_discount:
-            (single.distributed_order_discount ?? 0) / single.quantity,
+          single_distributed_order_discount: quantity
+            ? (single.distributed_order_discount ?? 0) / quantity
+            : single.quantity,
         };
       });
-      // console.log('returnProduct', returnProduct)
+      console.log("returnProduct333", returnProduct);
       setListReturnProducts(returnProduct);
       setStoreId(_data.store_id);
       setBillingAddress(_data.billing_address);
@@ -2647,6 +2650,10 @@ const ScreenReturnCreate = (props: PropTypes) => {
         let discountRate = (discount.amount / product.amount) * 100;
         let value =
           discount.type === DiscountUnitType.PERCENTAGE.value ? discountRate : discountValue;
+        let value_type =
+          discount.type === DiscountUnitType.PERCENTAGE.value
+            ? DiscountUnitType.PERCENTAGE.value
+            : DiscountUnitType.FIXED_AMOUNT.value;
         return {
           allocation_count: null,
           allocation_limit: null,
@@ -2654,7 +2661,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
           is_registered: discount.taxable || false,
           title: discount.promotion_title || null,
           value,
-          value_type: discount.type || DiscountUnitType.FIXED_AMOUNT.value,
+          value_type: value_type,
           price: product.price,
           quantity: product.quantity,
         };
