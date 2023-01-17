@@ -20,7 +20,6 @@ import NumberInput from "component/custom/number-input.custom";
 import { AppConfig } from "config/app.config";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
-import useFetchTaxConfig from "hook/useFetchTaxConfig";
 import { debounce, groupBy } from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ProcurementLineItemField } from "model/procurement/field";
@@ -64,9 +63,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const dispatch = useDispatch();
   const { formMain, isEdit, poLineItemType, isEditPrice } = props;
   const productSearchRef = createRef<CustomAutoComplete>();
-  //config vat
-  const { taxConfig } = useFetchTaxConfig();
-
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [resultSearch, setResultSearch] = useState<Array<VariantResponse>>([]);
@@ -101,7 +97,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       setResultSearch(result.items);
     }
   }, []);
-
   const handleSelectProduct = (variantId: string) => {
     const lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
     if (
@@ -116,12 +111,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     if (index !== -1) {
       const variants: Array<VariantResponse> = [resultSearch[index]];
       const newItems: Array<PurchaseOrderLineItem> = [
-        ...POUtils.convertVariantToLineitem(
-          variants,
-          position,
-          poLineItemType,
-          taxConfig?.data[0]?.tax_rate || 0,
-        ),
+        ...POUtils.convertVariantToLineitem(variants, position, poLineItemType),
       ];
       position = position + newItems.length;
       const newLineItems = POUtils.addProduct(lineItems, newItems, false);
@@ -471,12 +461,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     setVisibleManyProduct(false);
 
     const newItems: Array<PurchaseOrderLineItem> = [
-      ...POUtils.convertVariantToLineitem(
-        variantsSelected,
-        position,
-        poLineItemType,
-        taxConfig?.data[0]?.tax_rate || 0,
-      ),
+      ...POUtils.convertVariantToLineitem(variantsSelected, position, poLineItemType),
     ];
     position = position + newItems.length;
     let newLineItems = POUtils.addProduct(lineItems, newItems, false);
@@ -1024,52 +1009,43 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       <div
                         style={{
                           width: "100%",
-                          textAlign: `${taxConfig?.data[0].tax_rate ? "center" : "right"}`,
+                          textAlign: "right",
                         }}
                       >
                         <div>VAT</div>
-                        {!taxConfig?.data[0].tax_rate && (
-                          <NumberInput
-                            style={{ width: "100%" }}
-                            className="product-item-vat"
-                            prefix={<div>%</div>}
-                            isFloat
-                            min={0}
-                            maxLength={3}
-                            max={100}
-                            onPressEnter={(e) => {
-                              let value = e.target.value ? Number(e.target.value) : 0;
-                              value = value > 100 ? 100 : value;
-                              value = value < 0 ? 0 : value;
-                              handleChangeAllTax(value);
-                            }}
-                          />
-                        )}
+                        <NumberInput
+                          style={{ width: "100%" }}
+                          className="product-item-vat"
+                          prefix={<div>%</div>}
+                          isFloat
+                          min={0}
+                          maxLength={3}
+                          max={100}
+                          onPressEnter={(e) => {
+                            let value = e.target.value ? Number(e.target.value) : 0;
+                            value = value > 100 ? 100 : value;
+                            value = value < 0 ? 0 : value;
+                            handleChangeAllTax(value);
+                          }}
+                        />
                       </div>
                     ),
                     width: 100,
                     dataIndex: "tax_rate",
-                    align: `${taxConfig?.data[0].tax_rate ? "center" : "right"}`,
                     render: (value, item) => {
                       return (
-                        <>
-                          {!taxConfig?.data[0].tax_rate ? (
-                            <NumberInput
-                              className="product-item-vat"
-                              value={item.tax_rate > 0 ? item.tax_rate : value}
-                              prefix={<div>%</div>}
-                              isFloat
-                              onChange={(inputValue) => {
-                                handleChangeTax(inputValue || 0, item);
-                              }}
-                              min={0}
-                              maxLength={3}
-                              max={100}
-                            />
-                          ) : (
-                            `${value} %`
-                          )}
-                        </>
+                        <NumberInput
+                          className="product-item-vat"
+                          value={item.tax_rate > 0 ? item.tax_rate : value}
+                          prefix={<div>%</div>}
+                          isFloat
+                          onChange={(inputValue) => {
+                            handleChangeTax(inputValue || 0, item);
+                          }}
+                          min={0}
+                          maxLength={3}
+                          max={100}
+                        />
                       );
                     },
                   },

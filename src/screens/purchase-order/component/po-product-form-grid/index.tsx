@@ -17,7 +17,7 @@ import {
   PurchaseProcument,
   PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
-import React, { createRef, useCallback, useContext, useMemo, useState, useEffect } from "react";
+import React, { createRef, useCallback, useContext, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purchase-order.provider";
@@ -49,7 +49,6 @@ import { POField } from "../../../../model/purchase-order/po-field";
 import { findAvatar, formatCurrency, replaceFormatString } from "../../../../utils/AppUtils";
 import ProductItem from "./product-item";
 import { PoProductFormContainer } from "./styles";
-import useFetchTaxConfig from "hook/useFetchTaxConfig";
 
 type POProductFormProps = {
   isEditMode: boolean;
@@ -735,13 +734,6 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
       },
     },
   ];
-  //set config vat in po
-  const { taxConfig } = useFetchTaxConfig();
-  useEffect(() => {
-    if (taxConfig?.data[0].tax_rate) {
-      setTaxRate(taxConfig?.data[0].tax_rate || 0);
-    }
-  }, [taxConfig?.data[0].tax_rate]);
 
   return (
     <PoProductFormContainer>
@@ -803,7 +795,7 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
                   <div className="po-payment-row">
                     <div style={{ display: "flex", alignItems: "center" }}>
                       <span>VAT</span>
-                      {isEditMode && !taxRate ? (
+                      {isEditMode ? (
                         <NumberInput
                           value={taxRate}
                           min={0}
@@ -816,7 +808,7 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
                           }}
                         />
                       ) : (
-                        <span className="po-payment-row-error">{`(${taxRate}%)`}:</span>
+                        <span className="po-payment-row-error">{`(${taxRate})%`}:</span>
                       )}
                     </div>
                     <div className="po-payment-row-result">

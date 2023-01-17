@@ -15,7 +15,6 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
 import { PoCreateAction, PoDetailAction } from "domain/actions/po/po.action";
-import useFetchTaxConfig from "hook/useFetchTaxConfig";
 import { groupBy } from "lodash";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
