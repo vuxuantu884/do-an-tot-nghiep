@@ -56,23 +56,31 @@ function DiscountItemSearch(props: PropTypes) {
   let showResult = true;
 
   const disableInput = props.item?.discount_items[0] ? true : disabled;
-  useEffect(() => {
-    // if (initItemSuggestDiscounts.length > 0) {
-    // }
+  const handleIfNotHaveSuggestDiscount = useCallback(() => {
     if (isCreateReturn && discountValue.length === 0) {
       setSuggestedDiscounts(initItemSuggestDiscounts);
+    } else {
+      setSuggestedDiscounts([]);
     }
-    setSuggestedDiscounts(initItemSuggestDiscounts);
   }, [discountValue.length, initItemSuggestDiscounts, isCreateReturn]);
 
+  useEffect(() => {
+    handleIfNotHaveSuggestDiscount();
+  }, [handleIfNotHaveSuggestDiscount]);
+
   const getAfterValue = (discount: any, totalAcount: number) => {
+    let result = 0;
     if (discount.value_type === DiscountValueType.PERCENTAGE) {
-      return totalAcount - _.round(((discount.value || 0) * totalAcount) / 100);
+      result = totalAcount - _.round(((discount.value || 0) * totalAcount) / 100);
     } else if (discount.value_type === DiscountValueType.FIXED_PRICE) {
-      return discount.value;
+      result = discount.value;
     } else if (discount.value_type === DiscountValueType.FIXED_AMOUNT) {
-      return totalAcount - (discount.value || 0);
+      result = totalAcount - (discount.value || 0);
     }
+    if (result < 0) {
+      result = 0;
+    }
+    return result;
   };
 
   const calculateDiscount = (discount: any, totalPrice: number) => {
@@ -204,7 +212,7 @@ function DiscountItemSearch(props: PropTypes) {
               } else {
                 //showError(`Không có chương trình thỏa mãn cho sản phẩm`);
                 setShowSearchPromotion(true);
-                setSuggestedDiscounts([]);
+                handleIfNotHaveSuggestDiscount();
               }
             } else if (type === DISCOUNT_TYPE.COUPON) {
               const _applyDiscount = response.data.line_items[0].applied_discount;
@@ -222,7 +230,7 @@ function DiscountItemSearch(props: PropTypes) {
                 setDiscountValue("");
               }
 
-              setSuggestedDiscounts([]);
+              handleIfNotHaveSuggestDiscount();
               setShowSearchPromotion(false);
             }
           } else {
@@ -232,7 +240,7 @@ function DiscountItemSearch(props: PropTypes) {
         .catch(() => {})
         .finally(() => {});
     },
-    [props.param, handleBeforeApplyDiscount, dispatch],
+    [dispatch, handleBeforeApplyDiscount, handleIfNotHaveSuggestDiscount, props.param],
   );
 
   const removeDiscountItem = useCallback(() => {
@@ -246,13 +254,9 @@ function DiscountItemSearch(props: PropTypes) {
     _item.discount_value = 0;
     _item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(_item);
     props.handleApplyDiscountItem(_item);
-    if (initItemSuggestDiscounts.length === 0) {
-      setSuggestedDiscounts([]);
-    } else {
-      setSuggestedDiscounts(initItemSuggestDiscounts);
-    }
+    handleIfNotHaveSuggestDiscount();
     setSelected(DISCOUNT_TYPE.MONEY);
-  }, [initItemSuggestDiscounts, props]);
+  }, [handleIfNotHaveSuggestDiscount, props]);
 
   const ChangeValueDiscount = useCallback(
     (keyWord) => {

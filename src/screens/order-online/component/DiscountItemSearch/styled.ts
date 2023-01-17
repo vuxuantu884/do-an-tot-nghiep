@@ -93,7 +93,7 @@ export const StyledComponent = styled.div`
           text-align: right;
           .ant-btn {
             height: 30px;
-            line-height: 30px;
+            /* line-height: 30px; */
           }
         }
       }
