@@ -36,6 +36,7 @@ export const PRICE_RULE_FIELDS = {
   disabled_name: "disabled_name",
   discount_codes: "discount_codes",
   ends_date: "ends_date",
+  is_sms_voucher: "is_sms_voucher",
   entitled_method: "entitled_method",
   entitlements: "entitlements",
   number_of_discount_codes: "number_of_discount_codes",
@@ -772,3 +773,27 @@ export const DATE_LIST_FORMAT = {
   lastMonthFrom: moment().subtract(1, "months").startOf("month").format("DD-MM-YYYY"),
   lastMonthTo: moment().subtract(1, "months").endOf("month").format("DD-MM-YYYY"),
 };
+
+export enum AllOrExcludeProductEnum {
+  ALL = "ALL",
+  HAVE_EXCLUDE = "HAVE_EXCLUDE",
+}
+
+enum ColumnIndex {
+  field = "field",
+  operator = "operator",
+  value = "value",
+}
+
+export const blankRow = {
+  [ColumnIndex.field]: "subtotal",
+  [ColumnIndex.operator]: "GREATER_THAN",
+  [ColumnIndex.value]: 0,
+};
+
+export enum CreateReleasePromotionRuleType {
+  AND = "AND",
+  quantity = "quantity",
+  variant_id = "variant_id",
+  product_id = "product_id",
+}

@@ -1,12 +1,14 @@
+import React, { useContext } from "react";
 import { Button, Input, Radio } from "antd";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
-import CustomTable from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import _ from "lodash";
 import { AiOutlineClose } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "utils/AppUtils";
-import { RelesaseCreactProduct } from ".";
+import { AllOrExcludeProductEnum } from "screens/promotion/constants";
+import { IssueContext } from "screens/promotion/issue/components/issue-provider";
 
 export interface IGeneralProductQuantityHaveExcludeProps {
   loadingDiscountVariant: boolean;
@@ -16,8 +18,6 @@ export interface IGeneralProductQuantityHaveExcludeProps {
   productSearchRef: any;
   setShowImportModal: (item: boolean) => void;
   listProductHaveExcludeForPagging: any;
-  releaseWithExlucdeOrAllProduct: string;
-  handleChangeRelaseHaveExcludeOrAllProduct: (value: string) => void;
   onDeleteItem: (item: any) => void;
   handlePageChange: (page: number, pageSize?: number) => void;
   handleSizeChange: (current: number, size: number) => void;
@@ -34,30 +34,80 @@ export default function GeneralProductQuantityHaveExclude(
     productSearchRef,
     setShowImportModal,
     listProductHaveExcludeForPagging,
-    releaseWithExlucdeOrAllProduct,
-    handleChangeRelaseHaveExcludeOrAllProduct,
     onDeleteItem,
     handlePageChange,
     handleSizeChange,
   } = props;
+
+  const {
+    releaseWithExcludeOrAllProduct,
+    setReleaseWithExcludeOrAllProduct,
+  } = useContext(IssueContext);
+  const handleChangeReleaseHaveExcludeOrAllProduct = (value: string) => {
+    setReleaseWithExcludeOrAllProduct(value);
+  };
+
+  const columns: Array<ICustomTableColumType<any>> = [
+    {
+      title: "Sản phẩm",
+      className: "ant-col-info",
+      dataIndex: "",
+      align: "left",
+      width: "60%",
+      render: (record) => {
+        return (
+          <div className="product-item-name">
+            <Link
+              target="_blank"
+              to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
+            >
+              {record.sku}
+            </Link>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Giá bán",
+      align: "center",
+      dataIndex: "retail_price",
+      width: "40%",
+      render: (retail_price: any) =>
+        formatCurrency(retail_price) ? formatCurrency(retail_price) : 0,
+    },
+    {
+      className: "ant-col-info",
+      align: "right",
+      width: "8%",
+      render: (value: string, item) => (
+        <Button
+          style={{ margin: "0 auto" }}
+          onClick={() => onDeleteItem(item)}
+          className="product-item-delete"
+          icon={<AiOutlineClose />}
+        />
+      ),
+    },
+  ];
+
 
   return (
     <div className="list-apply-product-promotion">
       <div style={{ display: "flex" }}>
         <span style={{ paddingLeft: 12 }}>
           <Radio.Group
-            value={releaseWithExlucdeOrAllProduct}
-            onChange={(e) => handleChangeRelaseHaveExcludeOrAllProduct(e.target.value)}
+            value={releaseWithExcludeOrAllProduct}
+            onChange={(e) => handleChangeReleaseHaveExcludeOrAllProduct(e.target.value)}
           >
-            <Radio value={RelesaseCreactProduct.ALL}>Tất cả sản phẩm</Radio>
-            <Radio value={RelesaseCreactProduct.HAVE_EXCLUDE}>Danh sách loại trừ</Radio>
+            <Radio value={AllOrExcludeProductEnum.ALL}>Tất cả sản phẩm</Radio>
+            <Radio value={AllOrExcludeProductEnum.HAVE_EXCLUDE}>Danh sách loại trừ</Radio>
           </Radio.Group>
         </span>
       </div>
 
-      {releaseWithExlucdeOrAllProduct === RelesaseCreactProduct.HAVE_EXCLUDE && (
+      {releaseWithExcludeOrAllProduct === AllOrExcludeProductEnum.HAVE_EXCLUDE && (
         <>
-          <Input.Group className="display-flex" style={{ marginTop: 20 }}>
+          <Input.Group style={{ marginTop: 20, display: "flex" }}>
             <CustomAutoComplete
               id="#product_search"
               dropdownClassName="product"
@@ -81,49 +131,7 @@ export default function GeneralProductQuantityHaveExclude(
             style={{ marginTop: 20 }}
             bordered
             rowClassName="product-table-row"
-            columns={[
-              {
-                title: "Sản phẩm",
-                className: "ant-col-info",
-                dataIndex: "",
-                align: "left",
-                width: "60%",
-                render: (record) => {
-                  return (
-                    <div className="product-item-name">
-                      <Link
-                        to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
-                      >
-                        {record.sku}
-                      </Link>
-                    </div>
-                  );
-                },
-              },
-
-              {
-                title: "Giá bán",
-                align: "center",
-                dataIndex: "retail_price",
-                width: "40%",
-                render: (retail_price: any) =>
-                  formatCurrency(retail_price) ? formatCurrency(retail_price) : 0,
-              },
-
-              {
-                className: "ant-col-info",
-                align: "right",
-                width: "8%",
-                render: (value: string, item) => (
-                  <Button
-                    style={{ margin: "0 auto" }}
-                    onClick={() => onDeleteItem(item)}
-                    className="product-item-delete"
-                    icon={<AiOutlineClose />}
-                  />
-                ),
-              },
-            ]}
+            columns={columns}
             dataSource={listProductHaveExcludeForPagging.items ?? []}
             tableLayout="fixed"
             pagination={{

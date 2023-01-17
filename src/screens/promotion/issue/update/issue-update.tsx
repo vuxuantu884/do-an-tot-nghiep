@@ -17,36 +17,22 @@ import GeneralConditionForm from "screens/promotion/shared/general-condition.for
 import { PROMO_TYPE } from "utils/Constants";
 import { parseDurationToMoment, transformData } from "utils/PromotionUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
-import IssueForm from "../components/issue-form";
-import IssueProvider, { IssueContext } from "../components/issue-provider";
+import GeneralInfoForm from "screens/promotion/issue/components/GeneralInfoForm";
+import IssueProvider, { IssueContext } from "screens/promotion/issue/components/issue-provider";
 import {
   getPriceRuleVariantExcludePaggingAction,
   getPromotionReleaseDetailAction,
   updatePromotionReleaseAction,
 } from "domain/actions/promotion/promo-code/promo-code.action";
-import { IssueStyled } from "../issue-style";
-import { CreateReleasePromotionRuleType } from "../create/issue-create";
-import { RelesaseCreactProduct } from "screens/promotion/shared/general-product-quantity";
-import { PRICE_RULE_FIELDS } from "screens/promotion/constants";
-
-enum ColumnIndex {
-  field = "field",
-  operator = "operator",
-  value = "value",
-}
-
-const blankRow = {
-  [ColumnIndex.field]: "subtotal",
-  [ColumnIndex.operator]: "GREATER_THAN",
-  [ColumnIndex.value]: 0,
-};
+import { IssueStyled } from "screens/promotion/issue/issue-style";
+import { CreateReleasePromotionRuleType } from "screens/promotion/constants";
+import { PRICE_RULE_FIELDS, AllOrExcludeProductEnum, blankRow } from "screens/promotion/constants";
+import PromotionTypeForm from "screens/promotion/issue/components/PromotionTypeForm";
 
 const rule = PRICE_RULE_FIELDS.rule;
 const conditions = PRICE_RULE_FIELDS.conditions;
 
-interface Props {}
-
-function IssueUpdate(props: Props): ReactElement {
+function IssueUpdate(): ReactElement {
   const history = useHistory();
   const [form] = Form.useForm();
   const dispatch = useDispatch();
@@ -56,43 +42,32 @@ function IssueUpdate(props: Props): ReactElement {
   const [isAllCustomer, setIsAllCustomer] = useState(true);
   const [isAllChannel, setIsAllChannel] = useState(true);
   const [isAllSource, setIsAllSource] = useState(true);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  //product quantity
   const [data, setData] = useState<PriceRule>();
-
-  const [typeSelectPromotion, setTypeSelectPromotion] = useState<any>();
-  const [valueChangePromotion, setValueChangePromotion] = useState<any>(0);
-
   const [listProductUpdate, setListProductUpdate] = useState<Array<any>>([]);
-
-  const [listProductUpdateNotExclude, setListProductUpdateNotExclude] = useState<Array<any>>([]);
-  const [listProductUpdateHaveExclude, setListProductUpdateHaveExclude] = useState<Array<any>>([]);
-
-  const [promotionType, setPromotionType] = useState<string>(PriceRuleMethod.ORDER_THRESHOLD);
   const [defaultReleasePromotionListType, setDefaultReleasePromotionListType] = useState<string>();
-  const [releasePromotionListType, setReleasePromotionListType] = useState<string>();
-  const [releaseWithExlucdeOrAllProduct, setReleaseWithExlucdeOrAllProduct] = useState<string>();
-
-  const [listProductSelectImportNotExclude, setListProductSelectImportNotExclude] = useState<any[]>(
-    [],
-  );
-
-  const [listProductSelectImportHaveExclude, setListProductSelectImportHaveExclude] = useState<
-    any[]
-  >([]);
-
-  const [isSetFormValues, setIsSetFormValues] = useState<boolean>(false);
-
   const [loading, setLoading] = useState(true);
   const {
+    setIsSetFormValues,
     priceRuleData,
     setPriceRuleData,
     setIsLimitUsage,
     setIsLimitUsagePerCustomer,
     setRegisterWithMinistry,
     registerWithMinistry,
+    typeSelectPromotion,
+    setTypeSelectPromotion,
+    setValueChangePromotion,
+    promotionType,
+    setPromotionType,
+    releasePromotionListType,
+    setReleasePromotionListType,
+    setReleaseWithExcludeOrAllProduct,
+    listProductSelectImportNotExclude,
+    setListProductSelectImportNotExclude,
+    listProductSelectImportHaveExclude,
+    setListProductSelectImportHaveExclude,
+    setIsSmsVoucher,
   } = useContext(IssueContext);
 
   useEffect(() => {
@@ -110,7 +85,7 @@ function IssueUpdate(props: Props): ReactElement {
         },
       });
     }
-  }, [form, promotionType, typeSelectPromotion]);
+  }, [form, promotionType, setReleasePromotionListType, typeSelectPromotion]);
 
   useEffect(() => {
     if (promotionType === PriceRuleMethod.DISCOUNT_CODE_QTY) {
@@ -132,15 +107,19 @@ function IssueUpdate(props: Props): ReactElement {
         setReleasePromotionListType(ReleasePromotionListType.OTHER_CONDITION);
       }
     }
-  }, [data, promotionType]);
+  }, [data, promotionType, setReleasePromotionListType]);
 
   useEffect(() => {
     if (releasePromotionListType === ReleasePromotionListType.NOT_EQUAL_TO) {
-      listProductUpdateHaveExclude.length > 0
-        ? setReleaseWithExlucdeOrAllProduct(RelesaseCreactProduct.HAVE_EXCLUDE)
-        : setReleaseWithExlucdeOrAllProduct(RelesaseCreactProduct.ALL);
+      listProductSelectImportHaveExclude.length > 0
+        ? setReleaseWithExcludeOrAllProduct(AllOrExcludeProductEnum.HAVE_EXCLUDE)
+        : setReleaseWithExcludeOrAllProduct(AllOrExcludeProductEnum.ALL);
     }
-  }, [listProductUpdateHaveExclude.length, releasePromotionListType]);
+  }, [
+    listProductSelectImportHaveExclude.length,
+    releasePromotionListType,
+    setReleaseWithExcludeOrAllProduct
+  ]);
 
   const handleFormFinish = useCallback(
     (values: any, listProduct: any[]) => {
@@ -247,6 +226,7 @@ function IssueUpdate(props: Props): ReactElement {
       // set limit usage
       setIsLimitUsage(!!result.usage_limit);
       setIsLimitUsagePerCustomer(!!result.usage_limit_per_customer);
+      setIsSmsVoucher(!!result.is_sms_voucher);
 
       //set default checked Bộ lọc
       setIsAllStore(result.prerequisite_store_ids?.length === 0);
@@ -259,12 +239,8 @@ function IssueUpdate(props: Props): ReactElement {
       setIsSetFormValues(true);
       form.setFieldsValue(formValue);
     },
-    [setIsLimitUsage, setIsLimitUsagePerCustomer, setPriceRuleData, form],
+    [setIsLimitUsage, setIsLimitUsagePerCustomer, setPriceRuleData, setIsSetFormValues, form],
   );
-
-  /**
-   *
-   */
 
   const getPriceRuleVariantDataCallback = (data: any) => {
     setListProductUpdate(data.items);
@@ -296,7 +272,7 @@ function IssueUpdate(props: Props): ReactElement {
         parseDataToForm(result);
       }
     },
-    [parseDataToForm],
+    [parseDataToForm, setPromotionType],
   );
 
   const getPromotionReleaseDetail = useCallback(() => {
@@ -304,30 +280,30 @@ function IssueUpdate(props: Props): ReactElement {
   }, [dispatch, priceRuleId, onResult]);
 
   useEffect(() => {
-    form.setFieldsValue({
-      [PRICE_RULE_FIELDS.rule]: {
-        value: 0,
-        value_type: typeSelectPromotion,
-      },
-    });
-  }, [form, typeSelectPromotion]);
-
-  useEffect(() => {
     if (!data) return;
 
-    setValueChangePromotion(data.rule?.value);
-    setTypeSelectPromotion(data?.rule?.value_type);
+    if (data.rule) {
+      setValueChangePromotion(data.rule.value);
+      setTypeSelectPromotion(data.rule.value_type);
+    }
 
     if (
       (data.rule?.conditions[0].field === CreateReleasePromotionRuleType.product_id ||
         data.rule?.conditions[0].field === CreateReleasePromotionRuleType.variant_id) &&
       data.rule?.conditions[0].operator === ReleasePromotionListType.EQUALS
     ) {
-      setListProductUpdateNotExclude(listProductUpdate);
+      setListProductSelectImportNotExclude(listProductUpdate);
     } else {
-      setListProductUpdateHaveExclude(listProductUpdate);
+      setListProductSelectImportHaveExclude(listProductUpdate);
     }
-  }, [data, listProductUpdate]);
+  }, [
+    data,
+    listProductUpdate,
+    setListProductSelectImportHaveExclude,
+    setListProductSelectImportNotExclude,
+    setTypeSelectPromotion,
+    setValueChangePromotion
+  ]);
 
   // Action: Lấy thông tin khuyến mãi
   useEffect(() => {
@@ -375,30 +351,10 @@ function IssueUpdate(props: Props): ReactElement {
         <Form form={form} name="discount_add" onFinish={onFinish} layout="vertical">
           <Row gutter={24}>
             <Col span={18}>
-              <IssueForm
+              <GeneralInfoForm />
+              <PromotionTypeForm
                 form={form}
-                isSetFormValues={isSetFormValues}
-                //value select promotion
-                typeSelectPromotion={typeSelectPromotion}
-                setTypeSelectPromotion={setTypeSelectPromotion}
-                valueChangePromotion={valueChangePromotion}
-                setValueChangePromotion={setValueChangePromotion}
-                //promotion type
-                promotionType={promotionType}
-                setPromotionType={setPromotionType}
                 defaultReleasePromotionListType={defaultReleasePromotionListType}
-                //type create release promotion
-                releasePromotionListType={releasePromotionListType}
-                setReleasePromotionListType={setReleasePromotionListType}
-                releaseWithExlucdeOrAllProduct={releaseWithExlucdeOrAllProduct}
-                setReleaseWithExlucdeOrAllProduct={setReleaseWithExlucdeOrAllProduct}
-                listProductSelectImportNotExclude={listProductSelectImportNotExclude}
-                setListProductSelectImportNotExclude={setListProductSelectImportNotExclude}
-                listProductSelectImportHaveExclude={listProductSelectImportHaveExclude}
-                setListProductSelectImportHaveExclude={setListProductSelectImportHaveExclude}
-                //list product update
-                listProductUpdateNotExclude={listProductUpdateNotExclude}
-                listProductUpdateHaveExclude={listProductUpdateHaveExclude}
               />
             </Col>
             <Col span={6}>
@@ -430,10 +386,10 @@ function IssueUpdate(props: Props): ReactElement {
   );
 }
 
-const IssueUpdateWithProvider = (props: Props) => {
+const IssueUpdateWithProvider = () => {
   return (
     <IssueProvider>
-      <IssueUpdate {...props} />
+      <IssueUpdate />
     </IssueProvider>
   );
 };
