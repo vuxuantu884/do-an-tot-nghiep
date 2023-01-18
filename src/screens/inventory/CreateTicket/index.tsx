@@ -959,10 +959,17 @@ const CreateTicket: FC = () => {
                   columns={columns}
                   loading={isLoadingTable}
                   dataSource={dataTable}
+                  summary={() => {
+                    return (
+                      <Table.Summary>
+                        <Table.Summary.Row>
+                          <Table.Summary.Cell index={0} align="right" colSpan={5}><b>Tổng số lượng:</b></Table.Summary.Cell>
+                          <Table.Summary.Cell index={1} align="center"><b>{getTotalQuantity()}</b></Table.Summary.Cell>
+                        </Table.Summary.Row>
+                      </Table.Summary>
+                    )
+                  }}
                 />
-                <div className={"sum-qty"}>
-                  <span>Tổng số lượng:</span> <b>{getTotalQuantity()}</b>
-                </div>
               </div>
             </Card>
           </Col>

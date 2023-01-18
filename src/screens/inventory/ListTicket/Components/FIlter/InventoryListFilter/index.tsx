@@ -12,7 +12,7 @@ import moment from "moment";
 import BaseFilter from "component/filter/base.filter";
 import { InventoryTransferSearchQuery } from "model/inventory/transfer";
 import { BaseFilterWrapper, InventoryFiltersWrapper } from "./styles";
-import { STATUS_INVENTORY_TRANSFER_ARRAY } from "screens/inventory/constants";
+import { STATUS_INVENTORY_TRANSFER, STATUS_INVENTORY_TRANSFER_ARRAY } from "screens/inventory/constants";
 import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
@@ -24,7 +24,7 @@ import TreeStore from "component/CustomTreeSelect";
 import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 
 type OrderFilterProps = {
-  accountStores?: Array<StoreResponse>;
+  accountStores?: Array<StoreResponse> | null;
   params: InventoryTransferSearchQuery;
   actions: Array<MenuAction>;
   isLoading?: Boolean;
@@ -63,10 +63,10 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
   if (!query?.status) {
     switch (activeTab) {
       case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
-        status = ["transferring", "confirmed"];
+        status = [STATUS_INVENTORY_TRANSFER.TRANSFERRING.status, STATUS_INVENTORY_TRANSFER.CONFIRM.status];
         break;
       case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
-        status = ["transferring"];
+        status = [STATUS_INVENTORY_TRANSFER.TRANSFERRING.status];
         break;
       default:
         break;
@@ -102,7 +102,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
   useEffect(() => {
     if (activeTab === "") return;
 
-    let accountStoreSelected =
+    const accountStoreSelected =
       accountStores && accountStores.length > 0 ? accountStores.map((i) => i.id) : [];
 
     if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE) {
