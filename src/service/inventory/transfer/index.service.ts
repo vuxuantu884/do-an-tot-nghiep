@@ -68,15 +68,6 @@ export const DeleteInventoryService = (
   return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/cancel/${id}`, request);
 };
 
-export const cancelMultipleTransferTicketApi = (
-  request: any,
-): Promise<BaseResponse<InventoryTransferDetailItem>> => {
-  return BaseAxios.put(
-    `${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/multiple-cancel`,
-    request,
-  );
-};
-
 export const getInfoDeliveryFees = (
   request: GetFeesRequest,
 ): Promise<BaseResponse<VTPFeeResponse>> => {
@@ -98,10 +89,6 @@ const TransferService = {
   ///get
   getStoreApi: (storeStatus: StoreStatus): Promise<BaseResponse<Store>> => {
     const url = `${ApiConfig.CORE}/stores?${queryString.stringify(storeStatus)}`;
-    return BaseAxios.get(url);
-  },
-  getTransferRecordNumberApi: (): Promise<BaseResponse<Store>> => {
-    const url = `${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/in-out`;
     return BaseAxios.get(url);
   },
   getVariantByStoreApi: (
@@ -249,7 +236,6 @@ export const {
   exportMultipleInventoryTransfer,
   cancelMultipleInventoryTransfer,
   adjustmentInventory,
-  getTransferRecordNumberApi,
   updateAvailableApi,
   getTopReceivedStoreApi,
   forwardStoreApi

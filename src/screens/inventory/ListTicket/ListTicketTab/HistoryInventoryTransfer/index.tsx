@@ -112,7 +112,7 @@ const actions: Array<MenuAction> = [
 ];
 
 type HistoryInventoryTransferTabProps = {
-  accountStores?: Array<StoreResponse>;
+  accountStores?: Array<StoreResponse> | null;
   stores?: Array<StoreResponse>;
   accounts?: Array<AccountResponse>;
   setAccounts?: (e: any) => any;
