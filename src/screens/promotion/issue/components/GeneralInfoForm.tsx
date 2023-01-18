@@ -25,7 +25,7 @@ function GeneralInfoForm(): ReactElement {
                 },
               ]}
             >
-              <Input placeholder="Nhập tên đợt phát hành" />
+              <Input id={"title"} placeholder="Nhập tên đợt phát hành" />
             </Form.Item>
           </Col>
 

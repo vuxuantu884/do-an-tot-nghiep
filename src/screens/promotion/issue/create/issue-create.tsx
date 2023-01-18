@@ -24,6 +24,7 @@ import { IssueStyled } from "screens/promotion/issue/issue-style";
 import { createPromotionReleaseAction } from "domain/actions/promotion/promo-code/promo-code.action";
 import { CreateReleasePromotionRuleType } from "screens/promotion/constants";
 import PromotionTypeForm from "screens/promotion/issue/components/PromotionTypeForm";
+import { scrollAndFocusToDomElement } from "utils/AppUtils";
 
 const initialFormValues = {
   starts_date: moment(),
@@ -128,8 +129,8 @@ function IssueCreate(): ReactElement {
         createPromotionReleaseAction(body, (result: PriceRule) => {
           dispatch(hideLoading());
           if (result) {
-            showSuccess("Thêm thành công");
-            history.push(UrlConfig.PROMOTION + UrlConfig.PROMO_CODE);
+            showSuccess("Thêm mới chương trình khuyến mãi thành công");
+            history.push(UrlConfig.PROMOTION + UrlConfig.PROMO_CODE + `/${result.id}`);
           }
         }),
       );
@@ -171,6 +172,10 @@ function IssueCreate(): ReactElement {
           name="issue-create"
           initialValues={initialFormValues}
           onFinish={onFinish}
+          onFinishFailed={({ errorFields }: any) => {
+            const element: any = document.getElementById(errorFields[0]?.name.join(""));
+            scrollAndFocusToDomElement(element);
+          }}
           layout="vertical"
         >
           <Row gutter={24}>
