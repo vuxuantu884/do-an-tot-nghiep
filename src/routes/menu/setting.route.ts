@@ -27,6 +27,7 @@ const SmsOnlineOrder = React.lazy(() => import("screens/settings/sms/config/SmsO
 const SmsCustomerBirthday = React.lazy(
   () => import("screens/settings/sms/config/SmsCustomerBirthday"),
 );
+const SmsPromotionVoucher = React.lazy(() => import("screens/settings/sms/config/SmsPromotionVoucher"));
 
 const ManageUserScreen = React.lazy(() => import("screens/settings/account/AccountList"));
 
@@ -566,6 +567,18 @@ const setting: Array<RouteMenu> = [
         icon: "icon-dot",
         component: SmsCustomerBirthday,
         key: "sms-customer-birthday",
+        isShow: true,
+        header: null,
+        permissions: [SMS_CONFIG_PERMISSIONS.READ],
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.SMS_SETTINGS}/promotion-voucher`,
+        exact: true,
+        title: "Gửi tin sinh mã giảm giá theo chương trình khuyến mãi",
+        icon: "icon-dot",
+        component: SmsPromotionVoucher,
+        key: "sms-promotion-voucher",
         isShow: true,
         header: null,
         permissions: [SMS_CONFIG_PERMISSIONS.READ],
