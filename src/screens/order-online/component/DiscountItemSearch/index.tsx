@@ -57,12 +57,12 @@ function DiscountItemSearch(props: PropTypes) {
 
   const disableInput = props.item?.discount_items[0] ? true : disabled;
   const handleIfNotHaveSuggestDiscount = useCallback(() => {
-    if (isCreateReturn && discountValue.length === 0) {
+    if (isCreateReturn && (discountValue.length === 0 || selected === DISCOUNT_TYPE.COUPON)) {
       setSuggestedDiscounts(initItemSuggestDiscounts);
     } else {
       setSuggestedDiscounts([]);
     }
-  }, [discountValue.length, initItemSuggestDiscounts, isCreateReturn]);
+  }, [discountValue, initItemSuggestDiscounts, isCreateReturn, selected]);
 
   useEffect(() => {
     handleIfNotHaveSuggestDiscount();
