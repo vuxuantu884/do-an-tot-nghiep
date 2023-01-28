@@ -27,6 +27,7 @@ import useFetchUserConfigs from "hook/useFetchUserConfigSettings";
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
+import { HandoverResponse } from "model/handover/handover.response";
 import { HandoverSearchRequest } from "model/handover/handover.search";
 import {
   ChangeOrderStatusHtmlModel,
@@ -190,6 +191,19 @@ function OrderList(props: PropTypes) {
   }, []);
 
   useEffect(() => {
+    const getHandOvers = (_handOvers: HandoverResponse[], _order: OrderModel) => {
+      const fulfillmentsCode = _order.fulfillments?.map((p) => p.code);
+
+      if (fulfillmentsCode) {
+        const handOverData = [..._handOvers].filter((p) =>
+          p.orders?.some((p) => fulfillmentsCode.indexOf(p.fulfillment_code) !== -1),
+        );
+
+        return handOverData;
+      }
+      return [];
+    };
+
     if (isCalHandOvers && data.items.length !== 0) {
       setIsHandOvers(false);
       let itemData = [...data.items];
@@ -202,7 +216,7 @@ function OrderList(props: PropTypes) {
             const itemResult: OrderModel[] = itemData.map((p) => {
               return {
                 ...p,
-                handOvers: response.data.items,
+                handOvers: getHandOvers(response.data.items, p),
               };
             });
             setData({
@@ -238,7 +252,7 @@ function OrderList(props: PropTypes) {
             { ...params, in_goods_receipt: inGoodsReceipt },
             (result) => {
               setSearchResult(result);
-              setIsHandOvers(true);
+              orderType === ORDER_TYPES.online && setIsHandOvers(true);
             },
             () => {
               setTableLoading(false);
@@ -514,7 +528,6 @@ function OrderList(props: PropTypes) {
           const isOrderShipping = selectedRows.filter((p) =>
             p.fulfillments?.some((p1) => p1.status === FulFillmentStatus.SHIPPING),
           );
-
 
           if (isOrderShipping && isOrderShipping.length > 0) {
             Modal.error({

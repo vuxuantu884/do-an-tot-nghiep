@@ -984,7 +984,7 @@ function OrdersTable(props: PropTypes) {
         key: "goods_receipt",
         render: (value, record: OrderModel, index) => {
           if (record.handOvers) {
-            return <OrderMapHandOver orderDetail={record} handOvers={record.handOvers} />;
+            return <OrderMapHandOver handOvers={record.handOvers} />;
           } else {
             return <span>-</span>;
           }
