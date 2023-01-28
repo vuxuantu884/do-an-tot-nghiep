@@ -7,8 +7,6 @@ export const AppConfig = {
   ydPageUrl: process.env.REACT_APP_YDPAGE_URL,
   unichatApi: process.env.REACT_APP_UNICHAT_API,
   unichatUrl: process.env.REACT_APP_UNICHAT_URL,
-  unichatProdApi: process.env.REACT_APP_UNICHAT_PROD_API,
-  unichatProdUrl: process.env.REACT_APP_UNICHAT_PROD_URL,
   currency: "VND",
   price_type: "retail_price",
   import_price: "import_price",

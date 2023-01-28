@@ -16,34 +16,26 @@ import { StyledComponent } from "./styles";
 
 type PropTypes = {
   dailyRevenueDetail: DailyRevenueDetailModel | undefined;
+  shopRevenueModel: ShopRevenueModel | undefined;
   handleUpdateDailyRevenueDetail: () => void;
   visibleCardElement: DailyRevenueVisibleCardElementModel;
   permissions: DaiLyRevenuePermissionModel;
 };
 
 function ShopRevenueCard(props: PropTypes) {
-  const { handleUpdateDailyRevenueDetail, dailyRevenueDetail, visibleCardElement, permissions } =
-    props;
+  const {
+    handleUpdateDailyRevenueDetail,
+    shopRevenueModel,
+    dailyRevenueDetail,
+    visibleCardElement,
+    permissions,
+  } = props;
 
   const dateFormat = DATE_FORMAT.DDMMYY_HHmm;
 
-  const items: ShopRevenueModel[] = dailyRevenueDetail
-    ? [
-        {
-          card_payment: dailyRevenueDetail.card_payment,
-          cash_payment: dailyRevenueDetail.cash_payment,
-          transfer_payment: dailyRevenueDetail.transfer_payment,
-          vnpay_payment: dailyRevenueDetail.vnpay_payment,
-          spos_payment: dailyRevenueDetail.spos_payment,
-          mpos_payment: dailyRevenueDetail.mpos_payment,
-          momo_payment: dailyRevenueDetail.momo_payment,
-          other_payment: dailyRevenueDetail.other_payment,
-          qrpay_payment: dailyRevenueDetail.qrpay_payment,
-        },
-      ]
-    : [];
+  const items: ShopRevenueModel[] = shopRevenueModel ? [shopRevenueModel] : [];
 
-  const totalShopRevenueAmount = dailyRevenueDetail?.total_revenue || 0;
+  const totalShopRevenueAmount = shopRevenueModel ? shopRevenueModel.total_revenue : 0;
 
   console.log("items", items);
 
@@ -73,8 +65,28 @@ function ShopRevenueCard(props: PropTypes) {
   const columnFinal: Array<ICustomTableColumType<ShopRevenueModel>> = [
     {
       title: "Tiền mặt",
-      dataIndex: "cash_payment",
-      key: "cash_payment",
+      dataIndex: "cash_payments",
+      key: "cash_payments",
+      render: (value: string) => {
+        return <span className="noWrap">{formatCurrency(value)}</span>;
+      },
+      visible: true,
+      align: "right",
+    },
+    {
+      title: "QR VNpay",
+      dataIndex: "vnpay_payments",
+      key: "vnpay_payments",
+      render: (value: string) => {
+        return <span className="noWrap">{formatCurrency(value)}</span>;
+      },
+      visible: true,
+      align: "right",
+    },
+    {
+      title: "QR Momo",
+      dataIndex: "momo_payments",
+      key: "momo_payments",
       render: (value: string) => {
         return <span className="noWrap">{formatCurrency(value)}</span>;
       },
@@ -83,30 +95,9 @@ function ShopRevenueCard(props: PropTypes) {
       // width: "25%",
     },
     {
-      title: " QR Momo",
-      dataIndex: "momo_payment",
-      key: "momo_payment",
-      render: (value: string) => {
-        return <span className="noWrap">{formatCurrency(value)}</span>;
-      },
-      visible: true,
-      align: "right",
-    },
-    // {
-    //   title: "QR VNPay",
-    //   dataIndex: "vnpay_payment",
-    //   key: "vnpay_payment",
-    //   render: (value: string) => {
-    //     return <span className="noWrap">{formatCurrency(value)}</span>;
-    //   },
-    //   visible: true,
-    //   align: "right",
-    //   // width: "25%",
-    // },
-    {
-      title: "QR Pay",
-      dataIndex: "qrpay_payment",
-      key: "qrpay_payment",
+      title: "QR VCB",
+      dataIndex: "vcb_payments",
+      key: "vcb_payments",
       render: (value: string) => {
         return <span className="noWrap">{formatCurrency(value)}</span>;
       },
@@ -116,8 +107,8 @@ function ShopRevenueCard(props: PropTypes) {
     },
     {
       title: "Chuyển khoản",
-      dataIndex: "transfer_payment",
-      key: "transfer_payment",
+      dataIndex: "transfer_payments",
+      key: "transfer_payments",
       render: (value: string) => {
         return <span className="noWrap">{formatCurrency(value)}</span>;
       },
@@ -128,8 +119,8 @@ function ShopRevenueCard(props: PropTypes) {
 
     {
       title: "Quẹt thẻ",
-      dataIndex: "card_payment",
-      key: "card_payment",
+      dataIndex: "card_payments",
+      key: "card_payments",
       render: (value: string) => {
         return <span className="noWrap">{formatCurrency(value)}</span>;
       },
@@ -138,24 +129,15 @@ function ShopRevenueCard(props: PropTypes) {
       // width: "25%",
     },
     {
-      title: "MPOS",
-      dataIndex: "mpos_payment",
-      key: "mpos_payment",
+      title: "Thanh toán khác",
+      dataIndex: "unknown_payments",
+      key: "unknown_payments",
       render: (value: string) => {
         return <span className="noWrap">{formatCurrency(value)}</span>;
       },
-      visible: false,
+      visible: true,
       align: "right",
-    },
-    {
-      title: "SPOS",
-      dataIndex: "spos_payment",
-      key: "spos_payment",
-      render: (value: string) => {
-        return <span className="noWrap">{formatCurrency(value)}</span>;
-      },
-      visible: false,
-      align: "right",
+      // width: "25%",
     },
   ];
 
@@ -178,7 +160,7 @@ function ShopRevenueCard(props: PropTypes) {
           dataSource={items}
           columns={columnFinal.filter((column) => column.visible)}
           pagination={false}
-          rowKey={(item: ShopRevenueModel) => item.card_payment}
+          rowKey={(item: ShopRevenueModel) => item.card_payments}
         />
       </RevenueReceiptCard>
     </StyledComponent>

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useQuery } from "utils/useQuery";
 import { getToken, getUnichatSource, setUnichatSource } from "utils/LocalStorageUtils";
@@ -12,52 +12,32 @@ import { SocialStyled } from "screens/social/styles";
 import YodySocial from "assets/img/yody_social.svg";
 import yodyUnichatImg from "assets/img/yody_unichat.svg";
 
-const UNICHAT_ENV = {
-  DEV: "dev",
-  PROD: "production",
-}
-
 const Unichat: React.FC = () => {
   const dispatch = useDispatch();
   const queryString = useQuery();
   const unichatToken = queryString.get("token");
-  const unichatEnv = queryString.get("unichatEnv");
   const [source, setSource] = useState<String | null>(getUnichatSource());
   const [loadingUnichat, setLoadingUnichat] = useState<Boolean | null>(false);
   const [isLogining, setIsLogining] = useState<Boolean | null>(false);
-
-  const unichatEnvApi = useMemo(() => {
-    if (unichatEnv === UNICHAT_ENV.PROD) {
-      return AppConfig.unichatProdApi;
-    }
-    return AppConfig.unichatApi;
-  }, [unichatEnv]);
-
-  const unichatEnvUrl = useMemo(() => {
-    if (unichatEnv === UNICHAT_ENV.PROD) {
-      return AppConfig.unichatProdUrl;
-    }
-    return AppConfig.unichatUrl;
-  }, [unichatEnv]);
 
   const goToFacebookUnichat = () => {
     setSource(allSource.UNICHAT);
     setUnichatSource(allSource.UNICHAT);
     setIsLogining(true);
-    window.location.href = unichatEnvApi + "auth/facebook";
+    window.location.href = AppConfig.unichatApi + "auth/facebook";
   };
 
   const setUnichatPath = (path: any) => {
     const url = new URL(window.location.href);
     url.searchParams.set("path", path);
     window.history.pushState({}, "", url.toString());
-  }
+  };
 
   const getUnichatIframeUrl = () => {
     const pathParam = new URLSearchParams(window.location.search).get("path");
     const path = pathParam ? pathParam : "";
-    return new URL(unichatEnvUrl || "").origin + path;
-  }
+    return new URL(AppConfig.unichatUrl || "").origin + path;
+  };
 
   useEffect(() => {
     dispatch(hideLoading());
@@ -146,11 +126,17 @@ const Unichat: React.FC = () => {
             </div>
 
             <div className="button-option">
-              <div className="social-button" style={{ marginRight: "0" }} onClick={goToFacebookUnichat}>
+              <div
+                className="social-button"
+                style={{ marginRight: "0" }}
+                onClick={goToFacebookUnichat}
+              >
                 <img src={yodyUnichatImg} style={{ marginRight: "12px" }} alt="" />
                 <div>
                   <div className="text-button-title">
-                    <span>Kết nối <span style={{ color: "#2A2A86" }}>Facebook</span> với Unichat </span>
+                    <span>
+                      Kết nối <span style={{ color: "#2A2A86" }}>Facebook</span> với Unichat
+                    </span>
                     <span className={"beta-text"}>Beta</span>
                   </div>
                   <div className="description-text">
@@ -178,7 +164,7 @@ const Unichat: React.FC = () => {
           name="unichat-callback-iframe"
           className="ydpage-iframe"
           title="unichat"
-          src={`${unichatEnvUrl}login-callback?token=${unichatToken}`}
+          src={`${AppConfig.unichatUrl}login-callback?token=${unichatToken}`}
           style={{ width: "100%", height: "100%" }}
         ></iframe>
       )}

@@ -10,7 +10,9 @@ import {
   DailyRevenueOtherPaymentParamsModel,
   DaiLyRevenuePermissionModel,
   DailyRevenueVisibleCardElementModel,
+  ShopRevenueModel,
 } from "model/order/daily-revenue.model";
+import { AnalyticCube, ReportProperty } from "model/report";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -27,14 +29,19 @@ import {
   isFetchApiSuccessful,
   scrollAndFocusToDomElement,
 } from "utils/AppUtils";
-import { getArrayFromObject } from "utils/OrderUtils";
+import { formatDateTimeOrderFilter, getArrayFromObject } from "utils/OrderUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import DailyRevenueProgressBar from "../components/DailyRevenueProgressBar";
 import DailyRevenueTotal from "../components/DailyRevenueTotal";
 import RevenueNote from "../components/sidebar/RevenueNote";
 import RevenueStatus from "../components/sidebar/RevenueStatus";
-import { dailyRevenueStatus } from "../helper";
+import { columnsReport, dailyRevenueStatus, getDataReport, getParamReport } from "../helper";
 import { StyledComponent } from "./styles";
+import { AnalyticQuery } from "model/report/analytics.model";
+import { generateRQuery } from "utils/ReportUtils";
+import { executeAnalyticsQueryService } from "service/report/analytics.service";
+import { DATE_FORMAT } from "utils/DateUtils";
+import moment from "moment";
 
 type PropTypes = {};
 
@@ -53,6 +60,7 @@ function DailyRevenueDetail(props: PropTypes) {
   const dispatch = useDispatch();
 
   const [dailyRevenueDetail, setDailyRevenueDetail] = useState<DailyRevenueDetailModel>();
+  const [shopRevenueModel, setShopRevenueModel] = useState<ShopRevenueModel>();
 
   const [visibleCardElement, setVisibleCardElement] = useState<DailyRevenueVisibleCardElementModel>(
     {
@@ -116,7 +124,6 @@ function DailyRevenueDetail(props: PropTypes) {
     allowDailyPaymentsSubmit,
     allowDailyPaymentsConfirm,
   };
-  console.log("permissions", permissions);
 
   const fetchDailyRevenueDetail = useCallback(() => {
     if (!id) {
@@ -143,6 +150,19 @@ function DailyRevenueDetail(props: PropTypes) {
       });
   }, [dispatch, id]);
 
+  const fetchDailyRevenueReport = useCallback(() => {
+    if (!storeDetail?.name) return;
+
+    const currentDate = moment(dailyRevenueDetail?.created_at).format(DATE_FORMAT.YYYY_MM_DD);
+
+    const fullParams = getParamReport(currentDate, storeDetail?.name);
+    executeAnalyticsQueryService(fullParams).then((response: any) => {
+      console.log("executeAnalyticsQueryService", response.result);
+      const result = getDataReport(response.result);
+      setShopRevenueModel(result);
+    });
+  }, [dailyRevenueDetail?.created_at, storeDetail?.name]);
+
   const handleUpdateDailyRevenueDetail = () => {
     if (!id) {
       return;
@@ -152,7 +172,6 @@ function DailyRevenueDetail(props: PropTypes) {
       .refresh(+id)
       .then((response) => {
         setDailyRevenueDetail(response);
-        console.log(`Cập nhật ${dailyRevenueDetail?.id}`);
       })
       .catch((error) => {
         console.log("error", error);
@@ -242,12 +261,10 @@ function DailyRevenueDetail(props: PropTypes) {
   };
 
   const handleClickPayMoney = (fileList: UploadFile<any>[] | undefined) => {
-    console.log("fileList", fileList);
     const uploadFiles = fileList?.map((single) => single.originFileObj) as File[] | undefined;
     if (!uploadFiles) {
       return;
     }
-    console.log("uploadFiles", uploadFiles);
     // return;
     paymentForm
       .validateFields()
@@ -353,6 +370,10 @@ function DailyRevenueDetail(props: PropTypes) {
     dispatch(showLoading());
     fetchDailyRevenueDetail();
   }, [dispatch, fetchDailyRevenueDetail, id]);
+
+  useEffect(() => {
+    fetchDailyRevenueReport();
+  }, [dispatch, fetchDailyRevenueReport]);
 
   useEffect(() => {
     const getView = () => {
@@ -513,6 +534,7 @@ function DailyRevenueDetail(props: PropTypes) {
               handleUpdateDailyRevenueDetail={handleUpdateDailyRevenueDetail}
               visibleCardElement={visibleCardElement}
               permissions={permissions}
+              shopRevenueModel={shopRevenueModel}
             />
             {visibleCardElement.shopCostAndSurchargeCard.show && (
               <Card title="Thu Chi" className="revenueCard">
