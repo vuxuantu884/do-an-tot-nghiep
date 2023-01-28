@@ -120,6 +120,7 @@ export interface TaxLineModel {
 export interface OrderLineItemResponse {
   id: number;
   sku: string;
+  code?: string;
   variant_id: number;
   variant: string;
   product_id: number;

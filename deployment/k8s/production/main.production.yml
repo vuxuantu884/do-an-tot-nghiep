@@ -19,6 +19,29 @@ spec:
       labels:
         name: $SERVICE_NAME
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                name: $SERVICE_NAME
+            topologyKey: kubernetes.io/hostname
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 60
+            preference:   
+              matchExpressions:
+              - key: eks.amazonaws.com/capacityType
+                operator: In
+                values:
+                - SPOT
+          - weight: 40
+            preference:
+              matchExpressions:
+              - key: eks.amazonaws.com/capacityType
+                operator: In
+                values:
+                - "ON_DEMAND"
       containers:
         - name: $SERVICE_NAME
           image: $DOCKER_REGISTRY/$DOCKER_IMAGE_NAME:$PREFIX-$IMAGE_TAG
