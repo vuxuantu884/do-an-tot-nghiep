@@ -1,9 +1,9 @@
-import { FilterOutlined, SettingOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Form, Row, Select } from "antd";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import moment from "moment";
 import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useEffectOnce } from "react-use";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { SellingPowerFilterForm } from "../enums/selling-power-report.enum";
 import { TypeSku } from "../enums/type-sku.enum";
@@ -34,6 +34,13 @@ function SellingPowerFilter({ applyFilter }: Props) {
 
   const openFilter = () => {};
 
+  useEffectOnce(() => {
+    applyFilter({
+      date: moment().format(DATE_FORMAT.YYYYMMDD),
+      typeSKU: TypeSku.Sku13,
+    });
+  });
+
   return (
     <>
       <InventoryBalanceFilterStyle>
@@ -47,6 +54,7 @@ function SellingPowerFilter({ applyFilter }: Props) {
                     placeholder="Chọn thời gian"
                     style={{ width: "100%" }}
                     showToday={false}
+                    defaultValue={moment()}
                   />
                 </Form.Item>
               </Col>
@@ -59,7 +67,7 @@ function SellingPowerFilter({ applyFilter }: Props) {
                 >
                   Lọc
                 </Button>
-                <Button onClick={openFilter} className="btn-filter" icon={<FilterOutlined />}>
+                {/* <Button onClick={openFilter} className="btn-filter" icon={<FilterOutlined />}>
                   Thêm bộ lọc
                 </Button>
                 <Button
@@ -67,7 +75,7 @@ function SellingPowerFilter({ applyFilter }: Props) {
                   title="Ẩn/hiện cột"
                   icon={<SettingOutlined />}
                   onClick={() => setShowSettingColumn(true)}
-                />
+                /> */}
               </Col>
             </Row>
           </Card>

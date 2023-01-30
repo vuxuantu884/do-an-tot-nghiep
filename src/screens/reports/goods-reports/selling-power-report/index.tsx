@@ -25,11 +25,12 @@ function SellingPowerReport() {
     if (!response.data.length) {
       setEmptyMessage("Không có kết quả phù hợp với điều kiện lọc");
     }
-    const { data } = response;
-    data.sellingPowerSKU13.forEach((item: any, index: number) => {
+    const { data, total } = response;
+    data.forEach((item: any, index: number) => {
       item.no = index + 1;
     });
-    setDataSource(response.data.sellingPowerSKU13);
+    response.data = [{ ...total, no: "TỔNG", colSpan: 12, className: "font-weight-bold" }, ...data];
+    setDataSource(response.data);
   }, [conditionFilter, dispatch]);
 
   useEffect(() => {
@@ -38,7 +39,7 @@ function SellingPowerReport() {
 
   return (
     <ContentContainer
-      title={`Báo cáo xuất - nhập - tồn (Kế toán)`}
+      title={`Báo cáo tồn bán sức bán`}
       breadcrumb={[
         { name: "Báo cáo" },
         { name: "Danh sách báo cáo hàng hoá", path: `${REPORTS_URL.GOODS}` },
@@ -56,8 +57,8 @@ function SellingPowerReport() {
           />
           <Table
             locale={{ emptyText: emptyMessage }}
-            dataSource={[dataSource]}
-            columns={sellingPowerReportColumns}
+            dataSource={dataSource}
+            columns={sellingPowerReportColumns(conditionFilter?.date)}
             bordered
             scroll={{ x: "max-content" }}
             sticky={{
