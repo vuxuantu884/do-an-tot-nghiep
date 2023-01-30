@@ -27,6 +27,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import SearchProductComponent from "component/search-product";
 import { AccountStoreResponse } from "model/account/account.model";
 import { RefSelectProps } from "antd/lib/select";
+import { InventoryDefectWrapper } from "./style";
 
 export interface SummaryDefect {
   total_defect: number;
@@ -96,11 +97,8 @@ const InventoryDefectCreate: React.FC = () => {
                 target="_blank"
                 to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}
               >
-                {record.sku}
+                {value}
               </Link>
-            </div>
-            <div className="product-item-name">
-              <span className="product-item-name-detail">{value}</span>
             </div>
             <div className="product-item-name">
               <span className="product-item-name-detail ant-table-cell" title={record.variant_name}>
@@ -181,14 +179,26 @@ const InventoryDefectCreate: React.FC = () => {
       width: 100,
       align: "center",
       dataIndex: "note",
-      render: (value: any, row: LineItemDefect, index: number) => (
-        <Input
-          className="border-input"
-          onChange={(e) => {
-            updateDataTable(e.target.value, row, InventoryDefectFields.note);
-          }}
-        />
-      ),
+      render: (value: any, row: LineItemDefect, index: number) => {
+        return (
+          <Form.Item
+            name={`note-${index}`}
+            rules={[
+              {
+                max: 255,
+                message: "Ghi chú không được quá 255 ký tự",
+              },
+            ]}
+          >
+            <Input
+              className="border-input"
+              onChange={(e) => {
+                updateDataTable(e.target.value, row, InventoryDefectFields.note);
+              }}
+            />
+          </Form.Item>
+        );
+      },
     },
     {
       title: "",
@@ -201,7 +211,7 @@ const InventoryDefectCreate: React.FC = () => {
               <Button
                 onClick={() => onDeleteItem(row.id)}
                 className="product-item-delete"
-                icon={<AiOutlineClose color="red" />}
+                icon={<AiOutlineClose />}
               />
             }
           </>
@@ -245,7 +255,7 @@ const InventoryDefectCreate: React.FC = () => {
     };
   }, []);
 
-  const onFinish = async () => {
+  const createDefectItems = async () => {
     if (!formStoreData || dataTable.length === 0 || !formStoreData.id || !formStoreData.name) {
       showError("Chưa có sản phẩm nào được chọn");
       return;
@@ -504,6 +514,14 @@ const InventoryDefectCreate: React.FC = () => {
     [dataTable, defectStoreIdBak, stores],
   );
 
+  const goBackToListDefect = () => {
+    if (dataTable.length === 0 && !formStoreData) {
+      history.push(`${UrlConfig.INVENTORY_DEFECTS}`);
+      return;
+    }
+    setIsVisibleModalWarning(true);
+  };
+
   return (
     <ContentContainer
       title="Hàng lỗi"
@@ -521,114 +539,107 @@ const InventoryDefectCreate: React.FC = () => {
         },
       ]}
     >
-      <Form form={form} onFinish={onFinish} scrollToFirstError={true}>
-        <Card title="CỬA HÀNG">
-          <Row gutter={24}>
-            <Col span={3} className="pt8" style={{ paddingTop: 10 }}>
-              <b>
-                Chọn cửa hàng <span style={{ color: "red" }}>*</span>
-              </b>
-            </Col>
-            <Col span={21}>
-              <Form.Item
-                name="store_id"
-                label=""
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn cửa hàng",
-                  },
-                ]}
-                labelCol={{ span: 24, offset: 0 }}
-              >
-                <CustomSelect
-                  autoClearSearchValue={false}
-                  placeholder="Chọn cửa hàng"
-                  showArrow
-                  optionFilterProp="children"
-                  showSearch
-                  allowClear={true}
-                  onChange={onChooseStore}
-                >
-                  {Array.isArray(myStores) && myStores.length > 0
-                    ? myStores.map((item, index) => (
-                        <Option key={"store_id" + index} value={item.store_id}>
-                          {item.store}
-                        </Option>
-                      ))
-                    : stores.map((item, index) => (
-                        <Option key={"store_id" + index} value={item.id}>
-                          {item.name}
-                        </Option>
-                      ))}
-                </CustomSelect>
-              </Form.Item>
-            </Col>
-          </Row>
-          {formStoreData && (
+      <InventoryDefectWrapper>
+        <Form form={form} onFinish={createDefectItems} scrollToFirstError={true}>
+          <Card title="CỬA HÀNG">
             <Row gutter={24}>
-              <Col span={3}></Col>
+              <Col span={3} className="pt8" style={{ paddingTop: 10 }}>
+                <b>
+                  Chọn cửa hàng <span style={{ color: "red" }}>*</span>
+                </b>
+              </Col>
               <Col span={21}>
-                <div style={{ wordBreak: "break-word" }}>
-                  <strong>{formStoreData.name}: </strong>
-                  <span>
-                    {formStoreData.code} - {formStoreData.hotline} -{" "}
-                    {ConvertFullAddress(formStoreData)}
-                  </span>
-                </div>
+                <Form.Item
+                  name="store_id"
+                  label=""
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn cửa hàng",
+                    },
+                  ]}
+                  labelCol={{ span: 24, offset: 0 }}
+                >
+                  <CustomSelect
+                    autoClearSearchValue={false}
+                    placeholder="Chọn cửa hàng"
+                    showArrow
+                    optionFilterProp="children"
+                    showSearch
+                    allowClear={true}
+                    onChange={onChooseStore}
+                  >
+                    {Array.isArray(myStores) && myStores.length > 0
+                      ? myStores.map((item, index) => (
+                          <Option key={"store_id" + index} value={item.store_id}>
+                            {item.store}
+                          </Option>
+                        ))
+                      : stores.map((item, index) => (
+                          <Option key={"store_id" + index} value={item.id}>
+                            {item.name}
+                          </Option>
+                        ))}
+                  </CustomSelect>
+                </Form.Item>
               </Col>
             </Row>
-          )}
-        </Card>
+            {formStoreData && (
+              <Row gutter={24}>
+                <Col span={3}></Col>
+                <Col span={21}>
+                  <div style={{ wordBreak: "break-word" }}>
+                    <strong>{formStoreData.name}: </strong>
+                    <span>
+                      {formStoreData.code} - {formStoreData.hotline} -{" "}
+                      {ConvertFullAddress(formStoreData)}
+                    </span>
+                  </div>
+                </Col>
+              </Row>
+            )}
+          </Card>
 
-        <Card title="THÔNG TIN SẢN PHẨM" bordered={false}>
-          <Form.Item noStyle shouldUpdate={(prev, current) => prev.status !== current.status}>
-            <SearchProductComponent
-              keySearch={keySearch}
-              setKeySearch={setKeySearch}
-              ref={productAutoCompleteRef}
-              id="search_product"
-              onSelect={onSelectProduct}
-              storeId={defectStoreIdBak}
+          <Card title="THÔNG TIN SẢN PHẨM" bordered={false}>
+            <Form.Item noStyle shouldUpdate={(prev, current) => prev.status !== current.status}>
+              <SearchProductComponent
+                keySearch={keySearch}
+                setKeySearch={setKeySearch}
+                ref={productAutoCompleteRef}
+                id="search_product"
+                onSelect={onSelectProduct}
+                storeId={defectStoreIdBak}
+                dataSource={dataTable}
+              />
+            </Form.Item>
+            <Table
+              style={{ marginTop: 20 }}
+              className="inventory-table"
+              rowClassName="product-table-row"
+              tableLayout="fixed"
+              pagination={false}
+              columns={columns}
               dataSource={dataTable}
             />
-          </Form.Item>
-          <Table
-            style={{ marginTop: 20 }}
-            className="product-table"
-            rowClassName="product-table-row"
-            tableLayout="fixed"
-            pagination={false}
-            columns={columns}
-            dataSource={dataTable}
-          />
-        </Card>
+          </Card>
 
-        <BottomBarContainer
-          leftComponent={
-            <div
-              onClick={() => {
-                if (dataTable.length === 0 && !formStoreData) {
-                  history.push(`${UrlConfig.INVENTORY_DEFECTS}`);
-                  return;
-                }
-                setIsVisibleModalWarning(true);
-              }}
-              style={{ cursor: "pointer" }}
-            >
-              <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
-              {"Quay lại danh sách"}
-            </div>
-          }
-          rightComponent={
-            <Space>
-              <Button loading={isLoading} disabled={isLoading} htmlType="submit" type="primary">
-                Thêm sản phẩm lỗi
-              </Button>
-            </Space>
-          }
-        />
-      </Form>
+          <BottomBarContainer
+            leftComponent={
+              <div onClick={goBackToListDefect} style={{ cursor: "pointer" }}>
+                <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
+                {"Quay lại danh sách"}
+              </div>
+            }
+            rightComponent={
+              <Space>
+                <Button loading={isLoading} disabled={isLoading} htmlType="submit" type="primary">
+                  Thêm sản phẩm lỗi
+                </Button>
+              </Space>
+            }
+          />
+        </Form>
+      </InventoryDefectWrapper>
       {isVisibleModalWarning && (
         <ModalConfirm
           onCancel={() => {

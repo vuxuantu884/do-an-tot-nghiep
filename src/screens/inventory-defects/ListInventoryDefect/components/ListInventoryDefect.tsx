@@ -54,7 +54,6 @@ import CopyIcon from "screens/order-online/component/CopyIcon";
 import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import { formatCurrencyForProduct } from "screens/products/helper";
-import { RefSelectProps } from "antd/lib/select";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import useAuthorization from "hook/useAuthorization";
 import styled from "styled-components";
@@ -191,6 +190,10 @@ const ListInventoryDefect: React.FC = () => {
   );
 
   const editNoteDefect = async (value: string, id: number) => {
+    if (value.length > 255) {
+      showError("Ghi chú không được quá 255 ký tự");
+      return;
+    }
     dispatch(showLoading());
     const res = await callApiNative(
       { isShowError: true },
@@ -319,6 +322,7 @@ const ListInventoryDefect: React.FC = () => {
             </div>
           );
         },
+        titleCustom: "Số lỗi",
         dataIndex: "defect",
         width: 100,
         align: "center",
