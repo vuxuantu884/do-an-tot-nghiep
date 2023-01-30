@@ -1,6 +1,6 @@
 import { Button, Card, Col, Form, FormInstance, Input, Row, Select, Upload } from "antd";
 import Text from "antd/lib/typography/Text";
-import { isEmpty } from "lodash";
+import { cloneDeep, isEmpty } from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useState } from "react";
@@ -32,7 +32,6 @@ interface StockInOutWareHouseFormProps {
   isEmptyFile: boolean;
   fileList: Array<UploadFile>;
   setFileList: (file: any) => any;
-  fileUrl: string;
   setFileUrl: (file: any) => any;
   setIsEmptyFile: (value: any) => any;
   setIsRequireNote: (require: boolean) => void;
@@ -56,8 +55,7 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (
     setFileList,
     isEmptyFile,
     setIsEmptyFile,
-    fileUrl,
-    setFileUrl
+    setFileUrl,
   } = props;
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const userStores: any = useSelector(
@@ -90,16 +88,19 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (
   }, [getStores]);
 
   // upload customer file
-  const beforeUploadFile = useCallback(() => {}, []);
 
   const onRemoveFile = () => {
     setFileList([]);
+    setFileUrl("");
   };
 
-  const onChangeFile = useCallback((info) => {
-    if (info.fileList.length > 0) setIsEmptyFile(false);
-    setFileList(info.fileList);
-  }, [setFileList, setIsEmptyFile]);
+  const onChangeFile = useCallback(
+    (info) => {
+      if (info.fileList.length > 0) setIsEmptyFile(false);
+      setFileList(info.fileList);
+    },
+    [setFileList, setIsEmptyFile],
+  );
 
   const exportTemplate = (e: any) => {
     let worksheet = XLSX.utils.json_to_sheet([
@@ -128,9 +129,15 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (
     if (file instanceof File) {
       files.push(file);
 
-      uploadFileApi(files, 'stock-in-out').then((res: any) => {
+      uploadFileApi(files, "stock-in-out").then((res: any) => {
+        let newFileList = cloneDeep(fileList);
         if (res.code === HttpStatus.SUCCESS) {
           setFileUrl(res.data[0]);
+          newFileList[0].status = "done";
+          setFileList(newFileList);
+        } else {
+          newFileList[0].status = "error";
+          setFileList(newFileList);
         }
       });
     }
@@ -141,18 +148,18 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (
       <Row className="upload">
         <div>
           <Upload
-            beforeUpload={beforeUploadFile}
             onRemove={onRemoveFile}
             multiple={false}
+            maxCount={1}
             fileList={fileList}
             customRequest={onCustomUpdateRequest}
             onChange={onChangeFile}
-            showUploadList={false}
             accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
           >
-            <Button icon={<UploadOutlined />}><span className="btn-upload">Nhập file sản phẩm</span></Button>
+            <Button icon={<UploadOutlined />}>
+              <span className="btn-upload">Nhập file sản phẩm</span>
+            </Button>
           </Upload>
-          <div>{fileUrl && 'Import_so_luong_san_pham.xlsx'}</div>
         </div>
         <div className="note">
           <span className="sample-title-link">Link file excel mẫu:</span>
@@ -162,11 +169,7 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (
           </a>
         </div>
       </Row>
-      {isEmptyFile && (
-        <div className="text-error">
-          Vui lòng chọn file sản phẩm
-        </div>
-      )}
+      {isEmptyFile && <div className="text-error">Vui lòng chọn file sản phẩm</div>}
       <Row gutter={24}>
         <Form.Item name={StockInOutField.store} noStyle hidden>
           <Input />
