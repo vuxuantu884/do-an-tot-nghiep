@@ -259,7 +259,7 @@ export const ListInventoryDefectHistory = () => {
       params.limit = size;
       setParams({ ...params });
       let queryParam = generateQuery(params);
-      history.replace(`${UrlConfig.INVENTORY_DEFECTS}?${queryParam}`);
+      history.replace(`${UrlConfig.INVENTORY_DEFECTS_HISTORY}?${queryParam}`);
     },
     [params, history],
   );
@@ -269,7 +269,7 @@ export const ListInventoryDefectHistory = () => {
       const newParam = { ...params, ...data };
       setParams(newParam);
       const queryParam = generateQuery(newParam);
-      history.replace(`${UrlConfig.INVENTORY_DEFECTS}?${queryParam}`);
+      history.replace(`${UrlConfig.INVENTORY_DEFECTS_HISTORY}?${queryParam}`);
     },
     [history, params],
   );
