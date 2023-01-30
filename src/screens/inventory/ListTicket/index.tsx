@@ -339,9 +339,7 @@ const InventoryListScreen: React.FC = () => {
         ]}
         extra={renderExtraContainer()}
       >
-        <Card className="card-transfer">
-          <div className="transferring-receive" style={{ fontSize: String(countTransferIn).length > 3 ? 8 : 9 }}>{countTransferIn}</div>
-          <div className="transferring-sender" style={{ fontSize: String(countTransferOut).length > 3 ? 8 : 9 }}>{countTransferOut}</div>
+        <Card>
           <Tabs style={{ overflow: "initial" }} activeKey={activeTab}>
             <TabPane
               tab={<Link to={InventoryTransferTabUrl.LIST}>Danh sách phiếu</Link>}
@@ -362,7 +360,7 @@ const InventoryListScreen: React.FC = () => {
               )}
             </TabPane>
             <TabPane
-              tab={<Link to={InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}>Chuyển đi</Link>}
+              tab={<Link to={InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}>Chuyển đi <span className="count-number">({countTransferOut})</span></Link>}
               key={InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}
             >
               {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER && (
@@ -386,7 +384,7 @@ const InventoryListScreen: React.FC = () => {
               )}
             </TabPane>
             <TabPane
-              tab={<Link to={InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE}>Chuyển đến</Link>}
+              tab={<Link to={InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE}>Chuyển đến <span className="count-number">({countTransferIn})</span></Link>}
               key={InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE}
             >
               {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE && (
