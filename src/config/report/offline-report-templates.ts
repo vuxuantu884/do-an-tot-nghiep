@@ -14,7 +14,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo thời gian",
-    query: `SHOW total_sales, net_amount, total_tax_line, orders, return_count, net_quantity, gross_sales, discounts, ordered_point_payments, returns 
+    query: `SHOW total_sales, net_sales_v2, taxes, orders, return_count, net_quantity, gross_sales, discounts, ordered_point_payments, returns 
     OVER day 
     FROM offline_sales 
     SINCE ${TODAY} UNTIL ${TODAY}
@@ -36,7 +36,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 2,
     type: "Báo cáo bán hàng",
     name: "theo nhân viên thu ngân",
-    query: `SHOW total_sales, net_amount, total_tax_line, cash_payments, transfer_payments, card_payments, qr_pay_payments, ordered_point_payments, payments, unknown_payments 
+    query: `SHOW total_sales, net_sales_v2, taxes, cash_payments, transfer_payments, card_payments, qr_pay_payments, ordered_point_payments, payments, unknown_payments 
     BY staff_name, staff_code 
     FROM offline_sales 
     SINCE ${TODAY} UNTIL ${TODAY} 
@@ -52,7 +52,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 3,
     type: "Báo cáo bán hàng",
     name: "theo nhân viên bán hàng",
-    query: `SHOW total_sales, net_amount, total_tax_line, orders, return_count, ordered_net_sales, returns, average_order_value 
+    query: `SHOW total_sales, net_sales_v2, taxes, orders, return_count, ordered_net_sales, returns, average_order_value 
     BY assignee_code,assignee_name 
     FROM offline_sales 
     SINCE ${TODAY} UNTIL ${TODAY} 
@@ -72,7 +72,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo cửa hàng",
-    query: `SHOW total_sales, net_amount, total_tax_line, orders, return_count, ordered_item_quantity, returned_item_quantity, average_order_value, customers 
+    query: `SHOW total_sales, net_sales_v2, taxes, orders, return_count, ordered_item_quantity, returned_item_quantity, average_order_value, customers 
     BY pos_location_name 
     FROM offline_sales 
     SINCE ${TODAY} UNTIL ${TODAY} ORDER BY total_sales DESC`,
@@ -91,7 +91,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo sản phẩm (mã 3)",
-    query: `SHOW total_sales, net_amount, total_tax_line, ordered_item_quantity, returned_item_quantity, gross_sales, discounts, ordered_point_payments, returns  
+    query: `SHOW total_sales, net_sales_v2, taxes, ordered_item_quantity, returned_item_quantity, gross_sales, discounts, ordered_point_payments, returns  
     BY variant_sku3 
     FROM offline_sales 
     SINCE ${TODAY} UNTIL ${TODAY} 
@@ -128,7 +128,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo sản phẩm (mã 7)",
-    query: `SHOW total_sales, net_amount, total_tax_line, ordered_item_quantity, returned_item_quantity, gross_sales, discounts, ordered_point_payments, returns 
+    query: `SHOW total_sales, net_sales_v2, taxes, ordered_item_quantity, returned_item_quantity, gross_sales, discounts, ordered_point_payments, returns 
     BY variant_sku7 
     FROM offline_sales 
     SINCE ${TODAY} UNTIL ${TODAY} 
@@ -149,7 +149,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
   {
     type: "Báo cáo bán hàng",
     name: "theo khách hàng",
-    query: `SHOW total_sales, net_amount, total_tax_line, ordered_item_quantity, returned_item_quantity, gross_sales, discounts, ordered_point_payments, returns 
+    query: `SHOW total_sales, net_sales_v2, taxes, ordered_item_quantity, returned_item_quantity, gross_sales, discounts, ordered_point_payments, returns 
     BY customer_name, customer_phone_number 
     FROM offline_sales 
     SINCE ${TODAY} UNTIL ${TODAY} 
