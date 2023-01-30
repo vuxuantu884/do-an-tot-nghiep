@@ -34,6 +34,11 @@ const KeyDriverOfflineV2 = React.lazy(() => import("screens/reports/key-driver-o
 
 const InventoryBalance = React.lazy(() => import("screens/reports/inventory-balance"));
 
+const GoodsReports = React.lazy(() => import("screens/reports/goods-reports"));
+const SellingPowerReport = React.lazy(
+  () => import("screens/reports/goods-reports/selling-power-report"),
+);
+
 export const KDOfflineV1Url = "/kd-offline-v1";
 
 const reports: Array<RouteMenu> = [
@@ -286,6 +291,31 @@ const reports: Array<RouteMenu> = [
         icon: "icon-dot",
         component: ReadTemplateAnalytics,
         key: "submenureport31",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+    ],
+  },
+  {
+    path: REPORTS_URL.GOODS,
+    permissions: [],
+    exact: true,
+    title: "Báo cáo hàng hoá",
+    icon: "icon-dot",
+    component: GoodsReports,
+    key: "menureport06",
+    isShow: true,
+    header: null,
+    subMenu: [
+      {
+        path: REPORTS_URL.SELLING_POWER,
+        permissions: [],
+        exact: true,
+        title: "Báo cáo tồn bán sức bán",
+        icon: "icon-dot",
+        component: SellingPowerReport,
+        key: "menureport061",
         isShow: true,
         header: null,
         subMenu: [],
