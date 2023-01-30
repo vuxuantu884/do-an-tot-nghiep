@@ -365,7 +365,7 @@ const StockInOutFilter: React.FC<StockInOutFilterProps> = (props: StockInOutFilt
                   allowClear
                   placeholder="Tìm kiếm theo mã phiếu, sản phẩm"
                   onChange={(e: any) => {
-                    const value = e.target.value;
+                    const value = e.target.value.trim();
                     if (value.length > 2 && value.length <= 255) {
                       onSearch(value);
                     }
