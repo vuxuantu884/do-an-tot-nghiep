@@ -1,4 +1,4 @@
-import { FormInstance, Select, SelectProps } from "antd";
+import { Form, FormInstance, Select, SelectProps } from "antd";
 import { AccountStoreResponse } from "model/account/account.model";
 import { ReactElement } from "react";
 import { strForSearch } from "utils/StringUtils";
@@ -21,26 +21,28 @@ function DepartmentSelect(props: Props): ReactElement {
   };
 
   return (
-    <Select
-      placeholder="Kho/cửa hàng"
-      showArrow
-      showSearch
-      optionFilterProp="children"
-      maxTagCount={"responsive"}
-      filterOption={(input: String, option: any) => {
-        if (option.props.value) {
-          return strForSearch(option.props.children).includes(strForSearch(input));
-        }
-        return false;
-      }}
-      onChange={handleOnChange}
-    >
-      {assignedStore.map((item, index) => (
-        <Option key={"store_id" + index} value={JSON.stringify(item)}>
-          {item.store}
-        </Option>
-      ))}
-    </Select>
+    <Form.Item name={InventoryBalanceFilterForm.Inventory} style={{ margin: 0 }}>
+      <Select
+        placeholder="Kho/cửa hàng"
+        showArrow
+        showSearch
+        optionFilterProp="children"
+        maxTagCount={"responsive"}
+        filterOption={(input: String, option: any) => {
+          if (option.props.value) {
+            return strForSearch(option.props.children).includes(strForSearch(input));
+          }
+          return false;
+        }}
+        onChange={handleOnChange}
+      >
+        {assignedStore.map((item, index) => (
+          <Option key={"store_id" + index} value={JSON.stringify(item)}>
+            {item.store}
+          </Option>
+        ))}
+      </Select>
+    </Form.Item>
   );
 }
 
