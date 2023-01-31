@@ -43,7 +43,6 @@ import { DefectFilterBasicEnum, DefectFilterBasicName } from "model/inventory-de
 import { useArray } from "hook/useArray";
 import BaseFilterResult from "component/base/BaseFilterResult";
 import { CloseCircleOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
-import EditPopover from "./EditPopover";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { InventoryDefectsPermission } from "config/permissions/inventory-defects.permission";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -57,6 +56,7 @@ import { formatCurrencyForProduct } from "screens/products/helper";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import useAuthorization from "hook/useAuthorization";
 import styled from "styled-components";
+import EditDefect from "./EditDefect";
 
 const actionsDefault: Array<MenuAction> = [
   {
@@ -186,7 +186,7 @@ const ListInventoryDefect: React.FC = () => {
         }
       }
     },
-    [dispatch, data, getInventoryDefects],
+    [dispatch, getInventoryDefects],
   );
 
   const editNoteDefect = async (value: string, id: number) => {
@@ -327,20 +327,23 @@ const ListInventoryDefect: React.FC = () => {
         width: 100,
         align: "center",
         visible: true,
-        render: (value, item: InventoryDefectResponse) => {
+        render: (value, item: InventoryDefectResponse, index: number) => {
           const hasPermission = [InventoryDefectsPermission.update].some((element) => {
             return currentPermissions.includes(element);
           });
           return (
             <div className="single">
-              <EditPopover
+              <EditDefect
                 isHaveEditPermission={hasPermission}
-                content={item.defect}
+                value={item.defect}
                 title="Sửa số lỗi: "
                 color={primaryColor}
-                onOk={(newNote) => {
-                  editItemDefect(newNote, InventoryDefectFields.defect, item);
+                confirmEdit={(newValue) => {
+                  editItemDefect(newValue, InventoryDefectFields.defect, item);
                 }}
+                errorMessage="Không thể sửa số lỗi về 0, bạn có thể xóa sản phẩm này khỏi danh sách hàng lỗi"
+                maxValue={100}
+                index={index}
               />
             </div>
           );
