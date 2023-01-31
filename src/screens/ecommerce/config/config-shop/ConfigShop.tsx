@@ -853,7 +853,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
   const renderComponent = () => {
     return (
       <StyledConfig className="padding-20">
-        <Form form={form} onFinish={(value) => handleConfigSetting(value)}>
+        <Form form={form} layout="vertical" onFinish={(value) => handleConfigSetting(value)}>
           <Row>
             <Col span={8}>
               <Form.Item
