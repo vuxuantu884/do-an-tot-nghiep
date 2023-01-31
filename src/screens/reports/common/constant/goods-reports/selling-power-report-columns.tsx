@@ -4,7 +4,7 @@ import { DATE_FORMAT } from "utils/DateUtils";
 
 export const sellingPowerReportColumns = (selectedDate: string): any[] => {
   const { DDMM, YYYYMMDD } = DATE_FORMAT;
-  const date = selectedDate || moment().format(YYYYMMDD);
+  const date = selectedDate || moment().subtract(1, "days").format(YYYYMMDD);
   return [
     {
       title: "STT",

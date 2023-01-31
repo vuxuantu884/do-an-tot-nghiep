@@ -20,6 +20,8 @@ function SellingPowerFilter({ applyFilter }: Props) {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
 
+  const defaultDate = moment().subtract(1, "days");
+
   const onApplyFilter = useCallback(() => {
     const conditionFilter = form.getFieldsValue();
     const { date } = conditionFilter;
@@ -36,7 +38,7 @@ function SellingPowerFilter({ applyFilter }: Props) {
 
   useEffectOnce(() => {
     applyFilter({
-      date: moment().format(DATE_FORMAT.YYYYMMDD),
+      date: defaultDate.format(DATE_FORMAT.YYYYMMDD),
       typeSKU: TypeSku.Sku13,
     });
   });
@@ -50,11 +52,12 @@ function SellingPowerFilter({ applyFilter }: Props) {
               <Col span={24} md={12} lg={8}>
                 <Form.Item label="Thời gian" name={SellingPowerFilterForm.Date}>
                   <CustomDatePicker
+                    disableDate={(date) => date >= moment().startOf("days")}
                     format={DATE_FORMAT.DDMMYYY}
                     placeholder="Chọn thời gian"
                     style={{ width: "100%" }}
                     showToday={false}
-                    defaultValue={moment()}
+                    defaultValue={defaultDate}
                   />
                 </Form.Item>
               </Col>
