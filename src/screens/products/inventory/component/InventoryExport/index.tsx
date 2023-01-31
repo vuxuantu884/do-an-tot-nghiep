@@ -8,11 +8,19 @@ type ExportModalProps = {
   onOk: (record: string) => void;
   exportProgressDetail?: number;
   statusExportDetail?: number;
+  isLoadingExportDetail: boolean;
 };
 
 const InventoryExport: React.FC<ExportModalProps> = (props: ExportModalProps) => {
   const [form] = Form.useForm();
-  const { visible, onCancel, onOk, exportProgressDetail, statusExportDetail = STATUS_IMPORT_EXPORT.NONE } = props;
+  const {
+    visible,
+    onCancel,
+    onOk,
+    exportProgressDetail,
+    statusExportDetail = STATUS_IMPORT_EXPORT.NONE,
+    isLoadingExportDetail,
+  } = props;
   const cancelClick = useCallback(() => {
     onCancel();
   }, [onCancel]);
@@ -24,10 +32,10 @@ const InventoryExport: React.FC<ExportModalProps> = (props: ExportModalProps) =>
     <Modal
       onCancel={cancelClick}
       width={600}
-      confirmLoading={statusExportDetail === STATUS_IMPORT_EXPORT.DEFAULT}
+      confirmLoading={isLoadingExportDetail}
       visible={visible}
       centered
-      cancelText="Hủy"
+      cancelText="Thoát"
       onOk={onOkClick}
       title="Xuất file tồn kho"
       okText="Xuất file"
