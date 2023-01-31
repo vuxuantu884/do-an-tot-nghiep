@@ -981,10 +981,11 @@ const AllTab: React.FC<any> = (props) => {
                     (e) => e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY,
                   );
                   if (userConfigColumn.length === 0) return;
-                  const userConfig = userConfigColumn.reduce((p, c) => (p.id > c.id ? p : c));
+                  const userConfig = userConfigColumn.find(
+                    (e) => e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY,
+                  );
                   if (userConfig) {
                     let cf = JSON.parse(userConfig.json_content) as ConfigColumnInventory;
-
                     let isValidColumns = true;
                     for (let i = 0; i < cf.Columns.length; i++) {
                       if (typeof cf.Columns[i] === "string") {
@@ -1259,8 +1260,10 @@ const AllTab: React.FC<any> = (props) => {
   }, [getConfigColumnInventory, isColumnConfigFetchSucceed]);
 
   useEffect(() => {
-    setColumns(defaultColumns);
-  }, [defaultColumns]);
+    if (lstConfig.length === 0) {
+      setColumns(defaultColumns);
+    }
+  }, [defaultColumns, lstConfig]);
 
   return (
     <div>
@@ -1396,6 +1399,7 @@ const AllTab: React.FC<any> = (props) => {
           onSaveConfigColumn(data, columnsInRow);
         }}
         data={columns}
+        defaultColumns={defaultColumns}
       />
       <InventoryExport
         onCancel={actionExport.Cancel}
