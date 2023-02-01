@@ -18,7 +18,12 @@ import { getStoreApi } from "service/inventory/transfer/index.service";
 import { searchVariantsApi } from "service/product/product.service";
 import { VariantResponse } from "model/product/product.model";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { findAvatar, handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
+import {
+  findAvatar,
+  formatCurrency,
+  handleDelayActionWhenInsertTextInSearchInput,
+  replaceFormatString,
+} from "utils/AppUtils";
 import { InventoryDefectFields, LineItemDefect } from "model/inventory-defects";
 import { cloneDeep } from "lodash";
 import { createInventoryDefect } from "service/inventory/defect/index.service";
@@ -161,7 +166,7 @@ const InventoryDefectCreate: React.FC = () => {
             isFloat={false}
             id={`item-defect-${index}`}
             min={0}
-            maxLength={9}
+            maxLength={6}
             value={value}
             placeholder="0"
             className="border-input"
@@ -169,7 +174,8 @@ const InventoryDefectCreate: React.FC = () => {
               if (value === null) value = 0;
               updateDataTable(value, row, InventoryDefectFields.defect);
             }}
-            format={(value) => (value === null ? "0" : value.toString())}
+            format={(value: string) => formatCurrency(value)}
+            replace={(a: string) => replaceFormatString(a)}
           />
         );
       },

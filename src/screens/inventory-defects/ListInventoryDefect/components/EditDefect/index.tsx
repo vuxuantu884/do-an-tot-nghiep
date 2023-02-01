@@ -16,7 +16,6 @@ type EditDefectProps = {
   label?: string;
   isRequire?: boolean;
   errorMessage?: string;
-  maxValue?: number;
   index: number;
 };
 
@@ -30,7 +29,6 @@ const EditDefect: React.FC<EditDefectProps> = (props) => {
     isHaveEditPermission = true,
     isRequire,
     errorMessage = "",
-    maxValue,
     index,
   } = props;
   const [isVisible, setIsVisible] = useState(false);
@@ -79,9 +77,6 @@ const EditDefect: React.FC<EditDefectProps> = (props) => {
       setNewValue(0);
       return;
     }
-    if (maxValue && value >= maxValue) {
-      value = maxValue;
-    }
     setNewValue(value);
     setError("");
   };
@@ -105,17 +100,10 @@ const EditDefect: React.FC<EditDefectProps> = (props) => {
               disabled={isDisable}
               minLength={1}
               placeholder="0"
-              maxLength={5}
+              maxLength={6}
               isChangeAfterBlur={false}
-              format={(value: string) => {
-                return formatCurrency(value);
-              }}
-              replace={(a: string) => {
-                if (maxValue && parseInt(a) >= maxValue) {
-                  a = maxValue.toString();
-                }
-                return replaceFormatString(a);
-              }}
+              format={(value: string) => formatCurrency(value)}
+              replace={(a: string) => replaceFormatString(a)}
               style={{ width: "100%", textAlign: "left" }}
               onPressEnter={submitValue}
               className={`number-defect-${index}`}

@@ -342,7 +342,6 @@ const ListInventoryDefect: React.FC = () => {
                   editItemDefect(newValue, InventoryDefectFields.defect, item);
                 }}
                 errorMessage="Không thể sửa số lỗi về 0, bạn có thể xóa sản phẩm này khỏi danh sách hàng lỗi"
-                maxValue={100}
                 index={index}
               />
             </div>
