@@ -131,27 +131,6 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   },
   //khách hàng
   {
-    type: "Báo cáo thanh toán",
-    name: "theo nhóm khách hàng",
-    query: `SHOW payments, cash_payments, transfer_payments, cod_payments, point_payments, card_payments, qr_pay_payments, unknown_payments 
-    BY customer_group
-    FROM payments 
-    SINCE ${TODAY}  UNTIL ${TODAY} 
-    ORDER BY payments desc `,
-    chart_query: `SHOW payments 
-    BY customer_group
-    FROM payments 
-    SINCE ${TODAY}  UNTIL ${TODAY} 
-    ORDER BY payments desc `,
-    cube: "payments",
-    iconImg: "thanh-toan-nhom kh.png",
-    alias: [UrlConfig.ANALYTIC_CUSTOMER],
-    id: 14,
-    chartColumnSelected: ["payments"],
-    timeAtOption: TimeAtOptionValue.CompletedAt,
-    group: AnalyticGroup.Customers,
-  },
-  {
     type: "Báo cáo bán hàng",
     name: "theo nhóm khách hàng",
     query: `SHOW  orders,gross_sales, returns, net_sales,shipping,total_sales, average_order_value  
