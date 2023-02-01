@@ -16,4 +16,11 @@ export const StyledComponent = styled.div`
   .ant-card-body {
     padding: 16px 20px;
   }
+
+  .marketer-code-required {
+    padding-left: 2px;
+    color: #e24343;
+    font-size: 14px;
+    font-family: SimSun, sans-serif;
+  }
 `;

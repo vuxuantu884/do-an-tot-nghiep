@@ -44,6 +44,7 @@ import { select_type_especially_order } from "../screens/order-online/common/fie
 import { DiscountValueType } from "model/promotion/price-rules.model";
 import _ from "lodash";
 import { Type } from "config/type.config";
+import { fullTextSearch } from "./StringUtils";
 
 export const isOrderDetailHasPointPayment = (
   OrderDetail: OrderResponse | null | undefined,
@@ -916,4 +917,17 @@ export const fixOrderPositionItem = (OrderDetail: OrderResponse) => {
     }
   });
   return OrderDetail;
+};
+
+/**
+ * Kiểm tra đơn hàng Có từ "Facebook" trong tên nguồn
+ * và ít nhất 1 trong những từ trong chuỗi sau ['Moon', 'Sun', 'SunShine', 'Light']"
+ */
+
+export const isSourceNameFacebook = (sourceName: string) => {
+  const keyword = "Facebook";
+  const subKeyword = ["Moon", "Sun", "SunShine", "Light"];
+  return (
+    fullTextSearch(keyword, sourceName) && subKeyword.some((p) => fullTextSearch(p, sourceName))
+  );
 };
