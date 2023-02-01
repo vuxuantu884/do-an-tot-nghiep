@@ -92,6 +92,12 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     onFilter,
   } = props;
 
+  /** phân quyền */
+  const [allowActiveDiscount] = useAuthorization({
+    acceptPermissions: [PriceRulesPermission.ACTIVE],
+  });
+  /** */
+
   // useState
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
@@ -526,10 +532,6 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     setVisible(false);
   }, []);
 
-  const [allowUpdateDiscount] = useAuthorization({
-    acceptPermissions: [PriceRulesPermission.UPDATE],
-  });
-
   // handle tag filter
   let filters = useMemo(() => {
     let list = [];
@@ -802,7 +804,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
         <CustomFilter
           onMenuClick={onActionClick}
           menu={actions}
-          actionDisable={!allowUpdateDiscount}
+          actionDisable={!allowActiveDiscount}
         >
           <Form onFinish={onFinish} initialValues={params} layout="inline" form={form}>
             <Item name="query" className="search">

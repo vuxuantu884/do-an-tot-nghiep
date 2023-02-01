@@ -1,5 +1,4 @@
 import { Button, Col, Form, Row } from "antd";
-import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import { PromotionReleasePermission } from "config/permissions/promotion.permisssion";
@@ -25,6 +24,7 @@ import { createPromotionReleaseAction } from "domain/actions/promotion/promo-cod
 import { CreateReleasePromotionRuleType } from "screens/promotion/constants";
 import PromotionTypeForm from "screens/promotion/issue/components/PromotionTypeForm";
 import { scrollAndFocusToDomElement } from "utils/AppUtils";
+import useAuthorization from "hook/useAuthorization";
 
 const initialFormValues = {
   starts_date: moment(),
@@ -39,6 +39,12 @@ function IssueCreate(): ReactElement {
   const history = useHistory();
   const [form] = Form.useForm();
   const dispatch = useDispatch();
+
+  /** phân quyền */
+  const [allowActivePromotionRelease] = useAuthorization({
+    acceptPermissions: [PromotionReleasePermission.ACTIVE],
+  });
+  /** */
 
   const {
     setIsSetFormValues,
@@ -199,7 +205,7 @@ function IssueCreate(): ReactElement {
           <BottomBarContainer
             back="Quay lại danh sách đợt phát hành"
             rightComponent={
-              <AuthWrapper acceptPermissions={[PromotionReleasePermission.CREATE]}>
+              <>
                 <Button
                   onClick={() => save()}
                   style={{
@@ -211,10 +217,12 @@ function IssueCreate(): ReactElement {
                 >
                   Lưu
                 </Button>
-                <Button type="primary" onClick={handleSaveAndActivate}>
-                  Lưu và kích hoạt
-                </Button>
-              </AuthWrapper>
+                {allowActivePromotionRelease &&
+                  <Button type="primary" onClick={handleSaveAndActivate}>
+                    Lưu và kích hoạt
+                  </Button>
+                }
+              </>
             }
           />
         </Form>
