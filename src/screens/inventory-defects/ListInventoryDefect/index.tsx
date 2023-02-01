@@ -32,7 +32,7 @@ const InventoryDefects: React.FC = () => {
       breadcrumb={[
         {
           name: "Kho hàng",
-          path: UrlConfig.HOME,
+          // path: UrlConfig.HOME,
         },
         {
           name: "Hàng lỗi",

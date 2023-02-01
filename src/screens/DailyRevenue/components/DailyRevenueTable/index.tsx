@@ -10,7 +10,7 @@ import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import CopyIcon from "../CopyIcon";
 import { StyledComponent } from "./style";
-import { COD, PaymentMethodCode, REVENUE_STATE } from "utils/Constants";
+import { COD, OFFSET_HEADER_UNDER_NAVBAR, PaymentMethodCode, REVENUE_STATE } from "utils/Constants";
 
 // import copyFileBtn from "assets/icon/copyfile_btn.svg";
 // import iconWarranty from "assets/icon/icon-warranty-menu.svg";
@@ -428,7 +428,7 @@ const DailyRevenueTableComponent: React.FC<Props> = (props: Props) => {
           scroll={{
             x: (1420 * columnFinal.length) / (columns.length ? columns.length : 1),
           }}
-          sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           isLoading={tableLoading}
           showColumnSetting={true}
           dataSource={data.items}

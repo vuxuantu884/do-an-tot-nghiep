@@ -234,10 +234,7 @@ const StockInOtherCreate: React.FC = () => {
           }
           rightComponent={
             <Space>
-              <Button
-                onClick={() => importFile()}
-                icon={<UploadOutlined style={{ marginTop: 9, fontSize: 15 }} />}
-              >
+              <Button onClick={() => importFile()} icon={<UploadOutlined />}>
                 Nhập file
               </Button>
               <Button type="primary" onClick={() => formMain.submit()}>

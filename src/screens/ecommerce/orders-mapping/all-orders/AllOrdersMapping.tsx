@@ -27,6 +27,7 @@ import TableRowAction from "screens/ecommerce/common/TableRowAction";
 import { AllOrdersMappingStyled } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
 import AllOrdersMappingFilter from "screens/ecommerce/orders-mapping/all-orders/component/AllOrdersMappingFilter";
 import { generateQuery } from "utils/AppUtils";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import "./AllOrdersMapping.scss";
@@ -388,7 +389,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
           isRowSelection={isShowAction}
           isLoading={isLoading}
           showColumnSetting={true}
-          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           scroll={{ x: 1500 }}
           pagination={
             isLoading

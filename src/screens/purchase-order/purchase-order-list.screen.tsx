@@ -42,6 +42,7 @@ import { generateQuery } from "utils/AppUtils";
 import {
   ArrPoStatus,
   COLUMN_CONFIG_TYPE,
+  OFFSET_HEADER_UNDER_NAVBAR,
   PoPaymentStatus,
   POStatus,
   ProcumentStatus,
@@ -886,7 +887,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
           isLoading={tableLoading}
           showColumnSetting={true}
           scroll={{ x: "max-content" }}
-          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           pagination={false}
           onShowColumnSetting={() => setShowSettingColumn(true)}
           onSelectedChange={onSelect}

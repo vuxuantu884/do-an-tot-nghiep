@@ -1,0 +1,140 @@
+// @import "~antd/dist/antd.less";
+/* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
+@import "color/colors.less";
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap");
+@theme: default;
+
+// The prefix to use on all css classes from ant.
+@ant-prefix: ant;
+
+// An override for the html selector for theme prefixes
+@html-selector: html;
+@font-family: "Roboto", sans-serif;
+
+// Font
+@font-size-base: 14px;
+@font-size-lg: @font-size-base + 2px;
+@font-weight: 400;
+@font-weight-semibold: 500;
+
+// ------- Height rules ---------
+@height-base: 36px;
+@height-lg: 40px;
+@height-sm: 32px;
+
+// ----------- Pexels Rules --------------
+@border-radius-base: 2px;
+
+// -------- Colors -----------
+@primary-color: @blue-6;
+@white: #fff;
+@black: #000;
+@text-body: #111;
+@graye5: #e5e5e5;
+@grayf5: #f5f5f5;
+
+// Color used by default to control hover and active backgrounds and for
+// alert info backgrounds.
+@primary-1: color(~`colorPalette("@{primary-color}", 1) `); // replace tint(@primary-color, 90%)
+@primary-2: color(~`colorPalette("@{primary-color}", 2) `); // replace tint(@primary-color, 80%)
+@primary-3: color(~`colorPalette("@{primary-color}", 3) `); // unused
+@primary-4: color(~`colorPalette("@{primary-color}", 4) `); // unused
+@primary-5: color(
+  ~`colorPalette("@{primary-color}", 5) `
+); // color used to control the text color in many active and hover states, replace tint(@primary-color, 20%)
+@primary-6: @primary-color; // color used to control the text color of active buttons, don't use, use @primary-color
+@primary-7: color(~`colorPalette("@{primary-color}", 7) `); // replace shade(@primary-color, 5%)
+@primary-8: color(~`colorPalette("@{primary-color}", 8) `); // unused
+@primary-9: color(~`colorPalette("@{primary-color}", 9) `); // unused
+@primary-10: color(~`colorPalette("@{primary-color}", 10) `); // unused
+
+// Checkbox
+@checkbox-size: 18px;
+
+// Radio
+@radio-size: 18px;
+
+// Select
+@select-item-selected-font-weight: 500;
+@select-item-selected-bg: @select-bg;
+
+// Tooltip background color
+@tooltip-bg: rgba(0, 0, 0, 0.9);
+
+// Cascader
+@cascader-item-selected-bg: @select-bg;
+.@{ant-prefix}-cascader-menu-item-active {
+  color: @primary-color;
+}
+
+// item
+@item-active-bg: @primary-1;
+@item-hover-bg: @grayf5;
+
+// table
+@table-selected-row-bg: @select-bg;
+@table-padding-vertical: 6px;
+@table-padding-horizontal: 12px;
+@table-header-bg: #f2f2f2;
+@table-header-cell-split-color: rgba(0, 0, 0, 0.09);
+@table-border-color: @graye5;
+.@{ant-prefix}-table-thead > tr > th{
+  border-bottom: 2px solid @graye5;
+}
+
+// TimePicker
+@picker-basic-cell-active-with-range-color: @primary-1;
+
+// layout
+@layout-header-background: @white;
+@layout-header-padding: 0 20px;
+@layout-header-height: 50px;
+
+//card
+@card-head-height-sm: 32px;
+@card-head-height: 36px;
+@card-radius: @border-radius-base;
+
+@card-head-font-size: @font-size-base + 2px ;
+@card-head-padding: 8px;
+
+.@{ant-prefix}-card{
+  margin-bottom: 16px;
+
+  &-head-title{
+    font-weight: @font-weight-semibold;
+    text-transform: uppercase;
+    // padding: 8px 0;
+}
+}
+
+// Divider
+@divider-text-padding: 1em;
+@divider-orientation-margin: 2%;
+
+// Layout
+.@{ant-prefix}-layout-content{
+  min-height: 100vh;
+}
+
+/* Selector */
+::-moz-selection { 
+  color: @primary-6;
+  background:  #dad7e8;
+}
+
+::selection {
+  color: @primary-6;
+  background:  #dad7e8;
+}
+
+// button
+.@{ant-prefix}-btn-default{
+  &.active {
+    color: @white;
+    background-color: @primary-color;
+    border-color: @primary-color;
+  }
+}
+
+

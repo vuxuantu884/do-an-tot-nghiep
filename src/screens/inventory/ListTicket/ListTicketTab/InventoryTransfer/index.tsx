@@ -59,13 +59,16 @@ import useAuthorization from "hook/useAuthorization";
 import { callApiNative } from "utils/ApiUtils";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import TransferExport from "../../Components/TransferExport";
-import { getListInventoryTransferApi, updateNoteTransferApi } from "service/inventory/transfer/index.service";
+import {
+  getListInventoryTransferApi,
+  updateNoteTransferApi,
+} from "service/inventory/transfer/index.service";
 import moment from "moment";
 import * as XLSX from "xlsx";
 import { TransferExportField, TransferExportLineItemField } from "model/inventory/field";
 import { ImportStatusWrapper } from "../../../ImportInventory/styles";
 import { HttpStatus } from "config/http-status.config";
-import { STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Constants";
+import { OFFSET_HEADER_UNDER_NAVBAR, STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Constants";
 import CustomPagination from "component/table/CustomPagination";
 import queryString from "query-string";
 import EditPopover from "../../../../inventory-defects/ListInventoryDefect/components/EditPopover";
@@ -114,7 +117,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     setVExportDetailTransfer,
     activeTab,
     setCountTransferIn,
-    setCountTransferOut
+    setCountTransferOut,
   } = props;
   const history = useHistory();
   const location = useLocation();
@@ -239,10 +242,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     dispatch(getListInventoryTransferAction(params, setSearchResult));
   };
 
-  const editNote = (
-    note: string,
-    row: InventoryTransferDetailItem,
-  ) => {
+  const editNote = (note: string, row: InventoryTransferDetailItem) => {
     const newData = {
       version: row?.version,
       note,
@@ -264,7 +264,12 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       width: 150,
       render: (value: string, row: InventoryTransferDetailItem) => (
         <div>
-          <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${row.id}`} style={{ fontWeight: 600, fontSize: 16 }}>{value}</Link>
+          <Link
+            to={`${UrlConfig.INVENTORY_TRANSFERS}/${row.id}`}
+            style={{ fontWeight: 600, fontSize: 16 }}
+          >
+            {value}
+          </Link>
           <div>{ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYY_HHmm)}</div>
         </div>
       ),
@@ -433,7 +438,9 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
           <div className="single">
             Chuyển tiếp từ kho {item} đến kho {row.to_store_name}
           </div>
-        ) : <></>
+        ) : (
+          <></>
+        );
       },
     },
     {
@@ -644,10 +651,10 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
 
         setData(result);
         if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER) {
-          setCountTransferOut && setCountTransferOut(result.metadata.total)
+          setCountTransferOut && setCountTransferOut(result.metadata.total);
         }
         if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE) {
-          setCountTransferIn && setCountTransferIn(result.metadata.total)
+          setCountTransferIn && setCountTransferIn(result.metadata.total);
         }
         if (firstLoad) {
           setTotalItems(result.metadata.total);
@@ -829,36 +836,37 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     history.push(`${UrlConfig.INVENTORY_TRANSFERS}#1?${queryParam}`);
   }, [history]);
 
-  const onSelectedChange = useCallback((selectedRow: Array<InventoryTransferDetailItem>, selected: boolean | undefined, changeRow: any) => {
-    const newSelectedRowKeys = changeRow.map((row: any) => row.id);
+  const onSelectedChange = useCallback(
+    (
+      selectedRow: Array<InventoryTransferDetailItem>,
+      selected: boolean | undefined,
+      changeRow: any,
+    ) => {
+      const newSelectedRowKeys = changeRow.map((row: any) => row.id);
 
-    if (selected) {
-      setSelectedRowKeys([
-        ...selectedRowKeys,
-        ...newSelectedRowKeys
-      ]);
-      setSelectedRowData([
-        ...selectedRowData,
-        ...changeRow
-      ]);
-      return;
-    }
+      if (selected) {
+        setSelectedRowKeys([...selectedRowKeys, ...newSelectedRowKeys]);
+        setSelectedRowData([...selectedRowData, ...changeRow]);
+        return;
+      }
 
-    const newSelectedRowKeysByDeselected = selectedRowKeys.filter((item) => {
-      const findIndex = changeRow.findIndex((row: any) => row.id === item);
+      const newSelectedRowKeysByDeselected = selectedRowKeys.filter((item) => {
+        const findIndex = changeRow.findIndex((row: any) => row.id === item);
 
-      return findIndex === -1
-    });
+        return findIndex === -1;
+      });
 
-    const newSelectedRowByDeselected = selectedRowData.filter((item) => {
-      const findIndex = changeRow.findIndex((row: any) => row.id === item.id);
+      const newSelectedRowByDeselected = selectedRowData.filter((item) => {
+        const findIndex = changeRow.findIndex((row: any) => row.id === item.id);
 
-      return findIndex === -1
-    });
+        return findIndex === -1;
+      });
 
-    setSelectedRowKeys(newSelectedRowKeysByDeselected);
-    setSelectedRowData(newSelectedRowByDeselected);
-  }, [selectedRowData, selectedRowKeys]);
+      setSelectedRowKeys(newSelectedRowKeysByDeselected);
+      setSelectedRowData(newSelectedRowByDeselected);
+    },
+    [selectedRowData, selectedRowKeys],
+  );
 
   const convertItemExport = (item: InventoryTransferDetailItem) => {
     return {
@@ -1099,7 +1107,10 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     let status: string[] = [];
     switch (activeTab) {
       case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
-        status = [STATUS_INVENTORY_TRANSFER.TRANSFERRING.status, STATUS_INVENTORY_TRANSFER.CONFIRM.status];
+        status = [
+          STATUS_INVENTORY_TRANSFER.TRANSFERRING.status,
+          STATUS_INVENTORY_TRANSFER.CONFIRM.status,
+        ];
         break;
       case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
         status = [STATUS_INVENTORY_TRANSFER.TRANSFERRING.status];
@@ -1113,8 +1124,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       status: params.status.length > 0 ? params.status : status,
     };
 
-    const accountStoreSelected =
-      accountStores && accountStores.length > 0 ? accountStores.map((i) => i.id).join(',') : null;
+    let accountStoreSelected =
+      accountStores && accountStores.length > 0 ? accountStores.map((i) => i.id).join(",") : null;
 
     switch (activeTab) {
       case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
@@ -1188,9 +1199,11 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
         selectedRowKey={selectedRowKeys}
         isLoading={tableLoading}
         scroll={{ x: 1000 }}
-        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
         pagination={false}
-        onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
+        onSelectedChange={(selectedRows, selected, changeRow) =>
+          onSelectedChange(selectedRows, selected, changeRow)
+        }
         onShowColumnSetting={() => setShowSettingColumn(true)}
         dataSource={data.items}
         columns={columnFinal}

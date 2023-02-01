@@ -41,6 +41,7 @@ import ConflictDownloadModal from "../components/ConflictDownloadModal";
 import { OrderStatus } from "utils/Order.constants";
 import checkIcon from "assets/icon/CheckIcon.svg";
 import stopIcon from "assets/icon/Stop.svg";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const OrdersSync = () => {
   const dispatch = useDispatch();
@@ -516,7 +517,7 @@ const OrdersSync = () => {
             isLoading={isLoading}
             showColumnSetting={true}
             scroll={{ x: 1500 }}
-            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+            sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
             pagination={
               isLoading
                 ? false

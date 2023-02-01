@@ -36,7 +36,14 @@ import {
   handleFetchApiError,
   isFetchApiSuccessful,
 } from "utils/AppUtils";
-import { COD, OrderStatus, PaymentMethodCode, POS, ShipmentMethod } from "utils/Constants";
+import {
+  COD,
+  OFFSET_HEADER_UNDER_NAVBAR,
+  OrderStatus,
+  PaymentMethodCode,
+  POS,
+  ShipmentMethod,
+} from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
@@ -1257,7 +1264,7 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
             bordered
             showColumnSetting={true}
             scroll={{ x: 1550 }}
-            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+            sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
             pagination={{
               pageSize: purchaseHistoryData.metadata?.limit,
               total: purchaseHistoryData.metadata?.total,

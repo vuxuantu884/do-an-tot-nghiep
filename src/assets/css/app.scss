@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;500;600;700&display=swap");
 @import "variable";
 @import "overwrite";
+
 #root {
   width: 100%;
   height: 100%;
@@ -195,7 +196,7 @@ label {
 @import "table";
 @import "select";
 @import "editor";
-@import "autocomplete";
+// @import "autocomplete";
 @import "product";
 @import "modal-confirm";
 @import "sale-order";

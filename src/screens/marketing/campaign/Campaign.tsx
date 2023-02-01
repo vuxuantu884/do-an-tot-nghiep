@@ -17,7 +17,11 @@ import { getCampaignListAction } from "domain/actions/marketing/marketing.action
 import { PageResponse } from "model/base/base-metadata.response";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import CampaignListFilter from "screens/marketing/campaign/component/CampaignListFilter";
-import { MESSAGE_STATUS_LIST, CHANNEL_LIST, CAMPAIGN_STATUS_LIST } from "screens/marketing/campaign/campaign-helper";
+import {
+  MESSAGE_STATUS_LIST,
+  CHANNEL_LIST,
+  CAMPAIGN_STATUS_LIST,
+} from "screens/marketing/campaign/campaign-helper";
 import { CampaignStatusStyled, CampaignStyled } from "screens/marketing/campaign/campaign-styled";
 
 import settingGearIcon from "assets/icon/setting-gear-icon.svg";
@@ -26,6 +30,7 @@ import { searchAccountPublicAction } from "domain/actions/account/account.action
 import useAuthorization from "hook/useAuthorization";
 import { CAMPAIGN_PERMISSION } from "config/permissions/marketing.permission";
 import TagStatus from "component/tag/tag-status";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 // campaign permission
 const viewCampaignDetailPermission = [CAMPAIGN_PERMISSION.marketings_campaigns_read_detail];
@@ -90,7 +95,6 @@ const CampaignList = () => {
   }, [dispatch]);
   /** end get init public accounts */
 
-
   /** column table */
   const columns: Array<ICustomTableColumType<any>> = [
     {
@@ -99,10 +103,11 @@ const CampaignList = () => {
       render: (item: any) => {
         return (
           <>
-            {allowViewCampaignDetail ?
+            {allowViewCampaignDetail ? (
               <Link to={`${UrlConfig.MARKETING}/campaigns/${item.id}`}>{item.code}</Link>
-              : <span>{item.code}</span>
-            }
+            ) : (
+              <span>{item.code}</span>
+            )}
           </>
         );
       },
@@ -111,9 +116,7 @@ const CampaignList = () => {
       title: "Tên chiến dịch",
       // width: "250px",
       render: (item: any) => {
-        return (
-          <span>{item.campaign_name}</span>
-        );
+        return <span>{item.campaign_name}</span>;
       },
     },
     {
@@ -121,9 +124,7 @@ const CampaignList = () => {
       width: 150,
       align: "center",
       render: (item: any) => {
-        return (
-          <div>{ConvertUtcToLocalDate(item.created_date, DATE_FORMAT.DDMMYY_HHmm)}</div>
-        );
+        return <div>{ConvertUtcToLocalDate(item.created_date, DATE_FORMAT.DDMMYY_HHmm)}</div>;
       },
     },
     {
@@ -132,14 +133,15 @@ const CampaignList = () => {
       width: "200px",
       render: (item: any) => {
         const campaignStatus: any = CAMPAIGN_STATUS_LIST.find(
-          (status) => status.value.toUpperCase() === item.status?.toUpperCase());
+          (status) => status.value.toUpperCase() === item.status?.toUpperCase(),
+        );
         return (
           <CampaignStatusStyled>
             <TagStatus type={campaignStatus?.tagStatus}>
               {campaignStatus?.name || item.status}
             </TagStatus>
           </CampaignStatusStyled>
-        )
+        );
       },
     },
     {
@@ -147,17 +149,13 @@ const CampaignList = () => {
       width: 150,
       align: "center",
       render: (item: any) => {
-        return (
-          <div>{ConvertUtcToLocalDate(item.send_date, DATE_FORMAT.DDMMYY_HHmm)}</div>
-        );
+        return <div>{ConvertUtcToLocalDate(item.send_date, DATE_FORMAT.DDMMYY_HHmm)}</div>;
       },
     },
     {
       title: "Người gửi",
       render: (item: any) => {
-        return (
-          <span>{item.sender}</span>
-        );
+        return <span>{item.sender}</span>;
       },
     },
     {
@@ -166,7 +164,8 @@ const CampaignList = () => {
       width: "150px",
       render: (item: any) => {
         const messageStatus: any = MESSAGE_STATUS_LIST.find(
-          (status) => status.value.toUpperCase() === item.message_status?.toUpperCase());
+          (status) => status.value.toUpperCase() === item.message_status?.toUpperCase(),
+        );
         return <div style={{ color: `${messageStatus?.color}` }}>{messageStatus?.name}</div>;
       },
     },
@@ -176,19 +175,23 @@ const CampaignList = () => {
       width: "150px",
       render: (item: any) => {
         const campaignChannel: any = CHANNEL_LIST.find(
-          (status) => status.value.toUpperCase() === item.channel?.toUpperCase());
+          (status) => status.value.toUpperCase() === item.channel?.toUpperCase(),
+        );
         return <div>{campaignChannel?.name}</div>;
       },
     },
   ];
 
   /** get campaign list */
-  const updateCampaignListData = React.useCallback((responseData: PageResponse<any> | false) => {
-    setIsLoading(false);
-    if (responseData) {
-      setCampaignData(responseData);
-    }
-  }, [setCampaignData]);
+  const updateCampaignListData = React.useCallback(
+    (responseData: PageResponse<any> | false) => {
+      setIsLoading(false);
+      if (responseData) {
+        setCampaignData(responseData);
+      }
+    },
+    [setCampaignData],
+  );
 
   const getCampaignList = useCallback(
     (params) => {
@@ -249,7 +252,6 @@ const CampaignList = () => {
   }, [history, location.pathname]);
   /** --- */
 
-
   return (
     <CampaignStyled>
       <ContentContainer
@@ -280,18 +282,13 @@ const CampaignList = () => {
               Cấu hình gửi tin
             </Button>
 
-            {allowCreateCampaign &&
+            {allowCreateCampaign && (
               <Link to={`${UrlConfig.MARKETING}/campaigns/create`}>
-                <Button
-                  disabled={isLoading}
-                  type={"primary"}
-                  size="large"
-                  icon={<PlusOutlined />}
-                >
+                <Button disabled={isLoading} type={"primary"} size="large" icon={<PlusOutlined />}>
                   Thêm chiến dịch gửi tin
                 </Button>
               </Link>
-            }
+            )}
           </div>
         }
       >
@@ -308,7 +305,7 @@ const CampaignList = () => {
           <CustomTable
             bordered
             isLoading={isLoading}
-            sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+            sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
             pagination={{
               pageSize: campaignData?.metadata?.limit,
               total: campaignData?.metadata?.total,

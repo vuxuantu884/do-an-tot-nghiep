@@ -31,6 +31,7 @@ import ActionColumn from "./ActionColumn";
 import SyncProductModal from "../../SyncProductModal";
 
 import warningCircleIcon from "assets/icon/warning-circle.svg";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 type ProductListprops = {
   type: string;
@@ -544,7 +545,7 @@ const ProductList = (props: ProductListprops) => {
           columns={columns}
           dataSource={variantData.items}
           scroll={{ x: 2000 }}
-          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           pagination={{
             pageSize: variantData.metadata && variantData.metadata.limit,
             total: variantData.metadata && variantData.metadata.total,

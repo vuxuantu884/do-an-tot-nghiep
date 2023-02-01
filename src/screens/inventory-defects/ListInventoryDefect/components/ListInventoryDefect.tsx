@@ -50,7 +50,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { strForSearch } from "utils/StringUtils";
 import { Option } from "antd/es/mentions";
 import CopyIcon from "screens/order-online/component/CopyIcon";
-import { COLUMN_CONFIG_TYPE } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import { formatCurrencyForProduct } from "screens/products/helper";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
@@ -687,7 +687,7 @@ const ListInventoryDefect: React.FC = () => {
         onSelectedChange={onSelect}
         dataSource={data.items}
         scroll={{ x: "max-content" }}
-        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
         columns={columnFinal}
         rowKey={(item: LineItemDefect) => item.id}
         pagination={{

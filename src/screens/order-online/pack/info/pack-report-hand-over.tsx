@@ -16,7 +16,7 @@ import {
   updateGoodsReceipts,
   // updateNoteGoodreceipt,
 } from "domain/actions/goods-receipts/goods-receipts.action";
-import { COLUMN_CONFIG_TYPE } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { getQueryParams } from "utils/useQuery";
 import { useHistory } from "react-router";
 import { convertFromStringToDate, generateQuery, haveAccess } from "utils/AppUtils";
@@ -819,7 +819,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (props: PackReport
           isLoading={tableLoading}
           showColumnSetting={true}
           scroll={{ x: 1550, y: 520 }}
-          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,

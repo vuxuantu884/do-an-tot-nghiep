@@ -125,7 +125,12 @@ import {
   sortFulfillments,
 } from "utils/AppUtils";
 
-import { COLUMN_CONFIG_TYPE, FulFillmentStatus, OrderStatus } from "utils/Constants";
+import {
+  COLUMN_CONFIG_TYPE,
+  FulFillmentStatus,
+  OFFSET_HEADER_UNDER_NAVBAR,
+  OrderStatus,
+} from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { dangerColor, primaryColor, successColor } from "utils/global-styles/variables";
 import { ORDER_EXPORT_TYPE, ORDER_SUB_STATUS } from "utils/Order.constants";
@@ -2338,7 +2343,7 @@ const EcommerceOrders: React.FC = () => {
                   scroll={{
                     x: (2200 * columnFinal.length) / (columns.length ? columns.length : 1),
                   }}
-                  sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+                  sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
                   pagination={
                     tableLoading
                       ? false

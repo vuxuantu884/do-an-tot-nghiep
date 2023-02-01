@@ -3,7 +3,7 @@ import styled from "styled-components";
 export const InventoryFiltersWrapper = styled.div`
   .custom-filter {
     .page-filter {
-      padding-top: 20px;
+      /* padding-top: 20px; */
     }
   }
 `;
@@ -58,7 +58,7 @@ export const BaseFilterWrapper = styled.div`
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
-  .ant-select {
+  /* .ant-select {
     .ant-select-selector {
       .ant-select-selection-item {
         background-color: $gray-f5;
@@ -75,7 +75,7 @@ export const BaseFilterWrapper = styled.div`
         }
       }
     }
-  }
+  } */
   .active {
     color: #ffffff;
     border-color: rgba(42, 42, 134, 0.1);
