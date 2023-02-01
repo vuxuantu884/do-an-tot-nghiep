@@ -1,11 +1,13 @@
 import { DownOutlined } from "@ant-design/icons";
-import { Button, Col, Dropdown, FormInstance, Menu, Row } from "antd";
+import { Button, Col, Dropdown, FormInstance, Menu, Modal, Row } from "antd";
 import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
-import React from "react";
+import React, { useCallback } from "react";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import IconPrint from "assets/icon/printer-blue.svg";
 import { StyledComponent } from "./styles";
+import { SourceResponse } from "model/response/order/source.response";
+import { isSourceNameFacebook } from "utils/OrderUtils";
 
 type PropType = {
   orderDetail?: OrderResponse | null;
@@ -24,6 +26,9 @@ type PropType = {
   orderActionsClick?: (type: string) => void;
   updateCancelClick?: () => void;
   onConfirmOrder?: () => void;
+  orderSource?: SourceResponse | null;
+  setMarketerCodeValue: React.Dispatch<React.SetStateAction<string>>;
+  setIsShowTextNote: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
@@ -44,7 +49,38 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     orderActionsClick,
     updateCancelClick,
     onConfirmOrder,
+    orderSource,
+    setMarketerCodeValue,
+    setIsShowTextNote,
   } = props;
+
+  const checkSourceNameFacebook = useCallback(() => {
+    if (
+      isSourceNameFacebook(orderSource?.name || "") &&
+      !formRef?.current?.getFieldValue("marketer_code")
+    ) {
+      Modal.confirm({
+        title: "Chú ý",
+        type: "warning",
+        content: (
+          <>
+            <p style={{ margin: 0 }}>Đơn hàng chưa nhập nhân viên Marketing.</p>
+            <p style={{ margin: 0 }}>Bạn vẫn muốn tạo đơn hàng?</p>
+          </>
+        ),
+        okText: "Tạo đơn",
+        cancelText: "Quay lại",
+        onOk: () => {
+          setIsShowTextNote(false);
+          formRef?.current?.submit();
+        },
+      });
+      return;
+    }
+    setMarketerCodeValue("");
+    formRef?.current?.submit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formRef, orderSource?.name]);
 
   return (
     <StyledComponent>
@@ -86,7 +122,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   //   "formRef.current.value",
                   //   formRef?.current?.getFieldsValue()
                   // );
-                  formRef.current?.submit();
+                  checkSourceNameFacebook();
                 }}
                 loading={creating}
                 disabled={isSaveDraft}

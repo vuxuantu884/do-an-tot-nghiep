@@ -79,7 +79,7 @@ type CustomerCardProps = {
   shippingAddress: ShippingAddress | any;
   setModalAction: (item: modalActionType) => void;
   modalAction: modalActionType;
-  setOrderSourceId?: (value: number) => void;
+  setOrderSource?: (value: SourceResponse | null) => void;
   defaultSourceId: number | null;
   form: FormInstance<any>;
   setShippingFeeInformedToCustomer?: (value: number | null) => void;
@@ -119,7 +119,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     modalAction,
     setBillingAddress,
     setShippingAddress,
-    setOrderSourceId,
+    setOrderSource,
     defaultSourceId,
     form,
     setShippingFeeInformedToCustomer,
@@ -537,6 +537,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   }, [isDropdownVisible]);
   // end handle scroll page
 
+  const handleSelectedOrderSource = useCallback(
+    (sourceID: number) => {
+      const _source = listSource.find((p) => p.id === sourceID);
+      setOrderSource && setOrderSource(_source || null);
+    },
+    [listSource, setOrderSource],
+  );
+
   return (
     <Card
       className="padding-12"
@@ -573,9 +581,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 }
                 return false;
               }}
-              onChange={(value) => {
-                setOrderSourceId && setOrderSourceId(value);
-              }}
+              onChange={handleSelectedOrderSource}
             >
               {listSource.map((item, index) => (
                 <CustomSelect.Option
