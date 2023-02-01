@@ -20,7 +20,7 @@ import { generateQuery } from "utils/AppUtils";
 import { getOrderDuplicateAction } from "domain/actions/order/order-duplicate.action";
 import { CustomerDuplicateModel } from "model/order/duplicate.model";
 import "./order-duplicate.scss";
-import { COLUMN_CONFIG_TYPE } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 
@@ -307,7 +307,7 @@ const CustomerDuplicate: React.FC = () => {
           isShowPaginationAtHeader
           isLoading={tableLoading}
           showColumnSetting={true}
-          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,

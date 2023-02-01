@@ -33,7 +33,7 @@ import TextEllipsis from "component/table/TextEllipsis";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
-import { COLUMN_CONFIG_TYPE } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { showError } from "utils/ToastUtils";
 import { cloneDeep } from "lodash";
 import { formatCurrencyForProduct } from "screens/products/helper";
@@ -383,7 +383,7 @@ export const ListInventoryDefectHistory = () => {
         isLoading={loadingTable}
         dataSource={data.items}
         scroll={{ x: "max-content" }}
-        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
         columns={columnFinal}
         rowKey={(item: LineItemDefect) => item.id}
         pagination={{

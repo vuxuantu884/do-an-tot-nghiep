@@ -29,6 +29,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { EditOutlined, EllipsisOutlined } from "@ant-design/icons";
 import { ColumnsType } from "antd/lib/table";
 import currency from "currency.js";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const { Item } = Form;
 const ListMaterial: React.FC = () => {
@@ -262,8 +263,7 @@ const ListMaterial: React.FC = () => {
       width: 50,
       fixed: "right",
       dataIndex: "action",
-      render: (value: string, item: MaterialResponse) =>
-        RenderActionColumn(value, item),
+      render: (value: string, item: MaterialResponse) => RenderActionColumn(value, item),
     },
   ];
 
@@ -391,7 +391,7 @@ const ListMaterial: React.FC = () => {
           dataSource={data.items}
           columns={columns}
           scroll={{ x: 1360 }}
-          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           rowKey={(item: MaterialResponse) => item.id}
         />
       </Card>

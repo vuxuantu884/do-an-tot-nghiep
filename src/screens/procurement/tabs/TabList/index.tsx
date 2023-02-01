@@ -900,7 +900,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           onMenuClick={onMenuClick}
           listStore={listStore}
         />
-        <div style={{ marginTop: -20 }}>
+        <div>
           <CustomTable
             isRowSelection
             selectedRowKey={selected.map((e) => e.id)}

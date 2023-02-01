@@ -30,7 +30,7 @@ import { StoreResponse } from "model/core/store.model";
 import { useReactToPrint } from "react-to-print";
 import purify from "dompurify";
 import { STATUS_INVENTORY_ADJUSTMENT_CONSTANTS } from "screens/inventory-adjustment/constants";
-import {showError, showSuccess, showWarning} from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { exportFile, getFile } from "service/other/import.inventory.service";
 import { STATUS_IMPORT_EXPORT } from "screens/inventory-adjustment/DetailInvetoryAdjustment";
 import InventoryTransferExportModal from "screens/inventory-adjustment/DetailInvetoryAdjustment/conponents/ExportModal";
@@ -41,7 +41,7 @@ import InventoryReportModal from "../components/InventoryReportModal";
 import EditPopover from "../../../inventory-defects/ListInventoryDefect/components/EditPopover";
 import { primaryColor } from "utils/global-styles/variables";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
-import { COLUMN_CONFIG_TYPE } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 
 const ACTIONS_INDEX = {
@@ -514,25 +514,29 @@ const InventoryAdjustment: React.FC = () => {
     history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}?${queryParam}`);
   }, [history]);
 
-  const onSelectedChange = useCallback((selectedRow: Array<InventoryAdjustmentDetailItem>, selected: boolean | undefined, changeRow: any) => {
-    const newSelectedRowKeys = changeRow.map((row: any) => row.id);
+  const onSelectedChange = useCallback(
+    (
+      selectedRow: Array<InventoryAdjustmentDetailItem>,
+      selected: boolean | undefined,
+      changeRow: any,
+    ) => {
+      const newSelectedRowKeys = changeRow.map((row: any) => row.id);
 
-    if (selected) {
-      setSelectedRowKeys([
-        ...selectedRowKeys,
-        ...newSelectedRowKeys
-      ]);
-      return;
-    }
+      if (selected) {
+        setSelectedRowKeys([...selectedRowKeys, ...newSelectedRowKeys]);
+        return;
+      }
 
-    const newSelectedRowKeysByDeselected = selectedRowKeys.filter((item) => {
-      const findIndex = changeRow.findIndex((row: any) => row.id === item);
+      const newSelectedRowKeysByDeselected = selectedRowKeys.filter((item) => {
+        const findIndex = changeRow.findIndex((row: any) => row.id === item);
 
-      return findIndex === -1
-    });
+        return findIndex === -1;
+      });
 
-    setSelectedRowKeys(newSelectedRowKeysByDeselected);
-  }, [selectedRowKeys]);
+      setSelectedRowKeys(newSelectedRowKeysByDeselected);
+    },
+    [selectedRowKeys],
+  );
 
   //get store
   useEffect(() => {
@@ -579,7 +583,7 @@ const InventoryAdjustment: React.FC = () => {
           isRowSelection
           isLoading={tableLoading}
           scroll={{ x: "max-content" }}
-          sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
@@ -589,7 +593,9 @@ const InventoryAdjustment: React.FC = () => {
             onShowSizeChange: onPageChange,
           }}
           selectedRowKey={selectedRowKeys}
-          onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
+          onSelectedChange={(selectedRows, selected, changeRow) =>
+            onSelectedChange(selectedRows, selected, changeRow)
+          }
           onShowColumnSetting={() => setShowSettingColumn(true)}
           dataSource={data.items}
           columns={columnFinal}

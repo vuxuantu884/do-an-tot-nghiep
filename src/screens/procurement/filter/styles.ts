@@ -3,7 +3,6 @@ import styled from "styled-components";
 export const FilterProcurementStyleWrapper = styled.div`
   display: flex;
   width: 100%;
-  padding-bottom: 20px;
   justify-content: space-between;
   .search {
     width: 60%;

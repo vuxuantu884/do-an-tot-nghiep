@@ -48,6 +48,7 @@ import {
   isFetchApiSuccessful,
   replaceFormatString,
 } from "utils/AppUtils";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
@@ -982,7 +983,7 @@ function CreateWarranty(props: Props) {
                 <CustomTable
                   bordered
                   // scroll={{ x: 1400 }}
-                  sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+                  sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
                   pagination={false}
                   dataSource={warrantyItems}
                   columns={columnsWarrantyItems}

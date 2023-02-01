@@ -24,6 +24,7 @@ import { generateQuery } from "utils/AppUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
 import { getWebAppById } from "screens/web-app/common/commonAction";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const initQuery: WebAppGetOrdersMappingQuery = {
   page: 1,
@@ -302,7 +303,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappi
           isRowSelection={isShowAction}
           isLoading={isLoading}
           showColumnSetting={true}
-          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           pagination={
             isLoading
               ? false

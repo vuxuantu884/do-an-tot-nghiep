@@ -51,7 +51,7 @@ import { Link, useHistory, useParams } from "react-router-dom";
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import { exportFile, getFile } from "service/other/export.service";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
-import { OrderStatus, ShipmentMethod } from "utils/Constants";
+import { OFFSET_HEADER_UNDER_NAVBAR, OrderStatus, ShipmentMethod } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { ORDER_TYPES } from "utils/Order.constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
@@ -1170,7 +1170,7 @@ const OrderDuplicate: React.FC = () => {
             scroll={{
               x: (4400 * columnFinal.length) / (columns.length ? columns.length : 1),
             }}
-            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+            sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
             pagination={{
               pageSize: data.metadata.limit,
               total: data.metadata.total,

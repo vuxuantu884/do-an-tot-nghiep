@@ -10,11 +10,21 @@ import { CategoryParent, CategoryView } from "model/product/category.model";
 import { MenuAction } from "component/table/ActionButton";
 import { CategoryResponse, CategoryQuery } from "model/product/category.model";
 import { generateQuery } from "utils/AppUtils";
-import { convertCategory, FINISH_PROCESS_PERCENT, START_PROCESS_PERCENT } from "screens/products/helper";
+import {
+  convertCategory,
+  FINISH_PROCESS_PERCENT,
+  START_PROCESS_PERCENT,
+} from "screens/products/helper";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
-import { ApartmentOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, ExportOutlined } from "@ant-design/icons";
+import {
+  ApartmentOutlined,
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  ExportOutlined,
+} from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import { showSuccess, showWarning } from "utils/ToastUtils";
@@ -32,7 +42,7 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import moment from "moment";
 import { utils, writeFile } from "xlsx";
 import { CategoryExportModal } from "./component";
-import { STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Constants";
+import { OFFSET_HEADER_UNDER_NAVBAR, STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Constants";
 
 const actions: Array<MenuAction> = [
   {
@@ -346,17 +356,14 @@ const Category = () => {
       extra={
         <>
           <Link to={`${UrlConfig.CATEGORIES}/overview`}>
-            <Button
-              className="btn-view"
-              icon={<ApartmentOutlined className="btn-view-icon" />}
-            >
+            <Button className="btn-view" icon={<ApartmentOutlined className="btn-view-icon" />}>
               Xem sơ đồ danh mục
             </Button>
           </Link>
           <Button
             className="btn-view"
             size="large"
-            icon={<DownloadOutlined className="btn-view-icon"/>}
+            icon={<DownloadOutlined className="btn-view-icon" />}
             onClick={() => {
               setIsExportCategory(true);
             }}
@@ -402,7 +409,7 @@ const Category = () => {
         <CustomTable
           isRowSelection
           isLoading={isLoading}
-          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           onSelectedChange={onSelect}
           pagination={false}
           dataSource={data}

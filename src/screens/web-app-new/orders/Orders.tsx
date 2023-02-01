@@ -47,6 +47,7 @@ import { getParamsFromQuery } from "utils/useQuery";
 import { StyledStatus } from "../order-sync/style";
 import OrderFilter from "./OrderFilter";
 import { nameQuantityWidth, StyledComponent } from "./style";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const WebAppOrders: React.FC = () => {
   const dispatch = useDispatch();
@@ -964,7 +965,7 @@ const WebAppOrders: React.FC = () => {
                   isLoading={tableLoading}
                   showColumnSetting={true}
                   scroll={{ x: 2400 }}
-                  sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+                  sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
                   pagination={
                     tableLoading
                       ? false
