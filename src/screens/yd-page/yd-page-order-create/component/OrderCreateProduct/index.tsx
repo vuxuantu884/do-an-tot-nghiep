@@ -123,6 +123,7 @@ import {
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import DiscountItemSearch from "../DiscountItemSearch";
 import DiscountOrderModalSearch from "../DiscountOrderModalSearch";
+import { SourceResponse } from "model/response/order/source.response";
 
 type PropType = {
   storeId: number | null;
@@ -135,7 +136,7 @@ type PropType = {
   levelOrder?: number;
   coupon?: string;
   promotion: OrderDiscountRequest | null;
-  orderSourceId?: number | null;
+  orderSource?: SourceResponse | null;
   isPageOrderUpdate?: boolean;
   orderAmount: number;
   totalAmountOrder: number;
@@ -241,7 +242,7 @@ function OrderCreateProduct(props: PropType) {
     shippingFeeInformedToCustomer,
     returnOrderInformation,
     totalAmountCustomerNeedToPay,
-    orderSourceId,
+    orderSource,
     customer,
     loyaltyPoint,
     promotion,
@@ -2612,7 +2613,7 @@ function OrderCreateProduct(props: PropType) {
       // console.log("items items", items)
     } else isShouldUpdateDiscountRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storeId, orderSourceId, countFinishingUpdateCustomer]);
+  }, [storeId, orderSource, countFinishingUpdateCustomer]);
   /**
    * gọi lại api couponInputText khi thay đổi số lượng item
    */
@@ -2628,7 +2629,7 @@ function OrderCreateProduct(props: PropType) {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);
+  }, [countFinishingUpdateCustomer, storeId, orderSource, isShouldUpdateDiscountRef]);
 
   // đợi 3s cho load trang xong thì sẽ update trong trường hợp clone
   useEffect(() => {
