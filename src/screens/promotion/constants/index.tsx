@@ -5,6 +5,7 @@ import UrlConfig from "config/url.config";
 import {
   DiscountConditionRule,
   EntilementFormModel,
+  PriceRuleState,
   ProductEntitlements,
 } from "model/promotion/price-rules.model";
 import { Rule } from "rc-field-form/lib/interface";
@@ -15,6 +16,7 @@ import NumberInput from "component/custom/number-input.custom";
 import React from "react";
 import { GiftEntitlementForm } from "model/promotion/gift.model";
 import moment from "moment/moment";
+import PromotionStatusTag from "screens/promotion/component/PromotionStatusTag";
 const { Item } = Form;
 
 export const MAX_FIXED_DISCOUNT_VALUE = 999999999;
@@ -393,24 +395,27 @@ export const DISCOUNT_STATUS = [
   {
     code: "ACTIVE",
     value: "Đang áp dụng",
-
-    Component: <TagStatus type="primary">Đang áp dụng</TagStatus>,
+    Component: <PromotionStatusTag status={PriceRuleState.ACTIVE}>Đang áp dụng</PromotionStatusTag>,
   },
   {
     code: "DISABLED",
     value: "Tạm ngừng",
-
-    Component: <TagStatus type="warning">Tạm ngừng</TagStatus>,
+    Component: <PromotionStatusTag status={PriceRuleState.DISABLED}>Tạm ngừng</PromotionStatusTag>,
   },
   {
     code: "DRAFT",
     value: "Chờ áp dụng",
-    Component: <TagStatus>Chờ áp dụng</TagStatus>,
+    Component: <PromotionStatusTag status={PriceRuleState.DRAFT}>Chờ áp dụng</PromotionStatusTag>,
+  },
+  {
+    code: "PENDING",
+    value: "Chờ xác nhận",
+    Component: <PromotionStatusTag status={PriceRuleState.PENDING}>Chờ xác nhận</PromotionStatusTag>,
   },
   {
     code: "CANCELLED",
     value: "Đã huỷ",
-    Component: <TagStatus type="danger">Đã huỷ</TagStatus>,
+    Component: <PromotionStatusTag status={PriceRuleState.CANCELLED}>Đã huỷ</PromotionStatusTag>,
   },
 ];
 

@@ -27,6 +27,7 @@ import useAuthorization from "hook/useAuthorization";
 import {
   PriceRule,
   PriceRuleMethod,
+  PriceRuleState,
   ReleasePromotionListType,
 } from "model/promotion/price-rules.model";
 import React, { useCallback, useEffect, useState } from "react";
@@ -40,7 +41,12 @@ import CustomTable from "../../../component/table/CustomTable";
 import { AppConfig } from "../../../config/app.config";
 import { formatCurrency, isNullOrUndefined } from "utils/AppUtils";
 import { getToken } from "../../../utils/LocalStorageUtils";
-import { columnDiscountByRule, columnProductQuantitytByRule, DiscountUnitType } from "../constants";
+import {
+  columnDiscountByRule,
+  columnProductQuantitytByRule,
+  DISCOUNT_STATUS,
+  DiscountUnitType
+} from "screens/promotion/constants";
 import DiscountRuleInfo from "../discount/components/discount-rule-info";
 import GeneralConditionDetail from "../shared/general-condition.detail";
 import CustomModal from "./components/CustomModal";
@@ -151,13 +157,17 @@ const PromotionDetailScreen: React.FC = () => {
     },
   });
 
-  //phân quyền
+  /** phân quyền */
+  const [allowActivePromotionRelease] = useAuthorization({
+    acceptPermissions: [PromotionReleasePermission.ACTIVE],
+  });
   const [allowCreatePromotionRelease] = useAuthorization({
     acceptPermissions: [PromotionReleasePermission.CREATE],
   });
   const [allowUpdatePromotionRelease] = useAuthorization({
     acceptPermissions: [PromotionReleasePermission.UPDATE],
   });
+  /** */
 
   const checkIsHasPromo = useCallback((data: any) => {
     setCheckPromoCode(data.items.length > 0);
@@ -201,6 +211,7 @@ const PromotionDetailScreen: React.FC = () => {
   }, []);
 
   const getPromotionReleaseDetail = useCallback(() => {
+    setLoading(true);
     dispatch(getPromotionReleaseDetailAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
@@ -468,8 +479,8 @@ const PromotionDetailScreen: React.FC = () => {
     );
   };
   const renderStatus = (data: PriceRule) => {
-    const status = promoStatuses.find((status) => status.code === data.state);
-    return <span style={status?.style}>{status?.value}</span>;
+    const status = DISCOUNT_STATUS.find((status) => status.code === data.state);
+    return <span style={{ marginLeft: "20px" }}>{status?.Component}</span>;
   };
 
   const onActivate = () => {
@@ -496,14 +507,15 @@ const PromotionDetailScreen: React.FC = () => {
 
   const renderActionButton = () => {
     switch (data?.state) {
-      case "ACTIVE":
+      case PriceRuleState.ACTIVE:
+      case PriceRuleState.DRAFT:
         return (
           <Button type="primary" onClick={onDeactivate}>
             Tạm ngừng
           </Button>
         );
-      case "DISABLED":
-      case "DRAFT":
+      case PriceRuleState.DISABLED:
+      case PriceRuleState.PENDING:
         return (
           <Button type="primary" onClick={onActivate}>
             Kích hoạt
@@ -570,7 +582,7 @@ const PromotionDetailScreen: React.FC = () => {
               <Card
                 className="card"
                 title={
-                  <div style={{ alignItems: "center" }}>
+                  <div style={{ display: "flex", alignItems: "center" }}>
                     <span className="title-card">THÔNG TIN CHUNG</span>
                     {renderStatus(data)}
                   </div>
@@ -1027,10 +1039,10 @@ const PromotionDetailScreen: React.FC = () => {
             )}
 
             {allowUpdatePromotionRelease && data?.state !== "CANCELLED" && (
-              <Button onClick={onEdit}>Sửa</Button>
+              <Button onClick={onEdit}>Chỉnh sửa</Button>
             )}
 
-            {allowUpdatePromotionRelease && renderActionButton()}
+            {allowActivePromotionRelease && renderActionButton()}
           </Space>
         }
       />

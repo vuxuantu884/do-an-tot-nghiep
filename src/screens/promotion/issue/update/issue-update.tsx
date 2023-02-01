@@ -28,6 +28,8 @@ import { IssueStyled } from "screens/promotion/issue/issue-style";
 import { CreateReleasePromotionRuleType } from "screens/promotion/constants";
 import { PRICE_RULE_FIELDS, AllOrExcludeProductEnum, blankRow } from "screens/promotion/constants";
 import PromotionTypeForm from "screens/promotion/issue/components/PromotionTypeForm";
+import useAuthorization from "hook/useAuthorization";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 const rule = PRICE_RULE_FIELDS.rule;
 const conditions = PRICE_RULE_FIELDS.conditions;
@@ -38,6 +40,14 @@ function IssueUpdate(): ReactElement {
   const dispatch = useDispatch();
   const { id } = useParams<{ id: string }>();
   const priceRuleId = parseInt(id);
+  let isActive = true;
+
+  /** phân quyền */
+  const [allowActivePromotionRelease] = useAuthorization({
+    acceptPermissions: [PromotionReleasePermission.ACTIVE],
+  });
+  /** */
+
   const [isAllStore, setIsAllStore] = useState(true);
   const [isAllCustomer, setIsAllCustomer] = useState(true);
   const [isAllChannel, setIsAllChannel] = useState(true);
@@ -162,7 +172,7 @@ function IssueUpdate(): ReactElement {
     [releasePromotionListType],
   );
 
-  const onFinish = (values: any) => {
+  const onFinish = useCallback((values: any) => {
     try {
       switch (releasePromotionListType) {
         case ReleasePromotionListType.EQUALS:
@@ -179,8 +189,11 @@ function IssueUpdate(): ReactElement {
       const body = transformData(values, PROMO_TYPE.MANUAL);
       body.id = priceRuleId;
       body.is_registered = registerWithMinistry;
+      body.activated = isActive;
+      dispatch(showLoading());
       dispatch(
         updatePromotionReleaseAction(body, (result: PriceRule) => {
+          dispatch(hideLoading());
           if (result) {
             showSuccess("Cập nhật thành công");
             history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${priceRuleId}`);
@@ -192,6 +205,28 @@ function IssueUpdate(): ReactElement {
       showError(error.message);
       setIsSubmitting(false);
     }
+  }, [
+    dispatch,
+    handleFormFinish,
+    history,
+    isActive,
+    listProductSelectImportHaveExclude,
+    listProductSelectImportNotExclude,
+    priceRuleId,
+    registerWithMinistry,
+    releasePromotionListType
+  ]);
+
+  /** Action: Lưu và kích hoạt */
+  const handleSaveAndActivate = () => {
+    isActive = true;
+    form.submit();
+  };
+
+  /** Action: Lưu */
+  const save = async () => {
+    isActive = false;
+    form.submit();
   };
 
   const parseDataToForm = useCallback(
@@ -368,16 +403,26 @@ function IssueUpdate(): ReactElement {
             </Col>
           </Row>
           <BottomBarContainer
-            back="Quay lại danh sách đợt phát hành"
-            backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`)}
+            back="Quay lại chi tiết đợt phát hành"
+            backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${priceRuleId}`)}
             rightComponent={
-              <div>
-                <AuthWrapper acceptPermissions={[PromotionReleasePermission.UPDATE]}>
-                  <Button type="primary" htmlType="submit" loading={isSubmitting}>
-                    Lưu
+              <>
+                <Button
+                  onClick={() => save()}
+                  style={{
+                    marginRight: "12px",
+                    borderColor: "#2a2a86",
+                  }}
+                  type="ghost"
+                >
+                  Lưu
+                </Button>
+                {allowActivePromotionRelease &&
+                  <Button type="primary" onClick={handleSaveAndActivate}>
+                    Lưu và kích hoạt
                   </Button>
-                </AuthWrapper>
-              </div>
+                }
+              </>
             }
           />
         </Form>

@@ -23,11 +23,11 @@ import GeneralConditionForm from "screens/promotion/shared/general-condition.for
 import DiscountUpdateForm from "../components/discount-form";
 import DiscountProvider, { DiscountContext } from "../components/discount-provider";
 import { DiscountStyled } from "../discount-style";
-import AuthWrapper from "component/authorization/AuthWrapper";
 import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import _ from "lodash";
 import { PROMO_TYPE } from "utils/Constants";
+import useAuthorization from "hook/useAuthorization";
 
 const DiscountReplicate = () => {
   const dispatch = useDispatch();
@@ -37,6 +37,12 @@ const DiscountReplicate = () => {
   const { id } = useParams<{ id: string }>();
   const idNumber = parseInt(id);
   let activeDiscount = true;
+
+  /** phân quyền */
+  const [allowActiveDiscount] = useAuthorization({
+    acceptPermissions: [PriceRulesPermission.ACTIVE],
+  });
+  /** */
 
   const [dataVariants, setDataVariants] = useState<ProductEntitlements[]>([]);
 
@@ -304,22 +310,23 @@ const DiscountReplicate = () => {
             back="Quay lại danh sách chiết khấu"
             backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`)}
             rightComponent={
-              <AuthWrapper acceptPermissions={[PriceRulesPermission.CREATE]}>
+              <>
                 <Button
                   onClick={() => save()}
                   style={{
-                    marginLeft: ".75rem",
-                    marginRight: ".75rem",
+                    marginRight: "12px",
                     borderColor: "#2a2a86",
                   }}
                   type="ghost"
                 >
                   Lưu
                 </Button>
-                <Button type="primary" onClick={() => handleSaveAndActive()}>
-                  Lưu và kích hoạt
-                </Button>
-              </AuthWrapper>
+                {allowActiveDiscount &&
+                  <Button type="primary" onClick={() => handleSaveAndActive()}>
+                    Lưu và kích hoạt
+                  </Button>
+                }
+              </>
             }
           />
         </Form>

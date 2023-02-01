@@ -28,6 +28,7 @@ export enum PriceRuleState {
   ACTIVE = "ACTIVE",
   DISABLED = "DISABLED",
   CANCELLED = "CANCELLED",
+  PENDING = "PENDING",
 }
 export enum Gender {
   MALE = "MALE",
