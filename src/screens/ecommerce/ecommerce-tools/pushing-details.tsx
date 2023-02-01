@@ -135,7 +135,7 @@ function PushingDetails(props: Props) {
         },
       },
       {
-        title: "Thời gian đẩy tiếp theo",
+        title: "Thời gian còn lại",
         dataIndex: "boosting",
         key: "time",
         align: "center",

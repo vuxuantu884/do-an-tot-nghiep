@@ -50,7 +50,7 @@ function ProductPushing(props: Props) {
               <span>Sản phẩm đang đẩy</span>
             </span>
             <span className="time timeWidth">
-              <span>Thời gian đẩy tiếp theo</span>
+              <span>Thời gian còn lại</span>
             </span>
           </div>
         ),

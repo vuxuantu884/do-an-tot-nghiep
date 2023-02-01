@@ -107,7 +107,7 @@ const PushingEditModal: React.FC<PushingEditModalProps> = (props: PushingEditMod
         showWarning("Sản phẩm đang được chờ đẩy ở vị trí khác !!!");
       }
     },
-    [productEditPushing.boosting, productsPushing, shopData],
+    [allProductPushing, productEditPushing, productsPushing, shopData],
   );
 
   const onSaveProducts = useCallback(() => {
