@@ -33,7 +33,7 @@ import TextEllipsis from "component/table/TextEllipsis";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
-import { COLUMN_CONFIG_TYPE } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { showError } from "utils/ToastUtils";
 import { cloneDeep } from "lodash";
 import { formatCurrencyForProduct } from "screens/products/helper";
@@ -259,7 +259,7 @@ export const ListInventoryDefectHistory = () => {
       params.limit = size;
       setParams({ ...params });
       let queryParam = generateQuery(params);
-      history.replace(`${UrlConfig.INVENTORY_DEFECTS}?${queryParam}`);
+      history.replace(`${UrlConfig.INVENTORY_DEFECTS_HISTORY}?${queryParam}`);
     },
     [params, history],
   );
@@ -269,7 +269,7 @@ export const ListInventoryDefectHistory = () => {
       const newParam = { ...params, ...data };
       setParams(newParam);
       const queryParam = generateQuery(newParam);
-      history.replace(`${UrlConfig.INVENTORY_DEFECTS}?${queryParam}`);
+      history.replace(`${UrlConfig.INVENTORY_DEFECTS_HISTORY}?${queryParam}`);
     },
     [history, params],
   );
@@ -383,7 +383,7 @@ export const ListInventoryDefectHistory = () => {
         isLoading={loadingTable}
         dataSource={data.items}
         scroll={{ x: "max-content" }}
-        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
         columns={columnFinal}
         rowKey={(item: LineItemDefect) => item.id}
         pagination={{

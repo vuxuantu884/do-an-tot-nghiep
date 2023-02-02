@@ -101,7 +101,7 @@ const StockInOtherCreate: React.FC = () => {
   };
 
   const importFile = () => {
-    if (fileList.length === 0) {
+    if (fileList.length === 0 || !fileUrl) {
       setIsEmptyFile(true);
       return;
     }
@@ -183,7 +183,6 @@ const StockInOtherCreate: React.FC = () => {
         <Row gutter={24} style={{ paddingBottom: 30 }}>
           <Col span={18}>
             <StockInOutWareHouseForm
-              fileUrl={fileUrl}
               setFileUrl={(value) => setFileUrl(value)}
               setIsEmptyFile={(value) => setIsEmptyFile(value)}
               isEmptyFile={isEmptyFile}
@@ -235,10 +234,7 @@ const StockInOtherCreate: React.FC = () => {
           }
           rightComponent={
             <Space>
-              <Button
-                onClick={() => importFile()}
-                icon={<UploadOutlined style={{ marginTop: 9, fontSize: 15 }} />}
-              >
+              <Button onClick={() => importFile()} icon={<UploadOutlined />}>
                 Nhập file
               </Button>
               <Button type="primary" onClick={() => formMain.submit()}>

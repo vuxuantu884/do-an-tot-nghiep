@@ -800,42 +800,50 @@ const RequestTicket: FC = () => {
 
             <Card title="THÔNG TIN SẢN PHẨM" bordered={false}>
               <div>
-                <Input.Group className="display-flex">
-                  <AutoComplete
-                    notFoundContent={keySearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined}
-                    value={keySearch}
-                    ref={productAutoCompleteRef}
-                    onSelect={onSelect}
-                    style={{ width: "100%" }}
-                    dropdownClassName="product dropdown-search-header"
-                    dropdownMatchSelectWidth={635}
-                    className="w-100 searchProductId"
-                    onSearch={onSearch}
-                    options={renderResult}
-                    defaultActiveFirstOption
-                    onBlur={() => {
-                      setResultSearch([]);
-                      setKeySearch("");
-                    }}
-                    id="product_search_variant"
-                  >
-                    <Input
-                      size="middle"
-                      className="yody-search"
-                      placeholder="Tìm kiếm Mã vạch, Mã sản phẩm, Tên sản phẩm"
-                      prefix={<i className="icon-search icon" />}
-                      ref={productSearchRef}
-                    />
-                  </AutoComplete>
-                  <Button
-                    onClick={() => {
-                      setVisibleManyProduct(true);
-                    }}
-                    style={{ width: 132, marginLeft: 10 }}
-                    icon={<img src={PlusOutline} alt="" />}
-                  >
-                    &nbsp;&nbsp; Chọn nhiều
-                  </Button>
+                <Input.Group>
+                  <Row gutter={12}>
+                    <Col flex="auto">
+                      <AutoComplete
+                        notFoundContent={
+                          keySearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
+                        }
+                        value={keySearch}
+                        ref={productAutoCompleteRef}
+                        onSelect={onSelect}
+                        style={{ width: "100%" }}
+                        dropdownClassName="product dropdown-search-header"
+                        dropdownMatchSelectWidth={635}
+                        className="w-100 searchProductId"
+                        onSearch={onSearch}
+                        options={renderResult}
+                        defaultActiveFirstOption
+                        onBlur={() => {
+                          setResultSearch([]);
+                          setKeySearch("");
+                        }}
+                        id="product_search_variant"
+                      >
+                        <Input
+                          size="middle"
+                          className="yody-search"
+                          placeholder="Tìm kiếm Mã vạch, Mã sản phẩm, Tên sản phẩm"
+                          prefix={<i className="icon-search icon" />}
+                          ref={productSearchRef}
+                        />
+                      </AutoComplete>
+                    </Col>
+
+                    <Col flex="120px">
+                      <Button
+                        onClick={() => {
+                          setVisibleManyProduct(true);
+                        }}
+                        icon={<img src={PlusOutline} alt="" />}
+                      >
+                        &nbsp;&nbsp; Chọn nhiều
+                      </Button>
+                    </Col>
+                  </Row>
                 </Input.Group>
                 <Table
                   scroll={{ x: "max-content" }}

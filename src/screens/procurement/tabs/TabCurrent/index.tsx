@@ -55,6 +55,7 @@ import {
   ProcurementStatus,
   ProcurementStatusName,
 } from "screens/procurement/helper";
+import { OFFSET_HEADER_TABLE } from "utils/Constants";
 
 const TabCurrent: React.FC = () => {
   const dispatch = useDispatch();
@@ -630,13 +631,13 @@ const TabCurrent: React.FC = () => {
           onClickOpen={() => setIsShowSettingColumn(true)}
           accounts={accounts}
         />
-        <div style={{ marginTop: -20 }}>
+        <div>
           <CustomTable
             isRowSelection
             selectedRowKey={selected.map((e) => e.id)}
             isLoading={isLoading}
             dataSource={data.items}
-            sticky={{ offsetScroll: 5, offsetHeader: 109 }}
+            sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
             columns={columns}
             rowKey={(item) => item.id}
             pagination={{

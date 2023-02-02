@@ -7,7 +7,12 @@ import React, { useCallback, useMemo } from "react";
 import UrlConfig from "config/url.config";
 import { ChannelResponse } from "model/response/product/channel.response";
 import useGetChannels from "hook/order/useGetChannels";
-import { FulFillmentStatus, POS, ProcurementStatus } from "utils/Constants";
+import {
+  FulFillmentStatus,
+  OFFSET_HEADER_UNDER_NAVBAR,
+  POS,
+  ProcurementStatus,
+} from "utils/Constants";
 import { BaseQuery } from "model/base/base.query";
 import { generateQuery } from "utils/AppUtils";
 import { OrderStatus, ORDER_SUB_STATUS } from "utils/Order.constants";
@@ -178,7 +183,7 @@ const TabProductInventory: React.FC<TabProductInventoryProps> = (
         dataSource={inventoryData}
         pagination={false}
         isLoading={isLoadingInventories}
-        sticky={{ offsetHeader: 55, offsetScroll: 10 }}
+        sticky={{ offsetHeader: OFFSET_HEADER_UNDER_NAVBAR, offsetScroll: 10 }}
         rowKey={(record) => record.id}
         columns={[
           {

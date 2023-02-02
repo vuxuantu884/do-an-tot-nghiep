@@ -11,6 +11,7 @@ import { CustomerResponse, ShippingAddress } from "model/response/customer/custo
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { OrderResponse } from "model/response/order/order.response";
+import { SourceResponse } from "model/response/order/source.response";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { MODAL_ACTION_TYPE } from "utils/Constants";
@@ -36,7 +37,7 @@ type CardCustomerProps = {
   shippingAddress: ShippingAddress | any;
   setModalAction?: (item: modalActionType) => void;
   modalAction: modalActionType;
-  setOrderSourceId?: (value: number) => void;
+  setOrderSource?: (value: SourceResponse | null) => void;
   OrderDetail?: OrderResponse | null;
   shippingAddressesSecondPhone?: string;
   setShippingAddressesSecondPhone?: (value: string) => void;
@@ -61,7 +62,7 @@ const CardCustomer: React.FC<CardCustomerProps> = (props: CardCustomerProps) => 
     shippingAddress,
     setModalAction,
     modalAction,
-    setOrderSourceId,
+    setOrderSource: setOrderSourceId,
     OrderDetail,
     shippingAddressesSecondPhone,
     setShippingAddressesSecondPhone,
@@ -160,7 +161,7 @@ const CardCustomer: React.FC<CardCustomerProps> = (props: CardCustomerProps) => 
         extra={
           <ExtraCardCustomer
             orderDetail={OrderDetail}
-            setOrderSourceId={setOrderSourceId}
+            setOrderSource={setOrderSourceId}
             isDisableSelectSource={isDisableSelectSource}
             initialForm={initialForm}
             updateOrder={updateOrder}

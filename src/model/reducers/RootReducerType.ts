@@ -4,6 +4,7 @@ import { BootstrapReducerType } from "./BootstrapReducerType";
 import { LoadingReducerType } from "./LoadingReducerType";
 import { OrderReducerType } from "./OrderReducerType";
 import { UserReducerType } from "./UserReducerType";
+import { InventoryReducerType } from "./InventoryReducerType";
 
 export interface RootReducerType {
   userReducer: UserReducerType;
@@ -12,4 +13,5 @@ export interface RootReducerType {
   appSettingReducer: AppSettingReducerType;
   permissionReducer: AuthProfilePermission;
   orderReducer: OrderReducerType;
+  inventoryReducer: InventoryReducerType;
 }

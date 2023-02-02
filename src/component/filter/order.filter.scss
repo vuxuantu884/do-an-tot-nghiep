@@ -91,7 +91,7 @@
 }
 .order-filter-tags {
   .tag {
-    padding: 10px 10px;
+    padding: 4px 10px;
     margin-bottom: 20px;
     background: rgba(42, 42, 134, 0.05);
     border-radius: 50px;
@@ -189,23 +189,23 @@
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
     }
-    .ant-select {
-      .ant-select-selector {
-        .ant-select-selection-item {
-          background-color: #2a2a86;
-          border-radius: 6px;
-          font-style: normal;
-          font-weight: normal;
-          font-size: 14px;
-          line-height: 18px;
-          font-family: Roboto;
-          .ant-select-selection-item-content,
-          .ant-select-selection-item-remove {
-            color: #ffffff;
-          }
-        }
-      }
-    }
+    // .ant-select {
+    //   .ant-select-selector {
+    //     .ant-select-selection-item {
+    //       background-color: #2a2a86;
+    //       border-radius: 6px;
+    //       font-style: normal;
+    //       font-weight: normal;
+    //       font-size: 14px;
+    //       line-height: 18px;
+    //       font-family: Roboto;
+    //       .ant-select-selection-item-content,
+    //       .ant-select-selection-item-remove {
+    //         color: #ffffff;
+    //       }
+    //     }
+    //   }
+    // }
     .active {
       color: #ffffff;
       border-color: rgba(42, 42, 134, 0.1);

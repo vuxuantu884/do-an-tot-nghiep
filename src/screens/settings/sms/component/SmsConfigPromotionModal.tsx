@@ -37,10 +37,14 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
   const [form] = Form.useForm();
 
   const [originFormValues, setOriginFormValues] = useState<any>();
-  const [isSetFormValues, setIsSetFormValues] = useState<boolean>(false);
 
-  const { priceRuleData, setPriceRuleData, setIsLimitUsage, setIsLimitUsagePerCustomer } =
-    useContext(IssueContext);
+  const {
+    priceRuleData,
+    setPriceRuleData,
+    setIsLimitUsage,
+    setIsLimitUsagePerCustomer,
+    setIsSetFormValues,
+  } = useContext(IssueContext);
 
   useEffect(() => {
     if (promotionModalData) {
@@ -78,7 +82,14 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
       setIsSetFormValues(true);
       form.setFieldsValue(formValues);
     }
-  }, [form, promotionModalData, setIsLimitUsage, setIsLimitUsagePerCustomer, setPriceRuleData]);
+  }, [
+    form,
+    promotionModalData,
+    setIsLimitUsage,
+    setIsLimitUsagePerCustomer,
+    setIsSetFormValues,
+    setPriceRuleData
+  ]);
 
   /** handle Insert key word */
   const updateCursorPosition = (cursorPosition: any, text: any, textArea: any) => {
@@ -226,7 +237,7 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <IssueTypeForm form={form} isSetFormValues={isSetFormValues} />
+                  <IssueTypeForm form={form} />
                 </Col>
                 <Col span={24}></Col>
               </Row>

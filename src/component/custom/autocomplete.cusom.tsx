@@ -104,7 +104,7 @@ export default class CustomAutoComplete extends Component<
             <div className="dropdown-custom">
               {this.props.showAdd && (
                 <Button
-                  icon={<AiOutlinePlusCircle size={24} />}
+                  // icon={<AiOutlinePlusCircle size={24} />}
                   className="dropdown-custom-add-new"
                   type="link"
                   onClick={this.add}

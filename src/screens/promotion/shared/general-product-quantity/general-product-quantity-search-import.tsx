@@ -1,13 +1,14 @@
+import { useContext } from "react";
 import { Button, Input } from "antd";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import _ from "lodash";
-import * as React from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { DiscountUnitType } from "screens/promotion/constants";
 import { formatCurrency } from "utils/AppUtils";
+import { IssueContext } from "screens/promotion/issue/components/issue-provider";
 
 export interface IGeneralProductQuantitySearchImportProps {
   loadingDiscountVariant: boolean;
@@ -16,8 +17,6 @@ export interface IGeneralProductQuantitySearchImportProps {
   listSearchVariant: any[];
   productSearchRef: any;
   setShowImportModal: (item: boolean) => void;
-  typeSelectPromotion?: string;
-  valueChangePromotion: number;
   listProductNotExcludeForPagging: any;
   onDeleteItem: (item: any) => void;
   handlePageChange: (page: number, pageSize?: number) => void;
@@ -34,19 +33,23 @@ export default function GeneralProductQuantitySearchImport(
     listSearchVariant,
     productSearchRef,
     setShowImportModal,
-    typeSelectPromotion,
-    valueChangePromotion,
     listProductNotExcludeForPagging,
     onDeleteItem,
     handlePageChange,
     handleSizeChange,
   } = props;
 
+  const {
+    typeSelectPromotion,
+    valueChangePromotion,
+    isGettingProduct,
+  } = useContext(IssueContext);
+
   return (
     <div className="list-apply-product-promotion">
       <h4 style={{ fontWeight: 700 }}>Danh sách sản phẩm áp dụng:</h4>
 
-      <Input.Group className="display-flex" style={{ marginTop: 20 }}>
+      <Input.Group style={{ marginTop: 20, display: "flex" }}>
         <CustomAutoComplete
           id="#product_search"
           dropdownClassName="product"
@@ -157,6 +160,7 @@ export default function GeneralProductQuantitySearchImport(
           onShowSizeChange: handleSizeChange,
           showSizeChanger: true,
         }}
+        isLoading={isGettingProduct}
         scroll={{ y: 300 }}
         rowKey={listProductNotExcludeForPagging.items.map(
           (item: any) => item.variant_id || item.product_id,

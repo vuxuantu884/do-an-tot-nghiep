@@ -27,6 +27,7 @@ import circleDeleteIcon from "assets/icon/circle-delete.svg";
 import ConnectProductByExcel from "./ConnectProductByExcel";
 import ConfirmConnectProductModal from "./ConfirmConnectProductModal";
 import { WebAppResponse } from "model/response/web-app/ecommerce.response";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 type ProductNotConnectProps = {
   handleMappingVariantJob: (x: any) => void;
@@ -432,7 +433,7 @@ const ProductNotConnect = (props: ProductNotConnectProps) => {
           columns={columns}
           dataSource={variantData.items}
           scroll={{ x: 1080 }}
-          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           pagination={{
             pageSize: variantData.metadata && variantData.metadata.limit,
             total: variantData.metadata && variantData.metadata.total,

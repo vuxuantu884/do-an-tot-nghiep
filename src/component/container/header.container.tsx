@@ -95,7 +95,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
   return (
     <StyledComponent>
       <Layout.Header className={props.isShowHeader ? "show" : "hide"}>
-        <div className="ant-layout-header-left">
+        <div className="unicorn-layout-header-brand">
           <Link to={UrlConfig.HOME}>
             <div className="logo-header">
               <Logo />
@@ -109,7 +109,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
             />
           </div>
         </div>
-        <div className="ant-layout-header-right">
+        <div className="unicorn-layout-header-body">
           <div className="markup-env">
             <DevAndUatMarkup />
           </div>

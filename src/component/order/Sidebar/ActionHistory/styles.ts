@@ -7,14 +7,12 @@ export const StyledComponent = styled.div`
     white-space: normal;
   }
   .cardTitle {
-    color: #5d5d8a;
-    font-size: 14px;
-    padding-left: 30px;
+    padding-left: 25px;
     position: relative;
     img {
       left: 0;
       position: absolute;
-      top: 1px;
+      top: 3px;
       z-index: 1;
     }
   }

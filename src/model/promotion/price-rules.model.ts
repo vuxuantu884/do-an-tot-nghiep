@@ -28,6 +28,7 @@ export enum PriceRuleState {
   ACTIVE = "ACTIVE",
   DISABLED = "DISABLED",
   CANCELLED = "CANCELLED",
+  PENDING = "PENDING",
 }
 export enum Gender {
   MALE = "MALE",
@@ -227,4 +228,5 @@ export interface PriceRule extends BaseObject {
   usage_limit?: number;
   usage_limit_per_customer?: number;
   is_registered?: boolean;
+  is_sms_voucher?: boolean;
 }

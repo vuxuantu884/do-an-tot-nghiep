@@ -10,22 +10,8 @@ export const StyledConfig = styled.div`
     border: 1px solid ${borderColor};
     padding: 7px 15px;
     margin-bottom: 20px;
-    .ant-col {
-      margin: 5px 0;
-    }
   }
-  .ant-row {
-    width: 100%;
-  }
-  .ant-col {
-    display: flex;
-    flex-direction: column;
-  }
-  .ant-form-item {
-    display: flex;
-    flex-direction: column;
-    margin: 0 0 14px;
-  }
+
   label {
     font-weight: 500;
   }
@@ -63,10 +49,6 @@ export const StyledConfig = styled.div`
       border: 1px solid rgb(226, 67, 67);
       background: #ffffff;
     }
-  }
-
-  .ant-form-item-label {
-    display: -webkit-inline-box;
   }
 
   button {

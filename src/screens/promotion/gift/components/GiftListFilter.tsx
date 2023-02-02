@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
 import BaseFilter from "component/filter/base.filter";
 import { FilterOutlined } from "@ant-design/icons";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { useDispatch } from "react-redux";
 import { convertItemToArray, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import {

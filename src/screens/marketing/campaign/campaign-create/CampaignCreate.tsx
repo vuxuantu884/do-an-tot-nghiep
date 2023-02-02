@@ -1,7 +1,19 @@
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import { Button, Card, Col, DatePicker, Form, FormInstance, Input, Radio, Row, Select, Space } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Form,
+  FormInstance,
+  Input,
+  Radio,
+  Row,
+  Select,
+  Space,
+} from "antd";
 import { ArrowLeftOutlined, MenuOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
@@ -27,7 +39,8 @@ import {
   getCampaignContactAction,
   getCampaignDetailAction,
   getImportFileTemplateAction,
-  getMessageTemplateAction, updateCampaignAction,
+  getMessageTemplateAction,
+  updateCampaignAction,
 } from "domain/actions/marketing/marketing.action";
 import CampaignImportFile from "screens/marketing/campaign/campaign-create/CampaignImportFile";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -35,6 +48,7 @@ import CustomTable from "component/table/CustomTable";
 import useAuthorization from "hook/useAuthorization";
 import { CAMPAIGN_PERMISSION } from "config/permissions/marketing.permission";
 import { CampaignContactSearchQuery } from "model/marketing/marketing.model";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const { Option } = Select;
 
@@ -49,7 +63,7 @@ const CampaignCreateUpdate = () => {
   const dispatch = useDispatch();
   const params: any = useParams();
 
-// campaign permission
+  // campaign permission
   const [allowViewContact] = useAuthorization({
     acceptPermissions: viewContactPermission,
     not: false,
@@ -62,7 +76,7 @@ const CampaignCreateUpdate = () => {
   let activeCampaign = true;
 
   const [isCreateCampaign, setIsCreateCampaign] = useState<boolean>(true);
-  
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSelectedNow, setIsSelectedNow] = useState(true);
   const [campaignMessage, setCampaignMessage] = useState<string>("");
@@ -72,31 +86,28 @@ const CampaignCreateUpdate = () => {
     icon: "",
   });
 
-
   const [brandNameList, setBrandNameList] = useState<Array<any>>([]);
   const [messageTemplateList, setMessageTemplateList] = useState<Array<any>>([
     {
       NetworkID: null,
-      TempContent: "YODY ky niem 3 thang ban trai nghiem sp,tang ban ma GIAM GIA 100K:{P}(AD SPTK nguyen gia>200k),HSD:07/12/17.Moi ban mang TN den Yody nhan uu dai.LH:18002086.",
+      TempContent:
+        "YODY ky niem 3 thang ban trai nghiem sp,tang ban ma GIAM GIA 100K:{P}(AD SPTK nguyen gia>200k),HSD:07/12/17.Moi ban mang TN den Yody nhan uu dai.LH:18002086.",
       TempId: 18659,
-    }
+    },
   ]);
 
   const [importFileTemplate, setImportFileTemplate] = useState<string>("");
   const [isVisibleImportFileModal, setIsVisibleImportFileModal] = useState<boolean>(false);
 
-
   const [campaignDetail, setCampaignDetail] = useState<any>();
   const [isEditInfo, setIsEditInfo] = useState<boolean>(true);
 
-  const [queryContactSearch, setQueryContactSearch] = useState<CampaignContactSearchQuery>(
-    {
-      page: 1,
-      limit: 30,
-      phone: null,
-      statuses: null,
-    },
-  );
+  const [queryContactSearch, setQueryContactSearch] = useState<CampaignContactSearchQuery>({
+    page: 1,
+    limit: 30,
+    phone: null,
+    statuses: null,
+  });
   const [campaignCustomerData, setCampaignCustomerData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
@@ -119,7 +130,7 @@ const CampaignCreateUpdate = () => {
       if (!allowViewContact) {
         return;
       }
-      
+
       setIsLoading(true);
       dispatch(getCampaignContactAction(campaignId, params, updateContactListData));
     },
@@ -129,7 +140,7 @@ const CampaignCreateUpdate = () => {
 
   /** message template */
   const resetMessageTemplate = useCallback(() => {
-    return;   //fake message template
+    return; //fake message template
     // setMessageTemplateList([]);
     // form.setFieldsValue({
     //   message_template: null,
@@ -144,39 +155,39 @@ const CampaignCreateUpdate = () => {
   }, []);
 
   /** handle update campaign */
-  const updateCampaignDetail = useCallback((response: any) => {
-    if (response) {
-      response.message_type = 2;  //fake message_type
-      response.message_template = 18659;  //fake message_template
-      setCampaignDetail(response);
-      setIsEditInfo(false);
-      form.setFieldsValue({
-        ...response,
-        message_type: response.message_type ? Number(response.message_type) : null,
-      });
-      setCampaignMessage(response.campaign_message);
+  const updateCampaignDetail = useCallback(
+    (response: any) => {
+      if (response) {
+        response.message_type = 2; //fake message_type
+        response.message_template = 18659; //fake message_template
+        setCampaignDetail(response);
+        setIsEditInfo(false);
+        form.setFieldsValue({
+          ...response,
+          message_type: response.message_type ? Number(response.message_type) : null,
+        });
+        setCampaignMessage(response.campaign_message);
 
-      const messageTemplateQuery = {
-        type: Number(response.message_type),
-        brand_name: response.brand_name,
+        const messageTemplateQuery = {
+          type: Number(response.message_type),
+          brand_name: response.brand_name,
+        };
+        getMessageTemplate(messageTemplateQuery);
       }
-      getMessageTemplate(messageTemplateQuery);
-    }
-  }, [form, getMessageTemplate]);
-  
+    },
+    [form, getMessageTemplate],
+  );
+
   useEffect(() => {
     if (params?.id && brandNameList?.length > 0) {
       dispatch(getCampaignDetailAction(params.id, updateCampaignDetail));
-      getContactList(
-        params.id,
-        {
-          page: 1,
-          limit: 30,
-        }
-      );
+      getContactList(params.id, {
+        page: 1,
+        limit: 30,
+      });
     }
   }, [brandNameList, dispatch, getContactList, params.id, updateCampaignDetail]);
-  
+
   useEffect(() => {
     if (params?.id) {
       setIsCreateCampaign(false);
@@ -190,19 +201,18 @@ const CampaignCreateUpdate = () => {
 
   // set default channel: SMS
   useEffect(() => {
-    const smsChannel = CHANNEL_LIST.find(item => item.value === "SMS");
+    const smsChannel = CHANNEL_LIST.find((item) => item.value === "SMS");
     if (smsChannel) {
       setActivatedBtn(smsChannel);
     }
   }, []);
-
 
   /** handle campaign info */
   const createCampaignCallback = useCallback((response: any) => {
     setIsLoading(false);
     if (response) {
       setCampaignDetail(response);
-      showSuccess("Đã tạo mới thông tin chiến dịch")
+      showSuccess("Đã tạo mới thông tin chiến dịch");
       setIsEditInfo(false);
     }
   }, []);
@@ -219,7 +229,7 @@ const CampaignCreateUpdate = () => {
     setIsLoading(false);
     if (response) {
       setCampaignDetail(response);
-      showSuccess("Chỉnh sửa thông tin chiến dịch thành công")
+      showSuccess("Chỉnh sửa thông tin chiến dịch thành công");
       setIsEditInfo(false);
     }
   }, []);
@@ -227,7 +237,7 @@ const CampaignCreateUpdate = () => {
   const onUpdateCampaign = () => {
     form.validateFields().then(() => {
       const formValues = form.getFieldsValue();
-      const params = {...campaignDetail, ...formValues};
+      const params = { ...campaignDetail, ...formValues };
       setIsLoading(true);
       dispatch(updateCampaignAction(campaignDetail?.id, { ...params }, updateCampaignInfoCallback));
     });
@@ -235,11 +245,10 @@ const CampaignCreateUpdate = () => {
 
   const onCancelCreateUpdateInfo = () => {
     if (campaignDetail) {
-      form.setFieldsValue(
-        {
-          campaign_name: campaignDetail.campaign_name,
-          description: campaignDetail.description,
-        });
+      form.setFieldsValue({
+        campaign_name: campaignDetail.campaign_name,
+        description: campaignDetail.description,
+      });
       setIsEditInfo(false);
     } else {
       form.resetFields();
@@ -251,42 +260,30 @@ const CampaignCreateUpdate = () => {
       if (isEditInfo) {
         return (
           <>
-            <Button onClick={onCancelCreateUpdateInfo}>
-              {"Hủy"}
-            </Button>
+            <Button onClick={onCancelCreateUpdateInfo}>{"Hủy"}</Button>
 
-            <Button
-              style={{ marginLeft: "20px" }}
-              type={"primary"}
-              onClick={onUpdateCampaign}
-            >
+            <Button style={{ marginLeft: "20px" }} type={"primary"} onClick={onUpdateCampaign}>
               {"Cập nhật"}
             </Button>
           </>
-        )
+        );
       } else {
         return (
           <Button onClick={() => setIsEditInfo(true)} type={"primary"}>
             Chỉnh sửa
           </Button>
-        )
+        );
       }
     } else {
       return (
         <>
-          <Button onClick={onCancelCreateUpdateInfo}>
-            Hủy
-          </Button>
+          <Button onClick={onCancelCreateUpdateInfo}>Hủy</Button>
 
-          <Button
-            style={{ marginLeft: "20px" }}
-            type={"primary"}
-            onClick={onCreateCampaign}
-          >
+          <Button style={{ marginLeft: "20px" }} type={"primary"} onClick={onCreateCampaign}>
             {"Tạo mới"}
           </Button>
         </>
-      )
+      );
     }
   };
   /** end handle campaign info */
@@ -311,7 +308,7 @@ const CampaignCreateUpdate = () => {
     const params = {
       ...values,
       channel: activatedBtn.value,
-      message_type: 2,  //fake message_type
+      message_type: 2, //fake message_type
     };
 
     if (activeCampaign) {
@@ -327,7 +324,7 @@ const CampaignCreateUpdate = () => {
   const handleSubmitFail = (errorFields: any) => {
     const error = errorFields[0]?.errors[0];
     if (error) {
-      showError({error});
+      showError({ error });
     } else {
       showError("Dữ liệu nhập vào chưa đúng, vui lòng kiểm tra lại");
     }
@@ -335,7 +332,7 @@ const CampaignCreateUpdate = () => {
 
   const handleSaveAndActive = () => {
     if (isSelectedNow) {
-      form.setFieldsValue({ send_date: (new Date()).toISOString() });
+      form.setFieldsValue({ send_date: new Date().toISOString() });
     }
     activeCampaign = true;
     form.submit();
@@ -343,7 +340,7 @@ const CampaignCreateUpdate = () => {
 
   const handleSave = () => {
     if (isSelectedNow) {
-      form.setFieldsValue({ send_date: (new Date()).toISOString() });
+      form.setFieldsValue({ send_date: new Date().toISOString() });
     }
     activeCampaign = false;
     form.submit();
@@ -354,7 +351,6 @@ const CampaignCreateUpdate = () => {
     setActivatedBtn(item);
   };
 
-
   const onChangeCampaignMessage = (e: any) => {
     setCampaignMessage(e.target.value);
   };
@@ -363,7 +359,7 @@ const CampaignCreateUpdate = () => {
   useEffect(() => {
     let sendDate: string;
     if (isSelectedNow) {
-      sendDate = (new Date()).toISOString();
+      sendDate = new Date().toISOString();
     } else {
       sendDate = "";
     }
@@ -376,37 +372,45 @@ const CampaignCreateUpdate = () => {
   /** --- */
 
   /** chọn loại tin */
-  const onSelectMessageType = useCallback((value: any) => {
-    const brand_name = form.getFieldValue("brand_name");
-    if (brand_name) {
-      const query = {
-        type: value,
-        brand_name: brand_name,
+  const onSelectMessageType = useCallback(
+    (value: any) => {
+      const brand_name = form.getFieldValue("brand_name");
+      if (brand_name) {
+        const query = {
+          type: value,
+          brand_name: brand_name,
+        };
+        getMessageTemplate(query);
       }
-      getMessageTemplate(query);
-    }
-    resetMessageTemplate();
-  }, [form, getMessageTemplate, resetMessageTemplate]);
+      resetMessageTemplate();
+    },
+    [form, getMessageTemplate, resetMessageTemplate],
+  );
   /** --- */
 
   /** chọn brand name */
-  const onSelectBrandName = useCallback((value: any) => {
-    const message_type = form.getFieldValue("message_type");
-    if (message_type) {
-      const brandName = brandNameList.find(item => item.Brandname === value);
-      const query = {
-        type: message_type,
-        brand_name: brandName.Brandname,
+  const onSelectBrandName = useCallback(
+    (value: any) => {
+      const message_type = form.getFieldValue("message_type");
+      if (message_type) {
+        const brandName = brandNameList.find((item) => item.Brandname === value);
+        const query = {
+          type: message_type,
+          brand_name: brandName.Brandname,
+        };
+        getMessageTemplate(query);
       }
-      getMessageTemplate(query);
-    }
-    resetMessageTemplate();
-  }, [brandNameList, form, getMessageTemplate, resetMessageTemplate]);
+      resetMessageTemplate();
+    },
+    [brandNameList, form, getMessageTemplate, resetMessageTemplate],
+  );
   /** --- */
 
   /** chọn mẫu tin nhắn */
   const onSelectMessageTemplate = (value: any) => {
-    const messageTemplate = messageTemplateList.find(item => Number(item.TempId) === Number(value));
+    const messageTemplate = messageTemplateList.find(
+      (item) => Number(item.TempId) === Number(value),
+    );
     form?.setFieldsValue({ campaign_message: messageTemplate?.TempContent });
     setCampaignMessage(messageTemplate?.TempContent);
   };
@@ -463,24 +467,23 @@ const CampaignCreateUpdate = () => {
       }
     });
 
-    dispatch(getImportFileTemplateAction(conditions, (response) => {
-      if (response) {
-        setImportFileTemplate(response);
-      }
-      setIsVisibleImportFileModal(true);
-    }));
+    dispatch(
+      getImportFileTemplateAction(conditions, (response) => {
+        if (response) {
+          setImportFileTemplate(response);
+        }
+        setIsVisibleImportFileModal(true);
+      }),
+    );
   }, [campaignMessage, dispatch]);
 
   const onOkImportFile = useCallback(() => {
     setIsVisibleImportFileModal(false);
 
-    getContactList(
-      campaignDetail?.id,
-      {
-        page: 1,
-        limit: 30,
-      }
-    );
+    getContactList(campaignDetail?.id, {
+      page: 1,
+      limit: 30,
+    });
   }, [campaignDetail?.id, getContactList]);
 
   const onCancelImportFile = () => {
@@ -513,7 +516,9 @@ const CampaignCreateUpdate = () => {
         align: "center",
         render: (value: any, item: any, index: number) => (
           <div>
-            {(campaignCustomerData.metadata.page - 1) * campaignCustomerData.metadata.limit + index + 1}
+            {(campaignCustomerData.metadata.page - 1) * campaignCustomerData.metadata.limit +
+              index +
+              1}
           </div>
         ),
         width: "70px",
@@ -522,47 +527,44 @@ const CampaignCreateUpdate = () => {
         title: "SĐT khách hàng",
         key: "customer_phone_number",
         width: "150px",
-        render: (item: any) => (
-          <span>{item.customer_phone_number}</span>
-        ),
+        render: (item: any) => <span>{item.customer_phone_number}</span>,
       },
       {
         title: "Nội dung tin nhắn",
         key: "message_content",
-        render: (item: any) => (
-          <span>{item.customer_message}</span>
-        ),
+        render: (item: any) => <span>{item.customer_message}</span>,
       },
     ];
   }, [campaignCustomerData.metadata.limit, campaignCustomerData.metadata.page]);
 
-  const onPageChange = useCallback((page, limit) => {
-    const contactQuery = {
-      ...queryContactSearch,
-      page,
-      limit,
-    }
-    setQueryContactSearch(contactQuery);
-    getContactList(campaignDetail?.id, contactQuery);
-    }, [campaignDetail?.id, getContactList, queryContactSearch],
+  const onPageChange = useCallback(
+    (page, limit) => {
+      const contactQuery = {
+        ...queryContactSearch,
+        page,
+        limit,
+      };
+      setQueryContactSearch(contactQuery);
+      getContactList(campaignDetail?.id, contactQuery);
+    },
+    [campaignDetail?.id, getContactList, queryContactSearch],
   );
 
   const onSearchContact = useCallback(() => {
     const contactQuery = {
       ...queryContactSearch,
       page: 1,
-    }
+    };
     getContactList(campaignDetail?.id, contactQuery);
   }, [campaignDetail?.id, getContactList, queryContactSearch]);
 
   const onChangeContactInputSearch = (e: any) => {
     setQueryContactSearch({
       ...queryContactSearch,
-      phone: e.target.value
+      phone: e.target.value,
     });
   };
   /** end contact table */
-  
 
   return (
     <CampaignCreateStyled>
@@ -581,7 +583,7 @@ const CampaignCreateUpdate = () => {
             path: `${UrlConfig.MARKETING}/campaigns`,
           },
           {
-            name: `${isCreateCampaign ? "Tạo chiến dịch" : "Chỉnh sửa chiến dịch"}`
+            name: `${isCreateCampaign ? "Tạo chiến dịch" : "Chỉnh sửa chiến dịch"}`,
           },
         ]}
       >
@@ -593,9 +595,7 @@ const CampaignCreateUpdate = () => {
           onFinishFailed={({ errorFields }) => handleSubmitFail(errorFields)}
           layout="vertical"
         >
-          <Card
-            title={"THÔNG TIN CHIẾN DỊCH"}
-          >
+          <Card title={"THÔNG TIN CHIẾN DỊCH"}>
             <Row gutter={24} style={{ height: "100px", marginBottom: "20px" }}>
               <Col span={12}>
                 <Form.Item
@@ -613,10 +613,7 @@ const CampaignCreateUpdate = () => {
               </Col>
 
               <Col span={11}>
-                <Form.Item
-                  name="description"
-                  label={"Mô tả"}
-                >
+                <Form.Item name="description" label={"Mô tả"}>
                   <Input
                     disabled={isLoading || (campaignDetail && !isEditInfo)}
                     maxLength={255}
@@ -630,7 +627,7 @@ const CampaignCreateUpdate = () => {
             {renderCampaignInfoButton()}
 
             <Button
-              hidden    // tạm ẩn
+              hidden // tạm ẩn
               style={{ color: "#2A2A86" }}
               icon={<PlusOutlined style={{ color: "#2A2A86" }} />}
               onClick={() => showWarning("Chọn chiến dịch gủi tin tự động")}
@@ -639,13 +636,9 @@ const CampaignCreateUpdate = () => {
             </Button>
           </Card>
 
-
-          {campaignDetail && !isEditInfo &&
+          {campaignDetail && !isEditInfo && (
             <>
-              <Card
-                title={"THIẾT LẬP TIN NHẮN"}
-                className="message-setting"
-              >
+              <Card title={"THIẾT LẬP TIN NHẮN"} className="message-setting">
                 <Row gutter={24}>
                   <Col span={16}>
                     <div className="channel-list">
@@ -653,7 +646,11 @@ const CampaignCreateUpdate = () => {
                       {CHANNEL_LIST.map((item: any) => (
                         <Button
                           key={item.value}
-                          className={`channel-button ${item.value === activatedBtn?.value ? "active-button" : "icon-active-button"}`}
+                          className={`channel-button ${
+                            item.value === activatedBtn?.value
+                              ? "active-button"
+                              : "icon-active-button"
+                          }`}
                           icon={item.icon && <img src={item.icon} alt={item.value} />}
                           onClick={() => onSelectChannel(item)}
                           disabled={isLoading || item.value !== "SMS"}
@@ -663,7 +660,7 @@ const CampaignCreateUpdate = () => {
                       ))}
                     </div>
 
-                    {activatedBtn?.value === "SMS" &&
+                    {activatedBtn?.value === "SMS" && (
                       <Row gutter={24} className={"sms-setting"}>
                         <Col span={11}>
                           <Form.Item
@@ -730,7 +727,7 @@ const CampaignCreateUpdate = () => {
                           </Form.Item>
                         </Col>
                       </Row>
-                    }
+                    )}
 
                     <Form.Item
                       label={"Thời gian gửi tin"}
@@ -753,13 +750,9 @@ const CampaignCreateUpdate = () => {
                         </Space>
                       </Radio.Group>
 
-                      {!isSelectedNow &&
-                        <DatePicker
-                          showTime
-                          showNow={false}
-                          onOk={onOkSelectDate}
-                        />
-                      }
+                      {!isSelectedNow && (
+                        <DatePicker showTime showNow={false} onOk={onOkSelectDate} />
+                      )}
                     </Form.Item>
 
                     <Form.Item
@@ -772,7 +765,9 @@ const CampaignCreateUpdate = () => {
                         disabled={isLoading}
                         onChange={onChangeCampaignMessage}
                         placeholder="Nhập nội dung"
-                        onBlur={(e) => form?.setFieldsValue({ campaign_message: e.target.value?.trim() })}
+                        onBlur={(e) =>
+                          form?.setFieldsValue({ campaign_message: e.target.value?.trim() })
+                        }
                         style={{ height: "120px" }}
                       />
                     </Form.Item>
@@ -809,11 +804,9 @@ const CampaignCreateUpdate = () => {
                     </div>
 
                     <div className={"body"}>
-                      {campaignMessage &&
-                        <div className={"message-content"}>
-                          {campaignMessage}
-                        </div>
-                      }
+                      {campaignMessage && (
+                        <div className={"message-content"}>{campaignMessage}</div>
+                      )}
                     </div>
 
                     <div className={"android-navigation"}>
@@ -825,21 +818,16 @@ const CampaignCreateUpdate = () => {
                 </Row>
               </Card>
 
-              {(allowViewContact || allowCreateContact) &&
-                <Card
-                  title={"THIẾT LẬP ĐỐI TƯỢNG GỬI TIN"}
-                  className={"campaign-contact"}
-                >
-                  {allowCreateContact &&
-                    <Button onClick={importFile}>Nhập file</Button>
-                  }
+              {(allowViewContact || allowCreateContact) && (
+                <Card title={"THIẾT LẬP ĐỐI TƯỢNG GỬI TIN"} className={"campaign-contact"}>
+                  {allowCreateContact && <Button onClick={importFile}>Nhập file</Button>}
 
-                  {allowViewContact &&
+                  {allowViewContact && (
                     <>
                       <div style={{ margin: "20px 0", fontSize: "16px" }}>
                         <b>Danh sách khách hàng áp dụng</b>
                       </div>
-                      
+
                       <div className={"search-contact"}>
                         <Input
                           disabled={isLoading}
@@ -855,11 +843,11 @@ const CampaignCreateUpdate = () => {
                           Lọc
                         </Button>
                       </div>
-                      
+
                       <CustomTable
                         bordered
                         isLoading={isLoading}
-                        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+                        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
                         pagination={{
                           pageSize: campaignCustomerData?.metadata?.limit,
                           total: campaignCustomerData?.metadata?.total,
@@ -874,39 +862,43 @@ const CampaignCreateUpdate = () => {
                         rowKey={(item: any) => item.key}
                       />
                     </>
-                  }
+                  )}
                 </Card>
-              }
+              )}
             </>
-          }
-          
+          )}
+
           <BottomBarContainer
-            back={`${isCreateCampaign ? "Quay lại danh sách chiến dịch" : "Quay lại chi tiết chiến dịch"}`}
+            back={`${
+              isCreateCampaign ? "Quay lại danh sách chiến dịch" : "Quay lại chi tiết chiến dịch"
+            }`}
             backAction={() => {
               if (isCreateCampaign) {
-                history.push(`${UrlConfig.MARKETING}/campaigns`)
+                history.push(`${UrlConfig.MARKETING}/campaigns`);
               } else {
-                history.push(`${UrlConfig.MARKETING}/campaigns/${params?.id}`)
+                history.push(`${UrlConfig.MARKETING}/campaigns/${params?.id}`);
               }
             }}
             rightComponent={
-            campaignDetail && !isEditInfo &&
-              <>
-                <Button
-                  onClick={() => handleSave()}
-                  style={{
-                    marginLeft: ".75rem",
-                    marginRight: ".75rem",
-                    borderColor: "#2a2a86",
-                  }}
-                  type="ghost"
-                >
-                  Lưu
-                </Button>
-                <Button type="primary" onClick={() => handleSaveAndActive()}>
-                  Lưu và kích hoạt
-                </Button>
-              </>
+              campaignDetail &&
+              !isEditInfo && (
+                <>
+                  <Button
+                    onClick={() => handleSave()}
+                    style={{
+                      marginLeft: ".75rem",
+                      marginRight: ".75rem",
+                      borderColor: "#2a2a86",
+                    }}
+                    type="ghost"
+                  >
+                    Lưu
+                  </Button>
+                  <Button type="primary" onClick={() => handleSaveAndActive()}>
+                    Lưu và kích hoạt
+                  </Button>
+                </>
+              )
             }
           />
         </Form>

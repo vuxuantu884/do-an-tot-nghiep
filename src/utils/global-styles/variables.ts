@@ -29,28 +29,3 @@ export const borderRadius = "2px";
 //font
 export const headingFontWeight = 600;
 export const bodyFontSize = "14px";
-
-/**
- * darken hoặc lighten màu: darken -0.2, lighten +
- * https://www.sitepoint.com/javascript-generate-lighter-darker-color/
- */
-export const colorLuminance = (hex: string, lum: number): string => {
-  // validate hex string
-  hex = String(hex).replace(/[^0-9a-f]/gi, "");
-  if (hex.length < 6) {
-    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-  }
-  lum = lum || 0;
-
-  // convert to decimal and change luminosity
-  let rgb = "#";
-  let c;
-  let i;
-  for (i = 0; i < 3; i += 1) {
-    c = parseInt(hex.substr(i * 2, 2), 16);
-    c = Math.round(Math.min(Math.max(0, c + c * lum), 255)).toString(16);
-    rgb += `00${c}`.substr(c.length);
-  }
-
-  return rgb;
-};

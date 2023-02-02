@@ -561,9 +561,9 @@ const StyledRow = styled(Row)`
     align-items: center;
     justify-content: center;
   }
-  .ant-input-affix-wrapper {
+  /* .ant-input-affix-wrapper {
     padding: 0 !important;
-  }
+  } */
   .ant-select-selection-item {
     .hidden {
       display: none;

@@ -9,7 +9,7 @@ import {
 } from "model/purchase-order/purchase-procument";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { ProcumentStatus, ProcurementStatus } from "utils/Constants";
+import { OFFSET_HEADER_TABLE, ProcumentStatus, ProcurementStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT, getStartOfDay } from "utils/DateUtils";
 import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
@@ -211,7 +211,7 @@ const TabSevenDays: React.FC = () => {
         <CustomTable
           isLoading={loading}
           dataSource={data.items}
-          sticky={{ offsetScroll: 5, offsetHeader: 109 }}
+          sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
           scroll={{ x: 1400 }}
           columns={columns}
           rowKey={(item) => item.id}

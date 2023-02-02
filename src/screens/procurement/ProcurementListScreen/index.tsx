@@ -42,7 +42,7 @@ const ProcurementListScreen: React.FC<RouteComponentProps> = () => {
         breadcrumb={[
           {
             name: "Nhà cung cấp",
-            path: UrlConfig.HOME,
+            // path: UrlConfig.HOME,
           },
           {
             name: "Phiếu nhập kho",

@@ -441,7 +441,7 @@ const GroupUpdate: React.FC = () => {
                 dropdownMatchSelectWidth={456}
                 style={{ width: "100%" }}
                 showAdd={true}
-                textAdd="Thêm mới sản phẩm"
+                textAdd="+ Thêm mới sản phẩm"
                 onSelect={selectProduct}
                 options={renderResult}
                 ref={productSearchRef}
@@ -516,7 +516,15 @@ const GroupUpdate: React.FC = () => {
           />
           <BottomBarContainer
             back={"Quay lại danh sách"}
-            backAction={() => backAction(formRef.current?.getFieldsValue(), detail, setModalConfirm, history, UrlConfig.COLLECTIONS)}
+            backAction={() =>
+              backAction(
+                formRef.current?.getFieldsValue(),
+                detail,
+                setModalConfirm,
+                history,
+                UrlConfig.COLLECTIONS,
+              )
+            }
             rightComponent={
               <AuthWrapper acceptPermissions={[ProductPermission.categories_update]}>
                 <Button loading={isLoading} htmlType="submit" type="primary">

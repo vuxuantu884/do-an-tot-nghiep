@@ -5,6 +5,7 @@ import { ExpenditureSearchQuery, ExpenditureTableModel } from "model/revenue/exp
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { StyledComponent } from "./style";
 
 type Props = {
@@ -144,7 +145,7 @@ const ExpenditureTable: React.FC<Props> = (props: Props) => {
           scroll={{
             x: (2200 * columnFinal.length) / (columnFinal.length ? columnFinal.length : 1),
           }}
-          sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           isLoading={tableLoading}
           showColumnSetting={true}
           dataSource={data.items}
