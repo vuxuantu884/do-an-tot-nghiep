@@ -68,7 +68,7 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
             ?.map((item: any) => item.sku_code)
             .includes(keySearch);
           if (shouldAddOption(keySearch, productSkus, "sku_code") && !isSelectedSkus) {
-            const opt = { sku_code: keySearch, sku_name: keySearch };
+            const opt = { sku_code: keySearch, sku_name: "" };
             setProductSkus([...productSkus, opt]);
           }
           break;
@@ -192,7 +192,7 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
   const onChangeSkuCodes = () => {
     const { skuCodes } = form.getFieldsValue();
     form.setFieldsValue({
-      skuNames: skuCodes,
+      skuNames: skuCodes.filter((item: string) => JSON.parse(item).sku_name),
     });
   };
 

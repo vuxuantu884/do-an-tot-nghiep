@@ -321,5 +321,16 @@ export const inventoryBalanceColumns: any[] = [
       };
     });
   }
-  return { ...item, width: item.width ? item.width : 120, className: "text-center" };
+  return {
+    ...item,
+    width: item.width ? item.width : 120,
+    className: "text-center",
+    render: (text: string | number | null, row: any) => {
+      return text && typeof text === "number" ? (
+        <span className={row.className}>{formatCurrency(text) ?? "-"}</span>
+      ) : (
+        <span className={row.className}>{text ?? "-"}</span>
+      );
+    },
+  };
 });
