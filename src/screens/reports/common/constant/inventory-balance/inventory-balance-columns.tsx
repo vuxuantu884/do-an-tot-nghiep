@@ -299,15 +299,10 @@ export const inventoryBalanceColumns: any[] = [
   },
   {
     title: "Tồn kho tại thời điểm",
-    children: [
-      {
-        title: "Spot data",
-        dataIndex: "t41",
-        key: "t41",
-        align: "right",
-        width: 150,
-      },
-    ],
+    dataIndex: "t41",
+    key: "t41",
+    align: "right",
+    width: 150,
   },
 ].map((item: any) => {
   if (item.children) {
