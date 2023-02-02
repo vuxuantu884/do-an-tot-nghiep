@@ -332,6 +332,14 @@
     }
   }
   //drawer
+  // button
+  &-btn {
+    &.ant-btn-background-ghost {
+      color: inherit;
+      border-color: $border-color;
+      background: #fff;
+    }
+  }
 }
 
 .icon-information-delete {
