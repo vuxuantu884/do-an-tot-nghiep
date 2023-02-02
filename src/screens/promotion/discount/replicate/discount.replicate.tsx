@@ -36,7 +36,6 @@ const DiscountReplicate = () => {
 
   const { id } = useParams<{ id: string }>();
   const idNumber = parseInt(id);
-  let activeDiscount = true;
 
   /** phân quyền */
   const [allowActiveDiscount] = useAuthorization({
@@ -44,6 +43,7 @@ const DiscountReplicate = () => {
   });
   /** */
 
+  const [isActiveDiscount, setIsActiveDiscount] = useState(false);
   const [dataVariants, setDataVariants] = useState<ProductEntitlements[]>([]);
 
   const [isAllStore, setIsAllStore] = useState(true);
@@ -141,7 +141,7 @@ const DiscountReplicate = () => {
   /**
    * Replicate discount
    */
-  const handleSubmit = (values: any) => {
+  const handleSubmit = useCallback((values: any) => {
     try {
       if (values.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD) {
         values.entitlements[0].is_apply_all = discountProductHaveExclude ? false : discountAllProduct;
@@ -159,7 +159,7 @@ const DiscountReplicate = () => {
         discountAllProduct,
         discountProductHaveExclude,
       );
-      body.activated = activeDiscount;
+      body.activated = isActiveDiscount;
       dispatch(showLoading());
       dispatch(
         createPriceRuleAction(body, (data) => {
@@ -174,15 +174,21 @@ const DiscountReplicate = () => {
       dispatch(hideLoading());
       showError(error.message);
     }
-  };
+  }, [
+    discountAllProduct,
+    discountProductHaveExclude,
+    dispatch,
+    history,
+    isActiveDiscount
+  ]);
 
   const handleSaveAndActive = () => {
-    activeDiscount = true;
+    setIsActiveDiscount(true);
     form.submit();
   };
 
   const save = () => {
-    activeDiscount = false;
+    setIsActiveDiscount(false);
     form.submit();
   };
 

@@ -46,16 +46,19 @@ function PromotionTypeForm(props: Props): ReactElement {
     <div>
       <Card title="Loại khuyến mãi">
         <Row gutter={30}>
-          <Col span={24}>
-            <Form.Item name={PRICE_RULE_FIELDS.is_sms_voucher}>
-              <Checkbox
-                checked={isSmsVoucher}
-                onChange={handleChangeSmsVoucherCheckbox}
-              >
-                Khuyến mãi tặng mã giảm giá qua sms
-              </Checkbox>
-            </Form.Item>
-          </Col>
+          {/*Tạm ẩn Checkbox "Khuyến mãi tặng mã giảm giá qua sms"*/}
+
+          {/*<Col span={24}>*/}
+          {/*  <Form.Item name={PRICE_RULE_FIELDS.is_sms_voucher}>*/}
+          {/*    <Checkbox*/}
+          {/*      checked={isSmsVoucher}*/}
+          {/*      onChange={handleChangeSmsVoucherCheckbox}*/}
+          {/*    >*/}
+          {/*      Khuyến mãi tặng mã giảm giá qua sms*/}
+          {/*    </Checkbox>*/}
+          {/*  </Form.Item>*/}
+          {/*</Col>*/}
+
           {/* Loại khuyến mãi */}
           <Col span={24}>
             <Form.Item label="Chọn loại" name={PRICE_RULE_FIELDS.entitled_method}>
