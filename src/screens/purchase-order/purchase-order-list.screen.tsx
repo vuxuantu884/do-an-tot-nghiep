@@ -1,10 +1,11 @@
-import { Divider, Modal, Radio, Row, Space } from "antd";
+import { Divider, Modal, Radio, Row, Space, Tooltip } from "antd";
 import PurchaseOrderFilter from "component/filter/purchase-order.filter";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import TagStatus, { TagStatusType } from "component/tag/tag-status";
 import { HttpStatus } from "config/http-status.config";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
+import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
@@ -42,7 +43,7 @@ import { generateQuery } from "utils/AppUtils";
 import {
   ArrPoStatus,
   COLUMN_CONFIG_TYPE,
-  OFFSET_HEADER_UNDER_NAVBAR,
+  OFFSET_HEADER_TABLE,
   PoPaymentStatus,
   POStatus,
   ProcumentStatus,
@@ -61,7 +62,7 @@ import statusStored from "assets/icon/status-stored-new.svg";
 import statusFinished from "assets/icon/status-finished-new.svg";
 import statusCompleted from "assets/icon/status-completed-new.svg";
 import statusCancelled from "assets/icon/status-cancelled-new.svg";
-import { CloseCircleOutlined, PrinterOutlined } from "@ant-design/icons";
+import { CloseCircleOutlined, InfoCircleTwoTone, PrinterOutlined } from "@ant-design/icons";
 import { callApiNative } from "utils/ApiUtils";
 import { useReactToPrint } from "react-to-print";
 import purify from "dompurify";
@@ -235,6 +236,11 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
   const [canUpdatePO] = useAuthorization({
     acceptPermissions: [PurchaseOrderPermission.update],
   });
+
+  const [canReadSupplier] = useAuthorization({
+    acceptPermissions: [SuppliersPermissions.READ],
+  });
+
   const actions = useMemo(() => {
     return actionsDefault.filter((item) => {
       if (item.id === 3) {
@@ -281,71 +287,11 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
       {
         title: "Mã đơn đặt hàng",
         dataIndex: "code",
-        width: 150,
-        render: (value: string, i: PurchaseOrder) => {
-          return (
-            <>
-              <Link
-                to={`${UrlConfig.PURCHASE_ORDERS}/${i.id}`}
-                style={{ fontWeight: 500, fontSize: 16 }}
-              >
-                {value}
-              </Link>
-              <div className="fs-12 text-muted">
-                Ngày tạo: {ConvertUtcToLocalDate(i.created_date, "DD/MM/yy")}
-              </div>
-              <div className="fs-12 text-muted">
-                Ngày duyệt: {ConvertUtcToLocalDate(i.activated_date, "DD/MM/yy")}
-              </div>
-              <div>
-                <span style={{ color: "#222222" }}>Tổng SL SP: </span>
-                <span className="font-weight-500">{i.planned_quantity}</span>
-              </div>
-              <div>
-                <span className="text-muted">Mã tham chiếu</span>:{" "}
-                <span style={{ color: "#75757B", fontWeight: 500 }}>{i.reference}</span>
-              </div>
-            </>
-          );
-        },
-        visible: true,
-        fixed: "left",
-      },
-      {
-        title: "Nhà cung cấp",
-        dataIndex: "supplier",
-        width: 140,
-        visible: true,
-        render: (value, record) => {
-          return (
-            <div style={{ lineHeight: "18px" }}>
-              <div>
-                <Link
-                  style={{ fontWeight: 500 }}
-                  to={`${UrlConfig.SUPPLIERS}/${record.supplier_id}`}
-                  target="_blank"
-                >
-                  {record.supplier_code}
-                </Link>
-                <img src={phoneIcon} alt="phone" />{" "}
-                <span className="text-muted fs-12">{record.phone}</span>
-              </div>
-              <div className="fs-12 font-weight-500" style={{ color: "#222222" }}>
-                {value}
-              </div>
-            </div>
-          );
-        },
-      },
-      {
-        title: "Trạng thái",
-        width: 160,
-        dataIndex: "status",
-        render: (value: string, record) => {
+        width: 130,
+        render: (value: string, record: PurchaseOrder) => {
           let type = TagStatusType.normal;
           let icon = "";
           let isFinishedStored = false;
-
           let processIcon;
           let textProcurementStatus: string;
 
@@ -367,29 +313,6 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
             default:
               processIcon = iconPo3;
               textProcurementStatus = "Chưa nhập kho";
-          }
-
-          let financeProcessIcon = undefined;
-          let textFinanceStatus = "";
-          switch (record.financial_status) {
-            case PoPaymentStatus.UNPAID:
-            case null:
-              financeProcessIcon = iconPo3;
-              textFinanceStatus = "Chưa thanh toán";
-              break;
-            case PoPaymentStatus.PARTIAL_PAID:
-              financeProcessIcon = iconPo2;
-              textFinanceStatus = "Thanh toán 1 phần";
-              break;
-            case PoPaymentStatus.PAID:
-            case PoPaymentStatus.FINISHED:
-              financeProcessIcon = iconPo1;
-              textFinanceStatus = "Đã thanh toán";
-              break;
-            default:
-              processIcon = iconPo3;
-              textProcurementStatus = "Chưa nhập kho";
-              break;
           }
 
           switch (record.status) {
@@ -438,24 +361,102 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
               break;
           }
           return (
-            <div>
-              <TextStatus icon={icon} type={type}>
-                {isFinishedStored
-                  ? "Kết thúc nhập kho"
-                  : ArrPoStatus.find((e) => e.key === value)?.value}
-              </TextStatus>
-              <div className="display-flex" style={{ alignItems: "center" }}>
-                <img src={processIcon} alt={textProcurementStatus} style={{ marginRight: 5 }} />
-                <span>{textProcurementStatus}</span>
+            <>
+              <Link
+                to={`${UrlConfig.PURCHASE_ORDERS}/${record.id}`}
+                style={{ fontWeight: 500, fontSize: 16, marginRight: 4 }}
+              >
+                {value}
+              </Link>
+              <Tooltip
+                color="white"
+                title={
+                  <>
+                    {record.created_date && (
+                      <div className="fs-12 text-muted">
+                        Ngày tạo:{" "}
+                        <span style={{ color: "#222222", fontWeight: 500 }}>
+                          {ConvertUtcToLocalDate(record.created_date, "DD/MM/yy")}
+                        </span>
+                      </div>
+                    )}
+                    {record.activated_date && (
+                      <div className="fs-12 text-muted">
+                        Ngày duyệt:{" "}
+                        <span style={{ color: "#222222", fontWeight: 500 }}>
+                          {ConvertUtcToLocalDate(record.activated_date, "DD/MM/yy")}
+                        </span>
+                      </div>
+                    )}
+                    {record.planned_quantity && (
+                      <div className="fs-12 text-muted">
+                        Tổng SL SP:{" "}
+                        <span style={{ color: "#222222", fontWeight: 500 }}>
+                          {record.planned_quantity}
+                        </span>
+                      </div>
+                    )}
+                    {record.reference && (
+                      <div className="fs-12 text-muted">
+                        Mã tham chiếu:{" "}
+                        <span style={{ color: "#222222", fontWeight: 500 }}>
+                          {record.reference}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                }
+              >
+                <InfoCircleTwoTone />
+              </Tooltip>
+              <div>
+                <TextStatus icon={icon} type={type}>
+                  {isFinishedStored
+                    ? "Kết thúc nhập kho"
+                    : ArrPoStatus.find((e) => e.key === record.status)?.value}
+                </TextStatus>
+                <div className="display-flex" style={{ alignItems: "center" }}>
+                  <img src={processIcon} alt={textProcurementStatus} style={{ marginRight: 5 }} />
+                  <span>{textProcurementStatus}</span>
+                </div>
               </div>
-              <div className="display-flex" style={{ alignItems: "center" }}>
-                <img src={financeProcessIcon} alt={textFinanceStatus} style={{ marginRight: 5 }} />
-                <span>{textFinanceStatus}</span>
+            </>
+          );
+        },
+        visible: true,
+        fixed: "left",
+      },
+      {
+        title: "Nhà cung cấp",
+        dataIndex: "supplier",
+        width: 130,
+        visible: true,
+        render: (value, record) => {
+          return (
+            <div style={{ lineHeight: "18px" }}>
+              <div>
+                {canReadSupplier ? (
+                  <Link
+                    style={{ fontWeight: 500 }}
+                    to={`${UrlConfig.SUPPLIERS}/${record.supplier_id}`}
+                    target="_blank"
+                  >
+                    {record.supplier_code}
+                  </Link>
+                ) : (
+                  record.supplier_code
+                )}
+              </div>
+              <div className="fs-12 font-weight-500" style={{ color: "#222222" }}>
+                {value}
+              </div>
+              <div>
+                <img src={phoneIcon} alt="phone" />{" "}
+                <span className="text-muted fs-12">{record.phone}</span>
               </div>
             </div>
           );
         },
-        visible: true,
       },
       {
         title: "Ngày nhận hàng dự kiến",
@@ -511,7 +512,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
                     status = ProcumentStatus.RECEIVED;
                   }
                   return (
-                    <>
+                    <React.Fragment key={idx}>
                       <div
                         style={{
                           display: "flex",
@@ -532,7 +533,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
                         )}
                       </div>
                       {idx + 1 !== row.length && <Divider style={{ margin: "8px 0" }} />}
-                    </>
+                    </React.Fragment>
                   );
                 })}
               </div>
@@ -542,22 +543,50 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
           }
         },
         visible: true,
-        width: 200,
+        width: 170,
       },
       {
         title: "Ngày chốt công nợ",
         dataIndex: "ap_closing_date",
-        width: 100,
-        align: "center",
+        width: 120,
+        align: "left",
         visible: true,
-        render: (date: string) => {
-          return date ? ConvertUtcToLocalDate(date, DATE_FORMAT.DDMMYYY) : "";
+        render: (date: string, record) => {
+          let financeProcessIcon = undefined;
+          let textFinanceStatus = "";
+          switch (record.financial_status) {
+            case PoPaymentStatus.UNPAID:
+            case null:
+              financeProcessIcon = iconPo3;
+              textFinanceStatus = "Chưa thanh toán";
+              break;
+            case PoPaymentStatus.PARTIAL_PAID:
+              financeProcessIcon = iconPo2;
+              textFinanceStatus = "Thanh toán 1 phần";
+              break;
+            case PoPaymentStatus.PAID:
+            case PoPaymentStatus.FINISHED:
+              financeProcessIcon = iconPo1;
+              textFinanceStatus = "Đã thanh toán";
+              break;
+            default:
+              break;
+          }
+          return (
+            <>
+              {date ? ConvertUtcToLocalDate(date, DATE_FORMAT.DDMMYYY) : ""}
+              <div className="display-flex" style={{ alignItems: "center" }}>
+                <img src={financeProcessIcon} alt={textFinanceStatus} style={{ marginRight: 5 }} />
+                <span>{textFinanceStatus}</span>
+              </div>
+            </>
+          );
         },
       },
       {
         title: "Tổng tiền",
         dataIndex: "total",
-        width: 100,
+        width: 90,
         render: (value: number) => (
           <NumberFormat
             value={value}
@@ -567,7 +596,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
           />
         ),
         visible: true,
-        align: "center",
+        align: "left",
       },
       {
         title: "Merchandiser",
@@ -620,53 +649,40 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
             </div>
           );
         },
-        width: 150,
+        width: 160,
         visible: true,
       },
       {
-        title: "Ghi chú nội bộ",
-        dataIndex: "note",
-        visible: true,
-        render: (value, item: PurchaseOrder) => {
-          return (
-            <div className="note">
-              <EditNote note={value} onOk={(value) => onEditPurchaseOrder(item, value, "note")} />
-            </div>
-          );
-        },
-        width: 170,
-      },
-      {
-        title: "Ghi chú nhà cung cấp",
+        title: "Ghi chú",
         dataIndex: "supplier_note",
-        width: 150,
+        width: 160,
         visible: true,
         render: (value, item: PurchaseOrder) => {
           return (
-            <div className="note">
-              <EditNote
-                note={value}
-                onOk={(value) => onEditPurchaseOrder(item, value, "supplier_note")}
-              />
-            </div>
+            <>
+              <div className="note">
+                <EditNote
+                  note={value}
+                  title="Nhà cung cấp"
+                  onOk={(value) => onEditPurchaseOrder(item, value, "supplier_note")}
+                />
+              </div>
+              <div className="note">
+                <EditNote
+                  title="Nội bộ"
+                  note={item.note}
+                  onOk={(value) => onEditPurchaseOrder(item, value, "note")}
+                />
+              </div>
+            </>
           );
         },
-      },
-      {
-        title: "Tag",
-        dataIndex: "tags",
-        render: (value: string) => {
-          return <div className="txt-muted">{value}</div>;
-        },
-        visible: true,
-        width: 120,
       },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [canReadSupplier]);
 
-  const [columns, setColumn] =
-    useState<Array<ICustomTableColumType<PurchaseOrder>>>(defaultColumns);
+  const [columns, setColumn] = useState<Array<ICustomTableColumType<PurchaseOrder>>>([]);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -743,6 +759,10 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
         });
     }
   }, [account, dispatch, defaultColumns]);
+
+  useEffect(() => {
+    setColumn(defaultColumns);
+  }, [defaultColumns]);
 
   useEffect(() => {
     getConfigColumnPo();
@@ -887,7 +907,8 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
           isLoading={tableLoading}
           showColumnSetting={true}
           scroll={{ x: "max-content" }}
-          sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
+          // sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
           pagination={false}
           onShowColumnSetting={() => setShowSettingColumn(true)}
           onSelectedChange={onSelect}

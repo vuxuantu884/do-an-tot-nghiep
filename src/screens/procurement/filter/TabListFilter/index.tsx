@@ -360,10 +360,7 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
                   placeholder="Tìm kiếm theo mã PR, mã PO, mã SP"
                 />
               </Item>
-              <Item
-                name={ProcurementFilterBasicEnum.StoreIds}
-                className="stores"
-              >
+              <Item name={ProcurementFilterBasicEnum.StoreIds} className="stores">
                 <TreeStore
                   style={{ width: 250 }}
                   placeholder="Kho nhận"
@@ -384,7 +381,7 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
                 <CustomSelect
                   maxTagCount="responsive"
                   mode="multiple"
-                  style={{ width: 120 }}
+                  style={{ width: 160 }}
                   showArrow
                   placeholder="Chọn trạng thái"
                   notFoundContent="Không tìm thấy kết quả"
