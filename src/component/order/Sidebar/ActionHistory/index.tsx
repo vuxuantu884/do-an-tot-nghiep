@@ -5,52 +5,20 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
+import { DISPLAYED_ORDER_ACTION_LOGS } from "utils/Order.constants";
 import historyAction from "./images/action-history.svg";
 import ActionHistoryModal from "./Modal";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type Props = {
   countChangeSubStatus: number;
   orderId?: number | null;
   reload?: boolean;
 };
 
-function ActionHistory(props: PropType) {
+function ActionHistory(props: Props) {
   const dateFormat = DATE_FORMAT.fullDate;
-  const listActionLogDisplay = [
-    {
-      action: "create",
-      displayName: "Tạo mới đơn hàng",
-    },
-    {
-      action: "update",
-      displayName: "Sửa đơn hàng",
-    },
-    {
-      action: "cancel",
-      displayName: "Sửa đơn hàng",
-    },
-    {
-      action: "delivery_update",
-      displayName: "Hãng vận chuyển cập nhật trạng thái",
-    },
-    {
-      action: "update_status",
-      displayName: "Đổi trạng thái",
-    },
-    {
-      action: "system_update",
-      displayName: "Hệ thống tự cập nhật",
-    },
-    {
-      action: "add_order_goodsreceipt",
-      displayName: "Thêm vào biên bản bàn giao",
-    },
-    {
-      action: "delete_order_goodsreceipt",
-      displayName: "Xóa khỏi biên bản bàn giao",
-    },
-  ];
+
   const { orderId, countChangeSubStatus, reload } = props;
   const [actionLog, setActionLog] = useState<OrderActionLogResponse[]>([]);
   const dispatch = useDispatch();
@@ -81,11 +49,11 @@ function ActionHistory(props: PropType) {
       return;
     }
     let result = action;
-    const resultAction = listActionLogDisplay?.find((singleStatus) => {
-      return singleStatus.action === action;
+    const resultAction = DISPLAYED_ORDER_ACTION_LOGS?.find((singleStatus) => {
+      return singleStatus.code === action;
     });
-    if (resultAction && resultAction.displayName) {
-      result = resultAction.displayName || action;
+    if (resultAction && resultAction.title) {
+      result = resultAction.title || action;
     }
     return result;
   };

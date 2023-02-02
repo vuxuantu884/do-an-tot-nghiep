@@ -4,17 +4,17 @@ import { OrderActionLogResponse } from "model/response/order/action-log.response
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { ORDER_RETURN_HISTORY } from "utils/Order.constants";
+import { DISPLAYED_ORDER_ACTION_LOGS } from "utils/Order.constants";
 import historyAction from "./images/action-history.svg";
 import ActionHistoryModal from "./Modal";
 import { StyledComponent } from "./styles";
 
-type PropTypes = {
+type Props = {
   countChangeSubStatus: number;
   orderId: number;
 };
 
-function OrderReturnActionHistory(props: PropTypes) {
+function OrderReturnActionHistory(props: Props) {
   const { orderId, countChangeSubStatus } = props;
   const [actionLog, setActionLog] = useState<OrderActionLogResponse[]>([]);
   const dispatch = useDispatch();
@@ -45,7 +45,7 @@ function OrderReturnActionHistory(props: PropTypes) {
       return;
     }
     let result = action;
-    const resultAction = ORDER_RETURN_HISTORY.find((singleStatus) => {
+    const resultAction = DISPLAYED_ORDER_ACTION_LOGS.find((singleStatus) => {
       return singleStatus.code === action;
     });
     if (resultAction) {
