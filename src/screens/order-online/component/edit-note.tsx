@@ -93,20 +93,24 @@ const EditNote: React.FC<EditNoteProps> = (props: EditNoteProps) => {
         {isGroupButton && (
           <Button className="custom-group-btn">
             <>
-              <EditOutlined style={{ marginRight: 5, color: props.color }} title="Sửa ghi chú" />
-              <span>
-                {title && <strong>{title}</strong>}
-                <span className="noteText">{note}</span>
-              </span>
+              <EditOutlined
+                style={{ marginRight: 5, color: props.color }}
+                title={title && "Sửa ghi chú"}
+              >
+                <span>
+                  {title && <strong>{title}</strong>}
+                  <span className="noteText">{note}</span>
+                </span>
+              </EditOutlined>
             </>
           </Button>
         )}
       </Popover>
 
       {!isGroupButton && (
-        <div>
+        <>
           <span>
-            {title && <strong>{title}</strong>}
+            {title && <strong>{title}: </strong>}
             <TextWithLineBreak note={note} />
           </span>
           <div className="noteText">
@@ -136,7 +140,7 @@ const EditNote: React.FC<EditNoteProps> = (props: EditNoteProps) => {
               </span>
             ) : null}
           </div>
-        </div>
+        </>
       )}
     </div>
   );
