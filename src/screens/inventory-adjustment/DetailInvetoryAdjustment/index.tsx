@@ -521,30 +521,44 @@ const DetailInventoryAdjustment: FC = () => {
 
     if (data && dataUpdate) {
       dispatch(
-        updateInventoryAdjustmentAction(data.id, dataUpdate, () => {
-          showSuccess("Cập nhật phiếu kiểm kho thành công");
-          if (isUpdateFile) {
+        updateInventoryAdjustmentAction(data.id, dataUpdate, (res) => {
+          dispatch(hideLoading());
+          if (res) {
+            showSuccess("Cập nhật phiếu kiểm kho thành công");
+            form.setFieldsValue({
+              version: Number(form.getFieldValue("version")) + 1
+            });
+            if (isUpdateFile) {
+              setData({
+                ...data,
+                list_attached_files: form.getFieldValue("list_attached_files"),
+              });
+              return;
+            }
+
             setData({
               ...data,
-              list_attached_files: form.getFieldValue("list_attached_files"),
+              note: newNote || data.note,
             });
+
             return;
           }
 
-          setData({
-            ...data,
-            note: newNote || data.note,
-          });
+          showError("Cập nhật phiếu kiểm kho thất bại");
         }),
       );
+    } else {
+      dispatch(hideLoading());
     }
   };
 
   const updateAuditedBys = () => {
     const dataUpdate = form.getFieldsValue(true);
-    if (data && dataUpdate && dataUpdate.audited_bys.length > 0) {
+    if (data && dataUpdate && dataUpdate.audited_bys.length > 0 && dataUpdate.audited_bys.length !== data.audited_bys?.length) {
+      dispatch(showLoading());
       dispatch(
         updateInventoryAdjustmentAction(data.id, dataUpdate, () => {
+          getDetailInventoryAdjustment().then();
           showSuccess("Cập nhật người kiểm kho thành công");
         }),
       );
@@ -778,6 +792,8 @@ const DetailInventoryAdjustment: FC = () => {
       idNumber,
     );
 
+    dispatch(hideLoading());
+
     if (response) {
       onResult(response);
 
@@ -799,6 +815,7 @@ const DetailInventoryAdjustment: FC = () => {
   };
 
   useEffect(() => {
+    dispatch(showLoading());
     getDetailInventoryAdjustment().then();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps,
@@ -1075,8 +1092,7 @@ const DetailInventoryAdjustment: FC = () => {
                           ]}
                         >
                           <AccountSearchPaging
-                            onSelect={updateAuditedBys}
-                            onDeselect={updateAuditedBys}
+                            onBlur={updateAuditedBys}
                             mode="multiple"
                             placeholder="Chọn người kiểm"
                             style={{ width: "100%" }}
@@ -1186,6 +1202,7 @@ const DetailInventoryAdjustment: FC = () => {
                         title=""
                         color={primaryColor}
                         onOk={(newNote) => {
+                          dispatch(showLoading());
                           updateAdjustment(false, newNote);
                         }}
                       />

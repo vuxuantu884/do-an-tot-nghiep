@@ -17,6 +17,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 export interface SelectContentProps extends SelectProps<any> {
   merchandiser?: string;
   fixedQuery?: any;
+  onBlur?: (event: React.FocusEvent<HTMLElement>) => void;
   isFilter?: boolean | false;
   isGetName?: boolean | false;
   [name: string]: any;
@@ -45,6 +46,7 @@ function SelectSearch(contentProps: SelectContentProps) {
     key,
     isFilter,
     isGetName,
+    onBlur,
     ...selectProps
   } = contentProps;
 
@@ -162,7 +164,11 @@ function SelectSearch(contentProps: SelectContentProps) {
     getIntialValue().then();
   }, [isFilter, dispatch, mode, value, fixedQuery, key, defaultOptons]);
 
-  const handleBlur = () => {
+  const handleBlur = (event: React.FocusEvent<HTMLElement>) => {
+    if (onBlur) {
+      onBlur(event);
+      return;
+    }
     const query = { ...fixedQuery, ...{ condition: "", page: 1 } };
     dispatch(
       searchAccountPublicAction(query, (response: PageResponse<AccountResponse>) => {
@@ -192,7 +198,7 @@ function SelectSearch(contentProps: SelectContentProps) {
       filterOption={() => true} //lấy kết quả từ server
       {...selectProps}
       value={contentProps.defaultValue || value}
-      onBlur={handleBlur}
+      onBlur={(event) => handleBlur(event)}
     >
       {data?.items?.map((item) => (
         <SelectPagingV2.Option
