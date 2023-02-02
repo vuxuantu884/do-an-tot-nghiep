@@ -746,6 +746,10 @@ export const PROMOTION_TYPE = {
 
 export const STATE_LIST = [
   {
+    value: "PENDING",
+    name: "Chờ xác nhận",
+  },
+  {
     value: "DRAFT",
     name: "Chờ áp dụng",
   },

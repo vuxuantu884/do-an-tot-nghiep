@@ -387,7 +387,7 @@ const PromotionCode = () => {
                   maxTagCount="responsive"
                   optionFilterProp="children"
                   placeholder="Chọn trạng thái"
-                  style={{ minWidth: "200px" }}
+                  style={{ minWidth: "250px" }}
                 >
                   {STATE_LIST?.map((item) => (
                     <Option key={item.value} value={item.value}>

@@ -303,13 +303,14 @@ const PromotionDetailScreen: React.FC = () => {
           position: "right",
           color: "#222222",
         },
-        {
-          id: "is_sms_voucher",
-          name: "Tặng mã giảm giá qua sms",
-          value: <span>{data?.is_sms_voucher ? "Có" : "Không"}</span>,
-          position: "right",
-          color: "#222222",
-        },
+        /** Tạm ẩn Checkbox "Khuyến mãi tặng mã giảm giá qua sms" */
+        // {
+        //   id: "is_sms_voucher",
+        //   name: "Tặng mã giảm giá qua sms",
+        //   value: <span>{data?.is_sms_voucher ? "Có" : "Không"}</span>,
+        //   position: "right",
+        //   color: "#222222",
+        // },
       ];
 
       return details;
