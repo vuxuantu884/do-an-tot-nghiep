@@ -581,7 +581,9 @@ const setting: Array<RouteMenu> = [
         key: "sms-promotion-voucher",
         isShow: true,
         header: null,
-        permissions: [SMS_CONFIG_PERMISSIONS.READ],
+        /** tạm ẩn "CTKM tặng voucher" */
+        permissions: ["Hide_promotion_voucher"],
+        // permissions: [SMS_CONFIG_PERMISSIONS.READ],
         subMenu: [],
       },
     ],

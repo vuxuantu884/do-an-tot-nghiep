@@ -32,12 +32,13 @@ const SMS_ACTION_INIT = [
 		url: `${UrlConfig.SMS_SETTINGS}/customer-birthday`,
 		value: [],
 	},
-	{
-		label: "CTKM tặng voucher",
-    type: SMS_TYPE.VOUCHER,
-		url: `${UrlConfig.SMS_SETTINGS}/promotion-voucher`,
-		value: [],
-	},
+  /** tạm ẩn "CTKM tặng voucher" */
+	// {
+	// 	label: "CTKM tặng voucher",
+  //   type: SMS_TYPE.VOUCHER,
+	// 	url: `${UrlConfig.SMS_SETTINGS}/promotion-voucher`,
+	// 	value: [],
+	// },
 ];
 
 const SmsActionSetting: React.FC<any> = (props: any) => {
