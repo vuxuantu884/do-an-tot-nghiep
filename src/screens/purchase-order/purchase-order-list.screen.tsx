@@ -555,11 +555,6 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
           let financeProcessIcon = undefined;
           let textFinanceStatus = "";
           switch (record.financial_status) {
-            case PoPaymentStatus.UNPAID:
-            case null:
-              financeProcessIcon = iconPo3;
-              textFinanceStatus = "Chưa thanh toán";
-              break;
             case PoPaymentStatus.PARTIAL_PAID:
               financeProcessIcon = iconPo2;
               textFinanceStatus = "Thanh toán 1 phần";
@@ -570,6 +565,8 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
               textFinanceStatus = "Đã thanh toán";
               break;
             default:
+              financeProcessIcon = iconPo3;
+              textFinanceStatus = "Chưa thanh toán";
               break;
           }
           return (
@@ -660,14 +657,14 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
         render: (value, item: PurchaseOrder) => {
           return (
             <>
-              <div className="note">
+              <div>
                 <EditNote
                   note={value}
                   title="Nhà cung cấp"
                   onOk={(value) => onEditPurchaseOrder(item, value, "supplier_note")}
                 />
               </div>
-              <div className="note">
+              <div>
                 <EditNote
                   title="Nội bộ"
                   note={item.note}
