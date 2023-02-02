@@ -80,6 +80,7 @@ import AddGiftModal from "screens/order-online/modal/AddGiftModal/add-gift.modal
 import InventoryModal from "screens/order-online/modal/inventory.modal";
 import { applyDiscountService } from "service/promotion/discount/discount.service";
 import {
+  flattenArray,
   findAvatar,
   findPriceInVariant,
   findTaxInVariant,
@@ -129,6 +130,7 @@ import DiscountOrderModalSearch from "screens/order-online/component/DiscountOrd
 import { DiscountValueType } from "model/promotion/price-rules.model";
 import DiscountGroup from "screens/order-online/component/discount-group";
 import { DiscountUnitType } from "screens/promotion/constants";
+import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 
 type PropTypes = {
   storeId: number | null;
@@ -137,7 +139,6 @@ type PropTypes = {
   form: FormInstance<any>;
   totalAmountCustomerNeedToPay: number;
   orderConfig: OrderConfigResponseModel | null | undefined;
-  inventoryResponse: Array<InventoryResponse> | null;
   levelOrder?: number;
   coupon?: string;
   promotion: OrderDiscountRequest | null;
@@ -156,7 +157,6 @@ type PropTypes = {
   setItemGift: (item: OrderLineItemRequest[]) => void;
   changeInfo: (items: Array<OrderLineItemRequest>, promotion: OrderDiscountRequest | null) => void;
   setItems: (items: Array<OrderLineItemRequest>) => void;
-  setInventoryResponse: (item: Array<InventoryResponse> | null) => void;
   fetchData?: () => void;
   returnOrderInformation?: {
     totalAmountReturn: number;
@@ -246,7 +246,6 @@ function OrderCreateProduct(props: PropTypes) {
     form,
     items,
     storeId,
-    inventoryResponse,
     levelOrder = 0,
     coupon = "",
     orderDetail,
@@ -372,6 +371,8 @@ function OrderCreateProduct(props: PropTypes) {
 
   const [storeArrayResponse, setStoreArrayResponse] = useState<Array<StoreResponse> | null>([]);
   // const [discountOrder, setDiscounts] = useState<SuggestDiscountResponseModel[]>([]);
+  const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
+  console.log("storeArrayResponse", storeArrayResponse, inventoryResponse);
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
@@ -2263,6 +2264,15 @@ function OrderCreateProduct(props: PropTypes) {
     setStoreId,
   ]);
 
+  const lineItemsUseInventory = useMemo(() => {
+    if (!items) return [];
+    const _variant = _.cloneDeep(items);
+    const _variantGifts = items.map((p) => p.gifts);
+    const _variantGiftsIdConvertArray = flattenArray(_variantGifts);
+    const _variants: Array<OrderLineItemRequest> = [..._variant, ..._variantGiftsIdConvertArray];
+    return _variants;
+  }, [items]);
+
   const onUpdateData = useCallback(
     (items: Array<OrderLineItemRequest>) => {
       let data = [...items];
@@ -2730,6 +2740,15 @@ function OrderCreateProduct(props: PropTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.isSpecialOrderEcommerce?.isChange]);
 
+  useEffect(() => {
+    if (lineItemsUseInventory.length > 0 && levelOrder <= 3) {
+      console.log("lineItemsUseInventory", lineItemsUseInventory);
+      const _variantIds = lineItemsUseInventory.map((p) => p.variant_id);
+      dispatch(inventoryGetDetailVariantIdsExt(_variantIds, null, setInventoryResponse));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, levelOrder, lineItemsUseInventory.length]);
+
   return (
     <StyledComponent>
       <Card
@@ -2803,7 +2822,7 @@ function OrderCreateProduct(props: PropTypes) {
               }}
             />
             <Button
-              disabled={levelOrder > 3 || isOrderFinishedOrCancel(orderDetail)}
+              disabled={levelOrder > 3}
               onClick={() => {
                 showInventoryModal();
               }}
@@ -2999,7 +3018,7 @@ function OrderCreateProduct(props: PropTypes) {
             setInventoryModalVisible={setInventoryModalVisible}
             storeId={storeId}
             onChangeStore={onChangeStore}
-            columnsItem={items}
+            columnsItem={lineItemsUseInventory}
             inventoryArray={inventoryResponse}
             storeArrayResponse={storeArrayResponse}
             handleCancel={handleInventoryCancel}

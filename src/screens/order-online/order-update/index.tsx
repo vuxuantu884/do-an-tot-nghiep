@@ -178,8 +178,6 @@ export default function Order(props: PropTypes) {
 
   const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] = useState(false);
 
-  const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
-
   const orderConfig = useFetchOrderConfig();
 
   const [isVisibleCustomer, setVisibleCustomer] = useState(true);
@@ -1344,20 +1342,13 @@ export default function Order(props: PropTypes) {
   );
 
   const checkInventory = () => {
-    let status = true;
-    if (inventoryResponse && inventoryResponse.length && items && items != null) {
-      let productItem = null;
-      let newData: Array<InventoryResponse> = [];
-      newData = inventoryResponse.filter((store) => store.store_id === storeId);
-      newData.forEach(function (value) {
-        productItem = items.find((x: any) => x.variant_id === value.variant_id);
-        if (
-          ((value.available ? value.available : 0) <= 0 ||
-            (productItem ? productItem?.quantity : 0) > (value.available ? value.available : 0)) &&
-          orderConfig?.sellable_inventory !== true
-        ) {
+    let status: boolean = true;
+
+    if (items && items != null) {
+      items.forEach(function (value) {
+        let available = value.available === null ? 0 : value.available;
+        if (available <= 0 && orderConfig?.sellable_inventory !== true) {
           status = false;
-          //showError(`${value.name} không còn đủ số lượng tồn trong kho`);
         }
       });
       if (!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
@@ -1543,15 +1534,6 @@ export default function Order(props: PropTypes) {
     }
   }, [dispatch, customer, OrderDetail?.shipping_address]);
 
-  useEffect(() => {
-    if (items && items.length !== 0 && OrderDetail?.store_id) {
-      let variant_id: Array<number> = [];
-      items.forEach((element) => variant_id.push(element.variant_id));
-      // let store_id=OrderDetail?.store_id;
-      dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
-    }
-  }, [OrderDetail?.store_id, dispatch, items]);
-
   // const checkIfOrderCanBeSplit = useMemo(() => {
   // 	// có tách đơn, có shipment trong fulfillments, trường hợp giao hàng sau vẫn có fulfillment mà ko có shipment
   // 	if (OrderDetail?.linked_order_code || (OrderDetail?.fulfillments && OrderDetail.fulfillments.find((single) => single.shipment && !(single.status && [FulFillmentStatus.CANCELLED, FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING].includes(single.status))))) {
@@ -1720,9 +1702,7 @@ export default function Order(props: PropTypes) {
                     form={form}
                     items={items}
                     setItems={setItems}
-                    inventoryResponse={inventoryResponse}
                     customer={customer}
-                    setInventoryResponse={setInventoryResponse}
                     totalAmountCustomerNeedToPay={totalOrderAmount}
                     orderSourceId={orderSource?.id}
                     levelOrder={levelOrder}

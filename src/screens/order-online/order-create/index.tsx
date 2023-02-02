@@ -187,7 +187,6 @@ export default function Order() {
   //   ShippingServiceConfigDetailResponseModel[]
   // >([]);
 
-  const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
   const orderConfig = useFetchOrderConfig();
 
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
@@ -1426,15 +1425,6 @@ export default function Order() {
   }, [cloneIdParam, isCloneOrder]);
 
   useEffect(() => {
-    if (items && items != null && items?.length > 0) {
-      let variant_id: Array<number> = [];
-      items.forEach((element) => variant_id.push(element.variant_id));
-      dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, items?.length]);
-
-  useEffect(() => {
     window.addEventListener("keydown", eventFunctional);
     return () => {
       window.removeEventListener("keydown", eventFunctional);
@@ -1541,9 +1531,7 @@ export default function Order() {
                       setCoupon={setCoupon}
                       promotion={promotion}
                       setPromotion={setPromotion}
-                      inventoryResponse={inventoryResponse}
                       customer={customer}
-                      setInventoryResponse={setInventoryResponse}
                       totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       orderConfig={orderConfig}
                       orderSourceId={orderSource?.id}

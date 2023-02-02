@@ -7,7 +7,6 @@ import NumberInput from "component/custom/number-input.custom";
 import ModalConfirm from "component/modal/ModalConfirm";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
-import { promotionUtils } from "component/order/promotion.utils";
 import CreateOrderSidebarOrderExtraInformation from "component/order/Sidebar/CreateOrderSidebarOrderExtraInformation";
 import CreateOrderSidebarOrderInformation from "component/order/Sidebar/CreateOrderSidebarOrderInformation";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
@@ -22,7 +21,6 @@ import {
   StoreDetailCustomAction,
 } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
-import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
@@ -186,7 +184,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
   let queryOrderID = query.get("orderID");
   let queryOrderReturnType = query.get("type"); // trả hàng online hay offline
   const stores = useFetchStores();
-  const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
 
   let orderId = queryOrderID ? parseInt(queryOrderID) : undefined;
   let orderReturnType = queryOrderReturnType ? queryOrderReturnType.toUpperCase() : "";
@@ -1908,8 +1905,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   form={form}
                   items={listExchangeProducts}
                   setItems={setListExchangeProducts}
-                  inventoryResponse={inventoryResponse}
-                  setInventoryResponse={setInventoryResponse}
                   totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                   returnOrderInformation={{
                     totalAmountReturn: totalAmountReturnProducts,
@@ -2537,15 +2532,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
       });
     }
   }, [OrderDetail, OrderDetail?.source_id, form, shipmentMethod]);
-
-  useEffect(() => {
-    if (listExchangeProducts && listExchangeProducts != null && listExchangeProducts?.length > 0) {
-      let variant_id: Array<number> = [];
-      listExchangeProducts.forEach((element) => variant_id.push(element.variant_id));
-      dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, listExchangeProducts?.length]);
 
   useEffect(() => {
     setShipmentMethod(ShipmentMethodOption.PICK_AT_STORE);
