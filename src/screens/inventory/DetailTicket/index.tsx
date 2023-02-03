@@ -1305,7 +1305,7 @@ const DetailTicket: FC = () => {
                             <Input
                               size="middle"
                               className="yody-search"
-                              placeholder=" Tìm kiếm Mã vạch, Mã sản phẩm, Tên sản phẩm"
+                              placeholder="Tìm kiếm Mã vạch, Mã sản phẩm, Tên sản phẩm"
                               prefix={<i className="icon-search icon" />}
                               ref={productSearchRef}
                             />

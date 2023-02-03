@@ -336,7 +336,7 @@ function PrintingStamp() {
                 onSearch={handleSearchPOVariantAutoComplete}
                 dropdownMatchSelectWidth={456}
                 style={{ width: "100%" }}
-                textAdd="Thêm mới sản phẩm"
+                textAdd="+ Thêm mới sản phẩm"
                 onSelect={handleSelectProductAutoComplete}
                 options={autoCompleteOptions}
                 showAdd={false}

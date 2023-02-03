@@ -246,12 +246,12 @@ const SearchCustomerAutoComplete: React.FC<Props> = (props: Props) => {
             ? (menu) => (
                 <div className="dropdown-custom">
                   <Button
-                    icon={<AiOutlinePlusCircle size={24} />}
+                    // icon={<AiOutlinePlusCircle size={24} />} // tam bo icon dung symbol
                     className="dropdown-custom-add-new"
                     type="link"
                     onClick={() => handleConfirmCreate()}
                   >
-                    Thêm mới khách hàng
+                    + Thêm mới khách hàng
                   </Button>
                   {menu}
                 </div>

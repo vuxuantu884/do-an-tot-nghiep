@@ -1,5 +1,6 @@
 import { showWarning } from "utils/ToastUtils";
 import { Upload } from "antd";
+import { InventoryTransferSearchQuery } from "../../model/inventory/transfer";
 
 const ImportStatuses = {
   READING: "reading",
@@ -37,6 +38,31 @@ const beforeUploadFile = (file: any) => {
   }
 };
 
+const initQuery: InventoryTransferSearchQuery = {
+  page: 1,
+  limit: 30,
+  simple: true,
+  condition: null,
+  from_store_id: [],
+  to_store_id: [],
+  status: [],
+  note: null,
+  created_by: [],
+  received_by: [],
+  cancel_by: [],
+  transfer_by: [],
+  from_created_date: null,
+  to_created_date: null,
+  from_transfer_date: null,
+  to_transfer_date: null,
+  from_receive_date: null,
+  to_receive_date: null,
+  from_cancel_date: null,
+  to_cancel_date: null,
+  from_pending_date: null,
+  to_pending_date: null,
+};
+
 export {
   MAXIMUM_QUANTITY_LENGTH,
   MINIMUM_QUANTITY,
@@ -45,4 +71,5 @@ export {
   ImportStatuses,
   InventoryTransferPendingStatus,
   beforeUploadFile,
+  initQuery
 };

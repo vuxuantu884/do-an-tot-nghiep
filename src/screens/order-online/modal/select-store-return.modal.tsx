@@ -1,7 +1,7 @@
 import { Table, Modal, Input, Row, Col } from "antd";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import React, { useContext, useEffect, useState } from "react";
-import "assets/css/_modal.scss";
+// import "assets/css/_modal.scss";
 import { StoreResponse } from "model/core/store.model";
 import { fullTextSearch } from "utils/StringUtils";
 

@@ -6,20 +6,19 @@ import ButtonCreate from "component/header/ButtonCreate";
 import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import TagStatus, { TagStatusType } from "component/tag/tag-status";
 import { PromotionReleasePermission } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { hideLoading } from "domain/actions/loading.action";
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PriceRule } from "model/promotion/price-rules.model";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
-import { PROMOTION_RELEASE_ACTIONS, STATE_LIST } from "screens/promotion/constants";
+import { DISCOUNT_STATUS, PROMOTION_RELEASE_ACTIONS, STATE_LIST } from "screens/promotion/constants";
 import DatePromotionColumn from "../shared/date-column";
 import actionColumn from "./actions/action.column";
 import { convertItemToArray, generateQuery } from "utils/AppUtils";
@@ -64,13 +63,14 @@ const PromotionCode = () => {
   const [params, setParams] = useState<any>(initQuery);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
 
-  //phân quyền
+  /** phân quyền */
   const [allowCreatePromotionRelease] = useAuthorization({
     acceptPermissions: [PromotionReleasePermission.CREATE],
   });
-  const [allowUpdatePromotionRelease] = useAuthorization({
-    acceptPermissions: [PromotionReleasePermission.UPDATE],
+  const [allowActivePromotionRelease] = useAuthorization({
+    acceptPermissions: [PromotionReleasePermission.ACTIVE],
   });
+  /** */
 
   // handle get coupon release
   const fetchData = useCallback(
@@ -145,28 +145,6 @@ const PromotionCode = () => {
     [getCouponReleaseList, history, location.pathname, params],
   );
 
-  const statuses: any = useMemo(
-    () => [
-      {
-        code: "ACTIVE",
-        value: "Đang áp dụng",
-      },
-      {
-        code: "DISABLED",
-        value: "Tạm ngưng",
-      },
-      {
-        code: "DRAFT",
-        value: "Chờ áp dụng",
-      },
-      {
-        code: "CANCELLED",
-        value: "Đã huỷ",
-      },
-    ],
-    [],
-  );
-
   const columns: Array<ICustomTableColumType<any>> = [
     {
       title: "Mã",
@@ -218,7 +196,7 @@ const PromotionCode = () => {
     {
       title: "Người tạo",
       visible: true,
-      dataIndex: "created_by",
+      dataIndex: "created_name",
       fixed: "left",
       align: "center",
       width: "10%",
@@ -230,26 +208,11 @@ const PromotionCode = () => {
       dataIndex: "state",
       align: "center",
       width: "15%",
-      render: (value: string) => {
-        const status = statuses?.find((e: any) => e.code === value)?.value || "";
-        let type = TagStatusType.normal;
-        switch (value) {
-          case statuses[0].code:
-            type = TagStatusType.primary;
-            break;
-          case statuses[1].code:
-            type = TagStatusType.warning;
-            break;
-          case statuses[2].code:
-            type = TagStatusType.normal;
-            break;
-          case statuses[3].code:
-            type = TagStatusType.danger;
-            break;
-          default:
-            break;
-        }
-        return <TagStatus type={type}>{status}</TagStatus>;
+      render: (state: string) => {
+        const StatusTag: ReactNode = DISCOUNT_STATUS.find((e) => e.code === state)?.Component ?? (
+          <Fragment />
+        );
+        return StatusTag;
       },
     },
     actionColumn(),
@@ -403,7 +366,7 @@ const PromotionCode = () => {
           <CustomFilter
             onMenuClick={onMenuClick}
             menu={promotionReleaseAction}
-            actionDisable={!allowUpdatePromotionRelease}
+            actionDisable={!allowActivePromotionRelease}
           >
             <Form onFinish={onFilter} initialValues={params} layout="inline" form={form}>
               <Item name="query" className="search">
@@ -424,7 +387,7 @@ const PromotionCode = () => {
                   maxTagCount="responsive"
                   optionFilterProp="children"
                   placeholder="Chọn trạng thái"
-                  style={{ minWidth: "200px" }}
+                  style={{ minWidth: "250px" }}
                 >
                   {STATE_LIST?.map((item) => (
                     <Option key={item.value} value={item.value}>

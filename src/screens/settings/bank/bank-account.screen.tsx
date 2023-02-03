@@ -15,6 +15,7 @@ import iconEdit from "assets/icon/edit.svg";
 import ButtonCreate from "component/header/ButtonCreate";
 import { getBankAccountAction } from "domain/actions/bank/bank.action";
 import { CheckOutlined } from "@ant-design/icons";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const initQuery: BankAccountSearchQuery = {
   ids: null,
@@ -265,7 +266,7 @@ const BankAccountScreen: React.FC = () => {
           dataSource={data.items}
           columns={defaultColumns}
           rowKey={(item: BankAccountResponseResult) => item.id}
-          sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
         />
       </Card>
     </ContentContainer>

@@ -1218,7 +1218,7 @@ export const convertActionLogDetailToText = (
     let discountAmount = 0;
     if (singleItem?.discount_items && singleItem?.discount_items.length > 0) {
       singleItem?.discount_items.forEach((discount: any) => {
-        discountAmount = discountAmount + discount.amount;
+        !discount.deleted && (discountAmount = discountAmount + discount.amount);
       });
     }
     return formatCurrency(discountAmount);
@@ -1250,7 +1250,7 @@ export const convertActionLogDetailToText = (
 			+ Số lượng: ${singleItem?.quantity} <br/>
 			+ Thuế : ${singleItem?.tax_rate || 0} <br/>
 			+ Chiết khấu sản phẩm: ${renderDiscountItem(singleItem)} <br/>
-			+ Thành tiền: ${formatCurrency(singleItem?.amount)} <br/>
+			+ Thành tiền: ${formatCurrency(singleItem?.line_amount_after_line_discount)} <br/>
 			`;
       })
       .join("<br/>")}

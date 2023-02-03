@@ -252,8 +252,8 @@ export const TYPE_EXPORT = {
   all_out: "all_out",
 };
 
-export const OFFSET_HEADER_UNDER_NAVBAR = 55; //pixels
-export const OFFSET_HEADER_TABLE = OFFSET_HEADER_UNDER_NAVBAR + 54; //pixels
+export const OFFSET_HEADER_UNDER_NAVBAR = 50; //pixels
+export const OFFSET_HEADER_TABLE = OFFSET_HEADER_UNDER_NAVBAR + 46; //pixels
 export const MAX_PAGE_INVENTORY_HISTORY = 10;
 
 export const ProcurementStatus = {
@@ -552,3 +552,5 @@ export enum EnumConfirmModalType {
   INFO = "info",
   ERROR = "error",
 }
+
+export const ANT_PREFIX_CLS = "ant";

@@ -36,7 +36,13 @@ import {
   handleFetchApiError,
   isFetchApiSuccessful,
 } from "utils/AppUtils";
-import { COLUMN_CONFIG_TYPE, FACEBOOK, POS, SHOPEE } from "utils/Constants";
+import {
+  COLUMN_CONFIG_TYPE,
+  FACEBOOK,
+  OFFSET_HEADER_UNDER_NAVBAR,
+  POS,
+  SHOPEE,
+} from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { primaryColor } from "utils/global-styles/variables";
 import { ORDER_PAYMENT_STATUS, ORDER_TYPES } from "utils/Order.constants";
@@ -1221,7 +1227,7 @@ function OrderReturnList(props: PropTypes) {
             scroll={{
               x: (1600 * columnFinal.length) / (columns.length ? columns.length : 1),
             }}
-            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+            sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
             pagination={{
               pageSize: dataMetadata.limit,
               total: dataMetadata.total,

@@ -1,5 +1,4 @@
 import { Button, Col, Form, Row } from "antd";
-import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
@@ -8,7 +7,7 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { createPriceRuleAction } from "domain/actions/promotion/discount/discount.action";
 import { EntilementFormModel, PriceRuleMethod } from "model/promotion/price-rules.model";
 import moment from "moment";
-import React, { ReactElement, useContext, useEffect, useCallback } from "react";
+import React, { ReactElement, useContext, useEffect, useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import GeneralConditionForm from "screens/promotion/shared/general-condition.form";
@@ -18,12 +17,20 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import { initEntilements } from "../../constants";
 import DiscountUpdateForm from "../components/discount-form";
 import DiscountProvider, { DiscountContext } from "../components/discount-provider";
+import useAuthorization from "hook/useAuthorization";
 
 function DiscountCreateV2(): ReactElement {
   const history = useHistory();
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  let activeDiscount = true;
+
+  /** phân quyền */
+  const [allowActiveDiscount] = useAuthorization({
+    acceptPermissions: [PriceRulesPermission.ACTIVE],
+  });
+  /** */
+
+  const [isActiveDiscount, setIsActiveDiscount] = useState(false);
 
   const discountUpdateContext = useContext(DiscountContext);
   const { discountAllProduct, discountProductHaveExclude, registerWithMinistry } =
@@ -48,7 +55,7 @@ function DiscountCreateV2(): ReactElement {
           discountAllProduct,
           discountProductHaveExclude,
         );
-        body.activated = activeDiscount;
+        body.activated = isActiveDiscount;
         body.is_registered = registerWithMinistry;
 
         dispatch(showLoading());
@@ -67,7 +74,7 @@ function DiscountCreateV2(): ReactElement {
       }
     },
     [
-      activeDiscount,
+      isActiveDiscount,
       discountAllProduct,
       discountProductHaveExclude,
       dispatch,
@@ -77,12 +84,12 @@ function DiscountCreateV2(): ReactElement {
   );
 
   const handleSaveAndActive = () => {
-    activeDiscount = true;
+    setIsActiveDiscount(true);
     form.submit();
   };
 
   const save = () => {
-    activeDiscount = false;
+    setIsActiveDiscount(false);
     form.submit();
   };
 
@@ -157,7 +164,7 @@ function DiscountCreateV2(): ReactElement {
         <BottomBarContainer
           back="Quay lại danh sách chiết khấu"
           rightComponent={
-            <AuthWrapper acceptPermissions={[PriceRulesPermission.CREATE]}>
+            <>
               <Button
                 onClick={() => save()}
                 style={{
@@ -169,10 +176,12 @@ function DiscountCreateV2(): ReactElement {
               >
                 Lưu
               </Button>
-              <Button type="primary" onClick={() => handleSaveAndActive()}>
-                Lưu và kích hoạt
-              </Button>
-            </AuthWrapper>
+              {allowActiveDiscount &&
+                <Button type="primary" onClick={() => handleSaveAndActive()}>
+                  Lưu và kích hoạt
+                </Button>
+              }
+            </>
           }
         />
       </Form>

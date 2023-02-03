@@ -101,7 +101,7 @@ const StockOutOtherCreate: React.FC = () => {
   };
 
   const importFile = () => {
-    if (fileList.length === 0) {
+    if (fileList.length === 0 || !fileUrl) {
       setIsEmptyFile(true);
       return;
     }
@@ -168,8 +168,8 @@ const StockOutOtherCreate: React.FC = () => {
       title="Nhập xuất khác"
       breadcrumb={[
         {
-          name: "Tạo phiếu xuất khác",
-          path: UrlConfig.HOME,
+          name: "Kho hàng",
+          // path: UrlConfig.HOME,
         },
         {
           name: "Nhập xuất khác",
@@ -185,7 +185,6 @@ const StockOutOtherCreate: React.FC = () => {
           <Col span={18}>
             <StockInOutWareHouseForm
               title="THÔNG TIN XUẤT KHO"
-              fileUrl={fileUrl}
               setFileUrl={(value) => setFileUrl(value)}
               setIsEmptyFile={(value) => setIsEmptyFile(value)}
               isEmptyFile={isEmptyFile}
@@ -237,10 +236,7 @@ const StockOutOtherCreate: React.FC = () => {
           }
           rightComponent={
             <Space>
-              <Button
-                onClick={() => importFile()}
-                icon={<UploadOutlined style={{ marginTop: 9, fontSize: 15 }} />}
-              >
+              <Button onClick={() => importFile()} icon={<UploadOutlined />}>
                 Nhập file
               </Button>
               <Button type="primary" onClick={() => formMain.submit()}>

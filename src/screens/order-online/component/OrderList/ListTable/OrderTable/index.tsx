@@ -67,6 +67,7 @@ import {
   COLUMN_CONFIG_TYPE,
   FACEBOOK,
   FulFillmentStatus,
+  OFFSET_HEADER_UNDER_NAVBAR,
   OrderStatus,
   PaymentMethodCode,
   POS,
@@ -984,7 +985,7 @@ function OrdersTable(props: PropTypes) {
         key: "goods_receipt",
         render: (value, record: OrderModel, index) => {
           if (record.handOvers) {
-            return <OrderMapHandOver orderDetail={record} handOvers={record.handOvers} />;
+            return <OrderMapHandOver handOvers={record.handOvers} />;
           } else {
             return <span>-</span>;
           }
@@ -1816,7 +1817,7 @@ function OrdersTable(props: PropTypes) {
         scroll={{
           x: (2200 * columnFinal.length) / (columns.length ? columns.length : 1),
         }}
-        sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+        sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
         pagination={{
           pageSize: metadata.limit,
           total: metadata.total,

@@ -20,6 +20,7 @@ import useAuthorization from "hook/useAuthorization";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const initParams: PointAdjustmentListRequest = {
   page: 1,
@@ -254,7 +255,7 @@ const PointAdjustment = () => {
             bordered
             isLoading={isLoading}
             scroll={{ x: 1366 }}
-            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+            sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
             pagination={{
               pageSize: pointAdjustmentData.metadata.limit,
               total: pointAdjustmentData.metadata.total,

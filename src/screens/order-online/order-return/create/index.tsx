@@ -79,6 +79,7 @@ import {
   LineItemCreateReturnSuggestDiscountResponseModel,
   SuggestDiscountResponseModel,
 } from "model/response/order/promotion.response";
+import { SourceResponse } from "model/response/order/source.response";
 import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TiWarningOutline } from "react-icons/ti";
@@ -160,6 +161,7 @@ let typeButton = "";
 let isPrint = false;
 var barcode = "";
 
+let initItemSuggestDiscounts: LineItemCreateReturnSuggestDiscountResponseModel[] = [];
 const ScreenReturnCreate = (props: PropTypes) => {
   const isUserCanCreateOrder = useRef(true);
   const printType = {
@@ -2640,7 +2642,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     SuggestDiscountResponseModel[]
   >([]);
 
-  const initItemSuggestDiscounts = useMemo(() => {
+  useEffect(() => {
     let result: LineItemCreateReturnSuggestDiscountResponseModel[] = [];
     result = listReturnProducts
       .filter((single) => single.discount_items.length > 0 && single.quantity > 0)
@@ -2666,30 +2668,14 @@ const ScreenReturnCreate = (props: PropTypes) => {
           quantity: product.quantity,
         };
       });
-    return result;
+    initItemSuggestDiscounts = result;
+    setLeftItemSuggestDiscounts(initItemSuggestDiscounts);
   }, [listReturnProducts]);
 
   const isEcommerceOrder = checkIfEcommerceByOrderChannelCode(OrderDetail?.channel_code);
 
-  let initSuggestDiscountValue = useMemo(() => {
-    return [
-      {
-        price_rule_id: 2571,
-        title: "Sale 10k",
-        value_type: "FIXED_AMOUNT",
-        value: 15000,
-        allocation_limit: null,
-        allocation_count: 1,
-        is_registered: false,
-      },
-    ];
-  }, []);
   console.log("listReturnProducts", listReturnProducts);
   console.log("leftItemSuggestDiscounts", leftItemSuggestDiscounts);
-
-  useEffect(() => {
-    setLeftItemSuggestDiscounts(initItemSuggestDiscounts);
-  }, [initItemSuggestDiscounts]);
 
   useEffect(() => {
     const calculateDistributedOrderDiscount = () => {

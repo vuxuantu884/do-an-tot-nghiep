@@ -19,7 +19,7 @@ import moment from "moment";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffectOnce } from "react-use";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import {
   getCustomerPhoneSMSCounters,
   updateCustomerPhoneSMSCounters,

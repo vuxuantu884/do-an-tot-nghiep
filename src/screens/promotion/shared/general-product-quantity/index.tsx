@@ -12,13 +12,11 @@ import { HttpStatus } from "config/http-status.config";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import _ from "lodash";
 import { ProductResponse, VariantResponse } from "model/product/product.model";
-import { PromotionGift } from "model/promotion/gift.model";
 import {
   DiscountConditionRule,
-  PriceRule,
   ReleasePromotionListType,
 } from "model/promotion/price-rules.model";
-import { createRef, ReactElement, useCallback, useEffect, useState } from "react";
+import { createRef, ReactElement, useCallback, useContext, useEffect, useState } from "react";
 import { RiUpload2Line } from "react-icons/ri";
 import { VscError } from "react-icons/vsc";
 import { useDispatch } from "react-redux";
@@ -29,7 +27,7 @@ import {
 } from "screens/promotion/constants";
 import { ProductQuantityStyle } from "screens/promotion/discount/components/product-quantity.style";
 import { ImportFileDiscountStyled } from "screens/promotion/discount/discount-style";
-import { CreateReleasePromotionRuleType } from "screens/promotion/issue/create/issue-create";
+import { CreateReleasePromotionRuleType } from "screens/promotion/constants";
 import { getToken } from "utils/LocalStorageUtils";
 import { showError } from "utils/ToastUtils";
 import GeneralProductQuantityConditions from "./general-product-quantity-conditions";
@@ -37,16 +35,12 @@ import GeneralProductQuantityHaveExclude from "./general-product-quantity-have-e
 import GeneralProductQuantitySearchImport from "./general-product-quantity-search-import";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { formatCurrency, replaceFormat } from "utils/AppUtils";
+import { IssueContext } from "screens/promotion/issue/components/issue-provider";
 
 enum ColumnIndex {
   field = "field",
   operator = "operator",
   value = "value",
-}
-
-export enum RelesaseCreactProduct {
-  ALL = "ALL",
-  HAVE_EXCLUDE = "HAVE_EXCLUDE",
 }
 
 const blankRow = {
@@ -64,34 +58,11 @@ enum EnumUploadStatus {
   removed = "removed",
 }
 
-export enum EnumProductPromotion {
-  UPDATE = "UPDATE",
-  SELECT = "SELECT",
-  IMPORT = "IMPORT",
-}
-
 const rule = PRICE_RULE_FIELDS.rule;
 const conditions = PRICE_RULE_FIELDS.conditions;
 
 interface Props {
-  data?: PriceRule;
   form: FormInstance;
-  priceRuleData: PriceRule | PromotionGift;
-
-  releasePromotionListType: any;
-  valueChangePromotion: number;
-  typeSelectPromotion?: string;
-  releaseWithExlucdeOrAllProduct: string;
-  handleChangeRelaseHaveExcludeOrAllProduct: (value: string) => void;
-
-  listProductSelectImportNotExclude: any[];
-  setListProductSelectImportNotExclude: (item: any) => void;
-
-  listProductSelectImportHaveExclude: any;
-  setListProductSelectImportHaveExclude: any;
-
-  listProductUpdateNotExclude?: any;
-  listProductUpdateHaveExclude?: any;
 }
 
 const defaultValueComponent = (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
@@ -112,25 +83,16 @@ const defaultValueComponent = (name: string | Array<any>, rules: Rule[], default
 
 export default function GeneralProductQuantity(props: Props): ReactElement {
   const token = getToken() || "";
+  const { form } = props;
   const {
-    form,
     priceRuleData,
-
-    releasePromotionListType,
-    valueChangePromotion,
     typeSelectPromotion,
-    releaseWithExlucdeOrAllProduct,
-    handleChangeRelaseHaveExcludeOrAllProduct,
-
+    releasePromotionListType,
     listProductSelectImportNotExclude,
     setListProductSelectImportNotExclude,
-
     listProductSelectImportHaveExclude,
     setListProductSelectImportHaveExclude,
-
-    listProductUpdateNotExclude,
-    listProductUpdateHaveExclude,
-  } = props;
+  } = useContext(IssueContext);
 
   const dispatch = useDispatch();
 
@@ -398,60 +360,30 @@ export default function GeneralProductQuantity(props: Props): ReactElement {
   ]);
 
   useEffect(() => {
-    switch (releasePromotionListType) {
-      case ReleasePromotionListType.EQUALS:
-        const newListProductSelectImportEqual = [...(listProductUpdateNotExclude ?? [])];
-
-        setListProductSelectImportNotExclude(newListProductSelectImportEqual);
-
-        break;
-      case ReleasePromotionListType.NOT_EQUAL_TO:
-        if (releaseWithExlucdeOrAllProduct === RelesaseCreactProduct.ALL) {
-          setListProductSelectImportHaveExclude([]);
-        } else {
-          const newListProductSelectImportNotEqual = [...(listProductUpdateHaveExclude ?? [])];
-
-          setListProductSelectImportHaveExclude(newListProductSelectImportNotEqual);
-        }
-        break;
-      case ReleasePromotionListType.OTHER_CONDITION:
-        const rules = form.getFieldValue(rule);
-
-        if (
-          rules.conditions[0].field === CreateReleasePromotionRuleType.product_id ||
-          rules.conditions[0].field === CreateReleasePromotionRuleType.variant_id
-        ) {
-          form.setFieldsValue({
-            [rule]: {
-              [conditions]: [blankRow],
-              group_operator: CreateReleasePromotionRuleType.AND,
-              value_type: typeSelectPromotion,
-            },
-          });
-        } else {
-          form.setFieldsValue({
-            [rule]: rules,
-          });
-        }
-
-        break;
-      default:
-        break;
+    if (releasePromotionListType === ReleasePromotionListType.OTHER_CONDITION) {
+      const ruleFormValue = form.getFieldValue(rule);
+      if (
+        ruleFormValue.conditions[0].field === CreateReleasePromotionRuleType.product_id ||
+        ruleFormValue.conditions[0].field === CreateReleasePromotionRuleType.variant_id
+      ) {
+        form.setFieldsValue({
+          [rule]: {
+            [conditions]: [blankRow],
+            group_operator: CreateReleasePromotionRuleType.AND,
+            value_type: typeSelectPromotion,
+          },
+        });
+      } else {
+        form.setFieldsValue({
+          [rule]: ruleFormValue,
+        });
+      }
     }
-  }, [
-    form,
-    listProductUpdateHaveExclude,
-    listProductUpdateNotExclude,
-    releasePromotionListType,
-    releaseWithExlucdeOrAllProduct,
-    setListProductSelectImportHaveExclude,
-    setListProductSelectImportNotExclude,
-    typeSelectPromotion,
-  ]);
+  }, [form, releasePromotionListType, typeSelectPromotion]);
 
   const handleRenderProductForPagging = useCallback(
-    (listProduct: any[], setListProductNotExcludeForpagging: (item: any) => void) => {
-      setListProductNotExcludeForpagging((prev: any) => {
+    (listProduct: any[], setListProductForTable: (item: any) => void) => {
+      setListProductForTable((prev: any) => {
         const { limit, page } = prev.metadata;
 
         return {
@@ -762,8 +694,6 @@ export default function GeneralProductQuantity(props: Props): ReactElement {
           listSearchVariant={listSearchVariant}
           productSearchRef={productSearchRef}
           setShowImportModal={setShowImportModal}
-          typeSelectPromotion={typeSelectPromotion}
-          valueChangePromotion={valueChangePromotion}
           listProductNotExcludeForPagging={listProductNotExcludeForPagging}
           onDeleteItem={onDeleteItem}
           handlePageChange={handlePageChange}
@@ -778,8 +708,6 @@ export default function GeneralProductQuantity(props: Props): ReactElement {
           productSearchRef={productSearchRef}
           setShowImportModal={setShowImportModal}
           listProductHaveExcludeForPagging={listProductHaveExcludeForPagging}
-          releaseWithExlucdeOrAllProduct={releaseWithExlucdeOrAllProduct}
-          handleChangeRelaseHaveExcludeOrAllProduct={handleChangeRelaseHaveExcludeOrAllProduct}
           onDeleteItem={onDeleteItem}
           handlePageChange={handlePageChange}
           handleSizeChange={handleSizeChange}

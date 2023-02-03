@@ -44,6 +44,7 @@ import useAuthorization from "hook/useAuthorization";
 import { CAMPAIGN_PERMISSION } from "config/permissions/marketing.permission";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const { Option } = Select;
 
@@ -610,7 +611,7 @@ const CampaignDetail = () => {
               <CustomTable
                 bordered
                 isLoading={isLoading}
-                sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+                sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
                 pagination={{
                   pageSize: campaignCustomerData?.metadata?.limit,
                   total: campaignCustomerData?.metadata?.total,

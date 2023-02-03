@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback, useEffect, useState } from "react";
 import { StyledComponent } from "./styled";
 import { Button, Divider, Modal, Spin } from "antd";
-import "assets/css/_modal.scss";
+// import "assets/css/_modal.scss";
 import { InventoryResponse } from "model/inventory";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { useDispatch, useSelector } from "react-redux";

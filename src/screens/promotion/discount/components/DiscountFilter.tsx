@@ -16,7 +16,7 @@ import useAuthorization from "hook/useAuthorization";
 import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
 import BaseFilter from "component/filter/base.filter";
 import { FilterOutlined } from "@ant-design/icons";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { useDispatch } from "react-redux";
 import { convertItemToArray, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import {
@@ -91,6 +91,12 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     onMenuClick,
     onFilter,
   } = props;
+
+  /** phân quyền */
+  const [allowActiveDiscount] = useAuthorization({
+    acceptPermissions: [PriceRulesPermission.ACTIVE],
+  });
+  /** */
 
   // useState
   const [visible, setVisible] = useState(false);
@@ -526,10 +532,6 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     setVisible(false);
   }, []);
 
-  const [allowUpdateDiscount] = useAuthorization({
-    acceptPermissions: [PriceRulesPermission.UPDATE],
-  });
-
   // handle tag filter
   let filters = useMemo(() => {
     let list = [];
@@ -802,7 +804,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
         <CustomFilter
           onMenuClick={onActionClick}
           menu={actions}
-          actionDisable={!allowUpdateDiscount}
+          actionDisable={!allowActiveDiscount}
         >
           <Form onFinish={onFinish} initialValues={params} layout="inline" form={form}>
             <Item name="query" className="search">

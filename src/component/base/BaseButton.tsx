@@ -10,14 +10,14 @@ function BaseButton<T extends ElementType = typeof Button>({
   as,
   children,
   type = "default",
-  size = "small",
+  // size = "small",
   ...props
 }: BaseButtonProps<T> & ComponentPropsWithoutRef<T>) {
   const Component = as || Button;
   return (
     <>
       <Component
-        size={size}
+        // size={size}
         type={type}
         htmlType="button"
         {...props}

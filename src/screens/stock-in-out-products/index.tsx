@@ -17,7 +17,7 @@ const InventoryImportExportScreen: React.FC<RouteComponentProps> = (props) => {
       breadcrumb={[
         {
           name: "Kho hàng",
-          path: UrlConfig.HOME,
+          // path: UrlConfig.HOME,
         },
         {
           name: "Nhập xuất khác",

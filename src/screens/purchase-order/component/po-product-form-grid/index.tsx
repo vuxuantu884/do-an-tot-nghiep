@@ -748,7 +748,7 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
             dropdownMatchSelectWidth={456}
             style={{ width: "100%" }}
             showAdd={true}
-            textAdd="Thêm mới sản phẩm"
+            textAdd="+ Thêm mới sản phẩm"
             onSelect={onSelectProduct}
             options={renderResult}
             ref={productSearchRef}
@@ -759,7 +759,7 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
           <BaseButton
             style={{ marginLeft: 10 }}
             disabled={true}
-            icon={<IconAddMultiple width={12} height={12} />}
+            icon={<IconAddMultiple width={14} height={14} />}
           >
             Chọn nhiều mã cha
           </BaseButton>

@@ -1,7 +1,77 @@
 import styled from "styled-components";
 import color from "assets/css/export-variable.module.scss";
+import { ANT_PREFIX_CLS } from "utils/Constants";
 
 export const StyledComponent = styled.div`
+  .${ANT_PREFIX_CLS}-layout-header {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 99;
+    justify-content: space-between;
+    display: flex;
+    line-height: 1;
+  }
+
+  .unicorn-layout-header-brand {
+    align-items: center;
+    justify-self: center;
+    display: flex;
+    padding: 0;
+    width: 200px;
+
+    .header-right {
+      flex-direction: row-reverse;
+      display: flex;
+      width: 100%;
+
+      .button-menu-collapse {
+        display: flex;
+        background-color: transparent;
+        border: none;
+        padding: 4px;
+        width: auto;
+        height: auto;
+        align-items: center;
+        &:hover {
+          background-color: #f1f1f1;
+        }
+        &:focus,
+        &:active {
+          background-color: #f1f1f1;
+          border: none;
+        }
+        &.svg {
+          width: 24px;
+          height: 24px;
+          color: 8888;
+        }
+      }
+    }
+  }
+
+  .unicorn-layout-header-body {
+    display: flex;
+    width: calc(100% - 200px);
+    padding: 0 0 0 20px;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0px 2px 6px rgb(168 168 168 / 12%);
+    .layout-user {
+      height: 44px;
+      background: #f5f5f5;
+      border-radius: 21px;
+      border: 1px solid #e5e5e5;
+      max-width: 280px;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      .sider-user-info {
+        margin: 0 10px;
+      }
+    }
+  }
   .notify-badge {
     vertical-align: middle;
   }
@@ -51,8 +121,8 @@ export const StyledComponent = styled.div`
     }
   }
   .logo-header img {
-    width: 80px;
-    height: auto;
+    width: auto;
+    height: 40px;
   }
 
   .markup-env {

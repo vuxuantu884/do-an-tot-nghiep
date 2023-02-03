@@ -7,15 +7,18 @@ import { DiscountValueType, PriceRuleMethod } from "model/promotion/price-rules.
 import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
 import React from "react";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 type AdvertisingHistoryProps = {
   data: PageResponse<AdvertisingHistoryResponse>;
   dataVariant: any;
   onChange: (page: number, pageSize?: number) => void;
   isLoadingAdvertisingHistory?: boolean;
-}
+};
 
-const TabAdvertisingHistory: React.FC<AdvertisingHistoryProps> = (props: AdvertisingHistoryProps) => {
+const TabAdvertisingHistory: React.FC<AdvertisingHistoryProps> = (
+  props: AdvertisingHistoryProps,
+) => {
   const { data, onChange, isLoadingAdvertisingHistory, dataVariant } = props;
 
   const getEntitledMethod = (data: any) => {
@@ -44,7 +47,7 @@ const TabAdvertisingHistory: React.FC<AdvertisingHistoryProps> = (props: Adverti
           current: data.metadata.page,
           onChange: onChange,
         }}
-        sticky={{ offsetHeader: 55, offsetScroll: 10 }}
+        sticky={{ offsetHeader: OFFSET_HEADER_UNDER_NAVBAR, offsetScroll: 10 }}
         rowKey={(record) => record.id}
         columns={[
           {

@@ -4,4 +4,5 @@ export enum KeyboardKey {
   ArrowLeft = "ArrowLeft",
   ArrowRight = "ArrowRight",
   Shift = "Shift",
+  Escape = "Escape",
 }

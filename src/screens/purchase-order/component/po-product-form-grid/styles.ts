@@ -34,7 +34,7 @@ export const PoProductFormContainer = styled.div`
   }
 
   .ant-input-affix-wrapper {
-    padding: 0;
+    /* padding: 0; */
 
     .vat-suffix {
       height: 100%;

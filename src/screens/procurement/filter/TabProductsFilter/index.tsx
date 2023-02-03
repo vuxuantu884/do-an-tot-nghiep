@@ -12,7 +12,7 @@ import { FilterProcurementStyleWrapper } from "../styles";
 import search from "assets/img/search.svg";
 import ButtonSetting from "component/table/ButtonSetting";
 import { FilterOutlined } from "@ant-design/icons";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { useForm, FormInstance } from "antd/es/form/Form";
 import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { callApiNative } from "utils/ApiUtils";

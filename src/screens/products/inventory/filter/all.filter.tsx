@@ -42,7 +42,7 @@ import { FILTER_CONFIG_TYPE } from "utils/Constants";
 import { primaryColor } from "utils/global-styles/variables";
 import { showSuccess } from "utils/ToastUtils";
 import FormSaveFilter from "./components/FormSaveFilter";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { generateQuery } from "utils/AppUtils";
 import { useHistory } from "react-router-dom";
 import { InventoryTabUrl } from "config/url.config";

@@ -23,11 +23,20 @@ import { GiftStyled } from "screens/promotion/gift/gift.style";
 import _ from "lodash";
 import { PROMOTION_TYPE } from "screens/promotion/constants";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { PROMOTION_GIFT_PERMISSIONS } from "config/permissions/promotion.permisssion";
+import useAuthorization from "hook/useAuthorization";
 
 const GiftUpdate = () => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const history = useHistory();
+  let activePromotionGift = true;
+
+  /** phân quyền */
+  const [allowActiveGift] = useAuthorization({
+    acceptPermissions: [PROMOTION_GIFT_PERMISSIONS.ACTIVE],
+  });
+  /** */
 
   const { id } = useParams<{ id: string }>();
   const idNumber = parseInt(id);
@@ -150,6 +159,7 @@ const GiftUpdate = () => {
       const body = transformGiftRequest(formValues);
       body.id = idNumber;
       body.is_registered = registerWithMinistry;
+      body.activated = activePromotionGift;
       dispatch(showLoading());
       dispatch(updatePromotionGiftAction(body, updateCallback));
     } catch (error: any) {
@@ -158,6 +168,15 @@ const GiftUpdate = () => {
     }
   };
 
+  const handleSaveAndActive = () => {
+    activePromotionGift = true;
+    form.submit();
+  };
+
+  const handleSaveOnly = () => {
+    activePromotionGift = false;
+    form.submit();
+  };
   /**
    *
    */
@@ -316,9 +335,23 @@ const GiftUpdate = () => {
             back="Quay lại chi tiết quà tặng"
             backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.GIFT}/${idNumber}`)}
             rightComponent={
-              <Button type="primary" loading={isSubmitting} onClick={() => form.submit()}>
-                Lưu
-              </Button>
+              <>
+                <Button
+                  onClick={() => handleSaveOnly()}
+                  style={{
+                    marginRight: "12px",
+                    borderColor: "#2a2a86",
+                  }}
+                  type="ghost"
+                >
+                  Lưu
+                </Button>
+                {allowActiveGift &&
+                  <Button type="primary" onClick={() => handleSaveAndActive()}>
+                    Lưu và kích hoạt
+                  </Button>
+                }
+              </>
             }
           />
         </Form>

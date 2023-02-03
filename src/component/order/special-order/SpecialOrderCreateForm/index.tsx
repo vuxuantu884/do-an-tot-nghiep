@@ -259,7 +259,7 @@ function SpecialOrderCreateForm(props: Props) {
                 //     : "order_create_page_special_order_order_original_code"
                 // }
                 // rules={[{ required: true, message: "Vui lòng chọn đơn gốc!" }]}
-                rules={[
+                rules={displayOrderSpecialType === specialOrderTypes.orders_replace.value ? [{required: false}] : [
                   {
                     required: true,
                     message:

@@ -14,10 +14,12 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import "assets/css/_inventoryTable.scss";
 import "moment/locale/vi";
+import "./index.less";
+import { ANT_PREFIX_CLS } from "utils/Constants";
 
 ReactDOM.render(
   <Provider store={store}>
-    <ConfigProvider locale={locale}>
+    <ConfigProvider locale={locale} prefixCls={ANT_PREFIX_CLS}>
       <App />
     </ConfigProvider>
   </Provider>,

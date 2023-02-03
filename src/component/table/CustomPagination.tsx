@@ -33,7 +33,7 @@ const showTotal = (pagination: ICustomTablePaginationConfig) => {
   let from = (current - 1) * pageSize + 1;
   let to = current * pageSize;
   if (from > total) {
-    return "Không có kết quả";
+    return "";
   }
   if (to > total) to = total;
   return (

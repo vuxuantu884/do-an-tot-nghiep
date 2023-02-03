@@ -6,32 +6,16 @@ import { Link } from "react-router-dom";
 import { HandoverReturn, HandoverTransfer } from "screens/handover/handover.config";
 
 type Props = {
-  orderDetail: OrderModel;
   handOvers: HandoverResponse[];
 };
 
 const OrderMapHandOver: React.FC<Props> = (props: Props) => {
-  const { orderDetail, handOvers } = props;
-  // console.log("handOvers", handOvers);
-
-  const result = useMemo(() => {
-    const fulfillmentsCode = orderDetail.fulfillments?.map((p) => p.code);
-
-    if (fulfillmentsCode) {
-      const handOverData = [...handOvers].filter((p) =>
-        p.orders?.some((p) => fulfillmentsCode.indexOf(p.fulfillment_code) !== -1),
-      );
-      // console.log(fulfillmentsCode, handOverData);
-
-      return handOverData;
-    }
-    return [];
-  }, [handOvers, orderDetail.fulfillments]);
+  const { handOvers } = props;
 
   return (
     <React.Fragment>
-      {result && result.length !== 0 ? (
-        result.map((p) => {
+      {handOvers && handOvers.length !== 0 ? (
+        handOvers.map((p) => {
           if (p.type === HandoverTransfer) {
             return (
               <div>

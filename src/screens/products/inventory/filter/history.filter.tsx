@@ -24,7 +24,7 @@ import {
   getStartOfDayCommon,
 } from "utils/DateUtils";
 import { QuantityButtonStyle } from "./history-filter.style";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import CustomSelect from "../../../../component/custom/select.custom";
 import { DOCUMENT_TYPES } from "screens/products/helper";
 

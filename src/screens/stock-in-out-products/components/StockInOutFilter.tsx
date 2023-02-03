@@ -1,7 +1,7 @@
 import { Button, Col, Form, Input, Row, Select } from "antd";
 import { FilterStockInOutStyle, StockInOutStatusStyle } from "./filter-style";
 import search from "assets/img/search.svg";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { useForm } from "antd/lib/form/Form";
 import { FilterOutlined } from "@ant-design/icons";
 import ButtonSetting from "component/table/ButtonSetting";
@@ -365,7 +365,7 @@ const StockInOutFilter: React.FC<StockInOutFilterProps> = (props: StockInOutFilt
                   allowClear
                   placeholder="Tìm kiếm theo mã phiếu, sản phẩm"
                   onChange={(e: any) => {
-                    const value = e.target.value;
+                    const value = e.target.value.trim();
                     if (value.length > 2 && value.length <= 255) {
                       onSearch(value);
                     }

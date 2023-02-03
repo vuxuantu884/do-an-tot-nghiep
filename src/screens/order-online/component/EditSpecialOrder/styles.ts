@@ -70,7 +70,7 @@ export const SelectMultipleStyle = styled(Select)`
   .ant-select-selector {
     height: auto !important;
   }
-  .ant-select-selection-item {
+  /* .ant-select-selection-item {
     margin: 1px 2px;
-  }
+  } */
 `;
