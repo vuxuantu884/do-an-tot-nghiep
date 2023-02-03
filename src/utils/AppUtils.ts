@@ -1909,8 +1909,7 @@ export const removeMultiWhitespaceAndTrimText = (value: string) => {
   return value.trim().replace(/\s\s+/g, " ");
 };
 
-//https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
-// sao không dùng lodash nhỉ
+//chuyển đổi mảng đa chiều sang mảng 1 chiều
 export const flattenArray = (arr: any) => {
   return arr.reduce(function (flat: any, toFlatten: any) {
     return flat.concat(Array.isArray(toFlatten) ? flattenArray(toFlatten) : toFlatten);
