@@ -150,6 +150,7 @@ export default function Order(props: PropTypes) {
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
   const [countFinishingUpdateCustomer, setCountFinishingUpdateCustomer] = useState(0);
+  const [countFinishingUpdateSource, setCountFinishingUpdateSource] = useState(0);
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<number | null>(
     null,
   );
@@ -194,6 +195,11 @@ export default function Order(props: PropTypes) {
       );
       shippingAddressItem && setShippingAddress(shippingAddressItem);
     }
+  };
+
+  const handleSource = (_obj: SourceResponse | null) => {
+    setCountFinishingUpdateSource((prev) => prev + 1);
+    setOrderSource(_obj);
   };
 
   const onChangeBillingAddress = (_objBillingAddress: BillingAddressRequestModel | null) => {
@@ -1276,7 +1282,6 @@ export default function Order(props: PropTypes) {
             });
           }
         }
-
         if (response.source) {
           setOrderSource({
             id: response.source_id,
@@ -1692,7 +1697,7 @@ export default function Order(props: PropTypes) {
                     shippingAddress={shippingAddress}
                     modalAction={modalAction}
                     setModalAction={setModalAction}
-                    setOrderSource={setOrderSource}
+                    setOrderSource={handleSource}
                     isDisableSelectSource={isDisableSelectSource}
                     OrderDetail={OrderDetail}
                     shippingAddressesSecondPhone={shippingAddressesSecondPhone}
@@ -1734,6 +1739,7 @@ export default function Order(props: PropTypes) {
                     orderConfig={orderConfig}
                     loyaltyPoint={loyaltyPoint}
                     countFinishingUpdateCustomer={countFinishingUpdateCustomer}
+                    countFinishingUpdateSource={countFinishingUpdateSource}
                     shipmentMethod={shipmentMethod}
                     stores={stores}
                     isPageOrderUpdate
