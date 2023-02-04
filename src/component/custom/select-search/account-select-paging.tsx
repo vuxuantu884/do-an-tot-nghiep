@@ -17,7 +17,6 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 export interface SelectContentProps extends SelectProps<any> {
   merchandiser?: string;
   fixedQuery?: any;
-  onBlur?: (event: React.FocusEvent<HTMLElement>) => void;
   isFilter?: boolean | false;
   isGetName?: boolean | false;
   [name: string]: any;
@@ -46,13 +45,11 @@ function SelectSearch(contentProps: SelectContentProps) {
     key,
     isFilter,
     isGetName,
-    onBlur,
     ...selectProps
   } = contentProps;
 
   const dispatch = useDispatch();
   const [isSearching, setIsSearching] = React.useState(false);
-  const [initialAuditedBy, setInitialAuditedBy] = React.useState([]);
   const [data, setData] = React.useState<PageResponse<AccountResponse>>({
     items: [],
     metadata: {
@@ -145,8 +142,6 @@ function SelectSearch(contentProps: SelectContentProps) {
           },
         );
 
-        setInitialAuditedBy(initSelectedResponse.items);
-
         let totalItems: AccountResponse[] = [];
         if (initSelectedResponse?.items && defaultOptons) {
           // merge 2 mảng, cho item(s) đang được chọn trước đó vào đầu tiên
@@ -164,25 +159,6 @@ function SelectSearch(contentProps: SelectContentProps) {
     getIntialValue().then();
   }, [isFilter, dispatch, mode, value, fixedQuery, key, defaultOptons]);
 
-  const handleBlur = (event: React.FocusEvent<HTMLElement>) => {
-    if (onBlur) {
-      onBlur(event);
-      return;
-    }
-    const query = { ...fixedQuery, ...{ condition: "", page: 1 } };
-    dispatch(
-      searchAccountPublicAction(query, (response: PageResponse<AccountResponse>) => {
-        if (response) {
-          setData((prevState) => {
-            return { ...prevState, metadata: { ...response.metadata, page: 1 }, items: initialAuditedBy.length > 0
-              ? [...initialAuditedBy, ...response.items]
-              : response.items }
-          });
-        }
-      }),
-    );
-  };
-
   return (
     <SelectPagingV2
       {...defaultSelectProps}
@@ -198,7 +174,6 @@ function SelectSearch(contentProps: SelectContentProps) {
       filterOption={() => true} //lấy kết quả từ server
       {...selectProps}
       value={contentProps.defaultValue || value}
-      onBlur={(event) => handleBlur(event)}
     >
       {data?.items?.map((item) => (
         <SelectPagingV2.Option

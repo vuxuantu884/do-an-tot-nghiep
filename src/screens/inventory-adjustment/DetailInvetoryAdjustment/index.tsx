@@ -589,8 +589,11 @@ const DetailInventoryAdjustment: FC = () => {
       dispatch(showLoading());
       dispatch(
         updateInventoryAdjustmentAction(data.id, dataUpdate, () => {
-          getDetailInventoryAdjustment().then();
-          showSuccess("Cập nhật người kiểm kho thành công");
+          form.setFieldsValue({ version: form.getFieldValue("version") + 1 })
+          setTimeout(() => {
+            dispatch(hideLoading());
+            showSuccess("Cập nhật người kiểm kho thành công");
+          }, 0);
         }),
       );
     }
@@ -1041,7 +1044,7 @@ const DetailInventoryAdjustment: FC = () => {
   const saveFileName = async (id: number) => {
     const input = document.getElementById(String(id)) as HTMLInputElement;
 
-    const fileFiltered = data?.attached_files?.filter((item) => item.name.slice(0, item.name.indexOf('@')) === input.value.slice(0, item.name.indexOf('@')));
+    const fileFiltered = data?.attached_files?.filter((item) => item.name.slice(0, item.name.indexOf('@')) === input.value.slice(0, input.value.indexOf('@')));
 
     if (fileFiltered && fileFiltered.length > 0) {
       showError("Tên file đính kèm đã tồn tại");
@@ -1191,7 +1194,8 @@ const DetailInventoryAdjustment: FC = () => {
                           ]}
                         >
                           <AccountSearchPaging
-                            onBlur={updateAuditedBys}
+                            onSelect={updateAuditedBys}
+                            onDeselect={updateAuditedBys}
                             mode="multiple"
                             placeholder="Chọn người kiểm"
                             style={{ width: "100%" }}
