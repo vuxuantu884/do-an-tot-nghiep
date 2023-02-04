@@ -159,7 +159,7 @@ const InventoryListScreen: React.FC = () => {
 
   const menuExportItems = [
     {
-      name: "Nhập file danh sách",
+      name: "Xuất file danh sách",
       action: "EXPORT_LIST"
     },
     {
