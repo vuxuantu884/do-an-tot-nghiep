@@ -116,13 +116,14 @@ type HistoryInventoryTransferTabProps = {
   accountStores?: Array<StoreResponse> | null;
   stores?: Array<StoreResponse>;
   accounts?: Array<AccountResponse>;
+  defaultAccountProps?: any;
   setAccounts?: (e: any) => any;
 };
 
 const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = (
   props: HistoryInventoryTransferTabProps,
 ) => {
-  const { accounts, stores, setAccounts } = props;
+  const { accounts, stores, setAccounts, defaultAccountProps } = props;
   const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
   const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
@@ -340,6 +341,7 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
     <InventoryTransferTabWrapper>
       <InventoryListLogFilters
         accounts={accounts}
+        defaultAccountProps={defaultAccountProps}
         params={params}
         stores={stores}
         actions={actions}
