@@ -2,7 +2,7 @@ import { Button, Card, Dropdown, Menu, Row, Space, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router";
 import HistoryInventoryTransferTab from "./ListTicketTab/HistoryInventoryTransfer";
 import InventoryTransferTab from "./ListTicketTab/InventoryTransfer";
@@ -14,8 +14,6 @@ import { AccountResponse } from "model/account/account.model";
 import { callApiNative } from "utils/ApiUtils";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { useDispatch, useSelector } from "react-redux";
-import { searchAccountPublicAction } from "domain/actions/account/account.action";
-import { PageResponse } from "model/base/base-metadata.response";
 import { Link, useLocation } from "react-router-dom";
 import queryString from "query-string";
 import exportIcon from "assets/icon/export.svg";
@@ -30,6 +28,7 @@ import { InventoryTransferSearchQuery } from "model/inventory/transfer";
 import { initQuery } from "../helper";
 import { InventoryType } from "domain/types/inventory.type";
 import { STATUS_INVENTORY_TRANSFER } from "../constants";
+import { PageResponse } from "model/base/base-metadata.response";
 
 const { TabPane } = Tabs;
 
@@ -37,6 +36,7 @@ const InventoryListScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("");
   const [stores, setStores] = useState<Array<StoreResponse>>([] as Array<StoreResponse>);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  const [defaultAccountProps, setDefaultAccountProps] = useState<PageResponse<AccountResponse>>();
   const [accountStores, setAccountStores] = useState<Array<StoreResponse> | null>(null);
   const history = useHistory();
   const { path } = useRouteMatch();
@@ -79,40 +79,10 @@ const InventoryListScreen: React.FC = () => {
     setAccounts((accounts) => {
       return [...initSelectedResponse.items, ...accounts];
     });
+    setDefaultAccountProps(initSelectedResponse);
   };
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setAccounts(data.items);
-
-      let codes = "";
-
-      if (queryParamsParsed.created_by) {
-        codes = queryParamsParsed.created_by;
-      }
-      if (queryParamsParsed.updated_by) {
-        codes = codes + "," + queryParamsParsed.updated_by;
-      }
-      if (queryParamsParsed.received_by) {
-        codes = codes + "," + queryParamsParsed.received_by;
-      }
-      if (queryParamsParsed.transfer_by) {
-        codes = codes + "," + queryParamsParsed.transfer_by;
-      }
-      if (queryParamsParsed.cancel_by) {
-        codes = codes + "," + queryParamsParsed.cancel_by;
-      }
-
-      getAccounts(codes).then();
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
 
   const getStores = async () => {
     const res = await callApiNative({ isShowLoading: false }, dispatch, getStoreApi, { status: "active", simple: true });
@@ -122,10 +92,31 @@ const InventoryListScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    dispatch(searchAccountPublicAction({}, setDataAccounts));
+    let codes = "";
+
+    if (queryParamsParsed.created_by) {
+      codes = queryParamsParsed.created_by;
+    }
+    if (queryParamsParsed.updated_by) {
+      codes = codes + "," + queryParamsParsed.updated_by;
+    }
+    if (queryParamsParsed.received_by) {
+      codes = codes + "," + queryParamsParsed.received_by;
+    }
+    if (queryParamsParsed.transfer_by) {
+      codes = codes + "," + queryParamsParsed.transfer_by;
+    }
+    if (queryParamsParsed.cancel_by) {
+      codes = codes + "," + queryParamsParsed.cancel_by;
+    }
+
+    getAccounts(codes).then();
+    if (codes !== "") {
+      getAccounts("").then();
+    }
     getStores().then();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, setDataAccounts]);
+  }, []);
 
   useEffect(() => {
     if (stores.length === 0) return;
@@ -354,6 +345,7 @@ const InventoryListScreen: React.FC = () => {
                   setVExportDetailTransfer={setVExportDetailTransfer}
                   stores={stores}
                   accounts={accounts}
+                  defaultAccountProps={defaultAccountProps}
                   accountStores={accountStores}
                   setAccounts={(value) => setAccounts([...value, ...accounts])}
                 />
@@ -372,6 +364,7 @@ const InventoryListScreen: React.FC = () => {
                   setVExportDetailTransfer={setVExportDetailTransfer}
                   stores={stores}
                   accounts={accounts}
+                  defaultAccountProps={defaultAccountProps}
                   setCountTransferOut={(value) => dispatch({
                     type: InventoryType.COUNT_TRANSFER_OUT,
                     payload: {
@@ -396,6 +389,7 @@ const InventoryListScreen: React.FC = () => {
                   setVExportDetailTransfer={setVExportDetailTransfer}
                   stores={stores}
                   accounts={accounts}
+                  defaultAccountProps={defaultAccountProps}
                   setCountTransferIn={(value) => dispatch({
                     type: InventoryType.COUNT_TRANSFER_IN,
                     payload: {
@@ -416,6 +410,7 @@ const InventoryListScreen: React.FC = () => {
                   activeTab={activeTab}
                   stores={stores}
                   accounts={accounts}
+                  defaultAccountProps={defaultAccountProps}
                   vExportDetailTransfer={vExportDetailTransfer}
                   setVExportDetailTransfer={setVExportDetailTransfer}
                   accountStores={userReducer.account?.account_stores}
@@ -430,6 +425,7 @@ const InventoryListScreen: React.FC = () => {
               <HistoryInventoryTransferTab
                 stores={stores}
                 accounts={accounts}
+                defaultAccountProps={defaultAccountProps}
                 accountStores={accountStores}
                 setAccounts={(value) => setAccounts([...value, ...accounts])}
               />

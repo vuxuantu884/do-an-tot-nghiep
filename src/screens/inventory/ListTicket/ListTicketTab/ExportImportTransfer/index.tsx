@@ -77,6 +77,7 @@ type InventoryTransferTabProps = {
   accountStores?: Array<AccountStoreResponse>;
   stores?: Array<StoreResponse>;
   accounts?: Array<AccountResponse>;
+  defaultAccountProps?: any;
   setAccounts?: (e: any) => any;
   activeTab?: string;
   vExportDetailTransfer: boolean;
@@ -90,6 +91,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
     accountStores,
     stores,
     accounts,
+    defaultAccountProps,
     setAccounts,
     activeTab,
     vExportDetailTransfer,
@@ -809,6 +811,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
         isLoading={tableLoading}
         activeTab={activeTab}
         accounts={accounts}
+        defaultAccountProps={defaultAccountProps}
         params={params}
         stores={stores}
         accountStores={accountStores}

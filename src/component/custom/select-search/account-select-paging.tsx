@@ -20,6 +20,7 @@ export interface SelectContentProps extends SelectProps<any> {
   isFilter?: boolean | false;
   isGetName?: boolean | false;
   [name: string]: any;
+  defaultAccountProps?: PageResponse<AccountResponse>;
 }
 const defaultSelectProps: SelectProps<any> = {
   placeholder: "Chọn tài khoản",
@@ -45,6 +46,7 @@ function SelectSearch(contentProps: SelectContentProps) {
     key,
     isFilter,
     isGetName,
+    defaultAccountProps,
     ...selectProps
   } = contentProps;
 
@@ -89,6 +91,11 @@ function SelectSearch(contentProps: SelectContentProps) {
    * Option cho trang 1
    */
   useEffect(() => {
+    const currentUser = {
+      id: userReducer.account?.id,
+      code: userReducer.account?.code,
+      full_name: userReducer.account?.full_name,
+    };
     const getDefaultOptions = async () => {
       const response = await callApiNative(
         { isShowError: true },
@@ -96,14 +103,9 @@ function SelectSearch(contentProps: SelectContentProps) {
         searchAccountPublicApi,
         { ...fixedQuery, page: 1, limit: 30, status: "active" },
       );
-      const currentUser = {
-        id: userReducer.account?.id,
-        code: userReducer.account?.code,
-        full_name: userReducer.account?.full_name,
-      };
       const findUser = response?.items.find((item: any) => item.code === userReducer.account?.code);
 
-      let items: any[];
+      let items: AccountResponse[];
       if (findUser) {
         items = response?.items;
       } else {
@@ -112,8 +114,23 @@ function SelectSearch(contentProps: SelectContentProps) {
       setDefaultOptons(items);
       setData({ ...response, items });
     };
-    getDefaultOptions();
-  }, [dispatch, fixedQuery, userReducer]);
+
+    if (defaultAccountProps) {
+      const findUser = defaultAccountProps?.items.find((item: any) => item.code === userReducer.account?.code);
+
+      let items: AccountResponse[];
+      if (findUser) {
+        items = defaultAccountProps?.items;
+      } else {
+        items = [currentUser as AccountResponse, ...defaultAccountProps?.items];
+      }
+
+      setDefaultOptons(defaultAccountProps.items);
+      setData({ ...defaultAccountProps, items });
+      return;
+    }
+    getDefaultOptions().then();
+  }, [defaultAccountProps, dispatch, fixedQuery, userReducer]);
 
   /**
    * Request giá trị mặc định để lên đầu cho select và thêm 1 số item khác để user cho thêm sự lựa cho

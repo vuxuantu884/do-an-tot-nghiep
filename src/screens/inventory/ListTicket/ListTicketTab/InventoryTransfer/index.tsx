@@ -93,6 +93,7 @@ type InventoryTransferTabProps = {
   accountStores?: Array<StoreResponse> | null;
   stores?: Array<StoreResponse>;
   accounts?: Array<AccountResponse>;
+  defaultAccountProps?: PageResponse<AccountResponse>;
   setAccounts?: (e: any) => any;
   setCountTransferIn?: (e: number) => void;
   setCountTransferOut?: (e: number) => void;
@@ -115,6 +116,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     setVExportTransfer,
     vExportDetailTransfer,
     setVExportDetailTransfer,
+    defaultAccountProps,
     activeTab,
     setCountTransferIn,
     setCountTransferOut,
@@ -1174,6 +1176,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
         isLoadingAction={tableLoading}
         activeTab={activeTab}
         accounts={accounts}
+        defaultAccountProps={defaultAccountProps}
         params={params}
         stores={stores}
         accountStores={accountStores}
