@@ -1,3 +1,4 @@
+import { successColor } from "utils/global-styles/variables";
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
@@ -8,6 +9,17 @@ export const StyledComponent = styled.div`
       color: red;
     }
   }
+  .overflow-table .rules td.condition-button {
+    width: 100px;
+    padding: 14px 11px;
+    min-height: 70px;
+    border: solid 1px #e2e2e2;
+  }
+
+  .overflow-table .rules .active {
+    color: ${successColor};
+  }
+
   .tableElementSticky {
     position: sticky;
     z-index: 9899;
