@@ -42,9 +42,6 @@ export const TabListWrapper = styled.div`
       color: #666666;
     }
   }
-  .fs-12 {
-    font-size: 12px;
-  }
   .text-title {
     color: #222222;
   }
