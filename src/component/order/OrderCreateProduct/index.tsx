@@ -77,7 +77,7 @@ import React, {
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AddGiftModal from "screens/order-online/modal/AddGiftModal/add-gift.modal";
-import InventoryModal from "screens/order-online/modal/inventory.modal";
+import InventoryModal from "screens/order-online/modal/InventoryModal/inventory.modal";
 import { applyDiscountService } from "service/promotion/discount/discount.service";
 import {
   flattenArray,
@@ -130,7 +130,8 @@ import DiscountOrderModalSearch from "screens/order-online/component/DiscountOrd
 import { DiscountValueType } from "model/promotion/price-rules.model";
 import DiscountGroup from "screens/order-online/component/discount-group";
 import { DiscountUnitType } from "screens/promotion/constants";
-import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
+import { getSuggestStoreInventory } from "service/core/store.service";
+import SuggestInventoryModal from "screens/order-online/modal/InventoryModal/suggest-inventory.modal";
 
 type PropTypes = {
   storeId: number | null;
@@ -2742,9 +2743,29 @@ function OrderCreateProduct(props: PropTypes) {
 
   useEffect(() => {
     if (lineItemsUseInventory.length > 0 && levelOrder <= 3) {
-      console.log("lineItemsUseInventory", lineItemsUseInventory);
-      const _variantIds = lineItemsUseInventory.map((p) => p.variant_id);
-      dispatch(inventoryGetDetailVariantIdsExt(_variantIds, null, setInventoryResponse));
+      // console.log("lineItemsUseInventory", lineItemsUseInventory);
+      // const _variantIds = lineItemsUseInventory.map((p) => p.variant_id);
+      // dispatch(inventoryGetDetailVariantIdsExt(_variantIds, null, setInventoryResponse));
+
+      const shippingAddress = orderCustomer ? getCustomerShippingAddress(orderCustomer) : null;
+
+      (async () => {
+        const body = {
+          address: {
+            city_id: shippingAddress?.city_id,
+          },
+          line_item: lineItemsUseInventory.map((p) => {
+            return {
+              variant_id: p.variant_id,
+              quantity: p.quantity,
+            };
+          }),
+        };
+        try {
+          const inventorySuggest = await getSuggestStoreInventory(body);
+          setInventoryResponse(inventorySuggest.data);
+        } catch (error) {}
+      })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, levelOrder, lineItemsUseInventory.length]);
@@ -3013,16 +3034,15 @@ function OrderCreateProduct(props: PropTypes) {
           </React.Fragment>
         )}
         {isInventoryModalVisible && (
-          <InventoryModal
-            isModalVisible={isInventoryModalVisible}
-            setInventoryModalVisible={setInventoryModalVisible}
+          <SuggestInventoryModal
+            visible={isInventoryModalVisible}
+            setVisible={setInventoryModalVisible}
             storeId={storeId}
             onChangeStore={onChangeStore}
             columnsItem={lineItemsUseInventory}
             inventoryArray={inventoryResponse}
             storeArrayResponse={storeArrayResponse}
             handleCancel={handleInventoryCancel}
-            // setStoreForm={setStoreForm}
           />
         )}
       </Card>

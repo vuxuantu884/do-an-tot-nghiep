@@ -1,4 +1,4 @@
-import { Col, Input, Modal, Radio, Row } from "antd";
+import { Button, Col, Input, Modal, Radio, Row } from "antd";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
 import { OrderLineItemRequest } from "model/request/order.request";
@@ -6,6 +6,9 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { STORE_TYPE } from "utils/Constants";
 import { dangerColor, grayF5Color, successColor } from "utils/global-styles/variables";
 import { StyledComponent } from "./inventory.modal.styles";
+import "./inventory.modal.scss";
+import { fullTextSearch } from "utils/StringUtils";
+import { SearchOutlined } from "@ant-design/icons";
 
 type InventoryModalProps = {
   isModalVisible: boolean;
@@ -30,7 +33,6 @@ interface InventoryStore {
   name: string;
   priority: number;
   data: any;
-  color: string;
 }
 
 const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProps) => {
@@ -69,17 +71,12 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
   const onSearchInventory = useCallback(
     (value: string) => {
       let _item: StoreResponse[] | any = storeArrayResponse?.filter((x) =>
-        x.name.toLowerCase().includes(value.toLowerCase().trim()),
+        fullTextSearch(value.toLowerCase().trim(), x.name.toLowerCase()),
       );
       setStoreData(_item);
     },
     [storeArrayResponse],
   );
-
-  const handleOk = useCallback(() => {
-    if (selectedStoreId) onChangeStore(selectedStoreId);
-    setInventoryModalVisible(false);
-  }, [selectedStoreId, setInventoryModalVisible, onChangeStore]);
 
   const data = useMemo(() => {
     let stores: Array<InventoryStore> = [];
@@ -91,27 +88,10 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
     );
 
     validStore?.forEach((value, index) => {
-      // columnsItem?.forEach((value1)=>{
-      //   let inventory = inventoryArray?.find((value2) => value1.variant_id === value2.variant_id && value.id === value2.store_id);
-      //   if((inventory?.available||0) < (value1.quantity||0)){
-      //     colorStyle =  "";
-      //   }
-      // })
-
-      let colorSuccess = columnsItem?.some(
-        (p) =>
-          (inventoryArray?.find(
-            (value2) => p.variant_id === value2.variant_id && value.id === value2.store_id,
-          )?.available || 0) < p.quantity,
-      );
-
-      let colorStyle = !colorSuccess ? successColor : "";
-
       let store: InventoryStore = {
         id: value.id,
         name: value.name,
         priority: value.type === "ware_house" ? priority.ware_house : 1,
-        color: colorStyle,
         data: {},
       };
 
@@ -166,29 +146,33 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
     );
   }, [element]);
 
-  // useEffect(() => {
-  //   console.log('element?.clientHeight', element?.clientHeight)
-  // }, [element?.clientHeight])
-
-  // console.log("columnsItem",columnsItem)
-
   return (
     <Modal
-      title="Kiểm tra thông tin tồn kho"
+      title={
+        <div className="customer-title">
+          <span className="title">Kiểm tra thông tin tồn kho</span>
+          <Input
+            placeholder="Tìm kiếm kho"
+            allowClear
+            onChange={(tg) => {
+              onSearchInventory(tg.target.value);
+            }}
+            className="input-search"
+            suffix={<SearchOutlined />}
+          />
+        </div>
+      }
       visible={isModalVisible}
       centered
       okText="Chọn kho"
       cancelText="Thoát"
       width={900}
-      onOk={handleOk}
       onCancel={handleCancel}
+      className="inventory-modal"
+      closable={false}
+      okButtonProps={{ hidden: true }}
     >
       <StyledComponent>
-        <Row gutter={24}>
-          <Col md={12}>
-            <Input.Search placeholder="Tìm kiếm kho" allowClear onSearch={onSearchInventory} />
-          </Col>
-        </Row>
         <Row gutter={24} className="margin-top-10">
           <Col md={24}>
             <div className="overflow-table">
@@ -206,6 +190,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
                           {data.variant}
                         </th>
                       ))}
+                      <th className="condition-button"></th>
                     </tr>
                   </thead>
                   <tbody
@@ -220,6 +205,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
                           {data.quantity}
                         </td>
                       ))}
+                      <td className="condition-button"></td>
                     </tr>
                   </tbody>
                   <thead
@@ -236,16 +222,18 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
                           {setAllAvailable(data.variant_id)}
                         </th>
                       ))}
+                      <th className="condition-button"></th>
                     </tr>
                   </thead>
 
                   <tbody>
                     {data?.map((item, index) => (
                       <tr key={index}>
-                        <th className="condition" key={index}>
-                          <Radio value={item.id} style={{ color: item.color }}>
-                            {item.name}
-                          </Radio>
+                        <th
+                          className={storeId === item.id ? "condition active" : "condition"}
+                          key={index}
+                        >
+                          {item.name}
                         </th>
 
                         {columnsItem?.map((_itemi, index) => (
@@ -262,6 +250,20 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
                             {item.data[_itemi.variant_id]}
                           </td>
                         ))}
+                        <td className="condition-button">
+                          <Button
+                            size="small"
+                            type="primary"
+                            ghost
+                            onClick={() => {
+                              if (item.id) onChangeStore(item.id);
+                              setInventoryModalVisible(false);
+                            }}
+                            disabled={storeId === item.id}
+                          >
+                            Chọn kho
+                          </Button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
