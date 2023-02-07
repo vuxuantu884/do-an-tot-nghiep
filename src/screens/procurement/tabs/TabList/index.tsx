@@ -39,7 +39,7 @@ import { PurchaseOrder, PurchaseOrderPrint } from "model/purchase-order/purchase
 import { callApiNative } from "utils/ApiUtils";
 import { updatePurchaseProcumentNoteService } from "service/purchase-order/purchase-procument.service";
 import { ProcurementExport } from "../../components";
-import { PhoneOutlined, PrinterOutlined } from "@ant-design/icons";
+import { InfoCircleTwoTone, PhoneOutlined, PrinterOutlined } from "@ant-design/icons";
 import EditNote from "screens/order-online/component/edit-note";
 import { primaryColor } from "utils/global-styles/variables";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -67,6 +67,7 @@ import {
   EnumTypeExport,
 } from "screens/procurement/helper";
 import YDConfirmModal, { YDConfirmHandle } from "component/modal/YDConfirmModal";
+import { Tooltip } from "antd";
 
 const ProcumentConfirmModal = lazy(
   () => import("screens/purchase-order/modal/procument-confirm.modal"),
@@ -212,181 +213,10 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         render: (value, record) => {
           // Cải tiến UI chuyển từ modal sang chế độ view full screen
           let improveProcurementTemporary = true;
-          return improveProcurementTemporary ? (
-            <>
-              <div>
-                <Link
-                  to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}/procurements/${record.id}`}
-                >
-                  <b>{value}</b>
-                </Link>
-              </div>
-              <div style={{ fontSize: 12 }}>
-                <div>
-                  Mã đơn đặt hàng:{" "}
-                  <Link
-                    to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {record.purchase_order.code}
-                  </Link>
-                </div>
-                <div>
-                  Mã tham chiếu:{" "}
-                  <Link
-                    to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {record.purchase_order.reference}
-                  </Link>
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="procurement-code" onClick={() => handleClickProcurement(record)}>
-              {value}
-            </div>
-          );
-        },
-      },
-      {
-        title: "Nhà cung cấp",
-        dataIndex: "purchase_order",
-        visible: true,
-        width: "14%",
-        render: (value) => {
-          return (
-            <div style={{ fontSize: 12 }}>
-              <Link
-                to={`${UrlConfig.SUPPLIERS}/${value.supplier_id}`}
-                className="link-underline"
-                target="_blank"
-              ></Link>
-              {value?.supplier_code} <PhoneOutlined /> {value?.phone}
-              <div className="font-weight-500">{value?.supplier}</div>
-              <div>
-                Merchandiser:{" "}
-                {value && value.merchandiser_code && value.merchandiser && (
-                  <Link
-                    to={`${UrlConfig.ACCOUNTS}/${value.merchandiser_code}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {`${value?.merchandiser_code} - ${value?.merchandiser}`}
-                  </Link>
-                )}
-              </div>
-              <div>
-                QC:{" "}
-                {value && value.qc && value.qc_code && (
-                  <Link
-                    to={`${UrlConfig.ACCOUNTS}/${value.qc_code}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {`${value?.qc_code} - ${value?.qc}`}
-                  </Link>
-                )}
-              </div>
-            </div>
-          );
-        },
-      },
-      {
-        title: "Kho nhận hàng",
-        dataIndex: "store",
-        width: "20%",
-        render: (value, record) => {
-          return (
-            <>
-              {value}
-              {record?.activated_date && (
-                <div>
-                  <span className="fs-12 text-muted">Ngày duyệt: </span>
-                  <span className="fs-12 text-title">
-                    {ConvertUtcToLocalDate(record.activated_date, DATE_FORMAT.DDMMYY_HHmm)}
-                  </span>
-                </div>
-              )}
-              {record.stock_in_date && (
-                <div>
-                  <span className="fs-12 text-muted">Ngày nhận: </span>
-                  <span className="fs-12 text-title">
-                    {ConvertUtcToLocalDate(record.stock_in_date, DATE_FORMAT.DDMMYY_HHmm)}
-                  </span>
-                </div>
-              )}
-              {record?.cancelled_date && record.status === POStatus.CANCELLED && (
-                <div>
-                  <span className="fs-12 text-muted">Ngày hủy: </span>
-                  <span className="fs-12 text-title">
-                    {ConvertUtcToLocalDate(record.cancelled_date, DATE_FORMAT.DDMMYY_HHmm)}
-                  </span>
-                </div>
-              )}
-            </>
-          );
-        },
-        visible: true,
-      },
-      {
-        title: "Người thao tác",
-        dataIndex: "stock_in_by",
-        visible: true,
-        width: "15%",
-        render: (value, row) => {
-          if (value) {
-            const stockInByName = value.split("-");
-            const activatedByName = row?.activated_by?.split("-");
-            return (
-              <>
-                <div>
-                  <div className="fs-12 text-muted">Người duyệt:</div>
-                  {activatedByName && (
-                    <Link
-                      to={`${UrlConfig.ACCOUNTS}/${activatedByName[0]}`}
-                      className="primary"
-                      target="_blank"
-                    >
-                      {Array.isArray(activatedByName) ? activatedByName[0] : activatedByName}
-                    </Link>
-                  )}
-                  <b>
-                    {" "}
-                    {Array.isArray(activatedByName) && activatedByName.length > 1
-                      ? activatedByName[1]
-                      : ""}
-                  </b>
-                </div>
-                <div>
-                  <div className="fs-12 text-muted">Người nhận:</div>
-                  <Link
-                    to={`${UrlConfig.ACCOUNTS}/${stockInByName[0]}`}
-                    className="primary"
-                    target="_blank"
-                  >
-                    {stockInByName[0]}
-                  </Link>
-                  <b> {stockInByName[1]}</b>
-                </div>
-              </>
-            );
-          } else {
-            return "";
-          }
-        },
-      },
-      {
-        title: "Trạng thái",
-        dataIndex: "status",
-        visible: true,
-        width: "9%",
-        render: (status: string, record) => {
+
           let icon = "";
           let color = "";
-          if (!status) {
+          if (!record.status) {
             return "";
           }
           switch (record.status) {
@@ -407,8 +237,76 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
               color = "#E24343";
               break;
           }
-          return (
+          return improveProcurementTemporary ? (
             <>
+              <Link
+                style={{ fontWeight: 500, fontSize: 16, marginRight: 4 }}
+                to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}/procurements/${record.id}`}
+              >
+                <b>{value}</b>
+              </Link>
+              <Tooltip
+                color="white"
+                title={
+                  <>
+                    {record.purchase_order.code && (
+                      <div className="text-muted">
+                        Mã đơn đặt hàng:{" "}
+                        <Link
+                          to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {record.purchase_order.code}
+                        </Link>
+                      </div>
+                    )}
+
+                    {record?.purchase_order?.reference && (
+                      <div className="text-muted">
+                        Mã tham chiếu:{" "}
+                        <Link
+                          to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {record.purchase_order.reference}
+                        </Link>
+                      </div>
+                    )}
+                    {record.purchase_order &&
+                      record.purchase_order.merchandiser_code &&
+                      record.purchase_order.merchandiser && (
+                        <div className="text-muted">
+                          <Link
+                            to={`${UrlConfig.ACCOUNTS}/${record.purchase_order.merchandiser_code}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {`${record.purchase_order?.merchandiser_code} - ${record.purchase_order?.merchandiser}`}
+                          </Link>{" "}
+                          <b>(Mer)</b>
+                        </div>
+                      )}
+                    {record.purchase_order &&
+                      record.purchase_order.qc &&
+                      record.purchase_order.qc_code && (
+                        <div className="text-muted">
+                          <Link
+                            to={`${UrlConfig.ACCOUNTS}/${record.purchase_order.qc_code}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {`${record.purchase_order?.qc_code} - ${record.purchase_order?.qc}`}
+                          </Link>{" "}
+                          <b>(QC)</b>
+                        </div>
+                      )}
+                  </>
+                }
+              >
+                <InfoCircleTwoTone />
+              </Tooltip>
               <div style={{ color: color }}>
                 {icon && (
                   <img
@@ -419,12 +317,96 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
                     style={{ marginRight: 4, marginBottom: 2 }}
                   />
                 )}
-                {ProcurementStatusName[status]}
+                {ProcurementStatusName[record.status]}
               </div>
+            </>
+          ) : (
+            <div className="procurement-code" onClick={() => handleClickProcurement(record)}>
+              {value}
+            </div>
+          );
+        },
+      },
+      {
+        title: "Nhà cung cấp",
+        dataIndex: "purchase_order",
+        visible: true,
+        width: "14%",
+        render: (value) => {
+          return (
+            <>
+              <Link to={`${UrlConfig.SUPPLIERS}/${value.supplier_id}`} target="_blank">
+                {value?.supplier_code}
+              </Link>
+              <div className="font-weight-500">{value?.supplier}</div>
+              <PhoneOutlined /> {value?.phone}
             </>
           );
         },
-        align: "center",
+      },
+      {
+        title: "Kho nhập hàng",
+        dataIndex: "store",
+        width: "20%",
+        render: (value, record) => {
+          return (
+            <>
+              <b>{value}</b>
+              {record?.activated_date && (
+                <div>
+                  <span className="text-muted">Ngày duyệt: </span>
+                  <span className="text-title">
+                    {ConvertUtcToLocalDate(record.activated_date, DATE_FORMAT.DDMMYY_HHmm)}
+                  </span>
+                </div>
+              )}
+              {record.stock_in_date && (
+                <div>
+                  <span className="text-muted">Ngày nhận : </span>
+                  <span className="text-title">
+                    {ConvertUtcToLocalDate(record.stock_in_date, DATE_FORMAT.DDMMYY_HHmm)}
+                  </span>
+                </div>
+              )}
+              {record?.cancelled_date && record.status === POStatus.CANCELLED && (
+                <div>
+                  <span className="text-muted">Ngày hủy : </span>
+                  <span className="text-title">
+                    {ConvertUtcToLocalDate(record.cancelled_date, DATE_FORMAT.DDMMYY_HHmm)}
+                  </span>
+                </div>
+              )}
+            </>
+          );
+        },
+        visible: true,
+      },
+      {
+        title: "Người nhập hàng",
+        dataIndex: "stock_in_by",
+        visible: true,
+        width: "15%",
+        render: (value) => {
+          if (value) {
+            const stockInByName = value.split("-");
+            return (
+              <>
+                <div>
+                  <Link
+                    to={`${UrlConfig.ACCOUNTS}/${stockInByName[0]}`}
+                    className="primary"
+                    target="_blank"
+                  >
+                    {stockInByName[0]}
+                  </Link>
+                  <b> {stockInByName[1]}</b>
+                </div>
+              </>
+            );
+          } else {
+            return "";
+          }
+        },
       },
       {
         title: (
@@ -443,7 +425,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           </div>
         ),
         align: "center",
-        width: "8%",
+        width: "9%",
         dataIndex: "procurement_items",
         visible: true,
         render: (value: Array<PurchaseProcumentLineItem>) => {
@@ -471,7 +453,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         align: "center",
         dataIndex: "procurement_items",
         visible: true,
-        width: "10%",
+        width: "9%",
         render: (value) => {
           let totalRealQuantity = 0;
           value.forEach((item: PurchaseProcumentLineItem) => {
