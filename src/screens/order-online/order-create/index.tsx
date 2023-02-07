@@ -152,6 +152,7 @@ export default function Order() {
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
 
   const [countFinishingUpdateCustomer, setCountFinishingUpdateCustomer] = useState(0);
+  const [countFinishingUpdateSource, setCountFinishingUpdateSource] = useState(0);
 
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
@@ -203,6 +204,10 @@ export default function Order() {
   const handleCustomer = (_objCustomer: CustomerResponse | null) => {
     setCountFinishingUpdateCustomer((prev) => prev + 1);
     setCustomer(_objCustomer);
+  };
+  const handleSource = (_obj: SourceResponse | null) => {
+    setCountFinishingUpdateSource((prev) => prev + 1);
+    setOrderSource(_obj);
   };
   const onChangeShippingAddress = (_objShippingAddress: ShippingAddress | null) => {
     setShippingAddress(_objShippingAddress);
@@ -1500,7 +1505,7 @@ export default function Order() {
                       setVisibleCustomer={setVisibleCustomer}
                       modalAction={modalAction}
                       setModalAction={setModalAction}
-                      setOrderSource={setOrderSource}
+                      setOrderSource={handleSource}
                       shippingAddressesSecondPhone={shippingAddressesSecondPhone}
                       setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
                       initialForm={initialForm}
@@ -1537,6 +1542,7 @@ export default function Order() {
                       orderSourceId={orderSource?.id}
                       loyaltyPoint={loyaltyPoint}
                       countFinishingUpdateCustomer={countFinishingUpdateCustomer}
+                      countFinishingUpdateSource={countFinishingUpdateSource}
                       shipmentMethod={shipmentMethod}
                       stores={stores}
                       setPromotionTitle={setPromotionTitle}
