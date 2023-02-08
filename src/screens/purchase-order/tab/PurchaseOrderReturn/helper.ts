@@ -17,6 +17,9 @@ export const POReturnFilterField = {
   merchandisers: "merchandisers",
   supplier_ids: "supplier_ids",
   store_ids: "store_ids",
+  created_date_from: "created_date_from",
+  created_date_to: "created_date_to",
+  created_bys: "created_bys",
 };
 
 export const filterPOReturnFieldsMapping = {
@@ -24,4 +27,5 @@ export const filterPOReturnFieldsMapping = {
   [POReturnFilterField.merchandisers]: "Merchandisers",
   [POReturnFilterField.supplier_ids]: "Nhà cung cấp",
   [POReturnFilterField.store_ids]: "Kho trả hàng",
+  [POReturnFilterField.created_bys]: "Người tạo phiếu",
 };

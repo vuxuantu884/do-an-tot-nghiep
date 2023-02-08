@@ -1,3 +1,7 @@
+import moment from "moment";
+import { Link, useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux";
+
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { PurchaseOrderLineReturnItem } from "model/purchase-order/purchase-item.model";
@@ -6,29 +10,40 @@ import {
   PurchaseOrderReturnQuery,
 } from "model/purchase-order/purchase-order.model";
 import React, { useCallback, useMemo, useState, useEffect } from "react";
-import { Link, useHistory } from "react-router-dom";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
-import { OFFSET_HEADER_TABLE } from "utils/Constants";
+import { OFFSET_HEADER_TABLE, STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Constants";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { getTotalQuantityReturn } from "./helper";
 import { PurchaseOrderTabUrl } from "screens/purchase-order/helper";
-import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { ConvertDateToUtc, ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useDispatch } from "react-redux";
 import { callApiNative } from "utils/ApiUtils";
 import { getPurchaseOrderReturnList } from "service/purchase-order/purchase-order.service";
-import { showError } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import PurchaseOrderReturnFilter from "screens/purchase-order/component/PurchaseOrderReturnFilter";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import phoneIcon from "assets/icon/phone-2.svg";
+import { ExportModal } from "component";
+import { START_PROCESS_PERCENT } from "screens/products/helper";
+import { exportFileV2, getFileV2 } from "service/other/import.inventory.service";
+import { HttpStatus } from "config/http-status.config";
+import { DATE_CURRENT } from "config/app.config";
 
-interface PurchaseOrderReturnProps {}
+interface PurchaseOrderReturnProps {
+  showExportModal: boolean;
+  setShowExportModal: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
 const PurchaseOrderReturnList: React.FC<PurchaseOrderReturnProps> = (
   props: PurchaseOrderReturnProps,
 ) => {
+  const { showExportModal, setShowExportModal } = props;
+  const [exportProgressDetail, setExportProgressDetail] = useState<number>(START_PROCESS_PERCENT);
   const [selected, setSelected] = useState<Array<PurchaseOrderReturn>>([]);
+  const [statusExportDetail, setStatusExportDetail] = useState<number>(0);
+  const [listExportFileDetail, setListExportFileDetail] = useState<Array<string>>([]);
+
   const query = useQuery();
   let initQuery: PurchaseOrderReturnQuery = { page: 1, limit: 30 };
 
@@ -72,7 +87,20 @@ const PurchaseOrderReturnList: React.FC<PurchaseOrderReturnProps> = (
   );
 
   useEffect(() => {
-    getPOReturnList(params);
+    const value: PurchaseOrderReturnQuery = {
+      ...params,
+    };
+    const created_date_from = params.created_date_from
+      ? moment(params?.created_date_from, DATE_FORMAT.DDMMYYY).startOf("day").utc(true)
+      : "";
+
+    const created_date_to = params.created_date_to
+      ? moment(params?.created_date_to, DATE_FORMAT.DDMMYYY).endOf("day").utc(true)
+      : "";
+
+    created_date_from && (value.created_date_from = ConvertDateToUtc(created_date_from));
+    created_date_to && (value.created_date_to = ConvertDateToUtc(created_date_to));
+    getPOReturnList(value);
   }, [dispatch, getPOReturnList, params]);
 
   const history = useHistory();
@@ -270,6 +298,117 @@ const PurchaseOrderReturnList: React.FC<PurchaseOrderReturnProps> = (
     history.push(`${PurchaseOrderTabUrl.RETURN}?${queryParam}`);
   };
 
+  const getConditions = useCallback(
+    (type: string) => {
+      let conditions = {};
+      switch (type) {
+        case TYPE_EXPORT.selected:
+          const variant_ids = selected.map((e) => e.id).toString();
+
+          conditions = { variant_ids: variant_ids };
+          break;
+        case TYPE_EXPORT.page:
+          conditions = {
+            ...params,
+            limit: params.limit ?? 30,
+            page: params.page ?? 1,
+          };
+          break;
+        case TYPE_EXPORT.all:
+          conditions = { ...params, page: undefined, limit: undefined };
+          break;
+      }
+      return conditions;
+    },
+    [params, selected],
+  );
+
+  const resetExport = () => {
+    setShowExportModal(false);
+    // setIsLoadingExport(false);
+    setExportProgressDetail(START_PROCESS_PERCENT);
+  };
+
+  const actionExport = {
+    Ok: async (typeExport: string) => {
+      // setIsLoadingExport(true);
+      if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
+        showWarning("Bạn chưa chọn sản phẩm để xuất file");
+        setShowExportModal(false);
+        return;
+      }
+
+      const conditions = getConditions(typeExport);
+      const queryParam = generateQuery({ ...conditions });
+      exportFileV2({
+        conditions: queryParam,
+        type: "TYPE_EXPORT_PRODUCT_VARIANT",
+      })
+        .then((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            showSuccess("Đã gửi yêu cầu xuất file");
+            setStatusExportDetail(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+            setListExportFileDetail([...listExportFileDetail, response.data.code]);
+          }
+        })
+        .catch(() => {
+          setStatusExportDetail(STATUS_IMPORT_EXPORT.ERROR);
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+          resetExport();
+        });
+    },
+    Cancel: () => {
+      resetExport();
+    },
+  };
+
+  const checkExportFileDetail = useCallback(() => {
+    const getFilePromises = listExportFileDetail.map((code) => {
+      return getFileV2(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (response.data.total || response.data.total !== 0) {
+            setExportProgressDetail(response.data.percent);
+          }
+          if (response.data && response.data.status === "FINISH") {
+            setStatusExportDetail(STATUS_IMPORT_EXPORT.JOB_FINISH);
+            const fileCode = response.data.code;
+            const newListExportFile = listExportFileDetail.filter((item) => {
+              return item !== fileCode;
+            });
+            let downLoad = document.createElement("a");
+            downLoad.href = response.data.url;
+            downLoad.download = "download";
+            downLoad.click();
+            setListExportFileDetail(newListExportFile);
+            resetExport();
+          } else if (response.data && response.data.status === "ERROR") {
+            setStatusExportDetail(STATUS_IMPORT_EXPORT.ERROR);
+            if (response.data.message) {
+              showError(response.data.message);
+            }
+          }
+        }
+      });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listExportFileDetail]);
+
+  useEffect(() => {
+    if (
+      listExportFileDetail.length === STATUS_IMPORT_EXPORT.NONE ||
+      statusExportDetail === STATUS_IMPORT_EXPORT.JOB_FINISH ||
+      statusExportDetail === STATUS_IMPORT_EXPORT.ERROR
+    )
+      return;
+    checkExportFileDetail();
+
+    const getFileInterval = setInterval(checkExportFileDetail, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFileDetail, checkExportFileDetail, statusExportDetail]);
+
   return (
     <div>
       <PurchaseOrderReturnFilter
@@ -309,6 +448,15 @@ const PurchaseOrderReturnList: React.FC<PurchaseOrderReturnProps> = (
           data={columns}
         />
       )}
+      <ExportModal
+        title="Xuất file danh sách phiếu trả hàng"
+        moduleText="sản phẩm"
+        onCancel={() => {}}
+        onOk={() => {}}
+        isVisible={showExportModal}
+        // isLoading={isLoadingExport}
+        exportProgress={exportProgressDetail}
+      />
     </div>
   );
 };
