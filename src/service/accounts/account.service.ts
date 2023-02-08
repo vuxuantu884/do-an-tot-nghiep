@@ -41,6 +41,12 @@ export const searchAccountPublicApi = (
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/public?${params}`);
 };
 
+export const searchAccountAllPublicApi = (): Promise<
+  BaseResponse<PageResponse<AccountResponse>>
+> => {
+  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/public/list`);
+};
+
 export const AccountCreateService = (
   request: AccountRequest,
 ): Promise<BaseResponse<AccountResponse>> => {

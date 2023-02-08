@@ -117,15 +117,13 @@ const labelStatus: any = {
 };
 
 interface PurchaseOrderListScreenProps {
-  showExportModal: boolean;
-  setShowExportModal: (param: boolean) => void;
   setError: (param: boolean) => void;
 }
 
 const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
   props: PurchaseOrderListScreenProps,
 ) => {
-  const { showExportModal, setShowExportModal, setError } = props;
+  const { setError } = props;
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -914,14 +912,6 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
           rowKey={(item: PurchaseOrder) => item.id}
         />
       </div>
-      <ExportModal
-        visible={showExportModal}
-        onCancel={() => setShowExportModal(false)}
-        onOk={() => {
-          setShowExportModal(false);
-          onExport();
-        }}
-      />
       <ModalSettingColumn
         visible={showSettingColumn}
         onCancel={() => setShowSettingColumn(false)}
