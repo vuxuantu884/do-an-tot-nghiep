@@ -154,7 +154,7 @@ const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
 
   const getItemsByCondition = useCallback(
     async (type: string) => {
-      let res: any;
+      let res: Promise<BaseResponse<InventoryAdjustmentDetailItem>>;
       let items: Array<InventoryAdjustmentDetailItem> = [];
       const limit = 50;
       let times = 0;
@@ -273,7 +273,7 @@ const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
     Ok: async (typeExport: string) => {
       setStatusConditionExport(STATUS_IMPORT_EXPORT.DEFAULT);
       setIsLoadingExport(true);
-      let dataExport: any = [];
+      let dataExport: Array<InventoryAdjustmentDetailItem> = [];
       if (typeExport === TYPE_EXPORT.selected && selectedRowData && selectedRowData.length === 0) {
         setStatusConditionExport(0);
         showWarning("Bạn chưa chọn bản ghi nào để xuất file");
