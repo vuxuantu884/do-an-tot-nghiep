@@ -599,7 +599,7 @@ export default function Order(props: PropTypes) {
     //   listDiscountRequest.push(objDiscount);
     // }
 
-    return objDiscount as any;
+    return [objDiscount];
   };
 
   const updateOrderCallback = useCallback(
