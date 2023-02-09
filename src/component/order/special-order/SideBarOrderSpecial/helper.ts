@@ -60,7 +60,7 @@ export const specialOrderTypes: SpecialOrderTypeModel = {
   orders_cancel: {
     title: "Hoàn, huỷ",
     value: "orders_cancel",
-    displayFields: [specialOrderDisplayField.lyDo],
+    displayFields: [specialOrderDisplayField.nhanVienCSDH, specialOrderDisplayField.lyDo],
   },
   orders_replace: {
     title: "Thay thế",
