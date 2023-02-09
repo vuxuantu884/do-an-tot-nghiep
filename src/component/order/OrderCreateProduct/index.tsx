@@ -44,7 +44,6 @@ import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
-import { InventoryResponse } from "model/inventory";
 import { ChangeShippingFeeApplyOrderSettingParamModel } from "model/order/order.model";
 import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -77,7 +76,6 @@ import React, {
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AddGiftModal from "screens/order-online/modal/AddGiftModal/add-gift.modal";
-import InventoryModal from "screens/order-online/modal/InventoryModal/inventory.modal";
 import { applyDiscountService } from "service/promotion/discount/discount.service";
 import {
   flattenArray,
@@ -374,7 +372,7 @@ function OrderCreateProduct(props: PropTypes) {
 
   const [storeArrayResponse, setStoreArrayResponse] = useState<Array<StoreResponse> | null>([]);
   // const [discountOrder, setDiscounts] = useState<SuggestDiscountResponseModel[]>([]);
-  const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
+  const [inventoryResponse, setInventoryResponse] = useState<Array<any> | null>(null);
   console.log("storeArrayResponse", storeArrayResponse, inventoryResponse);
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
@@ -2376,9 +2374,11 @@ function OrderCreateProduct(props: PropTypes) {
       setIsShowProductSearch(true);
       onClearVariantSearch();
       if (items && inventoryResponse) {
-        let inventoryInStore = inventoryResponse?.filter((p) => p.store_id === value);
+        let inventoryInStore = inventoryResponse?.find((p) => p.store_id === value);
         let itemCopy = [...items].map((item) => {
-          const itemInStore = inventoryInStore?.find((i) => i.variant_id === item.variant_id);
+          const itemInStore = inventoryInStore?.variant_inventories.find(
+            (i: any) => i.variant_id === item.variant_id,
+          );
           return {
             ...item,
             available: itemInStore ? itemInStore.available : 0,
@@ -2745,34 +2745,42 @@ function OrderCreateProduct(props: PropTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.isSpecialOrderEcommerce?.isChange]);
 
+  const getInventory = useCallback(() => {
+    const shippingAddress = orderCustomer ? getCustomerShippingAddress(orderCustomer) : null;
+
+    (async () => {
+      const body = {
+        address: {
+          city_id: shippingAddress?.city_id,
+        },
+        line_item: lineItemsUseInventory.map((p) => {
+          return {
+            variant_id: p.variant_id,
+            quantity: p.quantity,
+          };
+        }),
+      };
+      try {
+        const inventorySuggest = await getSuggestStoreInventory(body);
+        setInventoryResponse(inventorySuggest.data);
+      } catch (error) {}
+    })();
+  }, [lineItemsUseInventory, orderCustomer]);
   useEffect(() => {
+    // call khi thêm xoá sản phẩm (không call khi thay đổi số lượng)
     if (lineItemsUseInventory.length > 0 && levelOrder <= 3) {
-      // console.log("lineItemsUseInventory", lineItemsUseInventory);
-      // const _variantIds = lineItemsUseInventory.map((p) => p.variant_id);
-      // dispatch(inventoryGetDetailVariantIdsExt(_variantIds, null, setInventoryResponse));
-
-      const shippingAddress = orderCustomer ? getCustomerShippingAddress(orderCustomer) : null;
-
-      (async () => {
-        const body = {
-          address: {
-            city_id: shippingAddress?.city_id,
-          },
-          line_item: lineItemsUseInventory.map((p) => {
-            return {
-              variant_id: p.variant_id,
-              quantity: p.quantity,
-            };
-          }),
-        };
-        try {
-          const inventorySuggest = await getSuggestStoreInventory(body);
-          setInventoryResponse(inventorySuggest.data);
-        } catch (error) {}
-      })();
+      getInventory();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, levelOrder, lineItemsUseInventory.length]);
+
+  useEffect(() => {
+    // call lại api kiểm tra tồn (suggest kho bao gồm cả số lượng sản phẩm)
+    if (lineItemsUseInventory.length > 0 && levelOrder <= 3 && isInventoryModalVisible) {
+      getInventory();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, levelOrder, lineItemsUseInventory.length, isInventoryModalVisible, orderCustomer]);
 
   return (
     <StyledComponent>

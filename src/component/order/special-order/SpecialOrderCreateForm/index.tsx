@@ -211,19 +211,12 @@ function SpecialOrderCreateForm(props: Props) {
           <React.Fragment>
             {checkIfDisplayField(specialOrderDisplayField.nhanVienCSDH) && (
               <Form.Item
-                // label="Nhân viên CSĐH"
                 label={
                   displayOrderSpecialType === specialOrderTypes.orders_split.value
                     ? "Nhân viên thao tác"
                     : "Nhân viên CSĐH"
                 }
                 name="order_carer_code"
-                // name={
-                //   !isShowCreateForm
-                //     ? "order_carer_code "
-                //     : "order_create_page_special_order_order_carer_code"
-                // }
-                // rules={[{ required: true, message: "Vui lòng chọn nhân viên CSĐH!" }]}
                 rules={[
                   {
                     required: true,
