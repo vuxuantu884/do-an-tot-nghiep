@@ -103,13 +103,13 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
                   className="tableElementSticky"
                 >
                   <tr>
+                    <th className="condition-button"></th>
                     <th className="condition">Sản phẩm</th>
                     {columnsItem?.map((data, index) => (
                       <th className="condition" key={index}>
                         {data.variant}
                       </th>
                     ))}
-                    <th className="condition-button"></th>
                   </tr>
                 </thead>
                 <tbody
@@ -118,13 +118,13 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
                   className="tableElementSticky"
                 >
                   <tr>
+                    <td className="condition-button"></td>
                     <td className="condition">Khách đặt</td>
                     {columnsItem?.map((data, index) => (
                       <td className="condition" key={index}>
                         {data.quantity}
                       </td>
                     ))}
-                    <td className="condition-button"></td>
                   </tr>
                 </tbody>
                 <thead
@@ -135,19 +135,33 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
                   className="tableElementSticky"
                 >
                   <tr>
+                    <td className="condition-button"></td>
                     <th className="condition">Tổng có thế bán</th>
                     {columnsItem?.map((data, index) => (
                       <th className="condition" key={index}>
                         {setAllAvailable(data.variant_id)}
                       </th>
                     ))}
-                    <td className="condition-button"></td>
                   </tr>
                 </thead>
 
                 <tbody>
                   {storeData?.map((item, index) => (
                     <tr key={index}>
+                      <td className="condition-button">
+                        <Button
+                          size="small"
+                          type="primary"
+                          ghost
+                          onClick={() => {
+                            if (item.store_id) onChangeStore(item.store_id);
+                            setVisible(false);
+                          }}
+                          disabled={storeId === item.store_id}
+                        >
+                          Chọn kho
+                        </Button>
+                      </td>
                       <th
                         className={storeId === item.store_id ? "condition active" : "condition"}
                         key={index}
@@ -182,20 +196,6 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
                           </td>
                         );
                       })}
-                      <td className="condition-button">
-                        <Button
-                          size="small"
-                          type="primary"
-                          ghost
-                          onClick={() => {
-                            if (item.store_id) onChangeStore(item.store_id);
-                            setVisible(false);
-                          }}
-                          disabled={storeId === item.store_id}
-                        >
-                          Chọn kho
-                        </Button>
-                      </td>
                     </tr>
                   ))}
                 </tbody>
