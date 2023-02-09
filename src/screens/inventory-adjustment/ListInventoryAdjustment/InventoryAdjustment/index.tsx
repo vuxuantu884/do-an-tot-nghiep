@@ -10,7 +10,6 @@ import { useDispatch } from "react-redux";
 import InventoryAdjustmentFilters from "../components/InventoryAdjustmentFilter";
 import {
   InventoryAdjustmentDetailItem,
-  InventoryAdjustmentExportField,
   InventoryAdjustmentSearchQuery,
 } from "model/inventoryadjustment";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
@@ -42,14 +41,8 @@ import InventoryReportModal from "../components/InventoryReportModal";
 import EditPopover from "../../../inventory-defects/ListInventoryDefect/components/EditPopover";
 import { primaryColor } from "utils/global-styles/variables";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
-import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_UNDER_NAVBAR, TYPE_EXPORT } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import useSetTableColumns from "hook/table/useSetTableColumns";
-import { ExportModal } from "../../../../component";
-import { utils, writeFile } from "xlsx";
-import moment from "moment";
-import { callApiNative } from "utils/ApiUtils";
-import { getListInventoryAdjustmentApi } from "service/inventory/adjustment/index.service";
-import BaseResponse from "../../../../base/base.response";
 
 const ACTIONS_INDEX = {
   PRINT: 1,
@@ -78,22 +71,13 @@ const initQuery: InventoryAdjustmentSearchQuery = {
   audit_type: [],
 };
 
-type InventoryAdjustmentProps = {
-  isExportConditionRecord: boolean;
-  setExportConditionRecord: (value: boolean) => void;
-};
-
-let firstLoad = true;
-
-const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
-  const { isExportConditionRecord, setExportConditionRecord } = props;
+const InventoryAdjustment: React.FC = () => {
   const history = useHistory();
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const query = useQuery();
   const [stores, setStores] = useState<Array<StoreResponse>>([] as Array<StoreResponse>);
   const [tableLoading, setTableLoading] = useState(true);
   const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
-  const [selectedRowData, setSelectedRowData] = useState<Array<InventoryAdjustmentDetailItem>>([]);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
 
   const [showExportModal, setShowExportModal] = useState(false);
@@ -102,12 +86,6 @@ const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [inventoryIdSelected, setInventoryIdSelected] = useState<number | null>(null);
-
-  const [conditionExportProgress, setConditionExportProgress] = useState<number>(0);
-  const [statusConditionExport, setStatusConditionExport] = useState<number>(0);
-
-  const [totalItems, setTotalItems] = useState<number>(0);
-  const [isLoadingExport, setIsLoadingExport] = useState<boolean>(false);
 
   const printElementRef = useRef(null);
   const handlePrint = useReactToPrint({
@@ -151,186 +129,6 @@ const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
       disabled: !allowExportTicket,
     },
   ];
-
-  const getItemsByCondition = useCallback(
-    async (type: string) => {
-      let res: Promise<BaseResponse<InventoryAdjustmentDetailItem>>;
-      let items: Array<InventoryAdjustmentDetailItem> = [];
-      const limit = 50;
-      let times = 0;
-
-      setStatusConditionExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
-      switch (type) {
-        case TYPE_EXPORT.page:
-          res = await callApiNative(
-            { isShowLoading: false },
-            dispatch,
-            getListInventoryAdjustmentApi,
-            { ...params, limit: params.limit ?? 50 },
-          );
-          if (res) {
-            items = items.concat(res.items);
-          }
-          break;
-        case TYPE_EXPORT.selected:
-          items = selectedRowData;
-          break;
-        case TYPE_EXPORT.all:
-          const roundAll = Math.round(data.metadata.total / limit);
-          times = roundAll < data.metadata.total / limit ? roundAll + 1 : roundAll;
-
-          for (let index = 1; index <= times; index++) {
-            const res = await callApiNative(
-              { isShowLoading: false },
-              dispatch,
-              getListInventoryAdjustmentApi,
-              { ...params, page: index, limit: limit },
-            );
-            if (res) {
-              items = items.concat(res.items);
-            }
-            const percent = Math.round(Number.parseFloat((index / times).toFixed(2)) * 100);
-            setConditionExportProgress(percent);
-          }
-
-          break;
-        case TYPE_EXPORT.allin:
-          if (!totalItems || totalItems === 0) {
-            break;
-          }
-          const roundAllin = Math.round(totalItems / limit);
-          times = roundAllin < totalItems / limit ? roundAllin + 1 : roundAllin;
-
-          for (let index = 1; index <= times; index++) {
-            const res = await callApiNative(
-              { isShowLoading: false },
-              dispatch,
-              getListInventoryAdjustmentApi,
-              { ...params, page: index, limit: limit },
-            );
-            if (res) {
-              items = items.concat(res.items);
-            }
-            const percent = Math.round(Number.parseFloat((index / times).toFixed(2)) * 100);
-            setConditionExportProgress(percent);
-          }
-          break;
-        default:
-          break;
-      }
-      setConditionExportProgress(100);
-      return items;
-    },
-    [dispatch, selectedRowData, params, data, totalItems],
-  );
-
-  const convertItemExport = (item: InventoryAdjustmentDetailItem) => {
-    let textTag: string;
-    switch (item.status) {
-      case STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT:
-        textTag = STATUS_INVENTORY_ADJUSTMENT.DRAFT.name;
-        break;
-      case STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED:
-        textTag = STATUS_INVENTORY_ADJUSTMENT.AUDITED.name;
-        break;
-      case STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED:
-        textTag = STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.name;
-        break;
-      case STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.CANCELED:
-        textTag = STATUS_INVENTORY_ADJUSTMENT.CANCELED.name;
-        break;
-      default:
-        textTag = STATUS_INVENTORY_ADJUSTMENT.DRAFT.name;
-        break;
-    }
-
-    let auditTypeText = "Một phần";
-    const auditType = INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.find((e) => e.value === item.audit_type);
-    if (auditType && item.audit_type === auditType?.value) {
-      auditTypeText = auditType.name;
-    }
-
-    return {
-      [InventoryAdjustmentExportField.code]: item.code,
-      [InventoryAdjustmentExportField.adjusted_store_id]: item.adjusted_store_id,
-      [InventoryAdjustmentExportField.adjusted_store_name]: item.adjusted_store_name,
-      [InventoryAdjustmentExportField.total_variant]: formatCurrency(item.total_variant, "."),
-      [InventoryAdjustmentExportField.total_on_hand]: formatCurrency(item.total_on_hand, "."),
-      [InventoryAdjustmentExportField.total_excess]: formatCurrency(item.total_excess, "."),
-      [InventoryAdjustmentExportField.total_missing]: formatCurrency(item.total_missing, "."),
-      [InventoryAdjustmentExportField.status]: textTag,
-      [InventoryAdjustmentExportField.audit_type]: auditTypeText,
-      [InventoryAdjustmentExportField.note]: item.note && item.note !== "" && item.note.trim().replaceAll("\n", ""),
-      [InventoryAdjustmentExportField.created_by]: item.created_by,
-      [InventoryAdjustmentExportField.created_name]: item.created_name,
-      [InventoryAdjustmentExportField.adjusted_by]: item.adjusted_by,
-      [InventoryAdjustmentExportField.adjusted_code]: item.adjusted_code,
-      [InventoryAdjustmentExportField.adjusted_date]: ConvertUtcToLocalDate(item.adjusted_date, DATE_FORMAT.DD_MM_YY_HHmmss)
-    };
-  };
-
-  const actionExport = {
-    Ok: async (typeExport: string) => {
-      setStatusConditionExport(STATUS_IMPORT_EXPORT.DEFAULT);
-      setIsLoadingExport(true);
-      let dataExport: Array<InventoryAdjustmentDetailItem> = [];
-      if (typeExport === TYPE_EXPORT.selected && selectedRowData && selectedRowData.length === 0) {
-        setStatusConditionExport(0);
-        showWarning("Bạn chưa chọn bản ghi nào để xuất file");
-        setExportConditionRecord(false);
-        return;
-      }
-      const res = await getItemsByCondition(typeExport);
-      if (!res || res.length === 0) {
-        setStatusConditionExport(0);
-        showWarning("Không có bản ghi nào đủ điều kiện");
-        return;
-      }
-
-      const workbook = utils.book_new();
-      for (let i = 0; i < res.length; i++) {
-        const e: InventoryAdjustmentDetailItem = res[i];
-        const item = convertItemExport(e);
-        dataExport.push(item);
-      }
-
-      const worksheet = utils.json_to_sheet(dataExport);
-      worksheet['!cols'] = [
-        { wch: 15 },
-        { wch: 10 },
-        { wch: 18 },
-        { wch: 18 },
-        { wch: 15 },
-        { wch: 15 },
-        { wch: 15 },
-        { wch: 15 },
-        { wch: 10 },
-        { wch: 20 },
-        { wch: 15 },
-        { wch: 15 },
-        { wch: 15 },
-        { wch: 15 },
-        { wch: 18 }
-      ];
-      utils.book_append_sheet(workbook, worksheet, "data");
-
-      setStatusConditionExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
-      setIsLoadingExport(false);
-      const today = moment(new Date(), "YYYY/MM/DD");
-      const month = today.format("M");
-      const day = today.format("D");
-      const year = today.format("YYYY");
-      writeFile(workbook, `inventory_adjustment_${day}_${month}_${year}.xlsx`);
-      setExportConditionRecord(false);
-      setConditionExportProgress(0);
-      setStatusConditionExport(0);
-    },
-    Cancel: () => {
-      setExportConditionRecord(false);
-      setConditionExportProgress(0);
-      setStatusConditionExport(0);
-    },
-  };
 
   const pageBreak = "<div class='pageBreak'></div>";
   const printContentCallback = useCallback(
@@ -648,10 +446,6 @@ const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
       setTableLoading(true);
       if (!!result) {
         setData(result);
-        if (firstLoad) {
-          setTotalItems(result.metadata.total);
-        }
-        firstLoad = false;
         setTableLoading(false);
       }
     },
@@ -730,7 +524,6 @@ const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
 
       if (selected) {
         setSelectedRowKeys([...selectedRowKeys, ...newSelectedRowKeys]);
-        setSelectedRowData([...selectedRowData, ...changeRow]);
         return;
       }
 
@@ -740,16 +533,9 @@ const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
         return findIndex === -1;
       });
 
-      const newSelectedRowByDeselected = selectedRowData.filter((item) => {
-        const findIndex = changeRow.findIndex((row: any) => row.id === item.id);
-
-        return findIndex === -1;
-      });
-
       setSelectedRowKeys(newSelectedRowKeysByDeselected);
-      setSelectedRowData(newSelectedRowByDeselected);
     },
-    [selectedRowData, selectedRowKeys],
+    [selectedRowKeys],
   );
 
   //get store
@@ -855,17 +641,6 @@ const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
             onCancel={() => setIsOpenModal(false)}
           />
         )}
-
-        <ExportModal
-          onCancel={actionExport.Cancel}
-          onOk={actionExport.Ok}
-          isVisible={isExportConditionRecord}
-          exportProgress={conditionExportProgress}
-          statusExport={statusConditionExport}
-          isHideOptionAll
-          moduleText="phiếu kiểm"
-          isLoading={isLoadingExport}
-        />
       </Card>
     </InventoryAdjustmentWrapper>
   );
