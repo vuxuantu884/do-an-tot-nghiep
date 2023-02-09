@@ -231,22 +231,15 @@ const InventoryDefectCreate: React.FC = () => {
         status: "active",
         simple: true,
       });
-      if (response) {
-        if (response.length === 0 || myStores.length === 0) return;
-        let resStores: Array<Store> = response;
-        resStores.filter((e: Store) => {
-          return myStores.find((p: any) => p.store_id.toString() === e.id.toString());
-        });
-        setStores(resStores);
+      if (response && response.length > 0) {
+        setStores(response);
 
         if (myStores.length === 1) {
-          const storeSelected = resStores.filter((i: any) => i.id === myStores[0].store_id);
-
           form.setFieldsValue({
-            store_id: String(storeSelected[0].id),
+            store_id: String(myStores[0].store_id),
           });
-          setFormStoreData(storeSelected[0]);
-          setDefectStoreIdBak(storeSelected[0].id);
+          setFormStoreData(myStores[0].store_id);
+          setDefectStoreIdBak(myStores[0].store_id);
         }
       }
     };
