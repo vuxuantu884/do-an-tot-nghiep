@@ -80,7 +80,7 @@ const updateReasonItemOnlineInventoryAction = (
 
 const updateOnlineInventoryAction = (
   id: number,
-  onResult: (data: InventoryAdjustmentDetailItem) => void,
+  onResult: (data: Array<StoreResponse>) => void,
 ) => {
   return BaseAction(InventoryType.UPDATE_ONLINE_INVENTORY, {
     id,
@@ -88,7 +88,7 @@ const updateOnlineInventoryAction = (
   });
 };
 
-const adjustInventoryAction = (id: number, onResult: (data: InventoryAdjustmentDetailItem) => void) => {
+const adjustInventoryAction = (id: number, onResult: (data: Array<StoreResponse>) => void) => {
   return BaseAction(InventoryType.UPDATE_ADJUSTMENT_INVENTORY, {
     id,
     onResult,
