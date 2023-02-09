@@ -142,7 +142,12 @@ const CreateInventoryAdjustment: FC = () => {
     if (auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY) {
       const dataLineItems = dataTable;
 
-      data.line_items = dataLineItems.length > 0 ? dataLineItems.map((item: LineItemAdjustment) => {
+      if (dataLineItems && dataLineItems.length === 0) {
+        showError("Vui lòng chọn sản phẩm");
+        return;
+      }
+
+      data.line_items = dataLineItems.map((item: LineItemAdjustment) => {
         const variantPrice =
           item &&
           item.variant_prices &&
@@ -166,7 +171,7 @@ const CreateInventoryAdjustment: FC = () => {
           total_stock: item.total_stock ?? 0,
           on_way: item.on_way ?? 0,
         };
-      }) : [];
+      });
     }
 
     setIsLoading(true);
