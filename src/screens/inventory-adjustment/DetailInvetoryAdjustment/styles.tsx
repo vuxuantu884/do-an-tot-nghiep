@@ -5,12 +5,29 @@ import { BG_COLOR_TAG } from "../ListInventoryAdjustment/InventoryAdjustment/sty
 export const StyledWrapper = styled.div`
   position: relative;
 
-  .file-pin {
-    display: inline-block;
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .container-file-pin {
+    display: flex;
+    align-items: center;
+    .file-pin {
+      display: inline-block;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 90%;
+      text-overflow: ellipsis;
+    }
+
+    .mr-5 {
+      margin-right: 5px;
+    }
+    
+    .input-editable {
+      border: none;
+      outline: none;
+      padding: 0;
+      width: 90%;
+      line-height: 20px;
+      height: 20px;
+    }
   }
 
   span.ant-tag {

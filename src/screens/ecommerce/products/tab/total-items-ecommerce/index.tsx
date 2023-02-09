@@ -510,12 +510,12 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
         title: "Tồn an toàn",
         align: "center",
         width: "120px",
-        render: (item: any) => {
+        render: (record: any) => {
           return (
             <span>
-              {item?.available_minimum
-                ? item.available_minimum
-                : item.available_minimum === 0
+              {record?.available_minimum
+                ? record.available_minimum
+                : record.available_minimum === 0
                 ? 0
                 : "-"}
             </span>
@@ -598,11 +598,11 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
       ),
     ];
   }, [
+    handleSyncStock,
+    handleShowLogInventory,
     isLoadingInventory,
     dataInventoryUnicornProduct,
     handleInventoryUnicornProductData,
-    handleShowLogInventory,
-    handleSyncStock,
   ]);
 
   const [columnLogInventory] = useState<any>([

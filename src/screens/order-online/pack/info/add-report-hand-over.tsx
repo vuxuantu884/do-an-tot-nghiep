@@ -23,10 +23,10 @@ import { FulFillmentStatus, PUSHING_STATUS, RECEIPT_TYPE, ShipmentMethod } from 
 import UrlConfig from "config/url.config";
 import { convertFromStringToDate, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { getListOrderApi } from "service/order/order.service";
-import { isFulfillmentPacked } from "../../../../utils/PackUtils";
-import { formatDateTimeOrderFilter, getFulfillmentActive } from "utils/OrderUtils";
+import { formatDateTimeOrderFilter } from "utils/OrderUtils";
 import { OrderWithFulfillmentActiveModel } from "model/order/order.model";
 import { DATE_FORMAT } from "utils/DateUtils";
+import { getFulfillmentActive, isFulfillmentPacked } from "utils/fulfillmentUtils";
 // import { useHistory } from "react-router-dom";
 
 type Props = {

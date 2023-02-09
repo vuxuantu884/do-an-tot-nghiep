@@ -44,7 +44,6 @@ import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
-import { InventoryResponse } from "model/inventory";
 import { ChangeShippingFeeApplyOrderSettingParamModel } from "model/order/order.model";
 import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -77,9 +76,9 @@ import React, {
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AddGiftModal from "screens/order-online/modal/AddGiftModal/add-gift.modal";
-import InventoryModal from "screens/order-online/modal/inventory.modal";
 import { applyDiscountService } from "service/promotion/discount/discount.service";
 import {
+  flattenArray,
   findAvatar,
   findPriceInVariant,
   findTaxInVariant,
@@ -111,8 +110,8 @@ import {
 } from "utils/Constants";
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import {
-  checkIfEcommerceByOrderChannelCode,
-  checkIfEcommerceByOrderChannelCodeUpdateOrder,
+  checkIfECommerceByOrderChannelCode,
+  checkIfECommerceByOrderChannelCodeUpdateOrder,
   compareProducts,
   getLineItemCalculationMoney,
   getPositionLineItem,
@@ -129,6 +128,8 @@ import DiscountOrderModalSearch from "screens/order-online/component/DiscountOrd
 import { DiscountValueType } from "model/promotion/price-rules.model";
 import DiscountGroup from "screens/order-online/component/discount-group";
 import { DiscountUnitType } from "screens/promotion/constants";
+import { getSuggestStoreInventory } from "service/core/store.service";
+import SuggestInventoryModal from "screens/order-online/modal/InventoryModal/suggest-inventory.modal";
 
 type PropTypes = {
   storeId: number | null;
@@ -137,7 +138,6 @@ type PropTypes = {
   form: FormInstance<any>;
   totalAmountCustomerNeedToPay: number;
   orderConfig: OrderConfigResponseModel | null | undefined;
-  inventoryResponse: Array<InventoryResponse> | null;
   levelOrder?: number;
   coupon?: string;
   promotion: OrderDiscountRequest | null;
@@ -156,7 +156,6 @@ type PropTypes = {
   setItemGift: (item: OrderLineItemRequest[]) => void;
   changeInfo: (items: Array<OrderLineItemRequest>, promotion: OrderDiscountRequest | null) => void;
   setItems: (items: Array<OrderLineItemRequest>) => void;
-  setInventoryResponse: (item: Array<InventoryResponse> | null) => void;
   fetchData?: () => void;
   returnOrderInformation?: {
     totalAmountReturn: number;
@@ -247,7 +246,6 @@ function OrderCreateProduct(props: PropTypes) {
     form,
     items,
     storeId,
-    inventoryResponse,
     levelOrder = 0,
     coupon = "",
     orderDetail,
@@ -302,7 +300,7 @@ function OrderCreateProduct(props: PropTypes) {
 
   const isCustomOriginalHandmadeDiscount = useMemo(() => {
     if (
-      checkIfEcommerceByOrderChannelCodeUpdateOrder(orderDetail?.channel_code) &&
+      checkIfECommerceByOrderChannelCodeUpdateOrder(orderDetail?.channel_code) &&
       (props.isPageOrderUpdate || props.isCreateReturn)
     ) {
       return true;
@@ -374,6 +372,8 @@ function OrderCreateProduct(props: PropTypes) {
 
   const [storeArrayResponse, setStoreArrayResponse] = useState<Array<StoreResponse> | null>([]);
   // const [discountOrder, setDiscounts] = useState<SuggestDiscountResponseModel[]>([]);
+  const [inventoryResponse, setInventoryResponse] = useState<Array<any> | null>(null);
+  console.log("storeArrayResponse", storeArrayResponse, inventoryResponse);
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
@@ -2191,7 +2191,7 @@ function OrderCreateProduct(props: PropTypes) {
     if (
       _items.length > 0 &&
       shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE &&
-      !(checkIfEcommerceByOrderChannelCode(orderDetail?.channel_code) && props.isPageOrderUpdate) &&
+      !(checkIfECommerceByOrderChannelCode(orderDetail?.channel_code) && props.isPageOrderUpdate) &&
       !isPageOrderDetail
     ) {
       const orderProductsAmount = totalAmount(_items);
@@ -2264,6 +2264,15 @@ function OrderCreateProduct(props: PropTypes) {
     isCreateReturn,
     setStoreId,
   ]);
+
+  const lineItemsUseInventory = useMemo(() => {
+    if (!items) return [];
+    const _variant = _.cloneDeep(items);
+    const _variantGifts = items.map((p) => p.gifts);
+    const _variantGiftsIdConvertArray = flattenArray(_variantGifts);
+    const _variants: Array<OrderLineItemRequest> = [..._variant, ..._variantGiftsIdConvertArray];
+    return _variants;
+  }, [items]);
 
   const onUpdateData = useCallback(
     (items: Array<OrderLineItemRequest>) => {
@@ -2365,9 +2374,11 @@ function OrderCreateProduct(props: PropTypes) {
       setIsShowProductSearch(true);
       onClearVariantSearch();
       if (items && inventoryResponse) {
-        let inventoryInStore = inventoryResponse?.filter((p) => p.store_id === value);
+        let inventoryInStore = inventoryResponse?.find((p) => p.store_id === value);
         let itemCopy = [...items].map((item) => {
-          const itemInStore = inventoryInStore?.find((i) => i.variant_id === item.variant_id);
+          const itemInStore = inventoryInStore?.variant_inventories.find(
+            (i: any) => i.variant_id === item.variant_id,
+          );
           return {
             ...item,
             available: itemInStore ? itemInStore.available : 0,
@@ -2734,6 +2745,43 @@ function OrderCreateProduct(props: PropTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.isSpecialOrderEcommerce?.isChange]);
 
+  const getInventory = useCallback(() => {
+    const shippingAddress = orderCustomer ? getCustomerShippingAddress(orderCustomer) : null;
+
+    (async () => {
+      const body = {
+        address: {
+          city_id: shippingAddress?.city_id,
+        },
+        line_item: lineItemsUseInventory.map((p) => {
+          return {
+            variant_id: p.variant_id,
+            quantity: p.quantity,
+          };
+        }),
+      };
+      try {
+        const inventorySuggest = await getSuggestStoreInventory(body);
+        setInventoryResponse(inventorySuggest.data);
+      } catch (error) {}
+    })();
+  }, [lineItemsUseInventory, orderCustomer]);
+  useEffect(() => {
+    // call khi thêm xoá sản phẩm (không call khi thay đổi số lượng)
+    if (lineItemsUseInventory.length > 0 && levelOrder <= 3) {
+      getInventory();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, levelOrder, lineItemsUseInventory.length]);
+
+  useEffect(() => {
+    // call lại api kiểm tra tồn (suggest kho bao gồm cả số lượng sản phẩm)
+    if (lineItemsUseInventory.length > 0 && levelOrder <= 3 && isInventoryModalVisible) {
+      getInventory();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, levelOrder, lineItemsUseInventory.length, isInventoryModalVisible, orderCustomer]);
+
   return (
     <StyledComponent>
       <Card
@@ -2807,7 +2855,7 @@ function OrderCreateProduct(props: PropTypes) {
               }}
             />
             <Button
-              disabled={levelOrder > 3 || isOrderFinishedOrCancel(orderDetail)}
+              disabled={levelOrder > 3}
               onClick={() => {
                 showInventoryModal();
               }}
@@ -2998,16 +3046,15 @@ function OrderCreateProduct(props: PropTypes) {
           </React.Fragment>
         )}
         {isInventoryModalVisible && (
-          <InventoryModal
-            isModalVisible={isInventoryModalVisible}
-            setInventoryModalVisible={setInventoryModalVisible}
+          <SuggestInventoryModal
+            visible={isInventoryModalVisible}
+            setVisible={setInventoryModalVisible}
             storeId={storeId}
             onChangeStore={onChangeStore}
-            columnsItem={items}
+            columnsItem={lineItemsUseInventory}
             inventoryArray={inventoryResponse}
             storeArrayResponse={storeArrayResponse}
             handleCancel={handleInventoryCancel}
-            // setStoreForm={setStoreForm}
           />
         )}
       </Card>

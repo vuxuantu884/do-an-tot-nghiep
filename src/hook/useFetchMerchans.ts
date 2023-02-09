@@ -39,7 +39,6 @@ export const useFetchMerchans = () => {
       );
       setMerchans(response);
     } catch (err) {
-      console.error(err);
       setErrors(err);
     } finally {
       setIsLoading(false);

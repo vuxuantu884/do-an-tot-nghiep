@@ -20,7 +20,8 @@ import {
   supplierUpdatePaymentApi,
   supplierCreateContactApi,
   supplierUpdateContactApi,
-  supplierDeleteContactApi, supplierGetAllApi,
+  supplierDeleteContactApi,
+  supplierGetAllApi,
 } from "service/core/supplier.service";
 import { showError } from "utils/ToastUtils";
 import { callApiSaga } from "utils/ApiUtils";
@@ -56,22 +57,18 @@ function* supplierGetAllSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        console.log("supplierGetAllSaga:" + response.errors);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    console.log("supplierGetAllSaga:" + error);
     // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* supplierGetAllNoPagingSaga(action: YodyAction) {
-  const {setData} = action.payload;
+  const { setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<SupplierResponse>> = yield call(
-      supplierGetAllApi
-    );
+    let response: BaseResponse<PageResponse<SupplierResponse>> = yield call(supplierGetAllApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);

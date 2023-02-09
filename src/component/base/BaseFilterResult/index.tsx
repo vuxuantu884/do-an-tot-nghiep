@@ -18,16 +18,20 @@ function BaseFilterResult({ data = [], onClose, ...props }: BaseFilterResultProp
       {!isEmpty(data) && (
         <StyledComponent>
           {data?.map((item: BaseFilterTag, index) => (
-            <Tag
-              key={`${item.keyId}-${item.valueId}-${index}`}
-              closable
-              closeIcon={<CloseOutlined size={24} />}
-              className="tag"
-              {...props}
-              onClose={() => onClose(index)}
-            >
-              <TextShowMore>{`${item.keyName}: ${item.valueName}`}</TextShowMore>
-            </Tag>
+            <>
+              {item.valueName && item.keyName && (
+                <Tag
+                  key={`${item.keyId}-${item.valueId}-${index}`}
+                  closable
+                  closeIcon={<CloseOutlined size={24} />}
+                  className="tag"
+                  {...props}
+                  onClose={() => onClose(index)}
+                >
+                  <TextShowMore>{`${item.keyName}: ${item.valueName}`}</TextShowMore>
+                </Tag>
+              )}
+            </>
           ))}
         </StyledComponent>
       )}

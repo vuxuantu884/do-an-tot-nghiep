@@ -45,7 +45,6 @@ import {
   getAmountPayment,
   isOrderFromPOS,
   scrollAndFocusToDomElement,
-  sortFulfillments,
 } from "utils/AppUtils";
 import {
   FulFillmentStatus,
@@ -54,6 +53,7 @@ import {
   ShipmentMethodOption,
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
+import { sortFulfillments } from "utils/fulfillmentUtils";
 import { dangerColor } from "utils/global-styles/variables";
 import { checkIfFulfillmentCancelled } from "utils/OrderUtils";
 // import { ORDER_SUB_STATUS } from "utils/Order.constants";

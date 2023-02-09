@@ -47,12 +47,7 @@ import {
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
-import {
-  checkIfMomoTypePayment,
-  getFulfillmentActive,
-  getLink,
-  getTotalAmountBeforeDiscount,
-} from "utils/OrderUtils";
+import { checkIfMomoTypePayment, getLink, getTotalAmountBeforeDiscount } from "utils/OrderUtils";
 import { showSuccess } from "utils/ToastUtils";
 
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
@@ -75,6 +70,7 @@ import iconWeight from "screens/order-online/component/OrderList/ListTable/Order
 import IconStore from "screens/order-online/component/OrderList/ListTable/OrderTable/images/store.svg";
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import giftIcon from "assets/icon/gift.svg";
+import { getFulfillmentActive } from "utils/fulfillmentUtils";
 
 type Props = {
   customer?: CustomerResponse;

@@ -11,13 +11,13 @@ import { validateHandoverService } from "service/handover/handover.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { PUSHING_STATUS } from "utils/Constants";
 import { FulfillmentStatus } from "utils/FulfillmentStatus.constant";
-import { isFulfillmentReturned, isFulfillmentReturning } from "utils/OrderUtils";
 import { showModalError, showSuccess } from "utils/ToastUtils";
 import { HandoverReturn, HandoverTransfer } from "../../handover.config";
 import HandoverTable from "../table/handover-table.component";
 import { StyledComponent } from "./styles";
 import audio from "assets/audio/am-bao-tra-loi-sai.wav";
 import { showModalErrorAudio } from "screens/handover/helper";
+import { isFulfillmentReturned, isFulfillmentReturning } from "utils/fulfillmentUtils";
 
 const { Item } = Form;
 

@@ -11,7 +11,8 @@ import { Link } from "react-router-dom";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { handleFetchApiError, isFetchApiSuccessful, isOrderFromPOS } from "utils/AppUtils";
 import { YODY_APP, YODY_LANDING_PAGE, YODY_WEB } from "utils/Constants";
-import { getFulfillmentActive, isDeliveryOrderReturned } from "utils/OrderUtils";
+import { getFulfillmentActive } from "utils/fulfillmentUtils";
+import { isDeliveryOrderReturned } from "utils/OrderUtils";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
@@ -76,7 +77,9 @@ function SidebarOrderDetailInformation(props: PropTypes) {
       result = returnedArr.map((single, index) => {
         return (
           <React.Fragment>
-            <Link data-testid={dataTestId || ''} to={`${UrlConfig.ORDERS_RETURN}/${single.id}`}>{single.code}</Link>
+            <Link data-testid={dataTestId || ""} to={`${UrlConfig.ORDERS_RETURN}/${single.id}`}>
+              {single.code}
+            </Link>
             {index < returnedArr.length - 1 && ", "}
           </React.Fragment>
         );
@@ -144,21 +147,24 @@ function SidebarOrderDetailInformation(props: PropTypes) {
     }
     return (
       <React.Fragment>
-        <a data-testid={dataTestId || ''} href={link} target="_blank" rel="noreferrer">
+        <a data-testid={dataTestId || ""} href={link} target="_blank" rel="noreferrer">
           {order?.reference_code}
         </a>
       </React.Fragment>
     );
   };
 
-  const renderElementReferenceHandover = (goods_receipts?: GoodsReceiptsResponse[] | null, dataTestId?: string) => {
+  const renderElementReferenceHandover = (
+    goods_receipts?: GoodsReceiptsResponse[] | null,
+    dataTestId?: string,
+  ) => {
     return (
       <React.Fragment>
         {goods_receipts?.map((p) => (
           <Link
             to={`${UrlConfig.DELIVERY_RECORDS}/${p.id}`}
             target="_blank"
-            data-testid={dataTestId || ''}
+            data-testid={dataTestId || ""}
             className="reference-good-receipt"
             key={p.id}
           >
@@ -220,7 +226,7 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         </Link>
       ),
       dataTestIdTitle: "storeTitle",
-      dataTestIdVal: ''
+      dataTestIdVal: "",
     },
     {
       title: "Mã đơn gốc",
@@ -234,13 +240,13 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         </Link>
       ) : null,
       dataTestIdTitle: "originalCodeTitle",
-      dataTestIdVal: ''
+      dataTestIdVal: "",
     },
     {
       title: OrderDetail?.channel_id ? getTitleEcommerce(OrderDetail?.channel_id) : null,
       value: OrderDetail?.ecommerce_shop_name || null,
       dataTestIdTitle: "ecommerceShopNameTitle",
-      dataTestIdVal: 'ecommerceShopNameVal'
+      dataTestIdVal: "ecommerceShopNameVal",
     },
     {
       title: "Điện thoại",
@@ -250,14 +256,14 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         </a>
       ),
       dataTestIdTitle: "phoneNumberTitle",
-      dataTestIdVal: ''
+      dataTestIdVal: "",
     },
     {
       title: "Địa chỉ",
       value: OrderDetail?.store_full_address || "-",
-      className: 'address',
+      className: "address",
       dataTestIdTitle: "addressTitle",
-      dataTestIdVal: 'addressVal'
+      dataTestIdVal: "addressVal",
     },
     {
       title: isOrderFromPOS(OrderDetail) ? "NV thu ngân" : null,
@@ -271,7 +277,7 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         </Link>
       ) : null,
       dataTestIdTitle: "cashierTitle",
-      dataTestIdVal: ''
+      dataTestIdVal: "",
     },
     {
       title: isOrderFromPOS(OrderDetail) ? "NV tư vấn" : "NV bán hàng",
@@ -285,7 +291,7 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         </Link>
       ),
       dataTestIdTitle: "salesConsultantTitle",
-      dataTestIdVal: ''
+      dataTestIdVal: "",
     },
     {
       title: "NV marketing",
@@ -299,7 +305,7 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         </Link>
       ),
       dataTestIdTitle: "marketingTitle",
-      dataTestIdVal: ''
+      dataTestIdVal: "",
     },
     {
       title: "NV điều phối",
@@ -313,7 +319,7 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         </Link>
       ),
       dataTestIdTitle: "coordinatorTitle",
-      dataTestIdVal: ''
+      dataTestIdVal: "",
     },
     {
       title: "Người tạo",
@@ -327,16 +333,16 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         </Link>
       ),
       dataTestIdTitle: "creatorTitle",
-      dataTestIdVal: ''
+      dataTestIdVal: "",
     },
     {
       title: "Tham chiếu",
       value:
         OrderDetail?.reference_code && OrderDetail?.reference_code.length > 0
-          ? renderElementReference(OrderDetail, 'referenceVal')
+          ? renderElementReference(OrderDetail, "referenceVal")
           : null,
       dataTestIdTitle: "referenceTitle",
-      dataTestIdVal: ''
+      dataTestIdVal: "",
     },
     {
       title: "Lý do huỷ",
@@ -345,46 +351,44 @@ function SidebarOrderDetailInformation(props: PropTypes) {
           ? OrderDetail?.sub_reason_name
           : OrderDetail?.reason_name
         : null,
-      className: 'cancelReason',
+      className: "cancelReason",
       dataTestIdTitle: "cancelReasonTitle",
-      dataTestIdVal: 'cancelReasonVal'
+      dataTestIdVal: "cancelReasonVal",
     },
     {
       title: "Mã đơn trả hàng",
       value:
         OrderDetail?.order_returns && OrderDetail?.order_returns?.length > 0
-          ? renderReturnedOrder('returnedOrderCodeVal')
+          ? renderReturnedOrder("returnedOrderCodeVal")
           : null,
-      className: 'returnedOrderCode',
+      className: "returnedOrderCode",
       dataTestIdTitle: "returnedOrderCodeTitle",
-      dataTestIdVal: ''
-
+      dataTestIdVal: "",
     },
     {
       title: "Biên bản bàn giao",
       value:
         OrderDetail?.goods_receipts && OrderDetail?.goods_receipts.length > 0
-          ? renderElementReferenceHandover(OrderDetail?.goods_receipts, 'referenceHandoverVal')
+          ? renderElementReferenceHandover(OrderDetail?.goods_receipts, "referenceHandoverVal")
           : null,
       dataTestIdTitle: "referenceHandoverTitle",
-      dataTestIdVal: ''
+      dataTestIdVal: "",
     },
     {
       title: renderSplitOrder()?.title,
       value: renderSplitOrder()?.value,
       dataTestIdTitle: "splitOrderTitle",
-      dataTestIdVal: 'splitOrderValue'
+      dataTestIdVal: "splitOrderValue",
     },
     {
       title: renderOrderHandover()?.transferTitle,
       value: renderOrderHandover()?.transferValue,
-      className: 'orderHandoverTransfer'
-
+      className: "orderHandoverTransfer",
     },
     {
       title: renderOrderHandover()?.returnTitle,
       value: renderOrderHandover()?.returnValue,
-      className: 'orderHandoverReturn'
+      className: "orderHandoverReturn",
     },
     {
       title: "Kho nhận hàng hoàn",
@@ -399,8 +403,14 @@ function SidebarOrderDetailInformation(props: PropTypes) {
           if (single.title && single.value) {
             return (
               <Row className={`rowDetail ${single.className}`} gutter={5} key={index}>
-                <Col span={10} data-testid={single.dataTestIdTitle || ''}>{single.title}:</Col>
-                <Col span={14} data-testid={single?.dataTestIdVal || ''} className="rowDetail__value">
+                <Col span={10} data-testid={single.dataTestIdTitle || ""}>
+                  {single.title}:
+                </Col>
+                <Col
+                  span={14}
+                  data-testid={single?.dataTestIdVal || ""}
+                  className="rowDetail__value"
+                >
                   {single.value}
                 </Col>
               </Row>

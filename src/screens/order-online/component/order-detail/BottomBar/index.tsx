@@ -11,8 +11,9 @@ import React, { Fragment, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { EcommerceChannelId } from "screens/ecommerce/common/commonAction";
-import { isOrderFromPOS, sortFulfillments, checkIfOrderHasReturnedAll } from "utils/AppUtils";
+import { isOrderFromPOS, checkIfOrderHasReturnedAll } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
+import { sortFulfillments } from "utils/fulfillmentUtils";
 import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import {
   checkActiveCancelConfirmOrder,

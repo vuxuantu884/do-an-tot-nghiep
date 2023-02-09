@@ -4,10 +4,7 @@ import { AppConfig } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
 import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import {
-  inventoryByVariantAction,
-  updateConfigInventoryAction,
-} from "domain/actions/inventory/inventory.action";
+import { inventoryByVariantAction } from "domain/actions/inventory/inventory.action";
 import { hideLoading } from "domain/actions/loading.action";
 import { HeaderSummary, SortType } from "hook/filter/HeaderSummary";
 import { debounce } from "lodash";
@@ -25,7 +22,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { HiChevronDoubleRight, HiOutlineChevronDoubleDown } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import { getInventoryConfigService } from "service/inventory";
+import { getInventoryConfigService, updateInventoryConfigService } from "service/inventory";
 import { generateQuery } from "utils/AppUtils";
 import {
   ellipseName,
@@ -154,6 +151,9 @@ const AllTab: React.FC<any> = (props) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [isLoadingExport, setIsLoadingExport] = useState(false);
   const [isLoadingExportDetail, setIsLoadingExportDetail] = useState(false);
+  const [columnsConfig, setColumnsConfig] = useState<
+    Array<ICustomTableColumType<InventoryResponse>>
+  >([]);
   const channels = useGetChannels();
 
   const goDocument = useCallback(
@@ -989,6 +989,7 @@ const AllTab: React.FC<any> = (props) => {
                   );
                   if (userConfig) {
                     let cf = JSON.parse(userConfig.json_content) as ConfigColumnInventory;
+                    setColumnsConfig(cf.Columns);
                     let isValidColumns = true;
                     for (let i = 0; i < cf.Columns.length; i++) {
                       if (typeof cf.Columns[i] === "string") {
@@ -1045,36 +1046,41 @@ const AllTab: React.FC<any> = (props) => {
     }
   }, [account, dispatch, defaultColumns, defaultColumnsDrill]);
 
-  const onSaveConfigColumn = useCallback(
-    (
-      data: Array<ICustomTableColumType<InventoryResponse>>,
-      dataDrill: Array<ICustomTableColumType<InventoryResponse>>,
-    ) => {
-      let config = lstConfig.find(
-        (e) => e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY,
-      ) as FilterConfigRequest;
-      if (!config) config = {} as FilterConfigRequest;
+  const onSaveConfigColumn = async (
+    data: Array<ICustomTableColumType<InventoryResponse>>,
+    dataDrill: Array<ICustomTableColumType<InventoryResponse>>,
+  ) => {
+    let config = lstConfig.find(
+      (e) => e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY,
+    ) as FilterConfigRequest;
+    if (!config) config = {} as FilterConfigRequest;
 
-      const newData = data.map((i) => {
-        return {
-          dataIndex: i.dataIndex,
-          visible: i.visible,
-        };
-      });
+    const newData = data.map((i) => {
+      return {
+        dataIndex: i.dataIndex,
+        visible: i.visible,
+      };
+    });
 
-      const configRequest = {
-        Columns: newData,
-        ColumnDrill: dataDrill.map((i: any) => i.dataIndex).filter((i) => i),
-      } as ConfigColumnInventory;
+    const configRequest = {
+      Columns: newData,
+      ColumnDrill: dataDrill.map((i: any) => i.dataIndex).filter((i) => i),
+    } as ConfigColumnInventory;
 
-      const json_content = JSON.stringify(configRequest);
-      config.type = COLUMN_CONFIG_TYPE.COLUMN_INVENTORY;
-      config.json_content = json_content;
-      config.name = `${account?.code}_config_column_inventory`;
-      dispatch(updateConfigInventoryAction(config));
-    },
-    [dispatch, account?.code, lstConfig],
-  );
+    const json_content = JSON.stringify(configRequest);
+    config.type = COLUMN_CONFIG_TYPE.COLUMN_INVENTORY;
+    config.json_content = json_content;
+    config.name = `${account?.code}_config_column_inventory`;
+    const res = await callApiNative(
+      { isShowError: true, isShowLoading: true },
+      dispatch,
+      updateInventoryConfigService,
+      config,
+    );
+    if (res) {
+      getConfigColumnInventory();
+    }
+  };
 
   const getConditions = useCallback(
     (type: string) => {
@@ -1281,16 +1287,27 @@ const AllTab: React.FC<any> = (props) => {
   const [isColumnConfigFetchSucceed, setIsColumnConfigFetched] = useState(false);
 
   useEffect(() => {
-    if (!isColumnConfigFetchSucceed) {
+    // only fetch one when it had sumData
+    if (objSummaryTable && !isColumnConfigFetchSucceed) {
       getConfigColumnInventory();
     }
-  }, [getConfigColumnInventory, isColumnConfigFetchSucceed]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [objSummaryTable]);
 
   useEffect(() => {
-    if (lstConfig.length === 0) {
+    if (columnsConfig.length === 0) {
       setColumns(defaultColumns);
+    } else {
+      const newColumns: Array<ICustomTableColumType<InventoryResponse>> = columnsConfig.map((i) => {
+        const newObject = defaultColumns.find((j) => i.dataIndex === j.dataIndex);
+        return {
+          ...newObject,
+          visible: i.visible,
+        };
+      });
+      setColumns(newColumns);
     }
-  }, [defaultColumns, lstConfig]);
+  }, [defaultColumns, columnsConfig]);
 
   return (
     <div>

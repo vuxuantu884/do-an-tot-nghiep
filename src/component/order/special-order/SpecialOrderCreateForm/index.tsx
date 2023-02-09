@@ -23,7 +23,7 @@ import {
 } from "utils/AppUtils";
 import { ECOMMERCE_CHANNEL_CODES_UPDATE_ORDER } from "utils/Constants";
 import {
-  checkIfEcommerceByOrderChannelCodeUpdateOrder,
+  checkIfECommerceByOrderChannelCodeUpdateOrder,
   checkIfOrderPageType,
   getArrayFromObject,
 } from "utils/OrderUtils";
@@ -71,7 +71,7 @@ function SpecialOrderCreateForm(props: Props) {
     if (
       !isOrderCreatePage &&
       initialFormValue?.type === specialOrderTypes.orders_replace.value &&
-      checkIfEcommerceByOrderChannelCodeUpdateOrder(initialFormValue.ecommerce)
+      checkIfECommerceByOrderChannelCodeUpdateOrder(initialFormValue.ecommerce)
     ) {
       return false;
     }
@@ -211,19 +211,12 @@ function SpecialOrderCreateForm(props: Props) {
           <React.Fragment>
             {checkIfDisplayField(specialOrderDisplayField.nhanVienCSDH) && (
               <Form.Item
-                // label="Nhân viên CSĐH"
                 label={
                   displayOrderSpecialType === specialOrderTypes.orders_split.value
                     ? "Nhân viên thao tác"
                     : "Nhân viên CSĐH"
                 }
                 name="order_carer_code"
-                // name={
-                //   !isShowCreateForm
-                //     ? "order_carer_code "
-                //     : "order_create_page_special_order_order_carer_code"
-                // }
-                // rules={[{ required: true, message: "Vui lòng chọn nhân viên CSĐH!" }]}
                 rules={[
                   {
                     required: true,
@@ -259,15 +252,19 @@ function SpecialOrderCreateForm(props: Props) {
                 //     : "order_create_page_special_order_order_original_code"
                 // }
                 // rules={[{ required: true, message: "Vui lòng chọn đơn gốc!" }]}
-                rules={displayOrderSpecialType === specialOrderTypes.orders_replace.value ? [{required: false}] : [
-                  {
-                    required: true,
-                    message:
-                      displayOrderSpecialType === specialOrderTypes.orders_split.value
-                        ? "Vui lòng chọn đơn tách"
-                        : "Vui lòng chọn đơn gốc",
-                  },
-                ]}
+                rules={
+                  displayOrderSpecialType === specialOrderTypes.orders_replace.value
+                    ? [{ required: false }]
+                    : [
+                        {
+                          required: true,
+                          message:
+                            displayOrderSpecialType === specialOrderTypes.orders_split.value
+                              ? "Vui lòng chọn đơn tách"
+                              : "Vui lòng chọn đơn gốc",
+                        },
+                      ]
+                }
               >
                 <OrderCustomSearchSelect
                   placeholder="Tìm theo mã đơn hàng"

@@ -56,7 +56,6 @@ import { getVariantApi, searchVariantsApi } from "service/product/product.servic
 import { ORDER_SUB_STATUS, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
 import {
   checkIfMomoTypePayment,
-  getFulfillmentActive,
   getLink,
   getReturnMoneyStatusColor,
   getReturnMoneyStatusText,
@@ -82,6 +81,7 @@ import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
 import { promotionUtils } from "component/order/promotion.utils";
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import useFetchStores from "hook/useFetchStores";
+import { getFulfillmentActive } from "utils/fulfillmentUtils";
 
 const PAYMENT_ICON = [
   {

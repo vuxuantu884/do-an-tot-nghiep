@@ -45,4 +45,5 @@ export interface EcommerceResponse extends BaseObject {
   source_id: number; // id nguồn
   stores: Array<any>;
   sync_stock_process_id: number | null;
+  stock_available_min: number | null;
 }

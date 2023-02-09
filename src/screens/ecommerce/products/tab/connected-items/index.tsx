@@ -74,6 +74,8 @@ import { ColumnsType } from "antd/lib/table";
 import { ListInventoryUnicornProduct } from "model/ecommerce/ecommerce.model";
 import { cloneDeep } from "lodash";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
+import SafeInventoryEdit from "../safe-inventory-edit";
+import { updateSafeInventoryProduct } from "service/ecommerce/ecommerce.service";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsUpdateStockPermission = [EcommerceProductPermission.products_update_stock];
@@ -585,6 +587,40 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     [dispatch, handleGetDataInventoryUnicornProduct],
   );
 
+  const editNote = useCallback(
+    (value, ecommerce_variant_id) => {
+      (async () => {
+        try {
+          const res = await updateSafeInventoryProduct(value, ecommerce_variant_id);
+          if (res.errors && res.errors.length) {
+            res.errors.forEach((msg) => {
+              showError(msg);
+            });
+          } else {
+            showSuccess("Cập nhật tồn an toàn thành công");
+            setVariantData({
+              ...variantData,
+              items: variantData.items.map((i: any) => {
+                if (i.ecommerce_variant_id === ecommerce_variant_id) {
+                  return {
+                    ...i,
+                    ...value,
+                  };
+                }
+                return {
+                  ...i,
+                };
+              }),
+            });
+          }
+        } catch {
+          showError("Cập nhật tồn an toàn thất bại");
+        }
+      })();
+    },
+    [variantData],
+  );
+
   const columns = useCallback((): ColumnsType => {
     return [
       {
@@ -719,14 +755,21 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         title: "Tồn an toàn",
         align: "center",
         width: "120px",
-        render: (item: any) => {
+        render: (record: any) => {
           return (
-            <span>
-              {item?.available_minimum
-                ? item.available_minimum
-                : item.available_minimum === 0
+            <span style={{ display: "inline-flex" }}>
+              {record?.available_minimum
+                ? record.available_minimum
+                : record.available_minimum === 0
                 ? 0
                 : "-"}
+
+              <SafeInventoryEdit
+                onOk={(values) => {
+                  editNote(values, record.ecommerce_variant_id);
+                }}
+                value={record.available_minimum}
+              />
             </span>
           );
         },
@@ -797,11 +840,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       ),
     ];
   }, [
+    handleSyncStock,
+    handleShowLogInventory,
     isLoadingInventory,
     dataInventoryUnicornProduct,
     handleInventoryUnicornProductData,
-    handleShowLogInventory,
-    handleSyncStock,
+    editNote,
   ]);
 
   const [columnLogInventory] = useState<any>([

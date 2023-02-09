@@ -29,6 +29,7 @@ const PurchaseOrderScreen: React.FC<RouteComponentProps> = (props) => {
       setActiveTab(PurchaseOrderTabUrl.LIST);
     }
   }, [path]);
+
   return (
     <PurchaseOrderStyleWrapper>
       <ContentContainer
@@ -44,11 +45,10 @@ const PurchaseOrderScreen: React.FC<RouteComponentProps> = (props) => {
           },
         ]}
         extra={
-          path === PurchaseOrderTabUrl.LIST && (
-            <Row>
-              <Space>
+          <Row>
+            <Space>
+              {/* {activeTab === PurchaseOrderTabUrl.RETURN && (
                 <Button
-                  hidden
                   className="light"
                   size="large"
                   icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
@@ -56,17 +56,19 @@ const PurchaseOrderScreen: React.FC<RouteComponentProps> = (props) => {
                     setShowExportModal(true);
                   }}
                 >
-                  Xuất file
+                  Xuất file chi tiết
                 </Button>
+              )} */}
+              {activeTab === PurchaseOrderTabUrl.LIST && (
                 <AuthWrapper acceptPermissions={[PurchaseOrderPermission.create]}>
                   <ButtonCreate
                     child="Thêm đơn đặt hàng"
                     path={`${UrlConfig.PURCHASE_ORDERS}/create`}
                   />
                 </AuthWrapper>
-              </Space>
-            </Row>
-          )
+              )}
+            </Space>
+          </Row>
         }
       >
         <Card className="card-tab">
@@ -75,17 +77,16 @@ const PurchaseOrderScreen: React.FC<RouteComponentProps> = (props) => {
               tab={<Link to={PurchaseOrderTabUrl.LIST}>Danh sách đơn đặt hàng</Link>}
               key={PurchaseOrderTabUrl.LIST}
             >
-              <PurchaseOrderListScreen
-                showExportModal={showExportModal}
-                setShowExportModal={setShowExportModal}
-                setError={setError}
-              />
+              <PurchaseOrderListScreen setError={setError} />
             </TabPane>
             <TabPane
               tab={<Link to={PurchaseOrderTabUrl.RETURN}>Danh sách phiếu trả hàng</Link>}
               key={PurchaseOrderTabUrl.RETURN}
             >
-              <PurchaseOrderReturnList />
+              <PurchaseOrderReturnList
+                showExportModal={showExportModal}
+                setShowExportModal={setShowExportModal}
+              />
             </TabPane>
           </Tabs>
         </Card>

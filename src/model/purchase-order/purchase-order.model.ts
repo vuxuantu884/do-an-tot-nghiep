@@ -310,5 +310,7 @@ export interface PurchaseOrderReturnQuery extends BaseQuery {
   store_ids?: Array<number>;
   merchandisers?: Array<string>;
   supplier_ids?: Array<number>;
+  created_date_from?: string;
+  created_date_to?: string;
   [key: string]: any;
 }

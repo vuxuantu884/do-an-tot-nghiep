@@ -58,4 +58,10 @@ export const StyledConfig = styled.div`
       margin-right: 11px;
     }
   }
+  #stock_available_min {
+    text-align: left !important;
+  }
+  #stock_available_min::-webkit-input-placeholder {
+    text-align: left !important;
+  }
 `;

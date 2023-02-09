@@ -47,6 +47,11 @@ const getAllStore = (): Promise<BaseResponse<Array<StoreResponse>>> => {
   return BaseAxios.get(link);
 };
 
+const getSuggestStoreInventory = (body: any): Promise<BaseResponse<Array<any>>> => {
+  let link = `${ApiConfig.INVENTORY}/inventories/suggestion`;
+  return BaseAxios.post(link, body);
+};
+
 export {
   getListStore,
   getStoreDetail,
@@ -55,4 +60,5 @@ export {
   getSearchListStore,
   getStoreSearchIdsApi,
   getAllStore,
+  getSuggestStoreInventory,
 };
