@@ -1,7 +1,11 @@
 import { AccountStoreResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { OrderPageTypeModel, OrderType, SpecialOrderValue } from "model/order/order.model";
-import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
+import {
+  OrderItemDiscountRequest,
+  OrderLineItemRequest,
+  OrderPaymentRequest,
+} from "model/request/order.request";
 import {
   FulFillmentResponse,
   OrderLineItemResponse,
@@ -804,26 +808,12 @@ export const removeAllDiscountLineItems = (_items: OrderLineItemRequest[]) => {
   return newItems;
 };
 
-export const convertDiscountType = (type: string) => {
-  let customType = "";
-  switch (type) {
-    case DiscountValueType.FIXED_AMOUNT:
-      customType = DISCOUNT_TYPE.MONEY;
-      break;
-    case DiscountValueType.FIXED_PRICE:
-      customType = DISCOUNT_TYPE.MONEY;
-      break;
-    case DiscountValueType.PERCENTAGE:
-      customType = DISCOUNT_TYPE.PERCENT;
-      break;
-    default:
-      customType = DISCOUNT_TYPE.MONEY;
-      break;
-  }
-
-  return customType;
-};
-
+/**
+ *
+ * @param itemsDefault so sánh sự thay đổi trước và sau,
+ * @param newItems
+ * @returns true or false
+ */
 export const compareProducts = (
   itemsDefault: OrderLineItemRequest[],
   newItems?: OrderLineItemRequest[],
@@ -866,20 +856,66 @@ export const checkIfOrderSplit = (OrderDetail: OrderResponse | null) => {
   );
 };
 
-export const convertDiscountItem = (item: OrderLineItemRequest) => {
-  const _discountItem = _.cloneDeep(item.discount_items);
-  if (_discountItem && _discountItem[0]) {
-    const _type = _discountItem[0].type || DiscountValueType.FIXED_AMOUNT;
-    _discountItem[0].sub_type = _type;
-    _discountItem[0].type = convertDiscountType(_type);
+export const convertReverseDiscountType = (type: string) => {
+  let customType = "";
+  switch (type) {
+    case DiscountValueType.FIXED_AMOUNT:
+      customType = DISCOUNT_TYPE.MONEY;
+      break;
+    case DiscountValueType.FIXED_PRICE:
+      customType = DISCOUNT_TYPE.MONEY;
+      break;
+    case DiscountValueType.PERCENTAGE:
+      customType = DISCOUNT_TYPE.PERCENT;
+      break;
+    default:
+      customType = DISCOUNT_TYPE.MONEY;
+      break;
   }
 
-  return {
-    ...item,
-    isLineItemSemiAutomatic: true,
-    discount_items: _discountItem,
-  };
+  return customType;
 };
+
+export const convertReverseTypeInDiscountItem = (discounts: OrderItemDiscountRequest[]) => {
+  const _discounts = _.cloneDeep(discounts);
+  if (_discounts && _discounts[0]) {
+    const _type = _discounts[0].type || DiscountValueType.FIXED_AMOUNT;
+    _discounts[0].sub_type = _type;
+    _discounts[0].type = convertReverseDiscountType(_type);
+  }
+
+  return _discounts;
+};
+
+export const convertStandardizeTypeInDiscountItem = (discounts: OrderItemDiscountRequest[]) => {
+  const _discounts = _.cloneDeep(discounts);
+  if (_discounts && _discounts[0]) {
+    _discounts[0].type = _discounts[0].sub_type || DiscountValueType.FIXED_AMOUNT;
+    _discounts[0].sub_type = undefined;
+  }
+
+  return _discounts;
+};
+
+/**
+ * chuyển đổi ngược type trong discount
+ * @param item
+ * @returns OrderLineItemRequest
+ */
+// export const convertOrderLineItemRequest = (item: OrderLineItemRequest) => {
+//   const _discountItem = _.cloneDeep(item.discount_items);
+//   if (_discountItem && _discountItem[0]) {
+//     const _type = _discountItem[0].type || DiscountValueType.FIXED_AMOUNT;
+//     _discountItem[0].sub_type = _type;
+//     _discountItem[0].type = convertDiscountType(_type);
+//   }
+
+//   return {
+//     ...item,
+//     isLineItemSemiAutomatic: true,
+//     discount_items: _discountItem,
+//   };
+// };
 
 export const getPositionLineItem = (items: OrderLineItemRequest[]) => {
   const _position = items.map((p) => p.position || 0);
