@@ -6,4 +6,6 @@ export const ReportPermissions = {
   report_marketing: "reports_report_marketing",
   reports_view_report_offline: "reports_view_report_offline",
   reports_view_report_online: "reports_view_report_online",
+  reports_view_report_tct: "reports_view_report_tct",
+  reports_view_report_xnt: "reports_view_report_xnt",
 };

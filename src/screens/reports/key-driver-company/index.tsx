@@ -1,16 +1,12 @@
 /* eslint-disable eqeqeq */
-import {
-  QuestionCircleOutlined,
-  RotateLeftOutlined,
-  RotateRightOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
-import { Button, Card, Col, Form, Popover, Row, Select, Table } from "antd";
+import { QuestionCircleOutlined, SettingOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Form, Popover, Row, Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import ContentContainer from "component/container/content.container";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import ModalSettingColumnData from "component/table/ModalSettingColumnData";
 import { HttpStatus } from "config/http-status.config";
+// import { KeyboardKey } from "model/other/keyboard/keyboard.model";
 import { LocalStorageKey } from "model/report";
 import moment from "moment";
 import queryString from "query-string";
@@ -23,11 +19,12 @@ import { callApiNative } from "utils/ApiUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
-import { strForSearch } from "utils/StringUtils";
-import { initialAnnotationOnline } from "../analytics/shared/kd-online-annotation";
+import { initialAnnotationOffline } from "../analytics/shared/kd-offline-annotation";
 import KeyDriverAnnotationModal from "../analytics/shared/key-driver-annotation-modal";
 import {
   COLUMN_ORDER_LIST,
+  DEFAULT_COMPANY_KD_GROUP,
+  DEFAULT_OFF_KD_GROUP_LV1,
   DEFAULT_ON_KD_GROUP_LV1,
 } from "../common/constant/kd-report-response-key";
 import { KDReportDirection } from "../common/enums/kd-report-direction";
@@ -36,20 +33,16 @@ import {
   convertDataToFlatTableKeyDriver,
   getAllDepartmentByAnalyticResult,
 } from "../common/helpers/convert-data-to-flat-table";
-import { convertDataToFlatTableRotation } from "../common/helpers/convert-data-to-flat-table-rotation";
+import { convertDataCompanyToFlatTableRotation } from "../common/helpers/convert-data-to-flat-table-rotation";
 import { filterValueColumns } from "../common/helpers/filter-value-columns";
 import { getBreadcrumbByLevel } from "../common/helpers/get-breadcrumb-by-level";
-import { KDTableHeader, setObjectiveColumns } from "../common/helpers/set-objective-columns";
 import {
-  getAllKeyDriverByGroupLevel,
-  setTableHorizontalColumns,
-} from "../common/helpers/set-table-horizontal-columns";
+  getAllKDByGroupLevel,
+  setCompanyTableColumns,
+} from "../common/helpers/set-company-table-columns";
+import { KDTableHeader, setObjectiveColumns } from "../common/helpers/set-objective-columns";
 import { KeyDriverStyle } from "../common/styles/key-driver.style";
-import KeyDriverOnlineProvider, {
-  KeyDriverOfflineContext,
-} from "./provider/key-driver-online-provider";
-
-const { Option } = Select;
+import KDCompanyProvider, { KDCompanyContext } from "./provider/kd-company-provider";
 
 const baseColumns: any = [
   {
@@ -76,12 +69,12 @@ const baseColumns: any = [
 const SHOP_LEVEL = 3;
 // const PREFIX_CELL_TABLE = "KEY_DRIVER_ONLINE";
 
-function KeyDriverOnline() {
+function KDCompany() {
   const history = useHistory();
   // get query from url
   const query = new URLSearchParams(useLocation().search);
   const date = query.get("date");
-  const keyDriverGroupLv1 = query.get("keyDriverGroupLv1") || DEFAULT_ON_KD_GROUP_LV1;
+  const keyDriverGroupLv1 = query.get("keyDriverGroupLv1") || DEFAULT_COMPANY_KD_GROUP;
   const departmentLv2 = query.get("departmentLv2");
   const departmentLv3 = query.get("departmentLv3");
   const groupLevel = query.get("groupLv");
@@ -89,7 +82,7 @@ function KeyDriverOnline() {
 
   const [finalColumns, setFinalColumns] = useState<ColumnsType<any>>([]);
   const [loadingPage, setLoadingPage] = useState<boolean | undefined>();
-  const { data, setData } = useContext(KeyDriverOfflineContext);
+  const { data, setData } = useContext(KDCompanyContext);
   const dispatch = useDispatch();
   const [timeForm] = Form.useForm();
   const [filterForm] = Form.useForm();
@@ -98,14 +91,15 @@ function KeyDriverOnline() {
     ? moment(date).format(DATE_FORMAT.DDMMYYY)
     : moment().format(DATE_FORMAT.DDMMYYY);
 
-  const expandedDefault = localStorage.getItem(LocalStorageKey.KDOnlineRowkeysExpanded);
-  const getColumns = localStorage.getItem(LocalStorageKey.KDOnlineColumns);
-  const [expandRowKeys, setExpandRowKeys] = useState<any[]>(
-    expandedDefault ? JSON.parse(expandedDefault) : [],
-  );
+  const getColumns = localStorage.getItem(LocalStorageKey.KDCompanyColumns);
+  const [expandRowKeys, setExpandRowKeys] = useState<any[]>([
+    "Tổng công ty",
+    "Khối kinh doanh Online",
+    "Khối kinh doanh Offline",
+  ]);
 
   const [isVisibleAnnotation, setIsVisibleAnnotation] = useState(false);
-  const keyDriverOnlineAnnotation: any = initialAnnotationOnline;
+  const keyDriverAnnotation: any = initialAnnotationOffline;
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [columns, setColumns] = useState<any[]>(
     getColumns
@@ -163,8 +157,6 @@ function KeyDriverOnline() {
           },
         ],
   );
-  const [allObjectInDim, setAllObjectInDim] = useState<any[]>([]);
-  const [allKDInDim, setAllKDInDim] = useState<any[]>([]);
   const [havePermission, setHavePermission] = useState<boolean>(true);
 
   const newFinalColumns = useMemo(() => {
@@ -172,25 +164,13 @@ function KeyDriverOnline() {
   }, [columns, finalColumns]);
 
   const initTable = useCallback(
-    async (
-      date: string,
-      keyDriverGroupLv1: string,
-      departmentLv2: string | null,
-      departmentLv3: string | null,
-    ) => {
+    async (date: string, keyDriverGroupLv1: string) => {
       const selectedObjectInDim = filterForm.getFieldsValue(true)["objectInDim"];
       const selectedKDInDim = filterForm.getFieldsValue(true)["kdInDim"];
       setLoadingPage(true);
       let allDepartment: { groupedBy: string; drillingLevel: number }[] = [];
-      let currentDrillingLevel: number = 1;
-      if (departmentLv3) {
-        currentDrillingLevel = 3;
-      } else if (departmentLv2) {
-        currentDrillingLevel = 2;
-      } else if (keyDriverGroupLv1) {
-        currentDrillingLevel = 1;
-      }
       try {
+        let currentDrillingLevel: number = 1;
         const response = await callApiNative(
           { isShowError: true },
           dispatch,
@@ -202,70 +182,32 @@ function KeyDriverOnline() {
             departmentLv3,
           },
         );
-        const { FORBIDDEN, FORBIDDEN_REPORT, SUCCESS } = HttpStatus;
+        const { FORBIDDEN, SUCCESS } = HttpStatus;
         if (response.data?.code === FORBIDDEN) {
           setHavePermission(false);
           return;
         }
         const queryParams = queryString.parse(history.location.search);
-        const {
-          direction,
-          groupLv,
-          groupLvName,
-          departmentLv2: departmentLv2Param,
-          departmentLv3: departmentLv3Param,
-        } = queryParams;
+        const { direction, groupLv, groupLvName } = queryParams;
         const { Horizontal } = KDReportDirection;
+        let temp = [...baseColumns];
         if (response.code && response.code !== SUCCESS) {
-          const { department_lv2, department_lv3 } = response;
-          switch (response.code) {
-            case FORBIDDEN_REPORT:
-              let newQueries: any = {
-                ...queryParams,
-                keyDriverGroupLv1: DEFAULT_ON_KD_GROUP_LV1,
-              };
-              if (department_lv2) {
-                newQueries = { ...newQueries, departmentLv2: department_lv2.toUpperCase() };
-              }
-              if (department_lv3) {
-                newQueries = { ...newQueries, departmentLv3: department_lv3.toUpperCase() };
-              }
-              history.push({ search: queryString.stringify(newQueries) });
-              break;
-            default:
-              setLoadingPage(false);
-              break;
-          }
+          setLoadingPage(false);
           return;
         }
-        let temp = [...baseColumns];
         if (direction === Horizontal) {
           setData(() => {
-            return convertDataToFlatTableRotation(
-              response,
-              currentDrillingLevel,
-              KDReportName.Online,
-              {
-                groupLevel: groupLv as string,
-                groupLevelName: groupLvName as string,
-                selectedObject: selectedObjectInDim || [],
-              },
-            );
+            return convertDataCompanyToFlatTableRotation(response, currentDrillingLevel, {
+              groupLevel: groupLv as string,
+              groupLevelName: groupLvName as string,
+              selectedObject: selectedObjectInDim || [],
+            });
           });
-          const allKeyDriverByGroupLevel = getAllKeyDriverByGroupLevel(
+          const allKeyDriverByGroupLevel = getAllKDByGroupLevel(
             response.result.data,
             currentDrillingLevel,
-            {
-              groupLv: groupLv as string,
-              groupLvName: groupLvName as string,
-              queryParams,
-              queryString,
-              history,
-              dispatch,
-            },
           );
-          setAllKDInDim(allKeyDriverByGroupLevel);
-          const horizontalColumns = setTableHorizontalColumns(
+          const horizontalColumns = setCompanyTableColumns(
             allKeyDriverByGroupLevel.filter(
               (item) =>
                 !selectedKDInDim?.length ||
@@ -283,7 +225,6 @@ function KeyDriverOnline() {
               dispatch,
             },
           );
-
           temp = [
             {
               title: "Khu vực",
@@ -293,27 +234,53 @@ function KeyDriverOnline() {
               width: 220,
               fixed: "left",
               render: (text: string, record: any) => {
-                if (record.blockAction) {
+                const { blockAction, department_lv2, department_lv3 } = record;
+                if (
+                  blockAction ||
+                  (department_lv3 && department_lv3.toLowerCase().includes("khác ("))
+                ) {
                   return <span className="deparment-name-horizontal">{text}</span>;
                 } else {
-                  if (!departmentLv2Param) {
+                  let defaultScreen = "";
+                  let keyDriverGroupLv1 = "";
+                  if (
+                    department_lv2 &&
+                    department_lv2.toLowerCase().includes(DEFAULT_OFF_KD_GROUP_LV1.toLowerCase())
+                  ) {
+                    defaultScreen = "key-driver-offline";
+                    keyDriverGroupLv1 = DEFAULT_OFF_KD_GROUP_LV1;
+                  } else if (
+                    department_lv2 &&
+                    department_lv2.toLowerCase().includes(DEFAULT_ON_KD_GROUP_LV1.toLowerCase())
+                  ) {
+                    defaultScreen = "key-driver-online";
+                    keyDriverGroupLv1 = DEFAULT_ON_KD_GROUP_LV1;
+                  }
+                  if (department_lv3) {
                     return (
                       <Link
                         to={`?${queryString.stringify({
-                          ...queryParams,
-                          departmentLv2: text,
+                          date,
+                          direction,
+                          "default-screen": defaultScreen,
+                          keyDriverGroupLv1,
+                          departmentLv2: department_lv3,
                         })}`}
+                        target="_blank"
                       >
                         <span className="deparment-name-horizontal">{text}</span>
                       </Link>
                     );
-                  } else if (!departmentLv3Param) {
+                  } else if (department_lv2) {
                     return (
                       <Link
                         to={`?${queryString.stringify({
-                          ...queryParams,
-                          departmentLv3: text,
+                          date,
+                          direction,
+                          "default-screen": defaultScreen,
+                          keyDriverGroupLv1,
                         })}`}
+                        target="_blank"
                       >
                         <span className="deparment-name-horizontal">{text}</span>
                       </Link>
@@ -328,9 +295,13 @@ function KeyDriverOnline() {
           ];
           allDepartment = getAllDepartmentByAnalyticResult(response.result.data, COLUMN_ORDER_LIST);
         } else {
-          setData(convertDataToFlatTableKeyDriver(response, COLUMN_ORDER_LIST));
+          setData(() => {
+            return convertDataToFlatTableKeyDriver(response, COLUMN_ORDER_LIST, {
+              currentDrillingLevel,
+              name: KDReportName.Offline,
+            });
+          });
           allDepartment = getAllDepartmentByAnalyticResult(response.result.data, COLUMN_ORDER_LIST);
-
           allDepartment
             .filter(
               (item) =>
@@ -348,7 +319,7 @@ function KeyDriverOnline() {
                 const params = {
                   ...queryParams,
                   date: defaultDate,
-                  keyDriverGroupLv1: DEFAULT_ON_KD_GROUP_LV1,
+                  keyDriverGroupLv1: DEFAULT_COMPANY_KD_GROUP,
                   departmentLv2: columnDepartmentLv2,
                   departmentLv3: columnDepartmentLv3,
                 };
@@ -367,20 +338,9 @@ function KeyDriverOnline() {
               temp.push(setObjectiveColumns(kdTableHeader, queryString, history, dispatch));
             });
         }
+
         setFinalColumns(temp);
         setLoadingPage(false);
-        setAllObjectInDim(
-          allDepartment.filter((item) => {
-            if (departmentLv3) {
-              return item.drillingLevel === 4;
-            } else if (departmentLv2) {
-              return item.drillingLevel === 3;
-            } else if (keyDriverGroupLv1) {
-              return item.drillingLevel === 2;
-            }
-            return [];
-          }),
-        );
       } catch (error) {
         console.log("error", error);
       }
@@ -392,12 +352,7 @@ function KeyDriverOnline() {
   useEffect(() => {
     filterForm.setFieldsValue({ objectInDim: [], kdInDim: [] });
     if (keyDriverGroupLv1 && date) {
-      initTable(
-        moment(date).format(DATE_FORMAT.YYYYMMDD),
-        keyDriverGroupLv1,
-        departmentLv2,
-        departmentLv3,
-      );
+      initTable(moment(date).format(DATE_FORMAT.YYYYMMDD), keyDriverGroupLv1);
     } else {
       const today = moment().format(DATE_FORMAT.YYYYMMDD);
       setTimeout(() => {
@@ -405,10 +360,10 @@ function KeyDriverOnline() {
       }, 1000);
       const queryParams = queryString.parse(history.location.search);
       const newQueries = {
-        "default-screen": "key-driver-online",
         ...queryParams,
         date: today,
-        keyDriverGroupLv1: DEFAULT_ON_KD_GROUP_LV1,
+        keyDriverGroupLv1: DEFAULT_COMPANY_KD_GROUP,
+        direction: KDReportDirection.Horizontal,
       };
       history.push({ search: queryString.stringify(newQueries) });
     }
@@ -438,48 +393,16 @@ function KeyDriverOnline() {
     }
     const queryParams = queryString.parse(history.location.search);
     const newQueries = {
-      "default-screen": "key-driver-online",
       ...queryParams,
       date: newDate,
-      keyDriverGroupLv1: DEFAULT_ON_KD_GROUP_LV1,
+      keyDriverGroupLv1: DEFAULT_COMPANY_KD_GROUP,
     };
     history.push({ search: queryString.stringify(newQueries) });
-  }, [history, timeForm]);
+  }, [timeForm, history]);
 
-  const onChangeFilter = () => {
-    initTable(
-      moment(date).format(DATE_FORMAT.YYYYMMDD),
-      keyDriverGroupLv1,
-      departmentLv2,
-      departmentLv3,
-    );
-  };
-
-  const onChangeDirection = (direction: KDReportDirection) => {
-    const { Vertical, Horizontal } = KDReportDirection;
-    const queryParams = queryString.parse(history.location.search);
-    setData([]);
-    if (direction === Vertical) {
-      const { date, keyDriverGroupLv1, departmentLv2, departmentLv3 } = queryParams;
-      const newQueries = {
-        "default-screen": "key-driver-online",
-        date,
-        keyDriverGroupLv1,
-        departmentLv2,
-        departmentLv3,
-      };
-      history.push({ search: queryString.stringify(newQueries) });
-    } else if (direction === Horizontal) {
-      const newQueries = {
-        ...queryParams,
-        direction: Horizontal,
-      };
-      history.push({ search: queryString.stringify(newQueries) });
-    }
-  };
   return havePermission ? (
     <ContentContainer
-      title={"Báo cáo kết quả kinh doanh Online"}
+      title={"Báo cáo kết quả kinh doanh Tổng công ty"}
       extra={
         <Button type="primary" ghost onClick={() => setIsVisibleAnnotation(true)}>
           <QuestionCircleOutlined />
@@ -494,25 +417,6 @@ function KeyDriverOnline() {
     >
       <KeyDriverStyle>
         <Row gutter={8}>
-          <Col>
-            <Card className="filter-block__direction">
-              {reportDirection === KDReportDirection.Horizontal ? (
-                <Button
-                  icon={<RotateRightOutlined />}
-                  className="filter-block-rotation-btn text-primary"
-                  title="Đảo chiều báo cáo"
-                  onClick={() => onChangeDirection(KDReportDirection.Vertical)}
-                ></Button>
-              ) : (
-                <Button
-                  icon={<RotateLeftOutlined />}
-                  className="filter-block-rotation-btn"
-                  title="Đảo chiều báo cáo"
-                  onClick={() => onChangeDirection(KDReportDirection.Horizontal)}
-                ></Button>
-              )}
-            </Card>
-          </Col>
           <Col>
             <Card>
               <Form
@@ -540,83 +444,6 @@ function KeyDriverOnline() {
             </Card>
           </Col>
           <Col>
-            <Card>
-              <Form form={filterForm}>
-                <Row gutter={8}>
-                  <Col>
-                    <Form.Item name="objectInDim">
-                      <Select
-                        disabled={loadingPage}
-                        mode="multiple"
-                        placeholder="Chọn đối tượng"
-                        showArrow
-                        showSearch
-                        optionFilterProp="children"
-                        style={{ width: 250 }}
-                        maxTagCount={"responsive"}
-                        filterOption={(input: String, option: any) => {
-                          if (option.props.value) {
-                            return strForSearch(option.props.children).includes(
-                              strForSearch(input),
-                            );
-                          }
-                          return false;
-                        }}
-                      >
-                        {allObjectInDim.map((item, index) => (
-                          <Option key={"objectFilter" + index} value={item.groupedBy}>
-                            {item.groupedBy}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                  {reportDirection === KDReportDirection.Horizontal ? (
-                    <Col>
-                      <Form.Item name="kdInDim">
-                        <Select
-                          disabled={loadingPage}
-                          mode="multiple"
-                          placeholder="Chọn chỉ số"
-                          showArrow
-                          showSearch
-                          optionFilterProp="children"
-                          style={{ width: 250 }}
-                          maxTagCount={"responsive"}
-                          filterOption={(input: String, option: any) => {
-                            if (option.props.value) {
-                              return strForSearch(option.props.children).includes(
-                                strForSearch(input),
-                              );
-                            }
-                            return false;
-                          }}
-                        >
-                          {allKDInDim.map((item, index) => (
-                            <Option key={"dimFilter" + index} value={item.keyDriver}>
-                              {item.keyDriver}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                  ) : (
-                    ""
-                  )}
-                  <Button
-                    htmlType="submit"
-                    type="primary"
-                    loading={loadingPage}
-                    onClick={onChangeFilter}
-                    className="ml-1 mr-1"
-                  >
-                    Áp dụng
-                  </Button>
-                </Row>
-              </Form>
-            </Card>
-          </Col>
-          <Col>
             <Card className="filter-block__direction">
               <Button
                 className="btn-setting"
@@ -629,7 +456,6 @@ function KeyDriverOnline() {
         </Row>
         <Card title={`BÁO CÁO NGÀY: ${day}`}>
           <Table
-            className="disable-table-style" // để tạm background màu trắng vì chưa group data
             scroll={{ x: "max-content" }}
             sticky={{
               offsetHeader: OFFSET_HEADER_UNDER_NAVBAR,
@@ -649,12 +475,11 @@ function KeyDriverOnline() {
             expandable={{
               defaultExpandAllRows: true,
               onExpandedRowsChange: (rowKeys: any) => {
-                console.log("rowKeys", rowKeys);
                 setExpandRowKeys(rowKeys);
-                localStorage.setItem(
-                  LocalStorageKey.KDOnlineRowkeysExpanded,
-                  JSON.stringify(rowKeys),
-                );
+                // localStorage.setItem(
+                //   LocalStorageKey.KDCompanyRowkeysExpanded,
+                //   JSON.stringify(rowKeys),
+                // );
               },
             }}
             rowClassName={(record: any, rowIndex: any) => {
@@ -703,7 +528,7 @@ function KeyDriverOnline() {
             onOk={(data) => {
               setShowSettingColumn(false);
               setColumns(data);
-              localStorage.setItem(LocalStorageKey.KDOnlineColumns, JSON.stringify(data));
+              localStorage.setItem(LocalStorageKey.KDCompanyColumns, JSON.stringify(data));
             }}
             data={columns}
           />
@@ -711,7 +536,7 @@ function KeyDriverOnline() {
         <KeyDriverAnnotationModal
           isVisiable={isVisibleAnnotation}
           handleCancel={() => setIsVisibleAnnotation(false)}
-          annotationData={keyDriverOnlineAnnotation}
+          annotationData={keyDriverAnnotation}
         />
       </KeyDriverStyle>
     </ContentContainer>
@@ -720,12 +545,12 @@ function KeyDriverOnline() {
   );
 }
 
-const KeyDriverOnlineWithProvider = (props: any) => {
+const KDCompanyWithProvider = (props: any) => {
   return (
-    <KeyDriverOnlineProvider>
-      <KeyDriverOnline {...props} />
-    </KeyDriverOnlineProvider>
+    <KDCompanyProvider>
+      <KDCompany {...props} />
+    </KDCompanyProvider>
   );
 };
 
-export default KeyDriverOnlineWithProvider;
+export default KDCompanyWithProvider;

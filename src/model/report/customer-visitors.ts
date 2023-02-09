@@ -14,4 +14,6 @@ export enum LocalStorageKey {
   KDOfflineColumns = "kd-offline-columns-v2",
   KDOnlineColumns = "kd-online-columns-v2",
   KDOnlineRowkeysExpanded = "kd-online-rowkeys-expanded",
+  KDCompanyColumns = "kd-company-columns",
+  KDCompanyRowkeysExpanded = "kd-company-rowkeys-expanded",
 }

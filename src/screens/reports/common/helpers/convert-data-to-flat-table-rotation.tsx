@@ -1,12 +1,7 @@
 import { uniq } from "lodash";
 import { AnalyticResult } from "model/report";
 import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
-import {
-  ATTRIBUTE_VALUE,
-  COLUMN_ORDER_LIST,
-  OFF_DRILLING_LEVEL,
-  ONL_DRILLING_LEVEL,
-} from "../constant/kd-report-response-key";
+import { ATTRIBUTE_VALUE, COLUMN_ORDER_LIST } from "../constant/kd-report-response-key";
 import { KDReportName } from "../enums/kd-report-name";
 
 interface IKDGroupLevel {
@@ -295,6 +290,78 @@ export const convertDataToFlatTableRotation = (
   return buildSchemas(data);
 };
 
+export const convertDataCompanyToFlatTableRotation = (
+  analyticResult: any,
+  currentDrillingLevel: number,
+  kdGroupLevel: IKDGroupLevel,
+) => {
+  const { selectedObject } = kdGroupLevel;
+  const keyDriverResult = analyticResult.result as AnalyticResult;
+  const attributeOrdered = COLUMN_ORDER_LIST;
+  const keyDriverDescriptionDataIndex = attributeOrdered.indexOf("key_driver_description");
+  const keyDriverIndex = attributeOrdered.indexOf("key_driver");
+  const keyDriverTitleIndex = attributeOrdered.indexOf("key_driver_title");
+  const drillingLevelDataIndex = attributeOrdered.indexOf("drilling_level");
+  const unitIndex = attributeOrdered.indexOf("unit");
+
+  let data: any[] = [];
+  keyDriverResult.data.forEach((row: Array<string>) => {
+    const keyDriver = nonAccentVietnameseKD(row[keyDriverTitleIndex]);
+    const drillingLevel = Number(row[drillingLevelDataIndex]);
+    const departmentLevelIndex = attributeOrdered.indexOf(`department_lv${drillingLevel}`);
+    const department = nonAccentVietnameseKD(row[departmentLevelIndex]);
+    if (
+      !selectedObject.length ||
+      selectedObject.includes(row[departmentLevelIndex].toUpperCase()) ||
+      drillingLevel === currentDrillingLevel
+    ) {
+      const objValue = {} as any;
+
+      ATTRIBUTE_VALUE.forEach((attr) => {
+        objValue[nonAccentVietnameseKD(keyDriver) + "_" + attr] =
+          row[attributeOrdered.indexOf(attr)];
+      });
+
+      const otherValue = {} as any;
+      attributeOrdered.forEach((attr) => {
+        otherValue[nonAccentVietnameseKD(department) + "_" + attr] =
+          row[attributeOrdered.indexOf(attr)];
+        otherValue[attr] = row[attributeOrdered.indexOf(attr)];
+      });
+
+      const existedKey = data.findIndex(
+        (item) =>
+          item.title && item.title.toUpperCase() === row[departmentLevelIndex].toUpperCase(),
+      );
+      if (existedKey === -1) {
+        if (row[departmentLevelIndex]) {
+          data.push({
+            [`${keyDriver}_key`]: row[keyDriverIndex],
+            title: row[departmentLevelIndex],
+            drillingLevel,
+            [`${keyDriver}_method`]: row[keyDriverDescriptionDataIndex],
+            ...objValue,
+            ...otherValue,
+            [`${keyDriver}_unit`]: row[unitIndex],
+            key: row[departmentLevelIndex],
+          });
+        }
+      } else {
+        data[existedKey] = {
+          ...data[existedKey],
+          ...objValue,
+          ...otherValue,
+          [`${keyDriver}_key`]: row[keyDriverIndex],
+          [`${keyDriver}_method`]: row[keyDriverDescriptionDataIndex],
+          [`${keyDriver}_unit`]: row[unitIndex],
+          key: row[departmentLevelIndex],
+        };
+      }
+    }
+  });
+  return buildCompanySchemas(data);
+};
+
 const buildSchemas = (data: any[]) => {
   const drillingLevels = uniq(data.map((item) => item.drillingLevel)).sort();
   let schemas: any[] = [];
@@ -308,4 +375,36 @@ const buildSchemas = (data: any[]) => {
     }
   });
   return schemas;
+};
+
+const buildCompanySchemas = (list: any[]) => {
+  let schemas: any[] = [];
+  list
+    .sort((a, b) => b.drillingLevel - a.drillingLevel)
+    .forEach((item) => {
+      if (!schemas.length) {
+        schemas.push({ ...item });
+      } else {
+        const { drillingLevel } = item;
+        const parentDepartment = item[`department_lv${drillingLevel}`];
+        const childrenItems = schemas.filter(
+          (item) =>
+            item.drillingLevel === drillingLevel + 1 &&
+            parentDepartment === item[`department_lv${item.drillingLevel - 1}`],
+        );
+        if (childrenItems.length) {
+          schemas.push({
+            ...item,
+            children: childrenItems,
+          });
+        } else {
+          schemas.push({ ...item });
+        }
+      }
+    });
+  return schemas
+    .filter((item) => item.drillingLevel === 1)
+    .map((item) => {
+      return { ...item, blockAction: true };
+    });
 };

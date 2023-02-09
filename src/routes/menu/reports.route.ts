@@ -14,6 +14,8 @@ const CustomerVisitors = React.lazy(
   () => import("screens/reports/analytics/shared/customer-visitors"),
 );
 
+const InventoryBalance = React.lazy(() => import("screens/reports/inventory-balance"));
+
 export const KDOfflineV1Url = "/kd-offline-v1";
 
 const reports: Array<RouteMenu> = [
@@ -119,6 +121,18 @@ const reports: Array<RouteMenu> = [
         icon: "icon-dot",
         component: ReadTemplateAnalytics,
         key: "submenureport12",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.ANALYTIC_FINACE}/${REPORTS_URL.INVENTORY_BALANCE}`,
+        permissions: [],
+        exact: true,
+        title: "Báo cáo xuất nhập tồn kho",
+        icon: "icon-dot",
+        component: InventoryBalance,
+        key: "menureport5",
         isShow: true,
         header: null,
         subMenu: [],

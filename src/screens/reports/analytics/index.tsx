@@ -1,10 +1,11 @@
-import { Button, Card, Checkbox, Form, Input, Table } from "antd";
+import { Button, Card, Checkbox, Form, Input, List, Table } from "antd";
 import Color from "assets/css/export-variable.module.scss";
 import search from "assets/img/search.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { AppConfig } from "config/app.config";
+import { ReportPermissions } from "config/permissions/report.permisstion";
 import REPORT_TEMPLATES, { REPORT_CUBES, REPORT_NAMES } from "config/report/report-templates";
 import UrlConfig, { REPORTS_URL } from "config/url.config";
 import _ from "lodash";
@@ -24,6 +25,7 @@ import {
 import { callApiNative } from "utils/ApiUtils";
 import { getPermissionViewCustomizeReport } from "utils/ReportUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
+import { usersViewInventoryBalance } from "../common/constant/inventory-balance/users-view-inventory-balance";
 import { ListAnalyticsStyle } from "./index.style";
 import ModalCreateReport from "./shared/create-report-modal";
 import ModalFormAnalyticsInfo from "./shared/form-analytics-info-modal";
@@ -149,6 +151,8 @@ function Analytics() {
     }),
     REPORT_TEMPLATES,
   );
+
+  const templates = require.context("assets/icon/analytic", true, /\.(jpg|jpeg|png|svg)$/);
   return (
     <ContentContainer
       title={`Danh sách ${REPORT_NAMES[matchPath].toLocaleLowerCase()}`}
@@ -196,13 +200,44 @@ function Analytics() {
           )}
 
           {[UrlConfig.ANALYTIC_FINACE].includes(matchPath) && (
-            <ListAnalyticsBlock
-              matchPath={matchPath}
-              data={REPORT_TEMPLATES.filter((item) => {
-                return item.alias.includes(matchPath);
-              })}
-              title="Báo cáo lợi nhuận"
-            ></ListAnalyticsBlock>
+            <div>
+              <ListAnalyticsBlock
+                matchPath={matchPath}
+                data={REPORT_TEMPLATES.filter((item) => {
+                  return item.alias.includes(matchPath);
+                })}
+                title="Báo cáo lợi nhuận"
+              ></ListAnalyticsBlock>
+              {(allPermissions.includes(ReportPermissions.reports_view_report_xnt) ||
+                usersViewInventoryBalance.includes(currentUsername?.toUpperCase() as string)) && (
+                <Card title={"Báo cáo tồn kho"} className="template-report">
+                  <List
+                    grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 4, xxl: 5 }}
+                    dataSource={[1]}
+                    renderItem={() => {
+                      return (
+                        <Link
+                          to={`${matchPath}/inventory-balance`}
+                          key={"inventory-balance-report"}
+                        >
+                          <List.Item className="pointer">
+                            <div className={`template-report__card `}>
+                              <div className="template-report__icon ">
+                                <img src={templates(`./san-pham.svg`)} alt={"XNT"} />
+                              </div>
+                              <div className="template-report__type">Báo cáo</div>
+                              <div className="template-report__name">
+                                XUẤT - NHẬP - TỒN (KẾ TOÁN)
+                              </div>
+                            </div>
+                          </List.Item>
+                        </Link>
+                      );
+                    }}
+                  />
+                </Card>
+              )}
+            </div>
           )}
 
           {[UrlConfig.ANALYTIC_CUSTOMER].includes(matchPath) && (
