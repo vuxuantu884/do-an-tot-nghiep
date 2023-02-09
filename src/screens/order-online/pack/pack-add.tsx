@@ -25,7 +25,7 @@ import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState }
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { haveAccess } from "utils/AppUtils";
-import { getFulfillmentActive } from "utils/OrderUtils";
+import { getFulfillmentActive } from "utils/fulfillmentUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import AddOrderBottomBar from "./add/add-order-bottombar";
 import AddOrderInReport from "./add/add-order-in-report";

@@ -35,7 +35,7 @@ import { VariantResponse } from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { ArrowRightOutlined } from "@ant-design/icons";
-import { showModalErrorAudio } from "utils/PackUtils";
+import { showModalErrorAudio } from "utils/fulfillmentUtils";
 interface OrderLineItemResponseExt extends OrderLineItemResponse {
   pick: number;
   color: string;

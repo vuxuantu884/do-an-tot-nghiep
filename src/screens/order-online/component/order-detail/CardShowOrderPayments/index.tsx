@@ -17,10 +17,10 @@ import {
   getAmountPayment,
   handleFetchApiError,
   isFetchApiSuccessful,
-  sortFulfillments,
 } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus, PaymentMethodCode, POS } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { sortFulfillments } from "utils/fulfillmentUtils";
 import { ORDER_PAYMENT_STATUS, ORDER_SUB_STATUS } from "utils/Order.constants";
 import {
   checkIfCancelledPayment,

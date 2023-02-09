@@ -139,6 +139,15 @@
       background-color: #e24343 !important;
     }
   }
+  .draft {
+    .ant-steps-item-tail {
+      background-color: #d9d9e4 !important;
+      &::after {
+        background-color: #d9d9e4 !important;
+        height: 1px !important;
+      }
+    }
+  }
   .inactive {
     .ant-steps-item-tail {
       background-color: #d9d9e4 !important;

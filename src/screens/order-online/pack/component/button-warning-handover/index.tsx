@@ -15,8 +15,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { haveAccess } from "utils/AppUtils";
 import { ShipmentMethod } from "utils/Constants";
+import { getFulfillmentActive } from "utils/fulfillmentUtils";
 import { ORDER_SUB_STATUS } from "utils/Order.constants";
-import { getFulfillmentActive } from "utils/OrderUtils";
 import { StyledComponent } from "./style";
 
 type ButtonCreateProps = {

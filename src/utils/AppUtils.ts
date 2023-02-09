@@ -57,6 +57,7 @@ import {
 import { RegUtil } from "./RegUtils";
 import { showError, showSuccess } from "./ToastUtils";
 import { AppConfig } from "config/app.config";
+import { sortFulfillments } from "./fulfillmentUtils";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -1410,14 +1411,6 @@ export const splitEllipsis = (value: string, length: number, lastLength: number)
 export const trimText = (text?: string) => {
   if (!text) return;
   return text.replace(/(\s)+/g, "");
-};
-
-export const sortFulfillments = (fulfillments: FulFillmentResponse[] | null | undefined) => {
-  if (!fulfillments) {
-    return [];
-  }
-  // lấy ffm có shipment, ko phải ffm ẩn rồi so sánh
-  return fulfillments.filter((single) => single.shipment).sort((a, b) => b.id - a.id);
 };
 
 export const goToTopPage = () => {

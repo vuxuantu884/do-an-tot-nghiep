@@ -16,7 +16,6 @@ import { getListOrderApi } from "service/order/order.service";
 import { handleFetchApiError, haveAccess, isFetchApiSuccessful } from "utils/AppUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { FulFillmentStatus } from "utils/Constants";
-import { getFulfillmentActive } from "utils/OrderUtils";
 import { StyledComponent } from "./style";
 import PackInfoComponent from "./component/pack-info.component";
 import PackListComponent from "./component/pack-list.component";
@@ -24,6 +23,7 @@ import AddReportHandOverComponent from "./component/add-report-hand-over.compone
 import PackConfirmModal from "./modal/pack-comfirm.modal";
 import "./style.scss";
 import { FulfillmentDto } from "model/handover/fulfillment.dto";
+import { getFulfillmentActive } from "utils/fulfillmentUtils";
 
 const PackageSupport: React.FC = () => {
   const dispatch = useDispatch();
