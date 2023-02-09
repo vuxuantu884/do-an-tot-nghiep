@@ -124,7 +124,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     onClearFilter && onClearFilter();
     formSearchRef?.current?.setFieldsValue({
       code: "",
-      adjusted_store_ids: "",
+      adjusted_store_id: "",
     });
 
     setVisible(false);
@@ -431,17 +431,16 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                 }}
               />
             </Item>
-            <Item name="adjusted_store_ids">
+            <Item name="adjusted_store_id">
               <CustomSelect
+                autoClearSearchValue={false}
                 style={{
                   width: 300,
                 }}
-                allowClear
-                mode="multiple"
+                allowClear={true}
                 placeholder="Chọn kho kiểm"
                 showArrow
                 showSearch
-                maxTagCount="responsive"
                 optionFilterProp="children"
                 onClear={() => formSearchRef?.current?.submit()}
               >
