@@ -1,6 +1,5 @@
 import { EditOutlined } from "@ant-design/icons";
 import { Button, Card, FormInstance, Row } from "antd";
-import { fromPairs } from "lodash";
 import { OrderPageTypeModel } from "model/order/order.model";
 import {
   SpecialOrderFormValueModel,
@@ -8,12 +7,10 @@ import {
   SpecialOrderResponseModel,
   SpecialOrderType,
 } from "model/order/special-order.model";
-import { OrderResponse } from "model/response/order/order.response";
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
-  checkIfEcommerceByOrderChannelCodeUpdateOrder,
+  checkIfECommerceByOrderChannelCodeUpdateOrder,
   checkIfOrderPageType,
-  getFulfillmentActive,
 } from "utils/OrderUtils";
 import SpecialOrderCreateForm from "../SpecialOrderCreateForm";
 import SpecialOrderDetail from "../SpecialOrderDetail";
@@ -51,7 +48,7 @@ const SideBarOrderSpecial: React.FC<Props> = (props: Props) => {
     if (
       !isOrderCreatePage &&
       specialOrder?.type === specialOrderTypes.orders_replace.value &&
-      checkIfEcommerceByOrderChannelCodeUpdateOrder(specialOrder.ecommerce)
+      checkIfECommerceByOrderChannelCodeUpdateOrder(specialOrder.ecommerce)
     ) {
       return false;
     }
@@ -85,7 +82,7 @@ const SideBarOrderSpecial: React.FC<Props> = (props: Props) => {
     (value: SpecialOrderFormValueModel) => {
       const ecommerce =
         value.type === specialOrderTypes.orders_replace.value &&
-        checkIfEcommerceByOrderChannelCodeUpdateOrder(value.ecommerce);
+        checkIfECommerceByOrderChannelCodeUpdateOrder(value.ecommerce);
       console.log("handleChangeOrderSpecialEcommerce", ecommerce, value.type, value.ecommerce);
       setIsSpecialOrderEcommerce && setIsSpecialOrderEcommerce(ecommerce);
     },

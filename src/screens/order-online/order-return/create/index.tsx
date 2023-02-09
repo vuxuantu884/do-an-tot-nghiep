@@ -134,8 +134,8 @@ import {
 } from "utils/Order.constants";
 import {
   changeTypeQrCode,
-  checkIfEcommerceByOrderChannelCodeUpdateOrder,
-  checkIfEcommerceByOrderChannelCode,
+  checkIfECommerceByOrderChannelCodeUpdateOrder,
+  checkIfECommerceByOrderChannelCode,
   checkIfWebAppByOrderChannelCode,
   findPaymentMethodByCode,
   removeDiscountLineItem,
@@ -350,7 +350,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       billing_address: null,
       payments: [],
       channel_id: null,
-      automatic_discount: !checkIfEcommerceByOrderChannelCodeUpdateOrder(OrderDetail?.channel_code),
+      automatic_discount: !checkIfECommerceByOrderChannelCodeUpdateOrder(OrderDetail?.channel_code),
     };
   }, [userReducer.account?.code, OrderDetail]);
 
@@ -1036,7 +1036,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   const isShowDiscountByInsert = useMemo(() => {
     return (
-      checkIfEcommerceByOrderChannelCode(OrderDetail?.channel_code) ||
+      checkIfECommerceByOrderChannelCode(OrderDetail?.channel_code) ||
       checkIfWebAppByOrderChannelCode(OrderDetail?.channel_code)
     );
   }, [OrderDetail?.channel_code]);
@@ -2658,7 +2658,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     setLeftItemSuggestDiscounts(initItemSuggestDiscounts);
   }, [listReturnProducts]);
 
-  const isEcommerceOrder = checkIfEcommerceByOrderChannelCode(OrderDetail?.channel_code);
+  const isEcommerceOrder = checkIfECommerceByOrderChannelCode(OrderDetail?.channel_code);
 
   console.log("listReturnProducts", listReturnProducts);
   console.log("leftItemSuggestDiscounts", leftItemSuggestDiscounts);

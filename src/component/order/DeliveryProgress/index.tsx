@@ -2,7 +2,6 @@ import { Popover, Tooltip } from "antd";
 import React, { useCallback, useState } from "react";
 
 import iconDeliveryProgress from "assets/icon/delivery/tientrinhgiaohang.svg";
-import { getFulfillmentActive } from "utils/OrderUtils";
 import { useDispatch } from "react-redux";
 import { getTrackingLogFulfillmentAction } from "domain/actions/order/order.action";
 import {
@@ -10,6 +9,7 @@ import {
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import TrackingLog from "component/order/DeliveryProgress/TrackingLog/TrackingLog";
+import { getFulfillmentActive } from "utils/fulfillmentUtils";
 
 type Props = {
   fulfillments: FulFillmentResponse[] | FulFillmentResponse;

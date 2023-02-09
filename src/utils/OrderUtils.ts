@@ -20,14 +20,12 @@ import {
   getLineItemDiscountAmount,
   getLineItemDiscountRate,
   getLineItemDiscountValue,
-  sortFulfillments,
 } from "./AppUtils";
 import {
   DELIVERY_SERVICE_PROVIDER_CODE,
   DISCOUNT_TYPE,
   ECOMMERCE_CHANNEL_CODES,
   ECOMMERCE_CHANNEL_CODES_UPDATE_ORDER,
-  FulFillmentReturnStatus,
   FulFillmentStatus,
   PaymentMethodCode,
   PaymentMethodType,
@@ -36,7 +34,6 @@ import {
   WEB_APP_CHANNEL_CODES,
   WEIGHT_UNIT,
 } from "./Constants";
-import { FulfillmentStatus } from "./FulfillmentStatus.constant";
 import {
   FulfillmentCancelStatus,
   OrderStatus,
@@ -49,6 +46,12 @@ import { DiscountValueType } from "model/promotion/price-rules.model";
 import _ from "lodash";
 import { Type } from "config/type.config";
 import { fullTextSearch } from "./StringUtils";
+import {
+  getFulfillmentActive,
+  isFulfillmentReturned,
+  isFulfillmentReturning,
+  sortFulfillments,
+} from "./fulfillmentUtils";
 
 export const isOrderDetailHasPointPayment = (
   OrderDetail: OrderResponse | null | undefined,
@@ -125,8 +128,8 @@ export const checkIfFulfillmentCancelled = (fulfillment: FulFillmentResponse) =>
   }
   return (
     FulfillmentCancelStatus.includes(fulfillment.status) ||
-    checkIfFulfillmentReturned(fulfillment) ||
-    checkIfFulfillmentReturning(fulfillment)
+    isFulfillmentReturning(fulfillment) ||
+    isFulfillmentReturned(fulfillment)
   );
 };
 
@@ -161,28 +164,6 @@ export const getTrackingCodeFulfillment = (fulfillment: FulFillmentResponse | un
   }
 };
 
-export const checkIfFulfillmentReturning = (
-  fulfillment: FulFillmentResponse | undefined | null,
-) => {
-  if (!fulfillment) {
-    return false;
-  }
-  return (
-    fulfillment.return_status === FulFillmentReturnStatus.RETURNING &&
-    fulfillment.status === FulFillmentStatus.SHIPPING
-  );
-};
-
-export const checkIfFulfillmentReturned = (fulfillment: FulFillmentResponse | undefined | null) => {
-  if (!fulfillment) {
-    return false;
-  }
-  return (
-    fulfillment.return_status === FulFillmentReturnStatus.RETURNED &&
-    fulfillment.status === FulFillmentStatus.CANCELLED
-  );
-};
-
 export const canCreateShipment = (fulfillments?: FulFillmentResponse[] | null) => {
   if (!fulfillments) return false;
   let createShipment = false;
@@ -197,24 +178,6 @@ export const canCreateShipment = (fulfillments?: FulFillmentResponse[] | null) =
   )
     createShipment = true;
   return createShipment;
-};
-
-export const getFulfillmentSingle = (
-  ffmCode: string,
-  fulfillments?: FulFillmentResponse[] | null | any,
-) => {
-  if (!fulfillments) return undefined; //không tìm thấy ffm
-
-  return fulfillments.find((p: any) => p.code === ffmCode);
-};
-
-export const getFulfillmentActive = (fulfillments?: FulFillmentResponse[] | null | any) => {
-  if (!fulfillments) return undefined; //không tìm thấy ffm
-
-  let fulfillmentsExitsShipment = fulfillments.filter((p: any) => p.shipment);
-
-  const sortedFulfillments = sortFulfillments(fulfillmentsExitsShipment);
-  return sortedFulfillments[0];
 };
 
 export const checkIfOrderFinished = (orderDetail: OrderResponse | null | undefined) => {
@@ -237,15 +200,7 @@ export const isDeliveryOrderReturned = (
     fulfillment = fulfillments;
   }
 
-  if (
-    fulfillment &&
-    fulfillment?.status === FulFillmentStatus.CANCELLED &&
-    fulfillment?.return_status === FulFillmentStatus.RETURNED &&
-    fulfillment?.status_before_cancellation === FulFillmentStatus.SHIPPING
-  )
-    //nếu có đơn đã hoàn
-    return true;
-  return false; //default
+  return isFulfillmentReturned(fulfillment);
 };
 
 export const checkIfOrderReturned = (orderDetail: OrderResponse | null | undefined) => {
@@ -337,31 +292,6 @@ export const formatDateTimeOrderFilter = (
 
 export const getTimeFormatOrderFilter = (values: string, dateFormat: string = "") => {
   return values ? moment(values).utc(false) : null;
-};
-
-/**
- * kiểm tra là đơn hvc đã hoàn
- * @param fulfillment
- * @returns
- */
-export const isFulfillmentReturned = (fulfillment: FulFillmentResponse | any) => {
-  return (
-    fulfillment?.status === FulFillmentStatus.CANCELLED &&
-    fulfillment?.return_status === FulFillmentStatus.RETURNED &&
-    fulfillment?.status_before_cancellation === FulFillmentStatus.SHIPPING
-  );
-};
-
-/**
- * kiểm tra là đơn hvc đang hoàn
- * @param fulfillment
- * @returns
- */
-export const isFulfillmentReturning = (fulfillment: FulFillmentResponse | any) => {
-  return (
-    fulfillment.status === FulfillmentStatus.SHIPPING &&
-    fulfillment.return_status === FulfillmentStatus.RETURNING
-  );
 };
 
 export const checkIfMomoPayment = (payment: OrderPaymentRequest | OrderPaymentResponse) => {
@@ -478,7 +408,7 @@ export const checkIfExpiredOrCancelledPayment = (
   );
 };
 
-export const checkIfEcommerceByOrderChannelCode = (orderChannelCode?: string | null) => {
+export const checkIfECommerceByOrderChannelCode = (orderChannelCode?: string | null) => {
   if (!orderChannelCode) {
     return false;
   }
@@ -496,7 +426,7 @@ export const checkIfWebAppByOrderChannelCode = (orderChannelCode?: string | null
   );
 };
 
-export const checkIfEcommerceByOrderChannelCodeUpdateOrder = (orderChannelCode?: string | null) => {
+export const checkIfECommerceByOrderChannelCodeUpdateOrder = (orderChannelCode?: string | null) => {
   if (!orderChannelCode) {
     return false;
   }

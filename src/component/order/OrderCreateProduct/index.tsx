@@ -112,8 +112,8 @@ import {
 } from "utils/Constants";
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import {
-  checkIfEcommerceByOrderChannelCode,
-  checkIfEcommerceByOrderChannelCodeUpdateOrder,
+  checkIfECommerceByOrderChannelCode,
+  checkIfECommerceByOrderChannelCodeUpdateOrder,
   compareProducts,
   getLineItemCalculationMoney,
   getPositionLineItem,
@@ -302,7 +302,7 @@ function OrderCreateProduct(props: PropTypes) {
 
   const isCustomOriginalHandmadeDiscount = useMemo(() => {
     if (
-      checkIfEcommerceByOrderChannelCodeUpdateOrder(orderDetail?.channel_code) &&
+      checkIfECommerceByOrderChannelCodeUpdateOrder(orderDetail?.channel_code) &&
       (props.isPageOrderUpdate || props.isCreateReturn)
     ) {
       return true;
@@ -2193,7 +2193,7 @@ function OrderCreateProduct(props: PropTypes) {
     if (
       _items.length > 0 &&
       shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE &&
-      !(checkIfEcommerceByOrderChannelCode(orderDetail?.channel_code) && props.isPageOrderUpdate) &&
+      !(checkIfECommerceByOrderChannelCode(orderDetail?.channel_code) && props.isPageOrderUpdate) &&
       !isPageOrderDetail
     ) {
       const orderProductsAmount = totalAmount(_items);

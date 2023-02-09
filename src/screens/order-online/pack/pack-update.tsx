@@ -22,11 +22,10 @@ import { Link } from "react-router-dom";
 import { StyledComponent } from "./styles";
 import { showModalError, showSuccess, showWarning } from "utils/ToastUtils";
 import { formatCurrency, insertCustomIndexArray } from "utils/AppUtils";
-import { isFulfillmentPacked } from "../../../utils/PackUtils";
 import { PagingParam, ResultPaging } from "model/paging";
 import { flatDataPaging } from "utils/Paging";
-import { getFulfillmentActive } from "utils/OrderUtils";
 import ButtonWarningHandover from "./component/button-warning-handover";
+import { getFulfillmentActive, isFulfillmentPacked } from "utils/fulfillmentUtils";
 
 const { Item } = Form;
 type PackParam = {

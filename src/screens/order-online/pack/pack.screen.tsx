@@ -23,9 +23,9 @@ import { getListOrderApi } from "service/order/order.service";
 import { handleFetchApiError, haveAccess, isFetchApiSuccessful } from "utils/AppUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { FulFillmentStatus } from "utils/Constants";
-import { getFulfillmentActive } from "utils/OrderUtils";
 import PackConfirmModal from "./model/packConfirmModal";
 import { OrderWithFulfillmentActiveModel } from "model/order/order.model";
+import { getFulfillmentActive } from "utils/fulfillmentUtils";
 
 const PackSupportScreen: React.FC = () => {
   const dispatch = useDispatch();

@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { withRouter } from "react-router-dom";
 import { POS } from "utils/Constants";
 import { ORDER_TYPES } from "utils/Order.constants";
-import { checkIfEcommerceByOrderChannelCode } from "utils/OrderUtils";
+import { checkIfECommerceByOrderChannelCode } from "utils/OrderUtils";
 import OrderList from "../component/OrderList";
 
 type PropTypes = {
@@ -19,7 +19,7 @@ function OrdersScreen(props: PropTypes) {
     .map((single) => single.code)
     .filter((single) => {
       return (
-        !checkIfEcommerceByOrderChannelCode(single) &&
+        !checkIfECommerceByOrderChannelCode(single) &&
         single.toLowerCase() !== POS.channel_code.toLowerCase()
       );
     });

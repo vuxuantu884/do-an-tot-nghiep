@@ -1,18 +1,13 @@
 import { Button } from "antd";
-import AuthWrapper from "component/authorization/AuthWrapper";
-import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
-import UrlConfig from "config/url.config";
 import { OrderResponse } from "model/response/order/order.response";
 import React from "react";
-import { Link } from "react-router-dom";
-import { checkIfOrderHasReturnedAll, isOrderFromPOS, sortFulfillments } from "utils/AppUtils";
+import { isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus, ShipmentMethod } from "utils/Constants";
 import {
   canCreateShipment,
   checkActiveCancelConfirmOrder,
   checkActiveCancelPackOrder,
   checkIfFulfillmentCancelled,
-  checkIfFulfillmentReturning,
   checkIfOrderCancelled,
   checkIfOrderFinished,
   checkIfOrderHasNotFinishPaymentMomo,
@@ -22,6 +17,7 @@ import {
 import { StyledComponent } from "./styles";
 import { useSelector } from "react-redux";
 import { RootReducerType } from "../../../../../model/reducers/RootReducerType";
+import { isFulfillmentReturning, sortFulfillments } from "utils/fulfillmentUtils";
 
 type PropTypes = {
   stepsStatusValue: string | undefined;
@@ -304,7 +300,7 @@ function OrderFulfillmentActionButton(props: PropTypes) {
         checkIfOrderIsCancelledBy3PL(OrderDetailAllFulfillment)) &&
       !isOrderFromPOS(OrderDetailAllFulfillment) &&
       !checkIfOrderCancelled(OrderDetailAllFulfillment) &&
-      !checkIfFulfillmentReturning(sortedFulfillments[0])
+      !isFulfillmentReturning(sortedFulfillments[0])
     );
   };
 

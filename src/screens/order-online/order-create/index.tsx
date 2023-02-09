@@ -37,7 +37,6 @@ import {
   setIsShouldSetDefaultStoreBankAccountAction,
 } from "domain/actions/order/order.action";
 import useFetchStores from "hook/useFetchStores";
-import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -85,7 +84,6 @@ import {
   isOrderFromPOS,
   replaceFormatString,
   scrollAndFocusToDomElement,
-  sortFulfillments,
   totalAmount,
 } from "utils/AppUtils";
 import {
@@ -99,9 +97,10 @@ import {
   ShipmentMethodOption,
   TaxTreatment,
 } from "utils/Constants";
+import { sortFulfillments } from "utils/fulfillmentUtils";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 import {
-  checkIfEcommerceByOrderChannelCodeUpdateOrder,
+  checkIfECommerceByOrderChannelCodeUpdateOrder,
   convertReverseDiscountType,
   isSourceNameFacebook,
   convertReverseTypeInDiscountItem,
@@ -1243,7 +1242,9 @@ export default function Order() {
           tags: response.tags,
           channel_id: response.channel_id,
           //automatic_discount: response.automatic_discount,
-          automatic_discount: false,
+          automatic_discount:
+            !checkIfECommerceByOrderChannelCodeUpdateOrder(response.channel_code) &&
+            !checkIfECommerceByOrderChannelCodeUpdateOrder(response?.special_order?.ecommerce),
           uniform: response.uniform,
         });
         form.resetFields();
@@ -1314,13 +1315,13 @@ export default function Order() {
             const { customer_id, channel_code, special_order } = response;
 
             const _isSpecialOrderEcommerce =
-              checkIfEcommerceByOrderChannelCodeUpdateOrder(channel_code) ||
-              checkIfEcommerceByOrderChannelCodeUpdateOrder(special_order?.ecommerce);
+              checkIfECommerceByOrderChannelCodeUpdateOrder(channel_code) ||
+              checkIfECommerceByOrderChannelCodeUpdateOrder(special_order?.ecommerce);
             setIsSpecialOrderEcommerce({
               isEcommerce: _isSpecialOrderEcommerce,
               isChange: false,
             });
-            if (checkIfEcommerceByOrderChannelCodeUpdateOrder(channel_code)) {
+            if (checkIfECommerceByOrderChannelCodeUpdateOrder(channel_code)) {
               setSpecialOrderValue({
                 type: specialOrderTypes.orders_replace.value,
                 order_original_code: response.code,

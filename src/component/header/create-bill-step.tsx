@@ -6,12 +6,9 @@ import { useEffect, useMemo, useState } from "react";
 import { isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import {
-  isDeliveryOrderReturned,
-  getFulfillmentActive,
-  isFulfillmentReturned,
-} from "utils/OrderUtils";
-// import { FulFillmentStatus } from "utils/Constants";
+import { FulfillmentStatus } from "utils/FulfillmentStatus.constant";
+import { getFulfillmentActive, isFulfillmentReturned } from "utils/fulfillmentUtils";
+import { isDeliveryOrderReturned } from "utils/OrderUtils";
 import "./create-bill-step.scss";
 
 type StepStatusProps = {
@@ -113,7 +110,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
     if (fulfillments && fulfillments.shipped_on) {
       return moment(fulfillments.shipped_on).format(formatDate);
     }
-    if (orderDetail?.status === "cancelled" && orderDetail?.cancelled_on) {
+    if (orderDetail?.status === OrderStatus.CANCELLED && orderDetail?.cancelled_on) {
       return moment(props.orderDetail?.cancelled_on).format(formatDate);
     }
     if (isDeliveryOrderReturned(orderDetail?.fulfillments) && orderDetail?.fulfillments) {
@@ -182,12 +179,9 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         description={
           orderDetail ? moment(props.orderDetail?.created_date).format(formatDate) : null
         }
+        className="draft"
       />
-      <Steps.Step
-        title="Đang giao dịch"
-        description={renderStepFinalizedDescription()}
-        className={props.status === "draff" ? "inactive" : ""}
-      />
+      <Steps.Step title="Đang giao dịch" description={renderStepFinalizedDescription()} />
       <Steps.Step
         title="Đóng gói"
         description={renderStepPackedDescription()}
@@ -196,11 +190,11 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             props.orderDetail &&
             fulfillments &&
             fulfillments?.packed_on &&
-            fulfillments.status !== "returned" &&
-            fulfillments.status !== "cancelled" &&
-            fulfillments.status !== "returning"
+            fulfillments.status !== FulfillmentStatus.RETURNED &&
+            fulfillments.status !== FulfillmentStatus.CANCELLED &&
+            fulfillments.status !== FulfillmentStatus.RETURNING
           ) &&
-          orderDetail?.status === "cancelled" &&
+          orderDetail?.status === OrderStatus.CANCELLED &&
           !(fulfillments && isFulfillmentReturned(fulfillments))
             ? "inactive"
             : ""
@@ -214,11 +208,11 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             props.orderDetail &&
             fulfillments &&
             fulfillments.export_on &&
-            fulfillments.status !== "returned" &&
-            fulfillments.status !== "cancelled" &&
-            fulfillments.status !== "returning"
+            fulfillments.status !== FulfillmentStatus.RETURNED &&
+            fulfillments.status !== FulfillmentStatus.CANCELLED &&
+            fulfillments.status !== FulfillmentStatus.RETURNING
           ) &&
-          orderDetail?.status === "cancelled" &&
+          orderDetail?.status === OrderStatus.CANCELLED &&
           !(fulfillments && isFulfillmentReturned(fulfillments))
             ? "inactive"
             : ""
@@ -229,7 +223,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         title={
           orderDetail?.status === OrderStatus.COMPLETED
             ? "Hoàn thành"
-            : isDeliveryOrderReturned(orderDetail?.fulfillments)
+            : fulfillments && isFulfillmentReturned(fulfillments)
             ? "Đã hoàn"
             : orderDetail?.status === OrderStatus.CANCELLED
             ? "Huỷ đơn"
@@ -237,9 +231,11 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         }
         description={renderStepFinishDescription()}
         className={
-          orderDetail?.status === "cancelled" && fulfillments && isFulfillmentReturned(fulfillments)
+          orderDetail?.status === OrderStatus.CANCELLED &&
+          fulfillments &&
+          isFulfillmentReturned(fulfillments)
             ? "returned"
-            : orderDetail?.status === "cancelled"
+            : orderDetail?.status === OrderStatus.CANCELLED
             ? "cancelled"
             : ""
         }

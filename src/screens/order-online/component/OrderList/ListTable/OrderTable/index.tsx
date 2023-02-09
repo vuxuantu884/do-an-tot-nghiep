@@ -60,7 +60,6 @@ import {
   isFetchApiSuccessful,
   isNormalTypeVariantItem,
   isOrderFromPOS,
-  sortFulfillments,
 } from "utils/AppUtils";
 import {
   COD,
@@ -88,7 +87,6 @@ import {
   checkIfFulfillmentCancelled,
   checkIfMomoTypePayment,
   checkIfOrderHasNotFinishedPaymentMomo,
-  getFulfillmentActive,
   getLink,
   getReturnStoreFromOrderActiveFulfillment,
   getTotalAmountBeforeDiscount,
@@ -110,6 +108,7 @@ import IconStore from "./images/store.svg";
 import OrderMapHandOver from "./order-map-hand-over";
 import { nameQuantityWidth, StyledComponent } from "./styles";
 import giftIcon from "assets/icon/gift.svg";
+import { getFulfillmentActive, sortFulfillments } from "utils/fulfillmentUtils";
 
 type PropTypes = {
   tableLoading: boolean;

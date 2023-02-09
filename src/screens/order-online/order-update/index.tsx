@@ -15,7 +15,6 @@ import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
-import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
@@ -28,7 +27,6 @@ import {
   setIsShouldSetDefaultStoreBankAccountAction,
 } from "domain/actions/order/order.action";
 import useFetchStores from "hook/useFetchStores";
-import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -73,7 +71,6 @@ import {
   isFetchApiSuccessful,
   replaceFormatString,
   scrollAndFocusToDomElement,
-  sortFulfillments,
   totalAmount,
 } from "utils/AppUtils";
 import {
@@ -88,10 +85,11 @@ import {
   TaxTreatment,
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
+import { sortFulfillments } from "utils/fulfillmentUtils";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 import {
   canCreateShipment,
-  checkIfEcommerceByOrderChannelCodeUpdateOrder,
+  checkIfECommerceByOrderChannelCodeUpdateOrder,
   checkIfFulfillmentCancelled,
   checkIfOrderCancelled,
   checkIfOrderHasNoPayment,
@@ -1263,7 +1261,7 @@ export default function Order(props: PropTypes) {
           if (response?.payments) {
             setPayments(response.payments);
           }
-          if (checkIfEcommerceByOrderChannelCodeUpdateOrder(response.special_order?.ecommerce)) {
+          if (checkIfECommerceByOrderChannelCodeUpdateOrder(response.special_order?.ecommerce)) {
             setIsSpecialOrderEcommerce({
               isEcommerce: true,
               isChange: false,
