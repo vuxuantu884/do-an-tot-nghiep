@@ -490,56 +490,54 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
           tooltip = value;
         }
 
-        return (
-          <>
-            <div>{value}</div>
-            {allowUpdate && data?.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED && data?.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.CANCELED && (
-              <Radio.Group
-                className="custom-radio-group"
-                value={note}
-                buttonStyle="solid"
-                onChange={(e) => {
-                  handleNoteChange(index, e.target.value, row);
-                }}
-              >
-                <Tooltip placement="topLeft" title={arrTypeNote[0].value}>
-                  <Radio.Button
-                    style={{ paddingLeft: 12, paddingRight: 12 }}
-                    value={`${index}#${arrTypeNote[0].value}`}
-                  >
-                    <UserSwitchOutlined />
-                  </Radio.Button>
-                </Tooltip>
-                <Tooltip placement="topLeft" title={arrTypeNote[1].value}>
-                  <Radio.Button
-                    style={{ paddingLeft: 12, paddingRight: 12 }}
-                    value={`${index}#${arrTypeNote[1].value}`}
-                  >
-                    <CodepenOutlined />
-                  </Radio.Button>
-                </Tooltip>
-                <Tooltip placement="topLeft" title={arrTypeNote[2].value}>
-                  <Radio.Button
-                    style={{ paddingLeft: 12, paddingRight: 12 }}
-                    value={`${index}#${arrTypeNote[2].value}`}
-                  >
-                    <PieChartOutlined />
-                  </Radio.Button>
-                </Tooltip>
-                <Tooltip placement="topLeft" title={tooltip}>
-                  <EditNote
-                    isGroupButton
-                    note={value}
-                    title=""
-                    onOk={(newNote) => {
-                      handleNoteChange(index, newNote, row).then();
-                    }}
-                  />
-                </Tooltip>
-              </Radio.Group>
-            )}
-          </>
-        );
+        if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED && allowUpdate) {
+          return (
+            <Radio.Group
+              className="custom-radio-group"
+              value={note}
+              buttonStyle="solid"
+              onChange={(e) => {
+                handleNoteChange(index, e.target.value, row);
+              }}
+            >
+              <Tooltip placement="topLeft" title={arrTypeNote[0].value}>
+                <Radio.Button
+                  style={{ paddingLeft: 12, paddingRight: 12 }}
+                  value={`${index}#${arrTypeNote[0].value}`}
+                >
+                  <UserSwitchOutlined />
+                </Radio.Button>
+              </Tooltip>
+              <Tooltip placement="topLeft" title={arrTypeNote[1].value}>
+                <Radio.Button
+                  style={{ paddingLeft: 12, paddingRight: 12 }}
+                  value={`${index}#${arrTypeNote[1].value}`}
+                >
+                  <CodepenOutlined />
+                </Radio.Button>
+              </Tooltip>
+              <Tooltip placement="topLeft" title={arrTypeNote[2].value}>
+                <Radio.Button
+                  style={{ paddingLeft: 12, paddingRight: 12 }}
+                  value={`${index}#${arrTypeNote[2].value}`}
+                >
+                  <PieChartOutlined />
+                </Radio.Button>
+              </Tooltip>
+              <Tooltip placement="topLeft" title={tooltip}>
+                <EditNote
+                  isGroupButton
+                  note={tooltip}
+                  title=""
+                  onOk={(newNote) => {
+                    handleNoteChange(index, newNote, row).then();
+                  }}
+                />
+              </Tooltip>
+            </Radio.Group>
+          );
+        }
+        return value || "";
       },
     },
     {

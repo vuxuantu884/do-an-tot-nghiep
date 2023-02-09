@@ -1,7 +1,7 @@
 import { EditOutlined } from "@ant-design/icons";
 import { Button, Input, Popover } from "antd";
 import giftIcon from "assets/icon/gift.svg";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useState } from "react";
 import { primaryColor } from "utils/global-styles/variables";
 import TextWithLineBreak from "./TextWithLineBreak";
 
@@ -32,10 +32,6 @@ const EditNote: React.FC<EditNoteProps> = (props: EditNoteProps) => {
   const handleVisibleChange = (visible: boolean) => {
     setVisible(visible);
   };
-
-  useEffect(() => {
-    setNewNote(note);
-  }, [note]);
 
   const onChangeNote = (e: any) => {
     setNewNote(e.target.value);
