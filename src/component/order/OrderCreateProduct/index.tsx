@@ -1865,7 +1865,7 @@ function OrderCreateProduct(props: PropTypes) {
         if (r.id === newV && checkInventory(item) === true) {
           if (splitLine || index === -1) {
             _items.unshift(item);
-            if (!isAutomaticDiscount && !coupon) {
+            if (!isAutomaticDiscount) {
               console.log("calculatesChangeMoney 3");
               calculateChangeMoney(_items);
             }
@@ -1879,7 +1879,7 @@ function OrderCreateProduct(props: PropTypes) {
             selectedItem.discount_items.forEach((single) => {
               single.amount = single.value * selectedItem.quantity;
             });
-            if (!isAutomaticDiscount && !coupon) {
+            if (!isAutomaticDiscount) {
               console.log("calculatesChangeMoney 2");
               calculateChangeMoney(_items);
             }

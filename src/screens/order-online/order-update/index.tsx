@@ -562,42 +562,44 @@ export default function Order(props: PropTypes) {
       order_id: null,
       type: promotion.sub_type || DiscountValueType.FIXED_AMOUNT,
     };
-    let listDiscountRequest = [];
-    if (coupon) {
-      listDiscountRequest.push({
-        discount_code: promotion.discount_code,
-        rate: promotion?.rate,
-        value: promotion?.value,
-        amount: promotion?.value,
-        promotion_id: null,
-        reason: "",
-        source: "",
-        order_id: null,
-        promotion_title: promotion.promotion_title,
-        taxable: promotion.taxable,
-        type: promotion.sub_type || DiscountValueType.FIXED_AMOUNT,
-      });
-    } else if (promotion?.promotion_id) {
-      listDiscountRequest.push({
-        discount_code: promotion.discount_code,
-        rate: promotion?.rate,
-        value: promotion?.value,
-        amount: promotion?.value,
-        promotion_id: promotion.promotion_id,
-        promotion_title: promotion.promotion_title,
-        taxable: promotion.taxable,
-        reason: promotion.reason,
-        source: "",
-        order_id: null,
-        type: promotion.sub_type || DiscountValueType.FIXED_AMOUNT,
-      });
-    } else if (!promotion) {
-      return [];
-    } else {
-      listDiscountRequest.push(objDiscount);
-    }
+    //let listDiscountRequest = [];
+    // if (coupon) {
+    //   listDiscountRequest.push({
+    //     discount_code: promotion.discount_code,
+    //     rate: promotion?.rate,
+    //     value: promotion?.value,
+    //     amount: promotion?.value,
+    //     promotion_id: null,
+    //     reason: "",
+    //     source: "",
+    //     order_id: null,
+    //     promotion_title: promotion.promotion_title,
+    //     taxable: promotion.taxable,
+    //     type: promotion.sub_type || DiscountValueType.FIXED_AMOUNT,
+    //   });
+    // } else
+    // if (promotion?.promotion_id) {
+    //   listDiscountRequest.push({
+    //     discount_code: promotion.discount_code,
+    //     rate: promotion?.rate,
+    //     value: promotion?.value,
+    //     amount: promotion?.value,
+    //     promotion_id: promotion.promotion_id,
+    //     promotion_title: promotion.promotion_title,
+    //     taxable: promotion.taxable,
+    //     reason: promotion.reason,
+    //     source: "",
+    //     order_id: null,
+    //     type: promotion.sub_type || DiscountValueType.FIXED_AMOUNT,
+    //   });
+    // }
+    // else if (!promotion) {
+    //   return [];
+    // } else {
+    //   listDiscountRequest.push(objDiscount);
+    // }
 
-    return listDiscountRequest;
+    return objDiscount as any;
   };
 
   const updateOrderCallback = useCallback(
@@ -1246,9 +1248,9 @@ export default function Order(props: PropTypes) {
               type: convertDiscountType(response?.discounts[0].type),
               isOrderSemiAutomatic: true,
             });
-            if (response.discounts[0].discount_code) {
-              setCoupon(response.discounts[0].discount_code);
-            }
+            // if (response.discounts[0].discount_code) {
+            //   setCoupon(response.discounts[0].discount_code);
+            // }
           }
           setIsLoadForm(true);
           if (response.export_bill) {
