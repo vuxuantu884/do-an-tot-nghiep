@@ -26,7 +26,14 @@ import {
   getOrderTotalPaymentAmount,
   getTotalQuantity,
 } from "utils/AppUtils";
-import { COD, OrderStatus, PaymentMethodCode, POS, ShipmentMethod } from "utils/Constants";
+import {
+  COD,
+  OFFSET_HEADER_UNDER_NAVBAR,
+  OrderStatus,
+  PaymentMethodCode,
+  POS,
+  ShipmentMethod,
+} from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 
@@ -1513,7 +1520,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         isLoading={tableLoading}
         showColumnSetting={true}
         scroll={{ x: 1550 }}
-        sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+        sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
         pagination={{
           pageSize: purchaseHistoryData.metadata?.limit,
           total: purchaseHistoryData.metadata?.total,

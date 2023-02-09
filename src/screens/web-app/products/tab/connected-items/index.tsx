@@ -57,6 +57,7 @@ import SyncProductModal from "./SyncProductModal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsUpdateStockPermission = [EcommerceProductPermission.products_update_stock];
@@ -1018,7 +1019,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           columns={columns}
           dataSource={variantData.items}
           scroll={{ x: 1400 }}
-          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           pagination={{
             pageSize: variantData.metadata && variantData.metadata.limit,
             total: variantData.metadata && variantData.metadata.total,

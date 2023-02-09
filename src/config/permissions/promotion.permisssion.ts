@@ -7,6 +7,7 @@ const PromotionReleasePermission = {
   UPDATE: "price_rules_discount_code_update",
   CANCEL: "price_rules_discount_code_cancel",
   EXPORT: "price_rules_discount_code_export",
+  ACTIVE: "price_rules_discount_code_active_and_disabled",
 };
 
 const PriceRulesPermission = {
@@ -15,6 +16,7 @@ const PriceRulesPermission = {
   UPDATE: "price_rules_entitlement_update",
   EXPORT: "price_rules_entitlement_export",
   CANCEL: "price_rules_entitlement_cancel",
+  ACTIVE: "price_rules_entitlement_active_and_disabled",
 };
 
 export const PROMOTION_GIFT_PERMISSIONS = {
@@ -23,6 +25,7 @@ export const PROMOTION_GIFT_PERMISSIONS = {
   UPDATE: "price_rules_gift_update",
   EXPORT: "price_rules_gift_export",
   CANCEL: "price_rules_gift_cancel",
+  ACTIVE: "price_rules_gift_active_and_disabled",
 };
 
 export { PromotionReleasePermission, PriceRulesPermission };

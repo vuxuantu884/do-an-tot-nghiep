@@ -9,6 +9,7 @@ import {
   SpecialOrderType,
 } from "model/order/special-order.model";
 import { OrderResponse, OrderSubStatusResponse } from "model/response/order/order.response";
+import { SourceResponse } from "model/response/order/source.response";
 import React, { useState } from "react";
 import SidebarOrderHistory from "screens/yd-page/yd-page-order-create/component/CreateOrderSidebar/SidebarOrderHistory";
 import CreateOrderSidebarOrderExtraInformation from "../CreateOrderSidebarOrderExtraInformation";
@@ -34,6 +35,7 @@ type PropTypes = {
   handleCreateOrUpdateSpecialOrder: (params: SpecialOrderModel) => Promise<void>;
   orderPageType: OrderPageTypeModel;
   setIsSpecialOrderEcommerce?: (v: boolean) => void;
+  orderSource?: SourceResponse | null;
 };
 
 /**
@@ -68,6 +70,7 @@ function CreateOrderSidebar(props: PropTypes): JSX.Element {
     handleCreateOrUpdateSpecialOrder,
     orderPageType,
     setIsSpecialOrderEcommerce,
+    orderSource,
   } = props;
 
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
@@ -83,6 +86,7 @@ function CreateOrderSidebar(props: PropTypes): JSX.Element {
         orderDetail={orderDetail}
         storeId={storeId}
         updateOrder={updateOrder}
+        orderSource={orderSource}
       />
       {listOrderSubStatus && (
         <SubStatusOrder

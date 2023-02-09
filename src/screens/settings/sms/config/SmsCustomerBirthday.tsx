@@ -21,7 +21,7 @@ import { CustomerGroups } from "domain/actions/customer/customer.action";
 import { PriceRuleMethod } from "model/promotion/price-rules.model";
 import { DiscountUnitType } from "screens/promotion/constants";
 import SmsConfigPromotionModal from "screens/settings/sms/component/SmsConfigPromotionModal";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { getAllPublicSimpleStoreAction } from "domain/actions/core/store.action";
 import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { StyledSmsConfigMessage } from "screens/settings/sms/styles";

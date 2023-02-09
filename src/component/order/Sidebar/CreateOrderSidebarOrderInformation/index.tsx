@@ -4,6 +4,7 @@ import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelec
 import UrlConfig from "config/url.config";
 import { AccountResponse } from "model/account/account.model";
 import { OrderResponse } from "model/response/order/order.response";
+import { SourceResponse } from "model/response/order/source.response";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -14,6 +15,7 @@ import {
   isOrderFinishedOrCancel,
   isOrderFromPOS,
 } from "utils/AppUtils";
+import { isSourceNameFacebook } from "utils/OrderUtils";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
@@ -24,6 +26,7 @@ type PropTypes = {
   isOrderReturn?: boolean;
   isExchange?: boolean;
   isReturnOffline?: boolean;
+  orderSource?: SourceResponse | null;
 };
 
 /**
@@ -40,8 +43,16 @@ type PropTypes = {
  * onChangeTag: xử lý khi thay đổi tag
  */
 function CreateOrderSidebarOrderInformation(props: PropTypes): JSX.Element {
-  const { orderDetail, form, storeId, updateOrder, isOrderReturn, isExchange, isReturnOffline } =
-    props;
+  const {
+    orderDetail,
+    form,
+    storeId,
+    updateOrder,
+    isOrderReturn,
+    isExchange,
+    isReturnOffline,
+    orderSource,
+  } = props;
 
   const dispatch = useDispatch();
   const [initValueAssigneeCode, setInitValueAssigneeCode] = useState("");
@@ -272,11 +283,18 @@ function CreateOrderSidebarOrderInformation(props: PropTypes): JSX.Element {
         </Form.Item>
         {!isOrderFromPOS(orderDetail) ? (
           <Form.Item
-            label={"Nhân viên marketing"}
+            label={
+              <>
+                Nhân viên marketing
+                {isSourceNameFacebook(orderSource?.name || "") && (
+                  <div className="marketer-code-required">*</div>
+                )}
+              </>
+            }
             name="marketer_code"
             // rules={
-            //   // nguồn POS thì không validate
-            //   !isOrderFromPOS(orderDetail)
+            //   // nguồn Facebook thì validate
+            //   isSourceNameFacebook(orderSource?.name || "")
             //     ? [
             //         {
             //           required: true,
@@ -285,12 +303,6 @@ function CreateOrderSidebarOrderInformation(props: PropTypes): JSX.Element {
             //       ]
             //     : undefined
             // }
-            // rules={[
-            //   {
-            //     required: true,
-            //     message: "Vui lòng chọn nhân viên marketing!",
-            //   },
-            // ]}
           >
             <AccountCustomSearchSelect
               placeholder="Tìm theo họ tên hoặc mã nhân viên"

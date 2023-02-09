@@ -6,6 +6,7 @@ import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import { ICustomTableColumType } from "./CustomTable";
 import Undo from "assets/icon/undo.svg";
 import "./modal-setting-column.scss";
+import { cloneDeep } from "lodash";
 
 const ReactDragListView = require("react-drag-listview/lib/index");
 
@@ -16,10 +17,12 @@ type ModalSettingColumnProps = {
   onCancel: () => void;
   onResetToDefault?: () => void;
   data: Array<ICustomTableColumType<any>>;
+  defaultColumns?: Array<ICustomTableColumType<any>>;
 };
 
 const ModalSettingColumn: React.FC<ModalSettingColumnProps> = (props: ModalSettingColumnProps) => {
-  const { visible, isSetDefaultColumn, onOk, onCancel, data, onResetToDefault } = props;
+  const { visible, isSetDefaultColumn, onOk, onCancel, data, onResetToDefault, defaultColumns } =
+    props;
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<any>>>([]);
   const [isSelectAll, setIsSelectAll] = useState(false);
@@ -60,15 +63,11 @@ const ModalSettingColumn: React.FC<ModalSettingColumnProps> = (props: ModalSetti
   );
 
   const setDefaultColumn = useCallback(() => {
-    const defaultColumns = [...columns];
-    defaultColumns.forEach((column) => {
-      column.visible = true;
-    });
-
-    setColumn(defaultColumns);
-    onOk(defaultColumns);
+    const defaultCol = cloneDeep(defaultColumns);
+    defaultCol && setColumn(defaultCol);
+    defaultCol && onOk(defaultCol);
     onResetToDefault && onResetToDefault();
-  }, [columns, onOk, onResetToDefault]);
+  }, [defaultColumns, onOk, onResetToDefault]);
 
   const onCancelSetColumn = useCallback(() => {
     setColumn(data);

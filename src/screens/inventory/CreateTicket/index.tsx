@@ -12,7 +12,8 @@ import {
   Row,
   Select,
   Space,
-  Table, Tag,
+  Table,
+  Tag,
   Upload,
 } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
@@ -726,12 +727,10 @@ const CreateTicket: FC = () => {
   };
 
   const getTopReceivedStore = async (store: Store) => {
-    const response = await callApiNative(
-      { isShowError: true },
-      dispatch,
-      getTopReceivedStoreApi,
-      { from_store_id: store.id, limit: 5 },
-    );
+    const response = await callApiNative({ isShowError: true }, dispatch, getTopReceivedStoreApi, {
+      from_store_id: store.id,
+      limit: 5,
+    });
 
     if (response.store_ids.length === 0) {
       setStoresReceived([]);
@@ -743,7 +742,9 @@ const CreateTicket: FC = () => {
       return storeFiltered[0];
     });
 
-    const receivedStoresSorted = receivedStores.sort((a: Store, b: Store) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+    const receivedStoresSorted = receivedStores.sort((a: Store, b: Store) =>
+      a.name > b.name ? 1 : b.name > a.name ? -1 : 0,
+    );
 
     setStoresReceived(receivedStoresSorted);
   };
@@ -751,7 +752,7 @@ const CreateTicket: FC = () => {
   const handleSelectSuggestStore = (store: Store) => {
     setToStoreData(store);
     form.setFieldsValue({
-      to_store_id: store?.id.toString()
+      to_store_id: store?.id.toString(),
     });
   };
 
@@ -886,19 +887,23 @@ const CreateTicket: FC = () => {
                         ))}
                     </Select>
                   </Form.Item>
-                  {storesReceived.length > 0 && !toStoreData && <div className="font-weight-500">Chọn nhanh kho nhận:</div>}
-                  {storesReceived.length > 0 && !toStoreData && storesReceived.map((store) => {
-                    return (
-                      <Tag
-                        color="processing"
-                        className="mr-15 mb-10"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleSelectSuggestStore(store)}
-                      >
-                        {store?.name}
-                      </Tag>
-                    );
-                  })}
+                  {storesReceived.length > 0 && !toStoreData && (
+                    <div className="font-weight-500">Chọn nhanh kho nhận:</div>
+                  )}
+                  {storesReceived.length > 0 &&
+                    !toStoreData &&
+                    storesReceived.map((store) => {
+                      return (
+                        <Tag
+                          color="processing"
+                          className="mr-15 mb-10"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleSelectSuggestStore(store)}
+                        >
+                          {store?.name}
+                        </Tag>
+                      );
+                    })}
                   {toStoreData && (
                     <>
                       <RowDetail title="Mã CH" value={toStoreData.code} />
@@ -912,43 +917,49 @@ const CreateTicket: FC = () => {
 
             <Card title="THÔNG TIN SẢN PHẨM" bordered={false}>
               <div>
-                <Input.Group className="display-flex">
-                  <AutoComplete
-                    notFoundContent={keySearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined}
-                    value={keySearch}
-                    ref={productAutoCompleteRef}
-                    onSelect={onSelect}
-                    style={{ width: "100%" }}
-                    dropdownClassName="product dropdown-search-header"
-                    dropdownMatchSelectWidth={635}
-                    className="w-100 searchProductId"
-                    onSearch={onSearch}
-                    options={renderResult}
-                    defaultActiveFirstOption
-                    id="product_search_variant"
-                  >
-                    <Input
-                      size="middle"
-                      className="yody-search"
-                      placeholder="Tìm kiếm Mã vạch, Mã sản phẩm, Tên sản phẩm"
-                      prefix={<i className="icon-search icon" />}
-                      ref={productSearchRef}
-                    />
-                  </AutoComplete>
-                  <Button
-                    onClick={() => {
-                      if (form.getFieldValue("from_store_id")) {
-                        setVisibleManyProduct(true);
-                        return;
+                <Row gutter={12}>
+                  <Col flex="auto">
+                    <AutoComplete
+                      notFoundContent={
+                        keySearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
                       }
-                      showError("Vui lòng chọn kho gửi");
-                    }}
-                    style={{ width: 132, marginLeft: 10 }}
-                    icon={<img src={PlusOutline} alt="" />}
-                  >
-                    &nbsp;&nbsp; Chọn nhiều
-                  </Button>
-                </Input.Group>
+                      value={keySearch}
+                      ref={productAutoCompleteRef}
+                      onSelect={onSelect}
+                      style={{ width: "100%" }}
+                      dropdownClassName="product dropdown-search-header"
+                      dropdownMatchSelectWidth={635}
+                      className="w-100 searchProductId"
+                      onSearch={onSearch}
+                      options={renderResult}
+                      defaultActiveFirstOption
+                      id="product_search_variant"
+                    >
+                      <Input
+                        size="middle"
+                        className="yody-search"
+                        placeholder="Tìm kiếm Mã vạch, Mã sản phẩm, Tên sản phẩm"
+                        prefix={<i className="icon-search icon" />}
+                        ref={productSearchRef}
+                      />
+                    </AutoComplete>
+                  </Col>
+                  <Col flex="120px">
+                    <Button
+                      onClick={() => {
+                        if (form.getFieldValue("from_store_id")) {
+                          setVisibleManyProduct(true);
+                          return;
+                        }
+                        showError("Vui lòng chọn kho gửi");
+                      }}
+                      icon={<img src={PlusOutline} alt="" />}
+                      style={{ width: "100%" }}
+                    >
+                      &nbsp;&nbsp; Chọn nhiều
+                    </Button>
+                  </Col>
+                </Row>
                 {/*table*/}
                 <Table
                   scroll={{ x: "max-content" }}
@@ -959,10 +970,17 @@ const CreateTicket: FC = () => {
                   columns={columns}
                   loading={isLoadingTable}
                   dataSource={dataTable}
+                  summary={() => {
+                    return (
+                      <Table.Summary>
+                        <Table.Summary.Row>
+                          <Table.Summary.Cell index={0} align="right" colSpan={5}><b>Tổng số lượng:</b></Table.Summary.Cell>
+                          <Table.Summary.Cell index={1} align="center"><b>{getTotalQuantity()}</b></Table.Summary.Cell>
+                        </Table.Summary.Row>
+                      </Table.Summary>
+                    )
+                  }}
                 />
-                <div className={"sum-qty"}>
-                  <span>Tổng số lượng:</span> <b>{getTotalQuantity()}</b>
-                </div>
               </div>
             </Card>
           </Col>

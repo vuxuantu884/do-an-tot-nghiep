@@ -83,7 +83,7 @@ const GiftDetail: React.FC = () => {
 
   const [giftVariantList, setGiftVariantList] = useState<Array<GiftVariant>>([]);
 
-  //phân quyền
+  /** phân quyền */
   const [allowCreateGift] = useAuthorization({
     acceptPermissions: [PROMOTION_GIFT_PERMISSIONS.CREATE],
   });
@@ -93,6 +93,10 @@ const GiftDetail: React.FC = () => {
   const [allowExportProduct] = useAuthorization({
     acceptPermissions: [PROMOTION_GIFT_PERMISSIONS.EXPORT],
   });
+  const [allowActiveGift] = useAuthorization({
+    acceptPermissions: [PROMOTION_GIFT_PERMISSIONS.ACTIVE],
+  });
+  /** */
 
   const getPromotionGiftDetailCallback = useCallback((result: PromotionGift | false) => {
     setLoading(false);
@@ -152,6 +156,7 @@ const GiftDetail: React.FC = () => {
       disablePromotionGiftAction(idNumber, (response: any) => {
         if (response) {
           showSuccess("Tạm ngừng chương trình quà tặng thành công");
+          setLoading(true);
           dispatch(getPromotionGiftDetailAction(idNumber, getPromotionGiftDetailCallback));
         } else {
           showError("Tạm ngừng chương trình quà tặng thất bại");
@@ -167,6 +172,7 @@ const GiftDetail: React.FC = () => {
       enablePromotionGiftAction(idNumber, (response: any) => {
         if (response) {
           showSuccess("Kích hoạt chương trình quà tặng thành công");
+          setLoading(true);
           dispatch(getPromotionGiftDetailAction(idNumber, getPromotionGiftDetailCallback));
         } else {
           showError("Kích hoạt chương trình quà tặng thất bại");
@@ -179,13 +185,14 @@ const GiftDetail: React.FC = () => {
   const RenderActionButton = () => {
     switch (giftDetail?.state) {
       case GIFT_STATE_ENUM.ACTIVE:
+      case GIFT_STATE_ENUM.DRAFT:
         return (
           <Button type="primary" onClick={handleDeactivate}>
             Tạm ngừng
           </Button>
         );
       case GIFT_STATE_ENUM.DISABLED:
-      case GIFT_STATE_ENUM.DRAFT:
+      case GIFT_STATE_ENUM.PENDING:
         return (
           <Button type="primary" onClick={handleActivate}>
             Kích hoạt
@@ -232,6 +239,7 @@ const GiftDetail: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    setLoading(true);
     dispatch(getPromotionGiftDetailAction(idNumber, getPromotionGiftDetailCallback));
     dispatch(getPromotionGiftVariantAction(idNumber, { page: 1 }, handleGetGiftVariantCallback));
     getPromotionGiftProductApply();
@@ -759,7 +767,7 @@ const GiftDetail: React.FC = () => {
               <Space>
                 {allowUpdateGift && (
                   <Link to={`${idNumber}/update`}>
-                    <Button>Sửa</Button>
+                    <Button>Chỉnh sửa</Button>
                   </Link>
                 )}
 
@@ -770,7 +778,7 @@ const GiftDetail: React.FC = () => {
                   </Link>
                 )}
 
-                {allowUpdateGift && RenderActionButton()}
+                {allowActiveGift && RenderActionButton()}
               </Space>
             }
           />

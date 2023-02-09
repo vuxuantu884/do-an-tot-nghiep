@@ -26,10 +26,19 @@ import { DiscountStyled } from "../discount-style";
 import _ from "lodash";
 import { PROMO_TYPE } from "utils/Constants";
 import { initEntilements } from "screens/promotion/constants";
+import useAuthorization from "hook/useAuthorization";
+import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 const DiscountUpdate = () => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const history = useHistory();
+
+  /** phân quyền */
+  const [allowActiveDiscount] = useAuthorization({
+    acceptPermissions: [PriceRulesPermission.ACTIVE],
+  });
+  /** */
 
   const { id } = useParams<{ id: string }>();
   const idNumber = parseInt(id);
@@ -43,7 +52,7 @@ const DiscountUpdate = () => {
   const [isUnlimitQuantity, setIsUnlimitQuantity] = useState(false);
   const [isUsageLimitPerCustomer, setIsUsageLimitPerCustomer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isActiveDiscount, setIsActiveDiscount] = useState(false);
   const discountUpdateContext = useContext(DiscountContext);
   const {
     discountData,
@@ -143,15 +152,13 @@ const DiscountUpdate = () => {
    */
   const updateCallback = useCallback(
     (data: PriceRule) => {
+      dispatch(hideLoading());
       if (data) {
         showSuccess("Cập nhật chiết khấu thành công");
-        setIsSubmitting(false);
         history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${idNumber}`);
-      } else {
-        setIsSubmitting(false);
       }
     },
-    [history, idNumber],
+    [dispatch, history, idNumber],
   );
 
   const handleSubmit = useCallback(
@@ -175,7 +182,6 @@ const DiscountUpdate = () => {
       }
 
       try {
-        setIsSubmitting(true);
         const body = transformData(
           values,
           PROMO_TYPE.AUTOMATIC,
@@ -184,13 +190,15 @@ const DiscountUpdate = () => {
         );
         body.id = idNumber;
         body.is_registered = registerWithMinistry;
+        body.activated = isActiveDiscount;
+        dispatch(showLoading());
         dispatch(updatePriceRuleByIdAction(body, updateCallback));
       } catch (error: any) {
-        setIsSubmitting(false);
         showError(error.message);
       }
     },
     [
+      isActiveDiscount,
       discountAllProduct,
       discountProductHaveExclude,
       dispatch,
@@ -201,6 +209,15 @@ const DiscountUpdate = () => {
     ],
   );
 
+  const handleSaveAndActive = () => {
+    setIsActiveDiscount(true);
+    form.submit();
+  };
+
+  const save = () => {
+    setIsActiveDiscount(false);
+    form.submit();
+  };
   /**
    *
    */
@@ -350,12 +367,26 @@ const DiscountUpdate = () => {
           </Row>
 
           <BottomBarContainer
-            back="Quay lại danh sách chiết khấu"
-            backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`)}
+            back="Quay lại chi tiết chiết khấu"
+            backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${idNumber}`)}
             rightComponent={
-              <Button type="primary" loading={isSubmitting} onClick={() => form.submit()}>
-                Lưu
-              </Button>
+              <>
+                <Button
+                  onClick={() => save()}
+                  style={{
+                    marginRight: "12px",
+                    borderColor: "#2a2a86",
+                  }}
+                  type="ghost"
+                >
+                  Lưu
+                </Button>
+                {allowActiveDiscount &&
+                  <Button type="primary" onClick={() => handleSaveAndActive()}>
+                    Lưu và kích hoạt
+                  </Button>
+                }
+              </>
             }
           />
         </Form>

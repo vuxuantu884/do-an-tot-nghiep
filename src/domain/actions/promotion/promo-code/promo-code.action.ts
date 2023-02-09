@@ -21,7 +21,7 @@ export const updatePromotionReleaseAction = (body: any, callback: (response: any
 };
 
 export const getPromotionReleaseListAction = (
-  query: BaseQuery,
+  query: any,
   setData: (data: PageResponse<PriceRule>) => void,
 ) => {
   return BaseAction(PromoCodeType.GET_PROMOTION_RELEASE_LIST, { query, setData });

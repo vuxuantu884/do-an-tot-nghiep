@@ -5,32 +5,40 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
 import { cloneDeep } from "lodash";
+import { SMS_TYPE } from "screens/settings/sms/helper";
 
 const SMS_ACTION_INIT = [
   {
     label: "Phát sinh hóa đơn bán lẻ",
-    type: "OFFLINE",
+    type: SMS_TYPE.OFFLINE,
     url: `${UrlConfig.SMS_SETTINGS}/order-retail`,
     value: [],
   },
   {
     label: "Phát sinh hóa đơn trên Website",
-    type: "WEBSITE",
+    type: SMS_TYPE.WEBSITE,
     url: `${UrlConfig.SMS_SETTINGS}/website-order`,
     value: [],
   },
   {
     label: "Đi đơn online thành công",
-    type: "ONLINE",
+    type: SMS_TYPE.ONLINE,
     url: `${UrlConfig.SMS_SETTINGS}/online-order`,
     value: [],
   },
 	{
 		label: "Trước ngày sinh nhật khách hàng",
-    type: "BIRTHDAY",
+    type: SMS_TYPE.BIRTHDAY,
 		url: `${UrlConfig.SMS_SETTINGS}/customer-birthday`,
 		value: [],
 	},
+  /** tạm ẩn "CTKM tặng voucher" */
+	// {
+	// 	label: "CTKM tặng voucher",
+  //   type: SMS_TYPE.VOUCHER,
+	// 	url: `${UrlConfig.SMS_SETTINGS}/promotion-voucher`,
+	// 	value: [],
+	// },
 ];
 
 const SmsActionSetting: React.FC<any> = (props: any) => {
@@ -43,7 +51,9 @@ const SmsActionSetting: React.FC<any> = (props: any) => {
       let newSmsActionList = cloneDeep(smsActionList);
       Array.isArray(data.messages) && data.messages.forEach((message: any) => {
         const smsActionIndex = newSmsActionList.findIndex((smsAction: any) => smsAction.type === message.type);
-        newSmsActionList[smsActionIndex].value.push(message.content);
+        if (smsActionIndex >= 0) {
+          newSmsActionList[smsActionIndex].value.push(message.content);
+        }
       });
       setSmsActionList(newSmsActionList);
     }

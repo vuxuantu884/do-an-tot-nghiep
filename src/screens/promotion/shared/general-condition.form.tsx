@@ -18,9 +18,9 @@ import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { SourceResponse } from "model/response/order/source.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import moment from "moment";
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { getDayOptions } from "utils/PromotionUtils";
 import { dayOfWeekOptions, PROMOTION_TYPE } from "screens/promotion/constants";
@@ -71,6 +71,20 @@ function GeneralConditionForm({
     dispatch(getListAllSourceRequest(setListSource));
     dispatch(getListChannelRequest(setListChannel));
   }, [dispatch]);
+  
+  const handleOnClickEndDate = useCallback(() => {
+    // set time default 23:59
+    const startDate = form.getFieldValue("starts_date");
+    const endDate = form.getFieldValue("ends_date");
+    const startDateValue = startDate?.format(DATE_FORMAT.DDMMYYY);
+    const todayValue = moment().format(DATE_FORMAT.DDMMYYY);
+    if (!endDate && startDateValue === todayValue) {
+      form.setFieldsValue({
+        ends_date: moment().set({ hour: 23, minute: 59 }),
+      });
+    }
+  }, [form]);
+  
   return (
     <CustomerContitionFormlStyle>
       <Card
@@ -84,7 +98,19 @@ function GeneralConditionForm({
           <Col span={12}>
             <Form.Item
               name="starts_date"
-              rules={[{ required: true, message: "Vui lòng chọn thời gian áp dụng" }]}
+              rules={[
+                { required: true, message: "Vui lòng chọn thời gian áp dụng" },
+                () => ({
+                  validator(rule, value) {
+                    const endsDateValue = form.getFieldValue("ends_date");
+                    if (!endsDateValue) return Promise.resolve();
+                    if (value > endsDateValue) {
+                      return Promise.reject(new Error("Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc"));
+                    }
+                    return Promise.resolve();
+                  },
+                }),
+              ]}
             >
               <DatePicker
                 id={"starts_date"}
@@ -94,21 +120,8 @@ function GeneralConditionForm({
                 format={DATE_FORMAT.DDMMYY_HHmm}
                 disabledDate={(date) => {
                   const currentDate = _.cloneDeep(date);
-                  currentDate.set({
-                    hour: 0,
-                    minute: 0,
-                    second: 0,
-                    millisecond: 0,
-                  });
                   return (
-                    currentDate.isBefore(
-                      moment().set({
-                        hour: 0,
-                        minute: 0,
-                        second: 0,
-                        millisecond: 0,
-                      }),
-                    ) ||
+                    currentDate.isBefore(moment()) ||
                     (form.getFieldValue("ends_date")
                       ? currentDate.valueOf() > form.getFieldValue("ends_date")
                       : false)
@@ -121,6 +134,7 @@ function GeneralConditionForm({
           <Col span={12}>
             <Form.Item name="ends_date">
               <DatePicker
+                id={"ends_date"}
                 showTime={{ format: "HH:mm" }}
                 format={DATE_FORMAT.DDMMYY_HHmm}
                 style={{ width: "100%" }}
@@ -134,14 +148,9 @@ function GeneralConditionForm({
                   );
                 }}
                 showNow={false}
-                onClick={() => {
-                  // set time default 23:59
-                  const endDate = form.getFieldValue("ends_date");
-                  if (!endDate) {
-                    form.setFieldsValue({
-                      ends_date: moment().set({ hour: 23, minute: 59 }),
-                    });
-                  }
+                onClick={handleOnClickEndDate}
+                onChange={() => {
+                  form.validateFields(["starts_date"]).then();
                 }}
               />
             </Form.Item>

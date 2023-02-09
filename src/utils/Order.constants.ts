@@ -15,25 +15,6 @@ export const RETURN_MONEY_TYPE = {
   return_now: "return_now",
 };
 
-export const ORDER_RETURN_HISTORY = [
-  {
-    code: "received",
-    title: "Nhận hàng",
-  },
-  {
-    code: "return",
-    title: "Trả hàng",
-  },
-  {
-    code: "payment",
-    title: "Hoàn tiền",
-  },
-  {
-    code: "update",
-    title: "Cập nhật",
-  },
-];
-
 export const DISCOUNT_VALUE_TYPE = {
   percentage: "PERCENTAGE",
   fixedAmount: "FIXED_AMOUNT",
@@ -263,3 +244,54 @@ export const THIRD_PARTY_LOGISTICS_INTEGRATION = {
     guideUrl: "",
   },
 };
+
+export const DISPLAYED_ORDER_ACTION_LOGS = [
+  {
+    code: "create",
+    title: "Tạo mới đơn hàng",
+  },
+  {
+    code: "update",
+    title: "Cập nhật đơn hàng",
+  },
+  {
+    code: "cancel",
+    title: "Sửa đơn hàng",
+  },
+  {
+    code: "delivery_update",
+    title: "Hãng vận chuyển cập nhật trạng thái",
+  },
+  {
+    code: "update_status",
+    title: "Đổi trạng thái",
+  },
+  {
+    code: "system_update",
+    title: "Hệ thống tự cập nhật",
+  },
+  {
+    code: "add_order_goodsreceipt",
+    title: "Thêm vào biên bản bàn giao",
+  },
+  {
+    code: "delete_order_goodsreceipt",
+    title: "Xóa khỏi biên bản bàn giao",
+  },
+  {
+    code: "print_order",
+    title: "In hóa đơn",
+  },
+  {
+    code: "received",
+    title: "Nhận hàng",
+  },
+  {
+    code: "return",
+    title: "Trả hàng",
+  },
+  {
+    code: "payment",
+    title: "Hoàn tiền",
+  },
+];

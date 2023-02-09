@@ -12,18 +12,7 @@ export const ActionStyle = styled.div`
 `;
 
 export const StyledComponent = styled.div`
-  /* .custom-table .ant-table-measure-row{
-    display: none;
-  } */
-  .ant-tabs-tab a {
-    color: rgba(0, 0, 0, 0.85);
-  }
-  .ant-tabs-tab-active a {
-    color: #2a2a86;
-  }
-  .ant-tabs-tab a:hover {
-    color: #1890ff;
-  }
+
   .txt-muted {
     color: #666666;
   }

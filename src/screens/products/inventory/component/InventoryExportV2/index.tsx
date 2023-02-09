@@ -9,10 +9,18 @@ type ExportModalProps = {
   onOk: (record: string) => void;
   exportProgress?: number;
   statusExport?: number;
+  isLoadingExport: boolean;
 };
 
 const InventoryExportModal: React.FC<ExportModalProps> = (props: ExportModalProps) => {
-  const { visible, onOk, onCancel, exportProgress, statusExport = STATUS_IMPORT_EXPORT.NONE } = props;
+  const {
+    visible,
+    onOk,
+    onCancel,
+    exportProgress,
+    statusExport = STATUS_IMPORT_EXPORT.NONE,
+    isLoadingExport,
+  } = props;
   const [editFields, setEditFields] = useState(false);
   const [form] = Form.useForm();
 
@@ -24,8 +32,8 @@ const InventoryExportModal: React.FC<ExportModalProps> = (props: ExportModalProp
     <Modal
       onCancel={onCancel}
       onOk={onOkClick}
-      confirmLoading={statusExport === STATUS_IMPORT_EXPORT.DEFAULT}
-      cancelText="Hủy"
+      confirmLoading={isLoadingExport}
+      cancelText="Thoát"
       okText="Xuất file"
       visible={visible}
       centered

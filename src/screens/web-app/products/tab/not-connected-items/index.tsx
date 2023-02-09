@@ -63,6 +63,7 @@ import ConcatenateByExcel from "./ConcatenateByExcel";
 import { EcommerceProductTabUrl } from "config/url.config";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
@@ -1057,7 +1058,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (
           columns={columns}
           dataSource={variantData.items}
           scroll={{ x: 1080 }}
-          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           pagination={{
             pageSize: variantData.metadata && variantData.metadata.limit,
             total: variantData.metadata && variantData.metadata.total,

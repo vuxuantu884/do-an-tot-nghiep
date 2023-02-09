@@ -1,7 +1,6 @@
 import { Button, Form, Radio, Select } from "antd";
 import { FormInstance } from "antd/es/form/Form";
 import { SelectValue } from "antd/lib/select";
-import * as React from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { GoPlus } from "react-icons/go";
 import {

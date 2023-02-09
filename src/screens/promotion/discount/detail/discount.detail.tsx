@@ -34,7 +34,7 @@ import {
   columnFixedPrice,
   DiscountUnitType,
   DISCOUNT_STATUS,
-} from "../../constants";
+} from "screens/promotion/constants";
 import { DiscountStyled } from "../discount-style";
 import { PageResponse } from "model/base/base-metadata.response";
 import exportIcon from "assets/icon/export.svg";
@@ -85,16 +85,20 @@ const PromotionDetailScreen: React.FC = () => {
 
   const [keySearchVariantDiscount, setKeySearchVariantDiscount] = useState("");
 
-  //phân quyền
+  /** phân quyền */
   const [allowCreateDiscount] = useAuthorization({
     acceptPermissions: [PriceRulesPermission.CREATE],
   });
   const [allowUpdateDiscount] = useAuthorization({
     acceptPermissions: [PriceRulesPermission.UPDATE],
   });
+  const [allowActiveDiscount] = useAuthorization({
+    acceptPermissions: [PriceRulesPermission.ACTIVE],
+  });
   const [allowExportProduct] = useAuthorization({
     acceptPermissions: [PriceRulesPermission.EXPORT],
   });
+  /** */
 
   const onResult = useCallback((result: PriceRule | false) => {
     setLoading(false);
@@ -211,13 +215,14 @@ const PromotionDetailScreen: React.FC = () => {
   const RenderActionButton = () => {
     switch (dataDiscount?.state) {
       case PriceRuleState.ACTIVE:
+      case PriceRuleState.DRAFT:
         return (
           <Button type="primary" onClick={handleDeactivate}>
             Tạm ngừng
           </Button>
         );
       case PriceRuleState.DISABLED:
-      case PriceRuleState.DRAFT:
+      case PriceRuleState.PENDING:
         return (
           <Button type="primary" onClick={handleActivate}>
             Kích hoạt
@@ -739,13 +744,13 @@ const PromotionDetailScreen: React.FC = () => {
             <GeneralConditionDetail data={dataDiscount} />
           </Row>
           <BottomBarContainer
-            back="Quay lại danh sách khuyến mại"
+            back="Quay lại danh sách chiết khấu"
             backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`)}
             rightComponent={
               <Space>
                 {allowUpdateDiscount && (
                   <Link to={`${idNumber}/update`}>
-                    <Button>Sửa</Button>
+                    <Button>Chỉnh sửa</Button>
                   </Link>
                 )}
 
@@ -755,7 +760,7 @@ const PromotionDetailScreen: React.FC = () => {
                   </Link>
                 )}
 
-                {allowUpdateDiscount && RenderActionButton()}
+                {allowActiveDiscount && RenderActionButton()}
               </Space>
             }
           />

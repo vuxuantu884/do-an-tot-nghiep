@@ -21,6 +21,7 @@ export enum GIFT_STATE_ENUM {
   ACTIVE = "ACTIVE",
   DISABLED = "DISABLED",
   CANCELLED = "CANCELLED",
+  PENDING = "PENDING",
 }
 
 export const GIFT_METHOD_LIST = [

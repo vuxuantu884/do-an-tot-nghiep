@@ -17,12 +17,17 @@ import {
   ProductBarcodeRequest,
   VariantPricesResponse,
   VariantResponse,
-  VariantBarcodeLineItem
+  VariantBarcodeLineItem,
 } from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { BarcodeLineItem } from "../component";
 import { formatCurrency } from "utils/AppUtils";
-import { findAvatar, findPrice, formatCurrencyForProduct, URL_TEMPLATE } from "screens/products/helper";
+import {
+  findAvatar,
+  findPrice,
+  formatCurrencyForProduct,
+  URL_TEMPLATE,
+} from "screens/products/helper";
 import variantDefault from "assets/icon/variantdefault.jpg";
 import { AppConfig } from "config/app.config";
 import NumberInput from "component/custom/number-input.custom";
@@ -239,10 +244,7 @@ const BarcodeProductScreen: React.FC = () => {
       } else {
         showError("Import không thành công");
       }
-    }, [
-      dispatch,
-      fileList,
-    ]),
+    }, [dispatch, fileList]),
     Cancel: useCallback(() => {
       refProgressModal.current?.closeModal();
       setProgressData(initialProgressData);
@@ -284,7 +286,8 @@ const BarcodeProductScreen: React.FC = () => {
                 <Button icon={<UploadOutlined />}>Chọn file in tem</Button>
               </Upload>
               <Typography.Text style={{ marginTop: 20, display: "block" }}>
-                <img src={excelIcon} alt="" /> <a href={URL_TEMPLATE}>Link file excel mẫu (.xlsx)</a>
+                <img src={excelIcon} alt="" />{" "}
+                <a href={URL_TEMPLATE}>Link file excel mẫu (.xlsx)</a>
               </Typography.Text>
               <Row style={{ marginTop: 20 }}>
                 <Col span={24} style={{ display: "flex", flexDirection: "row-reverse" }}>
@@ -305,7 +308,7 @@ const BarcodeProductScreen: React.FC = () => {
                 dropdownMatchSelectWidth={456}
                 style={{ width: "100%" }}
                 showAdd={true}
-                textAdd="Thêm mới sản phẩm"
+                textAdd="+ Thêm mới sản phẩm"
                 onSelect={selectProduct}
                 options={renderResult}
               />

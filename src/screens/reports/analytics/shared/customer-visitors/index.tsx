@@ -12,7 +12,7 @@ import { CustomerVisitorsFilter, LocalStorageKey } from "model/report/customer-v
 import moment from "moment";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { getCustomerVisitors, updateCustomerVisitors } from "service/report/analytics.service";
 import { callApiNative } from "utils/ApiUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";

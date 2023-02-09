@@ -5,6 +5,7 @@ import UrlConfig from "config/url.config";
 import {
   DiscountConditionRule,
   EntilementFormModel,
+  PriceRuleState,
   ProductEntitlements,
 } from "model/promotion/price-rules.model";
 import { Rule } from "rc-field-form/lib/interface";
@@ -15,6 +16,7 @@ import NumberInput from "component/custom/number-input.custom";
 import React from "react";
 import { GiftEntitlementForm } from "model/promotion/gift.model";
 import moment from "moment/moment";
+import PromotionStatusTag from "screens/promotion/component/PromotionStatusTag";
 const { Item } = Form;
 
 export const MAX_FIXED_DISCOUNT_VALUE = 999999999;
@@ -36,6 +38,7 @@ export const PRICE_RULE_FIELDS = {
   disabled_name: "disabled_name",
   discount_codes: "discount_codes",
   ends_date: "ends_date",
+  is_sms_voucher: "is_sms_voucher",
   entitled_method: "entitled_method",
   entitlements: "entitlements",
   number_of_discount_codes: "number_of_discount_codes",
@@ -392,24 +395,27 @@ export const DISCOUNT_STATUS = [
   {
     code: "ACTIVE",
     value: "Đang áp dụng",
-
-    Component: <TagStatus type="primary">Đang áp dụng</TagStatus>,
+    Component: <PromotionStatusTag status={PriceRuleState.ACTIVE}>Đang áp dụng</PromotionStatusTag>,
   },
   {
     code: "DISABLED",
     value: "Tạm ngừng",
-
-    Component: <TagStatus type="warning">Tạm ngừng</TagStatus>,
+    Component: <PromotionStatusTag status={PriceRuleState.DISABLED}>Tạm ngừng</PromotionStatusTag>,
   },
   {
     code: "DRAFT",
     value: "Chờ áp dụng",
-    Component: <TagStatus>Chờ áp dụng</TagStatus>,
+    Component: <PromotionStatusTag status={PriceRuleState.DRAFT}>Chờ áp dụng</PromotionStatusTag>,
+  },
+  {
+    code: "PENDING",
+    value: "Chờ xác nhận",
+    Component: <PromotionStatusTag status={PriceRuleState.PENDING}>Chờ xác nhận</PromotionStatusTag>,
   },
   {
     code: "CANCELLED",
     value: "Đã huỷ",
-    Component: <TagStatus type="danger">Đã huỷ</TagStatus>,
+    Component: <PromotionStatusTag status={PriceRuleState.CANCELLED}>Đã huỷ</PromotionStatusTag>,
   },
 ];
 
@@ -740,6 +746,10 @@ export const PROMOTION_TYPE = {
 
 export const STATE_LIST = [
   {
+    value: "PENDING",
+    name: "Chờ xác nhận",
+  },
+  {
     value: "DRAFT",
     name: "Chờ áp dụng",
   },
@@ -772,3 +782,27 @@ export const DATE_LIST_FORMAT = {
   lastMonthFrom: moment().subtract(1, "months").startOf("month").format("DD-MM-YYYY"),
   lastMonthTo: moment().subtract(1, "months").endOf("month").format("DD-MM-YYYY"),
 };
+
+export enum AllOrExcludeProductEnum {
+  ALL = "ALL",
+  HAVE_EXCLUDE = "HAVE_EXCLUDE",
+}
+
+enum ColumnIndex {
+  field = "field",
+  operator = "operator",
+  value = "value",
+}
+
+export const blankRow = {
+  [ColumnIndex.field]: "subtotal",
+  [ColumnIndex.operator]: "GREATER_THAN",
+  [ColumnIndex.value]: 0,
+};
+
+export enum CreateReleasePromotionRuleType {
+  AND = "AND",
+  quantity = "quantity",
+  variant_id = "variant_id",
+  product_id = "product_id",
+}

@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import {
   InventoryExportImportTransferDetailItem,
   InventoryTransferDetailItem,
-  InventoryTransferImportExportSearchQuery
+  InventoryTransferImportExportSearchQuery,
 } from "model/inventory/transfer";
 import CustomTable from "component/table/CustomTable";
 
@@ -41,7 +41,7 @@ import receivedIcon from "assets/icon/da_nhan.svg";
 import canceledIcon from "assets/icon/da_huy.svg";
 import confirmedIcon from "assets/icon/cho_chuyen.svg";
 import TransferExport from "../../Components/TransferExport";
-import { STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Constants";
+import { OFFSET_HEADER_UNDER_NAVBAR, STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Constants";
 import moment from "moment";
 import * as XLSX from "xlsx";
 import { TransferExportLineItemField } from "model/inventory/field";
@@ -580,36 +580,37 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
     getListExportImportTransfer().then();
   };
 
-  const onSelectedChange = useCallback((selectedRow: Array<InventoryTransferDetailItem>, selected: boolean | undefined, changeRow: any) => {
-    const newSelectedRowKeys = changeRow.map((row: any) => row.id);
+  const onSelectedChange = useCallback(
+    (
+      selectedRow: Array<InventoryTransferDetailItem>,
+      selected: boolean | undefined,
+      changeRow: any,
+    ) => {
+      const newSelectedRowKeys = changeRow.map((row: any) => row.id);
 
-    if (selected) {
-      setSelectedRowKeys([
-        ...selectedRowKeys,
-        ...newSelectedRowKeys
-      ]);
-      setSelectedRowData([
-        ...selectedRowData,
-        ...changeRow
-      ]);
-      return;
-    }
+      if (selected) {
+        setSelectedRowKeys([...selectedRowKeys, ...newSelectedRowKeys]);
+        setSelectedRowData([...selectedRowData, ...changeRow]);
+        return;
+      }
 
-    const newSelectedRowKeysByDeselected = selectedRowKeys.filter((item) => {
-      const findIndex = changeRow.findIndex((row: any) => row.id === item);
+      const newSelectedRowKeysByDeselected = selectedRowKeys.filter((item) => {
+        const findIndex = changeRow.findIndex((row: any) => row.id === item);
 
-      return findIndex === -1
-    });
+        return findIndex === -1;
+      });
 
-    const newSelectedRowByDeselected = selectedRowData.filter((item) => {
-      const findIndex = changeRow.findIndex((row: any) => row.id === item.id);
+      const newSelectedRowByDeselected = selectedRowData.filter((item) => {
+        const findIndex = changeRow.findIndex((row: any) => row.id === item.id);
 
-      return findIndex === -1
-    });
+        return findIndex === -1;
+      });
 
-    setSelectedRowKeys(newSelectedRowKeysByDeselected);
-    setSelectedRowData(newSelectedRowByDeselected);
-  }, [selectedRowData, selectedRowKeys]);
+      setSelectedRowKeys(newSelectedRowKeysByDeselected);
+      setSelectedRowData(newSelectedRowByDeselected);
+    },
+    [selectedRowData, selectedRowKeys],
+  );
 
   const getItemsByCondition = useCallback(
     async (type: string) => {
@@ -831,12 +832,14 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
         selectedRowKey={selectedRowKeys}
         isLoading={tableLoading}
         scroll={{ x: 1000 }}
-        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
         pagination={false}
         onShowColumnSetting={() => setShowSettingColumn(true)}
         dataSource={data.items}
         columns={columnFinal}
-        onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
+        onSelectedChange={(selectedRows, selected, changeRow) =>
+          onSelectedChange(selectedRows, selected, changeRow)
+        }
         rowKey={(item: VariantResponse) => item.id}
       />
       {isModalVisibleNote && (

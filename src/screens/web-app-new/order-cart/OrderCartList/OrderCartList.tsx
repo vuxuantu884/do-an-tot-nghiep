@@ -13,6 +13,7 @@ import moment from "moment";
 import { getAbandonCartListAction } from "domain/actions/web-app/web-app.actions";
 import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const OrderCartList = () => {
   const history = useHistory();
@@ -199,7 +200,7 @@ const OrderCartList = () => {
             isLoading={isLoading}
             showColumnSetting={true}
             scroll={{ x: 1500 }}
-            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+            sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
             pagination={
               isLoading
                 ? false

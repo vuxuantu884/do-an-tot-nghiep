@@ -5,7 +5,7 @@ import { FilterWrapper } from "component/container/filter.container";
 import ActionButton from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import TreeDepartment from "component/tree-node/tree-department";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { AccountPermissions } from "config/permissions/account.permisssion";
 import { RoleSearchAction } from "domain/actions/auth/role.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";

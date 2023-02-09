@@ -162,7 +162,8 @@ type PropTypes = {
     totalAmountReturn: number;
     totalAmountExchangePlusShippingFee: number;
   };
-  countFinishingUpdateCustomer: number; // load xong api chi tiết KH và hạng KH
+  countFinishingUpdateCustomer: number; // update khách hàng
+  countFinishingUpdateSource?: number; // update nguồn
   shipmentMethod: number;
   isExchange?: boolean;
   stores: StoreResponse[];
@@ -265,6 +266,7 @@ function OrderCreateProduct(props: PropTypes) {
     setCoupon,
     setPromotion,
     countFinishingUpdateCustomer,
+    countFinishingUpdateSource,
     isCreateReturn,
     shipmentMethod,
     stores,
@@ -1863,7 +1865,7 @@ function OrderCreateProduct(props: PropTypes) {
         if (r.id === newV && checkInventory(item) === true) {
           if (splitLine || index === -1) {
             _items.unshift(item);
-            if (!isAutomaticDiscount && !coupon) {
+            if (!isAutomaticDiscount) {
               console.log("calculatesChangeMoney 3");
               calculateChangeMoney(_items);
             }
@@ -1877,7 +1879,7 @@ function OrderCreateProduct(props: PropTypes) {
             selectedItem.discount_items.forEach((single) => {
               single.amount = single.value * selectedItem.quantity;
             });
-            if (!isAutomaticDiscount && !coupon) {
+            if (!isAutomaticDiscount) {
               console.log("calculatesChangeMoney 2");
               calculateChangeMoney(_items);
             }
@@ -2603,13 +2605,15 @@ function OrderCreateProduct(props: PropTypes) {
    * gọi lại api chiết khấu tự động khi update cửa hàng, khách hàng, nguồn, số lượng item
    */
   useEffect(() => {
+    console.log("isAutomaticDiscount 0", isShouldUpdateDiscountRef.current);
     if (isShouldUpdateDiscountRef.current && items && items?.length > 0) {
+      console.log("isAutomaticDiscount 1");
       let _items = [...items];
       const isLineItemSemiAutomatic = _items.some((p) => p.isLineItemSemiAutomatic); // xác định là ck line item thủ công
       const isOrderSemiAutomatic = promotion?.isOrderSemiAutomatic; //xác định là ck đơn hàng thủ công
       if (isLineItemSemiAutomatic || isOrderSemiAutomatic) {
         if (!props.isPageOrderUpdate) {
-          console.log("isAutomaticDiscount 112", isAutomaticDiscount);
+          console.log("isAutomaticDiscount 2", isAutomaticDiscount);
           handUpdateDiscountWhenChangingOrderInformation(_items);
         } else if (
           !compareProducts(orderDetail?.items || [], items) ||
@@ -2618,12 +2622,12 @@ function OrderCreateProduct(props: PropTypes) {
           handUpdateDiscountWhenChangingOrderInformation(_items);
         }
       } else if (isAutomaticDiscount) {
-        console.log("isAutomaticDiscount", isAutomaticDiscount);
+        console.log("isAutomaticDiscount 3", isAutomaticDiscount);
         handleApplyDiscount(items);
       }
     } else isShouldUpdateDiscountRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storeId, orderSourceId, countFinishingUpdateCustomer]);
+  }, [storeId, countFinishingUpdateSource, countFinishingUpdateCustomer]);
 
   /**
    * gọi lại api couponInputText khi thay đổi số lượng item

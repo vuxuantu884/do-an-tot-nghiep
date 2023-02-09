@@ -25,7 +25,7 @@ import moment from "moment";
 import React, { createRef, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { CustomerContitionFormlStyle } from "screens/promotion/shared/condition.style";
 import ProductItem from "screens/purchase-order/component/product-item";
 import { nonAccentVietnamese } from "utils/PromotionUtils";

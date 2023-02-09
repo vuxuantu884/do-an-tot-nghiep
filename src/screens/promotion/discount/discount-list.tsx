@@ -5,7 +5,7 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import { MenuAction } from "component/table/ActionButton";
 import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
 import useAuthorization from "hook/useAuthorization";
-import { PriceRule } from "model/promotion/price-rules.model";
+import { PriceRule, PriceRuleState } from "model/promotion/price-rules.model";
 import React, { Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
@@ -79,10 +79,14 @@ const DiscountPage = () => {
   const [channelList, setChannelList] = useState<Array<ChannelResponse>>([]);
   const [sourceList, setSourceList] = useState<Array<SourceResponse>>([]);
 
-  //phân quyền
+  /** phân quyền */
   const [allowUpdateDiscount] = useAuthorization({
     acceptPermissions: [PriceRulesPermission.UPDATE],
   });
+  const [allowActiveDiscount] = useAuthorization({
+    acceptPermissions: [PriceRulesPermission.ACTIVE],
+  });
+  /** */
 
   // handle get discount list
   const getDiscountListCallback = useCallback((data: PageResponse<PriceRule> | null) => {
@@ -237,32 +241,38 @@ const DiscountPage = () => {
       align: "center",
       render: (id: number, item: any) => (
         <Dropdown.Button
-          disabled={!allowUpdateDiscount}
+          disabled={!allowUpdateDiscount && !allowActiveDiscount}
           overlay={
             <Menu>
-              <Menu.Item icon={<EditOutlined />} key={1}>
-                <Link to={`discounts/${id}/update`}>Chỉnh sửa</Link>
-              </Menu.Item>
-              {item.state === "DISABLED" ? (
-                <Menu.Item
-                  key={3}
-                  icon={<FiCheckCircle />}
-                  onClick={() => {
-                    handleActivatePriceRule(id);
-                  }}
-                >
-                  Kích hoạt
+              {allowUpdateDiscount &&
+                <Menu.Item icon={<EditOutlined />} key={1}>
+                  <Link to={`discounts/${id}/update`}>Chỉnh sửa</Link>
                 </Menu.Item>
-              ) : (
-                <Menu.Item
-                  key={3}
-                  icon={<RiDeleteBin2Fill />}
-                  onClick={() => {
-                    handleDeactivatePriceRule(id);
-                  }}
-                >
-                  Tạm ngừng
-                </Menu.Item>
+              }
+              {allowActiveDiscount && (
+                <>
+                  {(item.state === PriceRuleState.DISABLED || item.state === PriceRuleState.PENDING) ? (
+                    <Menu.Item
+                      key={3}
+                      icon={<FiCheckCircle />}
+                      onClick={() => {
+                        handleActivatePriceRule(id);
+                      }}
+                    >
+                      Kích hoạt
+                    </Menu.Item>
+                  ) : (
+                    <Menu.Item
+                      key={3}
+                      icon={<RiDeleteBin2Fill />}
+                      onClick={() => {
+                        handleDeactivatePriceRule(id);
+                      }}
+                    >
+                      Tạm ngừng
+                    </Menu.Item>
+                  )}
+                </>
               )}
             </Menu>
           }

@@ -1,16 +1,12 @@
 import { TreeSelect, TreeSelectProps } from "antd";
-import {
-  findRangeDepartmentLevel,
-  getTreeData,
-  isStoreByDepartmentList,
-} from "component/TreeStore/helper";
-import { useMemo } from "react";
+import { StoreByDepartment } from "model/core/store.model";
 import { DataNode } from "rc-tree-select/lib/interface";
+import { useMemo } from "react";
+import { findRangeDepartmentLevel, getTreeData, isStoreByDepartmentList } from "./helper";
 import { strForSearch } from "utils/StringUtils";
-import { CustomByDepartment } from "./model";
 
 type Props = TreeSelectProps<any> & {
-  storeByDepartmentList: CustomByDepartment[] | unknown[];
+  storeByDepartmentList: StoreByDepartment[] | unknown[];
 };
 
 const CustomTreeSelect = (props: Props) => {

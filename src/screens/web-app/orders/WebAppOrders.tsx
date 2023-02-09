@@ -73,7 +73,7 @@ import {
   isFetchApiSuccessful,
   isNullOrUndefined,
 } from "utils/AppUtils";
-import { FulFillmentStatus, OrderStatus } from "utils/Constants";
+import { FulFillmentStatus, OFFSET_HEADER_UNDER_NAVBAR, OrderStatus } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
@@ -1413,7 +1413,7 @@ const WebAppOrders: React.FC = () => {
                   isLoading={tableLoading}
                   showColumnSetting={true}
                   scroll={{ x: 2400 }}
-                  sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+                  sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
                   pagination={
                     tableLoading
                       ? false
