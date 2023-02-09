@@ -605,7 +605,10 @@ const DetailInventoryAdjustment: FC = () => {
       updateOnlineInventoryAction(data?.id ?? 0, (result) => {
         setLoading(false);
         if (result) {
-          onResult(result);
+          onResult({
+            ...result,
+            version: result.version + 1
+          });
           showSuccess("Hoàn thành kiểm kho thành công.");
           setIsShowConfirmAudited(false);
           setIsRun(false);
@@ -620,7 +623,10 @@ const DetailInventoryAdjustment: FC = () => {
       adjustInventoryAction(data?.id ?? 0, (result) => {
         setLoading(false);
         if (result) {
-          onResult(result);
+          onResult({
+            ...result,
+            version: result.version + 1
+          });
           showSuccess("Cân tồn kho thành công.");
           setIsShowConfirmAdj(false);
         }
