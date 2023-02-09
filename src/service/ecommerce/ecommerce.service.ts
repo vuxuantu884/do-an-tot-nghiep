@@ -282,6 +282,13 @@ export const getDataInventoryUnicornProductActionApi = (
   );
 };
 
+export const updateSafeInventoryProduct = (
+  body: any,
+  ecommerce_variant_id: string,
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.put(`${ApiConfig.ECOMMERCE}/variants/${ecommerce_variant_id}/min-stock`, body);
+};
+
 export {
   ecommerceCreateApi,
   ecommerceGetApi,

@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { useHistory } from "react-router-dom";
 import CustomSelect from "component/custom/select.custom";
-import { Button, Col, Form, Modal, Row, Select, Spin, Table } from "antd";
+import { Button, Col, Form, FormInstance, Modal, Row, Select, Spin, Table } from "antd";
 
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
@@ -30,7 +30,12 @@ import { actionFetchListOrderSources } from "domain/actions/settings/order-sourc
 import { SourceResponse } from "model/response/order/source.response";
 import { SourceSearchQuery } from "model/request/source.request";
 import { getSourcesWithParamsService } from "service/order/order.service";
-import { handleFetchApiError, isFetchApiSuccessful, isNullOrUndefined } from "utils/AppUtils";
+import {
+  handleFetchApiError,
+  isFetchApiSuccessful,
+  isNullOrUndefined,
+  replaceFormatString,
+} from "utils/AppUtils";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import BaseResponse from "base/base.response";
@@ -38,6 +43,9 @@ import { getEcommerceJobsApi } from "service/ecommerce/ecommerce.service";
 import { HttpStatus } from "config/http-status.config";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import ProgressConfigMultipleInventoryModal from "./ProgressConfigMultipleInventoryModal";
+import ModalConfirm from "component/modal/ModalConfirm";
+import { formatCurrencyForProduct } from "screens/products/helper";
+import NumberInput from "component/custom/number-input.custom";
 
 const { Option } = Select;
 
@@ -84,10 +92,12 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
 
   const dispatch = useDispatch();
   const history = useHistory();
+  const formRef = React.useRef<FormInstance>(null);
   const [configDetail, setConfigDetail] = useState<EcommerceResponse | undefined>(undefined);
   const [inventories, setInventories] = React.useState<Array<EcommerceShopInventoryDto>>([]);
   const [isConfigExist, setIsConfigExist] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [visibleSafeInventoryModal, setVisibleSafeInventoryModal] = useState<boolean>(false);
   const [allowShopsUpdate] = useAuthorization({
     acceptPermissions: shopsUpdatePermission,
     not: false,
@@ -484,7 +494,8 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
               setConfigDetail(undefined);
               setConfigFromEcommerce(undefined);
               setChangeTypeInventory("");
-              history.replace(`${history.location.pathname}#sync`);
+              history.push(`${history.location.pathname}#sync`);
+              reloadConfigData();
               showSuccess("Đồng bộ cấu hình thành công");
             }
 
@@ -627,6 +638,21 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
       handleCreateConfigCallback,
     ],
   );
+
+  const onSaveConfig = useCallback(
+    (value: EcommerceRequest) => {
+      if (value.stock_available_min !== configDetail?.stock_available_min) {
+        setVisibleSafeInventoryModal(true);
+      } else {
+        handleConfigSetting(value);
+      }
+    },
+    [configDetail?.stock_available_min, handleConfigSetting],
+  );
+
+  const onConfimChangeSafeInventory = useCallback(() => {
+    handleConfigSetting(formRef.current?.getFieldsValue());
+  }, [handleConfigSetting]);
   const handleDisconnectEcommerce = () => {
     if (configDetail) showDeleteModal(configDetail);
   };
@@ -661,6 +687,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
         store: configDetail.store,
         source_id: configDetail.source_id,
         inventories: _inventories?.map((item: any) => item.store_id),
+        stock_available_min: configDetail.stock_available_min,
       });
     } else {
       form.resetFields();
@@ -853,7 +880,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
   const renderComponent = () => {
     return (
       <StyledConfig className="padding-20">
-        <Form form={form} layout="vertical" onFinish={(value) => handleConfigSetting(value)}>
+        <Form form={form} layout="vertical" onFinish={(value) => onSaveConfig(value)} ref={formRef}>
           <Row>
             <Col span={8}>
               <Form.Item
@@ -1127,6 +1154,14 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
                   </Option>
                 </Select>
               </Form.Item>
+              <Form.Item label={<span>Tồn an toàn</span>} name="stock_available_min">
+                <NumberInput
+                  placeholder="Nhập tồn an toàn"
+                  format={(a: string) => formatCurrencyForProduct(a, ",")}
+                  replace={(a: string) => replaceFormatString(a)}
+                  maxLength={4}
+                />
+              </Form.Item>
             </Col>
           </Row>
 
@@ -1328,6 +1363,22 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
             </div>
           </div>
         </Modal>
+        {visibleSafeInventoryModal && (
+          <ModalConfirm
+            onCancel={() => {
+              setVisibleSafeInventoryModal(false);
+            }}
+            onOk={() => {
+              onConfimChangeSafeInventory();
+              setVisibleSafeInventoryModal(false);
+            }}
+            okText="Có"
+            cancelText="Không"
+            title={`Lưu thay đổi tồn an toàn của shop`}
+            subTitle="Nếu thay đổi cấu hình tồn an toàn của gian hàng thì tồn an toàn của tất cả sản phẩm trong gian hàng sẽ thay đổi theo. Bạn có muốn tiếp tục không?"
+            visible={visibleSafeInventoryModal}
+          />
+        )}
       </StyledConfig>
     );
   };

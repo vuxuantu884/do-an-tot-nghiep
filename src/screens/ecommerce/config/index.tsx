@@ -103,6 +103,7 @@ const EcommerceConfig: React.FC = () => {
       ecommerceConfigGetAction((responseData) => {
         setIsLoading(false);
         setConfigData(responseData);
+        window.scrollTo(0, 0);
       }),
     );
   }, [dispatch]);
