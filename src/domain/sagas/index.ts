@@ -38,6 +38,7 @@ import { settingOrderSourceSaga } from "./settings/order-source.saga";
 import { departmentSaga } from "./account/department.saga";
 import { discountSaga } from "./promotion/discount/discount.saga";
 import { giftSaga } from "./promotion/gift/gift.saga";
+import { promotionCampaignSaga } from "./promotion/campaign/campaign.saga";
 import { GoodsReceiptsSaga } from "./goods-receipts/goods-receipts.saga";
 import { moduleSaga } from "./auth/module.saga";
 import { promoCodeSaga } from "./promotion/promo-code/promo-code.saga";
@@ -88,6 +89,7 @@ function* rootSaga() {
     inventoryAdjustmentSaga(),
     discountSaga(),
     giftSaga(),
+    promotionCampaignSaga(),
     promoCodeSaga(),
     departmentSaga(),
     GoodsReceiptsSaga(),

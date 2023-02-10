@@ -1,6 +1,8 @@
 // đăt tên resouces  có chữ [s] + action , viết thường, snake_case => products_view
 // nếu có resource con :  resouces cha [s] + resource con [s] + action => products_categories_create
 
+import { getPromotionCampaignListAction } from "../../domain/actions/promotion/campaign/campaign.action";
+
 const PromotionReleasePermission = {
   READ: "price_rules_discount_code_read",
   CREATE: "price_rules_discount_code_create",
@@ -26,6 +28,12 @@ export const PROMOTION_GIFT_PERMISSIONS = {
   EXPORT: "price_rules_gift_export",
   CANCEL: "price_rules_gift_cancel",
   ACTIVE: "price_rules_gift_active_and_disabled",
+};
+
+export const PROMOTION_CAMPAIGN_PERMISSIONS = {
+  READ: "price_rules_campaign_read",
+  CREATE: "price_rules_campaign_create",
+  UPDATE: "price_rules_campaign_update",
 };
 
 export { PromotionReleasePermission, PriceRulesPermission };

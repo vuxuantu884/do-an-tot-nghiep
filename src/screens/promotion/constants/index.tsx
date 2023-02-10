@@ -740,8 +740,8 @@ export const ACTIONS_PROMO_CODE: Array<MenuAction> = [
 
 export const PROMOTION_TYPE = {
   GIFT: "GIFT",
-  DISCOUNT: "DISCOUNT",
-  PROMOTION_CODE: "PROMOTION_CODE",
+  DISCOUNT: "AUTOMATIC",
+  PROMOTION_CODE: "MANUAL",
 };
 
 export const STATE_LIST = [
