@@ -133,7 +133,7 @@ const PromotionCode = () => {
 
   const onFilter = useCallback(
     (values) => {
-      const newParams = { ...params, ...values, page: 1 };
+      const newParams = { ...params, ...values, page: 1, query: values.query?.trim(), };
       const queryParam = generateQuery(newParams);
       const currentParam = generateQuery(params);
       if (currentParam === queryParam) {

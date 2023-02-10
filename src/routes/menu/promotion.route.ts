@@ -1,7 +1,7 @@
 import {
   PriceRulesPermission,
   PromotionReleasePermission,
-  PROMOTION_GIFT_PERMISSIONS,
+  PROMOTION_GIFT_PERMISSIONS, PROMOTION_CAMPAIGN_PERMISSIONS,
 } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
@@ -38,6 +38,11 @@ const GiftList = React.lazy(() => import("screens/promotion/gift/GiftList"));
 const GiftCreate = React.lazy(() => import("screens/promotion/gift/create/GiftCreate"));
 const GiftDetail = React.lazy(() => import("screens/promotion/gift/detail/GiftDetail"));
 const GiftUpdate = React.lazy(() => import("screens/promotion/gift/update/GiftUpdate"));
+
+const PromotionCampaignList = React.lazy(() => import("screens/promotion/campaign/PromotionCampaignList"));
+const PromotionCampaignCreate = React.lazy(() => import("screens/promotion/campaign/create/PromotionCampaignCreate"));
+const PromotionCampaignDetail = React.lazy(() => import("screens/promotion/campaign/detail/PromotionCampaignDetail"));
+const PromotionCampaignUpdate = React.lazy(() => import("screens/promotion/campaign/update/PromotionCampaignUpdate"));
 
 const promotion: Array<RouteMenu> = [
   {
@@ -265,6 +270,55 @@ const promotion: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         permissions: [PROMOTION_GIFT_PERMISSIONS.UPDATE],
+      },
+    ],
+  },
+  {
+    path: `${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}`,
+    exact: true,
+    title: "Quản lý chiến dịch",
+    icon: "icon-dot",
+    component: PromotionCampaignList,
+    key: "promotion-campaigns",
+    isShow: true,
+    header: null,
+    permissions: [PROMOTION_CAMPAIGN_PERMISSIONS.READ],
+    subMenu: [
+      {
+        path: `${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}/create`,
+        exact: true,
+        title: "Tạo chiến dịch",
+        icon: "icon-dot",
+        component: PromotionCampaignCreate,
+        key: "promotion-campaign-create",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [PROMOTION_CAMPAIGN_PERMISSIONS.CREATE],
+      },
+      {
+        path: `${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}/:id`,
+        exact: true,
+        title: "Chi tiết chiến dịch",
+        icon: "icon-dot",
+        component: PromotionCampaignDetail,
+        key: "promotion-campaigns-detail",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [PROMOTION_CAMPAIGN_PERMISSIONS.READ],
+      },
+      {
+        path: `${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}/:id/update`,
+        exact: true,
+        title: "Sửa chiến dịch",
+        icon: "icon-dot",
+        component: PromotionCampaignUpdate,
+        key: "promotion-campaigns-update",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [PROMOTION_CAMPAIGN_PERMISSIONS.UPDATE],
       },
     ],
   },

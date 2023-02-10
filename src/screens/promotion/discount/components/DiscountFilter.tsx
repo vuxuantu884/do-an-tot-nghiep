@@ -493,6 +493,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
         starts_date_max: startDateTo,
         ends_date_min: endDateFrom,
         ends_date_max: endDateTo,
+        query: values.query?.trim(),
       };
       onFilter && onFilter(formValues);
     },
