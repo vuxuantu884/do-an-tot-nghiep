@@ -80,12 +80,6 @@ export interface FileUrl {
   url: string;
 }
 
-export interface AttachedFile {
-  url: string;
-  name: string;
-  id: number;
-}
-
 export interface InventoryAdjustmentDetailItem {
   id: number;
   code: string;
@@ -107,7 +101,7 @@ export interface InventoryAdjustmentDetailItem {
   total_amount: number;
   audited_by: [];
   audited_bys?: [];
-  attached_files: AttachedFile[];
+  attached_files: [];
   list_attached_files: [];
   note: string;
   audited_date: Date;
@@ -133,14 +127,4 @@ export interface IncurredAuditRecordType {
   on_hand: number;
   transaction_date: string;
   document_type: string;
-}
-
-export interface DataAddAttachedFile {
-  name: string;
-  url?: string;
-}
-
-export interface DownloadAttachedFile {
-  url: string;
-  new_url: string;
 }
