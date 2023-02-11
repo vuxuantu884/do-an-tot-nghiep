@@ -3,8 +3,6 @@ import BaseAxios from "../../../base/base.axios";
 import { ApiConfig } from "../../../config/api.config";
 import { generateQuery } from "utils/AppUtils";
 import {
-  DataAddAttachedFile,
-  DownloadAttachedFile,
   InventoryAdjustmentDetailItem,
   InventoryAdjustmentSearchQuery,
   LineItemAdjustment,
@@ -134,26 +132,6 @@ const checkIncurredRecordApi = (id?: number): Promise<BaseResponse<string>> => {
   return BaseAxios.get(`${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/intervening-transaction`);
 };
 
-const addAttachedFile = (adjustmentId: number | undefined, data: DataAddAttachedFile): Promise<BaseResponse<InventoryAdjustmentDetailItem>> => {
-  let link = `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${adjustmentId}/attached-file`;
-  return BaseAxios.post(link, data);
-};
-
-const updateAttachedFile = (adjustmentId: number | undefined, data: DataAddAttachedFile, fileId: number): Promise<BaseResponse<string>> => {
-  let link = `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${adjustmentId}/attached-file/${fileId}`;
-  return BaseAxios.put(link, data);
-};
-
-const renameAttachedFileApi = (params: DownloadAttachedFile): Promise<BaseResponse<string>> => {
-  let link = `${ApiConfig.CORE}/file`;
-  return BaseAxios.get(link, { params });
-};
-
-const deleteAttachedFile = (adjustmentId: number | undefined, fileId: number | null): Promise<BaseResponse<string>> => {
-  let link = `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${adjustmentId}/attached-file/${fileId}`;
-  return BaseAxios.delete(link);
-};
-
 export {
   getListInventoryAdjustmentApi,
   getDetailInventorAdjustmentGetApi,
@@ -172,9 +150,5 @@ export {
   cancelInventoryTicket,
   getPrintProductService,
   getInventoryReportApi,
-  checkIncurredRecordApi,
-  addAttachedFile,
-  updateAttachedFile,
-  deleteAttachedFile,
-  renameAttachedFileApi
+  checkIncurredRecordApi
 };
