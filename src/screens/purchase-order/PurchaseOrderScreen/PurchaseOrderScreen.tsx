@@ -47,7 +47,7 @@ const PurchaseOrderScreen: React.FC<RouteComponentProps> = (props) => {
         extra={
           <Row>
             <Space>
-              {/* {activeTab === PurchaseOrderTabUrl.RETURN && (
+              {activeTab === PurchaseOrderTabUrl.RETURN && (
                 <Button
                   className="light"
                   size="large"
@@ -58,7 +58,7 @@ const PurchaseOrderScreen: React.FC<RouteComponentProps> = (props) => {
                 >
                   Xuất file chi tiết
                 </Button>
-              )} */}
+              )}
               {activeTab === PurchaseOrderTabUrl.LIST && (
                 <AuthWrapper acceptPermissions={[PurchaseOrderPermission.create]}>
                   <ButtonCreate
