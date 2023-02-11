@@ -586,7 +586,7 @@ const GeneralCreate = (props: any) => {
                     }
                   >
                     {listChannel?.map((store: any, index: number) => (
-                      <Option key={index} value={store.name}>
+                      <Option key={index} value={store.code}>
                         {store.name}
                       </Option>
                     ))}

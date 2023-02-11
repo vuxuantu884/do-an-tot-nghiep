@@ -12,6 +12,8 @@ import CustomerConditionDetail from "screens/promotion/shared/customer-condition
 import { PromotionGift } from "model/promotion/gift.model";
 import { SourceSearchQuery } from "model/request/source.request";
 import { actionFetchListOrderSources } from "domain/actions/settings/order-sources.action";
+import { ChannelResponse } from "model/response/product/channel.response";
+import { getListChannelRequest } from "domain/actions/order/order.action";
 
 interface Props {
   data: PriceRule | PromotionGift;
@@ -22,6 +24,7 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
   const dispatch = useDispatch();
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
   const renderer = ({ days, hours, minutes, seconds, completed }: any) => {
     if (completed) {
       // Render a complete state
@@ -65,6 +68,7 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
 
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
+    dispatch(getListChannelRequest(setListChannel));
   }, [dispatch]);
 
   useEffect(() => {
@@ -159,9 +163,12 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
                   padding: "0 16px",
                 }}
               >
-                {data?.prerequisite_sales_channel_names.map((name) => (
-                  <li key={name}>{name}</li>
-                ))}
+                {listChannel &&
+                  data.prerequisite_sales_channel_names.map((code) => (
+                    <li key={code}>{listChannel.find(
+                      (channel) => channel.code?.toUpperCase() === code?.toUpperCase())?.name}</li>
+                  ))
+                }
               </ul>
             ) : (
               "Áp dụng toàn bộ"

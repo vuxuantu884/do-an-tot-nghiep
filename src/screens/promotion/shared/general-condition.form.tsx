@@ -255,7 +255,7 @@ function GeneralConditionForm({
                 }
               >
                 {listChannel?.map((channel: any) => (
-                  <Option value={channel.name} key={channel.name}>
+                  <Option value={channel.code} key={channel.code}>
                     {channel.name}
                   </Option>
                 ))}
