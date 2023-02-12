@@ -7,7 +7,6 @@ import NumberInput from "component/custom/number-input.custom";
 import ModalConfirm from "component/modal/ModalConfirm";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
-import { promotionUtils } from "component/order/promotion.utils";
 import CreateOrderSidebarOrderExtraInformation from "component/order/Sidebar/CreateOrderSidebarOrderExtraInformation";
 import CreateOrderSidebarOrderInformation from "component/order/Sidebar/CreateOrderSidebarOrderInformation";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
@@ -22,7 +21,6 @@ import {
   StoreDetailCustomAction,
 } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
-import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
@@ -79,6 +77,7 @@ import {
   LineItemCreateReturnSuggestDiscountResponseModel,
   SuggestDiscountResponseModel,
 } from "model/response/order/promotion.response";
+import { SourceResponse } from "model/response/order/source.response";
 import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TiWarningOutline } from "react-icons/ti";
@@ -135,8 +134,8 @@ import {
 } from "utils/Order.constants";
 import {
   changeTypeQrCode,
-  checkIfEcommerceByOrderChannelCodeUpdateOrder,
-  checkIfEcommerceByOrderChannelCode,
+  checkIfECommerceByOrderChannelCodeUpdateOrder,
+  checkIfECommerceByOrderChannelCode,
   checkIfWebAppByOrderChannelCode,
   findPaymentMethodByCode,
   removeDiscountLineItem,
@@ -160,6 +159,7 @@ let typeButton = "";
 let isPrint = false;
 var barcode = "";
 
+let initItemSuggestDiscounts: LineItemCreateReturnSuggestDiscountResponseModel[] = [];
 const ScreenReturnCreate = (props: PropTypes) => {
   const isUserCanCreateOrder = useRef(true);
   const printType = {
@@ -185,7 +185,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
   let queryOrderID = query.get("orderID");
   let queryOrderReturnType = query.get("type"); // trả hàng online hay offline
   const stores = useFetchStores();
-  const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
 
   let orderId = queryOrderID ? parseInt(queryOrderID) : undefined;
   let orderReturnType = queryOrderReturnType ? queryOrderReturnType.toUpperCase() : "";
@@ -351,7 +350,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       billing_address: null,
       payments: [],
       channel_id: null,
-      automatic_discount: !checkIfEcommerceByOrderChannelCodeUpdateOrder(OrderDetail?.channel_code),
+      automatic_discount: !checkIfECommerceByOrderChannelCodeUpdateOrder(OrderDetail?.channel_code),
     };
   }, [userReducer.account?.code, OrderDetail]);
 
@@ -1037,7 +1036,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   const isShowDiscountByInsert = useMemo(() => {
     return (
-      checkIfEcommerceByOrderChannelCode(OrderDetail?.channel_code) ||
+      checkIfECommerceByOrderChannelCode(OrderDetail?.channel_code) ||
       checkIfWebAppByOrderChannelCode(OrderDetail?.channel_code)
     );
   }, [OrderDetail?.channel_code]);
@@ -1907,8 +1906,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   form={form}
                   items={listExchangeProducts}
                   setItems={setListExchangeProducts}
-                  inventoryResponse={inventoryResponse}
-                  setInventoryResponse={setInventoryResponse}
                   totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                   returnOrderInformation={{
                     totalAmountReturn: totalAmountReturnProducts,
@@ -2538,15 +2535,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
   }, [OrderDetail, OrderDetail?.source_id, form, shipmentMethod]);
 
   useEffect(() => {
-    if (listExchangeProducts && listExchangeProducts != null && listExchangeProducts?.length > 0) {
-      let variant_id: Array<number> = [];
-      listExchangeProducts.forEach((element) => variant_id.push(element.variant_id));
-      dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, listExchangeProducts?.length]);
-
-  useEffect(() => {
     setShipmentMethod(ShipmentMethodOption.PICK_AT_STORE);
   }, []);
 
@@ -2640,7 +2628,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     SuggestDiscountResponseModel[]
   >([]);
 
-  const initItemSuggestDiscounts = useMemo(() => {
+  useEffect(() => {
     let result: LineItemCreateReturnSuggestDiscountResponseModel[] = [];
     result = listReturnProducts
       .filter((single) => single.discount_items.length > 0 && single.quantity > 0)
@@ -2666,30 +2654,14 @@ const ScreenReturnCreate = (props: PropTypes) => {
           quantity: product.quantity,
         };
       });
-    return result;
+    initItemSuggestDiscounts = result;
+    setLeftItemSuggestDiscounts(initItemSuggestDiscounts);
   }, [listReturnProducts]);
 
-  const isEcommerceOrder = checkIfEcommerceByOrderChannelCode(OrderDetail?.channel_code);
+  const isEcommerceOrder = checkIfECommerceByOrderChannelCode(OrderDetail?.channel_code);
 
-  let initSuggestDiscountValue = useMemo(() => {
-    return [
-      {
-        price_rule_id: 2571,
-        title: "Sale 10k",
-        value_type: "FIXED_AMOUNT",
-        value: 15000,
-        allocation_limit: null,
-        allocation_count: 1,
-        is_registered: false,
-      },
-    ];
-  }, []);
   console.log("listReturnProducts", listReturnProducts);
   console.log("leftItemSuggestDiscounts", leftItemSuggestDiscounts);
-
-  useEffect(() => {
-    setLeftItemSuggestDiscounts(initItemSuggestDiscounts);
-  }, [initItemSuggestDiscounts]);
 
   useEffect(() => {
     const calculateDistributedOrderDiscount = () => {

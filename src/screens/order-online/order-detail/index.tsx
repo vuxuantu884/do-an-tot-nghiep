@@ -81,7 +81,6 @@ import {
   handleFetchApiError,
   isFetchApiSuccessful,
   isOrderFromPOS,
-  sortFulfillments,
 } from "utils/AppUtils";
 import {
   FulFillmentStatus,
@@ -91,6 +90,7 @@ import {
   POS,
   ShipmentMethodOption,
 } from "utils/Constants";
+import { sortFulfillments } from "utils/fulfillmentUtils";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 import {
   checkIfExpiredOrCancelledPayment,

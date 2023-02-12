@@ -26,7 +26,14 @@ import {
   getOrderTotalPaymentAmount,
   getTotalQuantity,
 } from "utils/AppUtils";
-import { COD, OrderStatus, PaymentMethodCode, POS, ShipmentMethod } from "utils/Constants";
+import {
+  COD,
+  OFFSET_HEADER_UNDER_NAVBAR,
+  OrderStatus,
+  PaymentMethodCode,
+  POS,
+  ShipmentMethod,
+} from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 
@@ -49,7 +56,6 @@ import { getVariantApi, searchVariantsApi } from "service/product/product.servic
 import { ORDER_SUB_STATUS, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
 import {
   checkIfMomoTypePayment,
-  getFulfillmentActive,
   getLink,
   getReturnMoneyStatusColor,
   getReturnMoneyStatusText,
@@ -75,6 +81,7 @@ import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
 import { promotionUtils } from "component/order/promotion.utils";
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import useFetchStores from "hook/useFetchStores";
+import { getFulfillmentActive } from "utils/fulfillmentUtils";
 
 const PAYMENT_ICON = [
   {
@@ -1513,7 +1520,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         isLoading={tableLoading}
         showColumnSetting={true}
         scroll={{ x: 1550 }}
-        sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+        sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
         pagination={{
           pageSize: purchaseHistoryData.metadata?.limit,
           total: purchaseHistoryData.metadata?.total,

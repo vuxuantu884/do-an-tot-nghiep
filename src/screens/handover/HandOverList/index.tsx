@@ -335,24 +335,25 @@ const HandoverScreen: React.FC = () => {
   }, []);
 
   const handlePrintPack = useCallback(
-    (type: string) => {
+    async (type: string) => {
       if (selected.length !== 0) {
         dispatch(showLoading());
 
         const ids: number[] = [...selected].map((p) => {
           return Number(p);
         });
-        printHandOverService(ids, type).then((response) => {
-          if (isFetchApiSuccessful(response)) {
-            dispatch(hideLoading());
-            if (response.data) {
-              const result: string[] = response.data.map((p: any) => p.html_content);
-              setHtmlContent(result);
-            }
+        try {
+          const response = await printHandOverService(ids, type);
+          if (response.errors && response.errors.length) {
+            response.errors.forEach((error) => {
+              showError(error);
+            });
           } else {
-            handleFetchApiError(response, "In biên bản bàn giao", dispatch);
+            const result: string[] = response.data.map((p: any) => p.html_content);
+            setHtmlContent(result);
           }
-        });
+        } catch {}
+        dispatch(hideLoading());
       }
     },
     [dispatch, selected],

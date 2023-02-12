@@ -7,7 +7,7 @@ import { InventoryTransferTabWrapper } from "./styles";
 import {
   InventoryTransferDetailItem,
   InventoryTransferLog,
-  InventoryTransferLogSearchQuery
+  InventoryTransferLogSearchQuery,
 } from "model/inventory/transfer";
 import CustomTable from "component/table/CustomTable";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -23,6 +23,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import CustomPagination from "component/table/CustomPagination";
 import { StoreResponse } from "model/core/store.model";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const ACTIONS_INDEX = {
   ADD_FORM_EXCEL: 1,
@@ -112,16 +113,17 @@ const actions: Array<MenuAction> = [
 ];
 
 type HistoryInventoryTransferTabProps = {
-  accountStores?: Array<StoreResponse>;
+  accountStores?: Array<StoreResponse> | null;
   stores?: Array<StoreResponse>;
   accounts?: Array<AccountResponse>;
+  defaultAccountProps?: any;
   setAccounts?: (e: any) => any;
 };
 
 const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = (
   props: HistoryInventoryTransferTabProps,
 ) => {
-  const { accounts, stores, setAccounts } = props;
+  const { accounts, stores, setAccounts, defaultAccountProps } = props;
   const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
   const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
@@ -303,41 +305,43 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
-  const onSelectedChange = useCallback((selectedRow: Array<InventoryTransferDetailItem>, selected: boolean | undefined, changeRow: any) => {
-    const newSelectedRowKeys = changeRow.map((row: any) => row.id);
+  const onSelectedChange = useCallback(
+    (
+      selectedRow: Array<InventoryTransferDetailItem>,
+      selected: boolean | undefined,
+      changeRow: any,
+    ) => {
+      const newSelectedRowKeys = changeRow.map((row: any) => row.id);
 
-    if (selected) {
-      setSelectedRowKeys([
-        ...selectedRowKeys,
-        ...newSelectedRowKeys
-      ]);
-      setSelectedRowData([
-        ...selectedRowData,
-        ...changeRow
-      ]);
-      return;
-    }
+      if (selected) {
+        setSelectedRowKeys([...selectedRowKeys, ...newSelectedRowKeys]);
+        setSelectedRowData([...selectedRowData, ...changeRow]);
+        return;
+      }
 
-    const newSelectedRowKeysByDeselected = selectedRowKeys.filter((item) => {
-      const findIndex = changeRow.findIndex((row: any) => row.id === item);
+      const newSelectedRowKeysByDeselected = selectedRowKeys.filter((item) => {
+        const findIndex = changeRow.findIndex((row: any) => row.id === item);
 
-      return findIndex === -1
-    });
+        return findIndex === -1;
+      });
 
-    const newSelectedRowByDeselected = selectedRowData.filter((item) => {
-      const findIndex = changeRow.findIndex((row: any) => row.id === item.id);
+      const newSelectedRowByDeselected = selectedRowData.filter((item) => {
+        const findIndex = changeRow.findIndex((row: any) => row.id === item.id);
 
-      return findIndex === -1
-    });
+        return findIndex === -1;
+      });
 
-    setSelectedRowKeys(newSelectedRowKeysByDeselected);
-    setSelectedRowData(newSelectedRowByDeselected);
-  }, [selectedRowData, selectedRowKeys]);
+      setSelectedRowKeys(newSelectedRowKeysByDeselected);
+      setSelectedRowData(newSelectedRowByDeselected);
+    },
+    [selectedRowData, selectedRowKeys],
+  );
 
   return (
     <InventoryTransferTabWrapper>
       <InventoryListLogFilters
         accounts={accounts}
+        defaultAccountProps={defaultAccountProps}
         params={params}
         stores={stores}
         actions={actions}
@@ -363,9 +367,11 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
         isLoading={tableLoading}
         selectedRowKey={selectedRowKeys}
         scroll={{ x: 1300 }}
-        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
         pagination={false}
-        onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
+        onSelectedChange={(selectedRows, selected, changeRow) =>
+          onSelectedChange(selectedRows, selected, changeRow)
+        }
         onShowColumnSetting={() => setShowSettingColumn(true)}
         dataSource={data.items}
         columns={columnFinal}

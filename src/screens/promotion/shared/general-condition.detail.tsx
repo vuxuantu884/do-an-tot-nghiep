@@ -1,6 +1,5 @@
 import { Card, Col, Row } from "antd";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { getListSourceRequest } from "domain/actions/product/source.action";
 import { StoreResponse } from "model/core/store.model";
 import { PriceRule } from "model/promotion/price-rules.model";
 import { SourceResponse } from "model/response/order/source.response";
@@ -11,6 +10,9 @@ import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
 import CustomerConditionDetail from "screens/promotion/shared/customer-condition.detail";
 import { PromotionGift } from "model/promotion/gift.model";
+import { SourceSearchQuery } from "model/request/source.request";
+import { actionFetchListOrderSources } from "domain/actions/settings/order-sources.action";
+
 interface Props {
   data: PriceRule | PromotionGift;
 }
@@ -63,8 +65,20 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
 
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
-    dispatch(getListSourceRequest(setListSource));
   }, [dispatch]);
+
+  useEffect(() => {
+    const query: SourceSearchQuery = {
+      limit: data?.prerequisite_order_source_ids?.length || 10000,
+      ids: data?.prerequisite_order_source_ids
+    };
+    dispatch(actionFetchListOrderSources(query, (sourceResponse: any) => {
+      if (sourceResponse && sourceResponse.items) {
+        setListSource(sourceResponse.items);
+      }
+    }));
+  }, [data?.prerequisite_order_source_ids, dispatch]);
+
   return (
     <Col span={24} md={6}>
       {/* Thời gian áp dụng */}

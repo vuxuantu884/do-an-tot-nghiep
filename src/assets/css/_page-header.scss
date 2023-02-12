@@ -1,11 +1,10 @@
 // @import "variable";
 .page-header {
-  height: 90px;
   top: 0;
   right: 0;
   left: 255px;
   background: $background-color;
-  padding: 18px 0px;
+  padding: 12px 0px;
   transition: all 0.1s;
 
   &-heading {
@@ -14,7 +13,7 @@
 
     &-title {
       font-size: 20px;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
       font-weight: bold;
       white-space: nowrap;
       overflow: hidden;
@@ -22,33 +21,6 @@
 
     &-left {
       width: 100%;
-      .ant-breadcrumb {
-        span {
-          .breadcrumb_hover:hover {
-            color: $primary-color;
-          }
-          .ant-breadcrumb-link {
-            word-break: break-all;
-            color: #222247;
-            a {
-              color: #222247;
-            }
-
-            // &:hover{
-            //   color: $primary-color;
-            //   a{
-            //     color: $primary-color;
-            //   }
-            // }
-          }
-          &:last-child {
-            .ant-breadcrumb-link,
-            a {
-              color: #222222;
-            }
-          }
-        }
-      }
     }
 
     &-extra {

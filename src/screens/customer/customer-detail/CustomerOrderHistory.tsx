@@ -36,16 +36,18 @@ import {
   handleFetchApiError,
   isFetchApiSuccessful,
 } from "utils/AppUtils";
-import { COD, OrderStatus, PaymentMethodCode, POS, ShipmentMethod } from "utils/Constants";
+import {
+  COD,
+  OFFSET_HEADER_UNDER_NAVBAR,
+  OrderStatus,
+  PaymentMethodCode,
+  POS,
+  ShipmentMethod,
+} from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
-import {
-  checkIfMomoTypePayment,
-  getFulfillmentActive,
-  getLink,
-  getTotalAmountBeforeDiscount,
-} from "utils/OrderUtils";
+import { checkIfMomoTypePayment, getLink, getTotalAmountBeforeDiscount } from "utils/OrderUtils";
 import { showSuccess } from "utils/ToastUtils";
 
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
@@ -68,6 +70,7 @@ import iconWeight from "screens/order-online/component/OrderList/ListTable/Order
 import IconStore from "screens/order-online/component/OrderList/ListTable/OrderTable/images/store.svg";
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import giftIcon from "assets/icon/gift.svg";
+import { getFulfillmentActive } from "utils/fulfillmentUtils";
 
 type Props = {
   customer?: CustomerResponse;
@@ -1257,7 +1260,7 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
             bordered
             showColumnSetting={true}
             scroll={{ x: 1550 }}
-            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+            sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
             pagination={{
               pageSize: purchaseHistoryData.metadata?.limit,
               total: purchaseHistoryData.metadata?.total,

@@ -2,7 +2,7 @@ import { Layout } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import { Redirect, useHistory } from "react-router";
 import LoadingScreen from "screens/loading.screen";
-import SidebarContainer from "./side-bar.container";
+import SidebarContainer from "./SidebarContainer";
 import { useDispatch, useSelector } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { getBootstrapAction } from "domain/actions/content/bootstrap.action";

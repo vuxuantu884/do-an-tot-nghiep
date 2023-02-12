@@ -122,16 +122,19 @@ import {
   handleFetchApiError,
   isFetchApiSuccessful,
   isNullOrUndefined,
-  sortFulfillments,
 } from "utils/AppUtils";
 
-import { COLUMN_CONFIG_TYPE, FulFillmentStatus, OrderStatus } from "utils/Constants";
+import {
+  COLUMN_CONFIG_TYPE,
+  FulFillmentStatus,
+  OFFSET_HEADER_UNDER_NAVBAR,
+  OrderStatus,
+} from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { dangerColor, primaryColor, successColor } from "utils/global-styles/variables";
 import { ORDER_EXPORT_TYPE, ORDER_SUB_STATUS } from "utils/Order.constants";
 import {
   checkIfFulfillmentCancelled,
-  getFulfillmentActive,
   getReturnStoreFromOrderActiveFulfillment,
   getTrackingCodeFulfillment,
 } from "utils/OrderUtils";
@@ -149,6 +152,7 @@ import ConfirmPreparationShopeeProductModal from "./component/ConfirmPreparation
 import PreparationShopeeProductModal from "./component/PreparationShopeeProductModal";
 import ReportPreparationShopeeProductModal from "./component/ReportPreparationShopeeProductModal";
 import useFetchStores from "hook/useFetchStores";
+import { sortFulfillments } from "utils/fulfillmentUtils";
 
 const BATCHING_SHIPPING_TYPE = {
   SELECTED: "SELECTED",
@@ -2338,7 +2342,7 @@ const EcommerceOrders: React.FC = () => {
                   scroll={{
                     x: (2200 * columnFinal.length) / (columns.length ? columns.length : 1),
                   }}
-                  sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+                  sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
                   pagination={
                     tableLoading
                       ? false

@@ -40,7 +40,7 @@ import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
 import NumberFormat from "react-number-format";
 import ExportCustomerFile from "screens/customer/export-file/ExportCustomerFile";
-import { COLUMN_CONFIG_TYPE } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 
@@ -570,7 +570,7 @@ const Customer = () => {
                   bordered
                   isLoading={isLoading}
                   scroll={{ x: 0 }}
-                  sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+                  sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
                   pagination={{
                     pageSize: data.metadata?.limit,
                     total: data.metadata?.total,

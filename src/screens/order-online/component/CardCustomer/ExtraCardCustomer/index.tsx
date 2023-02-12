@@ -21,7 +21,7 @@ import { fullTextSearch } from "utils/StringUtils";
 
 type Props = {
   orderDetail?: OrderResponse | null;
-  setOrderSourceId?: (value: number) => void;
+  setOrderSource?: (value: SourceResponse | null) => void;
   isDisableSelectSource?: boolean;
   initialForm?: OrderRequest;
   updateOrder?: boolean;
@@ -29,7 +29,7 @@ type Props = {
 
 let initListSource: SourceResponse[] = [];
 const ExtraCardCustomer: React.FC<Props> = (props: Props) => {
-  const { orderDetail, initialForm, updateOrder, isDisableSelectSource, setOrderSourceId } = props;
+  const { orderDetail, initialForm, updateOrder, isDisableSelectSource, setOrderSource } = props;
   const dispatch = useDispatch();
   const sourceInputRef = useRef();
 
@@ -202,6 +202,14 @@ const ExtraCardCustomer: React.FC<Props> = (props: Props) => {
       setListSource(initListSource);
     }
   }, []);
+
+  const handleSelectedOrderSource = useCallback(
+    (sourceID: number) => {
+      const _source = listSource.find((p) => p.id === sourceID);
+      setOrderSource && setOrderSource(_source || null);
+    },
+    [listSource, setOrderSource],
+  );
   const renderSelectOrderSource = () => {
     return (
       <div>
@@ -233,9 +241,7 @@ const ExtraCardCustomer: React.FC<Props> = (props: Props) => {
             placeholder="Nguồn đơn hàng"
             notFoundContent="Không tìm thấy kết quả"
             filterOption={(input, option: any) => fullTextSearch(input, option?.children)}
-            onChange={(value) => {
-              setOrderSourceId && setOrderSourceId(value);
-            }}
+            onChange={handleSelectedOrderSource}
             disabled={isDisableSelectSource && false} // mở update
           >
             {listSource.map((item, index) => (

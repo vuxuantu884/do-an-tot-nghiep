@@ -60,13 +60,13 @@ import {
   isFetchApiSuccessful,
   isNormalTypeVariantItem,
   isOrderFromPOS,
-  sortFulfillments,
 } from "utils/AppUtils";
 import {
   COD,
   COLUMN_CONFIG_TYPE,
   FACEBOOK,
   FulFillmentStatus,
+  OFFSET_HEADER_UNDER_NAVBAR,
   OrderStatus,
   PaymentMethodCode,
   POS,
@@ -87,7 +87,6 @@ import {
   checkIfFulfillmentCancelled,
   checkIfMomoTypePayment,
   checkIfOrderHasNotFinishedPaymentMomo,
-  getFulfillmentActive,
   getLink,
   getReturnStoreFromOrderActiveFulfillment,
   getTotalAmountBeforeDiscount,
@@ -109,6 +108,7 @@ import IconStore from "./images/store.svg";
 import OrderMapHandOver from "./order-map-hand-over";
 import { nameQuantityWidth, StyledComponent } from "./styles";
 import giftIcon from "assets/icon/gift.svg";
+import { getFulfillmentActive, sortFulfillments } from "utils/fulfillmentUtils";
 
 type PropTypes = {
   tableLoading: boolean;
@@ -984,7 +984,7 @@ function OrdersTable(props: PropTypes) {
         key: "goods_receipt",
         render: (value, record: OrderModel, index) => {
           if (record.handOvers) {
-            return <OrderMapHandOver orderDetail={record} handOvers={record.handOvers} />;
+            return <OrderMapHandOver handOvers={record.handOvers} />;
           } else {
             return <span>-</span>;
           }
@@ -1816,7 +1816,7 @@ function OrdersTable(props: PropTypes) {
         scroll={{
           x: (2200 * columnFinal.length) / (columns.length ? columns.length : 1),
         }}
-        sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+        sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
         pagination={{
           pageSize: metadata.limit,
           total: metadata.total,

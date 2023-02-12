@@ -23,11 +23,11 @@ import GeneralConditionForm from "screens/promotion/shared/general-condition.for
 import DiscountUpdateForm from "../components/discount-form";
 import DiscountProvider, { DiscountContext } from "../components/discount-provider";
 import { DiscountStyled } from "../discount-style";
-import AuthWrapper from "component/authorization/AuthWrapper";
 import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import _ from "lodash";
 import { PROMO_TYPE } from "utils/Constants";
+import useAuthorization from "hook/useAuthorization";
 
 const DiscountReplicate = () => {
   const dispatch = useDispatch();
@@ -36,8 +36,14 @@ const DiscountReplicate = () => {
 
   const { id } = useParams<{ id: string }>();
   const idNumber = parseInt(id);
-  let activeDiscount = true;
 
+  /** phân quyền */
+  const [allowActiveDiscount] = useAuthorization({
+    acceptPermissions: [PriceRulesPermission.ACTIVE],
+  });
+  /** */
+
+  const [isActiveDiscount, setIsActiveDiscount] = useState(false);
   const [dataVariants, setDataVariants] = useState<ProductEntitlements[]>([]);
 
   const [isAllStore, setIsAllStore] = useState(true);
@@ -135,7 +141,7 @@ const DiscountReplicate = () => {
   /**
    * Replicate discount
    */
-  const handleSubmit = (values: any) => {
+  const handleSubmit = useCallback((values: any) => {
     try {
       if (values.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD) {
         values.entitlements[0].is_apply_all = discountProductHaveExclude ? false : discountAllProduct;
@@ -153,7 +159,7 @@ const DiscountReplicate = () => {
         discountAllProduct,
         discountProductHaveExclude,
       );
-      body.activated = activeDiscount;
+      body.activated = isActiveDiscount;
       dispatch(showLoading());
       dispatch(
         createPriceRuleAction(body, (data) => {
@@ -168,15 +174,21 @@ const DiscountReplicate = () => {
       dispatch(hideLoading());
       showError(error.message);
     }
-  };
+  }, [
+    discountAllProduct,
+    discountProductHaveExclude,
+    dispatch,
+    history,
+    isActiveDiscount
+  ]);
 
   const handleSaveAndActive = () => {
-    activeDiscount = true;
+    setIsActiveDiscount(true);
     form.submit();
   };
 
   const save = () => {
-    activeDiscount = false;
+    setIsActiveDiscount(false);
     form.submit();
   };
 
@@ -304,22 +316,23 @@ const DiscountReplicate = () => {
             back="Quay lại danh sách chiết khấu"
             backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`)}
             rightComponent={
-              <AuthWrapper acceptPermissions={[PriceRulesPermission.CREATE]}>
+              <>
                 <Button
                   onClick={() => save()}
                   style={{
-                    marginLeft: ".75rem",
-                    marginRight: ".75rem",
+                    marginRight: "12px",
                     borderColor: "#2a2a86",
                   }}
                   type="ghost"
                 >
                   Lưu
                 </Button>
-                <Button type="primary" onClick={() => handleSaveAndActive()}>
-                  Lưu và kích hoạt
-                </Button>
-              </AuthWrapper>
+                {allowActiveDiscount &&
+                  <Button type="primary" onClick={() => handleSaveAndActive()}>
+                    Lưu và kích hoạt
+                  </Button>
+                }
+              </>
             }
           />
         </Form>

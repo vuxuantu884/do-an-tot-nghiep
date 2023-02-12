@@ -17,9 +17,6 @@ export const InventoryBalanceStyle = styled.div`
       white-space: pre-line;
       padding: 4px;
     }
-    .ant-table-thead tr:nth-child(2) th {
-      font-weight: normal;
-    }
   }
   .mb-2 {
     margin-bottom: 1rem;

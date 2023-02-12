@@ -22,7 +22,7 @@ import "./styles.scss";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
 import PackDetailBottomBar from "./detail/pack-detail-bottom-bar";
-import { getFulfillmentActive } from "utils/OrderUtils";
+import { getFulfillmentActive } from "utils/fulfillmentUtils";
 
 type PackParam = {
   id: string;

@@ -150,5 +150,5 @@ export {
   cancelInventoryTicket,
   getPrintProductService,
   getInventoryReportApi,
-  checkIncurredRecordApi,
+  checkIncurredRecordApi
 };

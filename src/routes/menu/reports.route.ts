@@ -13,24 +13,6 @@ const ReadTemplateAnalytics = React.lazy(
 const CustomerVisitors = React.lazy(
   () => import("screens/reports/analytics/shared/customer-visitors"),
 );
-const KeyDriverOffline = React.lazy(() => import("screens/reports/key-driver-offline"));
-const KeyDriverOfflineStore = React.lazy(
-  () => import("screens/reports/key-driver-offline/key-driver-offline-store"),
-);
-const KeyDriverOfflineStaff = React.lazy(
-  () => import("screens/reports/key-driver-offline/key-driver-offline-staff"),
-);
-
-const KeyDriverOnline = React.lazy(() => import("screens/reports/key-driver-online"));
-const KeyDriverOnlineCounter = React.lazy(
-  () => import("screens/reports/key-driver-online/key-counter"),
-);
-
-const PotentialImporting = React.lazy(
-  () => import("screens/reports/key-driver-offline/potential-importing"),
-);
-
-const KeyDriverOfflineV2 = React.lazy(() => import("screens/reports/key-driver-offline-v2"));
 
 const InventoryBalance = React.lazy(() => import("screens/reports/inventory-balance"));
 
@@ -184,91 +166,6 @@ const reports: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-      },
-      {
-        path: KDOfflineV1Url,
-        exact: true,
-        title: "Báo cáo Kết quả kinh doanh offline",
-        icon: "icon-dot",
-        component: KeyDriverOffline,
-        key: "menureport05",
-        isShow: true,
-        header: null,
-        permissions: [ReportPermissions.reports_view_report_offline],
-        subMenu: [
-          {
-            path: `${KDOfflineV1Url}/:asmName`,
-            exact: true,
-            title: "Báo cáo Kết quả kinh doanh offline các cửa hàng",
-            icon: "icon-dot",
-            component: KeyDriverOfflineStore,
-            key: "submenureport051",
-            isShow: true,
-            header: null,
-            subMenu: [],
-          },
-          {
-            path: `${KDOfflineV1Url}/:asmName/:storeName`,
-            exact: true,
-            title: "Báo cáo Kết quả kinh doanh offline các NV cửa hàng",
-            icon: "icon-dot",
-            component: KeyDriverOfflineStaff,
-            key: "submenureport052",
-            isShow: true,
-            header: null,
-            subMenu: [],
-          },
-        ],
-      },
-      {
-        path: `${UrlConfig.KEY_DRIVER_OFFLINE}`,
-        exact: true,
-        title: "Báo cáo Kết quả kinh doanh offline v2",
-        icon: "icon-dot",
-        component: KeyDriverOfflineV2,
-        key: "menureport052",
-        isShow: true,
-        header: null,
-        permissions: [ReportPermissions.reports_view_report_offline],
-        subMenu: [
-          {
-            path: `${UrlConfig.KEY_DRIVER_OFFLINE}/potential-importing`,
-            exact: true,
-            title: "Nhập file khách hàng tiềm năng",
-            icon: "icon-dot",
-            component: PotentialImporting,
-            key: "submenureport053",
-            isShow: true,
-            header: null,
-            permissions: [ReportPermissions.reports_view_report_offline],
-            subMenu: [],
-          },
-        ],
-      },
-      {
-        path: `${UrlConfig.KEY_DRIVER_ONLINE}`,
-        exact: true,
-        title: "Báo cáo Kết quả kinh doanh online",
-        icon: "icon-dot",
-        component: KeyDriverOnline,
-        key: "menureport6",
-        isShow: true,
-        header: null,
-        permissions: [ReportPermissions.reports_view_report_online],
-        subMenu: [
-          {
-            path: `${UrlConfig.KEY_DRIVER_ONLINE}/key-counter`,
-            exact: true,
-            title: "Nhập kết quả kinh doanh online",
-            icon: "icon-dot",
-            component: KeyDriverOnlineCounter,
-            key: "menureport7",
-            isShow: true,
-            header: null,
-            permissions: [ReportPermissions.reports_view_report_online],
-            subMenu: [],
-          },
-        ],
       },
     ],
   },

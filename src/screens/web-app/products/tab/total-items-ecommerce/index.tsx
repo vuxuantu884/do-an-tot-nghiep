@@ -59,6 +59,7 @@ import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { useHistory, useLocation } from "react-router";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const STATUS = {
   WAITING: "waiting",
@@ -947,7 +948,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
             columns={columns}
             dataSource={variantData.items}
             scroll={{ x: 1500 }}
-            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+            sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
             pagination={{
               pageSize: variantData.metadata && variantData.metadata.limit,
               total: variantData.metadata && variantData.metadata.total,

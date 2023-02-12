@@ -75,6 +75,7 @@ import ConcatenateByExcel from "screens/ecommerce/products/tab/not-connected-ite
 import { ListInventoryUnicornProduct } from "model/ecommerce/ecommerce.model";
 import { ColumnsType } from "antd/lib/table";
 import { cloneDeep } from "lodash";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const STATUS = {
   WAITING: "waiting",
@@ -448,54 +449,58 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
           return (
             <div style={{ display: "flex", flexDirection: "column" }}>
               <span>{item.stock}</span>
-              {(item.ecommerce_id === ECOMMERCE_ID.TIKI || item.ecommerce_id === ECOMMERCE_ID.TIKTOK) && item.connect_status === "connected" && (
-                <Popover
-                  placement="right"
-                  overlayStyle={{ zIndex: 1000, top: "150px", maxWidth: "60%" }}
-                  content={
-                    <Table
-                      columns={[
-                        {
-                          title: "Kho (Unicorn)",
-                          render: (item: any) => (
-                            <div style={{ display: "flex", flexDirection: "column" }}>
-                              <span style={{ color: "#2a2a86" }}>{item?.core_warehouse_name}</span>
-                              <span>{`ID: ${item?.core_warehouse_id}`}</span>
-                            </div>
-                          ),
-                        },
-
-                        {
-                          title: "Tồn kho (Có thể bán)",
-                          render: (item: any) => {
-                            return (
-                              <span style={{ display: "flex", justifyContent: "center" }}>
-                                {item?.stock}
-                              </span>
-                            );
+              {(item.ecommerce_id === ECOMMERCE_ID.TIKI ||
+                item.ecommerce_id === ECOMMERCE_ID.TIKTOK) &&
+                item.connect_status === "connected" && (
+                  <Popover
+                    placement="right"
+                    overlayStyle={{ zIndex: 1000, top: "150px", maxWidth: "60%" }}
+                    content={
+                      <Table
+                        columns={[
+                          {
+                            title: "Kho (Unicorn)",
+                            render: (item: any) => (
+                              <div style={{ display: "flex", flexDirection: "column" }}>
+                                <span style={{ color: "#2a2a86" }}>
+                                  {item?.core_warehouse_name}
+                                </span>
+                                <span>{`ID: ${item?.core_warehouse_id}`}</span>
+                              </div>
+                            ),
                           },
-                        },
-                      ]}
-                      loading={isLoadingInventory}
-                      dataSource={dataInventoryUnicornProduct}
-                      pagination={false}
-                      rowKey={(item: any) => item.core_warehouse_id}
-                    />
-                  }
-                  trigger="click"
-                  onVisibleChange={(visible) => {
-                    visible && handleInventoryUnicornProductData(item, index);
-                  }}
-                >
-                  <Button
-                    type="link"
-                    className="checkInventoryButton"
-                    icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />}
-                    style={{ width: "100%", padding: 0 }}
-                    title="Kiểm tra tồn kho"
-                  ></Button>
-                </Popover>
-              )}
+
+                          {
+                            title: "Tồn kho (Có thể bán)",
+                            render: (item: any) => {
+                              return (
+                                <span style={{ display: "flex", justifyContent: "center" }}>
+                                  {item?.stock}
+                                </span>
+                              );
+                            },
+                          },
+                        ]}
+                        loading={isLoadingInventory}
+                        dataSource={dataInventoryUnicornProduct}
+                        pagination={false}
+                        rowKey={(item: any) => item.core_warehouse_id}
+                      />
+                    }
+                    trigger="click"
+                    onVisibleChange={(visible) => {
+                      visible && handleInventoryUnicornProductData(item, index);
+                    }}
+                  >
+                    <Button
+                      type="link"
+                      className="checkInventoryButton"
+                      icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />}
+                      style={{ width: "100%", padding: 0 }}
+                      title="Kiểm tra tồn kho"
+                    ></Button>
+                  </Popover>
+                )}
             </div>
           );
         },
@@ -505,12 +510,12 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
         title: "Tồn an toàn",
         align: "center",
         width: "120px",
-        render: (item: any) => {
+        render: (record: any) => {
           return (
             <span>
-              {item?.available_minimum
-                ? item.available_minimum
-                : item.available_minimum === 0
+              {record?.available_minimum
+                ? record.available_minimum
+                : record.available_minimum === 0
                 ? 0
                 : "-"}
             </span>
@@ -593,11 +598,11 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
       ),
     ];
   }, [
+    handleSyncStock,
+    handleShowLogInventory,
     isLoadingInventory,
     dataInventoryUnicornProduct,
     handleInventoryUnicornProductData,
-    handleShowLogInventory,
-    handleSyncStock,
   ]);
 
   const [columnLogInventory] = useState<any>([
@@ -1368,7 +1373,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
             columns={columns()}
             dataSource={variantData.items}
             scroll={{ x: 1500 }}
-            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+            sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
             pagination={{
               pageSize: variantData.metadata && variantData.metadata.limit,
               total: variantData.metadata && variantData.metadata.total,

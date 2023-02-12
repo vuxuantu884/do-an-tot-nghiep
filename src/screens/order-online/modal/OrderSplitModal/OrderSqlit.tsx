@@ -5,7 +5,7 @@ import { LineItemOrderSplitModel, OrderSplitModel } from "./_model";
 import NumberInput from "component/custom/number-input.custom";
 import { CloseCircleOutlined } from "@ant-design/icons";
 import { Button, Card, Table } from "antd";
-import InventoryModal from "../inventory.modal";
+import InventoryModal from "../InventoryModal/inventory.modal";
 import { InventoryResponse } from "model/inventory";
 import { StoreResponse } from "model/core/store.model";
 import discountCouponSuccess from "assets/icon/discount-coupon-success.svg";

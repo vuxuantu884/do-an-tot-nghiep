@@ -1,4 +1,4 @@
-import { Card, Col, Form, FormInstance, Input, Row } from "antd";
+import { Card, Col, Form, FormInstance, Input, Modal, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import NumberInput from "component/custom/number-input.custom";
@@ -37,7 +37,6 @@ import {
   setIsShouldSetDefaultStoreBankAccountAction,
 } from "domain/actions/order/order.action";
 import useFetchStores from "hook/useFetchStores";
-import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -65,6 +64,7 @@ import {
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
+import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -84,7 +84,6 @@ import {
   isOrderFromPOS,
   replaceFormatString,
   scrollAndFocusToDomElement,
-  sortFulfillments,
   totalAmount,
 } from "utils/AppUtils";
 import {
@@ -98,11 +97,14 @@ import {
   ShipmentMethodOption,
   TaxTreatment,
 } from "utils/Constants";
+import { sortFulfillments } from "utils/fulfillmentUtils";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 import {
-  checkIfEcommerceByOrderChannelCodeUpdateOrder,
-  convertDiscountItem,
-  convertDiscountType,
+  checkIfECommerceByOrderChannelCodeUpdateOrder,
+  convertReverseDiscountType,
+  isSourceNameFacebook,
+  convertReverseTypeInDiscountItem,
+  convertStandardizeTypeInDiscountItem,
 } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
@@ -140,7 +142,7 @@ export default function Order() {
   const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
   const [orderProductsAmount, setOrderProductsAmount] = useState(0);
   const [storeId, setStoreId] = useState<number | null>(null);
-  const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
+  const [orderSource, setOrderSource] = useState<SourceResponse | null>(null);
   const [shipmentMethod, setShipmentMethod] = useState<number>(ShipmentMethodOption.DELIVER_LATER);
   // console.log('billingAddress', billingAddress)
   const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.POST_PAYMENT);
@@ -150,6 +152,7 @@ export default function Order() {
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
 
   const [countFinishingUpdateCustomer, setCountFinishingUpdateCustomer] = useState(0);
+  const [countFinishingUpdateSource, setCountFinishingUpdateSource] = useState(0);
 
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
@@ -185,7 +188,6 @@ export default function Order() {
   //   ShippingServiceConfigDetailResponseModel[]
   // >([]);
 
-  const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
   const orderConfig = useFetchOrderConfig();
 
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
@@ -203,6 +205,10 @@ export default function Order() {
     setCountFinishingUpdateCustomer((prev) => prev + 1);
     setCustomer(_objCustomer);
   };
+  const handleSource = (_obj: SourceResponse | null) => {
+    setCountFinishingUpdateSource((prev) => prev + 1);
+    setOrderSource(_obj);
+  };
   const onChangeShippingAddress = (_objShippingAddress: ShippingAddress | null) => {
     setShippingAddress(_objShippingAddress);
   };
@@ -215,7 +221,6 @@ export default function Order() {
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
   const [promotionTitle, setPromotionTitle] = useState("");
-  console.log("promotion111", promotion);
 
   const stores = useFetchStores();
 
@@ -350,7 +355,7 @@ export default function Order() {
       request.shipment = null;
       fulfillmentRequests.push(request);
     }
-    console.log("fulfillmentRequests", fulfillmentRequests);
+    // console.log("fulfillmentRequests", fulfillmentRequests);
     return fulfillmentRequests;
   };
 
@@ -514,7 +519,7 @@ export default function Order() {
   }, [totalOrderAmount, totalAmountPayment]);
 
   const handleCreateOrder = async (values: OrderRequest) => {
-    console.log("values", values);
+    // console.log("values", values);
     const createOrder = async (createSpecialOrder?: (orderId: number) => Promise<void>) => {
       isUserCanCreateOrder.current = true;
       //return;
@@ -540,12 +545,12 @@ export default function Order() {
               }
             },
             () => {
-              console.log(
-                "Thời gian nhận response tạo đơn check đơn trùng:",
-                `Thời gian:${new Date().toJSON()}`,
-              );
-              console.log("data response trả về", values);
-              console.log("isUserCanCreateOrder.current", isUserCanCreateOrder.current);
+              // console.log(
+              //   "Thời gian nhận response tạo đơn check đơn trùng:",
+              //   `Thời gian:${new Date().toJSON()}`,
+              // );
+              // console.log("data response trả về", values);
+              // console.log("isUserCanCreateOrder.current", isUserCanCreateOrder.current);
               dispatch(hideLoading());
               setIsCreating(false);
               setIsSaveDraft(false);
@@ -588,12 +593,11 @@ export default function Order() {
       createOrder(handleCreateOrUpdateSpecialOrder);
     };
     const specialOrderType = specialOrderForm.getFieldValue("type");
-    console.log("specialOrderType", specialOrderType);
+
     if (specialOrderType) {
       specialOrderForm
         .validateFields()
         .then((specialOrderFormValue) => {
-          console.log("specialOrderFormValue", specialOrderFormValue);
           handleCreateOrderWithSpecialOrder(specialOrderFormValue);
         })
         .catch((error) => {
@@ -606,18 +610,13 @@ export default function Order() {
     } else {
       createOrder();
     }
-    console.log("specialOrderType", specialOrderType);
-    console.log(
-      "Thời gian gửi request tạo đơn check đơn trùng",
-      `Thời gian: ${new Date().toJSON()}`,
-    );
-    console.log("isUserCanCreateOrder.current", isUserCanCreateOrder.current);
   };
 
   const onFinish = (values: OrderRequest) => {
     if (!isUserCanCreateOrder.current) {
       return;
     }
+
     isUserCanCreateOrder.current = false;
     values.channel_id = ADMIN_ORDER.channel_id;
     values.company_id = DEFAULT_COMPANY.company_id;
@@ -637,10 +636,11 @@ export default function Order() {
     });
     const _item = items.concat(_itemGifts);
     values.items = _item.map((p) => {
-      let _discountItems = p.discount_items[0];
-      if (_discountItems) {
-        _discountItems.type = _discountItems.sub_type || DiscountValueType.FIXED_AMOUNT;
-      }
+      // let _discountItems = p.discount_items[0];
+      // if (_discountItems) {
+      //   _discountItems.type = _discountItems.sub_type || DiscountValueType.FIXED_AMOUNT;
+      // }
+      p.discount_items = convertStandardizeTypeInDiscountItem(p.discount_items);
       return p;
     });
     values.discounts = lstDiscount;
@@ -659,11 +659,9 @@ export default function Order() {
     values.export_bill = billingAddress?.tax_code ? true : false;
     values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
 
-    console.log("isOrderSemiAutomatic", promotion?.isOrderSemiAutomatic);
     values.automatic_discount = !promotion?.isOrderSemiAutomatic
       ? values.automatic_discount
       : false;
-    console.log("automatic_discount values", values.automatic_discount);
     // values.bill = orderBillRequest;
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
@@ -765,6 +763,24 @@ export default function Order() {
         }
       }
     }
+  };
+
+  const onFinishConfirm = (values: OrderRequest) => {
+    Modal.confirm({
+      title: "Chú ý",
+      type: "warning",
+      content: (
+        <>
+          <p style={{ margin: 0 }}>Đơn hàng chưa nhập nhân viên Marketing.</p>
+          <p style={{ margin: 0 }}>Bạn vẫn muốn tạo đơn hàng?</p>
+        </>
+      ),
+      okText: "Tạo đơn",
+      cancelText: "Quay lại",
+      onOk: () => {
+        onFinish(values);
+      },
+    });
   };
 
   const mergePaymentData = (payments: OrderPaymentResponse[]) => {
@@ -891,7 +907,6 @@ export default function Order() {
 
   const handleCreateOrUpdateSpecialOrder = (params: SpecialOrderModel): Promise<void> => {
     return new Promise((resolve, reject) => {
-      console.log("params", params);
       resolve();
     });
   };
@@ -1011,11 +1026,11 @@ export default function Order() {
           };
         });
       responseItems = responseItems.map((item) => {
-        item = convertDiscountItem(item);
+        item.discount_items = convertReverseTypeInDiscountItem(item.discount_items);
         return {
           ...item,
           gifts: item.gifts.map((p) => {
-            p = convertDiscountItem(p);
+            p.discount_items = convertReverseTypeInDiscountItem(p.discount_items);
             return p;
           }),
         };
@@ -1150,7 +1165,6 @@ export default function Order() {
           handleShipmentMethod[
             sortedFulfillments[0]?.shipment?.delivery_service_provider_type || "default"
           ]();
-          console.log("newShipmentMethod", newShipmentMethod);
           setShipmentMethod(newShipmentMethod);
         }
       }
@@ -1175,11 +1189,8 @@ export default function Order() {
             promotion_title:
               response?.discounts[0].promotion_title || response?.discounts[0].reason,
             sub_type: response?.discounts[0].type,
-            type: convertDiscountType(response?.discounts[0].type),
+            type: convertReverseDiscountType(response?.discounts[0].type),
           });
-          // if (response.discounts[0].discount_code) {
-          //   setCoupon(response.discounts[0].discount_code);
-          // }
         }
         let newDatingShip = initialForm.dating_ship;
         let newShipperCode = initialForm.shipper_code;
@@ -1232,8 +1243,8 @@ export default function Order() {
           channel_id: response.channel_id,
           //automatic_discount: response.automatic_discount,
           automatic_discount:
-            !checkIfEcommerceByOrderChannelCodeUpdateOrder(response.channel_code) &&
-            !checkIfEcommerceByOrderChannelCodeUpdateOrder(response?.special_order?.ecommerce),
+            !checkIfECommerceByOrderChannelCodeUpdateOrder(response.channel_code) &&
+            !checkIfECommerceByOrderChannelCodeUpdateOrder(response?.special_order?.ecommerce),
           uniform: response.uniform,
         });
         form.resetFields();
@@ -1293,17 +1304,24 @@ export default function Order() {
               setIsCloneOrderFromPOS(true);
               return;
             }
+            if (response.source) {
+              setOrderSource({
+                id: response.source_id,
+                code: response.source_code,
+                name: response.source,
+              } as any);
+            }
 
             const { customer_id, channel_code, special_order } = response;
 
             const _isSpecialOrderEcommerce =
-              checkIfEcommerceByOrderChannelCodeUpdateOrder(channel_code) ||
-              checkIfEcommerceByOrderChannelCodeUpdateOrder(special_order?.ecommerce);
+              checkIfECommerceByOrderChannelCodeUpdateOrder(channel_code) ||
+              checkIfECommerceByOrderChannelCodeUpdateOrder(special_order?.ecommerce);
             setIsSpecialOrderEcommerce({
               isEcommerce: _isSpecialOrderEcommerce,
               isChange: false,
             });
-            if (checkIfEcommerceByOrderChannelCodeUpdateOrder(channel_code)) {
+            if (checkIfECommerceByOrderChannelCodeUpdateOrder(channel_code)) {
               setSpecialOrderValue({
                 type: specialOrderTypes.orders_replace.value,
                 order_original_code: response.code,
@@ -1397,15 +1415,6 @@ export default function Order() {
   }, [cloneIdParam, isCloneOrder]);
 
   useEffect(() => {
-    if (items && items != null && items?.length > 0) {
-      let variant_id: Array<number> = [];
-      items.forEach((element) => variant_id.push(element.variant_id));
-      dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, items?.length]);
-
-  useEffect(() => {
     window.addEventListener("keydown", eventFunctional);
     return () => {
       window.removeEventListener("keydown", eventFunctional);
@@ -1443,7 +1452,13 @@ export default function Order() {
                   const element: any = document.getElementById(errorFields[0].name.join(""));
                   scrollAndFocusToDomElement(element);
                 }}
-                onFinish={onFinish}
+                onFinish={(values: OrderRequest) => {
+                  if (isSourceNameFacebook(orderSource?.name || "") && !values.marketer_code) {
+                    onFinishConfirm(values);
+                  } else {
+                    onFinish(values);
+                  }
+                }}
               >
                 <Form.Item noStyle hidden name="action">
                   <Input />
@@ -1475,7 +1490,7 @@ export default function Order() {
                       setVisibleCustomer={setVisibleCustomer}
                       modalAction={modalAction}
                       setModalAction={setModalAction}
-                      setOrderSourceId={setOrderSourceId}
+                      setOrderSource={handleSource}
                       shippingAddressesSecondPhone={shippingAddressesSecondPhone}
                       setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
                       initialForm={initialForm}
@@ -1506,14 +1521,13 @@ export default function Order() {
                       setCoupon={setCoupon}
                       promotion={promotion}
                       setPromotion={setPromotion}
-                      inventoryResponse={inventoryResponse}
                       customer={customer}
-                      setInventoryResponse={setInventoryResponse}
                       totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       orderConfig={orderConfig}
-                      orderSourceId={orderSourceId}
+                      orderSourceId={orderSource?.id}
                       loyaltyPoint={loyaltyPoint}
                       countFinishingUpdateCustomer={countFinishingUpdateCustomer}
+                      countFinishingUpdateSource={countFinishingUpdateSource}
                       shipmentMethod={shipmentMethod}
                       stores={stores}
                       setPromotionTitle={setPromotionTitle}
@@ -1616,6 +1630,7 @@ export default function Order() {
                           });
                         }
                       }}
+                      orderSource={orderSource}
                     />
                   </Col>
                 </Row>

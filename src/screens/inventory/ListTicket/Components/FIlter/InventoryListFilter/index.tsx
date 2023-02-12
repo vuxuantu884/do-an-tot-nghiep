@@ -12,7 +12,7 @@ import moment from "moment";
 import BaseFilter from "component/filter/base.filter";
 import { InventoryTransferSearchQuery } from "model/inventory/transfer";
 import { BaseFilterWrapper, InventoryFiltersWrapper } from "./styles";
-import { STATUS_INVENTORY_TRANSFER_ARRAY } from "screens/inventory/constants";
+import { STATUS_INVENTORY_TRANSFER, STATUS_INVENTORY_TRANSFER_ARRAY } from "screens/inventory/constants";
 import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
@@ -20,16 +20,18 @@ import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 import { InventoryTransferTabUrl } from "config/url.config";
 import { useQuery } from "utils/useQuery";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { StoreByDepartment, StoreResponse } from "model/core/store.model";
+import { PageResponse } from "../../../../../../model/base/base-metadata.response";
 
 type OrderFilterProps = {
-  accountStores?: Array<StoreResponse>;
+  accountStores?: Array<StoreResponse> | null;
   params: InventoryTransferSearchQuery;
   actions: Array<MenuAction>;
   isLoading?: Boolean;
   isLoadingAction?: boolean;
   accounts: Array<AccountResponse> | undefined;
+  defaultAccountProps?: PageResponse<AccountResponse>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery | Object) => void;
   onShowColumnSetting?: () => void;
@@ -52,6 +54,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
     onShowColumnSetting,
     stores,
     accounts,
+    defaultAccountProps,
     activeTab,
     accountStores,
   } = props;
@@ -63,10 +66,10 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
   if (!query?.status) {
     switch (activeTab) {
       case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
-        status = ["transferring", "confirmed"];
+        status = [STATUS_INVENTORY_TRANSFER.TRANSFERRING.status, STATUS_INVENTORY_TRANSFER.CONFIRM.status];
         break;
       case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
-        status = ["transferring"];
+        status = [STATUS_INVENTORY_TRANSFER.TRANSFERRING.status];
         break;
       default:
         break;
@@ -102,7 +105,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
   useEffect(() => {
     if (activeTab === "") return;
 
-    let accountStoreSelected =
+    const accountStoreSelected =
       accountStores && accountStores.length > 0 ? accountStores.map((i) => i.id) : [];
 
     if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE) {
@@ -605,7 +608,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
               <Row gutter={12}>
                 <Col span={12}>
                   <Item label="Người tạo" name="created_by">
-                    <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple" />
+                    <AccountSearchPaging defaultAccountProps={defaultAccountProps} placeholder="Chọn người tạo" mode="multiple" />
                   </Item>
                 </Col>
                 <Col span={12}>
@@ -622,7 +625,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
               <Row gutter={12}>
                 <Col span={12}>
                   <Item label="Người chuyển" name="transfer_by">
-                    <AccountSearchPaging placeholder="Chọn người chuyển" mode="multiple" />
+                    <AccountSearchPaging defaultAccountProps={defaultAccountProps} placeholder="Chọn người chuyển" mode="multiple" />
                   </Item>
                 </Col>
                 <Col span={12}>
@@ -639,7 +642,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
               <Row gutter={12}>
                 <Col span={12}>
                   <Item label="Người nhận" name="received_by">
-                    <AccountSearchPaging placeholder="Chọn người nhận" mode="multiple" />
+                    <AccountSearchPaging defaultAccountProps={defaultAccountProps} placeholder="Chọn người nhận" mode="multiple" />
                   </Item>
                 </Col>
                 <Col span={12}>
@@ -656,7 +659,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
               <Row gutter={12}>
                 <Col span={12}>
                   <Item label="Người hủy" name="cancel_by">
-                    <AccountSearchPaging placeholder="Chọn người hủy" mode="multiple" />
+                    <AccountSearchPaging defaultAccountProps={defaultAccountProps} placeholder="Chọn người hủy" mode="multiple" />
                   </Item>
                 </Col>
                 <Col span={12}>

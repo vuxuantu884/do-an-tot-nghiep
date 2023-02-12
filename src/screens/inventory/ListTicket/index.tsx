@@ -2,7 +2,7 @@ import { Button, Card, Dropdown, Menu, Row, Space, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router";
 import HistoryInventoryTransferTab from "./ListTicketTab/HistoryInventoryTransfer";
 import InventoryTransferTab from "./ListTicketTab/InventoryTransfer";
@@ -14,30 +14,47 @@ import { AccountResponse } from "model/account/account.model";
 import { callApiNative } from "utils/ApiUtils";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { useDispatch, useSelector } from "react-redux";
-import { searchAccountPublicAction } from "domain/actions/account/account.action";
-import { PageResponse } from "model/base/base-metadata.response";
 import { Link, useLocation } from "react-router-dom";
 import queryString from "query-string";
 import exportIcon from "assets/icon/export.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import ExportImportTab from "./ListTicketTab/ExportImportTransfer";
-import { getStoreApi, getTransferRecordNumberApi } from "service/inventory/transfer/index.service";
+import {
+  getListInventoryTransferApi,
+  getStoreApi
+} from "service/inventory/transfer/index.service";
 import { StoreResponse } from "model/core/store.model";
+import { InventoryTransferSearchQuery } from "model/inventory/transfer";
+import { initQuery } from "../helper";
+import { InventoryType } from "domain/types/inventory.type";
+import { STATUS_INVENTORY_TRANSFER } from "../constants";
+import { PageResponse } from "model/base/base-metadata.response";
 
 const { TabPane } = Tabs;
 
 const InventoryListScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("");
-  const [countTransferIn, setCountTransferIn] = useState<number>(0);
-  const [countTransferOut, setCountTransferOut] = useState<number>(0);
   const [stores, setStores] = useState<Array<StoreResponse>>([] as Array<StoreResponse>);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const [accountStores, setAccountStores] = useState<Array<StoreResponse>>([]);
+  const [defaultAccountProps, setDefaultAccountProps] = useState<PageResponse<AccountResponse>>();
+  const [accountStores, setAccountStores] = useState<Array<StoreResponse> | null>(null);
   const history = useHistory();
   const { path } = useRouteMatch();
   const dispatch = useDispatch();
   const [vExportTransfer, setVExportTransfer] = useState(false);
   const [vExportDetailTransfer, setVExportDetailTransfer] = useState(false);
+  const isFirstLoadSender = useSelector(
+    (state: RootReducerType) => state.inventoryReducer.isFirstLoadSender,
+  );
+  const isFirstLoadReceive = useSelector(
+    (state: RootReducerType) => state.inventoryReducer.isFirstLoadReceive,
+  );
+  const countTransferIn = useSelector(
+    (state: RootReducerType) => state.inventoryReducer.countTransferIn,
+  );
+  const countTransferOut = useSelector(
+    (state: RootReducerType) => state.inventoryReducer.countTransferOut,
+  );
 
   useEffect(() => {
     if (path) {
@@ -62,49 +79,10 @@ const InventoryListScreen: React.FC = () => {
     setAccounts((accounts) => {
       return [...initSelectedResponse.items, ...accounts];
     });
+    setDefaultAccountProps(initSelectedResponse);
   };
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setAccounts(data.items);
-
-      let codes = "";
-
-      if (queryParamsParsed.created_by) {
-        codes = queryParamsParsed.created_by;
-      }
-      if (queryParamsParsed.updated_by) {
-        codes = codes + "," + queryParamsParsed.updated_by;
-      }
-      if (queryParamsParsed.received_by) {
-        codes = codes + "," + queryParamsParsed.received_by;
-      }
-      if (queryParamsParsed.transfer_by) {
-        codes = codes + "," + queryParamsParsed.transfer_by;
-      }
-      if (queryParamsParsed.cancel_by) {
-        codes = codes + "," + queryParamsParsed.cancel_by;
-      }
-
-      getAccounts(codes).then();
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const getRecordNumber = async () => {
-    const res = await callApiNative({ isShowLoading: false }, dispatch, getTransferRecordNumberApi);
-    if (res) {
-      setCountTransferIn(res.count_transfer_in);
-      setCountTransferOut(res.count_transfer_out);
-    }
-  };
 
   const getStores = async () => {
     const res = await callApiNative({ isShowLoading: false }, dispatch, getStoreApi, { status: "active", simple: true });
@@ -114,11 +92,31 @@ const InventoryListScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    dispatch(searchAccountPublicAction({}, setDataAccounts));
-    getRecordNumber().then();
+    let codes = "";
+
+    if (queryParamsParsed.created_by) {
+      codes = queryParamsParsed.created_by;
+    }
+    if (queryParamsParsed.updated_by) {
+      codes = codes + "," + queryParamsParsed.updated_by;
+    }
+    if (queryParamsParsed.received_by) {
+      codes = codes + "," + queryParamsParsed.received_by;
+    }
+    if (queryParamsParsed.transfer_by) {
+      codes = codes + "," + queryParamsParsed.transfer_by;
+    }
+    if (queryParamsParsed.cancel_by) {
+      codes = codes + "," + queryParamsParsed.cancel_by;
+    }
+
+    getAccounts(codes).then();
+    if (codes !== "") {
+      getAccounts("").then();
+    }
     getStores().then();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, setDataAccounts]);
+  }, []);
 
   useEffect(() => {
     if (stores.length === 0) return;
@@ -152,7 +150,7 @@ const InventoryListScreen: React.FC = () => {
 
   const menuExportItems = [
     {
-      name: "Nhập file danh sách",
+      name: "Xuất file danh sách",
       action: "EXPORT_LIST"
     },
     {
@@ -239,6 +237,85 @@ const InventoryListScreen: React.FC = () => {
     }
   };
 
+  const getListTransferByCondition = async (status: string[], tab: string) => {
+    let params: InventoryTransferSearchQuery = {
+      ...initQuery,
+      status
+    }
+
+    const accountStoreSelected =
+      accountStores && accountStores.length > 0 ? accountStores.map((i) => i.id).join(',') : null;
+
+    switch (tab) {
+      case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
+        params = {
+          ...params,
+          from_store_id: params.from_store_id
+            ? (Array.isArray(params.from_store_id) && params.from_store_id.length) > 0
+              ? params.from_store_id
+              : accountStoreSelected
+            : accountStoreSelected || null,
+        };
+        const countTransferOutRes = await getListInventoryTransferApi(params);
+        dispatch({
+          type: InventoryType.COUNT_TRANSFER_OUT,
+          payload: {
+            countTransferOut: countTransferOutRes.data.metadata.total,
+          },
+        });
+        dispatch({
+          type: InventoryType.IS_FIRST_LOAD_SENDER,
+          payload: {
+            isFirstLoadSender: false,
+          },
+        });
+        break;
+      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
+        params = {
+          ...params,
+          to_store_id: params.to_store_id
+            ? (Array.isArray(params.to_store_id) && params.to_store_id.length) > 0
+              ? params.to_store_id
+              : accountStoreSelected
+            : accountStoreSelected || null,
+        };
+        const countTransferInRes = await getListInventoryTransferApi(params);
+        dispatch({
+          type: InventoryType.COUNT_TRANSFER_IN,
+          payload: {
+            countTransferIn: countTransferInRes.data.metadata.total,
+          },
+        });
+        dispatch({
+          type: InventoryType.IS_FIRST_LOAD_RECEIVE,
+          payload: {
+            isFirstLoadReceive: false,
+          },
+        });
+        break;
+      default:
+        break;
+    }
+  };
+
+  useEffect(() => {
+    if (!accountStores) return;
+    if (path !== InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER && isFirstLoadSender) {
+      getListTransferByCondition(
+        [STATUS_INVENTORY_TRANSFER.TRANSFERRING.status, STATUS_INVENTORY_TRANSFER.CONFIRM.status],
+        InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER).then();
+    }
+    // eslint-disable-next-line
+  }, [isFirstLoadSender, accountStores, path]);
+
+  useEffect(() => {
+    if (!accountStores) return;
+    if (path !== InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE && isFirstLoadReceive) {
+      getListTransferByCondition([STATUS_INVENTORY_TRANSFER.TRANSFERRING.status], InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE).then();
+    }
+    // eslint-disable-next-line
+  }, [isFirstLoadReceive, accountStores, path]);
+
   return (
     <ListTicketStylesWrapper>
       <ContentContainer
@@ -253,9 +330,7 @@ const InventoryListScreen: React.FC = () => {
         ]}
         extra={renderExtraContainer()}
       >
-        <Card className="card-transfer">
-          <div className="transferring-receive" style={{ fontSize: String(countTransferIn).length > 3 ? 8 : 9 }}>{countTransferIn}</div>
-          <div className="transferring-sender" style={{ fontSize: String(countTransferOut).length > 3 ? 8 : 9 }}>{countTransferOut}</div>
+        <Card>
           <Tabs style={{ overflow: "initial" }} activeKey={activeTab}>
             <TabPane
               tab={<Link to={InventoryTransferTabUrl.LIST}>Danh sách phiếu</Link>}
@@ -270,13 +345,14 @@ const InventoryListScreen: React.FC = () => {
                   setVExportDetailTransfer={setVExportDetailTransfer}
                   stores={stores}
                   accounts={accounts}
+                  defaultAccountProps={defaultAccountProps}
                   accountStores={accountStores}
                   setAccounts={(value) => setAccounts([...value, ...accounts])}
                 />
               )}
             </TabPane>
             <TabPane
-              tab={<Link to={InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}>Chuyển đi</Link>}
+              tab={<Link to={InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}>Chuyển đi <span className="count-number">({countTransferOut})</span></Link>}
               key={InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}
             >
               {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER && (
@@ -288,13 +364,20 @@ const InventoryListScreen: React.FC = () => {
                   setVExportDetailTransfer={setVExportDetailTransfer}
                   stores={stores}
                   accounts={accounts}
+                  defaultAccountProps={defaultAccountProps}
+                  setCountTransferOut={(value) => dispatch({
+                    type: InventoryType.COUNT_TRANSFER_OUT,
+                    payload: {
+                      countTransferOut: value,
+                    },
+                  })}
                   accountStores={accountStores}
                   setAccounts={(value) => setAccounts([...value, ...accounts])}
                 />
               )}
             </TabPane>
             <TabPane
-              tab={<Link to={InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE}>Chuyển đến</Link>}
+              tab={<Link to={InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE}>Chuyển đến <span className="count-number">({countTransferIn})</span></Link>}
               key={InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE}
             >
               {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE && (
@@ -306,6 +389,13 @@ const InventoryListScreen: React.FC = () => {
                   setVExportDetailTransfer={setVExportDetailTransfer}
                   stores={stores}
                   accounts={accounts}
+                  defaultAccountProps={defaultAccountProps}
+                  setCountTransferIn={(value) => dispatch({
+                    type: InventoryType.COUNT_TRANSFER_IN,
+                    payload: {
+                      countTransferIn: value,
+                    },
+                  })}
                   accountStores={accountStores}
                   setAccounts={(value) => setAccounts([...value, ...accounts])}
                 />
@@ -320,6 +410,7 @@ const InventoryListScreen: React.FC = () => {
                   activeTab={activeTab}
                   stores={stores}
                   accounts={accounts}
+                  defaultAccountProps={defaultAccountProps}
                   vExportDetailTransfer={vExportDetailTransfer}
                   setVExportDetailTransfer={setVExportDetailTransfer}
                   accountStores={userReducer.account?.account_stores}
@@ -334,6 +425,7 @@ const InventoryListScreen: React.FC = () => {
               <HistoryInventoryTransferTab
                 stores={stores}
                 accounts={accounts}
+                defaultAccountProps={defaultAccountProps}
                 accountStores={accountStores}
                 setAccounts={(value) => setAccounts([...value, ...accounts])}
               />

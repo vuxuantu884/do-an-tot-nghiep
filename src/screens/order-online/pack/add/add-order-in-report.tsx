@@ -12,11 +12,11 @@ import { AddReportHandOverContext } from "contexts/order-pack/add-report-hand-ov
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { formatCurrency } from "utils/AppUtils";
 import { dangerColor } from "utils/global-styles/variables";
-import { getFulfillmentActive } from "utils/OrderUtils";
 import { PagingParam, ResultPaging } from "model/paging";
 import { flatDataPaging } from "utils/Paging";
 import ButtonWarningHandover from "../component/button-warning-handover";
 import { StoreResponse } from "model/core/store.model";
+import { getFulfillmentActive } from "utils/fulfillmentUtils";
 
 type AddOrderInReportProps = {
   menu?: Array<MenuAction>;

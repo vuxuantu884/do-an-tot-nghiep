@@ -18,12 +18,19 @@ import { PROMOTION_TYPE } from "screens/promotion/constants";
 import GiftForm from "screens/promotion/gift/components/GiftForm";
 import GiftProvider, { GiftContext } from "screens/promotion/gift/components/GiftProvider";
 import { scrollAndFocusToDomElement } from "utils/AppUtils";
+import useAuthorization from "hook/useAuthorization";
 
 function GiftCreate(): ReactElement {
   const history = useHistory();
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   let activePromotionGift = true;
+
+  /** phân quyền */
+  const [allowActiveGift] = useAuthorization({
+    acceptPermissions: [PROMOTION_GIFT_PERMISSIONS.ACTIVE],
+  });
+  /** */
 
   const giftContext = useContext(GiftContext);
   const { registerWithMinistry } = giftContext;
@@ -143,16 +150,18 @@ function GiftCreate(): ReactElement {
               <Button
                 onClick={() => handleSaveOnly()}
                 style={{
-                  marginRight: "20px",
+                  marginRight: "12px",
                   borderColor: "#2a2a86",
                 }}
                 type="ghost"
               >
                 Lưu
               </Button>
-              <Button type="primary" onClick={() => handleSaveAndActive()}>
-                Lưu và kích hoạt
-              </Button>
+              {allowActiveGift &&
+                <Button type="primary" onClick={() => handleSaveAndActive()}>
+                  Lưu và kích hoạt
+                </Button>
+              }
             </AuthWrapper>
           }
         />

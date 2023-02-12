@@ -49,6 +49,7 @@ export interface EcommerceRequest extends BaseObject {
   inventories: Array<EcommerceShopInventoryDto>;
   source: String;
   source_id: number;
+  stock_available_min?: number | null;
 }
 
 export interface EcommerceConnectRequest {}

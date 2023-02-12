@@ -47,7 +47,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { convertDistrict } from "utils/AppUtils";
 import { RegUtil } from "utils/RegUtils";
 import { fullTextSearch } from "utils/StringUtils";

@@ -28,7 +28,7 @@ type HeaderContainerProps = {
 
 const UNICORN_HOTLINE = "0888 464 258";
 const UNICORN_GAPO_URL = "https://www.gapowork.vn/group/unicorn";
-const FEEDBACK_FORM_URL = "https://forms.gle/zCgBGA7Th7MDNNL58";
+const FEEDBACK_FORM_URL = "https://htnd.yody.io/";
 const OTHER_YODY_PLATFORMS_URL = "https://yody.io";
 
 const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerProps) => {
@@ -40,7 +40,10 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
   const [firstCharName, setFirstCharName] = useState<string>("");
 
   useEffect(() => {
-    if (window.location.pathname.indexOf("YDpage") < 0 && window.location.pathname.indexOf("social") < 0) {
+    if (
+      window.location.pathname.indexOf("YDpage") < 0 &&
+      window.location.pathname.indexOf("social") < 0
+    ) {
       setIsShowBtnDD(false);
       props.setIsShowHeader(true);
     }
@@ -95,7 +98,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
   return (
     <StyledComponent>
       <Layout.Header className={props.isShowHeader ? "show" : "hide"}>
-        <div className="ant-layout-header-left">
+        <div className="unicorn-layout-header-brand">
           <Link to={UrlConfig.HOME}>
             <div className="logo-header">
               <Logo />
@@ -109,7 +112,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
             />
           </div>
         </div>
-        <div className="ant-layout-header-right">
+        <div className="unicorn-layout-header-body">
           <div className="markup-env">
             <DevAndUatMarkup />
           </div>

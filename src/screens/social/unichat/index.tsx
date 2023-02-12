@@ -156,6 +156,7 @@ const Unichat: React.FC = () => {
           className="ydpage-iframe"
           title="unichat"
           src={getUnichatIframeUrl()}
+          allow="clipboard-read; clipboard-write"
           style={{ width: "100%", height: "100%" }}
         ></iframe>
       )}
@@ -165,6 +166,7 @@ const Unichat: React.FC = () => {
           className="ydpage-iframe"
           title="unichat"
           src={`${AppConfig.unichatUrl}login-callback?token=${unichatToken}`}
+          allow="clipboard-read; clipboard-write"
           style={{ width: "100%", height: "100%" }}
         ></iframe>
       )}

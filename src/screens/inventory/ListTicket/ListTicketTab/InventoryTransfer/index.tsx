@@ -59,18 +59,22 @@ import useAuthorization from "hook/useAuthorization";
 import { callApiNative } from "utils/ApiUtils";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import TransferExport from "../../Components/TransferExport";
-import { getListInventoryTransferApi, updateNoteTransferApi } from "service/inventory/transfer/index.service";
+import {
+  getListInventoryTransferApi,
+  updateNoteTransferApi,
+} from "service/inventory/transfer/index.service";
 import moment from "moment";
 import * as XLSX from "xlsx";
 import { TransferExportField, TransferExportLineItemField } from "model/inventory/field";
 import { ImportStatusWrapper } from "../../../ImportInventory/styles";
 import { HttpStatus } from "config/http-status.config";
-import { STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Constants";
+import { OFFSET_HEADER_UNDER_NAVBAR, STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Constants";
 import CustomPagination from "component/table/CustomPagination";
 import queryString from "query-string";
 import EditPopover from "../../../../inventory-defects/ListInventoryDefect/components/EditPopover";
 import { primaryColor } from "utils/global-styles/variables";
-import { StoreResponse } from "../../../../../model/core/store.model";
+import { StoreResponse } from "model/core/store.model";
+import { initQuery } from "../../../helper";
 const { Text } = Typography;
 
 let firstLoad = true;
@@ -85,36 +89,14 @@ const ACTIONS_INDEX = {
   CANCEL: 9,
 };
 
-const initQuery: InventoryTransferSearchQuery = {
-  page: 1,
-  limit: 30,
-  simple: true,
-  condition: null,
-  from_store_id: [],
-  to_store_id: [],
-  status: [],
-  note: null,
-  created_by: [],
-  received_by: [],
-  cancel_by: [],
-  transfer_by: [],
-  from_created_date: null,
-  to_created_date: null,
-  from_transfer_date: null,
-  to_transfer_date: null,
-  from_receive_date: null,
-  to_receive_date: null,
-  from_cancel_date: null,
-  to_cancel_date: null,
-  from_pending_date: null,
-  to_pending_date: null,
-};
-
 type InventoryTransferTabProps = {
-  accountStores?: Array<StoreResponse>;
+  accountStores?: Array<StoreResponse> | null;
   stores?: Array<StoreResponse>;
   accounts?: Array<AccountResponse>;
+  defaultAccountProps?: PageResponse<AccountResponse>;
   setAccounts?: (e: any) => any;
+  setCountTransferIn?: (e: number) => void;
+  setCountTransferOut?: (e: number) => void;
   activeTab?: string;
   vExportTransfer: boolean;
   vExportDetailTransfer: boolean;
@@ -134,7 +116,10 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     setVExportTransfer,
     vExportDetailTransfer,
     setVExportDetailTransfer,
+    defaultAccountProps,
     activeTab,
+    setCountTransferIn,
+    setCountTransferOut,
   } = props;
   const history = useHistory();
   const location = useLocation();
@@ -259,10 +244,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     dispatch(getListInventoryTransferAction(params, setSearchResult));
   };
 
-  const editNote = (
-    note: string,
-    row: InventoryTransferDetailItem,
-  ) => {
+  const editNote = (note: string, row: InventoryTransferDetailItem) => {
     const newData = {
       version: row?.version,
       note,
@@ -284,7 +266,12 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       width: 150,
       render: (value: string, row: InventoryTransferDetailItem) => (
         <div>
-          <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${row.id}`} style={{ fontWeight: 600, fontSize: 16 }}>{value}</Link>
+          <Link
+            to={`${UrlConfig.INVENTORY_TRANSFERS}/${row.id}`}
+            style={{ fontWeight: 600, fontSize: 16 }}
+          >
+            {value}
+          </Link>
           <div>{ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYY_HHmm)}</div>
         </div>
       ),
@@ -358,6 +345,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       width: 150,
     },
     {
+      titleCustom: "SP",
       title: () => {
         return (
           <>
@@ -375,6 +363,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       width: "100px",
     },
     {
+      titleCustom: "SL Gửi",
       title: () => {
         return (
           <>
@@ -392,6 +381,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       width: "100px",
     },
     {
+      titleCustom: "SL Nhận",
       title: () => {
         return (
           <>
@@ -450,7 +440,9 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
           <div className="single">
             Chuyển tiếp từ kho {item} đến kho {row.to_store_name}
           </div>
-        ) : <></>
+        ) : (
+          <></>
+        );
       },
     },
     {
@@ -577,6 +569,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
                     </>
                   );
                 },
+                titleCustom: "SL Gửi",
                 dataIndex: "total_quantity",
                 visible: true,
                 align: "right",
@@ -597,6 +590,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
                     </>
                   );
                 },
+                titleCustom: "SL Nhận",
                 dataIndex: "total_received_quantity",
                 visible: true,
                 align: "right",
@@ -617,6 +611,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
                     </>
                   );
                 },
+                titleCustom: "SP",
                 dataIndex: "total_variant",
                 visible: true,
                 align: "right",
@@ -657,6 +652,12 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
         }
 
         setData(result);
+        if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER) {
+          setCountTransferOut && setCountTransferOut(result.metadata.total);
+        }
+        if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE) {
+          setCountTransferIn && setCountTransferIn(result.metadata.total);
+        }
         if (firstLoad) {
           setTotalItems(result.metadata.total);
         }
@@ -837,36 +838,37 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     history.push(`${UrlConfig.INVENTORY_TRANSFERS}#1?${queryParam}`);
   }, [history]);
 
-  const onSelectedChange = useCallback((selectedRow: Array<InventoryTransferDetailItem>, selected: boolean | undefined, changeRow: any) => {
-    const newSelectedRowKeys = changeRow.map((row: any) => row.id);
+  const onSelectedChange = useCallback(
+    (
+      selectedRow: Array<InventoryTransferDetailItem>,
+      selected: boolean | undefined,
+      changeRow: any,
+    ) => {
+      const newSelectedRowKeys = changeRow.map((row: any) => row.id);
 
-    if (selected) {
-      setSelectedRowKeys([
-        ...selectedRowKeys,
-        ...newSelectedRowKeys
-      ]);
-      setSelectedRowData([
-        ...selectedRowData,
-        ...changeRow
-      ]);
-      return;
-    }
+      if (selected) {
+        setSelectedRowKeys([...selectedRowKeys, ...newSelectedRowKeys]);
+        setSelectedRowData([...selectedRowData, ...changeRow]);
+        return;
+      }
 
-    const newSelectedRowKeysByDeselected = selectedRowKeys.filter((item) => {
-      const findIndex = changeRow.findIndex((row: any) => row.id === item);
+      const newSelectedRowKeysByDeselected = selectedRowKeys.filter((item) => {
+        const findIndex = changeRow.findIndex((row: any) => row.id === item);
 
-      return findIndex === -1
-    });
+        return findIndex === -1;
+      });
 
-    const newSelectedRowByDeselected = selectedRowData.filter((item) => {
-      const findIndex = changeRow.findIndex((row: any) => row.id === item.id);
+      const newSelectedRowByDeselected = selectedRowData.filter((item) => {
+        const findIndex = changeRow.findIndex((row: any) => row.id === item.id);
 
-      return findIndex === -1
-    });
+        return findIndex === -1;
+      });
 
-    setSelectedRowKeys(newSelectedRowKeysByDeselected);
-    setSelectedRowData(newSelectedRowByDeselected);
-  }, [selectedRowData, selectedRowKeys]);
+      setSelectedRowKeys(newSelectedRowKeysByDeselected);
+      setSelectedRowData(newSelectedRowByDeselected);
+    },
+    [selectedRowData, selectedRowKeys],
+  );
 
   const convertItemExport = (item: InventoryTransferDetailItem) => {
     return {
@@ -1101,15 +1103,19 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
   useEffect(() => {
     setTableLoading(true);
     if (activeTab === "") return;
+    if (!accountStores) return;
     if (stores?.length === 0) return;
 
     let status: string[] = [];
     switch (activeTab) {
       case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
-        status = ["transferring", "confirmed"];
+        status = [
+          STATUS_INVENTORY_TRANSFER.TRANSFERRING.status,
+          STATUS_INVENTORY_TRANSFER.CONFIRM.status,
+        ];
         break;
       case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
-        status = ["transferring"];
+        status = [STATUS_INVENTORY_TRANSFER.TRANSFERRING.status];
         break;
       default:
         break;
@@ -1119,16 +1125,11 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       ...params,
       status: params.status.length > 0 ? params.status : status,
     };
-    if (accountStores?.length === 0) {
-      dispatch(getListInventoryTransferAction(newParams, setSearchResult));
-      return;
-    }
 
     let accountStoreSelected =
-      accountStores && accountStores.length > 0 ? accountStores.map((i) => i.id).join(',') : null;
+      accountStores && accountStores.length > 0 ? accountStores.map((i) => i.id).join(",") : null;
 
     switch (activeTab) {
-      // case InventoryTransferTabUrl.LIST:
       case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
         newParams = {
           ...newParams,
@@ -1175,6 +1176,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
         isLoadingAction={tableLoading}
         activeTab={activeTab}
         accounts={accounts}
+        defaultAccountProps={defaultAccountProps}
         params={params}
         stores={stores}
         accountStores={accountStores}
@@ -1200,9 +1202,11 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
         selectedRowKey={selectedRowKeys}
         isLoading={tableLoading}
         scroll={{ x: 1000 }}
-        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
         pagination={false}
-        onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
+        onSelectedChange={(selectedRows, selected, changeRow) =>
+          onSelectedChange(selectedRows, selected, changeRow)
+        }
         onShowColumnSetting={() => setShowSettingColumn(true)}
         dataSource={data.items}
         columns={columnFinal}

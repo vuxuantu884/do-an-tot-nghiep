@@ -28,7 +28,7 @@ import classNames from "classnames";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig from "config/url.config";
 import {

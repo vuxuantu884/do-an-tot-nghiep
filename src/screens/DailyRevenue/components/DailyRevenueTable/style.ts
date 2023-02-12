@@ -62,7 +62,7 @@ export const StyledComponent = styled.div`
   .revenue-payment {
     display: block;
   }
-  .revenue-states {
+  td.revenue-states {
     color: #ffffff;
     .draft {
       padding: 5px;
@@ -82,24 +82,24 @@ export const StyledComponent = styled.div`
     }
   }
   .total-payment {
-    font-weight: 600;
+    /* font-weight: 600; */
     color: #2a2a86;
   }
   .total-cost {
-    font-weight: 600;
+    /* font-weight: 600; */
     color: #2a2a86;
   }
   .other-payment {
-    font-weight: 600;
+    /* font-weight: 600; */
     color: #2a2a86;
   }
   .amount {
-    font-weight: 600;
+    /* font-weight: 600; */
     color: #e24343;
   }
   .remaining-amount {
     color: #000000;
-    font-weight: 600;
+    /* font-weight: 600; */
   }
   .ant-table-body > table > colgroup > col.ant-table-selection-col {
     width: 30px !important;

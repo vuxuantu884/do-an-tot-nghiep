@@ -41,6 +41,9 @@
             display: block;
           }
         }
+        &-title {
+          font-size: 12px;
+        }
         &-tail {
           margin-left: -42px !important;
         }
@@ -134,6 +137,15 @@
   .returned {
     .ant-steps-icon-dot {
       background-color: #e24343 !important;
+    }
+  }
+  .draft {
+    .ant-steps-item-tail {
+      background-color: #d9d9e4 !important;
+      &::after {
+        background-color: #d9d9e4 !important;
+        height: 1px !important;
+      }
     }
   }
   .inactive {

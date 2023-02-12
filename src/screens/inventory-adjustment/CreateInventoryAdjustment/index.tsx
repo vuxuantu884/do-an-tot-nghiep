@@ -33,9 +33,7 @@ import { ConvertFullAddress } from "utils/ConvertAddress";
 import CustomSelect from "component/custom/select.custom";
 import NumberInput from "component/custom/number-input.custom";
 import _, { parseInt } from "lodash";
-import {
-  createInventoryAdjustmentAction,
-} from "domain/actions/inventory/inventory-adjustment.action";
+import { createInventoryAdjustmentAction } from "domain/actions/inventory/inventory-adjustment.action";
 import { Link } from "react-router-dom";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import CustomDatePicker from "component/custom/date-picker.custom";
@@ -353,18 +351,21 @@ const CreateInventoryAdjustment: FC = () => {
     drawColumns(newResult);
   };
 
-  const onBeforeUpload = useCallback((file) => {
-    const isLt2M = file.size / 1024 / 1024 < 10;
-    if (!isLt2M) {
-      showWarning("Cần chọn file nhỏ hơn 10mb");
-    }
-    const fileListFiltered = fileList.filter((oldFile) => oldFile.name === file.name);
-    if (fileListFiltered.length > 0) {
-      showWarning("File tải lên bị trùng.");
-      return Upload.LIST_IGNORE;
-    }
-    return isLt2M ? true : Upload.LIST_IGNORE;
-  }, [fileList]);
+  const onBeforeUpload = useCallback(
+    (file) => {
+      const isLt2M = file.size / 1024 / 1024 < 10;
+      if (!isLt2M) {
+        showWarning("Cần chọn file nhỏ hơn 10mb");
+      }
+      const fileListFiltered = fileList.filter((oldFile) => oldFile.name === file.name);
+      if (fileListFiltered.length > 0) {
+        showWarning("File tải lên bị trùng.");
+        return Upload.LIST_IGNORE;
+      }
+      return isLt2M ? true : Upload.LIST_IGNORE;
+    },
+    [fileList],
+  );
 
   const onCustomRequest = (options: UploadRequestOption) => {
     const { file } = options;
@@ -750,7 +751,7 @@ const CreateInventoryAdjustment: FC = () => {
           fullTextSearch(keyLowerCase, e.sku?.toLocaleLowerCase()) ||
           fullTextSearch(keyLowerCase, e.name?.toLocaleLowerCase()) ||
           fullTextSearch(keyLowerCase, e.code?.toLocaleLowerCase()) ||
-          fullTextSearch(keyLowerCase,  e.barcode?.toLocaleLowerCase())
+          fullTextSearch(keyLowerCase, e.barcode?.toLocaleLowerCase())
         );
       }),
     ];
@@ -789,7 +790,7 @@ const CreateInventoryAdjustment: FC = () => {
       breadcrumb={[
         {
           name: "Kho hàng",
-          path: UrlConfig.HOME,
+          // path: UrlConfig.HOME,
         },
         {
           name: "Kiểm kho",
@@ -888,19 +889,22 @@ const CreateInventoryAdjustment: FC = () => {
                         store ? setFormStoreData(store) : setFormStoreData(null);
                       }}
                     >
-                      {Array.isArray(myStores) &&
-                        myStores.length > 0 ?
-                        myStores.map((item, index) => (
-                          <Option key={"adjusted_store_id" + index} value={item.store_id ? item.store_id.toString() : ''}>
-                            {item.store}
-                          </Option>
-                        )) : Array.isArray(stores) &&
-                        stores.length > 0 &&
-                        stores.map((item, index) => (
-                          <Option key={"adjusted_store_id" + index} value={item.id.toString()}>
-                            {item.name}
-                          </Option>
-                        ))}
+                      {Array.isArray(myStores) && myStores.length > 0
+                        ? myStores.map((item, index) => (
+                            <Option
+                              key={"adjusted_store_id" + index}
+                              value={item.store_id ? item.store_id.toString() : ""}
+                            >
+                              {item.store}
+                            </Option>
+                          ))
+                        : Array.isArray(stores) &&
+                          stores.length > 0 &&
+                          stores.map((item, index) => (
+                            <Option key={"adjusted_store_id" + index} value={item.id.toString()}>
+                              {item.name}
+                            </Option>
+                          ))}
                     </CustomSelect>
                   </Form.Item>
                 </Col>
@@ -925,49 +929,59 @@ const CreateInventoryAdjustment: FC = () => {
               <>
                 {auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY ? (
                   <>
-                    <Input.Group className="display-flex">
-                      <CustomAutoComplete
-                        id="#product_search_variant"
-                        dropdownClassName="product"
-                        placeholder="Thêm sản phẩm vào phiếu kiểm"
-                        onSearch={(key: string) => onSearchProductDebounce(key)}
-                        dropdownMatchSelectWidth={456}
-                        style={{ width: "100%" }}
-                        showAdd={true}
-                        textAdd="Thêm mới sản phẩm"
-                        onSelect={onSelectProduct}
-                        options={renderResult}
-                        ref={productSearchRef}
-                        onClickAddNew={() => {
-                          window.open(`${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`, "_blank");
-                        }}
-                      />
-                      <Button
-                        onClick={() => {
-                          if (!form.getFieldValue("adjusted_store_id")) {
-                            showError("Vui lòng chọn kho kiểm");
-                            return;
-                          }
-                          setVisibleManyProduct(true);
-                        }}
-                        style={{ width: 132, marginLeft: 10 }}
-                        icon={<img src={PlusOutline} alt="" />}
-                      >
-                        &nbsp;&nbsp; Chọn nhiều
-                      </Button>
-                      <Input
-                        name="key_search"
-                        value={keySearch}
-                        onChange={(e) => {
-                          setKeySearch(e.target.value);
-                          onChangeKeySearch(e.target.value);
-                        }}
-                        style={{ marginLeft: 8 }}
-                        placeholder="Tìm kiếm sản phẩm trong phiếu"
-                        addonAfter={
-                          <SearchOutlined onClick={clickSearch} style={{ color: "#2A2A86" }} />
-                        }
-                      />
+                    <Input.Group>
+                      <Row gutter={12}>
+                        <Col flex="auto">
+                          <CustomAutoComplete
+                            id="#product_search_variant"
+                            dropdownClassName="product"
+                            placeholder="Thêm sản phẩm vào phiếu kiểm"
+                            onSearch={(key: string) => onSearchProductDebounce(key)}
+                            dropdownMatchSelectWidth={456}
+                            style={{ width: "100%" }}
+                            showAdd={true}
+                            textAdd="+ Thêm mới sản phẩm"
+                            onSelect={onSelectProduct}
+                            options={renderResult}
+                            ref={productSearchRef}
+                            onClickAddNew={() => {
+                              window.open(
+                                `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
+                                "_blank",
+                              );
+                            }}
+                          />
+                        </Col>
+                        <Col flex="120px">
+                          <Button
+                            onClick={() => {
+                              if (!form.getFieldValue("adjusted_store_id")) {
+                                showError("Vui lòng chọn kho kiểm");
+                                return;
+                              }
+                              setVisibleManyProduct(true);
+                            }}
+                            style={{ width: "100%" }}
+                            icon={<img src={PlusOutline} alt="" />}
+                          >
+                            &nbsp;&nbsp; Chọn nhiều
+                          </Button>
+                        </Col>
+                        <Col flex="auto">
+                          <Input
+                            name="key_search"
+                            value={keySearch}
+                            onChange={(e) => {
+                              setKeySearch(e.target.value);
+                              onChangeKeySearch(e.target.value);
+                            }}
+                            placeholder="Tìm kiếm sản phẩm trong phiếu"
+                            addonAfter={
+                              <SearchOutlined onClick={clickSearch} style={{ color: "#2A2A86" }} />
+                            }
+                          />
+                        </Col>
+                      </Row>
                     </Input.Group>
                     <CustomTable
                       className="product-table"

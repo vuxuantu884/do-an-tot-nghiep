@@ -4,9 +4,10 @@ import { FulFillmentResponse, OrderResponse } from "model/response/order/order.r
 import moment from "moment";
 import FulfillmentStatusTag from "screens/order-online/component/order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "screens/order-online/component/order-detail/PrintShippingLabel";
-import { copyTextToClipboard, sortFulfillments } from "utils/AppUtils";
+import { copyTextToClipboard } from "utils/AppUtils";
 import { FulFillmentStatus, ShipmentMethod } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
+import { sortFulfillments } from "utils/fulfillmentUtils";
 import { checkIfFulfillmentCancelled } from "utils/OrderUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";

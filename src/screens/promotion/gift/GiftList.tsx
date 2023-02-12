@@ -7,7 +7,7 @@ import ContentContainer from "component/container/content.container";
 import threeDot from "assets/icon/three-dot.svg";
 import { PROMOTION_GIFT_PERMISSIONS } from "config/permissions/promotion.permisssion";
 import useAuthorization from "hook/useAuthorization";
-import { GiftSearchQuery, PromotionGift } from "model/promotion/gift.model";
+import { GIFT_STATE_ENUM, GiftSearchQuery, PromotionGift } from "model/promotion/gift.model";
 import { useDispatch } from "react-redux";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
@@ -15,7 +15,7 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import { PageResponse } from "model/base/base-metadata.response";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
-import { DISCOUNT_STATUS } from "../constants";
+import { DISCOUNT_STATUS } from "screens/promotion/constants";
 import DatePromotionColumn from "screens/promotion/shared/date-column";
 import { generateQuery } from "utils/AppUtils";
 import queryString from "query-string";
@@ -66,10 +66,14 @@ const GiftList = () => {
   const [params, setParams] = useState<GiftSearchQuery>(initQuery);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
 
-  //phân quyền
+  /** phân quyền */
   const [allowUpdateGift] = useAuthorization({
     acceptPermissions: [PROMOTION_GIFT_PERMISSIONS.UPDATE],
   });
+  const [allowActiveGift] = useAuthorization({
+    acceptPermissions: [PROMOTION_GIFT_PERMISSIONS.ACTIVE],
+  });
+  /** */
 
   /** handle get promotion gift list */
   const getPromotionGiftListCallback = useCallback((data: PageResponse<PromotionGift> | null) => {
@@ -177,32 +181,38 @@ const GiftList = () => {
       align: "center",
       render: (id: number, item: any) => (
         <Dropdown.Button
-          disabled={!allowUpdateGift}
+          disabled={!allowUpdateGift && !allowActiveGift}
           overlay={
             <Menu>
-              <Menu.Item icon={<EditOutlined />} key={1}>
-                <Link to={`${UrlConfig.GIFT}/${id}/update`}>Chỉnh sửa</Link>
-              </Menu.Item>
-              {item.state === "DISABLED" ? (
-                <Menu.Item
-                  key={3}
-                  icon={<FiCheckCircle />}
-                  onClick={() => {
-                    handleActivatePromotionGift(id);
-                  }}
-                >
-                  Kích hoạt
+              {allowUpdateGift &&
+                <Menu.Item icon={<EditOutlined />} key={1}>
+                  <Link to={`${UrlConfig.GIFT}/${id}/update`}>Chỉnh sửa</Link>
                 </Menu.Item>
-              ) : (
-                <Menu.Item
-                  key={3}
-                  icon={<RiDeleteBin2Fill />}
-                  onClick={() => {
-                    handleDeactivatePromotionGift(id);
-                  }}
-                >
-                  Tạm ngừng
-                </Menu.Item>
+              }
+              {allowActiveGift && (
+                <>
+                  {(item.state === GIFT_STATE_ENUM.DISABLED || item.state === GIFT_STATE_ENUM.PENDING) ? (
+                   <Menu.Item
+                     key={3}
+                     icon={<FiCheckCircle />}
+                     onClick={() => {
+                       handleActivatePromotionGift(id);
+                     }}
+                   >
+                     Kích hoạt
+                   </Menu.Item>
+                  ) : (
+                   <Menu.Item
+                     key={3}
+                     icon={<RiDeleteBin2Fill />}
+                     onClick={() => {
+                       handleDeactivatePromotionGift(id);
+                     }}
+                   >
+                     Tạm ngừng
+                   </Menu.Item>
+                  )}
+                </>
               )}
             </Menu>
           }

@@ -18,8 +18,9 @@ import { AppConfig } from "config/app.config";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import { StoreByDepartment, StoreResponse } from "model/core/store.model";
+import { PageResponse } from "../../../../../../model/base/base-metadata.response";
 
 const ACTIONS_STATUS_ARRAY = [
   {
@@ -57,6 +58,7 @@ type InventoryFilterProps = {
   actions: Array<MenuAction>;
   isLoading?: Boolean;
   accounts: Array<AccountResponse> | undefined;
+  defaultAccountProps?: PageResponse<AccountResponse>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery | Object) => void;
   onShowColumnSetting?: () => void;
@@ -77,6 +79,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
     onShowColumnSetting,
     stores,
     accounts,
+    defaultAccountProps,
   } = props;
   const [formAdv] = Form.useForm();
   const formRef = createRef<FormInstance>();
@@ -375,6 +378,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
                 <Col span={12}>
                   <Item label="Người sửa" name="updated_by">
                     <AccountSearchPaging
+                      defaultAccountProps={defaultAccountProps}
                       mode="tags"
                       placeholder="Chọn người sửa"
                       fixedQuery={{

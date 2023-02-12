@@ -3,32 +3,25 @@ import { formatCurrency } from "utils/AppUtils";
 export const inventoryBalanceColumns: any[] = [
   {
     title: "STT",
-    children: [
-      {
-        title: "---",
-        dataIndex: "no",
-        key: "no",
-        fixed: "left",
-        width: 60,
-      },
-    ],
+    dataIndex: "no",
+    key: "no",
+    fixed: "left",
+    width: 60,
+    render: (text: string | number | null, row: any) => {
+      return <span className={row.className}>{text}</span>;
+    },
   },
   {
-    title: "Mã vật tư",
+    title: "Phiên bản",
     children: [
       {
-        title: "SKU",
+        title: "Mã SKU",
         dataIndex: "sku_code",
         key: "sku_code",
         fixed: "left",
       },
-    ],
-  },
-  {
-    title: "Tên vật tư",
-    children: [
       {
-        title: "SKU description",
+        title: "Tên SKU",
         dataIndex: "sku_name",
         key: "sku_name",
         fixed: "left",
@@ -38,108 +31,68 @@ export const inventoryBalanceColumns: any[] = [
   },
   {
     title: "Kho",
-    children: [
-      {
-        title: "Store",
-        dataIndex: "store",
-        key: "store",
-        fixed: "left",
-      },
-    ],
+    dataIndex: "store",
+    key: "store",
+    fixed: "left",
   },
   {
-    title: "Nhóm sản phẩm",
-    children: [
-      {
-        title: "Product group level 1",
-        dataIndex: "product_group_leve1",
-        key: "product_group_leve1",
-        width: 150,
-      },
-      {
-        title: "Product group level 2",
-        dataIndex: "product_group_leve2",
-        key: "product_group_leve2",
-        width: 150,
-      },
-    ],
+    title: "Danh mục",
+    dataIndex: "product_group_leve1",
+    key: "product_group_leve1",
+    width: 150,
+  },
+  {
+    title: "Tên sản phẩm",
+    dataIndex: "product_group_leve2",
+    key: "product_group_leve2",
+    width: 150,
   },
   {
     title: "Màu",
-    children: [
-      {
-        title: "Color",
-        dataIndex: "name_color",
-        key: "name_color",
-      },
-    ],
+    dataIndex: "name_color",
+    key: "name_color",
   },
   {
-    title: "",
-    children: [
-      {
-        title: "Size",
-        dataIndex: "name_size",
-        key: "name_size",
-        width: 40,
-      },
-    ],
+    title: "Size",
+    dataIndex: "name_size",
+    key: "name_size",
+    width: 40,
   },
   {
-    title: "",
-    children: [
-      {
-        title: "Barcode",
-        dataIndex: "name_barcode",
-        key: "name_barcode",
-      },
-    ],
+    title: "Mã vạch",
+    dataIndex: "name_barcode",
+    key: "name_barcode",
   },
   {
-    title: "DVT",
-    children: [
-      {
-        title: "Currency",
-        dataIndex: "name_currency",
-        key: "name_currency",
-        width: 70,
-      },
-    ],
+    title: "ĐVT",
+    dataIndex: "name_currency",
+    key: "name_currency",
+    width: 70,
   },
   {
     title: "Giá vốn",
-    children: [
-      {
-        title: "Cost price",
-        dataIndex: "cost_price",
-        key: "cost_price",
-        align: "right",
-      },
-    ],
+    dataIndex: "cost_price",
+    key: "cost_price",
+    align: "right",
   },
   {
     title: "Giá bán",
-    children: [
-      {
-        title: "Retail price",
-        dataIndex: "retail_price",
-        key: "retail_price",
-        align: "right",
-      },
-    ],
+    dataIndex: "retail_price",
+    key: "retail_price",
+    align: "right",
   },
   {
-    title: "Số dư đầu kì (Opening balance)",
+    title: "Số dư đầu kì",
     children: [
       {
-        title: "Số lượng (Quantity)",
+        title: "Số lượng",
         dataIndex: "t13",
         key: "t13",
         align: "right",
         width: 150,
       },
       {
-        title: "Giá trị (Amount)",
+        title: "Giá trị",
         dataIndex: "t14",
         key: "t14",
         align: "right",
@@ -147,21 +100,21 @@ export const inventoryBalanceColumns: any[] = [
     ],
   },
   {
-    title: "Nhập kho (Stock in)",
+    title: "Nhập kho",
     children: [
       {
-        title: "Nhập mua từ NCC",
+        title: "Nhập mua từ nhà cung cấp",
         dataIndex: "n01",
         key: "n01",
         align: "right",
-        width: 135,
+        width: 180,
       },
       {
-        title: "Giá trị mua từ NCC",
+        title: "Giá trị mua từ nhà cung cấp",
         dataIndex: "n07",
         key: "n07",
         align: "right",
-        width: 135,
+        width: 190,
       },
       {
         title: "Nhận hàng chuyển kho",
@@ -238,19 +191,21 @@ export const inventoryBalanceColumns: any[] = [
     ],
   },
   {
-    title: "Xuất kho (Stock out)",
+    title: "Xuất kho",
     children: [
       {
-        title: "Trả lại NCC",
+        title: "Trả lại nhà cung cấp",
         dataIndex: "x01",
         key: "x01",
         align: "right",
+        width: 160,
       },
       {
-        title: "Giá trị trả lại NCC",
+        title: "Giá trị trả lại nhà cung cấp",
         dataIndex: "x02",
         key: "x02",
         align: "right",
+        width: 180,
       },
       {
         title: "Xuất chuyển kho",
@@ -324,50 +279,58 @@ export const inventoryBalanceColumns: any[] = [
     ],
   },
   {
-    title: "Dư cuối kì (Closing Balance)",
+    title: "Dư cuối kì",
     children: [
       {
-        title: "Số lượng (Quantity)",
+        title: "Số lượng",
         dataIndex: "t39",
         key: "t39",
         align: "right",
-        width: 135,
+        width: 115,
       },
       {
-        title: "Giá trị (Amount)",
+        title: "Giá trị",
         dataIndex: "t40",
         key: "t40",
         align: "right",
-        width: 135,
+        width: 115,
       },
     ],
   },
   {
     title: "Tồn kho tại thời điểm",
-    children: [
-      {
-        title: "Spot data",
-        dataIndex: "t41",
-        key: "t41",
-        align: "right",
-        width: 150,
-      },
-    ],
+    dataIndex: "t41",
+    key: "t41",
+    align: "right",
+    width: 150,
   },
 ].map((item: any) => {
-  item.children = item.children.map((child: any) => {
-    return {
-      ...child,
-      width: child.width ? child.width : 120,
-      className: "text-center",
-      render: (text: string | number | null, row: any) => {
-        return text && typeof text === "number" ? (
-          <span className={row.className}>{formatCurrency(text) ?? "-"}</span>
-        ) : (
-          <span className={row.className}>{text ?? "-"}</span>
-        );
-      },
-    };
-  });
-  return { ...item, width: item.width ? item.width : 120, className: "text-center" };
+  if (item.children) {
+    item.children = item.children.map((child: any) => {
+      return {
+        ...child,
+        width: child.width ? child.width : 120,
+        className: "text-center",
+        render: (text: string | number | null, row: any) => {
+          return text && typeof text === "number" ? (
+            <span className={row.className}>{formatCurrency(text) ?? "-"}</span>
+          ) : (
+            <span className={row.className}>{text ?? "-"}</span>
+          );
+        },
+      };
+    });
+  }
+  return {
+    ...item,
+    width: item.width ? item.width : 120,
+    className: "text-center",
+    render: (text: string | number | null, row: any) => {
+      return text && typeof text === "number" ? (
+        <span className={row.className}>{formatCurrency(text) ?? "-"}</span>
+      ) : (
+        <span className={row.className}>{text ?? "-"}</span>
+      );
+    },
+  };
 });

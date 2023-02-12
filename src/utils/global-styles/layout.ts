@@ -12,13 +12,4 @@ export const globalCssLayout = css`
       }
     }
   }
-  .zsiq_floatmain {
-    bottom: 80px !important;
-  }
-
-  @media (max-width: 700px) {
-    .zsiq_floatmain {
-      display: none !important;
-    }
-  }
 `;

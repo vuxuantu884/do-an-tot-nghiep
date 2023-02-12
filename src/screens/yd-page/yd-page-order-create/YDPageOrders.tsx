@@ -79,7 +79,11 @@ import {
 } from "model/response/settings/order-settings.response";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { YDpageCustomerRequest } from "model/request/customer.request";
-import { getLoyaltyPoint, getLoyaltyRate, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
+import {
+  getLoyaltyPoint,
+  getLoyaltyRate,
+  getLoyaltyUsage,
+} from "domain/actions/loyalty/loyalty.action";
 import { modalActionType } from "model/modal/modal.model";
 import _ from "lodash";
 import "./styles.scss";
@@ -92,6 +96,7 @@ import NumberFormat from "react-number-format";
 import { AppConfig } from "config/app.config";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { DiscountValueType } from "model/promotion/price-rules.model";
+import { SourceResponse } from "model/response/order/source.response";
 
 let typeButton = "";
 
@@ -150,7 +155,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
   } = props;
   const dispatch = useDispatch();
 
-  const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
+  const [marketerCodeValue, setMarketerCodeValue] = useState<string>("");
+  const [isShowTextNote, setIsShowTextNote] = useState<boolean>(false);
+  const [orderSource, setOrderSource] = useState<SourceResponse | null>(null);
   const [isSaveDraft, setIsSaveDraft] = useState(false);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
@@ -1220,8 +1227,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const totalAmountOrder = useMemo(() => {
     return Math.round(
       orderAmount +
-      (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-      (promotion?.value || 0)
+        (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
+        (promotion?.value || 0),
     );
   }, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
 
@@ -1454,7 +1461,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       setVisibleCustomer={setVisibleCustomer}
                       modalAction={modalAction}
                       setModalAction={setModalAction}
-                      setOrderSourceId={setOrderSourceId}
+                      setOrderSource={setOrderSource}
                       defaultSourceId={defaultSourceId}
                       form={form}
                       setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
@@ -1483,7 +1490,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       setInventoryResponse={setInventoryResponse}
                       totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       orderConfig={orderConfig}
-                      orderSourceId={orderSourceId}
+                      orderSource={orderSource}
                       coupon={coupon}
                       setCoupon={setCoupon}
                       loyaltyPoint={null}
@@ -1537,6 +1544,11 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       tags={tags}
                       onChangeTag={onChangeTag}
                       customerId={customer?.id}
+                      orderSource={orderSource}
+                      marketerCodeValue={marketerCodeValue}
+                      setMarketerCodeValue={setMarketerCodeValue}
+                      isShowTextNote={isShowTextNote}
+                      setIsShowTextNote={setIsShowTextNote}
                     />
                   </Col>
                 </Row>
@@ -1547,6 +1559,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
                   showSaveAndConfirmModal={showSaveAndConfirmModal}
                   creating={creating}
                   isSaveDraft={isSaveDraft}
+                  orderSource={orderSource}
+                  setMarketerCodeValue={setMarketerCodeValue}
+                  setIsShowTextNote={setIsShowTextNote}
                 />
               </Form>
             )

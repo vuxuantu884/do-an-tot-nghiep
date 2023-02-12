@@ -90,7 +90,7 @@ export const StyledComponent = styled.div`
   .order-filter-tags {
     /* margin-bottom: 10px; */
     .tag {
-      padding: 10px 10px;
+      padding: 4px 10px;
       margin-bottom: 15px;
       background: rgba(42, 42, 134, 0.05);
       border-radius: 50px;
@@ -204,7 +204,7 @@ export const StyledComponent = styled.div`
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
     }
-    .ant-select {
+    /* .ant-select {
       .ant-select-selector {
         .ant-select-selection-item {
           background-color: #2a2a86;
@@ -220,7 +220,7 @@ export const StyledComponent = styled.div`
           }
         }
       }
-    }
+    } */
     .active {
       color: #ffffff;
       border-color: rgba(42, 42, 134, 0.1);

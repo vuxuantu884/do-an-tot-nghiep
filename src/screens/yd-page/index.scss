@@ -237,7 +237,7 @@
     line-height: 20px;
   }
   .ant-layout-header {
-    display: none;
+    display: none !important;
   }
   .saleorder-products-modal {
     .ant-modal-body {
@@ -465,6 +465,19 @@
       .ant-form-item-control {
         flex: 1 !important;
       }
+    }
+  }
+}
+
+.order-create-shipment {
+  .text-note {
+    margin-top: -10px;
+    color: red;
+    margin-bottom: 0px;
+  }
+  .input-empty {
+    .ant-select-selector {
+      border-color: red;
     }
   }
 }

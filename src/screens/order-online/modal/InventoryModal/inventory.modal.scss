@@ -1,0 +1,14 @@
+.inventory-modal {
+  .customer-title {
+    display: inline-flex;
+    justify-content: space-between;
+    width: 100%;
+    flex-direction: row;
+  }
+  .input-search {
+    width: 30%;
+  }
+  .title {
+    line-height: 35px;
+  }
+}

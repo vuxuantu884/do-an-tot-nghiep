@@ -226,6 +226,33 @@ export const batchShippingShopeeProductApi = (requestBody: any): Promise<BaseRes
   return BaseAxios.post(requestUrl, requestBody);
 };
 
+//shoppe shops details products pushing
+export const shopeeShopsDetailsProductPushingApi = (): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/boost-item/shops`;
+  return BaseAxios.get(requestUrl);
+};
+
+//shoppe shop details products pushing
+export const shopeeShopDetailsProductPushingApi = (id: string): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/boost-item/shops/${id}`;
+  return BaseAxios.get(requestUrl);
+};
+
+//shopee - search products
+export const shopeeShopProductSearchApi = (
+  id: string,
+  skuOrName: string,
+): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/boost-item/products/shop/${id}`;
+  return BaseAxios.get(requestUrl, { params: { sku_or_name_id: skuOrName } });
+};
+
+//shoppe - update products pushing
+export const updateProductsPushingApi = (id: string, body: any): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/boost-item/shop/${id}`;
+  return BaseAxios.put(requestUrl, body);
+};
+
 //get log inventory follow variant
 export const getLogInventoryVariantApi = (variant_id: any) => {
   let link = `${ApiConfig.ECOMMERCE}/variants/sync-stock-logs/${variant_id}`;
@@ -253,6 +280,13 @@ export const getDataInventoryUnicornProductActionApi = (
   return BaseAxios.get(
     `${ApiConfig.ECOMMERCE}/variants/${variantId}/multi-warehouses?${queryString}`,
   );
+};
+
+export const updateSafeInventoryProduct = (
+  body: any,
+  ecommerce_variant_id: string,
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.put(`${ApiConfig.ECOMMERCE}/variants/${ecommerce_variant_id}/min-stock`, body);
 };
 
 export {

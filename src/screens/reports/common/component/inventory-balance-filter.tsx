@@ -68,7 +68,7 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
             ?.map((item: any) => item.sku_code)
             .includes(keySearch);
           if (shouldAddOption(keySearch, productSkus, "sku_code") && !isSelectedSkus) {
-            const opt = { sku_code: keySearch, sku_name: keySearch };
+            const opt = { sku_code: keySearch, sku_name: "" };
             setProductSkus([...productSkus, opt]);
           }
           break;
@@ -105,6 +105,9 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
   });
 
   const onReloadStore = () => {
+    form.setFieldsValue({
+      [InventoryBalanceFilterForm.Inventory]: null,
+    });
     fetchStores();
   };
 
@@ -150,7 +153,7 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
     const { productGroupLv1 } = form.getFieldsValue();
     if (!productGroupLv1) {
       setProductGroupLv2([]);
-      showWarning("Vui lòng chọn nhóm sản phẩm cấp 1");
+      showWarning("Vui lòng chọn danh mục");
       return;
     }
     const response = await fetchProductInfo(dispatch, { productGroupLv1: productGroupLv1 });
@@ -170,7 +173,7 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
     const { productGroupLv2 } = form.getFieldsValue();
     if (!productGroupLv2) {
       setProductSkus([]);
-      showWarning("Vui lòng chọn nhóm sản phẩm cấp 2");
+      showWarning("Vui lòng chọn tên sản phẩm");
       return;
     }
     const response = await fetchProductInfo(dispatch, { productGroupLv2 });
@@ -189,7 +192,7 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
   const onChangeSkuCodes = () => {
     const { skuCodes } = form.getFieldsValue();
     form.setFieldsValue({
-      skuNames: skuCodes,
+      skuNames: skuCodes.filter((item: string) => JSON.parse(item).sku_name),
     });
   };
 
@@ -304,14 +307,14 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
               <Row gutter={50}>
                 <Col span={24}>
                   <Form.Item
-                    label="Nhóm sản phẩm cấp 1"
+                    label="Danh mục"
                     labelCol={{ span: 24 }}
                     name={InventoryBalanceFilterForm.ProductGroupLv1}
                   >
                     <Select
                       showSearch
                       allowClear
-                      placeholder={"Chọn nhóm sản phẩm cấp 1"}
+                      placeholder={"Chọn danh mục"}
                       onSearch={(value) =>
                         addAdditionalOptions(InventoryBalanceFilterForm.ProductGroupLv1, value)
                       }
@@ -329,14 +332,14 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
               <Row gutter={50}>
                 <Col span={24}>
                   <Form.Item
-                    label="Nhóm sản phẩm cấp 2"
+                    label="Tên sản phẩm"
                     labelCol={{ span: 24 }}
                     name={InventoryBalanceFilterForm.ProductGroupLv2}
                   >
                     <Select
                       showSearch
                       allowClear
-                      placeholder={"Chọn nhóm sản phẩm cấp 2"}
+                      placeholder={"Chọn tên sản phẩm"}
                       onSearch={(value) =>
                         addAdditionalOptions(InventoryBalanceFilterForm.ProductGroupLv2, value)
                       }
@@ -354,7 +357,7 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
               <Row gutter={50}>
                 <Col span={24}>
                   <Form.Item
-                    label="Tên vật tư"
+                    label="Tên SKU"
                     labelCol={{ span: 24 }}
                     name={InventoryBalanceFilterForm.SkuNames}
                   >
@@ -363,7 +366,7 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
                       allowClear
                       mode="multiple"
                       maxTagCount={"responsive"}
-                      placeholder={"Chọn tên vật tư"}
+                      placeholder={"Chọn tên SKU"}
                       filterOption={(input, option) => {
                         return option?.sku_name && input
                           ? searchNumberString(input, option?.sku_name as string)
@@ -384,7 +387,7 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
               <Row gutter={50}>
                 <Col span={24}>
                   <Form.Item
-                    label="Mã vật tư"
+                    label="Mã SKU"
                     labelCol={{ span: 24 }}
                     name={InventoryBalanceFilterForm.SkuCodes}
                   >
@@ -393,7 +396,7 @@ function InventoryBalanceFilter({ applyFilter }: Props) {
                       allowClear
                       mode="multiple"
                       maxTagCount={"responsive"}
-                      placeholder={"Chọn mã vật tư"}
+                      placeholder={"Chọn mã SKU"}
                       onSearch={(value) =>
                         addAdditionalOptions(InventoryBalanceFilterForm.SkuCodes, value)
                       }

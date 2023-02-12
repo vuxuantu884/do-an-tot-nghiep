@@ -14,11 +14,8 @@ import "assets/css/custom-filter.scss";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
-import TreeStore from "component/TreeStore";
-import { useDispatch } from "react-redux";
+import TreeStore from "component/CustomTreeSelect";
 import { StoreByDepartment, StoreResponse } from "model/core/store.model";
-import { callApiNative } from "utils/ApiUtils";
-import { getStoreApi } from "service/inventory/transfer/index.service";
 import CustomSelect from "component/custom/select.custom";
 import { STATUS_INVENTORY_TRANSFER_ARRAY } from "../../../../constants";
 
@@ -27,6 +24,7 @@ type InventoryExportFiltersProps = {
   params: InventoryTransferImportExportSearchQuery;
   isLoading: boolean;
   accounts: Array<AccountResponse> | undefined;
+  defaultAccountProps?: any;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery | Object) => void;
   onShowColumnSetting?: () => void;
@@ -40,11 +38,10 @@ const { Item } = Form;
 const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
   props: InventoryExportFiltersProps,
 ) => {
-  const { params, isLoading, onClearFilter, onFilter, accounts, activeTab, accountStores } = props;
+  const { params, isLoading, onClearFilter, onFilter, accounts, activeTab, accountStores, stores, defaultAccountProps } = props;
   const [formAdv] = Form.useForm();
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
-  const dispatch = useDispatch();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const filterFromParams = {
@@ -97,7 +94,6 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
   }, [filterFromParams, formAdv, formSearchRef, params]);
 
   const [visible, setVisible] = useState(false);
-  const [listStore, setListStore] = useState<Array<StoreResponse>>();
   const [dateClick, setDateClick] = useState("");
 
   const onFilterClick = useCallback(() => {
@@ -483,20 +479,6 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
     return list;
   }, [initialValues, accounts]);
 
-  useEffect(() => {
-    const getStores = async () => {
-      const res = await callApiNative({ isShowError: true }, dispatch, getStoreApi, {
-        status: "active",
-        simple: true,
-      });
-      if (res) {
-        setListStore(res);
-      }
-    };
-    getStores().then();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <InventoryExportFiltersWrapper>
       <div className="custom-filter-export">
@@ -508,10 +490,10 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
             layout="inline"
           >
             <Item name="from_store_id" className="select-item">
-              <TreeStore style={{ width: 280 }} placeholder="Kho gửi" storeByDepartmentList={listStore as unknown as StoreByDepartment[]} />
+              <TreeStore style={{ width: 280 }} placeholder="Kho gửi" storeByDepartmentList={stores as unknown as StoreByDepartment[]} />
             </Item>
             <Item name="to_store_id" className="select-item">
-              <TreeStore style={{ width: 280 }} placeholder="Kho nhận" storeByDepartmentList={listStore as unknown as StoreByDepartment[]} />
+              <TreeStore style={{ width: 280 }} placeholder="Kho nhận" storeByDepartmentList={stores as unknown as StoreByDepartment[]} />
             </Item>
             <Item style={{ width: "calc(100% - 880px)" }} name="condition" className="input-search">
               <Input
@@ -585,7 +567,7 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
               <Row gutter={12}>
                 <Col span={12}>
                   <Item label="Người tạo" name="created_by">
-                    <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple" />
+                    <AccountSearchPaging defaultAccountProps={defaultAccountProps} placeholder="Chọn người tạo" mode="multiple" />
                   </Item>
                 </Col>
                 <Col span={12}>
@@ -602,7 +584,7 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
               <Row gutter={12}>
                 <Col span={12}>
                   <Item label="Người chuyển" name="transfer_by">
-                    <AccountSearchPaging placeholder="Chọn người chuyển" mode="multiple" />
+                    <AccountSearchPaging defaultAccountProps={defaultAccountProps} placeholder="Chọn người chuyển" mode="multiple" />
                   </Item>
                 </Col>
                 <Col span={12}>
@@ -619,7 +601,7 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
               <Row gutter={12}>
                 <Col span={12}>
                   <Item label="Người nhận" name="received_by">
-                    <AccountSearchPaging placeholder="Chọn người nhận" mode="multiple" />
+                    <AccountSearchPaging defaultAccountProps={defaultAccountProps} placeholder="Chọn người nhận" mode="multiple" />
                   </Item>
                 </Col>
                 <Col span={12}>
@@ -636,7 +618,7 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
               <Row gutter={12}>
                 <Col span={12}>
                   <Item label="Người hủy" name="cancel_by">
-                    <AccountSearchPaging placeholder="Chọn người hủy" mode="multiple" />
+                    <AccountSearchPaging defaultAccountProps={defaultAccountProps} placeholder="Chọn người hủy" mode="multiple" />
                   </Item>
                 </Col>
                 <Col span={12}>

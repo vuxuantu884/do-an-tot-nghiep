@@ -27,6 +27,7 @@ import editIcon from "assets/icon/edit.svg";
 import threeDot from "assets/icon/three-dot.svg";
 import { PageResponse } from "model/base/base-metadata.response";
 import TextEllipsis from "component/table/TextEllipsis";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const updateCollectionPermission = [ProductPermission.collections_update];
 const deleteCollectionPermission = [ProductPermission.collections_delete];
@@ -284,7 +285,7 @@ const Collection = () => {
             onChange: changePage,
             onShowSizeChange: changePage,
           }}
-          sticky={{ offsetHeader: 55 }}
+          sticky={{ offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
         />
       </Card>
       <ModalDeleteConfirm

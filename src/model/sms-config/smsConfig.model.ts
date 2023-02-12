@@ -31,3 +31,12 @@ export interface smsFormBirthDay {
 export interface smsFormOrderOnline extends smsFormBirthDay {
   source_ids: Array<number>;
 }
+
+export interface smsPromotionVoucher {
+  id?: number;
+  content: string | null;
+  price_rule_id: number | null;
+  discount_code_length: number | null;
+  discount_code_prefix: string | null;
+  discount_code_suffix: string | null;
+}

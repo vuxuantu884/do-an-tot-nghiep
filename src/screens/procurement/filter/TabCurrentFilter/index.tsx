@@ -21,7 +21,7 @@ import { isArray } from "lodash";
 import BaseFilterResult from "component/base/BaseFilterResult";
 import { getStoreApi } from "service/inventory/transfer/index.service";
 import { StoreByDepartment, StoreResponse } from "model/core/store.model";
-import TreeStore from "component/TreeStore";
+import TreeStore from "component/CustomTreeSelect";
 import CustomSelect from "component/custom/select.custom";
 import { ProcurementStatus, ProcurementStatusName } from "utils/Constants";
 import CustomFilter from "component/table/custom.filter";

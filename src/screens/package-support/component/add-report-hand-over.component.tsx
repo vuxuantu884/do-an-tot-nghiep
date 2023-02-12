@@ -12,7 +12,6 @@ import { FulFillmentStatus, PUSHING_STATUS, RECEIPT_TYPE } from "utils/Constants
 import UrlConfig from "config/url.config";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { isFulfillmentPacked } from "utils/PackUtils";
 import ReportHandOverModal from "../modal/report-hand-over.modal";
 import { HandoverSearchRequest } from "model/handover/handover.search";
 import {
@@ -27,6 +26,7 @@ import BaseResponse from "base/base.response";
 import { fulfillmentListService } from "service/handover/ffm.service";
 import { FulfillmentDto } from "model/handover/fulfillment.dto";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { isFulfillmentPacked } from "utils/fulfillmentUtils";
 
 type Props = {
   setOrderPushFalseDelivery: (data: FulfillmentDto[]) => void;

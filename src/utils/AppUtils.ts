@@ -57,6 +57,7 @@ import {
 import { RegUtil } from "./RegUtils";
 import { showError, showSuccess } from "./ToastUtils";
 import { AppConfig } from "config/app.config";
+import { sortFulfillments } from "./fulfillmentUtils";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -1218,7 +1219,7 @@ export const convertActionLogDetailToText = (
     let discountAmount = 0;
     if (singleItem?.discount_items && singleItem?.discount_items.length > 0) {
       singleItem?.discount_items.forEach((discount: any) => {
-        discountAmount = discountAmount + discount.amount;
+        !discount.deleted && (discountAmount = discountAmount + discount.amount);
       });
     }
     return formatCurrency(discountAmount);
@@ -1250,7 +1251,7 @@ export const convertActionLogDetailToText = (
 			+ Số lượng: ${singleItem?.quantity} <br/>
 			+ Thuế : ${singleItem?.tax_rate || 0} <br/>
 			+ Chiết khấu sản phẩm: ${renderDiscountItem(singleItem)} <br/>
-			+ Thành tiền: ${formatCurrency(singleItem?.amount)} <br/>
+			+ Thành tiền: ${formatCurrency(singleItem?.line_amount_after_line_discount)} <br/>
 			`;
       })
       .join("<br/>")}
@@ -1410,14 +1411,6 @@ export const splitEllipsis = (value: string, length: number, lastLength: number)
 export const trimText = (text?: string) => {
   if (!text) return;
   return text.replace(/(\s)+/g, "");
-};
-
-export const sortFulfillments = (fulfillments: FulFillmentResponse[] | null | undefined) => {
-  if (!fulfillments) {
-    return [];
-  }
-  // lấy ffm có shipment, ko phải ffm ẩn rồi so sánh
-  return fulfillments.filter((single) => single.shipment).sort((a, b) => b.id - a.id);
 };
 
 export const goToTopPage = () => {
@@ -1909,8 +1902,7 @@ export const removeMultiWhitespaceAndTrimText = (value: string) => {
   return value.trim().replace(/\s\s+/g, " ");
 };
 
-//https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
-// sao không dùng lodash nhỉ
+//chuyển đổi mảng đa chiều sang mảng 1 chiều
 export const flattenArray = (arr: any) => {
   return arr.reduce(function (flat: any, toFlatten: any) {
     return flat.concat(Array.isArray(toFlatten) ? flattenArray(toFlatten) : toFlatten);

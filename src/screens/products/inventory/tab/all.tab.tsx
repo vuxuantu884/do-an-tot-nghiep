@@ -4,10 +4,7 @@ import { AppConfig } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
 import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import {
-  inventoryByVariantAction,
-  updateConfigInventoryAction,
-} from "domain/actions/inventory/inventory.action";
+import { inventoryByVariantAction } from "domain/actions/inventory/inventory.action";
 import { hideLoading } from "domain/actions/loading.action";
 import { HeaderSummary, SortType } from "hook/filter/HeaderSummary";
 import { debounce } from "lodash";
@@ -25,7 +22,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { HiChevronDoubleRight, HiOutlineChevronDoubleDown } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import { getInventoryConfigService } from "service/inventory";
+import { getInventoryConfigService, updateInventoryConfigService } from "service/inventory";
 import { generateQuery } from "utils/AppUtils";
 import {
   ellipseName,
@@ -64,6 +61,7 @@ import { OrderStatus, ORDER_SUB_STATUS } from "utils/Order.constants";
 import useGetChannels from "hook/order/useGetChannels";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { BaseQuery } from "model/base/base.query";
+import { EnumJobStatus } from "config/enum.config";
 
 let variantName = "";
 let variantSKU = "";
@@ -151,6 +149,11 @@ const AllTab: React.FC<any> = (props) => {
   const [exportProgressDetail, setExportProgressDetail] = useState<number>(START_PROCESS_PERCENT);
   const [statusExportDetail, setStatusExportDetail] = useState<number>(STATUS_IMPORT_EXPORT.NONE);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isLoadingExport, setIsLoadingExport] = useState(false);
+  const [isLoadingExportDetail, setIsLoadingExportDetail] = useState(false);
+  const [columnsConfig, setColumnsConfig] = useState<
+    Array<ICustomTableColumType<InventoryResponse>>
+  >([]);
   const channels = useGetChannels();
 
   const goDocument = useCallback(
@@ -981,10 +984,12 @@ const AllTab: React.FC<any> = (props) => {
                     (e) => e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY,
                   );
                   if (userConfigColumn.length === 0) return;
-                  const userConfig = userConfigColumn.reduce((p, c) => (p.id > c.id ? p : c));
+                  const userConfig = userConfigColumn.find(
+                    (e) => e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY,
+                  );
                   if (userConfig) {
                     let cf = JSON.parse(userConfig.json_content) as ConfigColumnInventory;
-
+                    setColumnsConfig(cf.Columns);
                     let isValidColumns = true;
                     for (let i = 0; i < cf.Columns.length; i++) {
                       if (typeof cf.Columns[i] === "string") {
@@ -1041,36 +1046,41 @@ const AllTab: React.FC<any> = (props) => {
     }
   }, [account, dispatch, defaultColumns, defaultColumnsDrill]);
 
-  const onSaveConfigColumn = useCallback(
-    (
-      data: Array<ICustomTableColumType<InventoryResponse>>,
-      dataDrill: Array<ICustomTableColumType<InventoryResponse>>,
-    ) => {
-      let config = lstConfig.find(
-        (e) => e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY,
-      ) as FilterConfigRequest;
-      if (!config) config = {} as FilterConfigRequest;
+  const onSaveConfigColumn = async (
+    data: Array<ICustomTableColumType<InventoryResponse>>,
+    dataDrill: Array<ICustomTableColumType<InventoryResponse>>,
+  ) => {
+    let config = lstConfig.find(
+      (e) => e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY,
+    ) as FilterConfigRequest;
+    if (!config) config = {} as FilterConfigRequest;
 
-      const newData = data.map((i) => {
-        return {
-          dataIndex: i.dataIndex,
-          visible: i.visible,
-        };
-      });
+    const newData = data.map((i) => {
+      return {
+        dataIndex: i.dataIndex,
+        visible: i.visible,
+      };
+    });
 
-      const configRequest = {
-        Columns: newData,
-        ColumnDrill: dataDrill.map((i: any) => i.dataIndex).filter((i) => i),
-      } as ConfigColumnInventory;
+    const configRequest = {
+      Columns: newData,
+      ColumnDrill: dataDrill.map((i: any) => i.dataIndex).filter((i) => i),
+    } as ConfigColumnInventory;
 
-      const json_content = JSON.stringify(configRequest);
-      config.type = COLUMN_CONFIG_TYPE.COLUMN_INVENTORY;
-      config.json_content = json_content;
-      config.name = `${account?.code}_config_column_inventory`;
-      dispatch(updateConfigInventoryAction(config));
-    },
-    [dispatch, account?.code, lstConfig],
-  );
+    const json_content = JSON.stringify(configRequest);
+    config.type = COLUMN_CONFIG_TYPE.COLUMN_INVENTORY;
+    config.json_content = json_content;
+    config.name = `${account?.code}_config_column_inventory`;
+    const res = await callApiNative(
+      { isShowError: true, isShowLoading: true },
+      dispatch,
+      updateInventoryConfigService,
+      config,
+    );
+    if (res) {
+      getConfigColumnInventory();
+    }
+  };
 
   const getConditions = useCallback(
     (type: string) => {
@@ -1101,6 +1111,7 @@ const AllTab: React.FC<any> = (props) => {
 
   const actionExport = {
     Ok: async (typeExport: string) => {
+      setIsLoadingExportDetail(true);
       if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
         setStatusExportDetail(0);
         showWarning("Bạn chưa chọn sản phẩm nào để xuất file");
@@ -1123,18 +1134,18 @@ const AllTab: React.FC<any> = (props) => {
         .catch(() => {
           setStatusExportDetail(STATUS_IMPORT_EXPORT.ERROR);
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
+          setIsLoadingExportDetail(false);
         });
     },
     Cancel: () => {
       setVExportInventory(false);
-      setShowExportModal(false);
       setExportProgressDetail(START_PROCESS_PERCENT);
       setStatusExportDetail(STATUS_IMPORT_EXPORT.NONE);
-      setExportProgress(START_PROCESS_PERCENT);
-      setStatusExport(STATUS_IMPORT_EXPORT.NONE);
+      setIsLoadingExportDetail(false);
     },
     OnExport: useCallback(
       (typeExport: string) => {
+        setIsLoadingExport(true);
         let objConditions = {
           store_ids: params.store_ids?.toString(),
           remain: params.remain,
@@ -1159,11 +1170,18 @@ const AllTab: React.FC<any> = (props) => {
           })
           .catch(() => {
             setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
+            setIsLoadingExport(false);
             showError("Có lỗi xảy ra, vui lòng thử lại sau");
           });
       },
       [getConditions, listExportFile, params.remain, params.store_ids],
     ),
+    cancelExport: () => {
+      setShowExportModal(false);
+      setExportProgress(START_PROCESS_PERCENT);
+      setStatusExport(STATUS_IMPORT_EXPORT.NONE);
+      setIsLoadingExport(false);
+    },
   };
 
   const checkExportFile = useCallback(() => {
@@ -1180,7 +1198,7 @@ const AllTab: React.FC<any> = (props) => {
             );
             setExportProgress(percent);
           }
-          if (response.data && response.data.status === "FINISH") {
+          if (response.data && response.data.status === EnumJobStatus.finish) {
             setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
             const fileCode = response.data.code;
             const newListExportFile = listExportFile.filter((item) => {
@@ -1193,7 +1211,15 @@ const AllTab: React.FC<any> = (props) => {
             downLoad.click();
             setListExportFile(newListExportFile);
             setExportProgress(FINISH_PROCESS_PERCENT);
+            setIsLoadingExport(false);
           }
+          if (response.data && response.data.status === EnumJobStatus.error) {
+            setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
+            setIsLoadingExport(false);
+          }
+        } else {
+          setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
+          setIsLoadingExport(false);
         }
       });
     });
@@ -1213,7 +1239,7 @@ const AllTab: React.FC<any> = (props) => {
             );
             setExportProgressDetail(percent);
           }
-          if (response.data && response.data.status === "FINISH") {
+          if (response.data && response.data.status === EnumJobStatus.finish) {
             setStatusExportDetail(STATUS_IMPORT_EXPORT.JOB_FINISH);
             const fileCode = response.data.code;
             const newListExportFile = listExportFileDetail.filter((item) => {
@@ -1226,7 +1252,15 @@ const AllTab: React.FC<any> = (props) => {
             downLoad.click();
             setListExportFileDetail(newListExportFile);
             setExportProgressDetail(FINISH_PROCESS_PERCENT);
+            setIsLoadingExportDetail(false);
           }
+          if (response.data && response.data.status === EnumJobStatus.error) {
+            setStatusExportDetail(STATUS_IMPORT_EXPORT.ERROR);
+            setIsLoadingExportDetail(false);
+          }
+        } else {
+          setStatusExportDetail(STATUS_IMPORT_EXPORT.ERROR);
+          setIsLoadingExportDetail(false);
         }
       });
     });
@@ -1253,14 +1287,27 @@ const AllTab: React.FC<any> = (props) => {
   const [isColumnConfigFetchSucceed, setIsColumnConfigFetched] = useState(false);
 
   useEffect(() => {
-    if (!isColumnConfigFetchSucceed) {
+    // only fetch one when it had sumData
+    if (objSummaryTable && !isColumnConfigFetchSucceed) {
       getConfigColumnInventory();
     }
-  }, [getConfigColumnInventory, isColumnConfigFetchSucceed]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [objSummaryTable]);
 
   useEffect(() => {
-    setColumns(defaultColumns);
-  }, [defaultColumns]);
+    if (columnsConfig.length === 0) {
+      setColumns(defaultColumns);
+    } else {
+      const newColumns: Array<ICustomTableColumType<InventoryResponse>> = columnsConfig.map((i) => {
+        const newObject = defaultColumns.find((j) => i.dataIndex === j.dataIndex);
+        return {
+          ...newObject,
+          visible: i.visible,
+        };
+      });
+      setColumns(newColumns);
+    }
+  }, [defaultColumns, columnsConfig]);
 
   return (
     <div>
@@ -1296,55 +1343,59 @@ const AllTab: React.FC<any> = (props) => {
           onShowSizeChange: onPageChange,
           pageSizeOptions: pageSizeOptions,
         }}
-        expandable={{
-          expandIcon: (props) => {
-            let icon = <HiChevronDoubleRight size={12} />;
-            if (props.expanded) {
-              icon = <HiOutlineChevronDoubleDown size={12} color="#2A2A86" />;
-            }
-            return (
-              <div
-                style={{ cursor: "pointer" }}
-                onClick={(event) => {
-                  props.onExpand(props.record, event);
-                }}
-              >
-                {icon}
-              </div>
-            );
-          },
-          onExpand: (expanded: boolean, record: VariantResponse) => {
-            if (!expanded) {
-              setExpandRow([]);
-              return;
-            }
+        expandable={
+          data.items.length > 0
+            ? {
+                expandIcon: (props) => {
+                  let icon = <HiChevronDoubleRight size={12} />;
+                  if (props.expanded) {
+                    icon = <HiOutlineChevronDoubleDown size={12} color="#2A2A86" />;
+                  }
+                  return (
+                    <div
+                      style={{ cursor: "pointer" }}
+                      onClick={(event) => {
+                        props.onExpand(props.record, event);
+                      }}
+                    >
+                      {icon}
+                    </div>
+                  );
+                },
+                onExpand: (expanded: boolean, record: VariantResponse) => {
+                  if (!expanded) {
+                    setExpandRow([]);
+                    return;
+                  }
 
-            variantName = record.name;
-            variantSKU = record.sku;
-            setExpandRow([record.id]);
-            const store_ids: Array<number | string> = params.store_ids
-              ? params.store_ids.toString().split(",")
-              : [];
-            const store_ids_result: Array<number> = store_ids.reduce((acc, ele) => {
-              if (ele && Number(ele)) acc.push(Number(ele));
-              return acc;
-            }, [] as Array<number>);
-            fetchInventoryByVariant([record.id], store_ids_result, variantSKU, variantName);
-          },
+                  variantName = record.name;
+                  variantSKU = record.sku;
+                  setExpandRow([record.id]);
+                  const store_ids: Array<number | string> = params.store_ids
+                    ? params.store_ids.toString().split(",")
+                    : [];
+                  const store_ids_result: Array<number> = store_ids.reduce((acc, ele) => {
+                    if (ele && Number(ele)) acc.push(Number(ele));
+                    return acc;
+                  }, [] as Array<number>);
+                  fetchInventoryByVariant([record.id], store_ids_result, variantSKU, variantName);
+                },
 
-          expandedRowRender: (record: VariantResponse) => {
-            return (
-              <CustomTable
-                bordered
-                scroll={{ x: "max-content" }}
-                showHeader={false}
-                dataSource={inventoryVariant.get(record.id) || []}
-                pagination={false}
-                columns={columnsDrill}
-              />
-            );
-          },
-        }}
+                expandedRowRender: (record: VariantResponse) => {
+                  return (
+                    <CustomTable
+                      bordered
+                      scroll={{ x: "max-content" }}
+                      showHeader={false}
+                      dataSource={inventoryVariant.get(record.id) || []}
+                      pagination={false}
+                      columns={columnsDrill}
+                    />
+                  );
+                },
+              }
+            : undefined
+        }
         columns={columnsFinal}
         rowKey={(data) => data.id}
       />
@@ -1374,6 +1425,7 @@ const AllTab: React.FC<any> = (props) => {
               };
             });
           columnsInRow.unshift({
+            title: "Giá bán",
             dataIndex: "variant_prices",
             align: "center",
             width: 110,
@@ -1396,6 +1448,7 @@ const AllTab: React.FC<any> = (props) => {
           onSaveConfigColumn(data, columnsInRow);
         }}
         data={columns}
+        defaultColumns={defaultColumns}
       />
       <InventoryExport
         onCancel={actionExport.Cancel}
@@ -1403,14 +1456,16 @@ const AllTab: React.FC<any> = (props) => {
         visible={vExportInventory}
         exportProgressDetail={exportProgressDetail}
         statusExportDetail={statusExportDetail}
+        isLoadingExportDetail={isLoadingExportDetail}
       />
       {showExportModal && (
         <InventoryExportModal
           visible={showExportModal}
-          onCancel={actionExport.Cancel}
+          onCancel={actionExport.cancelExport}
           onOk={actionExport.OnExport}
           exportProgress={exportProgress}
           statusExport={statusExport}
+          isLoadingExport={isLoadingExport}
         />
       )}
     </div>

@@ -4,7 +4,12 @@ import exportIcon from "assets/icon/export.svg";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { Button, Col, Form, Input, Modal, Row, Space, Tabs, Upload } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
-import { DeleteOutlined, PaperClipOutlined, PrinterOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  PaperClipOutlined,
+  PrinterOutlined,
+  SearchOutlined, UploadOutlined
+} from "@ant-design/icons";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { useHistory, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,7 +20,7 @@ import {
 import {
   IncurredAuditRecordType,
   InventoryAdjustmentDetailItem,
-  LineItemAdjustment
+  LineItemAdjustment,
 } from "model/inventoryadjustment";
 import ContentContainer from "component/container/content.container";
 import InventoryAdjustmentTimeLine from "./conponents/InventoryAdjustmentTimeLine";
@@ -54,7 +59,12 @@ import { StoreResponse } from "model/core/store.model";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { UploadFile } from "antd/lib/upload/interface";
 import InventoryTransferImportModal from "./conponents/ImportModal";
-import { exportFileV2, getFile, getFileV2, importFile } from "service/other/import.inventory.service";
+import {
+  exportFileV2,
+  getFile,
+  getFileV2,
+  importFile,
+} from "service/other/import.inventory.service";
 import { ImportResponse } from "model/other/files/export-model";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
@@ -63,7 +73,8 @@ import {
   addLineItem,
   cancelInventoryTicket,
   checkIncurredRecordApi,
-  getDetailInventorAdjustmentGetApi, getLinesItemAdjustmentApi,
+  getDetailInventorAdjustmentGetApi,
+  getLinesItemAdjustmentApi,
   getTotalOnHand
 } from "service/inventory/adjustment/index.service";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -131,10 +142,18 @@ const DetailInventoryAdjustment: FC = () => {
   const [isVisibleModalSummaryNotice, setIsVisibleModalSummaryNotice] = useState<boolean>(false);
   const [isDisabledIncurredRecordBtn, setIsDisabledIncurredRecordBtn] = useState(true);
   const [incurredRecordNumber, setIncurredRecordNumber] = useState(0);
-  const [incurredAuditRecords, setIncurredAuditRecords] = useState<Array<IncurredAuditRecordType>>([]);
-  const [incurredAuditRecordsMap, setIncurredAuditRecordsMap] = useState<Map<string, Array<IncurredAuditRecordType>>>(new Map());
-  const [incurredAdjustRecords, setIncurredAdjustRecords] = useState<Array<IncurredAuditRecordType>>([]);
-  const [incurredAdjustRecordsMap, setIncurredAdjustRecordsMap] = useState<Map<string, Array<IncurredAuditRecordType>>>(new Map());
+  const [incurredAuditRecords, setIncurredAuditRecords] = useState<Array<IncurredAuditRecordType>>(
+    [],
+  );
+  const [incurredAuditRecordsMap, setIncurredAuditRecordsMap] = useState<
+    Map<string, Array<IncurredAuditRecordType>>
+  >(new Map());
+  const [incurredAdjustRecords, setIncurredAdjustRecords] = useState<
+    Array<IncurredAuditRecordType>
+  >([]);
+  const [incurredAdjustRecordsMap, setIncurredAdjustRecordsMap] = useState<
+    Map<string, Array<IncurredAuditRecordType>>
+  >(new Map());
 
   const [printContent, setPrintContent] = useState("");
   const [keySearchHistory, setKeySearchHistory] = useState("");
@@ -182,7 +201,7 @@ const DetailInventoryAdjustment: FC = () => {
       total_missing: 0,
       total_stock: 0,
       total_shipping: 0,
-      total_on_way: 0
+      total_on_way: 0,
     },
     total: {
       on_hand: 0,
@@ -191,8 +210,8 @@ const DetailInventoryAdjustment: FC = () => {
       total_missing: 0,
       total_stock: 0,
       total_shipping: 0,
-      total_on_way: 0
-    }
+      total_on_way: 0,
+    },
   });
 
   const isShowSummaryTourVar = "isShowSummaryTour";
@@ -343,13 +362,17 @@ const DetailInventoryAdjustment: FC = () => {
         setIsRerenderTab(!isRerenderTab);
 
         if (activeTab === "1") {
-          callApiNative({ isShowError: false },
-            dispatch, getLinesItemAdjustmentApi, idNumber, `page=${dataLinesItem.metadata.page}&limit=${dataLinesItem.metadata.limit}&type=
-            total"`).then((res) => {
-              setTotal(res.metadata.total);
+          callApiNative(
+            { isShowError: false },
+            dispatch,
+            getLinesItemAdjustmentApi,
+            idNumber,
+            `page=${dataLinesItem.metadata.page}&limit=${dataLinesItem.metadata.limit}&type=
+            total"`,
+          ).then((res) => {
+            setTotal(res.metadata.total);
           });
         } else {
-
         }
 
         getTotalOnHandApi().then((res) => {
@@ -421,6 +444,7 @@ const DetailInventoryAdjustment: FC = () => {
     if (file instanceof File) {
       let uuid = file.uid;
       files.push(file);
+
       dispatch(
         inventoryUploadFileAction({ files: files }, (data: false | Array<string>) => {
           let newFileListUpdate = [...fileListUpdate];
@@ -429,12 +453,14 @@ const DetailInventoryAdjustment: FC = () => {
             if (index !== -1) {
               newFileListUpdate[index].status = "done";
               newFileListUpdate[index].url = data[0];
+
               let fileCurrent: Array<string> = form.getFieldValue("list_attached_files");
               if (!fileCurrent) {
                 fileCurrent = [];
               }
+
               let newFileCurrent = [...fileCurrent, data[0]];
-              form.setFieldsValue({ list_attached_files: newFileCurrent });
+              form.setFieldsValue({list_attached_files: newFileCurrent});
 
               updateAdjustment(true, null);
             }
@@ -497,31 +523,48 @@ const DetailInventoryAdjustment: FC = () => {
 
     if (data && dataUpdate) {
       dispatch(
-        updateInventoryAdjustmentAction(data.id, dataUpdate, () => {
-          showSuccess("Cập nhật phiếu kiểm kho thành công");
-          if (isUpdateFile) {
+        updateInventoryAdjustmentAction(data.id, dataUpdate, (res) => {
+          dispatch(hideLoading());
+          if (res) {
+            showSuccess("Cập nhật phiếu kiểm kho thành công");
+            form.setFieldsValue({
+              version: Number(form.getFieldValue("version")) + 1
+            });
+            if (isUpdateFile) {
+              setData({
+                ...data,
+                list_attached_files: form.getFieldValue("list_attached_files"),
+              });
+              return;
+            }
+
             setData({
               ...data,
-              list_attached_files: form.getFieldValue("list_attached_files"),
+              note: newNote || data.note,
             });
+
             return;
           }
 
-          setData({
-            ...data,
-            note: newNote || data.note,
-          });
+          showError("Cập nhật phiếu kiểm kho thất bại");
         }),
       );
+    } else {
+      dispatch(hideLoading());
     }
   };
 
   const updateAuditedBys = () => {
     const dataUpdate = form.getFieldsValue(true);
-    if (data && dataUpdate && dataUpdate.audited_bys.length > 0) {
+    if (data && dataUpdate && dataUpdate.audited_bys.length > 0 && dataUpdate.audited_bys.length !== data.audited_bys?.length) {
+      dispatch(showLoading());
       dispatch(
         updateInventoryAdjustmentAction(data.id, dataUpdate, () => {
-          showSuccess("Cập nhật người kiểm kho thành công");
+          form.setFieldsValue({ version: form.getFieldValue("version") + 1 })
+          setTimeout(() => {
+            dispatch(hideLoading());
+            showSuccess("Cập nhật người kiểm kho thành công");
+          }, 0);
         }),
       );
     }
@@ -747,7 +790,14 @@ const DetailInventoryAdjustment: FC = () => {
   }, []);
 
   const getDetailInventoryAdjustment = async () => {
-    const response = await callApiNative({ isShowError: true }, dispatch, getDetailInventorAdjustmentGetApi, idNumber);
+    const response = await callApiNative(
+      { isShowError: true },
+      dispatch,
+      getDetailInventorAdjustmentGetApi,
+      idNumber,
+    );
+
+    dispatch(hideLoading());
 
     if (response) {
       onResult(response);
@@ -762,18 +812,15 @@ const DetailInventoryAdjustment: FC = () => {
       getTotalOnHandFunc();
 
       dispatch(
-        getLinesItemAdjustmentAction(
-          idNumber,
-          `page=1&limit=30&type=total`,
-          onResultDataTable,
-        )
+        getLinesItemAdjustmentAction(idNumber, `page=1&limit=30&type=total`, onResultDataTable),
       );
 
       setIsLoadingBtn(false);
     }
-  }
+  };
 
   useEffect(() => {
+    dispatch(showLoading());
     getDetailInventoryAdjustment().then();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps,
@@ -818,7 +865,7 @@ const DetailInventoryAdjustment: FC = () => {
       style={{ width: "100%" }}
       showAdd={true}
       isNotPermissionAudit={!isPermissionAudit}
-      textAdd="Thêm mới sản phẩm"
+      textAdd="+ Thêm mới sản phẩm"
       onSelect={onSelectProduct}
       options={renderResult}
       ref={productSearchRef}
@@ -832,10 +879,14 @@ const DetailInventoryAdjustment: FC = () => {
     if (data) {
       setIsLoadingBtnPrint(true);
       dispatch(
-        InventoryAdjustmentGetPrintProductAction(`type=${type}`, data.id, printContentProductCallback)
+        InventoryAdjustmentGetPrintProductAction(
+          `type=${type}`,
+          data.id,
+          printContentProductCallback,
+        ),
       );
     }
-  }
+  };
 
   const convertRecordToMap = (data: Array<IncurredAuditRecordType>) => {
     const auditRecordsMap = new Map();
@@ -849,11 +900,11 @@ const DetailInventoryAdjustment: FC = () => {
     });
 
     return auditRecordsMap;
-  }
+  };
 
   const sortRecordByCode = (data: Array<IncurredAuditRecordType>) => {
     return data.sort((a: IncurredAuditRecordType, b: IncurredAuditRecordType) => {
-      return b.code < a.code ? -1 : b.code > a.code ? 1 : 0
+      return b.code < a.code ? -1 : b.code > a.code ? 1 : 0;
     });
   };
 
@@ -865,7 +916,7 @@ const DetailInventoryAdjustment: FC = () => {
       { isShowLoading: false },
       dispatch,
       checkIncurredRecordApi,
-      data?.id
+      data?.id,
     );
 
     dispatch(hideLoading());
@@ -895,8 +946,8 @@ const DetailInventoryAdjustment: FC = () => {
       { isShowLoading: false },
       dispatch,
       checkIncurredRecordApi,
-      data?.id
-    )
+      data?.id,
+    );
 
     if (res?.transaction_while_audit?.length > 0 || res?.transaction_while_adjust?.length > 0) {
       setIsDisabledIncurredRecordBtn(false);
@@ -904,16 +955,18 @@ const DetailInventoryAdjustment: FC = () => {
       setIncurredAuditRecordsMap(convertRecordToMap(res.transaction_while_audit));
       setIncurredAdjustRecords(sortRecordByCode(res.transaction_while_adjust));
       setIncurredAdjustRecordsMap(convertRecordToMap(res.transaction_while_adjust));
-      setIncurredRecordNumber(res.transaction_while_audit.length + res.transaction_while_adjust.length);
+      setIncurredRecordNumber(
+        res.transaction_while_audit.length + res.transaction_while_adjust.length,
+      );
     }
-  }
+  };
 
   useEffect(() => {
     if (data && data.status === STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status) {
       allApiCheckIncurredRecord().then();
     }
     // eslint-disable-next-line
-  }, [data])
+  }, [data]);
 
   const showModalIncurredRecord = async (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
@@ -1029,7 +1082,8 @@ const DetailInventoryAdjustment: FC = () => {
                     </Col>
                     <Col span={18} className="font-weight-500">
                       {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status &&
-                      isPermissionAudit && isHaveEditPermission ? (
+                      isPermissionAudit &&
+                      isHaveEditPermission ? (
                         <Form.Item
                           style={{ margin: 0 }}
                           name="audited_bys"
@@ -1125,18 +1179,20 @@ const DetailInventoryAdjustment: FC = () => {
                         })}
 
                       <Form.Item>
-                        {data.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED && isPermissionAudit && isHaveEditPermission && (
-                          <Upload
-                            beforeUpload={onBeforeUpload}
-                            multiple={true}
-                            fileList={fileListUpdate}
-                            onChange={onChangeFileUpdate}
-                            customRequest={onCustomUpdateRequest}
-                            showUploadList={false}
-                          >
-                            <Button icon={<UploadOutlined />}>Chọn file</Button>
-                          </Upload>
-                        )}
+                        {data.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED &&
+                          isPermissionAudit &&
+                          isHaveEditPermission && (
+                            <Upload
+                              beforeUpload={onBeforeUpload}
+                              multiple={true}
+                              fileList={fileListUpdate}
+                              onChange={onChangeFileUpdate}
+                              customRequest={onCustomUpdateRequest}
+                              showUploadList={false}
+                            >
+                              <Button icon={<UploadOutlined />}>Chọn file</Button>
+                            </Upload>
+                          )}
                       </Form.Item>
                     </Col>
                   </Row>
@@ -1152,6 +1208,7 @@ const DetailInventoryAdjustment: FC = () => {
                         title=""
                         color={primaryColor}
                         onOk={(newNote) => {
+                          dispatch(showLoading());
                           updateAdjustment(false, newNote);
                         }}
                       />
@@ -1179,38 +1236,46 @@ const DetailInventoryAdjustment: FC = () => {
                         tab={`Thừa/Thiếu (${formatCurrency(dataLinesItem.metadata.total) ?? 0})`}
                         key="1"
                       >
-                        <Input.Group style={{ paddingTop: 16 }} className="display-flex">
-                          {isHaveEditPermission && data.status !== STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status
-                              && data.status !== STATUS_INVENTORY_ADJUSTMENT.AUDITED.status
-                              && renderSearchComponent()}
-                          <Input
-                            name="key_search"
-                            onChange={(e) => {
-                              onChangeKeySearch(e.target.value);
-                            }}
-                            onKeyPress={(e) => e.key === 'Enter' && setIsReSearch(!isReSearch)}
-                            style={{ marginLeft: 8 }}
-                            placeholder="Tìm kiếm sản phẩm trong phiếu"
-                            addonAfter={
-                              <SearchOutlined
+                        <Row gutter={12}>
+                          <Col flex="auto">
+                            {isHaveEditPermission &&
+                              data.status !== STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status &&
+                              data.status !== STATUS_INVENTORY_ADJUSTMENT.AUDITED.status &&
+                              renderSearchComponent()}
+                          </Col>
+                          <Col flex="auto">
+                            <Input
+                              name="key_search"
+                              onChange={(e) => {
+                                onChangeKeySearch(e.target.value);
+                              }}
+                              onKeyPress={(e) => e.key === "Enter" && setIsReSearch(!isReSearch)}
+                              style={{ marginLeft: 8 }}
+                              placeholder="Tìm kiếm sản phẩm trong phiếu"
+                              addonAfter={
+                                <SearchOutlined
                                   onClick={() => {
                                     setIsReSearch(!isReSearch);
                                   }}
                                   style={{ color: "#2A2A86" }}
-                              />
-                            }
-                          />
-                          <Button
-                            loading={isLoadingBtnPrint}
-                            disabled={isLoadingBtnPrint}
-                            onClick={() => onPrintProductAction('deviant')}
-                            type="primary"
-                            ghost
-                            style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
-                          >
-                            <img src={IconPrint} alt="" style={{ paddingRight: "10px" }} /> In danh sách
-                          </Button>
-                        </Input.Group>
+                                />
+                              }
+                            />
+                          </Col>
+                          <Col flex="120px">
+                            <Button
+                              loading={isLoadingBtnPrint}
+                              disabled={isLoadingBtnPrint}
+                              onClick={() => onPrintProductAction("deviant")}
+                              type="primary"
+                              ghost
+                              style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                            >
+                              <img src={IconPrint} alt="" style={{ paddingRight: "10px" }} /> In
+                              danh sách
+                            </Button>
+                          </Col>
+                        </Row>
                         {activeTab === "1" && (
                           <InventoryAdjustmentListAll
                             isPermissionEdit={isHaveEditPermission}
@@ -1240,7 +1305,7 @@ const DetailInventoryAdjustment: FC = () => {
                             onChange={(e) => {
                               onChangeKeySearch(e.target.value);
                             }}
-                            onKeyPress={(e) => e.key === 'Enter' && setIsReSearch(!isReSearch)}
+                            onKeyPress={(e) => e.key === "Enter" && setIsReSearch(!isReSearch)}
                             style={{ marginLeft: 8 }}
                             placeholder="Tìm kiếm sản phẩm trong phiếu"
                             addonAfter={
@@ -1255,12 +1320,13 @@ const DetailInventoryAdjustment: FC = () => {
                           <Button
                             loading={isLoadingBtnPrint}
                             disabled={isLoadingBtnPrint}
-                            onClick={() => onPrintProductAction('total')}
+                            onClick={() => onPrintProductAction("total")}
                             type="primary"
                             ghost
                             style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
                           >
-                            <img src={IconPrint} alt="" style={{ paddingRight: "10px" }} /> In danh sách
+                            <img src={IconPrint} alt="" style={{ paddingRight: "10px" }} /> In danh
+                            sách
                           </Button>
                         </Input.Group>
                         {activeTab === "2" && (
@@ -1313,7 +1379,8 @@ const DetailInventoryAdjustment: FC = () => {
                 <Space>
                   {data.status !== STATUS_INVENTORY_ADJUSTMENT.CANCELED.status &&
                     data.status !== STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status &&
-                      isPermissionAudit && isHaveEditPermission && (
+                    isPermissionAudit &&
+                    isHaveEditPermission && (
                       <AuthWrapper acceptPermissions={[InventoryAdjustmentPermission.cancel]}>
                         <Button
                           loading={isLoadingBtnCancel}
@@ -1347,7 +1414,8 @@ const DetailInventoryAdjustment: FC = () => {
                       ghost
                       style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
                     >
-                      <img src={InventoryReportIcon} alt="" style={{ paddingRight: "10px" }} /> Xem báo cáo kiểm
+                      <img src={InventoryReportIcon} alt="" style={{ paddingRight: "10px" }} /> Xem
+                      báo cáo kiểm
                     </Button>
                   )}
                   {data.status !== STATUS_INVENTORY_ADJUSTMENT.DRAFT.status &&
@@ -1380,9 +1448,7 @@ const DetailInventoryAdjustment: FC = () => {
                       icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
                       style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
                     >
-                      <Space>
-                        Xuất excel
-                      </Space>
+                      <Space>Xuất excel</Space>
                     </Button>
                   </AuthWrapper>
                   {(data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ||

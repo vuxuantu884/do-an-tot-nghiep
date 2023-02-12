@@ -4,13 +4,15 @@ import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelec
 import UrlConfig from "config/url.config";
 import { AccountResponse } from "model/account/account.model";
 import { OrderResponse } from "model/response/order/order.response";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 import CustomInputTags from "component/custom/custom-input-tags";
+import { SourceResponse } from "model/response/order/source.response";
+import { isSourceNameFacebook } from "utils/OrderUtils";
 
 type PropType = {
   form: FormInstance<any>;
@@ -22,6 +24,11 @@ type PropType = {
   customerId?: number | undefined;
   orderDetail?: OrderResponse | null;
   onChangeTag: (value: []) => void;
+  orderSource?: SourceResponse | null;
+  marketerCodeValue: string;
+  setMarketerCodeValue: React.Dispatch<React.SetStateAction<string>>;
+  isShowTextNote: boolean;
+  setIsShowTextNote: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 /**
@@ -41,7 +48,18 @@ type PropType = {
  */
 const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { accounts, onChangeTag, tags, orderDetail, form, storeId } = props;
+  const {
+    onChangeTag,
+    tags,
+    orderDetail,
+    form,
+    storeId,
+    orderSource,
+    marketerCodeValue,
+    setMarketerCodeValue,
+    isShowTextNote,
+    setIsShowTextNote,
+  } = props;
 
   const dispatch = useDispatch();
 
@@ -209,6 +227,32 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
   }, [isDropdownVisible]);
   // end handle scroll page
 
+  useEffect(() => {
+    if (orderSource) {
+      if (isSourceNameFacebook(orderSource?.name || "") && !marketerCodeValue) {
+        setIsShowTextNote(true);
+        return;
+      }
+      setIsShowTextNote(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderSource]);
+
+  const handleOnChangeAccountCustom = useCallback(
+    (value) => {
+      if (value) {
+        setIsShowTextNote(false);
+        setMarketerCodeValue(value);
+        return;
+      } else {
+        setIsShowTextNote(true);
+        setMarketerCodeValue(value);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
   return (
     <StyledComponent>
       <Card className="padding-12 order-create-shipment" title="THÔNG TIN ĐƠN HÀNG">
@@ -254,8 +298,11 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
                 onDropdownVisibleChange={handleOnDropdownVisibleChange}
                 onPopupScroll={handleOnSelectPopupScroll}
                 onMouseLeave={handleOnMouseLeaveSelect}
+                onChange={handleOnChangeAccountCustom}
+                className={isShowTextNote ? "input-empty" : ""}
               />
             </Form.Item>
+            {isShowTextNote && <p className="text-note">Vui lòng chọn nhân viên MKT</p>}
           </Col>
         </Row>
 

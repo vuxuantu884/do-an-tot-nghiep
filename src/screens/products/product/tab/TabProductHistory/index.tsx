@@ -6,12 +6,13 @@ import { Link } from "react-router-dom";
 import { formatCurrencyForProduct, ProductHistoryDocumentTypes } from "screens/products/helper";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import React from "react";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 type TabProductHistoryProps = {
   data: PageResponse<HistoryInventoryResponse>;
   onChange: (page: number, pageSize?: number) => void;
   isLoadingHis?: boolean;
-}
+};
 
 const TabProductHistory: React.FC<TabProductHistoryProps> = (props: TabProductHistoryProps) => {
   const { data, onChange, isLoadingHis } = props;
@@ -47,7 +48,7 @@ const TabProductHistory: React.FC<TabProductHistoryProps> = (props: TabProductHi
           current: data.metadata.page,
           onChange: onChange,
         }}
-        sticky={{ offsetHeader: 55, offsetScroll: 10 }}
+        sticky={{ offsetHeader: OFFSET_HEADER_UNDER_NAVBAR, offsetScroll: 10 }}
         rowKey={(record) => record.id}
         columns={[
           {

@@ -1,31 +1,34 @@
-import { Button, Form, Input, Tag } from "antd";
-import CustomFilter from "component/table/custom.filter";
-import React, { Fragment, useEffect, useState } from "react";
-import { POReturnFiltersWrapper } from "./style";
+import { FilterOutlined } from "@ant-design/icons";
+import { Button, Form, Input } from "antd";
 import search from "assets/img/search.svg";
-import BaseSelectMerchans from "component/base/BaseSelect/BaseSelectMerchans";
-import { useFetchMerchans } from "hook/useFetchMerchans";
-import TreeStore from "component/TreeStore";
+import BaseFilterResult from "component/base/BaseFilterResult";
+import ButtonSetting from "component/table/ButtonSetting";
+import CustomFilter from "component/table/custom.filter";
+import { MAX_LENGTH_VALUE_SEARCH } from "config/app.config";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
+import { useArray } from "hook/useArray";
+import { isArray } from "lodash";
+import { AccountResponse } from "model/account/account.model";
+import TreeStore from "component/CustomTreeSelect";
 import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { SupplierResponse } from "model/core/supplier.model";
+import { PurchaseOrderReturnQuery } from "model/purchase-order/purchase-order.model";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import SupplierSearchSelect from "component/filter/component/supplier-select";
+import { useHistory } from "react-router-dom";
+import { useEffectOnce } from "react-use";
+import { PurchaseOrderTabUrl } from "screens/purchase-order/helper";
 import {
   filterPOReturnFieldsMapping,
   POReturnFilterField,
 } from "screens/purchase-order/tab/PurchaseOrderReturn/helper";
-import ButtonSetting from "component/table/ButtonSetting";
-import { PurchaseOrderReturnQuery } from "model/purchase-order/purchase-order.model";
-import { isArray } from "lodash";
-import { useHistory } from "react-router-dom";
-import { PurchaseOrderTabUrl } from "screens/purchase-order/helper";
-import BaseFilterResult from "component/base/BaseFilterResult";
-import { useArray } from "hook/useArray";
-import { callApiNative } from "utils/ApiUtils";
+import { searchAccountAllPublicApi } from "service/accounts/account.service";
 import { supplierGetApi } from "service/core/supplier.service";
+import { callApiNative } from "utils/ApiUtils";
 import { formatFieldTag, generateQuery, transformParamsToObject } from "utils/AppUtils";
-import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
-import { StoreGetListAction } from "domain/actions/core/store.action";
+import { FilterAdvanced } from "./FilterAdvanced";
+import { POReturnFiltersWrapper } from "./style";
 
 type POReturnFilterProps = {
   params: PurchaseOrderReturnQuery;
@@ -34,26 +37,15 @@ type POReturnFilterProps = {
   setParams: (params: PurchaseOrderReturnQuery) => void;
 };
 
-const tagRender = (props: any) => {
-  const { label, closable, onClose } = props;
-  const onPreventMouseDown = (event: any) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
-  return (
-    <Tag onMouseDown={onPreventMouseDown} closable={closable} onClose={onClose}>
-      {label}
-    </Tag>
-  );
-};
-
 const PurchaseOrderReturnFilter: React.FC<POReturnFilterProps> = (props: POReturnFilterProps) => {
   const { onFilter, params, openSetting, setParams } = props;
   const [allSupplier, setAllSupplier] = useState<Array<SupplierResponse>>();
   const { array: paramsArray, set: setParamsArray, remove, prevArray } = useArray([]);
   const [allStore, setAllStore] = useState<Array<StoreResponse>>([]);
+  const [merchans, setMerchans] = useState<Array<AccountResponse>>([]);
+  const [visible, setVisible] = useState(false);
+
   const [formBaseFilter] = Form.useForm();
-  const { fetchMerchans, merchans, isLoadingMerchans } = useFetchMerchans();
   const dispatch = useDispatch();
   const history = useHistory();
   const { Item } = Form;
@@ -64,6 +56,21 @@ const PurchaseOrderReturnFilter: React.FC<POReturnFilterProps> = (props: PORetur
     }
     dispatch(StoreGetListAction(setAllStore));
   }, [dispatch, params]);
+
+  useEffectOnce(() => {
+    fetchMerchans();
+  });
+
+  const fetchMerchans = async () => {
+    try {
+      const response = await callApiNative(
+        { isShowError: true },
+        dispatch,
+        searchAccountAllPublicApi,
+      );
+      setMerchans(response);
+    } catch (err) {}
+  };
 
   const getSupplierByCode = async (ids: string) => {
     const res = await callApiNative({ isShowLoading: false }, dispatch, supplierGetApi, {
@@ -144,7 +151,7 @@ const PurchaseOrderReturnFilter: React.FC<POReturnFilterProps> = (props: PORetur
           return { ...item, valueName: findStore?.name };
         case POReturnFilterField.merchandisers:
           if (isArray(item.valueId)) {
-            const filterMerchandisers = merchans.items?.filter((elem) =>
+            const filterMerchandisers = merchans.filter((elem) =>
               item.valueId.find((code: string) => elem.code === code),
             );
             if (filterMerchandisers)
@@ -158,12 +165,14 @@ const PurchaseOrderReturnFilter: React.FC<POReturnFilterProps> = (props: PORetur
                 ),
               };
           }
-          const findMerchandiser = merchans.items?.find((mer) => mer.code === item.valueId);
+          const findMerchandiser = merchans?.find((mer) => mer.code === item.valueId);
           return {
             ...item,
             valueName: `${findMerchandiser?.code} - ${findMerchandiser?.full_name}`,
           };
         case POReturnFilterField.info:
+          return { ...item, valueName: item.valueId.toString() };
+        case POReturnFilterField.created_bys:
           return { ...item, valueName: item.valueId.toString() };
         default:
           return item;
@@ -185,6 +194,14 @@ const PurchaseOrderReturnFilter: React.FC<POReturnFilterProps> = (props: PORetur
     remove(index);
   };
 
+  const openFilter = useCallback(() => {
+    setVisible(true);
+  }, []);
+
+  const onCancelFilter = useCallback(() => {
+    setVisible(false);
+  }, []);
+
   return (
     <>
       <div className="base-filter">
@@ -195,6 +212,7 @@ const PurchaseOrderReturnFilter: React.FC<POReturnFilterProps> = (props: PORetur
                 <Input
                   prefix={<img src={search} alt="" />}
                   placeholder="Tìm kiếm theo mã đơn đặt hàng, mã phiếu trả, mã tham chiếu"
+                  maxLength={MAX_LENGTH_VALUE_SEARCH}
                 />
               </Item>
               <Item
@@ -207,28 +225,14 @@ const PurchaseOrderReturnFilter: React.FC<POReturnFilterProps> = (props: PORetur
                   storeByDepartmentList={allStore as unknown as StoreByDepartment[]}
                 />
               </Item>
-              <Item className="suppliers" style={{ minWidth: 260 }}>
-                <SupplierSearchSelect
-                  label
-                  name={POReturnFilterField.supplier_ids}
-                  mode="multiple"
-                  help={false}
-                  maxTagCount="responsive"
-                  supplier_ids={params.supplier_ids}
-                />
-              </Item>
-              <Item name={POReturnFilterField.merchandisers} style={{ minWidth: 280 }}>
-                <BaseSelectMerchans
-                  mode={"tags"}
-                  tagRender={tagRender}
-                  merchans={merchans}
-                  fetchMerchans={fetchMerchans}
-                  isLoadingMerchans={isLoadingMerchans}
-                />
-              </Item>
               <Item>
                 <Button type="primary" htmlType="submit">
                   Lọc
+                </Button>
+              </Item>
+              <Item>
+                <Button icon={<FilterOutlined />} onClick={openFilter}>
+                  Thêm bộ lọc
                 </Button>
               </Item>
               <Item>
@@ -238,6 +242,17 @@ const PurchaseOrderReturnFilter: React.FC<POReturnFilterProps> = (props: PORetur
           </Form>
         </CustomFilter>
         <BaseFilterResult data={paramsArray} onClose={onRemoveStatus} />
+        <FilterAdvanced
+          visible={visible}
+          onCancel={onCancelFilter}
+          params={params}
+          onFilter={(value: PurchaseOrderReturnQuery) => {
+            onBaseFinish({
+              ...formBaseFilter.getFieldsValue(),
+              ...value,
+            });
+          }}
+        />
       </div>
     </>
   );

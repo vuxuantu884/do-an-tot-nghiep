@@ -744,32 +744,36 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           {() => {
             return (
               isEditFormByType() && (
-                <Input.Group className="display-flex margin-bottom-20">
-                  <CustomAutoComplete
-                    loading={loadingSearch}
-                    id="#product_search"
-                    dropdownClassName="product"
-                    placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F3)"
-                    onSearch={debounce(onSearch, AppConfig.TYPING_TIME_REQUEST)}
-                    dropdownMatchSelectWidth={456}
-                    style={{ width: "100%" }}
-                    showAdd={true}
-                    textAdd="Thêm mới sản phẩm"
-                    onSelect={handleSelectProduct}
-                    options={renderResult}
-                    ref={productSearchRef}
-                    onClickAddNew={() => {
-                      window.open(`${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`, "_blank");
-                    }}
-                  />
-                  <BaseButton
-                    style={{ marginLeft: 10 }}
-                    onClick={() => setVisibleManyProduct(true)}
-                    icon={<IconAddMultiple width={12} height={12} />}
-                  >
-                    Chọn nhiều
-                  </BaseButton>
-                </Input.Group>
+                <Row className=" margin-bottom-20" gutter={12}>
+                  <Col flex="auto">
+                    <CustomAutoComplete
+                      loading={loadingSearch}
+                      id="#product_search"
+                      dropdownClassName="product"
+                      placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F3)"
+                      onSearch={debounce(onSearch, AppConfig.TYPING_TIME_REQUEST)}
+                      dropdownMatchSelectWidth={456}
+                      style={{ width: "100%" }}
+                      showAdd={true}
+                      textAdd="+ Thêm mới sản phẩm"
+                      onSelect={handleSelectProduct}
+                      options={renderResult}
+                      ref={productSearchRef}
+                      onClickAddNew={() => {
+                        window.open(`${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`, "_blank");
+                      }}
+                    />
+                  </Col>
+                  <Col flex="120px">
+                    <BaseButton
+                      style={{ width: "100%" }}
+                      onClick={() => setVisibleManyProduct(true)}
+                      icon={<IconAddMultiple width={12} height={12} />}
+                    >
+                      Chọn nhiều
+                    </BaseButton>
+                  </Col>
+                </Row>
               )
             );
           }}

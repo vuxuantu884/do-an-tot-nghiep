@@ -8,6 +8,7 @@ import ContentContainer from "component/container/content.container";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { getPointAdjustmentDetailAction } from "domain/actions/loyalty/loyalty.action";
 import { StyledPointAdjustmentDetail } from "screens/customer/point-adjustment/StyledPointAdjustment";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const TYPE_ADJUSTMENT = [
   {
@@ -167,7 +168,7 @@ const PointAdjustmentDetail = () => {
         <Card title="DANH SÁCH KHÁCH HÀNG ÁP DỤNG">
           <CustomTable
             bordered
-            sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+            sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
             dataSource={customersData}
             columns={customerListColumns}
             pagination={false}

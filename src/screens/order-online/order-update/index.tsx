@@ -15,7 +15,6 @@ import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
-import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
@@ -28,7 +27,6 @@ import {
   setIsShouldSetDefaultStoreBankAccountAction,
 } from "domain/actions/order/order.action";
 import useFetchStores from "hook/useFetchStores";
-import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -52,6 +50,7 @@ import {
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
+import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -72,7 +71,6 @@ import {
   isFetchApiSuccessful,
   replaceFormatString,
   scrollAndFocusToDomElement,
-  sortFulfillments,
   totalAmount,
 } from "utils/AppUtils";
 import {
@@ -87,17 +85,20 @@ import {
   TaxTreatment,
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
+import { sortFulfillments } from "utils/fulfillmentUtils";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 import {
   canCreateShipment,
-  checkIfEcommerceByOrderChannelCodeUpdateOrder,
+  checkIfECommerceByOrderChannelCodeUpdateOrder,
   checkIfFulfillmentCancelled,
   checkIfOrderCancelled,
   checkIfOrderHasNoPayment,
   checkIfOrderHasNotFinishPaymentMomo,
   checkIfOrderHasShipmentCod,
-  convertDiscountItem,
-  convertDiscountType,
+  convertReverseDiscountType,
+  isSourceNameFacebook,
+  convertReverseTypeInDiscountItem,
+  convertStandardizeTypeInDiscountItem,
 } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
@@ -141,13 +142,14 @@ export default function Order(props: PropTypes) {
   const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
   const [orderProductsAmount, setOrderProductsAmount] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
-  const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
+  const [orderSource, setOrderSource] = useState<SourceResponse | null>(null);
   const [shipmentMethod, setShipmentMethod] = useState<number>(ShipmentMethodOption.DELIVER_LATER);
   const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.POST_PAYMENT);
   const [updating, setUpdating] = useState(false);
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
   const [countFinishingUpdateCustomer, setCountFinishingUpdateCustomer] = useState(0);
+  const [countFinishingUpdateSource, setCountFinishingUpdateSource] = useState(0);
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<number | null>(
     null,
   );
@@ -162,9 +164,6 @@ export default function Order(props: PropTypes) {
   const [extraPayments, setExtraPayments] = useState<Array<OrderPaymentRequest>>([]);
 
   const totalPaymentsIncludePaymentUpdate = [...payments, ...extraPayments];
-  console.log("payments", payments);
-  console.log("extraPayments", extraPayments);
-  console.log("totalPaymentsIncludePaymentUpdate", totalPaymentsIncludePaymentUpdate);
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
   const [form] = Form.useForm();
@@ -175,8 +174,6 @@ export default function Order(props: PropTypes) {
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
   const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] = useState(false);
-
-  const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
 
   const orderConfig = useFetchOrderConfig();
 
@@ -194,6 +191,11 @@ export default function Order(props: PropTypes) {
     }
   };
 
+  const handleSource = (_obj: SourceResponse | null) => {
+    setCountFinishingUpdateSource((prev) => prev + 1);
+    setOrderSource(_obj);
+  };
+
   const onChangeBillingAddress = (_objBillingAddress: BillingAddressRequestModel | null) => {
     setBillingAddress(_objBillingAddress);
   };
@@ -201,8 +203,6 @@ export default function Order(props: PropTypes) {
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
   const [promotionTitle, setPromotionTitle] = useState("");
-  // console.log('promotion33', promotion)
-  // console.log('coupon', coupon)
   const stores = useFetchStores();
 
   const onChangeInfoProduct = (
@@ -554,42 +554,44 @@ export default function Order(props: PropTypes) {
       order_id: null,
       type: promotion.sub_type || DiscountValueType.FIXED_AMOUNT,
     };
-    let listDiscountRequest = [];
-    if (coupon) {
-      listDiscountRequest.push({
-        discount_code: promotion.discount_code,
-        rate: promotion?.rate,
-        value: promotion?.value,
-        amount: promotion?.value,
-        promotion_id: null,
-        reason: "",
-        source: "",
-        order_id: null,
-        promotion_title: promotion.promotion_title,
-        taxable: promotion.taxable,
-        type: promotion.sub_type || DiscountValueType.FIXED_AMOUNT,
-      });
-    } else if (promotion?.promotion_id) {
-      listDiscountRequest.push({
-        discount_code: promotion.discount_code,
-        rate: promotion?.rate,
-        value: promotion?.value,
-        amount: promotion?.value,
-        promotion_id: promotion.promotion_id,
-        promotion_title: promotion.promotion_title,
-        taxable: promotion.taxable,
-        reason: promotion.reason,
-        source: "",
-        order_id: null,
-        type: promotion.sub_type || DiscountValueType.FIXED_AMOUNT,
-      });
-    } else if (!promotion) {
-      return [];
-    } else {
-      listDiscountRequest.push(objDiscount);
-    }
+    //let listDiscountRequest = [];
+    // if (coupon) {
+    //   listDiscountRequest.push({
+    //     discount_code: promotion.discount_code,
+    //     rate: promotion?.rate,
+    //     value: promotion?.value,
+    //     amount: promotion?.value,
+    //     promotion_id: null,
+    //     reason: "",
+    //     source: "",
+    //     order_id: null,
+    //     promotion_title: promotion.promotion_title,
+    //     taxable: promotion.taxable,
+    //     type: promotion.sub_type || DiscountValueType.FIXED_AMOUNT,
+    //   });
+    // } else
+    // if (promotion?.promotion_id) {
+    //   listDiscountRequest.push({
+    //     discount_code: promotion.discount_code,
+    //     rate: promotion?.rate,
+    //     value: promotion?.value,
+    //     amount: promotion?.value,
+    //     promotion_id: promotion.promotion_id,
+    //     promotion_title: promotion.promotion_title,
+    //     taxable: promotion.taxable,
+    //     reason: promotion.reason,
+    //     source: "",
+    //     order_id: null,
+    //     type: promotion.sub_type || DiscountValueType.FIXED_AMOUNT,
+    //   });
+    // }
+    // else if (!promotion) {
+    //   return [];
+    // } else {
+    //   listDiscountRequest.push(objDiscount);
+    // }
 
-    return listDiscountRequest;
+    return [objDiscount];
   };
 
   const updateOrderCallback = useCallback(
@@ -645,7 +647,6 @@ export default function Order(props: PropTypes) {
   };
 
   const handleUpdateOrder = (valuesCalculateReturnAmount: OrderRequest) => {
-    console.log("valuesCalculateReturnAmount", valuesCalculateReturnAmount);
     //return;
     const updateOrder = (updateSpecialOrder?: (orderId: number) => Promise<void>) => {
       dispatch(showLoading());
@@ -707,7 +708,6 @@ export default function Order(props: PropTypes) {
       specialOrderForm
         .validateFields()
         .then((specialOrderFormValue) => {
-          console.log("specialOrderFormValue", specialOrderFormValue);
           handleUpdateOrderWithSpecialOrder(specialOrderFormValue);
         })
         .catch((error) => {
@@ -764,13 +764,13 @@ export default function Order(props: PropTypes) {
       }
       return p;
     });
-    console.log("zac 1111", _itemGifts);
     const _item = items.concat(_itemGifts);
     values.items = _item.map((p) => {
-      let _discountItems = p.discount_items[0];
-      if (_discountItems) {
-        _discountItems.type = _discountItems.sub_type || DiscountValueType.FIXED_AMOUNT;
-      }
+      // let _discountItems = p.discount_items[0];
+      // if (_discountItems) {
+      //   _discountItems.type = _discountItems.sub_type || DiscountValueType.FIXED_AMOUNT;
+      // }
+      p.discount_items = convertStandardizeTypeInDiscountItem(p.discount_items);
       return p;
     });
 
@@ -829,7 +829,6 @@ export default function Order(props: PropTypes) {
               let bolCheckpointFocus = checkPointFocus(values);
               if (bolCheckpointFocus) {
                 (async () => {
-                  console.log("valuesCalculateReturnAmount", valuesCalculateReturnAmount);
                   // return;
                   handleUpdateOrder(valuesCalculateReturnAmount);
                 })();
@@ -839,6 +838,24 @@ export default function Order(props: PropTypes) {
         }
       }
     }
+  };
+
+  const onFinishConfirm = (values: OrderRequest) => {
+    Modal.confirm({
+      title: "Chú ý",
+      type: "warning",
+      content: (
+        <>
+          <p style={{ margin: 0 }}>Đơn hàng chưa nhập nhân viên Marketing.</p>
+          <p style={{ margin: 0 }}>Bạn vẫn muốn cập nhật đơn hàng?</p>
+        </>
+      ),
+      okText: "Cập nhật đơn",
+      cancelText: "Quay lại",
+      onOk: () => {
+        onFinish(values);
+      },
+    });
   };
 
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
@@ -886,14 +903,6 @@ export default function Order(props: PropTypes) {
 
   const totalAmountCustomerNeedToPayIncludePaymentUpdate =
     totalOrderAmount - totalAmountPaymentIncludePaymentUpdate;
-
-  console.log("totalOrderAmount", totalOrderAmount);
-  console.log("totalAmountPaymentPaid", totalAmountPaymentPaid);
-  console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
-  console.log(
-    "totalAmountCustomerNeedToPayIncludePaymentUpdate",
-    totalAmountCustomerNeedToPayIncludePaymentUpdate,
-  );
 
   useEffect(() => {
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
@@ -1066,8 +1075,6 @@ export default function Order(props: PropTypes) {
   };
   // end handle for ecommerce order
 
-  console.log("OrderDetail", OrderDetail);
-
   const fetchOrderDetailData = () => {
     dispatch(
       OrderDetailAction(id, async (response) => {
@@ -1149,11 +1156,20 @@ export default function Order(props: PropTypes) {
           }
           //convert type, discount item
           responseItems = responseItems.map((item) => {
-            item = convertDiscountItem(item);
+            // item = convertOrderLineItemRequest(item);
+            // return {
+            //   ...item,
+            //   gifts: item.gifts.map((p) => {
+            //     p = convertOrderLineItemRequest(p);
+            //     return p;
+            //   }),
+            // };
+
+            item.discount_items = convertReverseTypeInDiscountItem(item.discount_items);
             return {
               ...item,
               gifts: item.gifts.map((p) => {
-                p = convertDiscountItem(p);
+                p.discount_items = convertReverseTypeInDiscountItem(p.discount_items);
                 return p;
               }),
             };
@@ -1172,7 +1188,6 @@ export default function Order(props: PropTypes) {
             // }
           });
           setItems(responseItems);
-          console.log("responseItems 1123", responseItems);
           setOrderProductsAmount(response.total_line_amount_after_line_discount);
           form.setFieldsValue({
             ...initialForm,
@@ -1211,18 +1226,17 @@ export default function Order(props: PropTypes) {
             setTag(response.tags);
           }
           if (response?.discounts && response?.discounts[0]) {
-            console.log("response?.discounts[0]", response?.discounts[0]);
             setPromotion({
               ...response?.discounts[0],
               promotion_title:
                 response?.discounts[0].promotion_title || response?.discounts[0].reason,
               sub_type: response?.discounts[0].type || DiscountValueType.FIXED_AMOUNT,
-              type: convertDiscountType(response?.discounts[0].type),
+              type: convertReverseDiscountType(response?.discounts[0].type),
               isOrderSemiAutomatic: true,
             });
-            if (response.discounts[0].discount_code) {
-              setCoupon(response.discounts[0].discount_code);
-            }
+            // if (response.discounts[0].discount_code) {
+            //   setCoupon(response.discounts[0].discount_code);
+            // }
           }
           setIsLoadForm(true);
           if (response.export_bill) {
@@ -1249,12 +1263,19 @@ export default function Order(props: PropTypes) {
           if (response?.payments) {
             setPayments(response.payments);
           }
-          if (checkIfEcommerceByOrderChannelCodeUpdateOrder(response.special_order?.ecommerce)) {
+          if (checkIfECommerceByOrderChannelCodeUpdateOrder(response.special_order?.ecommerce)) {
             setIsSpecialOrderEcommerce({
               isEcommerce: true,
               isChange: false,
             });
           }
+        }
+        if (response.source) {
+          setOrderSource({
+            id: response.source_id,
+            code: response.source_code,
+            name: response.source,
+          } as any);
         }
       }),
     );
@@ -1316,20 +1337,13 @@ export default function Order(props: PropTypes) {
   );
 
   const checkInventory = () => {
-    let status = true;
-    if (inventoryResponse && inventoryResponse.length && items && items != null) {
-      let productItem = null;
-      let newData: Array<InventoryResponse> = [];
-      newData = inventoryResponse.filter((store) => store.store_id === storeId);
-      newData.forEach(function (value) {
-        productItem = items.find((x: any) => x.variant_id === value.variant_id);
-        if (
-          ((value.available ? value.available : 0) <= 0 ||
-            (productItem ? productItem?.quantity : 0) > (value.available ? value.available : 0)) &&
-          orderConfig?.sellable_inventory !== true
-        ) {
+    let status: boolean = true;
+
+    if (items && items != null) {
+      items.forEach(function (value) {
+        let available = value.available === null ? 0 : value.available;
+        if (available <= 0 && orderConfig?.sellable_inventory !== true) {
           status = false;
-          //showError(`${value.name} không còn đủ số lượng tồn trong kho`);
         }
       });
       if (!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
@@ -1515,15 +1529,6 @@ export default function Order(props: PropTypes) {
     }
   }, [dispatch, customer, OrderDetail?.shipping_address]);
 
-  useEffect(() => {
-    if (items && items.length !== 0 && OrderDetail?.store_id) {
-      let variant_id: Array<number> = [];
-      items.forEach((element) => variant_id.push(element.variant_id));
-      // let store_id=OrderDetail?.store_id;
-      dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
-    }
-  }, [OrderDetail?.store_id, dispatch, items]);
-
   // const checkIfOrderCanBeSplit = useMemo(() => {
   // 	// có tách đơn, có shipment trong fulfillments, trường hợp giao hàng sau vẫn có fulfillment mà ko có shipment
   // 	if (OrderDetail?.linked_order_code || (OrderDetail?.fulfillments && OrderDetail.fulfillments.find((single) => single.shipment && !(single.status && [FulFillmentStatus.CANCELLED, FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING].includes(single.status))))) {
@@ -1577,9 +1582,6 @@ export default function Order(props: PropTypes) {
     };
 
     const cod = getCodAmount();
-    console.log("totalAmountCustomerNeedToPay - cod ", totalAmountCustomerNeedToPay - cod);
-    console.log("totalAmountCustomerNeedToPay ", totalAmountCustomerNeedToPay);
-    console.log("cod ", cod);
     if (totalAmountCustomerNeedToPay - cod > 0) {
       setShowPaymentPartialPayment(true);
     } else {
@@ -1622,7 +1624,13 @@ export default function Order(props: PropTypes) {
                 const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
                 window.scrollTo({ top: y, behavior: "smooth" });
               }}
-              onFinish={onFinish}
+              onFinish={(values: OrderRequest) => {
+                if (isSourceNameFacebook(orderSource?.name || "") && !values.marketer_code) {
+                  onFinishConfirm(values);
+                } else {
+                  onFinish(values);
+                }
+              }}
             >
               <Form.Item noStyle hidden name="action">
                 <Input />
@@ -1658,7 +1666,7 @@ export default function Order(props: PropTypes) {
                     shippingAddress={shippingAddress}
                     modalAction={modalAction}
                     setModalAction={setModalAction}
-                    setOrderSourceId={setOrderSourceId}
+                    setOrderSource={handleSource}
                     isDisableSelectSource={isDisableSelectSource}
                     OrderDetail={OrderDetail}
                     shippingAddressesSecondPhone={shippingAddressesSecondPhone}
@@ -1686,11 +1694,9 @@ export default function Order(props: PropTypes) {
                     form={form}
                     items={items}
                     setItems={setItems}
-                    inventoryResponse={inventoryResponse}
                     customer={customer}
-                    setInventoryResponse={setInventoryResponse}
                     totalAmountCustomerNeedToPay={totalOrderAmount}
-                    orderSourceId={orderSourceId}
+                    orderSourceId={orderSource?.id}
                     levelOrder={levelOrder}
                     coupon={coupon}
                     setCoupon={setCoupon}
@@ -1700,6 +1706,7 @@ export default function Order(props: PropTypes) {
                     orderConfig={orderConfig}
                     loyaltyPoint={loyaltyPoint}
                     countFinishingUpdateCustomer={countFinishingUpdateCustomer}
+                    countFinishingUpdateSource={countFinishingUpdateSource}
                     shipmentMethod={shipmentMethod}
                     stores={stores}
                     isPageOrderUpdate
@@ -1917,7 +1924,6 @@ export default function Order(props: PropTypes) {
                     specialOrderForm={specialOrderForm}
                     specialOrder={OrderDetail?.special_order}
                     setIsSpecialOrderEcommerce={(value: boolean) => {
-                      console.log("setIsSpecialOrderEcommerce", value);
                       if (value) {
                         setIsSpecialOrderEcommerce({
                           isEcommerce: value,
@@ -1930,6 +1936,7 @@ export default function Order(props: PropTypes) {
                         });
                       }
                     }}
+                    orderSource={orderSource}
                   />
                 </Col>
               </Row>

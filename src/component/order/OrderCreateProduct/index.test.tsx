@@ -41,9 +41,7 @@ const setup = (orderDetail: OrderResponse) => {
           setCoupon={jest.fn}
           promotion={null}
           setPromotion={jest.fn}
-          inventoryResponse={[]}
           customer={null}
-          setInventoryResponse={jest.fn}
           totalAmountCustomerNeedToPay={0}
           orderConfig={null}
           orderSourceId={null}
