@@ -116,7 +116,7 @@ export const insertProduct = (
   };
 
   if (!discountGroup) {
-    // nếu nhóm khuyến mãi không tồn tại trong danh sách => tạo mới
+    // nếu nhóm khuyến mại không tồn tại trong danh sách => tạo mới
     const discount: EntilementFormModel = {
       selectedProducts: [itemParseFromFileToDisplay],
       entitled_variant_ids: isVariant ? [importItem.variant_id] : [],
@@ -134,7 +134,7 @@ export const insertProduct = (
       discount,
     );
   } else {
-    // nếu nhóm khuyến mãi đã tồn tại  & sản phẩm chưa tồn tại trong nhóm KM => thêm sản phẩm vào nhóm khuyến mãi
+    // nếu nhóm khuyến mại đã tồn tại  & sản phẩm chưa tồn tại trong nhóm KM => thêm sản phẩm vào nhóm khuyến mại
     if (isVariant) {
       discountGroup.entitled_variant_ids.unshift(importItem.variant_id);
     } else {
@@ -265,7 +265,7 @@ export const shareDiscountImportedProduct = (
   /** Đã xử lý loại bỏ các sản phẩm không phù hợp (Lỗi) ở BE */
   // if (ignoreVariantList.length > 0) {
   //   showError(
-  //     `Có ${ignoreVariantList.length} sản phẩm đã tồn mã cha trong danh sách khuyến mãi`
+  //     `Có ${ignoreVariantList.length} sản phẩm đã tồn mã cha trong danh sách khuyến mại`
   //   );
   // }
 

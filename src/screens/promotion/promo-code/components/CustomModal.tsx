@@ -79,7 +79,7 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
     const listCode = form.getFieldValue("listCode");
     console.log(listCode);
     if (Array.isArray(listCode) && value && listCode.length > 1 && hasDuplicates(value, listCode)) {
-      callback("Mã khuyến mãi đã tồn tại trong danh sách");
+      callback("Mã khuyến mại đã tồn tại trong danh sách");
     } else {
       callback();
     }
@@ -91,7 +91,7 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
     const result = await callApiNative({ isShowError: false }, dispatch, checkPromoCode, value);
     setIsSearching(false);
     if (result) {
-      form.setFields([{ name: ["listCode", name], errors: ["Mã khuyến mãi đã tồn tại"] }]);
+      form.setFields([{ name: ["listCode", name], errors: ["Mã khuyến mại đã tồn tại"] }]);
       setIsFormInvalid(true);
     } else {
       form.setFields([{ name: ["listCode", name], errors: [] }]);

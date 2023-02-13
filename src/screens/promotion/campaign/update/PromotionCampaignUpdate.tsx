@@ -123,7 +123,7 @@ const PromotionCampaignUpdate = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Khuyến mãi",
+          name: "Khuyến mại",
         },
         {
           name: "Quản lý chiến dịch",

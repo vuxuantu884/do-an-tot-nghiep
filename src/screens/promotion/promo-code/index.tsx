@@ -345,7 +345,7 @@ const PromotionCode = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Khuyến mãi",
+          name: "Khuyến mại",
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {

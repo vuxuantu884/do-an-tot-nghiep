@@ -117,15 +117,24 @@ function PromotionSelectedList({
       },
       {
         title: "Người tạo",
+        align: "center",
         render: (item: any) => (
           <div>{`${item.created_by} - ${item.created_name}`}</div>
         ),
       },
       {
         title: "Người duyệt",
-        render: (item: any) => (
-          <div>{`${item.activated_by} - ${item.activated_name}`}</div>
-        ),
+        align: "center",
+        render: (item: any) => {
+          return (
+            <>
+              {(item.activated_by || item.activated_name) ?
+                <div>{`${item.activated_by || ""} - ${item.activated_name || ""}`}</div>
+                : <></>
+              }
+            </>
+          );
+        },
       },
       {
         title: "Đăng ký BCT",

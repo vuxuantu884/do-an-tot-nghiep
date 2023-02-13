@@ -78,6 +78,7 @@ const PromotionCampaignList = () => {
   const columns: Array<ICustomTableColumType<any>> = [
     {
       title: "Mã chiến dịch",
+      align: "center",
       width: "150px",
       render: (item: any) => (
         <Link
@@ -94,6 +95,7 @@ const PromotionCampaignList = () => {
     },
     {
       title: "Thời gian bắt đầu",
+      align: "center",
       width: "150px",
       render: (item: any) => (
         <>
@@ -105,6 +107,7 @@ const PromotionCampaignList = () => {
     },
     {
       title: "Thời gian kết thúc",
+      align: "center",
       width: "150px",
       render: (item: any) => (
         <>
@@ -118,8 +121,13 @@ const PromotionCampaignList = () => {
     },
     {
       title: "Người tạo",
+      align: "center",
       width: "20%",
-      dataIndex: "created_name",
+      render: (item: any) => {
+        return (
+          <div>{`${item.created_by || ""} - ${item.created_name || ""}`}</div>
+        );
+      },
     },
     {
       title: "Trạng thái",

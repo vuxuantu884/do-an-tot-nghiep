@@ -235,14 +235,14 @@ const PromoCodeUpdate = () => {
           result.prerequisite_wedding_duration?.ends_mmdd_key,
         ),
       };
-      //đơn vị khuyến mãi
+      //đơn vị khuyến mại
       if (
         result.entitlements?.length > 0 &&
         result.entitlements[0]?.prerequisite_quantity_ranges[0]?.value_type
       ) {
         setTypeUnit(result.entitlements[0]?.prerequisite_quantity_ranges[0]?.value_type);
       }
-      //set default checked Loại khuyến mãi
+      //set default checked Loại khuyến mại
       setIsUnlimitUsage(typeof result.usage_limit !== "number");
       setIsUnlimitUsagePerUser(typeof result.usage_limit_per_customer !== "number");
 
@@ -300,7 +300,7 @@ const PromoCodeUpdate = () => {
     [dataVariants],
   );
 
-  // Action: Lấy thông tin sản phẩm khuyến mãi
+  // Action: Lấy thông tin sản phẩm khuyến mại
   useEffect(() => {
     if (dataVariants && dataDiscount && dataDiscount.entitlements.length > 0) {
       // if (dataDiscount.prerequisite_subtotal_range?.greater_than_or_equal_to) {
@@ -313,7 +313,7 @@ const PromoCodeUpdate = () => {
     }
   }, [dataVariants, dataDiscount, mergeVariants, setIsAllProduct]);
 
-  // Action: Lấy thông tin khuyến mãi
+  // Action: Lấy thông tin khuyến mại
   useEffect(() => {
     setLoading(true);
     dispatch(getVariantsAction(idNumber, setDataVariants));
@@ -324,18 +324,18 @@ const PromoCodeUpdate = () => {
     <ContentContainer
       isLoading={loading}
       isError={dataDiscount?.state === "CANCELLED"}
-      title="Sửa khuyến mãi"
+      title="Sửa khuyến mại"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Khuyến mãi",
+          name: "Khuyến mại",
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
-          name: "Sửa khuyến mãi",
+          name: "Sửa khuyến mại",
           path: `#`,
         },
       ]}
