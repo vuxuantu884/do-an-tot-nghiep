@@ -20,6 +20,9 @@ const GoodsReports = React.lazy(() => import("screens/reports/goods-reports"));
 const SellingPowerReport = React.lazy(
   () => import("screens/reports/goods-reports/selling-power-report"),
 );
+const GrossProfitReport = React.lazy(
+  () => import("screens/reports/goods-reports/gross-profit-report"),
+);
 
 export const KDOfflineV1Url = "/kd-offline-v1";
 
@@ -213,6 +216,18 @@ const reports: Array<RouteMenu> = [
         icon: "icon-dot",
         component: SellingPowerReport,
         key: "menureport061",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: REPORTS_URL.GROSS_PROFIT,
+        permissions: [],
+        exact: true,
+        title: "Báo cáo lợi nhuận gộp theo mã 3, nhóm hàng",
+        icon: "icon-dot",
+        component: GrossProfitReport,
+        key: "menureport062",
         isShow: true,
         header: null,
         subMenu: [],

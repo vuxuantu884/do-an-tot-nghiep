@@ -14,7 +14,7 @@ function GoodsReports() {
       breadcrumb={[{ name: "Báo cáo" }, { name: `Danh sách báo cáo hàng hoá` }]}
     >
       <ListAnalyticsStyle>
-        <Card title={"BAOS Cáo hàng hoá"} className="template-report">
+        <Card title={"Báo cáo hàng hoá"} className="template-report">
           <List
             grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 4, xxl: 5 }}
             dataSource={goodsReportsList || []}

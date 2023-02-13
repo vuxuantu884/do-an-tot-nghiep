@@ -7,4 +7,10 @@ export const goodsReportsList: IGoodsReport[] = [
     link: "selling-power",
     icon: "thanh-toan-nhom kh.png",
   },
+  {
+    id: 2,
+    name: "Lợi nhuận gộp theo mã 3, nhóm hàng",
+    link: "gross-profit",
+    icon: "thanh-toan-nhom kh.png",
+  },
 ];
