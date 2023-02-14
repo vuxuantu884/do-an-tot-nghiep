@@ -33,15 +33,21 @@ function GrossProfitReport() {
       item.no = index + 1;
     });
     const columnsFormatted = Object.keys(description).map((key: string, index: number) => {
+      const { name, unit, format } = description[key];
       return {
-        title: description[key],
+        title: name,
         dataIndex: key,
         key,
-        width: ["gross_profit_margin"].includes(key) ? 110 : 80,
-        align: ["gross_profit", "gross_profit_margin"].includes(key) ? "right" : "left",
+        // width: ["gross_profit_margin"].includes(key) ? 110 : 80,
+        align: ["gross_profit", "gross_profit_margin"].includes(key) ? "right" : "center",
         render: (text: number) => {
-          return ["gross_profit"].includes(key) ? (
+          return format === "number" && unit === "VND" ? (
             <span>{formatCurrency(text) ?? "-"}</span>
+          ) : format === "number" && unit === "%" ? (
+            <span>
+              {text}
+              {unit}
+            </span>
           ) : (
             <span>{text}</span>
           );

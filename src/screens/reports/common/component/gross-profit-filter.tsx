@@ -8,6 +8,7 @@ import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useEffectOnce } from "react-use";
 import AnalyticsDatePicker from "screens/reports/analytics/shared/analytics-date-picker";
+import { getCollectionApi } from "service/product/collection.service";
 import { searchProductWrapperApi, searchVariantSku3Api } from "service/product/product.service";
 import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
@@ -15,7 +16,6 @@ import { searchNumberString } from "utils/StringUtils";
 import { defaultDisplayOptions } from "../constant/goods-reports/gross-profit-report";
 import { GrossProfitFilterForm } from "../enums/gross-profit-report";
 import { InventoryBalanceFilterForm } from "../enums/inventory-balance-report";
-import { fetchProductInfo } from "../services/fetch-inventory-balance-list";
 import { InventoryBalanceFilterStyle } from "../styles/inventory-balance-filter.style";
 
 interface Props {
@@ -33,35 +33,6 @@ function GrossProfitFilter({ applyFilter, displayOptions, setDisplayOptions }: P
 
   const dispatch = useDispatch();
 
-  const shouldAddOption = useCallback(
-    (keySearch: string, listOption: any[], key: string = "label") => {
-      return listOption.every((item) => item[key] !== keySearch);
-    },
-    [],
-  );
-
-  const addAdditionalOptions = debounce(
-    (propertyField: GrossProfitFilterForm, textSearch: string) => {
-      const keySearch = textSearch.trim();
-      if (!keySearch) {
-        return;
-      }
-      switch (propertyField) {
-        case GrossProfitFilterForm.ProductGroup:
-          const isSelectedLv1 = form.getFieldValue(propertyField)?.includes(keySearch);
-          if (shouldAddOption(keySearch, productGroupLv1) && !isSelectedLv1) {
-            const opt = { label: keySearch, value: keySearch };
-            setProductGroupLv1([...productGroupLv1, opt]);
-          }
-          break;
-
-        default:
-          break;
-      }
-    },
-    AppConfig.TYPING_TIME_REQUEST,
-  );
-
   const onApplyFilter = useCallback(() => {
     const conditionFilter = form.getFieldsValue();
     const { timeRange, productGroup, sku3, sku7 } = conditionFilter;
@@ -74,9 +45,11 @@ function GrossProfitFilter({ applyFilter, displayOptions, setDisplayOptions }: P
     let params: any = {
       startDate,
       endDate,
-      show: selectedOptions.length === 2 ? GrossProfitFilterForm.Sku7 : selectedOptions[0]?.key,
+      show: selectedOptions.length === 2 ? "All" : selectedOptions[0]?.key || "",
     };
-    params = productGroup?.length ? { ...params, productGroup: productGroup.join(",") } : params;
+    params = productGroup?.length
+      ? { ...params, productGroup: productGroup.join(",").toUpperCase() }
+      : params;
     params = sku3?.length ? { ...params, sku3: sku3.join(",") } : params;
     params = sku7?.length ? { ...params, sku7: sku7.join(",") } : params;
     applyFilter(params);
@@ -87,37 +60,38 @@ function GrossProfitFilter({ applyFilter, displayOptions, setDisplayOptions }: P
   };
 
   const onGetProductGroupLv1 = useCallback(async () => {
-    const response = await fetchProductInfo(dispatch);
+    const response = await callApiNative({ isShowError: true }, dispatch, getCollectionApi, {
+      page: 1,
+      limit: 30,
+    });
     if (response) {
-      const data = response.data.productGroupLv1.map((item: any) => {
-        const { product_group_level1 } = item;
+      const data = response.items.map((item: any) => {
+        const { name } = item;
         return {
-          label: product_group_level1,
-          value: product_group_level1,
+          label: name,
+          value: name,
         };
       });
       setProductGroupLv1(data);
     }
   }, [dispatch]);
 
-  const onGetSku3List = useCallback(
-    async (info: string) => {
-      const response = await callApiNative({ isShowError: true }, dispatch, searchVariantSku3Api, {
-        info,
+  const onGetSku3List = useCallback(async () => {
+    const response = await callApiNative({ isShowError: true }, dispatch, searchVariantSku3Api, {
+      page: 1,
+      limit: 1000,
+    });
+    if (response) {
+      const data = response.items.map((item: any) => {
+        const { code } = item;
+        return {
+          label: code,
+          value: code,
+        };
       });
-      if (response) {
-        const data = response.items.map((item: any) => {
-          const { code } = item;
-          return {
-            label: code,
-            value: code,
-          };
-        });
-        setSku3List(data);
-      }
-    },
-    [dispatch],
-  );
+      setSku3List(data);
+    }
+  }, [dispatch]);
 
   const onGetSku7List = useCallback(
     async (info?: string) => {
@@ -127,8 +101,6 @@ function GrossProfitFilter({ applyFilter, displayOptions, setDisplayOptions }: P
         searchProductWrapperApi,
         { info },
       );
-      console.log("response", response);
-
       if (response) {
         const data = response.items.map((item: any) => {
           const { code } = item;
@@ -229,9 +201,7 @@ function GrossProfitFilter({ applyFilter, displayOptions, setDisplayOptions }: P
                             ? searchNumberString(input, option?.label as string)
                             : false;
                         }}
-                        onSearch={debounce((value) => {
-                          onGetSku3List(value);
-                        }, AppConfig.TYPING_TIME_REQUEST)}
+                        onFocus={onGetSku3List}
                       ></Select>
                     </Form.Item>
                   </Col>
