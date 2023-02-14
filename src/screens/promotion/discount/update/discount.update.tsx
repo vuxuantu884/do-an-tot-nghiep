@@ -131,7 +131,7 @@ const DiscountUpdate = () => {
       };
 
       setDiscountMethod(result.entitled_method);
-      //set default checked Loại khuyến mãi
+      //set default checked Loại khuyến mại
       setIsUnlimitQuantity(typeof result.quantity_limit !== "number");
       setIsUsageLimitPerCustomer(typeof result.usage_limit_per_customer !== "number");
 
@@ -260,7 +260,7 @@ const DiscountUpdate = () => {
   );
 
   /**
-   * Lấy thông tin [tên sản phẩm, tồn đầu kỳ, giá vốn] sản phẩm khuyến mãi
+   * Lấy thông tin [tên sản phẩm, tồn đầu kỳ, giá vốn] sản phẩm khuyến mại
    */
   useEffect(() => {
     const entitlementValue: Array<EntilementFormModel> = discountData.entitlements;

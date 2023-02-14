@@ -133,12 +133,12 @@ const PromotionDetailScreen: React.FC = () => {
 
   const details = [
     {
-      name: "Tên khuyến mãi",
+      name: "Tên khuyến mại",
       value: dataDiscount?.title,
       position: "left",
     },
     {
-      name: "Mã khuyến mãi",
+      name: "Mã khuyến mại",
       value: dataDiscount?.code,
       position: "left",
     },
@@ -375,12 +375,12 @@ const PromotionDetailScreen: React.FC = () => {
             if (response.data.url) {
               setExportCode(null);
               setExportProgress(100);
-              showSuccess("Xuất file danh sách sản phẩm khuyến mãi thành công!");
+              showSuccess("Xuất file danh sách sản phẩm khuyến mại thành công!");
               window.open(response.data.url);
             }
           } else if (response.data && response.data.status === "ERROR") {
             onCancelProgressModal();
-            showError("Xuất file danh sách sản phẩm khuyến mãi thất bại!");
+            showError("Xuất file danh sách sản phẩm khuyến mại thất bại!");
           }
         }
       });
@@ -527,14 +527,14 @@ const PromotionDetailScreen: React.FC = () => {
     <ContentContainer
       isError={error}
       isLoading={loading}
-      title={dataDiscount ? dataDiscount.title : "Chi tiết đợt khuyến mãi"}
+      title={dataDiscount ? dataDiscount.title : "Chi tiết đợt khuyến mại"}
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Khuyến mãi",
+          name: "Khuyến mại",
           path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`,
         },
         {
@@ -645,7 +645,7 @@ const PromotionDetailScreen: React.FC = () => {
                   <Col span={24} style={{ textAlign: "right" }}>
                     <Space size={"large"}>
                       <Link to={`#`}>Xem lịch sử chỉnh sửa</Link>
-                      <Link to={`#`}>Xem kết quả khuyến mãi</Link>
+                      <Link to={`#`}>Xem kết quả khuyến mại</Link>
                     </Space>
                   </Col>
                 </Row> */}
@@ -748,15 +748,15 @@ const PromotionDetailScreen: React.FC = () => {
             backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`)}
             rightComponent={
               <Space>
-                {allowUpdateDiscount && (
-                  <Link to={`${idNumber}/update`}>
-                    <Button>Chỉnh sửa</Button>
-                  </Link>
-                )}
-
                 {allowCreateDiscount && (
                   <Link to={`${idNumber}/replicate`}>
                     <Button>Nhân bản</Button>
+                  </Link>
+                )}
+
+                {allowUpdateDiscount && (
+                  <Link to={`${idNumber}/update`}>
+                    <Button>Chỉnh sửa</Button>
                   </Link>
                 )}
 
@@ -797,7 +797,7 @@ const PromotionDetailScreen: React.FC = () => {
                 <span>Đang tạo file, vui lòng đợi trong giây lát...</span>
               ) : (
                 <span style={{ color: "#27AE60" }}>
-                  Đã xuất file danh sách sản phẩm khuyến mãi thành công!
+                  Đã xuất file danh sách sản phẩm khuyến mại thành công!
                 </span>
               )}
             </div>

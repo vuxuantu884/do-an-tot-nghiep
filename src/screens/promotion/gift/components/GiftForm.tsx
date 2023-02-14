@@ -93,7 +93,7 @@ function GiftForm({
               rules={[
                 {
                   required: true,
-                  message: "Cần nhập tên khuyến mãi",
+                  message: "Cần nhập tên khuyến mại",
                 },
                 {
                   max: 255,

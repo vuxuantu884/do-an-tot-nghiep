@@ -44,9 +44,9 @@ function PromotionTypeForm(props: Props): ReactElement {
 
   return (
     <div>
-      <Card title="Loại khuyến mãi">
+      <Card title="Loại khuyến mại">
         <Row gutter={30}>
-          {/*Tạm ẩn Checkbox "Khuyến mãi tặng mã giảm giá qua sms"*/}
+          {/*Tạm ẩn Checkbox "Khuyến mại tặng mã giảm giá qua sms"*/}
 
           {/*<Col span={24}>*/}
           {/*  <Form.Item name={PRICE_RULE_FIELDS.is_sms_voucher}>*/}
@@ -54,17 +54,17 @@ function PromotionTypeForm(props: Props): ReactElement {
           {/*      checked={isSmsVoucher}*/}
           {/*      onChange={handleChangeSmsVoucherCheckbox}*/}
           {/*    >*/}
-          {/*      Khuyến mãi tặng mã giảm giá qua sms*/}
+          {/*      Khuyến mại tặng mã giảm giá qua sms*/}
           {/*    </Checkbox>*/}
           {/*  </Form.Item>*/}
           {/*</Col>*/}
 
-          {/* Loại khuyến mãi */}
+          {/* Loại khuyến mại */}
           <Col span={24}>
             <Form.Item label="Chọn loại" name={PRICE_RULE_FIELDS.entitled_method}>
               <Select
                 showArrow
-                placeholder="Chọn loại mã khuyến mãi"
+                placeholder="Chọn loại mã khuyến mại"
                 value={promotionType}
                 onChange={(value: string) => handleChangePromotionMethod(value)}
               >
@@ -72,13 +72,13 @@ function PromotionTypeForm(props: Props): ReactElement {
                   key={PriceRuleMethod.ORDER_THRESHOLD}
                   value={PriceRuleMethod.ORDER_THRESHOLD}
                 >
-                  Khuyến mãi theo đơn hàng
+                  Khuyến mại theo đơn hàng
                 </Option>
                 <Option
                   key={PriceRuleMethod.DISCOUNT_CODE_QTY}
                   value={PriceRuleMethod.DISCOUNT_CODE_QTY}
                 >
-                  Khuyến mãi theo sản phẩm
+                  Khuyến mại theo sản phẩm
                 </Option>
               </Select>
             </Form.Item>

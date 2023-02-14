@@ -9,7 +9,7 @@ export enum PriceRuleMethod {
   QUANTITY = "QUANTITY", // Chiết khấu theo từng sản phẩm
   ORDER_THRESHOLD = "ORDER_THRESHOLD", // Chiết khấu theo đơn hàng
   BUY_X_GET_Y = "BUY_X_GET_Y", // Tặng quà
-  DISCOUNT_CODE_QTY = "DISCOUNT_CODE_QTY", // Khuyến mãi theo từng sản phẩm
+  DISCOUNT_CODE_QTY = "DISCOUNT_CODE_QTY", // Khuyến mại theo từng sản phẩm
 }
 
 export enum DiscountValueType {
@@ -42,7 +42,7 @@ export enum CustomerSelectionOption {
 }
 
 /**
- *Dùng trong khuyến mãi theo sản phẩm
+ *Dùng trong khuyến mại theo sản phẩm
  */
 export enum ReleasePromotionListType {
   EQUALS = "EQUALS",
@@ -52,7 +52,7 @@ export enum ReleasePromotionListType {
 }
 
 /**
- *Dùng trong điều kiện khuyến mãi theo thời gian
+ *Dùng trong điều kiện khuyến mại theo thời gian
  */
 export enum WeekDays {
   SUN = "SUN",

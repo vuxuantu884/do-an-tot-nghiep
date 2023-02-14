@@ -419,7 +419,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
   return (
     <Modal
       centered
-      title="Chọn quà khuyến mãi"
+      title="Chọn quà khuyến mại"
       width={800}
       onCancel={onCancelPress}
       onOk={onOkPress}

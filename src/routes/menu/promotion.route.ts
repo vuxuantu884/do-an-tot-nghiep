@@ -166,7 +166,7 @@ const promotion: Array<RouteMenu> = [
   {
     path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
     exact: true,
-    title: "Mã khuyến mãi",
+    title: "Mã khuyến mại",
     icon: "icon-dot",
     component: priceRulesPage,
     key: "submenu108",
@@ -177,7 +177,7 @@ const promotion: Array<RouteMenu> = [
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`,
         exact: true,
-        title: "Tạo đợt phát hành khuyến mãi",
+        title: "Tạo đợt phát hành khuyến mại",
         icon: "icon-dot",
         component: CreatePromoCodePage,
         key: "submenu1071",
@@ -189,7 +189,7 @@ const promotion: Array<RouteMenu> = [
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/:id/update`,
         exact: true,
-        title: "Sửa đợt phát hành khuyến mãi",
+        title: "Sửa đợt phát hành khuyến mại",
         icon: "icon-dot",
         component: PromoCodeUpdate,
         key: "submenu1074",
@@ -201,7 +201,7 @@ const promotion: Array<RouteMenu> = [
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/:id`,
         exact: true,
-        title: "Chi tiết đợt phát hành khuyến mãi",
+        title: "Chi tiết đợt phát hành khuyến mại",
         icon: "icon-dot",
         component: promoCodeDetail,
         key: "submenu1072",

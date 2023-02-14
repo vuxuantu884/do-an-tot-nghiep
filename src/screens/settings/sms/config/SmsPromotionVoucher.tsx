@@ -31,7 +31,7 @@ const SmsPromotionVoucher: React.FC = () => {
   const columns: Array<ICustomTableColumType<any>> = useMemo(
     () => [
       {
-        title: "Chương trình khuyến mãi",
+        title: "Chương trình khuyến mại",
         render: (item) => {
           const expandIconId = `${expandIconIdPrev}${item.id}`
           const priceRule = promotionReleaseList.find(promotion => promotion.id === item.price_rule_id);
@@ -141,7 +141,7 @@ const SmsPromotionVoucher: React.FC = () => {
   return (
     <StyledSmsPromotionVoucher>
       <ContentContainer
-        title="Gửi tin sinh mã giảm giá theo chương trình khuyến mãi"
+        title="Gửi tin sinh mã giảm giá theo chương trình khuyến mại"
         breadcrumb={[
           {
             name: "Cài đặt",
@@ -151,7 +151,7 @@ const SmsPromotionVoucher: React.FC = () => {
             path: UrlConfig.SMS_SETTINGS,
           },
           {
-            name: "Gửi tin sinh mã giảm giá theo chương trình khuyến mãi",
+            name: "Gửi tin sinh mã giảm giá theo chương trình khuyến mại",
           },
         ]}
         extra={
