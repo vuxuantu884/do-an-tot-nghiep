@@ -4,6 +4,7 @@ import { REPORTS_URL } from "config/url.config";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import SellingPowerFilter from "screens/reports/common/component/selling-power-filter";
+import { defaultDisplayOptions } from "screens/reports/common/constant/goods-reports/selling-power-report";
 import { sellingPowerReportColumns } from "screens/reports/common/constant/goods-reports/selling-power-report-columns";
 import { fetchSellingPowerList } from "screens/reports/common/services/fetch-selling-power-list";
 import { SellingPowerReportStyle } from "screens/reports/common/styles/selling-power-report.style";
@@ -16,6 +17,7 @@ function SellingPowerReport() {
   const [emptyMessage, setEmptyMessage] = useState<string>(
     "Vui lòng chọn điều kiện lọc để xem dữ liệu báo cáo",
   );
+  const [displayOptions, setDisplayOptions] = useState<any[]>(defaultDisplayOptions);
 
   const initTable = useCallback(async () => {
     if (!conditionFilter) {
@@ -46,7 +48,11 @@ function SellingPowerReport() {
         { name: "Báo cáo tồn bán sức bán" },
       ]}
     >
-      <SellingPowerFilter applyFilter={setConditionFilter}></SellingPowerFilter>
+      <SellingPowerFilter
+        applyFilter={setConditionFilter}
+        displayOptions={displayOptions}
+        setDisplayOptions={setDisplayOptions}
+      ></SellingPowerFilter>
       <SellingPowerReportStyle>
         <Card>
           <Alert
