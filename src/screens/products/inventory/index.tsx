@@ -4,7 +4,7 @@ import ContentContainer from "component/container/content.container";
 import RenderTabBar from "component/table/StickyTabBar";
 import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import { StoreResponse } from "model/core/store.model";
-import { DefectFilterBasicEnum } from "model/inventory-defects/filter";
+import { DefectFilterEnum } from "model/inventory-defects/filter";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useRouteMatch } from "react-router";
@@ -136,8 +136,8 @@ const InventoryScreen: React.FC = () => {
               <span
                 onClick={() => {
                   const queryParams = generateQuery({
-                    store_ids: query.get(DefectFilterBasicEnum.store_ids),
-                    info: query.get(DefectFilterBasicEnum.condition),
+                    store_ids: query.get(DefectFilterEnum.store_ids),
+                    info: query.get(DefectFilterEnum.condition),
                   });
                   history.push(InventoryTabUrl.ALL + "?" + queryParams);
                 }}
@@ -164,8 +164,8 @@ const InventoryScreen: React.FC = () => {
               <span
                 onClick={() => {
                   const queryParams = generateQuery({
-                    store_ids: query.get(DefectFilterBasicEnum.store_ids),
-                    condition: query.get(DefectFilterBasicEnum.info),
+                    store_ids: query.get(DefectFilterEnum.store_ids),
+                    condition: query.get(DefectFilterEnum.info),
                   });
                   history.push(InventoryTabUrl.HISTORIES + "?" + queryParams);
                 }}
