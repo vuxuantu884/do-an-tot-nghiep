@@ -32,13 +32,13 @@ const deleteInventoryDefects = (params: DeleteInventoryDefects): Promise<BaseRes
 const getListInventoryDefect = (
   params: string,
 ): Promise<BaseResponse<Array<InventoryDefectResponse>>> => {
-  return BaseAxios.get(`${ApiConfig.INVENTORY_ADJUSTMENT}/defects/?${params}`);
+  return BaseAxios.get(`${ApiConfig.INVENTORY_ADJUSTMENT}/defects?${params}`);
 };
 
 const getListInventoryDefectHistory = (
   params: string,
 ): Promise<BaseResponse<Array<InventoryDefectResponse>>> => {
-  return BaseAxios.get(`${ApiConfig.INVENTORY_ADJUSTMENT}/defects/history/?${params}`);
+  return BaseAxios.get(`${ApiConfig.INVENTORY_ADJUSTMENT}/defects/history?${params}`);
 };
 
 export {

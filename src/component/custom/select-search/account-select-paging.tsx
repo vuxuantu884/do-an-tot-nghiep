@@ -116,7 +116,9 @@ function SelectSearch(contentProps: SelectContentProps) {
     };
 
     if (defaultAccountProps) {
-      const findUser = defaultAccountProps?.items.find((item: any) => item.code === userReducer.account?.code);
+      const findUser = defaultAccountProps?.items.find(
+        (item: any) => item.code === userReducer.account?.code,
+      );
 
       let items: AccountResponse[];
       if (findUser) {

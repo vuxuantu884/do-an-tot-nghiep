@@ -1,14 +1,7 @@
-import { Button, Card, Form, Image, Input, Select } from "antd";
-import styled from "styled-components";
-import { Option } from "antd/es/mentions";
+import { Image } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-
-import search from "assets/img/search.svg";
-import { DefectFilterBasicEnum } from "model/inventory-defects/filter";
-import { strForSearch } from "utils/StringUtils";
-import ButtonSetting from "component/table/ButtonSetting";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { StoreResponse } from "model/core/store.model";
 import { callApiNative } from "utils/ApiUtils";
@@ -17,13 +10,11 @@ import { generateQuery, splitEllipsis } from "utils/AppUtils";
 import UrlConfig from "config/url.config";
 import {
   InventoryDefectHistoryResponse,
-  InventorySearchItem,
+  InventoryDefectQuery,
   LineItemDefect,
 } from "model/inventory-defects";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useArray } from "hook/useArray";
-import BaseFilterResult from "component/base/BaseFilterResult";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { EyeOutlined } from "@ant-design/icons";
 import { ImageProduct } from "screens/products/product/component";
@@ -37,17 +28,25 @@ import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants"
 import { showError } from "utils/ToastUtils";
 import { cloneDeep } from "lodash";
 import { formatCurrencyForProduct } from "screens/products/helper";
-import { EnumCodeKey } from "config/enum.config";
-import { AccountStoreResponse } from "model/account/account.model";
-
-const { Item } = Form;
+import InventoryDefectHistoryFilter from "./components/InventoryDefectHistoryFilter";
+import { AccountResponse } from "model/account/account.model";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 
 export const ListInventoryDefectHistory = () => {
-  const [form] = Form.useForm();
   const dispatch = useDispatch();
   const history = useHistory();
-  const { array: paramsArray, set: setParamsArray, remove, prevArray } = useArray([]);
   const query = useQuery();
+  const initialQuery: InventoryDefectQuery = {
+    page: 1,
+    limit: 30,
+    condition: undefined,
+    store_ids: undefined,
+    from_date: undefined,
+    to_date: undefined,
+    from_defect: undefined,
+    to_defect: undefined,
+    updated_by: undefined,
+  };
   const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(
     COLUMN_CONFIG_TYPE.COLUMN_INVENTORY_DEFECT_HISTORY,
   );
@@ -62,16 +61,7 @@ export const ListInventoryDefectHistory = () => {
     },
     items: [],
   });
-  const [loadingTable, setLoadingTable] = useState<boolean>(false);
-
-  const getTotalDefects = useCallback(() => {
-    const inventoryDefects = cloneDeep(data.items);
-    const total =
-      inventoryDefects?.reduce((value, element) => {
-        return value + element.defect || 0;
-      }, 0) || 0;
-    return formatCurrencyForProduct(total);
-  }, [data]);
+  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
 
   const initColumns: Array<ICustomTableColumType<InventoryDefectHistoryResponse>> = useMemo(() => {
     return [
@@ -80,7 +70,7 @@ export const ListInventoryDefectHistory = () => {
         align: "center",
         fixed: "left",
         dataIndex: "variant_image",
-        width: 70,
+        width: "5%",
         render: (value: string) => {
           return (
             <>
@@ -102,7 +92,7 @@ export const ListInventoryDefectHistory = () => {
       },
       {
         title: "Sản phẩm",
-        width: 200,
+        width: "18%",
         dataIndex: "sku",
         align: "left",
         fixed: "left",
@@ -141,7 +131,7 @@ export const ListInventoryDefectHistory = () => {
         dataIndex: "store",
         align: "center",
         visible: true,
-        width: 200,
+        width: "14%",
         render: (text: string, item) => {
           return (
             <Link to={`${UrlConfig.STORE}/${item.store_id}`} target="_blank">
@@ -150,19 +140,36 @@ export const ListInventoryDefectHistory = () => {
           );
         },
       },
-
       {
-        title: (
-          <div>
-            Số lỗi <span style={{ color: "#2A2A86" }}>({getTotalDefects()})</span>
-          </div>
-        ),
+        title: () => {
+          const inventoryDefects = cloneDeep(data.items);
+          const total =
+            inventoryDefects?.reduce((value, element) => {
+              return value + element.defect || 0;
+            }, 0) || 0;
+          return (
+            <div>
+              Số lỗi <span style={{ color: "#2A2A86" }}>({formatCurrencyForProduct(total)})</span>
+            </div>
+          );
+        },
         dataIndex: "defect",
         align: "center",
         visible: true,
-        width: 120,
-        render: (text: string) => {
-          return <span>{text}</span>;
+        width: "8%",
+        render: (value: number) => {
+          return <span>{value}</span>;
+        },
+      },
+      {
+        title: "SL thay đổi",
+        dataIndex: "quantity_adj",
+        align: "center",
+        visible: true,
+        width: "8%",
+        render: (value: number | null) => {
+          const quantityAdj = value && value > 0 ? `+${value}` : value;
+          return <span>{quantityAdj}</span>;
         },
       },
       {
@@ -170,6 +177,7 @@ export const ListInventoryDefectHistory = () => {
         dataIndex: "updated_name",
         align: "center",
         visible: true,
+        width: "15%",
         render: (text: string, item) => {
           return (
             <span>
@@ -186,7 +194,7 @@ export const ListInventoryDefectHistory = () => {
         dataIndex: "updated_date",
         align: "center",
         visible: true,
-        width: 120,
+        width: "10%",
         render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       },
       {
@@ -194,18 +202,17 @@ export const ListInventoryDefectHistory = () => {
         dataIndex: "note",
         align: "center",
         visible: true,
-        width: 200,
+        width: "22%",
       },
     ];
-  }, [getTotalDefects]);
+  }, [data]);
 
   const [columns, setColumns] =
     useState<Array<ICustomTableColumType<InventoryDefectHistoryResponse>>>(initColumns);
 
-  const dataQuery = useMemo(() => {
-    return { ...getQueryParams(query) } as InventorySearchItem;
-  }, [query]);
-  const [params, setParams] = useState<InventorySearchItem>(dataQuery);
+  const dataQuery = { ...initialQuery, ...getQueryParams(query) } as InventoryDefectQuery;
+
+  const [params, setParams] = useState<InventoryDefectQuery>(dataQuery);
 
   const myStores = useSelector(
     (state: RootReducerType) => state.userReducer.account?.account_stores,
@@ -221,7 +228,6 @@ export const ListInventoryDefectHistory = () => {
     );
     if (res) {
       setData(res);
-      setLoadingTable(false);
     }
   }, [dispatch, params]);
   const getStores = useCallback(async () => {
@@ -234,44 +240,15 @@ export const ListInventoryDefectHistory = () => {
     }
   }, [dispatch]);
 
-  const onSearch = useCallback(() => {
-    const searchValue = form.getFieldValue(DefectFilterBasicEnum.condition);
-    if (typeof searchValue !== "string") return;
-    // make sure user enter something, not special characters
-    if (!/[a-zA-Z0-9\s-]{1,}/.test(searchValue)) return;
-    const newParam = { ...params, [DefectFilterBasicEnum.condition]: searchValue.trim(), page: 1 };
-    const queryParam = generateQuery(newParam);
-    history.replace(`${UrlConfig.INVENTORY_DEFECTS_HISTORY}?${queryParam}`);
-    setParams(newParam);
-    setData({ ...data, metadata: { ...data.metadata, page: 1 } }); // change to page 1 before performing search
-  }, [form, history, params]);
-
-  const onRemoveStatus = useCallback(
-    (index: number) => {
-      remove(index);
-    },
-    [remove],
-  );
-
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
       setParams({ ...params });
       let queryParam = generateQuery(params);
-      history.replace(`${UrlConfig.INVENTORY_DEFECTS_HISTORY}?${queryParam}`);
+      history.push(`${UrlConfig.INVENTORY_DEFECTS_HISTORY}?${queryParam}`);
     },
     [params, history],
-  );
-
-  const onFinish = useCallback(
-    (data) => {
-      const newParam = { ...params, ...data };
-      setParams(newParam);
-      const queryParam = generateQuery(newParam);
-      history.replace(`${UrlConfig.INVENTORY_DEFECTS_HISTORY}?${queryParam}`);
-    },
-    [history, params],
   );
 
   const columnFinal = useMemo(() => {
@@ -292,100 +269,91 @@ export const ListInventoryDefectHistory = () => {
     setColumns(newColumnsOrder);
   };
 
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (!data) {
+      return;
+    }
+    setAccounts((account) => {
+      return [...account, ...data.items];
+    });
+  }, []);
+
   useEffect(() => {
     getInventoryDefectsHistory();
+  }, [getInventoryDefectsHistory, params]);
+
+  useEffect(() => {
     getStores();
-  }, [getStores, params]);
+    dispatch(searchAccountPublicAction({ page: 1 }, setDataAccounts));
+  }, [dispatch, getStores, setDataAccounts]);
 
   useEffect(() => {
     if (tableColumnConfigs && tableColumnConfigs.length) {
-      const latestConfig = tableColumnConfigs.reduce(
-        (prev, current) => (prev.id > current.id ? prev : current),
-        { id: -1, json_content: "" },
+      const userConfig = tableColumnConfigs.find(
+        (e) => e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY_DEFECT_HISTORY,
       );
-      try {
-        const columnsConfig = JSON.parse(latestConfig.json_content);
-        let newColumns = [];
+      if (userConfig) {
+        try {
+          const columnsConfig = JSON.parse(userConfig.json_content);
+          let newColumns = [];
 
-        for (const colConfig of columnsConfig) {
-          const col = initColumns.find((column) => column.dataIndex === colConfig.dataIndex);
-          if (col) {
-            newColumns.push({ ...col, visible: colConfig.visible });
+          for (const colConfig of columnsConfig) {
+            const col = initColumns.find((column) => column.dataIndex === colConfig.dataIndex);
+            if (col) {
+              newColumns.push({ ...col, visible: colConfig.visible });
+            }
           }
+          setColumns(newColumns);
+        } catch (err) {
+          showError("Lỗi lấy cài đặt cột");
         }
-        setColumns(newColumns);
-      } catch (err) {
-        showError("Lỗi lấy cài đặt cột");
       }
+    } else {
+      setColumns([...initColumns]);
     }
   }, [initColumns, tableColumnConfigs, data]);
 
+  const filterDefectHistory = (values: InventoryDefectQuery) => {
+    const newParams = { ...params, ...values, page: 1 };
+    setParams(newParams);
+    const queryParam = generateQuery(newParams);
+    history.push(`${history.location.pathname}?${queryParam}`);
+  };
+
+  const clearFilterDefectHistory = () => {
+    setParams(initialQuery);
+    const queryParams = generateQuery(initialQuery);
+    history.push(`${UrlConfig.INVENTORY_DEFECTS_HISTORY}?${queryParams}`);
+  };
+
+  const showColumnSetting = () => {
+    setShowSettingColumn(true);
+  };
+
   return (
-    <StyledCard>
-      <Form onFinish={onFinish} layout="inline" initialValues={{}} form={form}>
-        <Item style={{ flex: 1 }} name={DefectFilterBasicEnum.condition} className="input-search">
-          <Input
-            allowClear
-            prefix={<img src={search} alt="" />}
-            placeholder="Tìm kiếm theo mã vạch, sku, tên sản phẩm. Nhấn Enter để tìm"
-            onKeyDown={(e) => {
-              e.charCode === EnumCodeKey.ENTER && onSearch();
-            }}
-          />
-        </Item>
-        <Item name={DefectFilterBasicEnum.store_ids} className="select-item">
-          <Select
-            autoClearSearchValue={false}
-            style={{ width: "300px" }}
-            placeholder="Chọn cửa hàng"
-            maxTagCount={"responsive" as const}
-            mode="multiple"
-            showArrow
-            showSearch
-            allowClear
-            filterOption={(input: string, option) => {
-              if (option?.props?.value) {
-                return strForSearch(option?.props?.children).includes(strForSearch(input));
-              }
-              return false;
-            }}
-          >
-            {myStores && (myStores.length || stores.length)
-              ? myStores?.length
-                ? myStores.map((item: AccountStoreResponse, index: number) => (
-                    <Option key={"from_store_id" + index} value={item?.store_id?.toString()}>
-                      {item.store}
-                    </Option>
-                  ))
-                : stores.map((item, index) => (
-                    <Option key={"from_store_id" + index} value={item.id.toString()}>
-                      {item.name}
-                    </Option>
-                  ))
-              : null}
-          </Select>
-        </Item>
-        <Item>
-          <Button htmlType="submit" type="primary" onClick={onSearch}>
-            Lọc
-          </Button>
-        </Item>
-        <Item style={{ margin: 0 }}>
-          <ButtonSetting onClick={() => setShowSettingColumn(true)} />
-        </Item>
-      </Form>
-      <div style={{ marginTop: paramsArray.length > 0 ? 10 : 20 }}>
-        <BaseFilterResult data={paramsArray} onClose={onRemoveStatus} />
-      </div>
+    <>
+      <InventoryDefectHistoryFilter
+        myStores={myStores}
+        stores={stores}
+        filterDefects={filterDefectHistory}
+        accounts={accounts}
+        params={params}
+        showColumnSetting={showColumnSetting}
+        clearFilterDefect={clearFilterDefectHistory}
+        setAccounts={(data) => {
+          setAccounts((account) => {
+            return [...data, ...account];
+          });
+        }}
+      />
       <CustomTable
         className="small-padding"
         bordered
-        isLoading={loadingTable}
         dataSource={data.items}
-        scroll={{ x: "max-content" }}
         sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
         columns={columnFinal}
         rowKey={(item: LineItemDefect) => item.id}
+        isShowPaginationAtHeader
         pagination={{
           showSizeChanger: true,
           pageSize: data?.metadata?.limit || 0,
@@ -406,26 +374,6 @@ export const ListInventoryDefectHistory = () => {
         }}
         data={columns}
       />
-    </StyledCard>
+    </>
   );
 };
-const StyledCard = styled(Card)`
-  border: none;
-  box-shadow: none;
-  margin-top: 20px;
-  .page-filter-left {
-    margin-right: 20px;
-    .action-button {
-      border: 1px solid #2a2a86;
-      padding: 6px 15px;
-      border-radius: 5px;
-      flex-direction: row;
-      display: flex;
-      align-items: center;
-      color: #2a2a86;
-    }
-  }
-  .ant-card-body {
-    padding: 0;
-  }
-`;

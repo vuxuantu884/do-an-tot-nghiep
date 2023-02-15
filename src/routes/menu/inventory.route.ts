@@ -346,7 +346,7 @@ export const inventory: Array<RouteMenu> = [
       {
         path: UrlConfig.INVENTORY_DEFECTS_HISTORY,
         exact: true,
-        title: "Thêm hàng lỗi",
+        title: "Lịch sử hàng lỗi",
         icon: "icon-dot",
         component: ListInventoryDefect,
         key: "submenu43",

@@ -17,11 +17,16 @@ export interface LineItemDefect {
   available: number;
 }
 
-export interface InventorySearchItem {
+export interface InventoryDefectQuery {
   page: number;
   limit: number;
-  condition?: string | null;
-  store_ids?: string | null;
+  condition?: string;
+  store_ids?: Array<string>;
+  from_date?: Date | string;
+  to_date?: Date | string;
+  from_defect?: number;
+  to_defect?: number;
+  updated_by?: Array<string> | string;
 }
 
 export interface InventoryItemsDefectedDetail {
