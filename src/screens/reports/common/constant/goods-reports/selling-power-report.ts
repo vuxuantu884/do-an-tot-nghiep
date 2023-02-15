@@ -11,12 +11,12 @@ export const defaultDisplayOptions = [
     title: "Mã 7 ký tự",
     name: SellingPowerFilterForm.Sku7,
     index: 1,
-    visible: true,
+    visible: false,
   },
   {
     title: "Mã 13 ký tự",
     name: SellingPowerFilterForm.Sku13,
     index: 2,
-    visible: true,
+    visible: false,
   },
 ];

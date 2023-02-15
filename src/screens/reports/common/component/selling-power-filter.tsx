@@ -11,7 +11,11 @@ import { useDispatch } from "react-redux";
 import { useEffectOnce } from "react-use";
 import { getCategoryApi } from "service/product/category.service";
 import { getCollectionApi } from "service/product/collection.service";
-import { searchProductWrapperApi, searchVariantSku3Api } from "service/product/product.service";
+import {
+  searchProductWrapperApi,
+  searchVariantsApi,
+  searchVariantSku3Api,
+} from "service/product/product.service";
 import { callApiNative } from "utils/ApiUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { searchNumberString } from "utils/StringUtils";
@@ -34,6 +38,7 @@ function SellingPowerFilter({ applyFilter, displayOptions, setDisplayOptions }: 
   const [productGroupLv2, setProductGroupLv2] = useState<any[]>([]);
   const [sku3List, setSku3List] = useState<any[]>([]);
   const [sku7List, setSku7List] = useState<any[]>([]);
+  const [sku13List, setSku13List] = useState<any[]>([]);
 
   const [form] = Form.useForm();
   const dispatch = useDispatch();
@@ -52,15 +57,16 @@ function SellingPowerFilter({ applyFilter, displayOptions, setDisplayOptions }: 
 
   const onApplyFilter = useCallback(() => {
     const conditionFilter = form.getFieldsValue();
-    console.log("conditionFilter", conditionFilter);
-
     const { date, category, collection, sku3, sku7, sku13 } = conditionFilter;
     if (!date) {
       return;
     }
+    const selectedOptions = displayOptions.filter((item) => item.visible);
     let params: SellingPowerReportParams = {
       date: moment(date, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.YYYYMMDD),
-      typeSKU: TypeSku.Sku13,
+      typeSKU: selectedOptions.length
+        ? selectedOptions[selectedOptions.length - 1].name
+        : TypeSku.Sku3,
     };
     params = collection?.length ? { ...params, productGroupLv1: collection.join(",") } : params;
     params = category?.length ? { ...params, productGroupLv2: category.join(",") } : params;
@@ -68,7 +74,7 @@ function SellingPowerFilter({ applyFilter, displayOptions, setDisplayOptions }: 
     params = sku7?.length ? { ...params, ma7: sku7.join(",") } : params;
     params = sku13?.length ? { ...params, ma13: sku13.join(",") } : params;
     applyFilter(params);
-  }, [applyFilter, form]);
+  }, [applyFilter, displayOptions, form]);
 
   const openFilter = () => {
     setVisible(true);
@@ -144,6 +150,27 @@ function SellingPowerFilter({ applyFilter, displayOptions, setDisplayOptions }: 
     [dispatch],
   );
 
+  const onGetSku13List = useCallback(
+    async (info?: string) => {
+      const response = await callApiNative({ isShowError: true }, dispatch, searchVariantsApi, {
+        status: "active",
+        info,
+        saleable: true,
+      });
+      if (response) {
+        const data = response.items.map((item: any) => {
+          const { sku } = item;
+          return {
+            label: sku,
+            value: sku,
+          };
+        });
+        setSku13List(data);
+      }
+    },
+    [dispatch],
+  );
+
   const handleClearFilter = () => {
     form?.setFieldsValue({
       [SellingPowerFilterForm.Collection]: [],
@@ -190,7 +217,7 @@ function SellingPowerFilter({ applyFilter, displayOptions, setDisplayOptions }: 
     });
     applyFilter({
       date: defaultDate.format(DATE_FORMAT.YYYYMMDD),
-      typeSKU: TypeSku.Sku13,
+      typeSKU: TypeSku.Sku3,
     });
   });
 
@@ -346,6 +373,10 @@ function SellingPowerFilter({ applyFilter, displayOptions, setDisplayOptions }: 
                       mode="multiple"
                       maxTagCount={"responsive"}
                       placeholder={"Chọn mã SKU"}
+                      options={sku13List}
+                      onSearch={debounce((value) => {
+                        onGetSku13List(value);
+                      }, AppConfig.TYPING_TIME_REQUEST)}
                     ></Select>
                   </Form.Item>
                 </Col>
