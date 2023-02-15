@@ -33,7 +33,6 @@ import { ExportModal } from "component";
 import { START_PROCESS_PERCENT } from "screens/products/helper";
 import { exportFileV2, getFileV2 } from "service/other/import.inventory.service";
 import { HttpStatus } from "config/http-status.config";
-import { DATE_CURRENT } from "config/app.config";
 
 interface PurchaseOrderReturnProps {
   showExportModal: boolean;
@@ -134,11 +133,13 @@ const PurchaseOrderReturnList: React.FC<PurchaseOrderReturnProps> = (
         render: (value, record, index) => {
           return (
             <>
-              <div>
-                <span style={{ color: "#2A2A86" }}>
-                  <b>{value}</b>
-                </span>
-              </div>
+              <Link
+                to={`${PurchaseOrderTabUrl.RETURN}/${record.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <b>{value}</b>
+              </Link>
               <div style={{ fontSize: 12 }}>
                 <div>
                   Mã đơn đặt hàng:{" "}

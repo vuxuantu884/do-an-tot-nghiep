@@ -1,4 +1,16 @@
-import { Checkbox, Col, DatePicker, Divider, Form, FormInstance, Input, Row, Select, Table, Tooltip } from "antd";
+import {
+  Checkbox,
+  Col,
+  DatePicker,
+  Divider,
+  Form,
+  FormInstance,
+  Input,
+  Row,
+  Select,
+  Table,
+  Tooltip,
+} from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
 import NumberInput from "component/custom/number-input.custom";
 import { StoreResponse } from "model/core/store.model";
@@ -21,7 +33,7 @@ import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 
 type POReturnFormProps = {
-  type: string,
+  type: string;
   formMain: FormInstance;
   totalReturn: number;
   totalVat: number;
@@ -31,16 +43,14 @@ type POReturnFormProps = {
   listDistrict: Array<DistrictResponse>;
 };
 const POReturnForm: React.FC<POReturnFormProps> = (props: POReturnFormProps) => {
-  const { formMain, totalReturn, totalVat, listStore, poData, listCountries, listDistrict, type } = props;
+  const { formMain, totalReturn, totalVat, listStore, poData, listCountries, listDistrict, type } =
+    props;
 
   let [currentLineReturn, setCurrentLineReturn] = useState<any>([]);
   const product_units = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.product_unit,
   );
-  const handleChangeReturnQuantity = (
-    value: number | null,
-    item: PurchaseOrderLineReturnItem,
-  ) => {
+  const handleChangeReturnQuantity = (value: number | null, item: PurchaseOrderLineReturnItem) => {
     item.quantity_return = value || 0;
     item.amount_tax_refunds = (Number(item.quantity_return) * item.price * item.tax_rate) / 100;
     let valueIndex = currentLineReturn.findIndex(
@@ -49,10 +59,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (props: POReturnFormProps) => 
     if (valueIndex !== -1) currentLineReturn[valueIndex] = item;
     setCurrentLineReturn([...currentLineReturn]);
   };
-  const handleChangeReturnPrice = (
-    value: number,
-    item: PurchaseOrderLineReturnItem,
-  ) => {
+  const handleChangeReturnPrice = (value: number, item: PurchaseOrderLineReturnItem) => {
     item.price = value;
     item.amount_tax_refunds = (item.quantity_return * item.price * item.tax_rate) / 100;
     let valueIndex = currentLineReturn.findIndex(
@@ -120,7 +127,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (props: POReturnFormProps) => 
   }, [poData]);
 
   useEffect(() => {
-    setCurrentLineReturn(poData.line_items);
+    setCurrentLineReturn(poData?.line_items || []);
   }, []);
 
   useEffect(() => {
@@ -176,7 +183,9 @@ const POReturnForm: React.FC<POReturnFormProps> = (props: POReturnFormProps) => 
                           <Col span={24} md={8}>
                             <Row>
                               <Col span={12} md={8}>
-                                <div style={{ marginTop: 5 }} className="label">Kho trả hàng:</div>
+                                <div style={{ marginTop: 5 }} className="label">
+                                  Kho trả hàng:
+                                </div>
                               </Col>
                               <Col span={12} md={16}>
                                 <Form.Item
@@ -267,8 +276,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (props: POReturnFormProps) => 
                   shouldUpdate={(prevValues, curValues) => {
                     return (
                       prevValues[POField.line_items] !== curValues[POField.line_items] ||
-                      prevValues[POField.line_return_items] !==
-                      curValues[POField.line_return_items]
+                      prevValues[POField.line_return_items] !== curValues[POField.line_return_items]
                     );
                   }}
                 >
@@ -316,10 +324,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (props: POReturnFormProps) => 
                             width: 150,
                             className: "ant-col-info",
                             dataIndex: "variant",
-                            render: (
-                              value: string,
-                              item: PurchaseOrderLineReturnItem,
-                            ) => (
+                            render: (value: string, item: PurchaseOrderLineReturnItem) => (
                               <div>
                                 <div>
                                   <div className="product-item-sku">{item.sku}</div>
@@ -419,8 +424,8 @@ const POReturnForm: React.FC<POReturnFormProps> = (props: POReturnFormProps) => 
                                       alignItems: "center",
                                     }}
                                   >
-                                      /{numberCanReturn}
-                                    </span>
+                                    /{numberCanReturn}
+                                  </span>
                                 </div>
                               );
                             },
@@ -441,9 +446,9 @@ const POReturnForm: React.FC<POReturnFormProps> = (props: POReturnFormProps) => 
                                     fontWeight: "normal",
                                   }}
                                 >
-                                    {" "}
+                                  {" "}
                                   ₫
-                                  </span>
+                                </span>
                               </div>
                             ),
                             width: 140,
@@ -474,12 +479,12 @@ const POReturnForm: React.FC<POReturnFormProps> = (props: POReturnFormProps) => 
                                       formatCurrency(
                                         a
                                           ? Math.round(
-                                            POUtils.caculatePrice(
-                                              parseInt(a),
-                                              item.discount_rate,
-                                              item.discount_value,
-                                            ),
-                                          )
+                                              POUtils.caculatePrice(
+                                                parseInt(a),
+                                                item.discount_rate,
+                                                item.discount_value,
+                                              ),
+                                            )
                                           : 0,
                                       )
                                     }
@@ -538,9 +543,9 @@ const POReturnForm: React.FC<POReturnFormProps> = (props: POReturnFormProps) => 
                                       fontWeight: "normal",
                                     }}
                                   >
-                                      {" "}
+                                    {" "}
                                     ₫
-                                    </span>
+                                  </span>
                                 </div>
                               </Tooltip>
                             ),
@@ -551,11 +556,11 @@ const POReturnForm: React.FC<POReturnFormProps> = (props: POReturnFormProps) => 
                               if (item.quantity_return) {
                                 displayValue = Math.round(
                                   item.quantity_return *
-                                  POUtils.caculatePrice(
-                                    item.price,
-                                    item.discount_rate,
-                                    item.discount_value,
-                                  ),
+                                    POUtils.caculatePrice(
+                                      item.price,
+                                      item.discount_rate,
+                                      item.discount_value,
+                                    ),
                                 );
                               }
                               return (
@@ -604,9 +609,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (props: POReturnFormProps) => 
                     <Fragment>
                       <div className="po-payment-row">
                         <div>Tổng tiền:</div>
-                        <div className="po-payment-row-result">
-                          {formatCurrency(totalReturn)}
-                        </div>
+                        <div className="po-payment-row-result">{formatCurrency(totalReturn)}</div>
                       </div>
                       {vatLine.map((item: Vat, index: number) => {
                         return (

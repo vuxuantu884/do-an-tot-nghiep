@@ -11,6 +11,7 @@ type PoSupplierInfoProps = {
 };
 const POSupplierAddress = ({ getFieldValue, field, onEdit }: PoSupplierInfoProps) => {
   let address = getFieldValue(field);
+  console.log("address", address);
   const fullAddressRef = useRef(null);
   const [isOverFlown, setIsOverFlown] = useState(false);
 
@@ -69,12 +70,14 @@ const POSupplierAddress = ({ getFieldValue, field, onEdit }: PoSupplierInfoProps
             </Row>
           </Col>
         </Row>
-        <Button
-          style={{ display: "flex", alignItems: "center" }}
-          type="link"
-          icon={<EditOutlined size={24} />}
-          onClick={onEdit}
-        />
+        {onEdit && (
+          <Button
+            style={{ display: "flex", alignItems: "center" }}
+            type="link"
+            icon={<EditOutlined size={24} />}
+            onClick={onEdit}
+          />
+        )}
       </Row>
     </>
   );

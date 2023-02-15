@@ -183,6 +183,10 @@ export const getPurchaseOrderReturnList = (
   return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/returns?${queryString}`);
 };
 
+export const getPurchaseOrderReturnItem = (id: string | number): Promise<BaseResponse<any>> => {
+  return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/returns/${id}`);
+};
+
 export const getPercentMonth = (query?: PurchaseOrderPercentsQuery) => {
   return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/asm/percent-month?`, {
     params: query,
