@@ -47,9 +47,7 @@ function GrossProfitFilter({ applyFilter, displayOptions, setDisplayOptions }: P
       endDate,
       show: selectedOptions.length === 2 ? "All" : selectedOptions[0]?.key || "",
     };
-    params = productGroup?.length
-      ? { ...params, productGroup: productGroup.join(",").toUpperCase() }
-      : params;
+    params = productGroup?.length ? { ...params, productGroup: productGroup.join(",") } : params;
     params = sku3?.length ? { ...params, sku3: sku3.join(",") } : params;
     params = sku7?.length ? { ...params, sku7: sku7.join(",") } : params;
     applyFilter(params);
