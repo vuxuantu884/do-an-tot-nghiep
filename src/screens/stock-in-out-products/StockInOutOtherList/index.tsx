@@ -765,7 +765,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
         )}
         <ExportModal
           title="Xuất file danh sách phiếu nhập xuất khác"
-          moduleText="sản phẩm"
+          moduleText="phiếu nhâp xuất"
           onCancel={actionExportNXK.Cancel}
           onOk={actionExportNXK.Ok}
           isVisible={showExportModal}
