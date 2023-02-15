@@ -5,4 +5,5 @@ export enum SellingPowerFilterForm {
   Sku3 = "sku3",
   Sku7 = "sku7",
   Sku13 = "sku13",
+  SkuName = "skuName",
 }
