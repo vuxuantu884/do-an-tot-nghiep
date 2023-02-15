@@ -1,5 +1,4 @@
 import { Button, Card, Col, Form, Image, Input, Row, Select, Space, Table } from "antd";
-import { Store } from "antd/lib/form/interface";
 import ContentContainer from "component/container/content.container";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
@@ -30,9 +29,9 @@ import { createInventoryDefect } from "service/inventory/defect/index.service";
 import ImageProduct from "screens/products/product/component/ImageProduct";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import SearchProductComponent from "component/search-product";
-import { AccountStoreResponse } from "model/account/account.model";
 import { RefSelectProps } from "antd/lib/select";
 import { InventoryDefectWrapper } from "./style";
+import { Store } from "model/inventory/transfer";
 
 export interface SummaryDefect {
   total_defect: number;
@@ -48,7 +47,7 @@ const InventoryDefectCreate: React.FC = () => {
   const dispatch = useDispatch();
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
+  const [stores, setStores] = useState<Array<Store>>([]);
   const [dataTable, setDataTable] = useState<Array<LineItemDefect> | any>(
     [] as Array<LineItemDefect>,
   );
@@ -233,13 +232,15 @@ const InventoryDefectCreate: React.FC = () => {
       });
       if (response && response.length > 0) {
         setStores(response);
-
         if (myStores.length === 1) {
+          const userStore: Store = response.find(
+            (store: Store) => store.id === myStores[0].store_id,
+          );
           form.setFieldsValue({
-            store_id: String(myStores[0].store_id),
+            store_id: userStore.id,
           });
-          setFormStoreData(myStores[0].store_id);
-          setDefectStoreIdBak(myStores[0].store_id);
+          setFormStoreData(userStore);
+          setDefectStoreIdBak(userStore.id);
         }
       }
     };
@@ -255,8 +256,12 @@ const InventoryDefectCreate: React.FC = () => {
   }, []);
 
   const createDefectItems = async () => {
-    if (!formStoreData || dataTable.length === 0 || !formStoreData.id || !formStoreData.name) {
+    if (dataTable.length === 0) {
       showError("Chưa có sản phẩm nào được chọn");
+      return;
+    }
+    if (!formStoreData) {
+      showError("Bạn chưa chọn kho hàng");
       return;
     }
     let error = false;
@@ -368,15 +373,10 @@ const InventoryDefectCreate: React.FC = () => {
         showError("Vui lòng chọn cửa hàng");
         return;
       }
-      if (selectedItem) {
-        const store = myStores.find(
-          (e: AccountStoreResponse) => e.store_id === Number.parseInt(storeId),
-        );
-
-        let item: any = {};
-
+      const store = stores.find((e: Store) => e.id === Number.parseInt(storeId));
+      if (selectedItem && store) {
         if (!dataSource.some((e: VariantResponse) => e.variant_id === selectedItem.id)) {
-          item = {
+          const item: LineItemDefect = {
             id: selectedItem.id,
             variant_id: selectedItem.id,
             variant_name: selectedItem.name ?? selectedItem.variant_name,
@@ -402,17 +402,17 @@ const InventoryDefectCreate: React.FC = () => {
           const index = dataTableClone.findIndex(
             (variant: LineItemDefect) => variant.id === selectedItem.id,
           );
-          item = {
+          const newItem = {
             ...itemExist,
             defect: itemExist.defect + 1,
           };
-          dataTableClone[index] = item;
+          dataTableClone[index] = newItem;
           setDataTable(dataTableClone);
           calculatingDefectAndInventory(dataTableClone);
         }
       }
     },
-    [calculatingDefectAndInventory, dataTable, form, myStores],
+    [calculatingDefectAndInventory, dataTable, form, stores],
   );
 
   const onChangeStore = useCallback(() => {

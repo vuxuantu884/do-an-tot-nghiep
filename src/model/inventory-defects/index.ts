@@ -11,7 +11,7 @@ export interface LineItemDefect {
   defect: number;
   store_id: number;
   store: string;
-  product_id: string;
+  product_id: number;
   barcode?: string;
   [name: string]: DefectValue;
   available: number;
