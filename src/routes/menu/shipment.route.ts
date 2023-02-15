@@ -27,6 +27,11 @@ const SingleThirdPartyLogisticsIntegrationScreen_DHL = React.lazy(
 const SingleThirdPartyLogisticsIntegrationScreen_GiaoHangTietKiem = React.lazy(
   () => import("screens/settings/third-party-logistics-integration/giao-hang-tiet-kiem"),
 );
+
+const SingleThirdPartyLogisticsIntegrationScreen_UnicornBestExpress = React.lazy(
+  () => import("screens/settings/third-party-logistics-integration/best-express"),
+);
+
 const SingleThirdPartyLogisticsIntegrationScreen_Snappy = React.lazy(
   () => import("screens/settings/third-party-logistics-integration/snappy"),
 );
@@ -149,6 +154,18 @@ const shipments: Array<RouteMenu> = [
         icon: "icon-dot",
         component: SingleThirdPartyLogisticsIntegrationScreen_Snappy,
         key: "snappy",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        pathIgnore: ["create"],
+      },
+      {
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/ube`,
+        exact: true,
+        title: "Unicorn BEST Express",
+        icon: "icon-dot",
+        component: SingleThirdPartyLogisticsIntegrationScreen_UnicornBestExpress,
+        key: "unicorn-best-express",
         isShow: true,
         header: null,
         subMenu: [],
