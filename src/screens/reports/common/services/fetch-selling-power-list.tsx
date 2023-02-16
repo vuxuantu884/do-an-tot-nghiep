@@ -9,7 +9,7 @@ export async function fetchSellingPowerList(
   dispatch: Dispatch<any>,
 ) {
   const response: any = await callApiNative(
-    { notifyAction: "SHOW_ALL" },
+    { notifyAction: "HIDE_ALL" },
     dispatch,
     getSellingPowerReportApi,
     { ...params },

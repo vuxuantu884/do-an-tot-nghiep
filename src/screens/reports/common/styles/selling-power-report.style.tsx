@@ -38,4 +38,8 @@ export const SellingPowerReportStyle = styled.div`
   .font-weight-bold {
     font-weight: bold;
   }
+
+  .ant-table-sticky-scroll {
+    bottom: 1px !important;
+  }
 `;

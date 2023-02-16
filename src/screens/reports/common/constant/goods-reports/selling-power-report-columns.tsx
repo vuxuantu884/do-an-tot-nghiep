@@ -240,10 +240,17 @@ export const sellingPowerReportColumns = (selectedDate: string): any[] => {
           width: child.width ? child.width : 120,
           className: "text-center",
           render: (text: string | number | null, row: any) => {
-            return text && typeof text === "number" ? (
-              <span className={row.className}>{formatCurrency(text) ?? "-"}</span>
+            return (text && typeof text === "number") || text === 0 ? (
+              child.unit !== "%" ? (
+                <span className={row.className}>{formatCurrency(text) ?? "--"}</span>
+              ) : (
+                <span className={row.className}>
+                  {+text.toFixed(2)}
+                  {child.unit}
+                </span>
+              )
             ) : (
-              <span className={row.className}>{text ?? "-"}</span>
+              <span className={row.className}>{text ?? "--"}</span>
             );
           },
         };
@@ -254,10 +261,17 @@ export const sellingPowerReportColumns = (selectedDate: string): any[] => {
         width: item.width ? item.width : 120,
         className: "text-center",
         render: (text: string | number | null, row: any) => {
-          return text && typeof text === "number" ? (
-            <span className={row.className}>{formatCurrency(text) ?? "-"}</span>
+          return (text && typeof text === "number") || text === 0 ? (
+            item.unit !== "%" ? (
+              <span className={row.className}>{formatCurrency(text) ?? "--"}</span>
+            ) : (
+              <span className={row.className}>
+                {+text.toFixed(2)}
+                {item.unit}
+              </span>
+            )
           ) : (
-            <span className={row.className}>{text ?? "-"}</span>
+            <span className={row.className}>{text ?? "--"}</span>
           );
         },
       };
