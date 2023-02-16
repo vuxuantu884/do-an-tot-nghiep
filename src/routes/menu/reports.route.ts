@@ -222,7 +222,7 @@ const reports: Array<RouteMenu> = [
       },
       {
         path: REPORTS_URL.GROSS_PROFIT,
-        permissions: [],
+        permissions: [ReportPermissions.reports_view_report_grossprofit],
         exact: true,
         title: "Báo cáo lợi nhuận gộp theo mã 3, nhóm hàng",
         icon: "icon-dot",
