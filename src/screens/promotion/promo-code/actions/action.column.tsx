@@ -15,7 +15,7 @@ const ActionColumnIssue = () => {
   const _actionColumn = {
     title: "",
     visible: true,
-    width: "5%",
+    width: "70px",
     className: "saleorder-product-card-action ",
     dataIndex: "id",
     render: (id: any) => {
@@ -38,17 +38,14 @@ const ActionColumnIssue = () => {
         </StyledMenu>
       );
       return (
-        <StyledDropDown
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            padding: "0 4px",
-          }}
-        >
+        <StyledDropDown>
           <div
             className="site-input-group-wrapper saleorder-input-group-wrapper"
             style={{
               borderRadius: 5,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <Dropdown
