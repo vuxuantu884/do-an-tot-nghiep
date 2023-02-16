@@ -861,7 +861,7 @@ const PromotionDetailScreen: React.FC = () => {
                             },
 
                             {
-                              title: "Giá bán sau chiết khấu",
+                              title: "Giá bán sau khuyến mại",
                               align: "center",
                               dataIndex: "retail_price",
                               render: (price) => {
