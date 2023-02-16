@@ -551,9 +551,11 @@ const DetailInventoryAdjustment: FC = () => {
           dispatch(hideLoading());
           if (res) {
             showSuccess("Cập nhật phiếu kiểm kho thành công");
-            form.setFieldsValue({
-              version: Number(form.getFieldValue("version")) + 1
-            });
+            if (data?.note !== newNote) {
+              form.setFieldsValue({
+                version: Number(form.getFieldValue("version")) + 1
+              });
+            }
 
             setData({
               ...data,
@@ -611,7 +613,7 @@ const DetailInventoryAdjustment: FC = () => {
         if (result) {
           onResult({
             ...result,
-            version: form.getFieldValue("version") + 1
+            version: result.version + 1
           });
           showSuccess("Hoàn thành kiểm kho thành công.");
           setIsShowConfirmAudited(false);
@@ -619,7 +621,7 @@ const DetailInventoryAdjustment: FC = () => {
         }
       }),
     );
-  }, [data?.id, dispatch, form, onResult]);
+  }, [data, dispatch, onResult]);
 
   const onAdjustInventory = useCallback(() => {
     setLoading(true);
@@ -629,14 +631,14 @@ const DetailInventoryAdjustment: FC = () => {
         if (result) {
           onResult({
             ...result,
-            version: Number(form.getFieldValue("version")) + 1
+            version: result.version + 1
           });
           showSuccess("Cân tồn kho thành công.");
           setIsShowConfirmAdj(false);
         }
       }),
     );
-  }, [dispatch, data?.id, onResult, form]);
+  }, [dispatch, data?.id, onResult]);
 
   const onResultDataTable = useCallback((result: PageResponse<LineItemAdjustment> | false) => {
     if (result) {

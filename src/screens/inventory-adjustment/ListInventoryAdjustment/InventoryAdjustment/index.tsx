@@ -645,7 +645,6 @@ const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
 
   const setSearchResult = useCallback(
     (result: PageResponse<Array<InventoryAdjustmentDetailItem>> | false) => {
-      setTableLoading(true);
       if (!!result) {
         setData(result);
         if (firstLoad) {
@@ -669,7 +668,6 @@ const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
 
   const onFilter = useCallback(
     (values) => {
-      setTableLoading(true);
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
@@ -760,6 +758,7 @@ const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
 
   //get list
   useEffect(() => {
+    setTableLoading(true);
     dispatch(getListInventoryAdjustmentAction(params, setSearchResult));
   }, [history, dispatch, params, setSearchResult]);
 
@@ -799,6 +798,7 @@ const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
             current: data.metadata.page,
             total: data.metadata.total,
             onChange: onPageChange,
+            onShowSizeChange: onPageChange
           }}
         />
 
