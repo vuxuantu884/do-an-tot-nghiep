@@ -16,6 +16,14 @@ const CustomerVisitors = React.lazy(
 
 const InventoryBalance = React.lazy(() => import("screens/reports/inventory-balance"));
 
+const GoodsReports = React.lazy(() => import("screens/reports/goods-reports"));
+const SellingPowerReport = React.lazy(
+  () => import("screens/reports/goods-reports/selling-power-report"),
+);
+const GrossProfitReport = React.lazy(
+  () => import("screens/reports/goods-reports/gross-profit-report"),
+);
+
 export const KDOfflineV1Url = "/kd-offline-v1";
 
 const reports: Array<RouteMenu> = [
@@ -183,6 +191,43 @@ const reports: Array<RouteMenu> = [
         icon: "icon-dot",
         component: ReadTemplateAnalytics,
         key: "submenureport31",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+    ],
+  },
+  {
+    path: REPORTS_URL.GOODS,
+    permissions: [],
+    exact: true,
+    title: "Báo cáo hàng hoá",
+    icon: "icon-dot",
+    component: GoodsReports,
+    key: "menureport06",
+    isShow: true,
+    header: null,
+    subMenu: [
+      {
+        path: REPORTS_URL.SELLING_POWER,
+        permissions: [ReportPermissions.reports_view_report_selling_power],
+        exact: true,
+        title: "Báo cáo tồn bán sức bán",
+        icon: "icon-dot",
+        component: SellingPowerReport,
+        key: "menureport061",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: REPORTS_URL.GROSS_PROFIT,
+        permissions: [ReportPermissions.reports_view_report_grossprofit],
+        exact: true,
+        title: "Báo cáo lợi nhuận gộp theo mã 3, nhóm hàng",
+        icon: "icon-dot",
+        component: GrossProfitReport,
+        key: "menureport062",
         isShow: true,
         header: null,
         subMenu: [],

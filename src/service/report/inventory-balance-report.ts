@@ -1,5 +1,6 @@
 import BaseAxiosApi from "base/base.axios.api";
 import { ApiConfig } from "config/api.config";
+import { SellingPowerReportParams } from "screens/reports/common/interfaces/selling-power-report.interface";
 
 export interface InventoryBalanceReportParams {
   startDate: string;
@@ -27,4 +28,8 @@ export const getProductInfoApi = (params: InventoryBalanceFilterParams): Promise
 
 export const getStoreByProvinceApi = (province?: string): Promise<any> => {
   return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/store`, { params: { province } });
+};
+
+export const getSellingPowerReportApi = (params: SellingPowerReportParams): Promise<any> => {
+  return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/selling-power`, { params });
 };

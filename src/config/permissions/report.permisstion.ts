@@ -8,4 +8,6 @@ export const ReportPermissions = {
   reports_view_report_online: "reports_view_report_online",
   reports_view_report_tct: "reports_view_report_tct",
   reports_view_report_xnt: "reports_view_report_xnt",
+  reports_view_report_grossprofit: "reports_view_report_grossprofit",
+  reports_view_report_selling_power: "reports_view_report_selling_power",
 };

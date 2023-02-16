@@ -157,5 +157,8 @@ export const SHOPIFY_URL = {
 export const REPORTS_URL = {
   MARKETING: `${UrlConfig.ANALYTICS}/marketing`,
   INVENTORY_BALANCE: `inventory-balance`,
+  GOODS: `${UrlConfig.ANALYTICS}/goods-reports`,
+  SELLING_POWER: `${UrlConfig.ANALYTICS}/goods-reports/selling-power`,
+  GROSS_PROFIT: `${UrlConfig.ANALYTICS}/goods-reports/gross-profit`,
 };
 export default UrlConfig;
