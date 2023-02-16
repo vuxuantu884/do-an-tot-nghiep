@@ -222,16 +222,16 @@ const SmsConfigPromotionModal: React.FC<any> = (props: any) => {
               </div>
             </Card>
 
-            <Card title="Loại khuyến mãi">
+            <Card title="Loại khuyến mại">
               <Row gutter={30}>
                 <Col span={24}>
                   <Form.Item label="Chọn loại" name={PRICE_RULE_FIELDS.entitled_method}>
-                    <Select showArrow placeholder="Chọn loại mã khuyến mãi">
+                    <Select showArrow placeholder="Chọn loại mã khuyến mại">
                       <Option
                         key={PriceRuleMethod.ORDER_THRESHOLD}
                         value={PriceRuleMethod.ORDER_THRESHOLD}
                       >
-                        Khuyến mãi theo đơn hàng
+                        Khuyến mại theo đơn hàng
                       </Option>
                     </Select>
                   </Form.Item>

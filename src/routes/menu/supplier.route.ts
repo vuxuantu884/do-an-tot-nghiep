@@ -9,6 +9,10 @@ import { PurchaseOrderTabUrl } from "screens/purchase-order/helper";
 const PurchaseOrderScreen = React.lazy(
   () => import("screens/purchase-order/PurchaseOrderScreen/PurchaseOrderScreen"),
 );
+const PurchaseOrderDetail = React.lazy(
+  () => import("screens/purchase-order/PurchaseOrderScreen/PurchaseOrderDetail"),
+);
+
 const PurchaseOrderCreateScreen = React.lazy(
   () => import("screens/purchase-order/purchase-order-create.screen"),
 );
@@ -88,6 +92,7 @@ const supplierRoutes: Array<RouteMenu> = [
         subMenu: [],
         pathIgnore: ["create"],
       },
+
       {
         path: `${UrlConfig.PURCHASE_ORDERS}/:id/stamp-printing`,
         exact: true,
@@ -110,7 +115,21 @@ const supplierRoutes: Array<RouteMenu> = [
         isShow: true,
         header: null,
         permissions: [PurchaseOrderPermission.read],
-        subMenu: [],
+        subMenu: [
+          {
+            path: `${PurchaseOrderTabUrl.RETURN}/:id`,
+            exact: true,
+            title: "Chi tiết phiếu trả hàng",
+            icon: "icon-dot",
+            component: PurchaseOrderDetail,
+            // component: PurchaseOrderReturnScreen,
+            key: "submenu223",
+            isShow: true,
+            header: null,
+            permissions: [PurchaseOrderPermission.return],
+            subMenu: [],
+          },
+        ],
       },
     ],
   },

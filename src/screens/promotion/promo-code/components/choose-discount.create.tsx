@@ -148,7 +148,7 @@ const ChooseDiscount = (props: Props) => {
       <Row gutter={30} style={{padding: "0 16px 0"}}>
         <Checkbox>
           Áp dụng chung với các mã khuyến mại khác&nbsp;&nbsp;
-          <Tooltip title="Bao gồm chiết khấu khách hàng, chiết khấu tích điểm, chiết khấu tự nhập cho đơn hàng và chương trình khuyến mãi">
+          <Tooltip title="Bao gồm chiết khấu khách hàng, chiết khấu tích điểm, chiết khấu tự nhập cho đơn hàng và chương trình khuyến mại">
             <InfoCircleOutlined />
           </Tooltip>
         </Checkbox>

@@ -177,7 +177,7 @@ function PromoCodeUpdateForm({
               rules={[
                 {
                   required: true,
-                  message: "Cần nhập tên khuyến mãi",
+                  message: "Cần nhập tên khuyến mại",
                 },
                 {
                   max: 255,
@@ -217,19 +217,19 @@ function PromoCodeUpdateForm({
       </Card>
       <Card>
         <Row gutter={30}>
-          {/* Loại khuyến mãi */}
+          {/* Loại khuyến mại */}
           <Col span={24}>
-            <Form.Item label={"Loại khuyến mãi"}>
+            <Form.Item label={"Loại khuyến mại"}>
               <Select
                 showArrow
-                placeholder="Chọn loại mã khuyến mãi"
+                placeholder="Chọn loại mã khuyến mại"
                 onChange={(value: string) => setType(value)}
               >
                 <Option
                   key={PriceRuleMethod.ORDER_THRESHOLD}
                   value={PriceRuleMethod.ORDER_THRESHOLD}
                 >
-                  Khuyến mãi theo đơn hàng
+                  Khuyến mại theo đơn hàng
                 </Option>
               </Select>
             </Form.Item>

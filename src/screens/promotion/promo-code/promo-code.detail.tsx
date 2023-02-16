@@ -257,10 +257,10 @@ const PromotionDetailScreen: React.FC = () => {
           name: "Loại mã",
           value: `${
             data.entitled_method === PriceRuleMethod.ORDER_THRESHOLD
-              ? "Khuyến mãi theo đơn hàng"
+              ? "Khuyến mại theo đơn hàng"
               : data.entitled_method === PriceRuleMethod.DISCOUNT_CODE_QTY
-              ? "Khuyến mãi theo sản phẩm"
-              : "Mã khuyến mãi"
+              ? "Khuyến mại theo sản phẩm"
+              : "Mã khuyến mại"
           }`,
           position: "left",
           color: "#222222",
@@ -288,7 +288,7 @@ const PromotionDetailScreen: React.FC = () => {
         },
         {
           id: "discount",
-          name: "Thông tin khuyến mãi",
+          name: "Thông tin khuyến mại",
           value: renderDiscountInfo(
             data.entitlements[0]?.prerequisite_quantity_ranges[0]?.value,
             data.entitlements[0]?.prerequisite_quantity_ranges[0]?.value_type,
@@ -303,7 +303,7 @@ const PromotionDetailScreen: React.FC = () => {
           position: "right",
           color: "#222222",
         },
-        /** Tạm ẩn Checkbox "Khuyến mãi tặng mã giảm giá qua sms" */
+        /** Tạm ẩn Checkbox "Khuyến mại tặng mã giảm giá qua sms" */
         // {
         //   id: "is_sms_voucher",
         //   name: "Tặng mã giảm giá qua sms",
@@ -561,14 +561,14 @@ const PromotionDetailScreen: React.FC = () => {
     <ContentContainer
       isError={error}
       isLoading={loading}
-      title={data ? data.title : "Chi tiết đợt khuyến mãi"}
+      title={data ? data.title : "Chi tiết đợt khuyến mại"}
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Khuyến mãi",
+          name: "Khuyến mại",
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
@@ -813,7 +813,7 @@ const PromotionDetailScreen: React.FC = () => {
                     <Card title="Danh sách áp dụng">
                       <Space size={"large"} direction={"vertical"} style={{ width: "100%" }} />
                       <div className="discount-code-product">
-                        Khuyến mãi
+                        Khuyến mại
                         {data.rule?.value_type === DiscountUnitType.PERCENTAGE.value && (
                           <span className="discount-code-product-desc">{`${data.rule?.value}${DiscountUnitType.PERCENTAGE.label}`}</span>
                         )}
@@ -861,7 +861,7 @@ const PromotionDetailScreen: React.FC = () => {
                             },
 
                             {
-                              title: "Giá bán sau chiết khấu",
+                              title: "Giá bán sau khuyến mại",
                               align: "center",
                               dataIndex: "retail_price",
                               render: (price) => {
@@ -915,7 +915,7 @@ const PromotionDetailScreen: React.FC = () => {
                       <Space size={"large"} direction={"vertical"} style={{ width: "100%" }} />
                       {listProductByIssue.items.length === 0 ? (
                         <div className="discount-code-product">
-                          Khuyến mãi
+                          Khuyến mại
                           {data.rule?.value_type === DiscountUnitType.PERCENTAGE.value && (
                             <span className="discount-code-product-desc">{`${data.rule?.value}${DiscountUnitType.PERCENTAGE.label}`}</span>
                           )}
@@ -996,7 +996,7 @@ const PromotionDetailScreen: React.FC = () => {
                     <Card title="Điều kiện áp dụng">
                       <Space size={"large"} direction={"vertical"} style={{ width: "100%" }} />
                       <div className="discount-code-product">
-                        Khuyến mãi
+                        Khuyến mại
                         {data.rule?.value_type === DiscountUnitType.PERCENTAGE.value && (
                           <span className="discount-code-product-desc">{`${data.rule?.value}${DiscountUnitType.PERCENTAGE.label}`}</span>
                         )}

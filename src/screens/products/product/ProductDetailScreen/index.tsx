@@ -988,7 +988,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
                         />
                       </Tabs.TabPane>
                       <Tabs.TabPane
-                        tab="Chương trình khuyến mãi"
+                        tab="Chương trình khuyến mại"
                         key={ProductDetailTabName.ADVERTISING_HISTORY}
                       >
                         <TabAdvertisingHistory

@@ -235,18 +235,18 @@ const CreatePromotionCodePage = () => {
 
   return (
     <ContentContainer
-      title="Tạo khuyến mãi"
+      title="Tạo khuyến mại"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Khuyến mãi",
+          name: "Khuyến mại",
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
-          name: "Tạo khuyến mãi",
+          name: "Tạo khuyến mại",
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`,
         },
       ]}

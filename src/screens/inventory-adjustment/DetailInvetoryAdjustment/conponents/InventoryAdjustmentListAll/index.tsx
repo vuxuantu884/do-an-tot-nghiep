@@ -28,6 +28,7 @@ import { formatCurrency } from "utils/AppUtils";
 import EditNote from "screens/order-online/component/edit-note";
 import { callApiNative } from "utils/ApiUtils";
 import {
+  getLinesItemAdjustmentApi,
   updateOnHandItemOnlineInventoryApi,
   updateReasonItemOnlineInventoryApi,
 } from "service/inventory/adjustment/index.service";
@@ -36,6 +37,7 @@ import { searchVariantsApi } from "service/product/product.service";
 import { STATUS_INVENTORY_ADJUSTMENT } from "../../../ListInventoryAdjustment/constants";
 import NumberInput from "component/custom/number-input.custom";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
+import { HttpStatus } from "config/http-status.config";
 
 const arrTypeNote = [
   { key: 1, value: "XNK sai quy trình" },
@@ -55,7 +57,9 @@ type propsInventoryAdjustment = {
   tableLoading: boolean;
   objSummaryTableByAuditTotal: any;
   setIsReRender: () => void;
+  setIncreaseVersion: () => void;
   setDataTab?: (value: any) => void;
+  setTotalTabOne?: (value: PageResponse<LineItemAdjustment>) => void;
   setTotalProp?: (value: number) => void;
 };
 
@@ -98,9 +102,11 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     tab,
     setIsReRender,
     setDataTab,
+    setTotalTabOne,
     isReSearch,
     isPermissionEdit,
-    setTotalProp
+    setTotalProp,
+    setIncreaseVersion
   } = props;
 
   //phân quyền
@@ -219,6 +225,17 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     [dataLinesItem.items],
   );
 
+  const refreshDataLineItem = async () => {
+    const res = await getLinesItemAdjustmentApi(
+      idNumber,
+      `page=1&limit=30&type=deviant`
+    );
+
+    if (res.code === HttpStatus.SUCCESS) {
+      setTotalTabOne && setTotalTabOne(res.data);
+    }
+  };
+
   const debounceChangeRealOnHand = useMemo(
     () =>
       _.debounce((row: LineItemAdjustment, realOnHand: number) => {
@@ -250,10 +267,11 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
           updateItemOnlineInventoryAction(data.id, row.id, row, (result: LineItemAdjustment) => {
             setLoadingTable(false);
             if (result) {
+              setIncreaseVersion();
               showSuccess("Nhập số kiểm thành công.");
               setIsReRender();
-              const version = form.getFieldValue("version");
-              form.setFieldsValue({ version: version + 1 });
+
+              refreshDataLineItem().then();
             }
           }),
         );
@@ -490,54 +508,56 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
           tooltip = value;
         }
 
-        if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED && allowUpdate) {
-          return (
-            <Radio.Group
-              className="custom-radio-group"
-              value={note}
-              buttonStyle="solid"
-              onChange={(e) => {
-                handleNoteChange(index, e.target.value, row);
-              }}
-            >
-              <Tooltip placement="topLeft" title={arrTypeNote[0].value}>
-                <Radio.Button
-                  style={{ paddingLeft: 12, paddingRight: 12 }}
-                  value={`${index}#${arrTypeNote[0].value}`}
-                >
-                  <UserSwitchOutlined />
-                </Radio.Button>
-              </Tooltip>
-              <Tooltip placement="topLeft" title={arrTypeNote[1].value}>
-                <Radio.Button
-                  style={{ paddingLeft: 12, paddingRight: 12 }}
-                  value={`${index}#${arrTypeNote[1].value}`}
-                >
-                  <CodepenOutlined />
-                </Radio.Button>
-              </Tooltip>
-              <Tooltip placement="topLeft" title={arrTypeNote[2].value}>
-                <Radio.Button
-                  style={{ paddingLeft: 12, paddingRight: 12 }}
-                  value={`${index}#${arrTypeNote[2].value}`}
-                >
-                  <PieChartOutlined />
-                </Radio.Button>
-              </Tooltip>
-              <Tooltip placement="topLeft" title={tooltip}>
-                <EditNote
-                  isGroupButton
-                  note={tooltip}
-                  title=""
-                  onOk={(newNote) => {
-                    handleNoteChange(index, newNote, row).then();
-                  }}
-                />
-              </Tooltip>
-            </Radio.Group>
-          );
-        }
-        return value || "";
+        return (
+          <>
+            <div>{value}</div>
+            {allowUpdate && data?.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED && data?.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.CANCELED && (
+              <Radio.Group
+                className="custom-radio-group"
+                value={note}
+                buttonStyle="solid"
+                onChange={(e) => {
+                  handleNoteChange(index, e.target.value, row);
+                }}
+              >
+                <Tooltip placement="topLeft" title={arrTypeNote[0].value}>
+                  <Radio.Button
+                    style={{ paddingLeft: 12, paddingRight: 12 }}
+                    value={`${index}#${arrTypeNote[0].value}`}
+                  >
+                    <UserSwitchOutlined />
+                  </Radio.Button>
+                </Tooltip>
+                <Tooltip placement="topLeft" title={arrTypeNote[1].value}>
+                  <Radio.Button
+                    style={{ paddingLeft: 12, paddingRight: 12 }}
+                    value={`${index}#${arrTypeNote[1].value}`}
+                  >
+                    <CodepenOutlined />
+                  </Radio.Button>
+                </Tooltip>
+                <Tooltip placement="topLeft" title={arrTypeNote[2].value}>
+                  <Radio.Button
+                    style={{ paddingLeft: 12, paddingRight: 12 }}
+                    value={`${index}#${arrTypeNote[2].value}`}
+                  >
+                    <PieChartOutlined />
+                  </Radio.Button>
+                </Tooltip>
+                <Tooltip placement="topLeft" title={tooltip}>
+                  <EditNote
+                    isGroupButton
+                    note={value}
+                    title=""
+                    onOk={(newNote) => {
+                      handleNoteChange(index, newNote, row).then();
+                    }}
+                  />
+                </Tooltip>
+              </Radio.Group>
+            )}
+          </>
+        );
       },
     },
     {

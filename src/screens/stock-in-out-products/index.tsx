@@ -6,10 +6,14 @@ import { useHistory } from "react-router-dom";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { StockInOutOthersPermission } from "config/permissions/stock-in-out.permission";
 import StockInOutOtherList from "./StockInOutOtherList";
+import exportIcon from "assets/icon/export.svg";
 import { PlusOutlined } from "@ant-design/icons";
+import { useState } from "react";
+import { ExportModal } from "component";
 
 const InventoryImportExportScreen: React.FC<RouteComponentProps> = (props) => {
   const history = useHistory();
+  const [showExportModal, setShowExportModal] = useState(false);
 
   return (
     <ContentContainer
@@ -26,6 +30,18 @@ const InventoryImportExportScreen: React.FC<RouteComponentProps> = (props) => {
       extra={
         <Row>
           <Space>
+            <AuthWrapper acceptPermissions={[StockInOutOthersPermission.create]}>
+              <Button
+                className="light"
+                size="large"
+                icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                onClick={() => {
+                  setShowExportModal(true);
+                }}
+              >
+                Xuất file chi tiết
+              </Button>
+            </AuthWrapper>
             <AuthWrapper acceptPermissions={[StockInOutOthersPermission.create]}>
               <Button
                 type="primary"
@@ -53,7 +69,10 @@ const InventoryImportExportScreen: React.FC<RouteComponentProps> = (props) => {
       }
     >
       <Card className="card-tab">
-        <StockInOutOtherList />
+        <StockInOutOtherList
+          showExportModal={showExportModal}
+          setShowExportModal={setShowExportModal}
+        />
       </Card>
     </ContentContainer>
   );

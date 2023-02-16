@@ -11,7 +11,8 @@ type ExportModalProps = {
   onOk: (record: string) => void;
   exportError?: string;
   title?: string;
-  moduleText: string
+  moduleText: string;
+  isHideOptionAll?: boolean;
 };
 
 const ExportModal: React.FC<ExportModalProps> = (props: ExportModalProps) => {
@@ -25,7 +26,8 @@ const ExportModal: React.FC<ExportModalProps> = (props: ExportModalProps) => {
     statusExport = STATUS_IMPORT_EXPORT.NONE,
     exportError,
     title,
-    moduleText
+    moduleText,
+    isHideOptionAll = false
   } = props;
   const onCancelClick = useCallback(() => {
     onCancel();
@@ -62,7 +64,9 @@ const ExportModal: React.FC<ExportModalProps> = (props: ExportModalProps) => {
                     <Radio value={TYPE_EXPORT.page}>Các { moduleText } trên trang này</Radio>
                     <Radio value={TYPE_EXPORT.selected}>Các { moduleText } được chọn</Radio>
                     <Radio value={TYPE_EXPORT.all}>Tất cả { moduleText } đủ điều kiện lọc</Radio>
-                    <Radio value={TYPE_EXPORT.allin}>Tất cả { moduleText }</Radio>
+                    {!isHideOptionAll && (
+                      <Radio value={TYPE_EXPORT.allin}>Tất cả { moduleText }</Radio>
+                    )}
                   </Space>
                 </Radio.Group>
               </Form.Item>

@@ -190,7 +190,7 @@ const GeneralCreate = (props: any) => {
                 name="title"
                 label={<b>Tên đợt phát hành: </b>}
                 form={form}
-                message="Cần nhập tên khuyến mãi"
+                message="Cần nhập tên khuyến mại"
                 placeholder="Nhập tên đợt phát hàng"
                 isRequired={true}
                 maxLength={255}
@@ -222,13 +222,13 @@ const GeneralCreate = (props: any) => {
         </Card>
         <Card>
           <Row gutter={30} style={{ padding: "0px 16px" }}>
-            {/* Loại khuyến mãi */}
+            {/* Loại khuyến mại */}
             <Col span={24}>
-              <Form.Item name="sale_type" label={<b>Loại khuyến mãi</b>}>
+              <Form.Item name="sale_type" label={<b>Loại khuyến mại</b>}>
                 <Select
                   autoClearSearchValue={false}
                   showArrow
-                  placeholder="Chọn loại mã khuyến mãi"
+                  placeholder="Chọn loại mã khuyến mại"
                   onChange={(value: string) => setType(value)}
                   showSearch
                   allowClear
@@ -586,7 +586,7 @@ const GeneralCreate = (props: any) => {
                     }
                   >
                     {listChannel?.map((store: any, index: number) => (
-                      <Option key={index} value={store.name}>
+                      <Option key={index} value={store.code}>
                         {store.name}
                       </Option>
                     ))}

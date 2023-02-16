@@ -135,7 +135,7 @@ function IssueCreate(): ReactElement {
         createPromotionReleaseAction(body, (result: PriceRule) => {
           dispatch(hideLoading());
           if (result) {
-            showSuccess("Thêm mới chương trình khuyến mãi thành công");
+            showSuccess("Thêm mới chương trình khuyến mại thành công");
             history.push(UrlConfig.PROMOTION + UrlConfig.PROMO_CODE + `/${result.id}`);
           }
         }),
@@ -164,7 +164,7 @@ function IssueCreate(): ReactElement {
           path: UrlConfig.HOME,
         },
         {
-          name: "Khuyến mãi",
+          name: "Khuyến mại",
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {

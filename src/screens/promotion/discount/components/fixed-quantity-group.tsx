@@ -538,7 +538,7 @@ const FixedAndQuantityGroup = (props: Props) => {
                         </Link>
                       </div>
                       <div className="product-item-name">
-                        <span className="product-item-name-detail">{title}</span>
+                        <div className="product-item-name-detail">{title}</div>
                       </div>
                     </div>
                   </div>

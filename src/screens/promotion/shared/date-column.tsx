@@ -8,7 +8,6 @@ type Props = {
 };
 
 function DatePromotionColumn({ endDate, startDate }: Props) {
-  console.log(typeof moment(endDate).format(DATE_FORMAT.DDMMYY_HHmm));
   return (
     <div>
       {startDate && moment(startDate).format(DATE_FORMAT.DDMMYY_HHmm)} -

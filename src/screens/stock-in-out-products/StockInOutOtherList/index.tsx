@@ -42,8 +42,15 @@ import StockInOutExport from "../components/StockInOutExport";
 import * as XLSX from "xlsx";
 import moment from "moment";
 import { InventoryTransferDetailItem } from "../../../model/inventory/transfer";
+import { ExportModal } from "component";
+import { START_PROCESS_PERCENT } from "screens/products/helper";
+import { exportFileV2, getFileV2 } from "service/other/import.inventory.service";
+import { HttpStatus } from "config/http-status.config";
 
-interface StockInOutOtherListProps {}
+interface StockInOutOtherListProps {
+  showExportModal: boolean;
+  setShowExportModal: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
 const actionsDefault: Array<MenuAction> = [
   {
@@ -56,7 +63,9 @@ const actionsDefault: Array<MenuAction> = [
   },
 ];
 
-const StockInOutOtherList: React.FC<StockInOutOtherListProps> = () => {
+const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
+  const { showExportModal, setShowExportModal } = props;
+
   const [loading, setLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [data, setData] = useState<PageResponse<StockInOutOther>>({
@@ -73,6 +82,10 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = () => {
   const [vExportDetailStockInOut, setVExportDetailStockInOut] = useState<boolean>(false);
   const [statusExport, setStatusExport] = useState<number>(0);
   const [exportProgress, setExportProgress] = useState<number>(0);
+  const [isLoadingExport, setIsLoadingExport] = useState<boolean>(false);
+  const [exportProgressDetail, setExportProgressDetail] = useState<number>(START_PROCESS_PERCENT);
+  const [statusExportDetail, setStatusExportDetail] = useState<number>(0);
+  const [listExportFileDetail, setListExportFileDetail] = useState<Array<string>>([]);
 
   const currentPermissions: string[] = useSelector(
     (state: RootReducerType) => state.permissionReducer.permissions,
@@ -564,6 +577,126 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = () => {
     },
   };
 
+  const getConditions = useCallback(
+    (type: string) => {
+      let conditions = {};
+      switch (type) {
+        case TYPE_EXPORT.selected:
+          const ids = selectedRowData.map((e) => e.id).toString();
+          conditions = { ids: ids, type_export: TYPE_EXPORT.selected };
+          break;
+        case TYPE_EXPORT.page:
+          conditions = {
+            ...paramsUrl,
+            page: paramsUrl?.page || 1,
+            limit: paramsUrl?.limit || 30,
+            type_export: TYPE_EXPORT.page,
+          };
+          break;
+        case TYPE_EXPORT.all:
+          conditions = {
+            ...paramsUrl,
+            type_export: TYPE_EXPORT.all,
+            page: undefined,
+            limit: undefined,
+          };
+          break;
+        case TYPE_EXPORT.allin:
+          conditions = { type_export: TYPE_EXPORT.allin };
+          break;
+      }
+      return conditions;
+    },
+    [paramsUrl, selectedRowData],
+  );
+
+  const resetExport = () => {
+    setShowExportModal(false);
+    setIsLoadingExport(false);
+    setExportProgressDetail(START_PROCESS_PERCENT);
+  };
+
+  const actionExportNXK = {
+    Ok: async (typeExport: string) => {
+      setIsLoadingExport(true);
+
+      if (typeExport === TYPE_EXPORT.selected && selectedRowData && selectedRowData.length === 0) {
+        showWarning("Bạn chưa chọn sản phẩm để xuất file");
+        setIsLoadingExport(false);
+        setShowExportModal(false);
+        return;
+      }
+      const conditions = getConditions(typeExport);
+      const queryParam = generateQuery({ ...conditions });
+      exportFileV2({
+        conditions: queryParam,
+        type: "TYPE_EXPORT_STOCK_IN_OUT_OTHERS",
+      })
+        .then((response) => {
+          console.log(response);
+          if (response.code === HttpStatus.SUCCESS) {
+            showSuccess("Đã gửi yêu cầu xuất file");
+            setStatusExportDetail(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+            setListExportFileDetail([...listExportFileDetail, response.data.code]);
+          }
+        })
+        .catch(() => {
+          setStatusExportDetail(STATUS_IMPORT_EXPORT.ERROR);
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+          resetExport();
+        });
+    },
+    Cancel: () => {
+      resetExport();
+    },
+  };
+  const checkExportFileDetail = useCallback(() => {
+    const getFilePromises = listExportFileDetail.map((code) => {
+      return getFileV2(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (response.data.total || response.data.total !== 0) {
+            setExportProgressDetail(response.data.percent);
+          }
+          if (response.data && response.data.status === "FINISH") {
+            setStatusExportDetail(STATUS_IMPORT_EXPORT.JOB_FINISH);
+            const fileCode = response.data.code;
+            const newListExportFile = listExportFileDetail.filter((item) => {
+              return item !== fileCode;
+            });
+            let downLoad = document.createElement("a");
+            downLoad.href = response.data.url;
+            downLoad.download = "download";
+            downLoad.click();
+            setListExportFileDetail(newListExportFile);
+            resetExport();
+          } else if (response.data && response.data.status === "ERROR") {
+            setStatusExportDetail(STATUS_IMPORT_EXPORT.ERROR);
+            if (response.data.message) {
+              showError(response.data.message);
+            }
+          }
+        }
+      });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listExportFileDetail]);
+
+  useEffect(() => {
+    if (
+      listExportFileDetail.length === STATUS_IMPORT_EXPORT.NONE ||
+      statusExportDetail === STATUS_IMPORT_EXPORT.JOB_FINISH ||
+      statusExportDetail === STATUS_IMPORT_EXPORT.ERROR
+    )
+      return;
+    checkExportFileDetail();
+
+    const getFileInterval = setInterval(checkExportFileDetail, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFileDetail, checkExportFileDetail, statusExportDetail]);
+
   return (
     <StyledComponent>
       <div className="margin-top-20">
@@ -630,6 +763,15 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = () => {
             statusExport={statusExport}
           />
         )}
+        <ExportModal
+          title="Xuất file danh sách phiếu nhập xuất khác"
+          moduleText="phiếu nhâp xuất"
+          onCancel={actionExportNXK.Cancel}
+          onOk={actionExportNXK.Ok}
+          isVisible={showExportModal}
+          isLoading={isLoadingExport}
+          exportProgress={exportProgressDetail}
+        />
       </div>
     </StyledComponent>
   );

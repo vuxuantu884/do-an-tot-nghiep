@@ -1,3 +1,4 @@
+import { PurchaseOrderLineReturnItem } from "./../model/purchase-order/purchase-item.model";
 import { FormInstance } from "antd";
 import { isEmpty, uniqBy } from "lodash";
 import { v4 as uuidv4 } from "uuid";
@@ -890,5 +891,22 @@ export const convertLineItemsToProcurementItems = (
     newProcurement.push(procurement);
   });
   return newProcurement;
+};
+
+export const getTotalAmountByPurchaseOrderLineReturnItem = (
+  lineItem: Array<PurchaseOrderLineReturnItem>,
+) => {
+  let totalAmount = 0;
+  lineItem.forEach((item) => {
+    const calculatePrice = POUtils.caculatePrice(
+      item.price,
+      item.discount_rate,
+      item.discount_value,
+    );
+    totalAmount +=
+      item.quantity_return * calculatePrice +
+      (item.tax_rate / 100) * item.quantity_return * calculatePrice;
+  });
+  return totalAmount;
 };
 export { POUtils };

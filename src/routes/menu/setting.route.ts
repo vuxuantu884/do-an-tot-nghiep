@@ -575,7 +575,7 @@ const setting: Array<RouteMenu> = [
       {
         path: `${UrlConfig.SMS_SETTINGS}/promotion-voucher`,
         exact: true,
-        title: "Gửi tin sinh mã giảm giá theo chương trình khuyến mãi",
+        title: "Gửi tin sinh mã giảm giá theo chương trình khuyến mại",
         icon: "icon-dot",
         component: SmsPromotionVoucher,
         key: "sms-promotion-voucher",

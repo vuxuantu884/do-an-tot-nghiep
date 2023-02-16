@@ -1,0 +1,55 @@
+.promotion-list-modal {
+  .ant-modal-content {
+    .ant-modal-body {
+      height: 600px;
+      overflow: auto;
+      padding: 0 20px;
+      .ant-tabs-nav {
+        padding: 0 10px;
+        margin: 0;
+      }
+
+      .ant-tabs-extra-content {
+        width: 500px;
+        .ant-input-search .ant-input-affix-wrapper {
+          height: 32px;
+        }
+      }
+
+      .search-component {
+        display: flex;
+        align-items: center;
+        margin-top: 20px;
+        .input-search {
+          margin-right: 20px;
+          width: 50%;
+          flex-shrink: 0;
+        }
+        .filter-tags {
+          .tag {
+            padding: 4px 12px;
+            background: rgba(42, 42, 134, 0.05);
+            border-radius: 50px;
+            white-space: normal;
+            margin-right: 0;
+            .ant-tag-close-icon {
+              margin-left: 6px;
+            }
+          }
+        }
+      }
+    }
+  }
+  .modal-footer {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    .selected-number {
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 22px;
+      color: #2A2A86;
+      margin-right: 12px;
+    }
+  }
+}

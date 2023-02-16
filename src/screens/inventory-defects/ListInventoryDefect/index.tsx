@@ -1,4 +1,4 @@
-import { Card, Row, Space, Tabs } from "antd";
+import { Button, Card, Row, Space, Tabs } from "antd";
 import { Link, useHistory } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -9,6 +9,7 @@ import { InventoryDefectsPermission } from "config/permissions/inventory-defects
 import ListInventoryDefect from "./components/ListInventoryDefect";
 import UrlConfig from "config/url.config";
 import { ListInventoryDefectHistory } from "../ListInventoryDefectHistory";
+import { DownloadOutlined } from "@ant-design/icons";
 
 const { TabPane } = Tabs;
 
@@ -17,6 +18,7 @@ const InventoryDefects: React.FC = () => {
   const path = history.location.pathname;
 
   const [activeTab, setActiveTab] = useState<string>(UrlConfig.INVENTORY_DEFECTS);
+  const [isExportDefects, setIsExportDefects] = useState(false);
 
   useEffect(() => {
     if (Object.values(UrlConfig).includes(path)) {
@@ -24,7 +26,14 @@ const InventoryDefects: React.FC = () => {
     } else {
       setActiveTab(UrlConfig.INVENTORY_DEFECTS);
     }
+    setIsExportDefects(false);
   }, [path]);
+
+  const handleSetExportDefects = () => {
+    if (UrlConfig.INVENTORY_DEFECTS === path) {
+      setIsExportDefects(true);
+    }
+  };
 
   return (
     <ContentContainer
@@ -42,6 +51,14 @@ const InventoryDefects: React.FC = () => {
       extra={
         <Row>
           <Space>
+            <Button
+              className="light"
+              size="large"
+              icon={<DownloadOutlined />}
+              onClick={handleSetExportDefects}
+            >
+              Xuất file
+            </Button>
             <AuthWrapper acceptPermissions={[InventoryDefectsPermission.create]}>
               <ButtonCreate child="Thêm hàng lỗi" path={`${UrlConfig.INVENTORY_DEFECTS}/create`} />
             </AuthWrapper>
@@ -55,7 +72,10 @@ const InventoryDefects: React.FC = () => {
             tab={<Link to={UrlConfig.INVENTORY_DEFECTS}>Danh sách hàng lỗi</Link>}
             key={UrlConfig.INVENTORY_DEFECTS}
           >
-            <ListInventoryDefect />
+            <ListInventoryDefect
+              isExportDefects={isExportDefects}
+              setIsExportDefects={setIsExportDefects}
+            />
           </TabPane>
           <TabPane
             tab={<Link to={UrlConfig.INVENTORY_DEFECTS_HISTORY}>Lịch sử hàng lỗi</Link>}

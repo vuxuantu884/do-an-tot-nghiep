@@ -733,7 +733,7 @@ export default function GeneralProductQuantity(props: Props): ReactElement {
         }}
         width={650}
         visible={showImportModal}
-        title="Nhập file khuyến mãi sản phẩm"
+        title="Nhập file khuyến mại sản phẩm"
         footer={[
           <Button
             key="back"

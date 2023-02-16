@@ -350,9 +350,10 @@ const ScreenReturnCreate = (props: PropTypes) => {
       billing_address: null,
       payments: [],
       channel_id: null,
-      automatic_discount: !checkIfECommerceByOrderChannelCodeUpdateOrder(OrderDetail?.channel_code),
+      //automatic_discount: !checkIfECommerceByOrderChannelCodeUpdateOrder(OrderDetail?.channel_code),
+      automatic_discount: false,
     };
-  }, [userReducer.account?.code, OrderDetail]);
+  }, [userReducer.account?.code]);
 
   const [returnPaymentMethodCode, setReturnPaymentMethodCode] = useState(PaymentMethodCode.CASH);
 

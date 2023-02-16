@@ -153,7 +153,7 @@ function UpdateProductCard(props: PropTypes) {
             <div className="discount-item">
               {l.discount_items[0]?.discount_code && (
                 <span className="coupon">
-                  <Tooltip title="Mã khuyến mãi">
+                  <Tooltip title="Mã khuyến mại">
                     ( {l.discount_items[0].discount_code.trim().toUpperCase()} )
                   </Tooltip>
                   <span className="separator">-</span>
@@ -535,7 +535,7 @@ function UpdateProductCard(props: PropTypes) {
                     align="middle"
                     style={{ fontSize: "0.95em", color: successColor, fontStyle: "normal" }}
                   >
-                    <div className="promotionName" title="Tên chương trình khuyến mãi">
+                    <div className="promotionName" title="Tên chương trình khuyến mại">
                       <img src={couponOrderIcon} alt="" />
                       {OrderDetail?.discounts[0]?.discount_code && (
                         <span className="coupon">

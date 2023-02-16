@@ -5,10 +5,13 @@ import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { Button, Col, Form, Input, Modal, Row, Space, Tabs, Upload } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import {
+  CloseCircleOutlined,
   DeleteOutlined,
+  EditOutlined,
   PaperClipOutlined,
-  PrinterOutlined,
-  SearchOutlined, UploadOutlined
+  PrinterOutlined, SaveOutlined,
+  SearchOutlined,
+  UploadOutlined
 } from "@ant-design/icons";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { useHistory, useParams } from "react-router";
@@ -70,12 +73,16 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 import { callApiNative } from "utils/ApiUtils";
 import {
+  addAttachedFile,
   addLineItem,
   cancelInventoryTicket,
   checkIncurredRecordApi,
+  deleteAttachedFile,
   getDetailInventorAdjustmentGetApi,
   getLinesItemAdjustmentApi,
-  getTotalOnHand
+  getTotalOnHand,
+  renameAttachedFileApi,
+  updateAttachedFile
 } from "service/inventory/adjustment/index.service";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import EditNote from "../../order-online/component/edit-note";
@@ -93,6 +100,10 @@ import NoticeIncurredRecordTour from "./conponents/InventoryAdjustmentTours/Noti
 import SummaryIncurredRecordTour from "./conponents/InventoryAdjustmentTours/SummaryIncurredRecordTour";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import debounce from "lodash/debounce";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import moment from "moment";
+import { FORMAT_DATE_UPLOAD_FILE, KEY } from "../helper";
+import { saveAs } from "file-saver";
 
 const { TabPane } = Tabs;
 
@@ -141,6 +152,7 @@ const DetailInventoryAdjustment: FC = () => {
   const [isVisibleModalNotice, setIsVisibleModalNotice] = useState<boolean>(false);
   const [isVisibleModalSummaryNotice, setIsVisibleModalSummaryNotice] = useState<boolean>(false);
   const [isDisabledIncurredRecordBtn, setIsDisabledIncurredRecordBtn] = useState(true);
+  const [isShowModalConfirmDeleteFile, setIsShowModalConfirmDeleteFile] = useState(false);
   const [incurredRecordNumber, setIncurredRecordNumber] = useState(0);
   const [incurredAuditRecords, setIncurredAuditRecords] = useState<Array<IncurredAuditRecordType>>(
     [],
@@ -178,6 +190,8 @@ const DetailInventoryAdjustment: FC = () => {
   const [hasImportUrl, setHasImportUrl] = useState<boolean>(false);
   const [isRerenderTab, setIsRerenderTab] = useState<boolean>(false);
   const [isReSearch, setIsReSearch] = useState<boolean>(false);
+  const [selectedFile, setSelectedFile] = useState<number | null>(null);
+  const [selectedFileToDelete, setSelectedFileToDelete] = useState<number | null>(null);
 
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [formStoreData, setFormStoreData] = useState<StoreResponse | null>();
@@ -359,6 +373,10 @@ const DetailInventoryAdjustment: FC = () => {
         dispatch(hideLoading());
         if (!res) return;
 
+        form.setFieldsValue({
+          version: form.getFieldValue("version") + 1
+        });
+
         setIsRerenderTab(!isRerenderTab);
 
         if (activeTab === "1") {
@@ -445,6 +463,8 @@ const DetailInventoryAdjustment: FC = () => {
       let uuid = file.uid;
       files.push(file);
 
+      const attachedFiles = data?.attached_files;
+
       dispatch(
         inventoryUploadFileAction({ files: files }, (data: false | Array<string>) => {
           let newFileListUpdate = [...fileListUpdate];
@@ -454,15 +474,19 @@ const DetailInventoryAdjustment: FC = () => {
               newFileListUpdate[index].status = "done";
               newFileListUpdate[index].url = data[0];
 
-              let fileCurrent: Array<string> = form.getFieldValue("list_attached_files");
-              if (!fileCurrent) {
-                fileCurrent = [];
+              const fileName = newFileListUpdate[index].name;
+              const fileNameFormatted = `${fileName.slice(0, fileName.lastIndexOf("."))}@${userReducer.account?.code}-${userReducer.account?.full_name}-${moment(new Date())
+                .format(FORMAT_DATE_UPLOAD_FILE)}${newFileListUpdate[index]
+                .name.slice(fileName.lastIndexOf("."), fileName.length)}`;
+
+              const fileFiltered = attachedFiles?.filter((item) => item.name.slice(0, item.name.indexOf('@')) === fileName.slice(0, fileName.lastIndexOf(".")));
+
+              if (fileFiltered && fileFiltered.length > 0) {
+                showError("Tên file đính kèm đã tồn tại");
+                return;
               }
 
-              let newFileCurrent = [...fileCurrent, data[0]];
-              form.setFieldsValue({list_attached_files: newFileCurrent});
-
-              updateAdjustment(true, null);
+              updateFile(fileNameFormatted, data[0]).then();
             }
           } else {
             newFileListUpdate.splice(index, 1);
@@ -512,7 +536,7 @@ const DetailInventoryAdjustment: FC = () => {
     [form],
   );
 
-  const updateAdjustment = (isUpdateFile: boolean = false, newNote: string | null) => {
+  const updateAdjustment = (newNote: string | null) => {
     const dataUpdate = {
       ...data,
       note: newNote || data?.note,
@@ -527,15 +551,10 @@ const DetailInventoryAdjustment: FC = () => {
           dispatch(hideLoading());
           if (res) {
             showSuccess("Cập nhật phiếu kiểm kho thành công");
-            form.setFieldsValue({
-              version: Number(form.getFieldValue("version")) + 1
-            });
-            if (isUpdateFile) {
-              setData({
-                ...data,
-                list_attached_files: form.getFieldValue("list_attached_files"),
+            if (data?.note !== newNote) {
+              form.setFieldsValue({
+                version: Number(form.getFieldValue("version")) + 1
               });
-              return;
             }
 
             setData({
@@ -552,6 +571,22 @@ const DetailInventoryAdjustment: FC = () => {
     } else {
       dispatch(hideLoading());
     }
+  };
+
+  const updateFile = async (name: string, url: string) => {
+    const attachedFile = {
+      name,
+      url
+    };
+
+    const res = await addAttachedFile(data?.id, attachedFile);
+    if (res.code === HttpStatus.SUCCESS) {
+      showSuccess("Thêm mới file đính kèm thành công");
+      getDetailInventoryAdjustment().then();
+      return;
+    }
+
+    showError("Thêm mới file đính kèm thất bại");
   };
 
   const updateAuditedBys = () => {
@@ -576,7 +611,10 @@ const DetailInventoryAdjustment: FC = () => {
       updateOnlineInventoryAction(data?.id ?? 0, (result) => {
         setLoading(false);
         if (result) {
-          onResult(result);
+          onResult({
+            ...result,
+            version: result.version + 1
+          });
           showSuccess("Hoàn thành kiểm kho thành công.");
           setIsShowConfirmAudited(false);
           setIsRun(false);
@@ -591,7 +629,10 @@ const DetailInventoryAdjustment: FC = () => {
       adjustInventoryAction(data?.id ?? 0, (result) => {
         setLoading(false);
         if (result) {
-          onResult(result);
+          onResult({
+            ...result,
+            version: result.version + 1
+          });
           showSuccess("Cân tồn kho thành công.");
           setIsShowConfirmAdj(false);
         }
@@ -981,6 +1022,97 @@ const DetailInventoryAdjustment: FC = () => {
     localStorage.setItem(isShowSummaryTourVar, "false");
   };
 
+  const showModalConfirmDelete = (id: number) => {
+    setSelectedFileToDelete(id);
+    setIsShowModalConfirmDeleteFile(true);
+  };
+
+  const editFileName = (id: number) => {
+    setSelectedFile(id);
+    setTimeout(() => {
+      const input = document.getElementById(String(id)) as HTMLInputElement;
+      input?.focus();
+      input?.setSelectionRange(0, input.value.indexOf('@'));
+    }, 100)
+  };
+
+  const deleteFile = async () => {
+    const res = await deleteAttachedFile(data?.id, selectedFileToDelete);
+    if (res.code === HttpStatus.SUCCESS) {
+      showSuccess("Xóa file đính kèm thành công");
+      getDetailInventoryAdjustment().then();
+      setSelectedFile(null);
+      setIsShowModalConfirmDeleteFile(false);
+      return;
+    }
+
+    showError("Xóa file đính kèm thất bại");
+  };
+
+  const cancelEditFileName = () => {
+    setSelectedFile(null);
+  };
+
+  const saveFileName = async (id: number) => {
+    const input = document.getElementById(String(id)) as HTMLInputElement;
+
+    const fileFiltered = data?.attached_files?.filter((item) => item.name.slice(0, item.name.indexOf('@')) === input.value.slice(0, input.value.indexOf('@')));
+
+    if (fileFiltered && fileFiltered.length > 0) {
+      showError("Tên file đính kèm đã tồn tại");
+      return;
+    }
+
+    const attachedFile = {
+      name: input.value !== '' ? input.value.trim() : input.value
+    };
+
+    const res = await updateAttachedFile(data?.id, attachedFile, id);
+    if (res.code === HttpStatus.SUCCESS) {
+      showSuccess("Cập nhật file đính kèm thành công");
+      getDetailInventoryAdjustment().then();
+      setSelectedFile(null);
+      return;
+    }
+
+    showError("Cập nhật file đính kèm thất bại");
+  }
+
+  const downloadAttachedFile = async (url: string, name: string) => {
+    const urlDecode = decodeURI(url);
+    const res = await renameAttachedFileApi({
+      url: urlDecode.slice(urlDecode.indexOf('yody-file/'), url.length),
+      new_url: name,
+    });
+
+    if (res.code === HttpStatus.SUCCESS) {
+      saveAs(res.data);
+    }
+  };
+
+  const handleKeyPress = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case KEY.ESC:
+        cancelEditFileName();
+        break;
+      case KEY.ENTER:
+        if (selectedFile) {
+          saveFileName(selectedFile).then();
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("keyup", handleKeyPress);
+    return () => {
+      window.removeEventListener("keyup", handleKeyPress);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedFile]);
+
   return (
     <StyledWrapper>
       <ContentContainer
@@ -1162,19 +1294,33 @@ const DetailInventoryAdjustment: FC = () => {
                       Đính kèm:
                     </Col>
                     <Col span={20} className="font-weight-500">
-                      {Array.isArray(data.list_attached_files) &&
-                        data.list_attached_files.length > 0 &&
-                        data.list_attached_files?.map((link: string, index: number) => {
+                      {Array.isArray(data.attached_files) &&
+                        data.attached_files.length > 0 &&
+                        data.attached_files?.map((file, index: number) => {
                           return (
-                            <a
-                              key={index}
-                              className="file-pin"
-                              target="_blank"
-                              rel="noreferrer"
-                              href={link}
-                            >
-                              <PaperClipOutlined /> {link}
-                            </a>
+                            <div className="container-file-pin">
+                              {selectedFile !== file.id && (
+                                // eslint-disable-next-line jsx-a11y/anchor-is-valid
+                                <a
+                                  key={index}
+                                  className="file-pin mr-15"
+                                  rel="noreferrer"
+                                  onClick={() => downloadAttachedFile(file.url, file.name)}
+                                >
+                                  <PaperClipOutlined /> {file.name}
+                                </a>
+                              )}
+                              {selectedFile === file.id ? (
+                                <>
+                                  <Input id={String(file.id)} className="input-editable mr-15" defaultValue={file.name} />
+                                  <CloseCircleOutlined onClick={cancelEditFileName} className="mr-5 cursor-p" style={{ fontSize: 18 }} />
+                                  <SaveOutlined onClick={() => saveFileName(file.id)} className="mr-5 cursor-p" style={{ fontSize: 18 }} />
+                                </>
+                              ) : (
+                                <EditOutlined  onClick={() => editFileName(file.id)} className="mr-5 cursor-p" style={{ fontSize: 18 }} />
+                              )}
+                              <DeleteOutlined onClick={() => showModalConfirmDelete(file.id)} className="cursor-p" style={{ fontSize: 18 }} />
+                            </div>
                           );
                         })}
 
@@ -1209,7 +1355,7 @@ const DetailInventoryAdjustment: FC = () => {
                         color={primaryColor}
                         onOk={(newNote) => {
                           dispatch(showLoading());
-                          updateAdjustment(false, newNote);
+                          updateAdjustment(newNote);
                         }}
                       />
                     </Col>
@@ -1284,6 +1430,10 @@ const DetailInventoryAdjustment: FC = () => {
                                 return !isReRenderTotalOnHand;
                               });
                             }}
+                            setIncreaseVersion={() => {
+                              const version = form.getFieldValue("version");
+                              form.setFieldsValue({ version: version + 1 });
+                            }}
                             setDataTab={(value) => setDataLinesItem(value)}
                             tab={activeTab}
                             isReSearch={isReSearch}
@@ -1338,11 +1488,16 @@ const DetailInventoryAdjustment: FC = () => {
                                 return !isReRenderTotalOnHand;
                               });
                             }}
+                            setIncreaseVersion={() => {
+                              const version = form.getFieldValue("version");
+                              form.setFieldsValue({ version: version + 1 });
+                            }}
                             tab={activeTab}
                             isPermissionAudit={isPermissionAudit}
                             keySearch={keySearchAll}
                             tableLoading={tableLoading}
                             isRerenderTab={isRerenderTab}
+                            setTotalTabOne={(value) => setDataLinesItem(value)}
                             objSummaryTableByAuditTotal={objSummaryTableByAudit.total}
                             idNumber={idNumber}
                             data={data}
@@ -1634,6 +1789,17 @@ const DetailInventoryAdjustment: FC = () => {
             incurredAuditRecordsMap={incurredAuditRecordsMap}
             incurredAdjustRecords={incurredAdjustRecords}
             incurredAdjustRecordsMap={incurredAdjustRecordsMap}
+          />
+        )}
+
+        {isShowModalConfirmDeleteFile && (
+          <ModalDeleteConfirm
+            visible={isShowModalConfirmDeleteFile}
+            okText={"Đồng ý"}
+            onOk={deleteFile}
+            cancelText={"Hủy"}
+            onCancel={() => setIsShowModalConfirmDeleteFile(false)}
+            content={<div>Bạn có chắc chắn muốn <span className="font-weight-500">XÓA</span> file đính kèm trên phiếu <span className="font-weight-500">{data?.code}</span>?</div>}
           />
         )}
       </ContentContainer>

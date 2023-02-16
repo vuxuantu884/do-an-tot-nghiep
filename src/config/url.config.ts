@@ -51,6 +51,7 @@ const UrlConfig = {
   DISCOUNT: `/discounts`,
   PROMO_CODE: `/issues`,
   GIFT: `/gifts`,
+  CAMPAIGN: `/campaigns`,
   PACK_SUPPORT: `/orders-pack`,
   DELIVERY_RECORDS: `/delivery-records`,
   BANK: `/bank`,

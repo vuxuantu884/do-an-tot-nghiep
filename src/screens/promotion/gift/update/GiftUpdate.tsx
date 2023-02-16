@@ -121,7 +121,7 @@ const GiftUpdate = () => {
       };
 
       setGiftMethod(result.entitled_method);
-      //set default checked Loại khuyến mãi
+      //set default checked Loại khuyến mại
       // setIsUnlimitQuantity(typeof result.quantity_limit !== "number");
 
       //   //set default checked Bộ lọc
@@ -242,7 +242,7 @@ const GiftUpdate = () => {
   );
 
   /**
-   * Lấy thông tin [tên sản phẩm, tồn đầu kỳ, giá vốn] sản phẩm khuyến mãi
+   * Lấy thông tin [tên sản phẩm, tồn đầu kỳ, giá vốn] sản phẩm khuyến mại
    */
   useEffect(() => {
     const entitlementValue: Array<GiftEntitlementForm> = giftDetailData.entitlements;

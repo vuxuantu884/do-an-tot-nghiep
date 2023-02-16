@@ -15,7 +15,12 @@ import { OFFSET_HEADER_TABLE, STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "utils/Co
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { getTotalQuantityReturn } from "./helper";
 import { PurchaseOrderTabUrl } from "screens/purchase-order/helper";
-import { ConvertDateToUtc, ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import {
+  ConvertDateToUtc,
+  ConvertUtcToLocalDate,
+  DATE_FORMAT,
+  formatDateTimeFilter,
+} from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { callApiNative } from "utils/ApiUtils";
@@ -28,7 +33,6 @@ import { ExportModal } from "component";
 import { START_PROCESS_PERCENT } from "screens/products/helper";
 import { exportFileV2, getFileV2 } from "service/other/import.inventory.service";
 import { HttpStatus } from "config/http-status.config";
-import { DATE_CURRENT } from "config/app.config";
 
 interface PurchaseOrderReturnProps {
   showExportModal: boolean;
@@ -43,6 +47,7 @@ const PurchaseOrderReturnList: React.FC<PurchaseOrderReturnProps> = (
   const [selected, setSelected] = useState<Array<PurchaseOrderReturn>>([]);
   const [statusExportDetail, setStatusExportDetail] = useState<number>(0);
   const [listExportFileDetail, setListExportFileDetail] = useState<Array<string>>([]);
+  const [isLoadingExport, setIsLoadingExport] = useState<boolean>(false);
 
   const query = useQuery();
   let initQuery: PurchaseOrderReturnQuery = { page: 1, limit: 30 };
@@ -91,13 +96,11 @@ const PurchaseOrderReturnList: React.FC<PurchaseOrderReturnProps> = (
       ...params,
     };
     const created_date_from = params.created_date_from
-      ? moment(params?.created_date_from, DATE_FORMAT.DDMMYYY).startOf("day").utc(true)
+      ? moment(params?.created_date_from).startOf("day").utc(true)
       : "";
-
     const created_date_to = params.created_date_to
-      ? moment(params?.created_date_to, DATE_FORMAT.DDMMYYY).endOf("day").utc(true)
+      ? moment(params?.created_date_to).endOf("day").utc(true)
       : "";
-
     created_date_from && (value.created_date_from = ConvertDateToUtc(created_date_from));
     created_date_to && (value.created_date_to = ConvertDateToUtc(created_date_to));
     getPOReturnList(value);
@@ -130,11 +133,13 @@ const PurchaseOrderReturnList: React.FC<PurchaseOrderReturnProps> = (
         render: (value, record, index) => {
           return (
             <>
-              <div>
-                <span style={{ color: "#2A2A86" }}>
-                  <b>{value}</b>
-                </span>
-              </div>
+              <Link
+                to={`${PurchaseOrderTabUrl.RETURN}/${record.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <b>{value}</b>
+              </Link>
               <div style={{ fontSize: 12 }}>
                 <div>
                   Mã đơn đặt hàng:{" "}
@@ -292,7 +297,18 @@ const PurchaseOrderReturnList: React.FC<PurchaseOrderReturnProps> = (
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   const onFilter = (values: PurchaseOrderReturnQuery) => {
-    const newParams = { ...params, ...values, page: 1 };
+    const newParams = {
+      ...params,
+      ...values,
+      created_date_from: formatDateTimeFilter(
+        values.created_date_from,
+        DATE_FORMAT.DD_MM_YY_HHmm,
+      )?.format(),
+      created_date_to: formatDateTimeFilter(values.created_date_to, DATE_FORMAT.DD_MM_YY_HHmm)
+        ?.endOf("day")
+        ?.format(),
+      page: 1,
+    };
     setParams(newParams);
     const queryParam = generateQuery(newParams);
     history.push(`${PurchaseOrderTabUrl.RETURN}?${queryParam}`);
@@ -303,9 +319,8 @@ const PurchaseOrderReturnList: React.FC<PurchaseOrderReturnProps> = (
       let conditions = {};
       switch (type) {
         case TYPE_EXPORT.selected:
-          const variant_ids = selected.map((e) => e.id).toString();
-
-          conditions = { variant_ids: variant_ids };
+          const ids = selected.map((e) => e.id).toString();
+          conditions = { ids: ids, type: TYPE_EXPORT.selected };
           break;
         case TYPE_EXPORT.page:
           conditions = {
@@ -315,7 +330,10 @@ const PurchaseOrderReturnList: React.FC<PurchaseOrderReturnProps> = (
           };
           break;
         case TYPE_EXPORT.all:
-          conditions = { ...params, page: undefined, limit: undefined };
+          conditions = { ...params, type: TYPE_EXPORT.all, page: undefined, limit: undefined };
+          break;
+        case TYPE_EXPORT.allin:
+          conditions = { type: TYPE_EXPORT.allin };
           break;
       }
       return conditions;
@@ -325,26 +343,27 @@ const PurchaseOrderReturnList: React.FC<PurchaseOrderReturnProps> = (
 
   const resetExport = () => {
     setShowExportModal(false);
-    // setIsLoadingExport(false);
+    setIsLoadingExport(false);
     setExportProgressDetail(START_PROCESS_PERCENT);
   };
 
   const actionExport = {
     Ok: async (typeExport: string) => {
-      // setIsLoadingExport(true);
+      setIsLoadingExport(true);
       if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
         showWarning("Bạn chưa chọn sản phẩm để xuất file");
+        setIsLoadingExport(false);
         setShowExportModal(false);
         return;
       }
-
       const conditions = getConditions(typeExport);
       const queryParam = generateQuery({ ...conditions });
       exportFileV2({
         conditions: queryParam,
-        type: "TYPE_EXPORT_PRODUCT_VARIANT",
+        type: "TYPE_EXPORT_PURCHASE_ORDER_RETURNS",
       })
         .then((response) => {
+          console.log(response);
           if (response.code === HttpStatus.SUCCESS) {
             showSuccess("Đã gửi yêu cầu xuất file");
             setStatusExportDetail(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
@@ -451,10 +470,10 @@ const PurchaseOrderReturnList: React.FC<PurchaseOrderReturnProps> = (
       <ExportModal
         title="Xuất file danh sách phiếu trả hàng"
         moduleText="sản phẩm"
-        onCancel={() => {}}
-        onOk={() => {}}
+        onCancel={actionExport.Cancel}
+        onOk={actionExport.Ok}
         isVisible={showExportModal}
-        // isLoading={isLoadingExport}
+        isLoading={isLoadingExport}
         exportProgress={exportProgressDetail}
       />
     </div>

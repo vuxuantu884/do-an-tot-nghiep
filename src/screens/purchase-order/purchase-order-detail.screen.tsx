@@ -1270,6 +1270,8 @@ const PODetailScreen: React.FC = () => {
               loadDetail={loadDetail}
               formMain={formMain}
               status={status}
+
+      
               stores={listStore}
             /> */}
             <POInventoryFormCopy

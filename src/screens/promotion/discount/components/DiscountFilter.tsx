@@ -11,7 +11,7 @@ import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
 import {
   SearchVariantField,
   SearchVariantMapping,
-} from "model/promotion/promotion-mapping";
+} from "model/promotion/discount.model";
 import useAuthorization from "hook/useAuthorization";
 import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
 import BaseFilter from "component/filter/base.filter";
@@ -493,6 +493,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
         starts_date_max: startDateTo,
         ends_date_min: endDateFrom,
         ends_date_max: endDateTo,
+        query: values.query?.trim(),
       };
       onFilter && onFilter(formValues);
     },

@@ -32,11 +32,6 @@ export type StoreStatus = {
   store_id?: number;
 };
 
-export type FileParam = {
-  files: File[] | undefined;
-  folder: string;
-};
-
 export interface LineItemAdjustment {
   id: number;
   code: string;
@@ -74,10 +69,22 @@ export interface LineItemAdjustment {
   total_variant_deviant: number;
 }
 
+export interface AttachedFile {
+  url: string;
+  name: string;
+  id: number;
+}
+
 export interface FileUrl {
   id?: number;
   transfer_id?: number;
   url: string;
+}
+
+export interface AttachedFile {
+  url: string;
+  name: string;
+  id: number;
 }
 
 export interface InventoryAdjustmentDetailItem {
@@ -101,7 +108,7 @@ export interface InventoryAdjustmentDetailItem {
   total_amount: number;
   audited_by: [];
   audited_bys?: [];
-  attached_files: [];
+  attached_files: AttachedFile[];
   list_attached_files: [];
   note: string;
   audited_date: Date;
@@ -128,3 +135,31 @@ export interface IncurredAuditRecordType {
   transaction_date: string;
   document_type: string;
 }
+
+export interface DataAddAttachedFile {
+  name: string;
+  url?: string;
+}
+
+export interface DownloadAttachedFile {
+  url: string;
+  new_url: string;
+}
+
+export const InventoryAdjustmentExportField = {
+  code: "Mã phiếu",
+  adjusted_store_id: "ID kho kiểm",
+  adjusted_store_name: "Kho kiểm",
+  total_variant: "Số lượng sản phẩm",
+  total_on_hand: "Tồn trong kho",
+  total_excess: "Số lượng thừa",
+  total_missing: "Số lượng thiếu",
+  status: "Trạng thái kiểm",
+  audit_type: "Loại kiểm",
+  note: "Ghi chú",
+  created_by: "YD người tạo phiếu",
+  created_name: "Người tạo phiếu",
+  adjusted_by: "YD người cân tồn",
+  adjusted_code: "Người cân tồn",
+  adjusted_date: "Ngày cân tồn",
+};

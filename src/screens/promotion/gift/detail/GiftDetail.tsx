@@ -118,12 +118,12 @@ const GiftDetail: React.FC = () => {
 
   const details = [
     {
-      name: "Tên khuyến mãi",
+      name: "Tên khuyến mại",
       value: giftDetail?.title,
       position: "left",
     },
     {
-      name: "Mã khuyến mãi",
+      name: "Mã khuyến mại",
       value: giftDetail?.code,
       position: "left",
     },
@@ -337,12 +337,12 @@ const GiftDetail: React.FC = () => {
             if (response.data.url) {
               setExportCode(null);
               setExportProgress(100);
-              showSuccess("Xuất file danh sách sản phẩm khuyến mãi thành công!");
+              showSuccess("Xuất file danh sách sản phẩm khuyến mại thành công!");
               window.open(response.data.url);
             }
           } else if (response.data && response.data.status === "ERROR") {
             onCancelProgressModal();
-            showError("Xuất file danh sách sản phẩm khuyến mãi thất bại!");
+            showError("Xuất file danh sách sản phẩm khuyến mại thất bại!");
           }
         }
       });
@@ -548,7 +548,7 @@ const GiftDetail: React.FC = () => {
           path: UrlConfig.HOME,
         },
         {
-          name: "Khuyến mãi",
+          name: "Khuyến mại",
         },
         {
           name: "Quà tặng",
@@ -765,16 +765,16 @@ const GiftDetail: React.FC = () => {
             backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.GIFT}`)}
             rightComponent={
               <Space>
-                {allowUpdateGift && (
-                  <Link to={`${idNumber}/update`}>
-                    <Button>Chỉnh sửa</Button>
-                  </Link>
-                )}
-
                 {/*Tạm thời chưa dùng*/}
                 {allowCreateGift && false && (
                   <Link to={`${idNumber}/replicate`}>
                     <Button>Nhân bản</Button>
+                  </Link>
+                )}
+
+                {allowUpdateGift && (
+                  <Link to={`${idNumber}/update`}>
+                    <Button>Chỉnh sửa</Button>
                   </Link>
                 )}
 
@@ -815,7 +815,7 @@ const GiftDetail: React.FC = () => {
                 <span>Đang tạo file, vui lòng đợi trong giây lát...</span>
               ) : (
                 <span style={{ color: "#27AE60" }}>
-                  Đã xuất file danh sách sản phẩm khuyến mãi thành công!
+                  Đã xuất file danh sách sản phẩm khuyến mại thành công!
                 </span>
               )}
             </div>

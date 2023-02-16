@@ -340,7 +340,7 @@ function IssueUpdate(): ReactElement {
     setValueChangePromotion
   ]);
 
-  // Action: Lấy thông tin khuyến mãi
+  // Action: Lấy thông tin khuyến mại
   useEffect(() => {
     const params = {
       page: 1,
@@ -366,18 +366,18 @@ function IssueUpdate(): ReactElement {
       // isError={
       //   dataDiscount?.state === "CANCELLED"
       // }
-      title="Sửa khuyến mãi"
+      title="Sửa khuyến mại"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Khuyến mãi",
+          name: "Khuyến mại",
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
         },
         {
-          name: "Sửa khuyến mãi",
+          name: "Sửa khuyến mại",
           path: `#`,
         },
       ]}

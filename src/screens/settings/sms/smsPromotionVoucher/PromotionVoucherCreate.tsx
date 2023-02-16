@@ -140,9 +140,9 @@ const PromotionVoucherCreate = (props: Props) => {
             <Form.Item
               label={
                 <div>
-                  <span>Lựa chọn chương trình khuyến mãi sinh mã giảm giá</span>
+                  <span>Lựa chọn chương trình khuyến mại sinh mã giảm giá</span>
                   <Tooltip
-                    overlay="Các chương trình khuyến mãi gửi mã SMS được thiết lập trong Khuyến mãi/ Mã khuyến mãi"
+                    overlay="Các chương trình khuyến mại gửi mã SMS được thiết lập trong Khuyến mại/ Mã khuyến mại"
                     placement="top"
                   >
                     <img src={questionIcon} style={{ marginLeft: 5, cursor: "pointer" }} alt="" />
@@ -150,7 +150,7 @@ const PromotionVoucherCreate = (props: Props) => {
                 </div>
               }
               name="price_rule_id"
-              rules={[{ required: true, message: "Vui lòng chọn chương trình khuyến mãi" }]}
+              rules={[{ required: true, message: "Vui lòng chọn chương trình khuyến mại" }]}
             >
               <Select
                 showArrow
