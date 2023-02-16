@@ -79,6 +79,7 @@ export const sellingPowerReportColumns = (selectedDate: string): any[] => {
       dataIndex: "stock_percent_by_value",
       key: "stock_percent_by_value",
       width: 150,
+      unit: "%",
     },
     {
       title: "SLSP bán 7 ngày",
