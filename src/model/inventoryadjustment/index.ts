@@ -81,6 +81,12 @@ export interface FileUrl {
   url: string;
 }
 
+export interface AttachedFile {
+  url: string;
+  name: string;
+  id: number;
+}
+
 export interface InventoryAdjustmentDetailItem {
   id: number;
   code: string;
@@ -102,7 +108,7 @@ export interface InventoryAdjustmentDetailItem {
   total_amount: number;
   audited_by: [];
   audited_bys?: [];
-  attached_files: [];
+  attached_files: AttachedFile[];
   list_attached_files: [];
   note: string;
   audited_date: Date;

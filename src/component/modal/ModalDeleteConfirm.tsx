@@ -8,6 +8,7 @@ type ModalDeleteConfirmProps = {
   onCancel?: () => void;
   title?: string | React.ReactNode;
   subTitle?: string | React.ReactNode;
+  content?: string | React.ReactNode;
   okText?: string;
   cancelText?: string;
   footer?: Array<any>;
@@ -15,7 +16,7 @@ type ModalDeleteConfirmProps = {
 };
 
 const ModalDeleteConfirm: React.FC<ModalDeleteConfirmProps> = (props: ModalDeleteConfirmProps) => {
-  const { visible, onOk, onCancel, title, subTitle, okText, cancelText, footer, width } = props;
+  const { visible, onOk, onCancel, title, subTitle, okText, cancelText, footer, width, content } = props;
 
   return (
     <Modal
@@ -40,6 +41,7 @@ const ModalDeleteConfirm: React.FC<ModalDeleteConfirmProps> = (props: ModalDelet
         <div className="modal-confirm-right margin-left-20">
           <div className="modal-confirm-title">{title}</div>
           <div className="modal-confirm-sub-title">{subTitle}</div>
+          <div>{content}</div>
         </div>
       </div>
     </Modal>

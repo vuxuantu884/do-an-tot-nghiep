@@ -6,10 +6,16 @@ import { ProductHelper } from "utils";
 import UrlConfig from "config/url.config";
 
 const DELAY_TIME_FOR_TOUR = 1000;
+const FORMAT_DATE_UPLOAD_FILE = 'hh-mm-ss-DD-MM-YYYY';
 
 const ACTION_CALLBACK = {
   CLOSE: 'close',
   RESET: 'reset'
+};
+
+const KEY = {
+  ESC: "Escape",
+  ENTER: "Enter"
 };
 
 const IncurredRecordExportField = {
@@ -85,8 +91,10 @@ const goDocument = (type: string) => {
 export {
   DELAY_TIME_FOR_TOUR,
   ACTION_CALLBACK,
+  FORMAT_DATE_UPLOAD_FILE,
   convertRecordExport,
   exportExcel,
   exportExcelTwoSheet,
-  goDocument
+  goDocument,
+  KEY
 }
