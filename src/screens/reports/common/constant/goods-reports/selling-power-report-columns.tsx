@@ -58,14 +58,14 @@ export const sellingPowerReportColumns = (selectedDate: string): any[] => {
     },
     {
       title: "Giá vốn",
-      dataIndex: "retail_price",
-      key: "retail_price",
+      dataIndex: "cost_price",
+      key: "cost_price",
       width: 150,
     },
     {
       title: "Giá bán",
-      dataIndex: "cost_price",
-      key: "cost_price",
+      dataIndex: "retail_price",
+      key: "retail_price",
       width: 150,
     },
     {
@@ -79,6 +79,7 @@ export const sellingPowerReportColumns = (selectedDate: string): any[] => {
       dataIndex: "stock_percent_by_value",
       key: "stock_percent_by_value",
       width: 150,
+      unit: "%",
     },
     {
       title: "SLSP bán 7 ngày",

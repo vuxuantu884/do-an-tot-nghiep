@@ -4,6 +4,7 @@ import { REPORTS_URL } from "config/url.config";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import SellingPowerFilter from "screens/reports/common/component/selling-power-filter";
+import { defaultDisplayOptions } from "screens/reports/common/constant/goods-reports/selling-power-report";
 import { sellingPowerReportColumns } from "screens/reports/common/constant/goods-reports/selling-power-report-columns";
 import { fetchSellingPowerList } from "screens/reports/common/services/fetch-selling-power-list";
 import { SellingPowerReportStyle } from "screens/reports/common/styles/selling-power-report.style";
@@ -13,14 +14,23 @@ function SellingPowerReport() {
   const dispatch = useDispatch();
   const [conditionFilter, setConditionFilter] = useState<any>();
   const [dataSource, setDataSource] = useState<any[]>([]);
+  const [columns, setColumns] = useState<any[]>([]);
   const [emptyMessage, setEmptyMessage] = useState<string>(
     "Vui lòng chọn điều kiện lọc để xem dữ liệu báo cáo",
   );
+  const [displayOptions, setDisplayOptions] = useState<any[]>(defaultDisplayOptions);
 
   const initTable = useCallback(async () => {
     if (!conditionFilter) {
       return;
     }
+    const columnsTmp = sellingPowerReportColumns(conditionFilter.date).filter((item: any) => {
+      return (
+        displayOptions.findIndex((option: any) => option.visible && option.name === item.key) !==
+          -1 || displayOptions.findIndex((option: any) => option.name === item.key) === -1
+      );
+    });
+    setColumns(columnsTmp);
     const response = await fetchSellingPowerList({ ...conditionFilter }, dispatch);
     if (!response.data.length) {
       setEmptyMessage("Không có kết quả phù hợp với điều kiện lọc");
@@ -31,6 +41,7 @@ function SellingPowerReport() {
     });
     response.data = [{ ...total, no: "TỔNG", colSpan: 12, className: "font-weight-bold" }, ...data];
     setDataSource(response.data);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conditionFilter, dispatch]);
 
   useEffect(() => {
@@ -46,7 +57,11 @@ function SellingPowerReport() {
         { name: "Báo cáo tồn bán sức bán" },
       ]}
     >
-      <SellingPowerFilter applyFilter={setConditionFilter}></SellingPowerFilter>
+      <SellingPowerFilter
+        applyFilter={setConditionFilter}
+        displayOptions={displayOptions}
+        setDisplayOptions={setDisplayOptions}
+      ></SellingPowerFilter>
       <SellingPowerReportStyle>
         <Card>
           <Alert
@@ -58,7 +73,7 @@ function SellingPowerReport() {
           <Table
             locale={{ emptyText: emptyMessage }}
             dataSource={dataSource}
-            columns={sellingPowerReportColumns(conditionFilter?.date)}
+            columns={columns}
             bordered
             scroll={{ x: "max-content" }}
             sticky={{

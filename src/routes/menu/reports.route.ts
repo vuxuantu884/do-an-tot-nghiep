@@ -210,7 +210,7 @@ const reports: Array<RouteMenu> = [
     subMenu: [
       {
         path: REPORTS_URL.SELLING_POWER,
-        permissions: [],
+        permissions: [ReportPermissions.reports_view_report_selling_power],
         exact: true,
         title: "Báo cáo tồn bán sức bán",
         icon: "icon-dot",
