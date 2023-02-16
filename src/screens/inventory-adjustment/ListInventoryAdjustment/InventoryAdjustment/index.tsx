@@ -44,6 +44,7 @@ import { primaryColor } from "utils/global-styles/variables";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_UNDER_NAVBAR, TYPE_EXPORT } from "utils/Constants";
 import useSetTableColumns from "hook/table/useSetTableColumns";
+import CustomPagination from "component/table/CustomPagination";
 import { ExportModal } from "../../../../component";
 import { utils, writeFile } from "xlsx";
 import moment from "moment";
@@ -788,6 +789,16 @@ const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
             setAccounts((account) => {
               return [...data, ...account];
             });
+          }}
+        />
+
+        <CustomPagination
+          pagination={{
+            showSizeChanger: true,
+            pageSize: data.metadata.limit,
+            current: data.metadata.page,
+            total: data.metadata.total,
+            onChange: onPageChange,
           }}
         />
 

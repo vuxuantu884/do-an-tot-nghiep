@@ -359,6 +359,10 @@ const DetailInventoryAdjustment: FC = () => {
         dispatch(hideLoading());
         if (!res) return;
 
+        form.setFieldsValue({
+          version: form.getFieldValue("version") + 1
+        });
+
         setIsRerenderTab(!isRerenderTab);
 
         if (activeTab === "1") {
@@ -578,7 +582,7 @@ const DetailInventoryAdjustment: FC = () => {
         if (result) {
           onResult({
             ...result,
-            version: result.version + 1
+            version: form.getFieldValue("version") + 1
           });
           showSuccess("Hoàn thành kiểm kho thành công.");
           setIsShowConfirmAudited(false);
@@ -586,7 +590,7 @@ const DetailInventoryAdjustment: FC = () => {
         }
       }),
     );
-  }, [data, dispatch, onResult]);
+  }, [data?.id, dispatch, form, onResult]);
 
   const onAdjustInventory = useCallback(() => {
     setLoading(true);
@@ -596,14 +600,14 @@ const DetailInventoryAdjustment: FC = () => {
         if (result) {
           onResult({
             ...result,
-            version: result.version + 1
+            version: Number(form.getFieldValue("version")) + 1
           });
           showSuccess("Cân tồn kho thành công.");
           setIsShowConfirmAdj(false);
         }
       }),
     );
-  }, [dispatch, data?.id, onResult]);
+  }, [dispatch, data?.id, onResult, form]);
 
   const onResultDataTable = useCallback((result: PageResponse<LineItemAdjustment> | false) => {
     if (result) {
@@ -1290,6 +1294,10 @@ const DetailInventoryAdjustment: FC = () => {
                                 return !isReRenderTotalOnHand;
                               });
                             }}
+                            setIncreaseVersion={() => {
+                              const version = form.getFieldValue("version");
+                              form.setFieldsValue({ version: version + 1 });
+                            }}
                             setDataTab={(value) => setDataLinesItem(value)}
                             tab={activeTab}
                             isReSearch={isReSearch}
@@ -1344,11 +1352,16 @@ const DetailInventoryAdjustment: FC = () => {
                                 return !isReRenderTotalOnHand;
                               });
                             }}
+                            setIncreaseVersion={() => {
+                              const version = form.getFieldValue("version");
+                              form.setFieldsValue({ version: version + 1 });
+                            }}
                             tab={activeTab}
                             isPermissionAudit={isPermissionAudit}
                             keySearch={keySearchAll}
                             tableLoading={tableLoading}
                             isRerenderTab={isRerenderTab}
+                            setTotalTabOne={(value) => setDataLinesItem(value)}
                             objSummaryTableByAuditTotal={objSummaryTableByAudit.total}
                             idNumber={idNumber}
                             data={data}

@@ -28,6 +28,7 @@ import { formatCurrency } from "utils/AppUtils";
 import EditNote from "screens/order-online/component/edit-note";
 import { callApiNative } from "utils/ApiUtils";
 import {
+  getLinesItemAdjustmentApi,
   updateOnHandItemOnlineInventoryApi,
   updateReasonItemOnlineInventoryApi,
 } from "service/inventory/adjustment/index.service";
@@ -36,6 +37,7 @@ import { searchVariantsApi } from "service/product/product.service";
 import { STATUS_INVENTORY_ADJUSTMENT } from "../../../ListInventoryAdjustment/constants";
 import NumberInput from "component/custom/number-input.custom";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
+import { HttpStatus } from "config/http-status.config";
 
 const arrTypeNote = [
   { key: 1, value: "XNK sai quy trình" },
@@ -55,7 +57,9 @@ type propsInventoryAdjustment = {
   tableLoading: boolean;
   objSummaryTableByAuditTotal: any;
   setIsReRender: () => void;
+  setIncreaseVersion: () => void;
   setDataTab?: (value: any) => void;
+  setTotalTabOne?: (value: PageResponse<LineItemAdjustment>) => void;
   setTotalProp?: (value: number) => void;
 };
 
@@ -98,9 +102,11 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     tab,
     setIsReRender,
     setDataTab,
+    setTotalTabOne,
     isReSearch,
     isPermissionEdit,
-    setTotalProp
+    setTotalProp,
+    setIncreaseVersion
   } = props;
 
   //phân quyền
@@ -219,6 +225,17 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     [dataLinesItem.items],
   );
 
+  const refreshDataLineItem = async () => {
+    const res = await getLinesItemAdjustmentApi(
+      idNumber,
+      `page=1&limit=30&type=deviant`
+    );
+
+    if (res.code === HttpStatus.SUCCESS) {
+      setTotalTabOne && setTotalTabOne(res.data);
+    }
+  };
+
   const debounceChangeRealOnHand = useMemo(
     () =>
       _.debounce((row: LineItemAdjustment, realOnHand: number) => {
@@ -250,10 +267,11 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
           updateItemOnlineInventoryAction(data.id, row.id, row, (result: LineItemAdjustment) => {
             setLoadingTable(false);
             if (result) {
+              setIncreaseVersion();
               showSuccess("Nhập số kiểm thành công.");
               setIsReRender();
-              const version = form.getFieldValue("version");
-              form.setFieldsValue({ version: version + 1 });
+
+              refreshDataLineItem().then();
             }
           }),
         );
