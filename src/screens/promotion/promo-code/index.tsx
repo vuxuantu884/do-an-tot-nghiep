@@ -1,10 +1,7 @@
-import { FilterOutlined } from "@ant-design/icons";
-import { Button, Card, Form, Input, Select, Tag } from "antd";
-import search from "assets/img/search.svg";
+import { Card } from "antd";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import { MenuAction } from "component/table/ActionButton";
-import CustomFilter from "component/table/custom.filter";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { PromotionReleasePermission } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
@@ -18,10 +15,10 @@ import { Link, useHistory, useLocation } from "react-router-dom";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
-import { DISCOUNT_STATUS, PROMOTION_RELEASE_ACTIONS, STATE_LIST } from "screens/promotion/constants";
+import { DISCOUNT_STATUS, PROMOTION_RELEASE_ACTIONS } from "screens/promotion/constants";
 import DatePromotionColumn from "../shared/date-column";
 import actionColumn from "./actions/action.column";
-import { convertItemToArray, generateQuery } from "utils/AppUtils";
+import { generateQuery } from "utils/AppUtils";
 import queryString from "query-string";
 import "./promo-code.scss";
 import {
@@ -29,6 +26,14 @@ import {
   activatePromotionReleaseAction,
   getPromotionReleaseListAction,
 } from "domain/actions/promotion/promo-code/promo-code.action";
+import PromotionReleaseFilter from "screens/promotion/promo-code/components/PromotionReleaseFilter";
+import { StoreResponse } from "model/core/store.model";
+import { ChannelResponse } from "model/response/product/channel.response";
+import { SourceResponse } from "model/response/order/source.response";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { getListChannelRequest } from "domain/actions/order/order.action";
+import { getListAllSourceRequest } from "domain/actions/product/source.action";
+import { PromotionReleaseQuery } from "model/promotion/promotion-release.model";
 
 const PromotionCode = () => {
   const dispatch = useDispatch();
@@ -36,7 +41,7 @@ const PromotionCode = () => {
 
   const queryParamsParsed: any = queryString.parse(location.search);
 
-  const initQuery: any = useMemo(
+  const initQuery: PromotionReleaseQuery = useMemo(
     () => ({
       page: 1,
       limit: 30,
@@ -44,6 +49,16 @@ const PromotionCode = () => {
       query: "",
       coupon: "",
       states: [],
+      is_registered: undefined,
+      entitled_method: null,
+      creators: [],
+      store_ids: [],
+      channels: [],
+      source_ids: [],
+      starts_date_min: "",
+      starts_date_max: "",
+      ends_date_min: "",
+      ends_date_max: "",
     }),
     [],
   );
@@ -57,19 +72,26 @@ const PromotionCode = () => {
     },
     items: [],
   });
-  const [form] = Form.useForm();
   const history = useHistory();
 
   const [params, setParams] = useState<any>(initQuery);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
+  const [listStore, setStore] = useState<Array<StoreResponse>>([]);
+  const [channelList, setChannelList] = useState<Array<ChannelResponse>>([]);
+  const [sourceList, setSourceList] = useState<Array<SourceResponse>>([]);
 
   /** phân quyền */
   const [allowCreatePromotionRelease] = useAuthorization({
     acceptPermissions: [PromotionReleasePermission.CREATE],
   });
-  const [allowActivePromotionRelease] = useAuthorization({
-    acceptPermissions: [PromotionReleasePermission.ACTIVE],
-  });
+  /** */
+
+  /** lấy danh sách cửa hàng, kênh bán hàng, nguồn đơn hàng */
+  useEffect(() => {
+    dispatch(StoreGetListAction(setStore));
+    dispatch(getListChannelRequest(setChannelList));
+    dispatch(getListAllSourceRequest(setSourceList));
+  }, [dispatch]);
   /** */
 
   // handle get coupon release
@@ -93,15 +115,6 @@ const PromotionCode = () => {
     [dispatch, fetchData],
   );
 
-  const handleSetFormFieldsValue = useCallback(
-    (fieldsValue) => {
-      form.setFieldsValue({
-        ...fieldsValue,
-      });
-    },
-    [form],
-  );
-
   useEffect(() => {
     const dataQuery: any = {
       ...initQuery,
@@ -109,18 +122,9 @@ const PromotionCode = () => {
     };
     setParams(dataQuery);
     getCouponReleaseList(dataQuery);
-    handleSetFormFieldsValue(dataQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, location.search]);
   // end handle get coupon release
-
-  /** handle form value */
-  const initialValues = useMemo(() => {
-    return {
-      ...params,
-      states: convertItemToArray(params.states),
-    };
-  }, [params]);
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -133,7 +137,7 @@ const PromotionCode = () => {
 
   const onFilter = useCallback(
     (values) => {
-      const newParams = { ...params, ...values, page: 1, query: values.query?.trim(), };
+      const newParams = { ...params, ...values, page: 1 };
       const queryParam = generateQuery(newParams);
       const currentParam = generateQuery(params);
       if (currentParam === queryParam) {
@@ -150,7 +154,7 @@ const PromotionCode = () => {
       title: "Mã",
       visible: true,
       fixed: "left",
-      width: "12%",
+      width: "120px",
       render: (value: any, item: any) => (
         <Link
           to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${item.id}`}
@@ -165,7 +169,6 @@ const PromotionCode = () => {
       visible: true,
       fixed: "left",
       dataIndex: "title",
-      width: "20%",
     },
     {
       title: "SL mã",
@@ -173,7 +176,7 @@ const PromotionCode = () => {
       fixed: "left",
       align: "center",
       dataIndex: "number_of_discount_codes",
-      width: "10%",
+      width: "90px",
     },
     {
       title: "Đã sử dụng",
@@ -181,14 +184,14 @@ const PromotionCode = () => {
       fixed: "left",
       align: "center",
       dataIndex: "total_usage_count",
-      width: "10%",
+      width: "90px",
     },
     {
       title: "Thời gian",
       visible: true,
       fixed: "left",
       align: "center",
-      width: "20%",
+      width: "180px",
       render: (value: any, item: any) => (
         <DatePromotionColumn startDate={item.starts_date} endDate={item.ends_date} />
       ),
@@ -196,10 +199,17 @@ const PromotionCode = () => {
     {
       title: "Người tạo",
       visible: true,
-      dataIndex: "created_name",
       fixed: "left",
       align: "center",
-      width: "10%",
+      render: (item: any) => {
+        return (
+          <>
+            <span>{item.created_by ?? ""}</span>
+            <span>{" - "}</span>
+            <span>{item.created_name ?? ""}</span>
+          </>
+        );
+      },
     },
     {
       title: "Trạng thái",
@@ -207,7 +217,7 @@ const PromotionCode = () => {
       fixed: "left",
       dataIndex: "state",
       align: "center",
-      width: "15%",
+      width: "150px",
       render: (state: string) => {
         const StatusTag: ReactNode = DISCOUNT_STATUS.find((e) => e.code === state)?.Component ?? (
           <Fragment />
@@ -269,73 +279,6 @@ const PromotionCode = () => {
   );
   /** end handle promotion release actions */
 
-  const { Item } = Form;
-  const { Option } = Select;
-
-  const openFilter = useCallback(() => {
-    // setVisible(true);
-  }, []);
-
-  // handle tag filter
-  let filters = useMemo(() => {
-    let list = [];
-    if (initialValues.query) {
-      list.push({
-        key: "query",
-        name: "Mã, tên đợt phát hành",
-        value: initialValues.query,
-      });
-    }
-
-    if (initialValues.states?.length) {
-      let statesFiltered = "";
-      initialValues.states.forEach((stateValue: string) => {
-        const state = STATE_LIST.find(
-          (item: any) => item.value === stateValue?.toUpperCase()
-        );
-        statesFiltered = state
-          ? statesFiltered + state.name + "; "
-          : statesFiltered + stateValue + "; ";
-      });
-      list.push({
-        key: "states",
-        name: "Trạng thái",
-        value: statesFiltered,
-      });
-    }
-
-    if (initialValues.coupon) {
-      list.push({
-        key: "coupon",
-        name: "Mã giảm giá",
-        value: initialValues.coupon,
-      });
-    }
-    return list;
-  }, [initialValues.coupon, initialValues.query, initialValues.states]);
-
-  // close tag filter
-  const onCloseTag = useCallback(
-    (e, tag) => {
-      e.preventDefault();
-      switch (tag.key) {
-        case "query":
-          onFilter && onFilter({ ...params, query: "" });
-          break;
-        case "states":
-          onFilter && onFilter({ ...params, states: [] });
-          break;
-        case "coupon":
-          onFilter && onFilter({ ...params, coupon: "" });
-          break;
-        default:
-          break;
-      }
-    },
-    [onFilter, params],
-  );
-  // end handle tag filter
-
   return (
     <ContentContainer
       title="Danh sách đợt phát hành"
@@ -362,107 +305,44 @@ const PromotionCode = () => {
       }
     >
       <Card>
-        <div className="promotion-code__search">
-          <CustomFilter
-            onMenuClick={onMenuClick}
-            menu={promotionReleaseAction}
-            actionDisable={!allowActivePromotionRelease}
-          >
-            <Form onFinish={onFilter} initialValues={params} layout="inline" form={form}>
-              <Item name="query" className="search">
-                <Input
-                  prefix={<img src={search} alt="" />}
-                  placeholder="Tìm kiếm theo mã, tên đợt phát hành"
-                  allowClear
-                  onBlur={(e) => {
-                    form.setFieldsValue({ query: e.target.value?.trim() });
-                  }}
-                />
-              </Item>
-              <Item name="states">
-                <Select
-                  showArrow
-                  allowClear
-                  mode="multiple"
-                  maxTagCount="responsive"
-                  optionFilterProp="children"
-                  placeholder="Chọn trạng thái"
-                  style={{ minWidth: "250px" }}
-                >
-                  {STATE_LIST?.map((item) => (
-                    <Option key={item.value} value={item.value}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Item>
+        <PromotionReleaseFilter
+          onMenuClick={onMenuClick}
+          isLoading={tableLoading}
+          initQuery={initQuery}
+          params={params}
+          actions={promotionReleaseAction}
+          onFilter={onFilter}
+          listStore={listStore}
+          channelList={channelList}
+          sourceList={sourceList}
+        />
 
-              <Item name="coupon" className="search">
-                <Input
-                  prefix={<img src={search} alt="" />}
-                  placeholder="Tìm kiếm theo mã giảm giá"
-                  allowClear
-                  onBlur={(e) => {
-                    form.setFieldsValue({ coupon: e.target.value?.trim() });
-                  }}
-                />
-              </Item>
-
-              <Item style={{ marginRight: 0 }}>
-                <Button type="primary" htmlType="submit">
-                  Lọc
-                </Button>
-              </Item>
-
-              <Item style={{ display: "none" }}>
-                <Button icon={<FilterOutlined />} onClick={openFilter}>
-                  Thêm bộ lọc
-                </Button>
-              </Item>
-            </Form>
-          </CustomFilter>
-
-          <div className="filter-tags">
-            {filters?.map((filter: any) => {
-              return (
-                <Tag
-                  key={filter.key}
-                  className="tag"
-                  closable={!tableLoading}
-                  onClose={(e) => onCloseTag(e, filter)}
-                >
-                  {filter.name}: {filter.value}
-                </Tag>
-              );
-            })}
-          </div>
-
-          <CustomTable
-            selectedRowKey={selectedRowKey}
-            onChangeRowKey={(rowKey) => {
-              setSelectedRowKey(rowKey);
-            }}
-            isRowSelection
-            isLoading={tableLoading}
-            locale={{ emptyText: "Không có bản ghi" }}
-            sticky={{
-              offsetScroll: 5,
-              offsetHeader: OFFSET_HEADER_UNDER_NAVBAR,
-            }}
-            pagination={{
-              pageSize: dataSource?.metadata.limit || 0,
-              total: dataSource?.metadata.total || 0,
-              current: dataSource?.metadata.page,
-              showSizeChanger: true,
-              onChange: onPageChange,
-              onShowSizeChange: onPageChange,
-            }}
-            isShowPaginationAtHeader
-            dataSource={dataSource?.items}
-            columns={columns}
-            rowKey={(item: any) => item.id}
-          />
-        </div>
+        <CustomTable
+          bordered
+          selectedRowKey={selectedRowKey}
+          onChangeRowKey={(rowKey) => {
+            setSelectedRowKey(rowKey);
+          }}
+          isRowSelection
+          isLoading={tableLoading}
+          locale={{ emptyText: "Không có bản ghi" }}
+          sticky={{
+            offsetScroll: 5,
+            offsetHeader: OFFSET_HEADER_UNDER_NAVBAR,
+          }}
+          pagination={{
+            pageSize: dataSource?.metadata.limit || 0,
+            total: dataSource?.metadata.total || 0,
+            current: dataSource?.metadata.page,
+            showSizeChanger: true,
+            onChange: onPageChange,
+            onShowSizeChange: onPageChange,
+          }}
+          isShowPaginationAtHeader
+          dataSource={dataSource?.items}
+          columns={columns}
+          rowKey={(item: any) => item.id}
+        />
       </Card>
     </ContentContainer>
   );

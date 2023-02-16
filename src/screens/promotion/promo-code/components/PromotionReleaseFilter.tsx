@@ -2,35 +2,28 @@ import moment from "moment";
 import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { SourceResponse } from "model/response/order/source.response";
 import search from "assets/img/search.svg";
-import { DiscountSearchQuery } from "model/query/discount.query";
 import { MenuAction } from "component/table/ActionButton";
-import { Button, Col, Form, Input, Row, Select, Spin, Tag } from "antd";
+import { Button, Col, Form, Input, Row, Select, Tag } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import CustomFilter from "component/table/custom.filter";
 import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
 import {
-  SearchVariantField,
-  SearchVariantMapping,
-} from "model/promotion/discount.model";
+  PromotionReleaseQuery,
+  PromotionReleaseField,
+  PromotionReleaseFieldMapping,
+  PromotionReleaseMethod,
+} from "model/promotion/promotion-release.model";
 import useAuthorization from "hook/useAuthorization";
-import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
+import { PromotionReleasePermission } from "config/permissions/promotion.permisssion";
 import BaseFilter from "component/filter/base.filter";
 import { FilterOutlined } from "@ant-design/icons";
 import TreeStore from "component/CustomTreeSelect";
 import { useDispatch } from "react-redux";
-import { convertItemToArray, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
-import {
-  getVariantApi,
-  productDetailApi,
-  searchProductWrapperApi,
-  searchVariantsApi,
-} from "service/product/product.service";
-import debounce from "lodash/debounce";
+import { convertItemToArray } from "utils/AppUtils";
 import SelectRangeDateCustom, {
   convertSelectedDateOption,
   handleSelectedDate,
 } from "component/filter/SelectRangeDateCustom";
-import { PriceRuleMethod } from "model/promotion/price-rules.model";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import { AccountResponse } from "model/account/account.model";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
@@ -38,50 +31,48 @@ import { PageResponse } from "model/base/base-metadata.response";
 import TreeSource from "component/treeSource";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { cloneDeep } from "lodash";
-import { DiscountFilterStyled } from "screens/promotion/discount/components/style";
-import { STATE_LIST, DATE_LIST_FORMAT } from "screens/promotion/constants";
+import { STATE_LIST } from "screens/promotion/constants";
+import { PromotionReleaseFilterStyled } from "screens/promotion/promo-code/PromotionReleaseStyled";
 
 type DiscountFilterProps = {
-  initQuery: DiscountSearchQuery;
-  params: DiscountSearchQuery;
+  isLoading?: boolean;
+  initQuery: PromotionReleaseQuery;
+  params: any;
   actions: Array<MenuAction>;
   listStore: Array<StoreResponse>;
   channelList: Array<ChannelResponse>;
   sourceList: Array<SourceResponse>;
   onMenuClick?: (index: number) => void;
-  onFilter?: (value: DiscountSearchQuery | Object) => void;
+  onFilter?: (value: PromotionReleaseQuery | Object) => void;
 };
 
-
-const PRIORITY_LIST = [
-  { value: 1 },
-  { value: 2 },
-  { value: 3 },
-  { value: 4 },
-  { value: 5 },
+const IS_REGISTER_LIST = [
+  { value: "true", name: "Có đăng ký" },
+  { value: "false", name: "Không đăng ký" },
 ];
 
-
-const DISCOUNT_METHOD_LIST = [
+const PROMOTION_RELEASE_METHOD_LIST = [
   {
-    name: "Đồng giá",
-    value: PriceRuleMethod.FIXED_PRICE,
+    name: "Khuyến mại theo sản phẩm",
+    value: PromotionReleaseMethod.DISCOUNT_CODE_QTY,
   },
   {
-    name: "Chiết khấu theo từng sản phẩm",
-    value: PriceRuleMethod.QUANTITY,
+    name: "Khuyến mại theo đơn hàng",
+    value: PromotionReleaseMethod.ORDER_THRESHOLD,
   },
-  {
-    name: "Chiết khấu theo đơn hàng",
-    value: PriceRuleMethod.ORDER_THRESHOLD,
-  },
+  /** Tạm ẩn Khuyến mại có tặng mã giảm giá qua sms */
+  // {
+  //   name: "Khuyến mại có tặng mã giảm giá qua sms",
+  //   value: PromotionReleaseMethod.IS_SMS_VOUCHER,
+  // },
 ];
 
 const { Item } = Form;
 const { Option } = Select;
 
-const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProps) => {
+const PromotionReleaseFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProps) => {
   const {
+    isLoading,
     initQuery,
     params,
     actions,
@@ -93,33 +84,18 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
   } = props;
 
   /** phân quyền */
-  const [allowActiveDiscount] = useAuthorization({
-    acceptPermissions: [PriceRulesPermission.ACTIVE],
+  const [allowActivePromotionRelease] = useAuthorization({
+    acceptPermissions: [PromotionReleasePermission.ACTIVE],
   });
   /** */
 
-  // useState
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
   const dispatch = useDispatch();
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [variantList, setVariantList] = useState<Array<any>>([]);
-  const [variantIdSelected, setVariantIdSelected] = useState<string | null>("");
-  const [isSearchingVariant, setIsSearchingVariant] = useState(false);
-
-  const [productList, setProductList] = useState<Array<any>>([]);
-  const [productIdSelected, setProductIdSelected] = useState<string | null>("");
-  const [isSearchingProduct, setIsSearchingProduct] = useState(false);
-
-  const [initProductVariantList, setInitProductVariantList] = useState<Array<any>>([]);
-  const [productVariantList, setProductVariantList] = useState<Array<any>>([]);
-  const [productVariantSelected, setProductVariantSelected] = useState<any>(null);
-
   const [initAccount, setInitAccount] = useState<Array<AccountResponse>>([]);
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
   const [accountDataFiltered, setAccountDataFiltered] = useState<Array<AccountResponse>>([]);
-
 
   /** get init account */
   useEffect(() => {
@@ -133,90 +109,19 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
       }),
     );
   }, [dispatch]);
+  /** */
 
   /** handle form value */
   const initialValues = useMemo(() => {
     return {
       ...params,
       states: convertItemToArray(params.states),
-      priorities: convertItemToArray(params.priorities, "number"),
-      entitled_methods: convertItemToArray(params.entitled_methods),
       creators: convertItemToArray(params.creators),
       store_ids: convertItemToArray(params.store_ids, "number"),
       channels: convertItemToArray(params.channels),
       source_ids: convertItemToArray(params.source_ids, "number"),
     };
   }, [params]);
-
-  // handle get variant by filter param
-  const getVariantDetailById = useCallback(
-    async (variantId: string) => {
-      let variants: any = [];
-      try {
-        variants = await getVariantApi(variantId)
-          .then((response) => {
-            if (isFetchApiSuccessful(response)) {
-              return [
-                {
-                  label: response.data?.name,
-                  value: response.data?.product_id?.toString() + response.data?.id?.toString(),
-                  variantId: response.data?.id?.toString(),
-                  productId: response.data?.product_id?.toString(),
-                },
-              ];
-            } else {
-              handleFetchApiError(response, "Danh sách sản phẩm", dispatch);
-            }
-          })
-          .catch((error) => {
-            console.log("getVariantDetailById fail: ", error);
-          });
-      } catch {}
-      setVariantList(variants);
-      setInitProductVariantList(variants);
-      if (variants?.length > 0) {
-        setProductVariantSelected(variants[0].value);
-        setVariantIdSelected(variants[0].variantId);
-        setProductIdSelected(variants[0].productId);
-      }
-    },
-    [dispatch],
-  );
-
-  const getProductDetailById = useCallback(
-    async (productId: number) => {
-      let products: any = [];
-      try {
-        products = await productDetailApi(productId)
-          .then((response: any) => {
-            if (isFetchApiSuccessful(response)) {
-              return [
-                {
-                  label: response.data?.name,
-                  value: response.data?.id?.toString(),
-                  variantId: null,
-                  productId: response.data?.id?.toString(),
-                },
-              ];
-            } else {
-              handleFetchApiError(response, "Danh sách sản phẩm", dispatch);
-            }
-          })
-          .catch((error) => {
-            console.log("getVariantDetailById fail: ", error);
-          });
-      } catch {}
-      setProductList(products);
-      setInitProductVariantList(products);
-      if (products?.length > 0) {
-        setProductVariantSelected(products[0].value);
-        setVariantIdSelected(products[0].variantId);
-        setProductIdSelected(products[0].productId);
-      }
-    },
-    [dispatch],
-  );
-  // end handle get variant by filter param
 
   const updateAccountData = useCallback((data: PageResponse<AccountResponse> | false) => {
     if (!data) {
@@ -235,20 +140,11 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
 
   const getAccountByParams = useCallback((accountCodes: Array<string>) => {
     if (accountCodes?.length) {
-      dispatch(
-        searchAccountPublicAction({limit: 30, codes: accountCodes}, updateAccountData)
-      );
+      dispatch(searchAccountPublicAction({limit: 30, codes: accountCodes}, updateAccountData));
     }
-
   },[dispatch, updateAccountData]);
 
   useEffect(() => {
-    if (initialValues.variant_id) {
-      getVariantDetailById(initialValues.variant_id);
-    } else if (initialValues.product_id) {
-      getProductDetailById(Number(initialValues.product_id));
-    }
-
     getAccountByParams(initialValues.creators);
 
     handleSelectedDate(
@@ -270,114 +166,8 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     form.setFieldsValue({
       ...initialValues,
     });
-  }, [form, getAccountByParams, getProductDetailById, getVariantDetailById, initialValues]);
+  }, [form, getAccountByParams, initialValues]);
   /** end handle form value */
-
-  // handle search products, variants
-  const onSearchVariants = async (value: string) => {
-    let variants: any = [];
-    try {
-      setIsSearchingVariant(true);
-      variants = await searchVariantsApi({
-        info: value.trim(),
-        page: 1,
-        limit: 30,
-      })
-        .then((response) => {
-          setIsSearchingVariant(false);
-          if (isFetchApiSuccessful(response)) {
-            return response.data?.items?.map((item) => {
-              return {
-                label: item.name,
-                value: item.product_id?.toString() + item.id?.toString(),
-                variantId: item.id?.toString(),
-                productId: item.product_id?.toString(),
-              };
-            });
-          } else {
-            handleFetchApiError(response, "Danh sách sản phẩm", dispatch);
-          }
-        })
-        .catch((error) => {
-          setIsSearchingVariant(false);
-          console.log("get Variant fail: ", error);
-        });
-    } catch {
-      setIsSearchingVariant(false);
-    }
-    setVariantList(variants);
-  };
-
-  const onSearchProduct = async (value: string) => {
-    let products: any = [];
-    try {
-      setIsSearchingProduct(true);
-      products = await searchProductWrapperApi({
-        info: value.trim(),
-        page: 1,
-        limit: 30,
-      })
-        .then((response) => {
-          setIsSearchingProduct(false);
-          if (isFetchApiSuccessful(response)) {
-            return response.data?.items?.map((item) => {
-              return {
-                label: item.name,
-                value: item.id?.toString(),
-                variantId: null,
-                productId: item.id?.toString(),
-              };
-            });
-          } else {
-            handleFetchApiError(response, "Danh sách sản phẩm", dispatch);
-          }
-        })
-        .catch((error) => {
-          setIsSearchingProduct(false);
-          console.log("get Product fail: ", error);
-        });
-    } catch {
-      setIsSearchingProduct(false);
-    }
-    setProductList(products);
-  };
-
-  const handleSearchVariants = debounce((value: string) => {
-    if (value?.trim()?.length >= 3) {
-      setProductVariantList([]);
-      onSearchProduct(value);
-      onSearchVariants(value);
-    }
-  }, 800);
-
-  useEffect(() => {
-    if (isSearchingProduct || isSearchingVariant) {
-      setIsLoading(true);
-    } else {
-      setIsLoading(false);
-      const newProductVariantList = productList.concat(variantList).sort((a: any, b: any) => {
-        return Number(b.productId) < Number(a.productId)
-          ? -1
-          : Number(b.productId) > Number(a.productId)
-          ? 1
-          : 0;
-      });
-      setProductVariantList(newProductVariantList);
-    }
-  }, [isSearchingProduct, isSearchingVariant, productList, variantList]);
-
-  const onSelectProduct = (value: string, option: any) => {
-    setProductVariantSelected(value);
-    setVariantIdSelected(option.variantId);
-    setProductIdSelected(option.productId);
-  };
-
-  const onClearVariants = () => {
-    setProductVariantSelected(null);
-    setVariantIdSelected(null);
-    setProductIdSelected(null);
-  };
-  // end handle search products, variants
 
   /** handle apply date filter */
   const [startDateClick, setStartDateClick] = useState("");
@@ -482,24 +272,22 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
   };
   /** end handle apply date filter */
 
-  // useCallback
+  /** handle submit form */
   const onFinish = useCallback(
-    (values: DiscountSearchQuery) => {
+    (values) => {
       const formValues = {
         ...values,
-        variant_id: variantIdSelected,
-        product_id: productIdSelected,
         starts_date_min: startDateFrom,
         starts_date_max: startDateTo,
         ends_date_min: endDateFrom,
         ends_date_max: endDateTo,
         query: values.query?.trim(),
+        coupon: values.coupon?.trim(),
+        is_registered: values.is_registered ? (values.is_registered === "true") : undefined
       };
       onFilter && onFilter(formValues);
     },
     [
-      variantIdSelected,
-      productIdSelected,
       startDateFrom,
       startDateTo,
       endDateFrom,
@@ -533,33 +321,15 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     setVisible(false);
   }, []);
 
-  // handle tag filter
+  /** handle tag filter */
   let filters = useMemo(() => {
     let list = [];
 
     if (initialValues.query) {
       list.push({
         key: "query",
-        name: "Chương trình",
+        name: "Mã, tên đợt phát hành",
         value: initialValues.query,
-      });
-    }
-
-    if (initialValues.variant_id || initialValues.product_id) {
-      let productVariant;
-      if (initialValues.variant_id) {
-        productVariant = initProductVariantList.find(
-          (item) => item.variantId?.toString() === initialValues.variant_id?.toString(),
-        );
-      } else {
-        productVariant = initProductVariantList.find(
-          (item) => item.productId?.toString() === initialValues.product_id?.toString(),
-        );
-      }
-      list.push({
-        key: "product_variant_id",
-        name: "Sản phẩm",
-        value: productVariant?.label || initialValues.variant_id || initialValues.product_id,
       });
     }
 
@@ -580,35 +350,12 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
       });
     }
 
-    if (initialValues.priorities?.length) {
-      let priorityFiltered = "";
-      initialValues.priorities.forEach((priorityValue: number) => {
-        priorityFiltered = priorityFiltered + priorityValue.toString() + "; ";
-      });
+    if (initialValues.coupon) {
       list.push({
-        key: "priorities",
-        name: "Mức độ ưu tiên",
-        value: priorityFiltered,
+        key: "coupon",
+        name: "Mã giảm giá",
+        value: initialValues.coupon,
       });
-    }
-
-    if (initialValues.entitled_methods?.length) {
-      let discountMethodFiltered = "";
-      initialValues.entitled_methods.forEach((discountMethodValue: string) => {
-        const discountMethod = DISCOUNT_METHOD_LIST.find(
-          (item: any) => item.value?.toString() === discountMethodValue?.toString(),
-        );
-        discountMethodFiltered = discountMethod
-          ? discountMethodFiltered + discountMethod.name + "; "
-          : discountMethodFiltered + discountMethodValue + "; ";
-      });
-      if (discountMethodFiltered) {
-        list.push({
-          key: "entitled_methods",
-          name: "Phương thức chiết khấu",
-          value: discountMethodFiltered,
-        });
-      }
     }
 
     if (initialValues.creators?.length) {
@@ -624,8 +371,21 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
       if (createdByFiltered) {
         list.push({
           key: "creators",
-          name: "Người tạo chiết khấu",
+          name: "Người tạo khuyến mại",
           value: createdByFiltered,
+        });
+      }
+    }
+
+    if (initialValues.entitled_method) {
+      const promotionReleaseMethod = PROMOTION_RELEASE_METHOD_LIST?.find(
+        (item) => item.value === initialValues.entitled_method?.toString().toUpperCase(),
+      );
+      if (promotionReleaseMethod) {
+        list.push({
+          key: "entitled_method",
+          name: "Phương thức khuyến mại",
+          value: promotionReleaseMethod.name,
         });
       }
     }
@@ -681,6 +441,19 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
       });
     }
 
+    if (initialValues.is_registered) {
+      const isRegister = IS_REGISTER_LIST?.find(
+        (item) => item.value === initialValues.is_registered?.toString().toLowerCase(),
+      );
+      if (isRegister) {
+        list.push({
+          key: "is_registered",
+          name: "Đăng ký với Bộ Công Thương",
+          value: isRegister.name,
+        });
+      }
+    }
+
     if (initialValues.starts_date_min || initialValues.starts_date_max) {
       let startDateFiltered =
         (initialValues.starts_date_min
@@ -715,11 +488,10 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     return list;
   }, [
     initialValues.query,
-    initialValues.variant_id,
-    initialValues.product_id,
+    initialValues.coupon,
     initialValues.states,
-    initialValues.priorities,
-    initialValues.entitled_methods,
+    initialValues.is_registered,
+    initialValues.entitled_method,
     initialValues.creators,
     initialValues.store_ids,
     initialValues.channels,
@@ -728,7 +500,6 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     initialValues.starts_date_max,
     initialValues.ends_date_min,
     initialValues.ends_date_max,
-    initProductVariantList,
     listStore,
     channelList,
     sourceList,
@@ -743,18 +514,17 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
         case "query":
           onFilter && onFilter({ ...params, query: null });
           break;
-        case "product_variant_id":
-          onClearVariants();
-          onFilter && onFilter({ ...params, variant_id: null, product_id: null });
-          break;
         case "states":
           onFilter && onFilter({ ...params, states: [] });
           break;
-        case "priorities":
-          onFilter && onFilter({ ...params, priorities: [] });
+        case "coupon":
+          onFilter && onFilter({ ...params, coupon: "" });
           break;
-        case "entitled_methods":
-          onFilter && onFilter({ ...params, entitled_methods: [] });
+        case "is_registered":
+          onFilter && onFilter({ ...params, is_registered: undefined });
+          break;
+        case "entitled_method":
+          onFilter && onFilter({ ...params, entitled_method: null });
           break;
         case "creators":
           onFilter && onFilter({ ...params, creators: [] });
@@ -796,50 +566,27 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     },
     [onFilter, params],
   );
-  // end handle tag filter
-  
+  /** end handle tag filter */
 
   return (
-    <DiscountFilterStyled>
-      <div className="discount-filter">
+    <PromotionReleaseFilterStyled>
+      <div className="promotion-release-filter">
         <CustomFilter
           onMenuClick={onActionClick}
           menu={actions}
-          actionDisable={!allowActiveDiscount}
+          actionDisable={!allowActivePromotionRelease}
         >
           <Form onFinish={onFinish} initialValues={params} layout="inline" form={form}>
             <Item name="query" className="search">
               <Input
                 prefix={<img src={search} alt="" />}
-                placeholder="Tìm kiếm theo mã, tên chương trình"
+                placeholder="Tìm kiếm theo mã, tên đợt phát hành"
                 allowClear
                 onBlur={(e) => {
                   form.setFieldsValue({ query: e.target.value?.trim() || "" });
                 }}
-                style={{ minWidth: "150px" }}
               />
             </Item>
-
-            <Form.Item className="search-variant">
-              <Select
-                autoClearSearchValue={false}
-                loading={isLoading}
-                showSearch
-                showArrow
-                onSearch={handleSearchVariants}
-                dropdownMatchSelectWidth={500}
-                allowClear
-                onClear={onClearVariants}
-                optionFilterProp="children"
-                placeholder={"Tìm kiếm theo tên, mã, barcode sản phẩm"}
-                notFoundContent={isLoading ? <Spin size="small" /> : "Không tìm thấy sản phẩm"}
-                getPopupContainer={(trigger) => trigger.parentNode}
-                filterOption={false}
-                options={productVariantList}
-                onSelect={onSelectProduct}
-                value={productVariantSelected}
-              />
-            </Form.Item>
 
             <Item name="states" className="select-state">
               <Select
@@ -857,6 +604,18 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                 ))}
               </Select>
             </Item>
+
+            <Item name="coupon" className="search">
+              <Input
+                prefix={<img src={search} alt="" />}
+                placeholder="Tìm kiếm theo mã giảm giá"
+                allowClear
+                onBlur={(e) => {
+                  form.setFieldsValue({ coupon: e.target.value?.trim() || "" });
+                }}
+              />
+            </Item>
+
             <Item>
               <Button type="primary" htmlType="submit">
                 Lọc
@@ -894,50 +653,10 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
         >
           <Form onFinish={onFinish} form={form} initialValues={params} layout="vertical">
             <Row gutter={24}>
-              {Object.keys(SearchVariantMapping).map((key) => {
+              {Object.keys(PromotionReleaseFieldMapping).map((key) => {
                 let component: any = null;
                 switch (key) {
-                  case SearchVariantField.priorities:
-                    component = (
-                      <Select
-                        showArrow
-                        allowClear
-                        optionFilterProp="children"
-                        mode="multiple"
-                        maxTagCount={"responsive"}
-                        placeholder="Chọn 1 hoặc nhiều mức độ"
-                        getPopupContainer={(trigger: any) => trigger.parentElement}
-                        notFoundContent="Không tìm thấy mức độ phù hợp"
-                      >
-                        {PRIORITY_LIST?.map((item) => (
-                          <Option key={item.value} value={item.value}>
-                            {item.value}
-                          </Option>
-                        ))}
-                      </Select>
-                    );
-                    break;
-                  case SearchVariantField.entitled_methods:
-                    component = (
-                      <Select
-                        showArrow
-                        allowClear
-                        optionFilterProp="children"
-                        mode="multiple"
-                        maxTagCount={"responsive"}
-                        placeholder="Chọn 1 hoặc nhiều phương thức"
-                        getPopupContainer={(trigger: any) => trigger.parentElement}
-                        notFoundContent="Không tìm thấy phương thức phù hợp"
-                      >
-                        {DISCOUNT_METHOD_LIST?.map((item) => (
-                          <Option key={item.value} value={item.value}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    );
-                    break;
-                  case SearchVariantField.creators:
+                  case PromotionReleaseField.creators:
                     component = (
                       <AccountCustomSearchSelect
                         placeholder="Tìm kiếm theo tên, mã nhân viên"
@@ -950,8 +669,25 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                       />
                     );
                     break;
-
-                  case SearchVariantField.store_ids:
+                  case PromotionReleaseField.entitled_method:
+                    component = (
+                      <Select
+                        showArrow
+                        allowClear
+                        optionFilterProp="children"
+                        placeholder="Chọn phương thức khuyến mại"
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                        notFoundContent="Không tìm thấy phương thức khuyến mại"
+                      >
+                        {PROMOTION_RELEASE_METHOD_LIST?.map((item) => (
+                          <Option key={item.value} value={item.value}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    );
+                    break;
+                  case PromotionReleaseField.store_ids:
                     component = (
                       <TreeStore
                         placeholder="Chọn 1 hoặc nhiều cửa hàng"
@@ -960,7 +696,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                       />
                     );
                     break;
-                  case SearchVariantField.channels:
+                  case PromotionReleaseField.channels:
                     component = (
                       <Select
                         autoClearSearchValue={false}
@@ -981,7 +717,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                       </Select>
                     );
                     break;
-                  case SearchVariantField.source_ids:
+                  case PromotionReleaseField.source_ids:
                     component = (
                       <TreeSource
                         placeholder="Chọn nguồn"
@@ -990,7 +726,25 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                       />
                     );
                     break;
-                  case SearchVariantField.starts_date:
+                  case PromotionReleaseField.is_registered:
+                    component = (
+                      <Select
+                        showArrow
+                        allowClear
+                        optionFilterProp="children"
+                        placeholder="Chọn đăng ký với Bộ Công Thương"
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                        notFoundContent="Không tìm thấy lựa chọn"
+                      >
+                        {IS_REGISTER_LIST?.map((item) => (
+                          <Option key={item.value} value={item.value}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    );
+                    break;
+                  case PromotionReleaseField.starts_date:
                     component = (
                       <SelectRangeDateCustom
                         fieldNameFrom="starts_date_min"
@@ -1005,7 +759,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                       />
                     );
                     break;
-                  case SearchVariantField.ends_date:
+                  case PromotionReleaseField.ends_date:
                     component = (
                       <SelectRangeDateCustom
                         fieldNameFrom="ends_date_min"
@@ -1024,7 +778,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                 return (
                   <Col span={12} key={key}>
                     <div style={{ marginBottom: 5 }}>
-                      <b>{SearchVariantMapping[key]}</b>
+                      <b>{PromotionReleaseFieldMapping[key]}</b>
                     </div>
                     <Item name={key}>{component}</Item>
                   </Col>
@@ -1034,8 +788,8 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
           </Form>
         </BaseFilter>
       </div>
-    </DiscountFilterStyled>
+    </PromotionReleaseFilterStyled>
   );
 };
 
-export default DiscountFilter;
+export default PromotionReleaseFilter;
