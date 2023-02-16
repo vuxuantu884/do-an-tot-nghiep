@@ -85,7 +85,12 @@ import {
   TaxTreatment,
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { sortFulfillments } from "utils/fulfillmentUtils";
+import {
+  getFulfillmentActive,
+  isFulfillmentConfirmed,
+  isFulfillmentPicked,
+  sortFulfillments,
+} from "utils/fulfillmentUtils";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 import {
   canCreateShipment,
@@ -279,6 +284,7 @@ export default function Order(props: PropTypes) {
   }, [OrderDetail?.status, sortedFulfillments]);
 
   const setLevelOrder = useCallback(() => {
+    const fulfillment = getFulfillmentActive(OrderDetail?.fulfillments);
     switch (OrderDetail?.status) {
       case OrderStatus.DRAFT:
         return 1;
@@ -287,7 +293,12 @@ export default function Order(props: PropTypes) {
       case OrderStatus.FINISHED:
         return 5;
       case OrderStatus.FINALIZED:
-        if (!sortedFulfillments.length || sortedFulfillments[0].shipment === null) {
+        if (
+          !fulfillment ||
+          fulfillment.shipment === null ||
+          fulfillment.status === FulFillmentStatus.CANCELLED ||
+          isFulfillmentConfirmed(fulfillment)
+        ) {
           if (
             !OrderDetail.payment_status ||
             OrderDetail.payment_status === ORDER_PAYMENT_STATUS.unpaid
@@ -297,27 +308,15 @@ export default function Order(props: PropTypes) {
             return 3;
           }
         } else {
-          if (
-            sortedFulfillments[0].status === FulFillmentStatus.RETURNED ||
-            sortedFulfillments[0].status === FulFillmentStatus.CANCELLED ||
-            sortedFulfillments[0].status === FulFillmentStatus.RETURNING
-          ) {
-            if (
-              !OrderDetail.payment_status ||
-              OrderDetail.payment_status === ORDER_PAYMENT_STATUS.unpaid
-            ) {
-              return 2;
-            } else {
-              return 3;
-            }
-          }
           return 4;
         }
       default:
         return 1;
     }
-  }, [OrderDetail?.payment_status, OrderDetail?.status, sortedFulfillments]);
+  }, [OrderDetail?.payment_status, OrderDetail?.status, OrderDetail?.fulfillments]);
   let levelOrder = setLevelOrder();
+
+  console.log("levelOrder 112", levelOrder);
 
   let initialForm: OrderRequest = useMemo(() => {
     return {
@@ -380,77 +379,81 @@ export default function Order(props: PropTypes) {
     if (!fulfillments) {
       return null;
     }
-    let shipmentRequest = createShipmentRequest(value);
-    let hideFulFillment = fulfillments?.find((fulfillment) => !fulfillment.shipment);
-    let request: FulFillmentRequest = {
-      id: hideFulFillment?.id || null,
-      store_id: value.store_id,
-      account_code: OrderDetail?.account_code,
-      assignee_code: value.assignee_code,
-      delivery_type: "",
-      stock_location_id: null,
-      payment_status: "",
-      total: orderProductsAmount,
-      total_tax: null,
-      total_discount: null,
-      total_quantity: null,
-      discount_rate: promotion?.rate || null,
-      discount_value: promotion?.value || null,
-      discount_amount: null,
-      total_line_amount_after_line_discount: null,
-      shipment: shipmentRequest,
-      items: [...items, ...itemGifts].map((item) => {
-        let index = sortedFulfillmentsIncludeHideFulfillment[0]?.items.findIndex(
-          (single) => single?.order_line_item_id === item.id,
-        );
+
+    const getItemMapFulfillment = (p: FulFillmentResponse) => {
+      const _items = [...items, ...itemGifts].map((item) => {
+        let index = p?.items.findIndex((single) => single?.order_line_item_id === item.id);
         if (index > -1) {
           return {
             ...item,
-            id: sortedFulfillmentsIncludeHideFulfillment[0]?.items[index]?.id,
+            id: p?.items[index]?.id,
           };
         }
         return {
           ...item,
         };
-      }),
+      });
+
+      return _items;
     };
-    if (
-      sortedFulfillmentsIncludeHideFulfillment &&
-      sortedFulfillmentsIncludeHideFulfillment.length
-    ) {
-      const ffm = sortedFulfillmentsIncludeHideFulfillment.filter(
-        (i) =>
-          i.status !== FulFillmentStatus.CANCELLED &&
-          i.status !== FulFillmentStatus.RETURNING &&
-          i.status !== FulFillmentStatus.RETURNED,
-      );
-      request.id =
-        shipmentMethod === ShipmentMethodOption.DELIVER_LATER || (ffm.length && !ffm[0].shipment)
-          ? ffm[0]?.id
-          : null;
-    }
-    let listFulfillmentRequest = [];
-    if (
-      paymentMethod !== PaymentMethodOption.POST_PAYMENT ||
-      shipmentMethod === ShipmentMethodOption.SELF_DELIVER ||
-      shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
-    ) {
-      listFulfillmentRequest.push(request);
-    }
 
-    if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
-      request.delivery_type = ShipmentMethod.PICK_AT_STORE;
-    }
+    const fulfillmentsUpdateItem = fulfillments.map((p) => {
+      const _items = getItemMapFulfillment(p);
+      return {
+        ...p,
+        items: _items,
+      };
+    });
 
-    if (
-      paymentMethod === PaymentMethodOption.POST_PAYMENT &&
-      shipmentMethod === ShipmentMethodOption.DELIVER_LATER
-      // && typeButton === OrderStatus.FINALIZED
-    ) {
-      request.shipment = null;
-      listFulfillmentRequest.push(request);
+    let hideFulFillment = fulfillments?.find((fulfillment) => !fulfillment.shipment);
+    if (hideFulFillment) {
+      let listFulfillmentRequest = [];
+
+      let shipmentRequest = createShipmentRequest(value);
+      let request: FulFillmentRequest = {
+        id: hideFulFillment?.id || null,
+        store_id: value.store_id,
+        account_code: OrderDetail?.account_code,
+        assignee_code: value.assignee_code,
+        delivery_type: "",
+        stock_location_id: null,
+        payment_status: "",
+        total: orderProductsAmount,
+        total_tax: null,
+        total_discount: null,
+        total_quantity: null,
+        discount_rate: promotion?.rate || null,
+        discount_value: promotion?.value || null,
+        discount_amount: null,
+        total_line_amount_after_line_discount: null,
+        shipment: shipmentRequest,
+        items: getItemMapFulfillment(hideFulFillment),
+      };
+
+      if (
+        paymentMethod !== PaymentMethodOption.POST_PAYMENT ||
+        shipmentMethod === ShipmentMethodOption.SELF_DELIVER ||
+        shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
+      ) {
+        listFulfillmentRequest.push(request);
+      }
+
+      if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
+        request.delivery_type = ShipmentMethod.PICK_AT_STORE;
+      }
+
+      if (
+        paymentMethod === PaymentMethodOption.POST_PAYMENT &&
+        shipmentMethod === ShipmentMethodOption.DELIVER_LATER
+        // && typeButton === OrderStatus.FINALIZED
+      ) {
+        request.shipment = null;
+        listFulfillmentRequest.push(request);
+      }
+      console.log("listFulfillmentRequest", listFulfillmentRequest);
+      return listFulfillmentRequest;
     }
-    return listFulfillmentRequest;
+    return fulfillmentsUpdateItem;
   };
 
   const createShipmentRequest = (value: OrderRequest) => {
@@ -647,7 +650,8 @@ export default function Order(props: PropTypes) {
   };
 
   const handleUpdateOrder = (valuesCalculateReturnAmount: OrderRequest) => {
-    //return;
+    console.log("OrderRequest", valuesCalculateReturnAmount);
+    // return;
     const updateOrder = (updateSpecialOrder?: (orderId: number) => Promise<void>) => {
       dispatch(showLoading());
       try {
@@ -725,25 +729,26 @@ export default function Order(props: PropTypes) {
 
   const onFinish = (values: OrderRequest) => {
     if (!OrderDetail) return;
-    const checkIfOrderDraftAndOnlyUpdate = () => {
-      return (
-        !isFinalized &&
-        shipmentMethod === ShipmentMethodOption.DELIVER_LATER &&
-        totalPaymentsIncludePaymentUpdate.length === 0 &&
-        OrderDetail.status === OrderStatus.DRAFT
-      );
-    };
+    // const checkIfOrderDraftAndOnlyUpdate = () => {
+    //   return (
+    //     !isFinalized &&
+    //     shipmentMethod === ShipmentMethodOption.DELIVER_LATER &&
+    //     totalPaymentsIncludePaymentUpdate.length === 0 &&
+    //     OrderDetail.status === OrderStatus.DRAFT
+    //   );
+    // };
     values.assignee_code = getAccountCodeFromCodeAndName(values.assignee_code);
     values.marketer_code = getAccountCodeFromCodeAndName(values.marketer_code);
     values.coordinator_code = getAccountCodeFromCodeAndName(values.coordinator_code);
     const element2: any = document.getElementById("btn-save-order-update");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(OrderDetail.fulfillments, values);
+    console.log("lstFulFillment", lstFulFillment);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
 
     values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
-    values.fulfillments = checkIfOrderDraftAndOnlyUpdate() ? [] : lstFulFillment;
+    values.fulfillments = lstFulFillment;
     values.action = OrderStatus.FINALIZED;
     values.total = orderProductsAmount;
     values.finalized = isFinalized;
@@ -1139,6 +1144,7 @@ export default function Order(props: PropTypes) {
           let newDatingShip = initialForm.dating_ship;
           let newShipperCode = initialForm.shipper_code;
           let new_payments = initialForm.payments;
+
           if (activeSortedFulfillments && activeSortedFulfillments[0]) {
             if (activeSortedFulfillments[0]?.shipment) {
               newDatingShip = activeSortedFulfillments[0]?.shipment?.expected_received_date
@@ -1147,7 +1153,7 @@ export default function Order(props: PropTypes) {
               newShipperCode = activeSortedFulfillments[0]?.shipment?.shipper_code;
             }
             if (activeSortedFulfillments[0].shipment?.cod) {
-              // setPaymentMethod(PaymentMethodOption.COD);
+              //setPaymentMethod(PaymentMethodOption.COD);
             } else if (response.payments && response.payments?.length > 0) {
               setPaymentMethod(PaymentMethodOption.PRE_PAYMENT);
               new_payments = response.payments;

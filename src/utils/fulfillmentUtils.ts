@@ -3,8 +3,33 @@ import { FulFillmentStatus } from "utils/Constants";
 import audioError from "assets/audio/am-bao-tra-loi-sai.wav";
 import { showModalError } from "./ToastUtils";
 
-/*
- *kiểm tra là ffm đã đóng gói
+/**
+ * Là Fulfillment đã xác nhận
+ * @param fulfillment
+ * @returns
+ */
+export const isFulfillmentConfirmed = (fulfillment: FulFillmentResponse | any) => {
+  if (!fulfillment) return false;
+  return (
+    fulfillment?.status === FulFillmentStatus.UNSHIPPED &&
+    fulfillment.return_status === FulFillmentStatus.UNRETURNED
+  );
+};
+
+/**
+ * Là Fulfillment nhặt hàng
+ * @param fulfillment
+ * @returns
+ */
+export const isFulfillmentPicked = (fulfillment: FulFillmentResponse | any) => {
+  if (!fulfillment) return false;
+  return fulfillment?.status === FulFillmentStatus.PICKED;
+};
+
+/**
+ * Là Fulfillment đã đóng gói
+ *  * @param fulfillment
+ * @returns
  */
 export const isFulfillmentPacked = (fulfillment: FulFillmentResponse | any) => {
   if (!fulfillment) return false;
@@ -12,7 +37,9 @@ export const isFulfillmentPacked = (fulfillment: FulFillmentResponse | any) => {
 };
 
 /*
- *kiểm tra là ffm xuất kho
+ *Là Fulfillment xuất kho
+ * @param fulfillment
+ * @returns
  */
 export const isFulfillmentShipping = (fulfillment: FulFillmentResponse | any) => {
   if (!fulfillment) return false;
@@ -24,7 +51,7 @@ export const isFulfillmentShipping = (fulfillment: FulFillmentResponse | any) =>
 };
 
 /*
- *kiểm tra là ffm giao thành công
+ *Là Fulfillment giao thành công
  */
 export const isFulfillmentShipped = (fulfillment: FulFillmentResponse | any) => {
   if (!fulfillment) return false;
@@ -36,7 +63,7 @@ export const isFulfillmentShipped = (fulfillment: FulFillmentResponse | any) => 
 };
 
 /*
- *kiểm tra là ffm hvc đang hoàn
+ *Là Fulfillment hvc đang hoàn
  */
 export const isFulfillmentReturning = (fulfillment: FulFillmentResponse | any) => {
   if (!fulfillment) return false;
@@ -48,7 +75,7 @@ export const isFulfillmentReturning = (fulfillment: FulFillmentResponse | any) =
 };
 
 /*
- *kiểm tra là ffm hvc đã hoàn
+ *Là Fulfillment hvc đã hoàn
  */
 export const isFulfillmentReturned = (fulfillment: FulFillmentResponse | any) => {
   if (!fulfillment) return false;
