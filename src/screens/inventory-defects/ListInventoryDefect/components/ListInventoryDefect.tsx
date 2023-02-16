@@ -7,8 +7,10 @@ import {
   InventoryDefectResponse,
   InventoryDefectQuery,
   LineItemDefect,
+  InventoryDefectFieldsMapping,
+  InventoryDefectExport,
 } from "model/inventory-defects";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import ImageProduct from "screens/products/product/component/ImageProduct";
 import { primaryColor } from "utils/global-styles/variables";
@@ -46,6 +48,10 @@ import useAuthorization from "hook/useAuthorization";
 import EditDefect from "./EditDefect";
 import { AccountStoreResponse } from "model/account/account.model";
 import InventoryDefectFilter from "./InventoryDefectFilter";
+import { utils, writeFile } from "xlsx";
+import moment from "moment";
+import ExportFileModal, { ResultLimitModel } from "component/modal/ExportFileModal/ExportFileModal";
+import { ExportFileStatus, ExportFileType } from "utils/ExportFileConstants";
 
 const actionsDefault: Array<MenuAction> = [
   {
@@ -55,11 +61,22 @@ const actionsDefault: Array<MenuAction> = [
   },
 ];
 
-const ListInventoryDefect: React.FC = () => {
+type ListInventoryDefectProps = {
+  isExportDefects: boolean;
+  setIsExportDefects: (isExport: boolean) => void;
+};
+
+const ListInventoryDefect: React.FC<ListInventoryDefectProps> = (
+  props: ListInventoryDefectProps,
+) => {
+  const { isExportDefects, setIsExportDefects } = props;
   const dispatch = useDispatch();
   const [showSettingColumn, setShowSettingColumn] = useState<boolean>(false);
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [statusExport, setStatusExport] = useState<number>(ExportFileStatus.Export);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const exportRef: { current: NodeJS.Timeout | null } = useRef(null);
   const query = useQuery();
 
   const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(
@@ -90,7 +107,8 @@ const ListInventoryDefect: React.FC = () => {
 
   let [params, setParams] = useState<InventoryDefectQuery>(dataQuery);
   const [itemDelete, setItemDelete] = useState<InventoryDefectResponse>();
-  const [selected, setSelected] = useState<Array<LineItemDefect>>([]);
+  const [selectedRowData, setSelectedRowData] = useState<Array<InventoryDefectResponse>>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
   const [data, setData] = useState<PageResponse<InventoryDefectResponse>>({
     metadata: {
       limit: 30,
@@ -101,13 +119,43 @@ const ListInventoryDefect: React.FC = () => {
   });
   const history = useHistory();
 
+  const resultsExportFile: ResultLimitModel[] = [
+    {
+      value: ExportFileType.INPAGE,
+      name: ExportFileType.INPAGE,
+      title: "Sản phẩm trên trang này",
+      isHidden: false,
+      isChecked: true,
+    },
+    {
+      value: ExportFileType.SELECTED,
+      name: ExportFileType.SELECTED,
+      title: "Các sản phẩm được chọn",
+      isHidden: selectedRowData.length > 0 ? false : true,
+      isChecked: false,
+    },
+    {
+      value: ExportFileType.CURRENT_SEARCH,
+      name: ExportFileType.CURRENT_SEARCH,
+      title: "Các sản phẩm phù hợp với điều kiện lọc",
+      isHidden: false,
+      isChecked: false,
+    },
+    {
+      value: ExportFileType.ALL,
+      name: ExportFileType.ALL,
+      title: "Tất cả các sản phẩm",
+      isHidden: false,
+      isChecked: false,
+    },
+  ];
+
   const getInventoryDefects = useCallback(async () => {
-    const queryString = generateQuery(params);
     const res = await callApiNative(
       { isShowError: true, isShowLoading: true },
       dispatch,
       getListInventoryDefect,
-      queryString,
+      params,
     );
     if (res) {
       setData(res);
@@ -319,7 +367,7 @@ const ListInventoryDefect: React.FC = () => {
             </div>
           );
         },
-        titleCustom: "Số lỗi",
+        titleCustom: "Số tồn lỗi",
         dataIndex: "defect",
         width: 120,
         align: "center",
@@ -398,6 +446,7 @@ const ListInventoryDefect: React.FC = () => {
         align: "center",
       },
     ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPermissions, editItemDefect, data]);
 
   useEffect(() => {
@@ -484,7 +533,7 @@ const ListInventoryDefect: React.FC = () => {
 
   const menuClick = useCallback(
     (index: number) => {
-      if (selected.length === 0) {
+      if (selectedRowData.length === 0) {
         showWarning("Bạn chưa chọn đơn đặt hàng nào");
         return;
       }
@@ -494,22 +543,41 @@ const ListInventoryDefect: React.FC = () => {
           break;
       }
     },
-    [selected],
+    [selectedRowData],
   );
 
-  const onSelect = useCallback(
-    (selectedRow: Array<LineItemDefect>) => {
-      const res = selectedRow.filter(function (el) {
-        return el !== undefined;
+  const changeSelected = useCallback(
+    (
+      selectedRow: Array<InventoryDefectResponse>,
+      selected: boolean | undefined,
+      changeRow: any,
+    ) => {
+      if (selected) {
+        const newSelectedRowKeys = changeRow.map((row: any) => row.id);
+        const newSelectedRows = [...selectedRowData, ...changeRow];
+        const newRowKeys = [...selectedRowKeys, ...newSelectedRowKeys];
+        setSelectedRowData(newSelectedRows);
+        setSelectedRowKeys(newRowKeys);
+        return;
+      }
+      const deselectedRowKeys = selectedRowKeys.filter((item) => {
+        const findIndex = changeRow.findIndex((row: any) => row.id === item);
+
+        return findIndex === -1;
       });
-      setSelected(res);
+      const deselectedRow = selectedRowData.filter((el: InventoryDefectResponse) => {
+        const findIndex = changeRow.findIndex((item: any) => item.id === el.id);
+        return findIndex === -1;
+      });
+      setSelectedRowData(deselectedRow);
+      setSelectedRowKeys(deselectedRowKeys);
     },
-    [setSelected],
+    [selectedRowData, selectedRowKeys],
   );
 
   const handleDeleteInventoryDefects = async () => {
     try {
-      const idSelected = selected.map((item) => {
+      const idSelected = selectedRowData.map((item) => {
         return item.id;
       });
 
@@ -547,6 +615,153 @@ const ListInventoryDefect: React.FC = () => {
     history.push(`${UrlConfig.INVENTORY_DEFECTS}?${queryParams}`);
   };
 
+  useEffect(() => {
+    return () => {
+      clearInterval(exportRef.current as NodeJS.Timeout);
+    };
+  }, []);
+
+  const getItemsExportInPage = (params: InventoryDefectQuery) => {
+    return callApiNative({ isShowLoading: false }, dispatch, getListInventoryDefect, {
+      ...params,
+      limit: params.limit ?? 50,
+    });
+  };
+
+  const getItemsExport = async (
+    params: InventoryDefectQuery,
+    total: number,
+    exportType: string,
+  ): Promise<Array<InventoryDefectResponse>> => {
+    const limit = params.limit ?? 50;
+    const newParams = exportType === ExportFileType.CURRENT_SEARCH ? { ...params } : {};
+    const roundAll = Math.round(total / limit);
+    const times = roundAll < total / limit ? roundAll + 1 : roundAll;
+    let items: Array<InventoryDefectResponse> = [];
+    let currentPage = 1;
+    const intervalFun = async (resolve: any, reject: any) => {
+      const res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryDefect, {
+        ...newParams,
+        page: currentPage,
+        limit: limit,
+      });
+      if (res) {
+        items = items.concat(res.items);
+        const percent = Math.round(Number.parseFloat((currentPage / times).toFixed(2)) * 100);
+        setExportProgress(percent);
+        currentPage = currentPage + 1;
+        if (currentPage > times) {
+          clearInterval(exportRef.current as NodeJS.Timeout);
+          currentPage = 1;
+          resolve(items);
+        }
+      } else {
+        clearInterval(exportRef.current as NodeJS.Timeout);
+        currentPage = 1;
+        setExportProgress(0);
+        setStatusExport(ExportFileStatus.ExportError);
+        reject();
+      }
+    };
+    return new Promise((resolve, reject) => {
+      exportRef.current = setInterval(() => intervalFun(resolve, reject), 3000);
+    });
+  };
+
+  const convertItemExport = (item: InventoryDefectResponse) => {
+    return {
+      [InventoryDefectFieldsMapping.sku]: item.sku,
+      [InventoryDefectFieldsMapping.name]: item.name,
+      [InventoryDefectFieldsMapping.store_id]: item.store_id,
+      [InventoryDefectFieldsMapping.store]: item.store,
+      [InventoryDefectFieldsMapping.defect]: item.defect === 0 ? null : item.defect,
+      [InventoryDefectFieldsMapping.on_hand]: item.on_hand === 0 ? null : item.on_hand,
+      [InventoryDefectFieldsMapping.note]: item.note,
+    };
+  };
+
+  const actionExport = {
+    Ok: async (typeExport: string) => {
+      try {
+        setStatusExport(ExportFileStatus.Exporting);
+        const dataExport: Array<InventoryDefectExport> = [];
+        let dataResult: Array<InventoryDefectResponse> = [];
+        if (
+          typeExport === ExportFileType.SELECTED &&
+          selectedRowData &&
+          selectedRowData.length === 0
+        ) {
+          setStatusExport(ExportFileStatus.Export);
+          showWarning("Bạn chưa chọn sản phẩm nào để xuất file");
+          return;
+        }
+
+        switch (typeExport) {
+          case ExportFileType.INPAGE:
+            const res = await getItemsExportInPage(params);
+            dataResult = res.items;
+            break;
+          case ExportFileType.SELECTED:
+            dataResult = [...selectedRowData];
+            break;
+          case ExportFileType.CURRENT_SEARCH:
+            dataResult = await getItemsExport(
+              params,
+              data.metadata.total,
+              ExportFileType.CURRENT_SEARCH,
+            );
+            break;
+          case ExportFileType.ALL:
+            const result = await callApiNative(
+              { isShowLoading: false },
+              dispatch,
+              getListInventoryDefect,
+              {
+                page: 1,
+                limit: 30,
+              },
+            );
+            const totalRecord = result.metadata.total;
+            dataResult = await getItemsExport(params, totalRecord, ExportFileType.ALL);
+            break;
+          default:
+            break;
+        }
+        if (dataResult.length === 0) {
+          showWarning("Không có sản phẩm nào đủ điều kiện");
+          return;
+        }
+
+        const workbook = utils.book_new();
+        if (dataResult.length > 0) {
+          for (let i = 0; i < dataResult.length; i++) {
+            const e = dataResult[i];
+            const item = convertItemExport(e);
+            dataExport.push(item);
+          }
+        }
+        const worksheet = utils.json_to_sheet(dataExport);
+        utils.book_append_sheet(workbook, worksheet, "data");
+
+        setStatusExport(ExportFileStatus.ExportSuccess);
+        setExportProgress(100);
+        const today = moment(new Date(), "YYYY/MM/DD");
+        const month = today.format("M");
+        const day = today.format("D");
+        const year = today.format("YYYY");
+        writeFile(workbook, `inventory_defects_${day}_${month}_${year}.xlsx`);
+      } catch (e) {
+        setStatusExport(ExportFileStatus.ExportError);
+      }
+    },
+    Cancel: () => {
+      clearInterval(exportRef.current as NodeJS.Timeout);
+      setIsExportDefects(false);
+      setExportProgress(0);
+      setStatusExport(ExportFileStatus.Export);
+    },
+  };
+
   return (
     <>
       <InventoryDefectFilter
@@ -565,7 +780,8 @@ const ListInventoryDefect: React.FC = () => {
         isShowPaginationAtHeader
         isRowSelection
         scroll={{ x: "max-content" }}
-        onSelectedChange={onSelect}
+        selectedRowKey={selectedRowKeys}
+        onSelectedChange={changeSelected}
         dataSource={data.items}
         sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
         columns={columnFinal}
@@ -606,7 +822,19 @@ const ListInventoryDefect: React.FC = () => {
           visible={isConfirmDelete}
         />
       )}
-      {selected.length > 0 && (
+      {isExportDefects && (
+        <ExportFileModal
+          results={resultsExportFile}
+          visible={isExportDefects}
+          isExportList={true}
+          onOk={(exportType) => actionExport.Ok(exportType)}
+          title="hàng lỗi"
+          status={statusExport}
+          onCancel={actionExport.Cancel}
+          exportProgress={exportProgress}
+        />
+      )}
+      {selectedRowData.length > 0 && (
         <ModalDeleteConfirm
           onCancel={() => setConfirmDelete(false)}
           onOk={() => {
@@ -614,8 +842,8 @@ const ListInventoryDefect: React.FC = () => {
           }}
           title={
             <div>
-              Bạn chắc chắn xóa <span style={{ color: "#11006f" }}>{selected.length}</span> sản phẩm
-              này ra khỏi danh sách hàng lỗi không ?
+              Bạn chắc chắn xóa <span style={{ color: "#11006f" }}>{selectedRowData.length}</span>{" "}
+              sản phẩm này ra khỏi danh sách hàng lỗi không ?
             </div>
           }
           visible={isConfirmDelete}

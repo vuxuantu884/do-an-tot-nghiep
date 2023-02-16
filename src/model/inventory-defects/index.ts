@@ -97,6 +97,10 @@ export interface InventoryDefectHistoryResponse {
   variant_image: string | null;
 }
 
+export type InventoryDefectExport = {
+  [name: string]: any;
+};
+
 export interface DeleteInventoryDefects {
   ids: string;
 }
@@ -112,4 +116,15 @@ export const InventoryDefectFields = {
   defect: "defect",
   store_id: "store_id",
   store: "store",
+  name: "name",
+};
+
+export const InventoryDefectFieldsMapping = {
+  [InventoryDefectFields.sku]: "Mã sản phẩm",
+  [InventoryDefectFields.name]: "Tên sản phẩm",
+  [InventoryDefectFields.store_id]: "ID Cửa hàng",
+  [InventoryDefectFields.store]: "Cửa hàng",
+  [InventoryDefectFields.on_hand]: "Tồn trong kho",
+  [InventoryDefectFields.defect]: "Số tồn lỗi",
+  [InventoryDefectFields.note]: "Ghi chú",
 };
