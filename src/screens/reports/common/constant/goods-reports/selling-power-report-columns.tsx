@@ -98,6 +98,7 @@ export const sellingPowerReportColumns = (selectedDate: string): any[] => {
       dataIndex: "average_sale",
       key: "average_sale",
       width: 170,
+      format: "decimal",
     },
     {
       title: "Ngày bán còn lại",
@@ -197,38 +198,38 @@ export const sellingPowerReportColumns = (selectedDate: string): any[] => {
       children: [
         {
           title: `${moment(date, YYYYMMDD).subtract(6, "days").format(DDMM)}`,
-          dataIndex: "sale_quantity7",
-          key: "sale_quantity7",
-        },
-        {
-          title: `${moment(date, YYYYMMDD).subtract(5, "days").format(DDMM)}`,
           dataIndex: "sale_quantity6",
           key: "sale_quantity6",
         },
         {
-          title: `${moment(date, YYYYMMDD).subtract(4, "days").format(DDMM)}`,
+          title: `${moment(date, YYYYMMDD).subtract(5, "days").format(DDMM)}`,
           dataIndex: "sale_quantity5",
           key: "sale_quantity5",
         },
         {
-          title: `${moment(date, YYYYMMDD).subtract(3, "days").format(DDMM)}`,
+          title: `${moment(date, YYYYMMDD).subtract(4, "days").format(DDMM)}`,
           dataIndex: "sale_quantity4",
           key: "sale_quantity4",
         },
         {
-          title: `${moment(date, YYYYMMDD).subtract(2, "days").format(DDMM)}`,
+          title: `${moment(date, YYYYMMDD).subtract(3, "days").format(DDMM)}`,
           dataIndex: "sale_quantity3",
           key: "sale_quantity3",
         },
         {
-          title: `${moment(date, YYYYMMDD).subtract(1, "days").format(DDMM)}`,
+          title: `${moment(date, YYYYMMDD).subtract(2, "days").format(DDMM)}`,
           dataIndex: "sale_quantity2",
           key: "sale_quantity2",
         },
         {
-          title: `${moment(date, YYYYMMDD).format(DDMM)}`,
+          title: `${moment(date, YYYYMMDD).subtract(1, "days").format(DDMM)}`,
           dataIndex: "sale_quantity1",
           key: "sale_quantity1",
+        },
+        {
+          title: `${moment(date, YYYYMMDD).format(DDMM)}`,
+          dataIndex: "sale_quantity0",
+          key: "sale_quantity0",
         },
       ],
     },
@@ -242,7 +243,7 @@ export const sellingPowerReportColumns = (selectedDate: string): any[] => {
           render: (text: string | number | null, row: any) => {
             return (text && typeof text === "number") || text === 0 ? (
               child.unit !== "%" ? (
-                <span className={row.className}>{formatCurrency(text) ?? "--"}</span>
+                <span className={row.className}>{formatCurrency(text) ?? "-"}</span>
               ) : (
                 <span className={row.className}>
                   {+text.toFixed(2)}
@@ -250,7 +251,7 @@ export const sellingPowerReportColumns = (selectedDate: string): any[] => {
                 </span>
               )
             ) : (
-              <span className={row.className}>{text ?? "--"}</span>
+              <span className={row.className}>{text ?? "-"}</span>
             );
           },
         };
@@ -263,7 +264,7 @@ export const sellingPowerReportColumns = (selectedDate: string): any[] => {
         render: (text: string | number | null, row: any) => {
           return (text && typeof text === "number") || text === 0 ? (
             item.unit !== "%" ? (
-              <span className={row.className}>{formatCurrency(text) ?? "--"}</span>
+              <span className={row.className}>{formatCurrency(text) ?? "-"}</span>
             ) : (
               <span className={row.className}>
                 {+text.toFixed(2)}
@@ -271,7 +272,7 @@ export const sellingPowerReportColumns = (selectedDate: string): any[] => {
               </span>
             )
           ) : (
-            <span className={row.className}>{text ?? "--"}</span>
+            <span className={row.className}>{text ?? "-"}</span>
           );
         },
       };
