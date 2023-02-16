@@ -140,14 +140,7 @@ const CreateInventoryAdjustment: FC = () => {
 
     data.adjusted_store_name = storeCurr ? storeCurr.name : null;
     if (auditType === INVENTORY_AUDIT_TYPE_CONSTANTS.PARTLY) {
-      const dataLineItems = dataTable;
-
-      if (dataLineItems && dataLineItems.length === 0) {
-        showError("Vui lòng chọn sản phẩm");
-        return;
-      }
-
-      data.line_items = dataLineItems.map((item: LineItemAdjustment) => {
+      data.line_items = dataTable.map((item: LineItemAdjustment) => {
         const variantPrice =
           item &&
           item.variant_prices &&
