@@ -405,6 +405,20 @@ export default function Order(props: PropTypes) {
       };
     });
 
+    const fulfillmentActive= getFulfillmentActive(fulfillmentsUpdateItem);
+    
+    if(isFulfillmentConfirmed(fulfillmentActive)){
+      const ffmIndex= fulfillmentsUpdateItem.findIndex((p)=>p.id === fulfillmentActive?.id);
+      fulfillmentsUpdateItem[ffmIndex].stock_location_id=storeId;
+      let _shipment=fulfillmentsUpdateItem[ffmIndex].shipment;
+      if(_shipment){
+        _shipment.sender_address_id=storeId;
+        fulfillmentsUpdateItem[ffmIndex].shipment=_shipment;
+      }
+    }
+
+    // console.log("fulfillmentActive",storeId, fulfillmentActive,"fulfillmentsUpdateItem", fulfillmentsUpdateItem)
+
     let hideFulFillment = fulfillments?.find((fulfillment) => !fulfillment.shipment);
     if (hideFulFillment) {
       let listFulfillmentRequest = [];
@@ -450,7 +464,7 @@ export default function Order(props: PropTypes) {
         request.shipment = null;
         listFulfillmentRequest.push(request);
       }
-      console.log("listFulfillmentRequest", listFulfillmentRequest);
+      // console.log("listFulfillmentRequest", listFulfillmentRequest);
       return listFulfillmentRequest;
     }
     return fulfillmentsUpdateItem;
@@ -652,6 +666,7 @@ export default function Order(props: PropTypes) {
   const handleUpdateOrder = (valuesCalculateReturnAmount: OrderRequest) => {
     console.log("OrderRequest", valuesCalculateReturnAmount);
     // return;
+    //return;
     const updateOrder = (updateSpecialOrder?: (orderId: number) => Promise<void>) => {
       dispatch(showLoading());
       try {
