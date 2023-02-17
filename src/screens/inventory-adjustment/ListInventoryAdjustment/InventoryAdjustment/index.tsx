@@ -776,6 +776,7 @@ const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
     <InventoryAdjustmentWrapper>
       <Card>
         <InventoryAdjustmentFilters
+          isFirstLoad={firstLoad}
           onShowColumnSetting={() => setShowSettingColumn(true)}
           accounts={accounts}
           params={params}
