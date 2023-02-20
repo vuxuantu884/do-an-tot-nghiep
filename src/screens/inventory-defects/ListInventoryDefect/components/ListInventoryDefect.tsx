@@ -534,7 +534,7 @@ const ListInventoryDefect: React.FC<ListInventoryDefectProps> = (
   const menuClick = useCallback(
     (index: number) => {
       if (selectedRowData.length === 0) {
-        showWarning("Bạn chưa chọn đơn đặt hàng nào");
+        showWarning("Bạn chưa chọn sản phẩm nào");
         return;
       }
       switch (index) {

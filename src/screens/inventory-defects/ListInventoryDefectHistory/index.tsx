@@ -1,6 +1,6 @@
 import { Image } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { StoreResponse } from "model/core/store.model";
@@ -9,6 +9,7 @@ import { getStoreApi } from "service/inventory/transfer/index.service";
 import { generateQuery, splitEllipsis } from "utils/AppUtils";
 import UrlConfig from "config/url.config";
 import {
+  InventoryDefectHistoryFieldsMapping,
   InventoryDefectHistoryResponse,
   InventoryDefectQuery,
   LineItemDefect,
@@ -25,14 +26,26 @@ import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
-import { showError } from "utils/ToastUtils";
+import { showError, showWarning } from "utils/ToastUtils";
 import { cloneDeep } from "lodash";
 import { formatCurrencyForProduct } from "screens/products/helper";
 import InventoryDefectHistoryFilter from "./components/InventoryDefectHistoryFilter";
 import { AccountResponse } from "model/account/account.model";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
+import { ExportFileStatus, ExportFileType } from "utils/ExportFileConstants";
+import ExportFileModal, { ResultLimitModel } from "component/modal/ExportFileModal/ExportFileModal";
+import moment from "moment";
+import { utils, writeFile } from "xlsx";
 
-export const ListInventoryDefectHistory = () => {
+type ListInventoryDefectHistoryProps = {
+  isExportHistoryDefects: boolean;
+  setIsExportHistoryDefects: (value: boolean) => void;
+};
+
+export const ListInventoryDefectHistory: React.FC<ListInventoryDefectHistoryProps> = (
+  props: ListInventoryDefectHistoryProps,
+) => {
+  const { isExportHistoryDefects, setIsExportHistoryDefects } = props;
   const dispatch = useDispatch();
   const history = useHistory();
   const query = useQuery();
@@ -62,6 +75,42 @@ export const ListInventoryDefectHistory = () => {
     items: [],
   });
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  const [statusExport, setStatusExport] = useState<number>(ExportFileStatus.Export);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const exportRef: { current: NodeJS.Timeout | null } = useRef(null);
+  const [selectedRowData, setSelectedRowData] = useState<Array<InventoryDefectHistoryResponse>>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<Array<number>>([]);
+
+  const resultsExportFile: ResultLimitModel[] = [
+    {
+      value: ExportFileType.INPAGE,
+      name: ExportFileType.INPAGE,
+      title: "Sản phẩm trên trang này",
+      isHidden: false,
+      isChecked: true,
+    },
+    {
+      value: ExportFileType.SELECTED,
+      name: ExportFileType.SELECTED,
+      title: "Các sản phẩm được chọn",
+      isHidden: selectedRowData.length > 0 ? false : true,
+      isChecked: false,
+    },
+    {
+      value: ExportFileType.CURRENT_SEARCH,
+      name: ExportFileType.CURRENT_SEARCH,
+      title: "Các sản phẩm phù hợp với điều kiện lọc",
+      isHidden: false,
+      isChecked: false,
+    },
+    {
+      value: ExportFileType.ALL,
+      name: ExportFileType.ALL,
+      title: "Tất cả các sản phẩm",
+      isHidden: false,
+      isChecked: false,
+    },
+  ];
 
   const initColumns: Array<ICustomTableColumType<InventoryDefectHistoryResponse>> = useMemo(() => {
     return [
@@ -149,14 +198,15 @@ export const ListInventoryDefectHistory = () => {
             }, 0) || 0;
           return (
             <div>
-              Số lỗi <span style={{ color: "#2A2A86" }}>({formatCurrencyForProduct(total)})</span>
+              Số tồn lỗi{" "}
+              <span style={{ color: "#2A2A86" }}>({formatCurrencyForProduct(total)})</span>
             </div>
           );
         },
         dataIndex: "defect",
         align: "center",
         visible: true,
-        width: "8%",
+        width: "9%",
         render: (value: number) => {
           return <span>{value}</span>;
         },
@@ -166,7 +216,7 @@ export const ListInventoryDefectHistory = () => {
         dataIndex: "quantity_adj",
         align: "center",
         visible: true,
-        width: "8%",
+        width: "9%",
         render: (value: number | null) => {
           const quantityAdj = value && value > 0 ? `+${value}` : value;
           return <span>{quantityAdj}</span>;
@@ -202,7 +252,7 @@ export const ListInventoryDefectHistory = () => {
         dataIndex: "note",
         align: "center",
         visible: true,
-        width: "22%",
+        width: "20%",
       },
     ];
   }, [data]);
@@ -219,17 +269,17 @@ export const ListInventoryDefectHistory = () => {
   );
 
   const getInventoryDefectsHistory = useCallback(async () => {
-    const queryString = generateQuery(params);
     const res = await callApiNative(
       { isShowError: true, isShowLoading: true },
       dispatch,
       getListInventoryDefectHistory,
-      queryString,
+      params,
     );
     if (res) {
       setData(res);
     }
   }, [dispatch, params]);
+
   const getStores = useCallback(async () => {
     const response = await callApiNative({ isShowError: true }, dispatch, getStoreApi, {
       status: "active",
@@ -288,6 +338,12 @@ export const ListInventoryDefectHistory = () => {
   }, [dispatch, getStores, setDataAccounts]);
 
   useEffect(() => {
+    return () => {
+      clearInterval(exportRef.current as NodeJS.Timeout);
+    };
+  }, []);
+
+  useEffect(() => {
     if (tableColumnConfigs && tableColumnConfigs.length) {
       const userConfig = tableColumnConfigs.find(
         (e) => e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY_DEFECT_HISTORY,
@@ -312,6 +368,188 @@ export const ListInventoryDefectHistory = () => {
       setColumns([...initColumns]);
     }
   }, [initColumns, tableColumnConfigs, data]);
+
+  const changeSelected = useCallback(
+    (
+      selectedRow: Array<InventoryDefectHistoryResponse>,
+      selected: boolean | undefined,
+      changeRow: any,
+    ) => {
+      if (selected) {
+        const newSelectedRowKeys = changeRow.map((row: any) => row.id);
+        const newSelectedRows = [...selectedRowData, ...changeRow];
+        const newRowKeys = [...selectedRowKeys, ...newSelectedRowKeys];
+        setSelectedRowData(newSelectedRows);
+        setSelectedRowKeys(newRowKeys);
+        return;
+      }
+      const deselectedRowKeys = selectedRowKeys.filter((item) => {
+        const findIndex = changeRow.findIndex((row: any) => row.id === item);
+
+        return findIndex === -1;
+      });
+      const deselectedRow = selectedRowData.filter((el: InventoryDefectHistoryResponse) => {
+        const findIndex = changeRow.findIndex((item: any) => item.id === el.id);
+        return findIndex === -1;
+      });
+      setSelectedRowData(deselectedRow);
+      setSelectedRowKeys(deselectedRowKeys);
+    },
+    [selectedRowData, selectedRowKeys],
+  );
+
+  const getItemsExportInPage = (params: InventoryDefectQuery) => {
+    return callApiNative({ isShowLoading: false }, dispatch, getListInventoryDefectHistory, {
+      ...params,
+      limit: params.limit ?? 50,
+    });
+  };
+
+  const getItemsExport = async (
+    params: InventoryDefectQuery,
+    total: number,
+    exportType: string,
+  ): Promise<Array<InventoryDefectHistoryResponse>> => {
+    const limit = params.limit ?? 50;
+    const newParams = exportType === ExportFileType.CURRENT_SEARCH ? { ...params } : {};
+    const roundAll = Math.round(total / limit);
+    const times = roundAll < total / limit ? roundAll + 1 : roundAll;
+    let items: Array<InventoryDefectHistoryResponse> = [];
+    let currentPage = 1;
+    const intervalFun = async (
+      resolve: (value: Array<InventoryDefectHistoryResponse>) => void,
+      reject: (reason?: any) => void,
+    ) => {
+      const res = await callApiNative(
+        { isShowLoading: false },
+        dispatch,
+        getListInventoryDefectHistory,
+        {
+          ...newParams,
+          page: currentPage,
+          limit: limit,
+        },
+      );
+      if (res) {
+        items = items.concat(res.items);
+        const percent = Math.round(Number.parseFloat((currentPage / times).toFixed(2)) * 100);
+        setExportProgress(percent);
+        currentPage = currentPage + 1;
+        if (currentPage > times) {
+          clearInterval(exportRef.current as NodeJS.Timeout);
+          currentPage = 1;
+          resolve(items);
+        }
+      } else {
+        clearInterval(exportRef.current as NodeJS.Timeout);
+        currentPage = 1;
+        setExportProgress(0);
+        setStatusExport(ExportFileStatus.ExportError);
+        reject();
+      }
+    };
+    return new Promise((resolve, reject) => {
+      exportRef.current = setInterval(() => intervalFun(resolve, reject), 3000);
+    });
+  };
+
+  const convertItemExport = (item: InventoryDefectHistoryResponse) => {
+    return {
+      [InventoryDefectHistoryFieldsMapping.sku]: item.sku,
+      [InventoryDefectHistoryFieldsMapping.name]: item.name,
+      [InventoryDefectHistoryFieldsMapping.store_id]: item.store_id,
+      [InventoryDefectHistoryFieldsMapping.store]: item.store,
+      [InventoryDefectHistoryFieldsMapping.defect]: item.defect === 0 ? null : item.defect,
+      [InventoryDefectHistoryFieldsMapping.quantity_adj]:
+        item.quantity_adj === 0 ? null : item.quantity_adj,
+      [InventoryDefectHistoryFieldsMapping.updated_name]: item.updated_name,
+      [InventoryDefectHistoryFieldsMapping.updated_by]: item.updated_by,
+      [InventoryDefectHistoryFieldsMapping.updated_date]: ConvertUtcToLocalDate(item.updated_date),
+      [InventoryDefectHistoryFieldsMapping.note]: item.note,
+    };
+  };
+
+  const actionExport = {
+    Ok: async (typeExport: string) => {
+      try {
+        setStatusExport(ExportFileStatus.Exporting);
+        const dataExport: Array<any> = [];
+        let dataResult: Array<InventoryDefectHistoryResponse> = [];
+        if (
+          typeExport === ExportFileType.SELECTED &&
+          selectedRowData &&
+          selectedRowData.length === 0
+        ) {
+          setStatusExport(ExportFileStatus.Export);
+          showWarning("Bạn chưa chọn sản phẩm nào để xuất file");
+          return;
+        }
+
+        switch (typeExport) {
+          case ExportFileType.INPAGE:
+            const res = await getItemsExportInPage(params);
+            dataResult = res.items;
+            break;
+          case ExportFileType.SELECTED:
+            dataResult = [...selectedRowData];
+            break;
+          case ExportFileType.CURRENT_SEARCH:
+            dataResult = await getItemsExport(
+              params,
+              data.metadata.total,
+              ExportFileType.CURRENT_SEARCH,
+            );
+            break;
+          case ExportFileType.ALL:
+            const result = await callApiNative(
+              { isShowLoading: false },
+              dispatch,
+              getListInventoryDefectHistory,
+              {
+                page: 1,
+                limit: 30,
+              },
+            );
+            const totalRecord = result.metadata.total;
+            dataResult = await getItemsExport(params, totalRecord, ExportFileType.ALL);
+            break;
+          default:
+            break;
+        }
+        if (dataResult.length === 0) {
+          showWarning("Không có sản phẩm nào đủ điều kiện");
+          return;
+        }
+
+        const workbook = utils.book_new();
+        if (dataResult.length > 0) {
+          for (let i = 0; i < dataResult.length; i++) {
+            const e = dataResult[i];
+            const item = convertItemExport(e);
+            dataExport.push(item);
+          }
+        }
+        const worksheet = utils.json_to_sheet(dataExport);
+        utils.book_append_sheet(workbook, worksheet, "data");
+
+        setStatusExport(ExportFileStatus.ExportSuccess);
+        setExportProgress(100);
+        const today = moment(new Date(), "YYYY/MM/DD");
+        const month = today.format("M");
+        const day = today.format("D");
+        const year = today.format("YYYY");
+        writeFile(workbook, `inventory_defects_history_${day}_${month}_${year}.xlsx`);
+      } catch (e) {
+        setStatusExport(ExportFileStatus.ExportError);
+      }
+    },
+    Cancel: () => {
+      clearInterval(exportRef.current as NodeJS.Timeout);
+      setIsExportHistoryDefects(false);
+      setExportProgress(0);
+      setStatusExport(ExportFileStatus.Export);
+    },
+  };
 
   const filterDefectHistory = (values: InventoryDefectQuery) => {
     const newParams = { ...params, ...values, page: 1 };
@@ -352,6 +590,9 @@ export const ListInventoryDefectHistory = () => {
         dataSource={data.items}
         sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
         columns={columnFinal}
+        selectedRowKey={selectedRowKeys}
+        onSelectedChange={changeSelected}
+        isRowSelection
         rowKey={(item: LineItemDefect) => item.id}
         isShowPaginationAtHeader
         pagination={{
@@ -374,6 +615,18 @@ export const ListInventoryDefectHistory = () => {
         }}
         data={columns}
       />
+      {isExportHistoryDefects && (
+        <ExportFileModal
+          results={resultsExportFile}
+          visible={isExportHistoryDefects}
+          isExportList={true}
+          onOk={(exportType) => actionExport.Ok(exportType)}
+          title="lịch sử hàng lỗi"
+          status={statusExport}
+          onCancel={actionExport.Cancel}
+          exportProgress={exportProgress}
+        />
+      )}
     </>
   );
 };
