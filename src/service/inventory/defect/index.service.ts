@@ -39,9 +39,10 @@ const getListInventoryDefect = (
 };
 
 const getListInventoryDefectHistory = (
-  params: string,
+  params: InventoryDefectQuery,
 ): Promise<BaseResponse<Array<InventoryDefectResponse>>> => {
-  return BaseAxios.get(`${ApiConfig.INVENTORY_DEFECT}/defects/history?${params}`);
+  const queryString = generateQuery(params);
+  return BaseAxios.get(`${ApiConfig.INVENTORY_DEFECT}/defects/history?${queryString}`);
 };
 
 export {
