@@ -1,7 +1,7 @@
 import { TreeSelect, TreeSelectProps } from "antd";
 import { StoreByDepartment } from "model/core/store.model";
 import { DataNode } from "rc-tree-select/lib/interface";
-import { useMemo } from "react";
+import { forwardRef, Ref, useMemo } from "react";
 import { findRangeDepartmentLevel, getTreeData, isStoreByDepartmentList } from "./helper";
 import { strForSearch } from "utils/StringUtils";
 
@@ -9,7 +9,7 @@ type Props = TreeSelectProps<any> & {
   storeByDepartmentList: StoreByDepartment[] | unknown[];
 };
 
-const CustomTreeSelect = (props: Props) => {
+const CustomTreeSelect = forwardRef((props: Props, ref: Ref<any>) => {
   const { storeByDepartmentList, ...restProps } = props;
 
   const storeByDepartmentTree: DataNode[] = useMemo(() => {
@@ -29,6 +29,7 @@ const CustomTreeSelect = (props: Props) => {
 
   return (
     <TreeSelect<any>
+      ref={ref}
       treeData={storeByDepartmentTree}
       filterTreeNode={(input: String, option: any) => {
         if (option.value) {
@@ -40,7 +41,7 @@ const CustomTreeSelect = (props: Props) => {
       {...restProps}
     />
   );
-};
+});
 CustomTreeSelect.defaultProps = {
   placeholder: "Chọn",
   showArrow: true,
