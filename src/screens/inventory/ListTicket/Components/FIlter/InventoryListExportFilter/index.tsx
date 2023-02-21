@@ -1,6 +1,6 @@
 import { Button, Col, Form, FormInstance, Input, Row, Tag } from "antd";
 
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import search from "assets/img/search.svg";
 import { AccountResponse, AccountStoreResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
@@ -42,6 +42,7 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
   const [formAdv] = Form.useForm();
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
+  const inputSearchRef = useRef<Input | null>(null);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const filterFromParams = {
@@ -479,6 +480,11 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
     return list;
   }, [initialValues, accounts]);
 
+  useEffect(() => {
+    if (!inputSearchRef) return;
+    inputSearchRef?.current?.focus();
+  }, [inputSearchRef]);
+
   return (
     <InventoryExportFiltersWrapper>
       <div className="custom-filter-export">
@@ -497,6 +503,7 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
             </Item>
             <Item style={{ width: "calc(100% - 880px)" }} name="condition" className="input-search">
               <Input
+                ref={inputSearchRef}
                 className="input-search"
                 prefix={<img src={search} alt="" />}
                 placeholder="Mã phiếu chuyển, mã sản phẩm, tên sản phẩm"
