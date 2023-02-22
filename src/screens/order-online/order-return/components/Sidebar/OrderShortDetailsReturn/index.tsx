@@ -81,6 +81,20 @@ function OrderShortDetailsReturn(props: PropTypes) {
       ),
     },
     {
+      title: "NV marketing",
+      value: (
+        <div className="breakWord">
+          {OrderDetail?.marketer_code ? (
+            <Link to={`${UrlConfig.ACCOUNTS}/${OrderDetail?.marketer_code}`} title="NV marketing">
+              {OrderDetail.marketer_code} - {OrderDetail.marketer}
+            </Link>
+          ) : (
+            "-"
+          )}
+        </div>
+      ),
+    },
+    {
       title: "Ghi chú",
       value: <div className="breakWord">{OrderDetail?.note ? OrderDetail?.note : "-"}</div>,
     },
