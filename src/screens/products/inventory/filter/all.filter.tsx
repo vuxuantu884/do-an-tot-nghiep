@@ -718,6 +718,8 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
               placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
               maxLength={255}
               allowClear
+              autoFocus
+              autoComplete="off"
             />
           </Item>
           <Item name="remain" style={{ minWidth: 250 }}>
