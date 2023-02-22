@@ -243,6 +243,11 @@ export const THIRD_PARTY_LOGISTICS_INTEGRATION = {
     code: "snappy",
     guideUrl: "",
   },
+  ube: {
+    name: "Unicorn BEST Express",
+    code: "ube",
+    guideUrl: "",
+  },
 };
 
 export const DISPLAYED_ORDER_ACTION_LOGS = [
