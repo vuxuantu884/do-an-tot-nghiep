@@ -40,7 +40,7 @@ import useFetchStores from "hook/useFetchStores";
 import { modalActionType } from "model/modal/modal.model";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
-import { SpecialOrderFormValueModel, SpecialOrderModel } from "model/order/special-order.model";
+import { SpecialOrderResponseModel, SpecialOrderModel } from "model/order/special-order.model";
 import { DiscountValueType } from "model/promotion/price-rules.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -174,7 +174,7 @@ export default function Order() {
   const [specialOrderForm] = Form.useForm();
   const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] = useState<boolean>(false);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
-  const [specialOrderValue, setSpecialOrderValue] = useState<SpecialOrderFormValueModel>();
+  const [specialOrderValue, setSpecialOrderValue] = useState<SpecialOrderResponseModel>();
   const [isSpecialOrderEcommerce, setIsSpecialOrderEcommerce] = useState({
     isEcommerce: false,
     isChange: false,
@@ -598,7 +598,8 @@ export default function Order() {
       specialOrderForm
         .validateFields()
         .then((specialOrderFormValue) => {
-          handleCreateOrderWithSpecialOrder(specialOrderFormValue);
+          const strSku = specialOrderFormValue.variant_skus.join(",");
+          handleCreateOrderWithSpecialOrder({ ...specialOrderFormValue, variant_skus: strSku });
         })
         .catch((error) => {
           console.log("error", error);
@@ -1323,26 +1324,20 @@ export default function Order() {
             });
             if (checkIfECommerceByOrderChannelCodeUpdateOrder(channel_code)) {
               setSpecialOrderValue({
+                id: 0,
+                code: "",
                 type: specialOrderTypes.orders_replace.value,
                 order_original_code: response.code,
-                order_carer_code: undefined,
-                skus: undefined,
-                order_return_code: undefined,
-                amount: undefined,
-                reason: undefined,
-                ecommerce: channel_code || undefined,
+                order_carer_code: null,
+                order_carer_name: null,
+                variant_skus: null,
+                order_return_code: null,
+                amount: null,
+                reason: null,
+                ecommerce: channel_code || null,
               });
             } else if (special_order) {
-              setSpecialOrderValue({
-                type: special_order.type || undefined,
-                order_original_code: special_order.order_original_code || undefined,
-                order_carer_code: special_order?.order_carer_code || undefined,
-                skus: special_order?.variant_skus ? [special_order?.variant_skus] : undefined,
-                order_return_code: special_order?.order_return_code || undefined,
-                amount: special_order?.amount || undefined,
-                reason: special_order?.reason || undefined,
-                ecommerce: special_order?.ecommerce || undefined,
-              });
+              setSpecialOrderValue(special_order);
             }
 
             if (customer_id) {
