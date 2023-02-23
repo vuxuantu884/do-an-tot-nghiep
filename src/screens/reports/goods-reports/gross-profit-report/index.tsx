@@ -29,8 +29,16 @@ function GrossProfitReport() {
       setEmptyMessage("Không có kết quả phù hợp với điều kiện lọc");
     }
     const { description } = response;
-    response.data.forEach((item: any, index: number) => {
-      item.no = index + 1;
+    response.data.forEach((item: any) => {
+      const { gross_profit_margin } = item;
+      if (gross_profit_margin >= 55) {
+        item.className = "background-green";
+      } else if (gross_profit_margin >= 45 && gross_profit_margin < 55) {
+        item.className = "background-yellow";
+      } else {
+        item.className = "background-red";
+      }
+      return item;
     });
     const columnsFormatted = Object.keys(description).map((key: string, index: number) => {
       const { name, unit, format } = description[key];
@@ -40,9 +48,12 @@ function GrossProfitReport() {
         key,
         // width: ["gross_profit_margin"].includes(key) ? 110 : 80,
         align: ["gross_profit", "gross_profit_margin"].includes(key) ? "right" : "center",
-        render: (text: number) => {
+        sorter: ["gross_profit", "gross_profit_margin"].includes(key)
+          ? (a: any, b: any) => a[key] - b[key]
+          : null,
+        render: (text: number, row: any) => {
           return format === "number" && unit === "VND" ? (
-            <span>{formatCurrency(text) ?? "-"}</span>
+            <span className={row.className}>{formatCurrency(text) ?? "-"}</span>
           ) : format === "number" && unit === "%" ? (
             <span>
               {text}
