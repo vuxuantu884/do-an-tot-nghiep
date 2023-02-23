@@ -100,12 +100,12 @@ function SpecialOrderCreateForm(props: Props) {
 
   const handleSubmit = (value: SpecialOrderFormValueModel): Promise<SpecialOrderModel> => {
     return new Promise((resolve, reject) => {
-      const variantSkus = value?.skus;
+      const variantSkus = value?.variant_skus;
       if (variantSkus && variantSkus.length > 0) {
-        let { skus, ...resultValue } = value;
+        let { variant_skus, ...resultValue } = value;
         let result: SpecialOrderModel = {
           ...resultValue,
-          variant_skus: value?.skus?.join(","),
+          variant_skus: value?.variant_skus?.join(","),
         };
         resolve(result);
       } else {
@@ -144,7 +144,7 @@ function SpecialOrderCreateForm(props: Props) {
 
   useEffect(() => {
     form.setFieldsValue({
-      skus: initialFormValue.skus,
+      variant_skus: initialFormValue.variant_skus,
     });
   }, [form, initialFormValue]);
 
@@ -310,7 +310,7 @@ function SpecialOrderCreateForm(props: Props) {
             {checkIfDisplayField(specialOrderDisplayField.sanPham) && (
               <Form.Item
                 label="Sản phẩm"
-                name="skus"
+                name="variant_skus"
                 // name={!isOrderCreatePage ? "skus " : "order_create_page_special_order_skus"}
                 rules={[{ required: true, message: "Vui lòng chọn sản phẩm!" }]}
               >

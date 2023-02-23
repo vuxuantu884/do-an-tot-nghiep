@@ -10,7 +10,7 @@ export interface SpecialOrderFormValueModel {
   type: string | undefined;
   order_original_code: string | undefined;
   order_carer_code: string | undefined;
-  skus: string[] | undefined;
+  variant_skus: string[] | undefined;
   order_return_code: string | undefined;
   amount: number | undefined;
   reason: string | undefined;
