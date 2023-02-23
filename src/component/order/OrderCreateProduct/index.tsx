@@ -2836,7 +2836,7 @@ function OrderCreateProduct(props: PropTypes) {
               storeId={storeId}
               items={items}
               handleItems={(items) => {
-                if (!isAutomaticDiscount && !coupon) {
+                if (!isAutomaticDiscount) {
                   calculateChangeMoney(items);
                 } else {
                   let result = items.map((item) => {
