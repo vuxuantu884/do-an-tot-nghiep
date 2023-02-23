@@ -30,12 +30,25 @@ function SellingPowerReport() {
       setLoadingPage(false);
       return;
     }
-    let columnsTmp = sellingPowerReportColumns(conditionFilter.date).filter((item: any) => {
-      return (
-        displayOptions.findIndex((option: any) => option.visible && option.name === item.key) !==
-          -1 || displayOptions.findIndex((option: any) => option.name === item.key) === -1
-      );
+    const response = await fetchSellingPowerList({ ...conditionFilter }, dispatch);
+    if (!response.data.length) {
+      setEmptyMessage("Không có kết quả phù hợp với điều kiện lọc");
+    }
+    const { data, total } = response;
+    data.forEach((item: any, index: number) => {
+      item.no = index + 1;
     });
+
+    setDataSource(response.data);
+    const summary = { ...total, no: "TỔNG", colSpan: 12, className: "font-weight-bold" };
+    let columnsTmp = sellingPowerReportColumns(conditionFilter.date, summary).filter(
+      (item: any) => {
+        return (
+          displayOptions.findIndex((option: any) => option.visible && option.name === item.key) !==
+            -1 || displayOptions.findIndex((option: any) => option.name === item.key) === -1
+        );
+      },
+    );
     const { typeSKU } = conditionFilter;
     switch (typeSKU) {
       case TypeSku.Sku3:
@@ -47,17 +60,8 @@ function SellingPowerReport() {
       default:
         break;
     }
+
     setColumns(columnsTmp);
-    const response = await fetchSellingPowerList({ ...conditionFilter }, dispatch);
-    if (!response.data.length) {
-      setEmptyMessage("Không có kết quả phù hợp với điều kiện lọc");
-    }
-    const { data, total } = response;
-    data.forEach((item: any, index: number) => {
-      item.no = index + 1;
-    });
-    response.data = [{ ...total, no: "TỔNG", colSpan: 12, className: "font-weight-bold" }, ...data];
-    setDataSource(response.data);
     setLoadingPage(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conditionFilter, dispatch]);
