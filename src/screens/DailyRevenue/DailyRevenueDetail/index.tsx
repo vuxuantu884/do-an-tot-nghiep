@@ -12,7 +12,7 @@ import {
   DailyRevenueVisibleCardElementModel,
   ShopRevenueModel,
 } from "model/order/daily-revenue.model";
-import { AnalyticCube, ReportProperty } from "model/report";
+import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -24,35 +24,32 @@ import RevenueShopDetail from "screens/DailyRevenue/components/sidebar/RevenueSh
 import useFetchStoreDetail from "screens/order-online/hooks/useFetchStoreDetail";
 import useGetDailyRevenueOtherPaymentTypes from "screens/order-online/hooks/useGetDailyRevenueOtherPaymentTypes";
 import { dailyRevenueService } from "service/order/daily-revenue.service";
+import { executeAnalyticsQueryService } from "service/report/analytics.service";
 import {
   handleFetchApiError,
   isFetchApiSuccessful,
   scrollAndFocusToDomElement,
 } from "utils/AppUtils";
-import { formatDateTimeOrderFilter, getArrayFromObject } from "utils/OrderUtils";
+import { DATE_FORMAT } from "utils/DateUtils";
+import { getArrayFromObject } from "utils/OrderUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import DailyRevenueProgressBar from "../components/DailyRevenueProgressBar";
 import DailyRevenueTotal from "../components/DailyRevenueTotal";
 import RevenueNote from "../components/sidebar/RevenueNote";
 import RevenueStatus from "../components/sidebar/RevenueStatus";
-import { columnsReport, dailyRevenueStatus, getDataReport, getParamReport } from "../helper";
+import { dailyRevenueStatus, getDataReport, getParamReport } from "../helper";
 import { StyledComponent } from "./styles";
-import { AnalyticQuery } from "model/report/analytics.model";
-import { generateRQuery } from "utils/ReportUtils";
-import { executeAnalyticsQueryService } from "service/report/analytics.service";
-import { DATE_FORMAT } from "utils/DateUtils";
-import moment from "moment";
 
-type PropTypes = {};
-
-type DailyRevenueParam = {
+type DailyRevenueParamModel = {
   id: string;
 };
 
-function DailyRevenueDetail(props: PropTypes) {
-  const { id } = useParams<DailyRevenueParam>();
+function DailyRevenueDetail() {
+  const { id } = useParams<DailyRevenueParamModel>();
 
   const [paymentForm] = Form.useForm();
+
+  const dateFormat = DATE_FORMAT.YYYY_MM_DD;
 
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
@@ -152,16 +149,22 @@ function DailyRevenueDetail(props: PropTypes) {
 
   const fetchDailyRevenueReport = useCallback(() => {
     if (!storeDetail?.name) return;
-
-    const currentDate = moment(dailyRevenueDetail?.created_at).format(DATE_FORMAT.YYYY_MM_DD);
+    const currentDate = moment(dailyRevenueDetail?.created_at).format(dateFormat);
 
     const fullParams = getParamReport(currentDate, storeDetail?.name);
-    executeAnalyticsQueryService(fullParams).then((response: any) => {
-      console.log("executeAnalyticsQueryService", response.result);
-      const result = getDataReport(response.result);
-      setShopRevenueModel(result);
+    return new Promise<void>((resolve, reject) => {
+      executeAnalyticsQueryService(fullParams)
+        .then((response: any) => {
+          console.log("executeAnalyticsQueryService", response.result);
+          const result = getDataReport(response.result);
+          setShopRevenueModel(result);
+          resolve();
+        })
+        .catch(() => {
+          reject();
+        });
     });
-  }, [dailyRevenueDetail?.created_at, storeDetail?.name]);
+  }, [dailyRevenueDetail?.created_at, dateFormat, storeDetail?.name]);
 
   const handleUpdateDailyRevenueDetail = () => {
     if (!id) {
@@ -172,12 +175,13 @@ function DailyRevenueDetail(props: PropTypes) {
       .refresh(+id)
       .then((response) => {
         setDailyRevenueDetail(response);
+        fetchDailyRevenueReport()?.finally(() => {
+          dispatch(hideLoading());
+        });
       })
       .catch((error) => {
         console.log("error", error);
         showError(`Cập nhật chi tiết phiếu tổng kết ca: ${error.response.data.message}`);
-      })
-      .finally(() => {
         dispatch(hideLoading());
       });
   };
