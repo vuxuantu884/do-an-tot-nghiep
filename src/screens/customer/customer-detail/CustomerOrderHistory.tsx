@@ -284,7 +284,25 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
     [renderOrderPaymentMethods, renderOrderReturn, renderOrderTotalPayment],
   );
 
-  const renderOrderReturnPayments = useCallback((record: any) => {
+  const getTotalMoneyRefundOrderReturn = (record: CustomerOrderHistoryResponse) => {
+    let moneyRefund: number = 0;
+    if (record.payments && record.payments.length > 0) {
+      const paymentRefund = record.payments.filter(
+        (p) => p.type === PaymentMethodCode.POINT_REFUND,
+      );
+      moneyRefund =
+        paymentRefund.length > 0
+          ? paymentRefund.map((item) => item.amount).reduce((prev, next) => prev + next)
+          : 0;
+    }
+
+    let totalMoneyRefund = record.total || 0;
+    return totalMoneyRefund > moneyRefund ? totalMoneyRefund - moneyRefund : 0;
+  };
+
+  const renderOrderReturnPayments = useCallback((record: CustomerOrderHistoryResponse) => {
+    let totalMoneyRefund = getTotalMoneyRefundOrderReturn(record);
+
     return (
       <React.Fragment>
         {record.point_refund ? (
@@ -304,18 +322,34 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
           <></>
         )}
 
-        <Tooltip title="Tiền trả khách" placement="topLeft">
-          <div style={{ fontWeight: 500 }}>
-            <img src={IconPaymentReturn} alt="" />
-            <NumberFormat
-              value={record.money_refund || 0}
-              className="foo"
-              displayType={"text"}
-              thousandSeparator={true}
-              style={{ paddingLeft: 5 }}
-            />
-          </div>
-        </Tooltip>
+        {record.money_refund ? (
+          <Tooltip title="Tiền trả khách" placement="topLeft">
+            <div style={{ fontWeight: 500 }}>
+              <img src={IconPaymentReturn} alt="" />
+              <NumberFormat
+                value={record.money_refund || 0}
+                className="foo"
+                displayType={"text"}
+                thousandSeparator={true}
+                style={{ paddingLeft: 5 }}
+              />
+            </div>
+          </Tooltip>
+        ) : totalMoneyRefund > 0 ? (
+          <Tooltip title="Tiền cần hoàn" placement="topLeft">
+            <div style={{ fontWeight: 500, color: "red" }}>
+              Tiền cần hoàn:
+              <br />
+              <NumberFormat
+                value={totalMoneyRefund}
+                className="foo"
+                displayType={"text"}
+                thousandSeparator={true}
+                style={{ paddingLeft: 5 }}
+              />
+            </div>
+          </Tooltip>
+        ) : undefined}
       </React.Fragment>
     );
   }, []);
