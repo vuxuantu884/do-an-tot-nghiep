@@ -56,4 +56,18 @@ export const InventoryBalanceStyle = styled.div`
     color: #389e0d;
     border-radius: 2px;
   }
+
+  .ant-table-sticky-scroll {
+    bottom: 1px !important;
+  }
+
+  .progressBar {
+    position: relative;
+    &-value {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
 `;
