@@ -1,5 +1,6 @@
 import { Button, Card, Form, Input, Select, Table, Tooltip } from "antd";
 import ContentContainer from "component/container/content.container";
+import TreeStore from "component/CustomTreeSelect";
 import UrlConfig from "config/url.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
@@ -12,7 +13,7 @@ import { CustomerVisitorsFilter, LocalStorageKey } from "model/report/customer-v
 import moment from "moment";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TreeStore from "component/CustomTreeSelect";
+import { CustomerVisitorsType } from "screens/reports/common/enums/customer-visitors-type.enum";
 import { getCustomerVisitors, updateCustomerVisitors } from "service/report/analytics.service";
 import { callApiNative } from "utils/ApiUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
@@ -215,6 +216,7 @@ function CustomerVisitors() {
           year: yearQuery,
           storeIds,
           assigneeCodes,
+          source: CustomerVisitorsType.Receptionist,
         },
       );
       if (!customerVisitors) {
@@ -398,7 +400,7 @@ function CustomerVisitors() {
         { isShowError: true },
         dispatch,
         updateCustomerVisitors,
-        params,
+        { ...params, source: CustomerVisitorsType.Receptionist },
       );
       if (response) {
         showSuccess("Cập nhật lượng khách vào cửa hàng thành công");

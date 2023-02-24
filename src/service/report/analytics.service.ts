@@ -13,6 +13,7 @@ import {
   AnalyticTemplateParams,
 } from "model/report/analytics.model";
 import qs from "query-string";
+import { CustomerVisitorsType } from "screens/reports/common/enums/customer-visitors-type.enum";
 import { generateQuery } from "utils/AppUtils";
 import { removeSpacesAndEnterCharacters } from "utils/ReportUtils";
 
@@ -53,11 +54,17 @@ export const executeManyAnalyticsQueryService = (
 };
 
 export const getCustomerVisitors = (
-  params: { month: number; year: number; storeIds?: number[]; assigneeCodes?: any[] },
+  params: {
+    month: number;
+    year: number;
+    storeIds?: number[];
+    assigneeCodes?: any[];
+    source: CustomerVisitorsType;
+  },
   config?: AxiosRequestConfig,
 ): Promise<BaseResponse<any>> => {
-  const { month, year, storeIds, assigneeCodes } = params;
-  let endpoint = `${ApiConfig.CUSTOMER_VISITORS}?month.equals=${month}&year.equals=${year}`;
+  const { month, year, storeIds, assigneeCodes, source } = params;
+  let endpoint = `${ApiConfig.CUSTOMER_VISITORS}?month.equals=${month}&year.equals=${year}&source.in[0]=${source}`;
   let storeParam = "";
   let assigneeCodeParam = "";
   if (storeIds?.length) {
