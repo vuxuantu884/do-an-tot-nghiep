@@ -30,6 +30,7 @@ const PromotionCampaignDetail: React.FC = () => {
 
   const [error, setError] = useState(false);
   const [promotionCampaignDetail, setPromotionCampaignDetail] = useState<PromotionCampaignResponse>();
+  const [promotionCampaignDescriptionList, setPromotionCampaignDescriptionList] = useState<Array<string>>([]);
 
   /** phân quyền */
   const [allowUpdatePromotionCampaign] = useAuthorization({
@@ -50,6 +51,10 @@ const PromotionCampaignDetail: React.FC = () => {
       setError(true);
     } else {
       setPromotionCampaignDetail(response);
+      if (response.description) {
+        const descriptionList = response.description.split('\n');
+        setPromotionCampaignDescriptionList(descriptionList);
+      }
       handleSetContextData(response);
     }
   }, [dispatch, handleSetContextData]);
@@ -68,7 +73,7 @@ const PromotionCampaignDetail: React.FC = () => {
   return (
     <ContentContainer
       isError={error}
-      title={promotionCampaignDetail ? promotionCampaignDetail.name : "Chi tiết chiến dịch khuyến mại"}
+      title={promotionCampaignDetail ? promotionCampaignDetail.name : "Chi tiết chương trình khuyến mại"}
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -78,11 +83,11 @@ const PromotionCampaignDetail: React.FC = () => {
           name: "Khuyến mại",
         },
         {
-          name: "Quản lý chiến dịch",
+          name: "Quản lý chương trình KM",
           path: `${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}`,
         },
         {
-          name: "Chi tiết chiến dịch",
+          name: "Chi tiết chương trình KM",
         },
       ]}
     >
@@ -91,29 +96,33 @@ const PromotionCampaignDetail: React.FC = () => {
           <Card
             title={
               <div style={{ display: "flex", alignItems: "center" }}>
-                <span>THÔNG TIN CHIẾN DỊCH</span>
+                <span>THÔNG TIN CHƯƠNG TRÌNH KHUYẾN MẠI</span>
                 {RenderStatus(promotionCampaignDetail)}
               </div>
             }
           >
             <div>
               <span>
-                <span>Tên chiến dịch khuyến mại</span>
+                <span style={{ fontWeight: "500" }}>Tên chương trình khuyến mại</span>
                 <span style={{ color: "red" }}> *</span>
                 <span> :</span>
               </span>
               <span style={{ marginLeft: "8px" }}>{promotionCampaignDetail.name}</span>
             </div>
             <div style={{ marginTop: "8px" }}>
-              <span>Mô tả chiến dịch:</span>
-              <span style={{ marginLeft: "8px" }}>{promotionCampaignDetail.description}</span>
+              <span style={{ fontWeight: "500" }}>Mô tả chương trình KM:</span>
+              {promotionCampaignDescriptionList?.length > 0 &&
+                promotionCampaignDescriptionList.map((description, index) => {
+                  return <div style={{ marginLeft: "8px" }} key={index}>{description}</div>
+                })
+              }
             </div>
           </Card>
 
           <PromotionSelectedList />
 
           <BottomBarContainer
-            back="Quay lại danh sách chiến dịch"
+            back="Quay lại danh sách chương trình KM"
             backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}`)}
             rightComponent={
               <>

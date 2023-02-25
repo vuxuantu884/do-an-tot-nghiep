@@ -107,7 +107,7 @@ const PromotionCampaignListFilter: React.FC<PromotionCampaignListFilterProps> = 
     if (initialValues.request) {
       list.push({
         key: "request",
-        name: "Chiến dịch",
+        name: "Chương trình KM",
         value: initialValues.request,
       });
     }
@@ -169,7 +169,7 @@ const PromotionCampaignListFilter: React.FC<PromotionCampaignListFilterProps> = 
           <Item name="request" className="search-input">
             <Input
               prefix={<img src={search} alt="" />}
-              placeholder="Tìm kiếm theo mã, tên chiến dịch"
+              placeholder="Tìm kiếm theo mã, tên chương trình KM"
               allowClear
               onBlur={(e) => {
                 form.setFieldsValue({ query: e.target.value?.trim() || "" });

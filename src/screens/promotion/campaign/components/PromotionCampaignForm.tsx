@@ -54,24 +54,24 @@ function PromotionCampaignForm({ form }: Props): ReactElement {
 
   return (
     <div>
-      <Card title="THÔNG TIN CHIẾN DỊCH">
+      <Card title="THÔNG TIN CHƯƠNG TRÌNH KHUYẾN MẠI">
         <Form.Item
           name="name"
-          label="Tên chiến dịch khuyến mại"
+          label="Tên chương trình khuyến mại"
           rules={[
             {
               required: true,
-              message: "Bạn cần bổ sung tên chiến dịch",
+              message: "Bạn cần bổ sung tên chương trình KM",
             },
             {
               max: 255,
-              message: "Tên chiến dịch không được vượt quá 255 ký tự",
+              message: "Tên chương trình KM không được vượt quá 255 ký tự",
             },
           ]}
         >
           <Input
             id="name"
-            placeholder="Nhập tên chiến dịch"
+            placeholder="Nhập tên chương trình KM"
             onPressEnter={onPressEnterNameInput}
             onBlur={onBlurNameInput}
           />
@@ -79,7 +79,7 @@ function PromotionCampaignForm({ form }: Props): ReactElement {
 
         <Form.Item
           name="description"
-          label="Mô tả chiến dịch"
+          label="Mô tả chương trình KM"
           rules={[
             {
               max: 500,
