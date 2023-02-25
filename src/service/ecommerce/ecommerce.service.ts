@@ -61,8 +61,8 @@ const ecommerceUpdateApi = (
   return BaseAxios.put(link, EcommerceConfig);
 };
 
-const ecommerceGetApi = (): Promise<BaseResponse<EcommerceResponse>> => {
-  let link = `${ApiConfig.ECOMMERCE}/shops`;
+const ecommerceGetApi = (params: string = ""): Promise<BaseResponse<EcommerceResponse[]>> => {
+  let link = `${ApiConfig.ECOMMERCE}/shops?${params}`;
   return BaseAxios.get(link);
 };
 
@@ -90,6 +90,12 @@ const ecommerceGetConfigInfoApi = (params: any): Promise<BaseResponse<EcommerceR
 const ecommerceGetVariantsApi = (query: any) => {
   let params = generateQuery(query);
   let link = `${ApiConfig.ECOMMERCE}/variants?${params}`;
+  return BaseAxios.get(link);
+};
+
+const ecommerceGetVariantsV2Api = (query: any) => {
+  let params = generateQuery(query);
+  let link = `${ApiConfig.ECOMMERCE}/variants-v2?${params}`;
   return BaseAxios.get(link);
 };
 
@@ -253,6 +259,18 @@ export const updateProductsPushingApi = (id: string, body: any): Promise<BaseRes
   return BaseAxios.put(requestUrl, body);
 };
 
+//shoppe - get feedbacks
+export const getFeedbacksApi = (params: string): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/product-reviews?${params}`;
+  return BaseAxios.get(requestUrl);
+};
+
+//shoppe - reply feedbacks
+export const replyFeedbacksApi = (body: any): Promise<any> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/product-reviews/reply`;
+  return BaseAxios.post(requestUrl, body);
+};
+
 //get log inventory follow variant
 export const getLogInventoryVariantApi = (variant_id: any) => {
   let link = `${ApiConfig.ECOMMERCE}/variants/sync-stock-logs/${variant_id}`;
@@ -298,6 +316,7 @@ export {
   ecommerceConnectSyncApi,
   ecommerceGetConfigInfoApi,
   ecommerceGetVariantsApi,
+  ecommerceGetVariantsV2Api,
   ecommerceGetShopApi,
   ecommercePostVariantsApi,
   ecommerceDeleteItemApi,
