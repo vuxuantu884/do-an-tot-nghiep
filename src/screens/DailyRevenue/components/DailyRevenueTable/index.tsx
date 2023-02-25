@@ -213,7 +213,7 @@ const DailyRevenueTableComponent: React.FC<Props> = (props: Props) => {
               ) : (
                 <div className="textSmall single mainColor">
                   <strong>NV nộp tiền: </strong>
-                  <span>N/a</span>
+                  <span>-</span>
                 </div>
               )}
               {i.closed_by ? (
@@ -226,7 +226,7 @@ const DailyRevenueTableComponent: React.FC<Props> = (props: Props) => {
               ) : (
                 <div className="textSmall single mainColor">
                   <strong>Kế toán:</strong>
-                  <span> N/a</span>
+                  <span>-</span>
                 </div>
               )}
             </React.Fragment>
