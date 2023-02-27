@@ -191,7 +191,7 @@ function PromotionSelectedList({
   return (
     <PromotionSelectedListStyled>
       <Card
-        title="DANH SÁCH CTKM ÁP DỤNG"
+        title="DANH SÁCH KM ÁP DỤNG"
         extra={isEdit &&
           <Button
             className="ant-btn-outline ant-btn-primary"

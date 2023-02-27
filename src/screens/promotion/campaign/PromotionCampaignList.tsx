@@ -77,7 +77,7 @@ const PromotionCampaignList = () => {
   /** table colums */
   const columns: Array<ICustomTableColumType<any>> = [
     {
-      title: "Mã chiến dịch",
+      title: "Mã chương trình KM",
       align: "center",
       width: "150px",
       render: (item: any) => (
@@ -90,7 +90,7 @@ const PromotionCampaignList = () => {
       ),
     },
     {
-      title: "Tên chiến dịch",
+      title: "Tên chương trình KM",
       dataIndex: "name",
     },
     {
@@ -163,7 +163,7 @@ const PromotionCampaignList = () => {
 
   return (
     <ContentContainer
-      title="Quản lý chiến dịch"
+      title="Quản lý chương trình KM"
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -173,7 +173,7 @@ const PromotionCampaignList = () => {
           name: "Khuyến mại",
         },
         {
-          name: "Quản lý chiến dịch",
+          name: "Quản lý chương trình KM",
           path: `${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}`,
         },
       ]}
@@ -185,7 +185,7 @@ const PromotionCampaignList = () => {
             icon={<PlusOutlined />}
 
           >
-            Tạo mới chiến dịch khuyến mại
+            Tạo mới chương trình khuyến mại
           </Button>
         </Link>
       }

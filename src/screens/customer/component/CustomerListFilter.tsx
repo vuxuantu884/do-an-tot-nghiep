@@ -2186,7 +2186,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
             disabled={isLoading}
             allowClear
             prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-            placeholder="Tên khách hàng, mã khách hàng , số điện thoại, email"
+            placeholder="Tên khách hàng, mã khách hàng, số điện thoại"
           />
         </Form.Item>
 

@@ -80,7 +80,7 @@ const PromotionCampaignUpdate = () => {
   /** handle update promotion campaign */
   const updateCallback = useCallback((data: PromotionCampaignResponse) => {
     if (data) {
-      showSuccess("Cập nhật chiến dịch khuyến mại thành công");
+      showSuccess("Cập nhật chương trình khuyến mại thành công");
       history.push(`${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}/${idNumber}`);
     }
     dispatch(hideLoading());
@@ -116,7 +116,7 @@ const PromotionCampaignUpdate = () => {
   return (
     <ContentContainer
       isError={error}
-      title={promotionCampaignDetail ? promotionCampaignDetail.name : "Cập nhật chiến dịch khuyến mại"}
+      title={promotionCampaignDetail ? promotionCampaignDetail.name : "Cập nhật chương trình khuyến mại"}
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -126,11 +126,11 @@ const PromotionCampaignUpdate = () => {
           name: "Khuyến mại",
         },
         {
-          name: "Quản lý chiến dịch",
+          name: "Quản lý chương trình KM",
           path: `${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}`,
         },
         {
-          name: "Cập nhật chiến dịch",
+          name: "Cập nhật chương trình KM",
           path: `${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}/${idNumber}/update`,
         },
       ]}
@@ -148,7 +148,7 @@ const PromotionCampaignUpdate = () => {
         <PromotionCampaignForm form={form} />
 
         <BottomBarContainer
-          back="Quay lại danh sách chiến dịch"
+          back="Quay lại danh sách chương trình KM"
           backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}`)}
           rightComponent={
             <>
@@ -163,7 +163,7 @@ const PromotionCampaignUpdate = () => {
                 Hủy
               </Button>
               <Button type="primary" onClick={() => form.submit()}>
-                Lưu chiến dịch
+                Lưu chương trình KM
               </Button>
             </>
           }
