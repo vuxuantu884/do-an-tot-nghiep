@@ -1,13 +1,13 @@
 import { ProductPermission } from "config/permissions/product.permission";
 
-export const StockInOutType = {
-  stock_in: "stock_in",
-  stock_out: "stock_out",
-};
+export enum EnumStockInOutType {
+  StockIn = "stock_in",
+  StockOut = "stock_out",
+}
 
-export const StockInOutTypeMapping = {
-  [StockInOutType.stock_in]: "nhập",
-  [StockInOutType.stock_out]: "xuất",
+export const StockInOutTypeMapping: any = {
+  [EnumStockInOutType.StockIn]: "nhập",
+  [EnumStockInOutType.StockOut]: "xuất",
 };
 
 export const StockInOutField = {
@@ -27,6 +27,7 @@ export const StockInOutField = {
   stock_in_out_other_items: "stock_in_out_other_items",
   stock_in_out_other_items_old: "stock_in_out_other_items_old",
   status: "status",
+  variant_search: "variant_search",
 };
 
 export const StockInOutPolicyPriceField = {
@@ -105,19 +106,19 @@ export const StockOutReasonMappingField = {
   [StockOutReasonField.stock_out_other]: "Khác",
 };
 
-export const StockInOutStatus = {
-  finalized: "finalized",
-  cancelled: "cancelled",
-};
+export enum EnumStockInOutStatus {
+  FINALIZED = "finalized",
+  CANCELLED = "cancelled",
+}
 
-export const StockInOutStatusMapping = {
-  [StockInOutStatus.finalized]: "Đã xác nhận",
-  [StockInOutStatus.cancelled]: "Đã hủy",
+export const StockInOutStatusMapping: any = {
+  [EnumStockInOutStatus.FINALIZED]: "Đã xác nhận",
+  [EnumStockInOutStatus.CANCELLED]: "Đã hủy",
 };
 
 export const StockInOutOthersType = [
-  { key: StockInOutType.stock_in, value: "Phiếu nhập" },
-  { key: StockInOutType.stock_out, value: "Phiếu xuất" },
+  { key: EnumStockInOutType.StockIn, value: "Phiếu nhập" },
+  { key: EnumStockInOutType.StockOut, value: "Phiếu xuất" },
 ];
 
 export const StockInOutBaseFilter = {

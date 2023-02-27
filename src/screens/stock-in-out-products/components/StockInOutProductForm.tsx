@@ -21,7 +21,6 @@ import { searchVariantsRequestAction } from "domain/actions/product/products.act
 import { debounce, isEmpty } from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
-// import { POField } from "model/purchase-order/po-field";
 import { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import useKeyboardJs from "react-use/lib/useKeyboardJs";
@@ -40,7 +39,7 @@ import {
   StockInOutPolicyPriceField,
   StockInOutPolicyPriceMapping,
   StockInOutField,
-  StockInOutType,
+  EnumStockInOutType,
 } from "../constant";
 import StockInOutProductUtils from "../util/StockInOutProductUtils";
 import { StockInOutItemsOther } from "model/stock-in-out-other";
@@ -54,6 +53,9 @@ interface IEProductFormProps {
   setTypePrice: (value: string) => void;
   allowReadImportPrice: boolean;
   allowReadCostPrice: boolean;
+  readPricePermissions: string[];
+  variantsResult: Array<VariantResponse>;
+  setVariantsResult: React.Dispatch<React.SetStateAction<Array<VariantResponse>>>;
 }
 const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) => {
   const {
@@ -64,72 +66,40 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
     setTypePrice,
     allowReadImportPrice,
     allowReadCostPrice,
+    variantsResult,
+    setVariantsResult,
   } = props;
   const [loadingSearch, setLoadingSearch] = useState(false);
   const productSearchRef = createRef<CustomAutoComplete>();
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [isPressed] = useKeyboardJs("f3");
-  const [resultSearch, setResultSearch] = useState<Array<VariantResponse>>([]);
-  // const [isSortSku, setIsSortSku] = useState(false);
   const dispatch = useDispatch();
-
-  // const sizeIndex = [
-  //   {
-  //     size: "XS",
-  //     index: 1
-  //   },
-  //   {
-  //     size: "S",
-  //     index: 2
-  //   },
-  //   {
-  //     size: "M",
-  //     index: 3
-  //   },
-  //   {
-  //     size: "L",
-  //     index: 4
-  //   },
-  //   {
-  //     size: "XL",
-  //     index: 5
-  //   },
-  //   {
-  //     size: "2XL",
-  //     index: 6
-  //   },
-  //   {
-  //     size: "3XL",
-  //     index: 7
-  //   },
-  //   {
-  //     size: "4XL",
-  //     index: 8
-  //   }
-  // ]
-
   const renderResult = useMemo(() => {
     let options: any[] = [];
-    resultSearch.forEach((item: VariantResponse) => {
+    variantsResult.forEach((item: VariantResponse) => {
       options.push({
         label: <ProductItem data={item} key={item.id.toString()} />,
         value: item.id.toString(),
       });
     });
     return options;
-  }, [resultSearch]);
+  }, [variantsResult]);
 
-  const onResultSearch = useCallback((result: PageResponse<VariantResponse> | false) => {
-    setLoadingSearch(false);
-    if (!result) {
-      setResultSearch([]);
-    } else {
-      setResultSearch(result.items);
-    }
-  }, []);
+  const onResultSearch = useCallback(
+    (result: PageResponse<VariantResponse> | false) => {
+      setLoadingSearch(false);
+      if (!result) {
+        setVariantsResult([]);
+      } else {
+        setVariantsResult(result.items);
+      }
+    },
+    [setVariantsResult],
+  );
 
   const onSearch = useCallback(
     (value: string) => {
+      const storeId = formMain.getFieldValue(StockInOutField.store_id);
       if (value.trim() !== "") {
         setLoadingSearch(true);
         dispatch(
@@ -139,132 +109,43 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
               limit: 10,
               page: 1,
               info: value.trim(),
+              store_ids: storeId,
             },
             onResultSearch,
           ),
         );
       } else {
-        setResultSearch([]);
+        setVariantsResult([]);
       }
     },
-    [dispatch, onResultSearch],
+    [dispatch, formMain, onResultSearch, setVariantsResult],
   );
 
-  // const swapItem = (a: any, b: any) => {
-  //   let temp = a;
-  //   a = { ...b };
-  //   b = { ...temp };
-  //   return [a, b]
-  // }
-
-  // const sortBySize = (collection: Array<any>) => {
-  //   for (let i = 0; i < collection.length; i++) {
-  //     for (let j = i + 1; j < collection.length; j++) {
-  //       if (isNaN(parseFloat(collection[i].sku_size)) && isNaN(parseFloat(collection[j].sku_size))) {
-  //         let sku_size1 = collection[i].sku_size ? collection[i].sku_size.split('/')[0] : "";
-  //         let sku_size2 = collection[j].sku_size ? collection[j].sku_size.split('/')[0] : "";
-  //         let size1 = sizeIndex.find(item => item.size === sku_size1);
-  //         let size2 = sizeIndex.find(item => item.size === sku_size2);
-  //         if (size1 !== undefined && size2 !== undefined) {
-  //           if (size2.index < size1.index) {
-  //             [collection[i], collection[j]] = swapItem(collection[i], collection[j]);
-  //           }
-  //         }
-  //         else if (size2 === undefined) {
-  //           [collection[i], collection[j]] = swapItem(collection[i], collection[j]);
-  //         }
-  //       }
-  //       else if (!isNaN(parseFloat(collection[i].sku_size)) && isNaN(parseFloat(collection[j].sku_size))) {
-  //         [collection[i], collection[j]] = swapItem(collection[i], collection[j]);
-  //       }
-  //       else if (!isNaN(parseFloat(collection[i].sku_size)) && !isNaN(parseFloat(collection[j].sku_size))) {
-  //         if (parseFloat(collection[i].sku_size) > parseFloat(collection[j].sku_size)) {
-  //           [collection[i], collection[j]] = swapItem(collection[i], collection[j]);
-  //         }
-  //       }
-  //     }
-  //   }
-  //   return collection;
-  // }
-
-  // const groupByProperty = (collection: Array<any>, property: string) => {
-  //   let val, index, values = [], result = [];
-  //   for (let i = 0; i < collection.length; i++) {
-  //     val = collection[i][property];
-  //     index = values.indexOf(val);
-  //     if (index > -1)
-  //       result[index].push(collection[i]);
-  //     else {
-  //       values.push(val);
-  //       result.push([collection[i]]);
-  //     }
-  //   }
-  //   return result;
-  // }
-
-  // const handleSortLineItems = (items: Array<any>) => {
-  //   if (items.length === 0)
-  //     return items;
-  //   let result: Array<any> = [];
-  //   let newItems = items.map((item: any) => {
-  //     let sku = item.sku;
-  //     if (sku) {
-  //       let arrSku = sku.split('-');
-  //       item.sku_sku = arrSku[0] ? arrSku[0] : "";
-  //       item.sku_color = arrSku[1] ? arrSku[1] : "";
-  //       item.sku_size = arrSku[2] ? arrSku[2] : "";
-  //     }
-  //     else {
-  //       item.sku_sku = "";
-  //       item.sku_color = "";
-  //       item.sku_size = "";
-  //     }
-  //     return item;
-  //   })
-  //   newItems.sort((a, b) => (a.sku_sku > b.sku_sku) ? 1 : -1);
-  //   let itemsAfter = groupByProperty(newItems, "sku_sku");
-  //   for (let i = 0; i < itemsAfter.length; i++) {
-  //     let subItem: Array<any> = itemsAfter[i];
-  //     subItem.sort((a, b) => (a.sku_color > b.sku_color) ? 1 : -1)
-  //     let subItemAfter = groupByProperty(subItem, "sku_color");
-  //     let itemsSortSize = [];
-  //     for (let k = 0; k < subItemAfter.length; k++) {
-  //       itemsSortSize.push(sortBySize(subItemAfter[k]));
-  //       itemsAfter[i] = itemsSortSize;
-  //     }
-  //   }
-  //   for (let i = 0; i < itemsAfter.length; i++) {
-  //     for (let j = 0; j < itemsAfter[i].length; j++) {
-  //       for (let k = 0; k < itemsAfter[i][j].length; k++) {
-  //         if (Array.isArray(itemsAfter[i][j][k])) {
-  //           for (let h = 0; h < itemsAfter[i][j][k].length; h++) {
-  //             result.push(itemsAfter[i][j][k][h]);
-  //           }
-  //         }
-  //         else {
-  //           result.push(itemsAfter[i][j][k]);
-  //         }
-  //       }
-  //     }
-  //   }
-  //   return result;
-  // }
-
   const handleSelectProduct = (variantId: string) => {
+    const storeId = formMain.getFieldValue(StockInOutField.store_id);
+    if (!storeId) {
+      showError("Bạn chưa chọn kho hàng");
+      setVariantsResult([]);
+      return;
+    }
     const stockInOutOtherItems: Array<StockInOutItemsOther> =
       formMain.getFieldValue(StockInOutField.stock_in_out_other_items) ?? [];
 
-    const index = resultSearch.findIndex((item) => item.id.toString() === variantId);
+    const index = variantsResult.findIndex((item) => item.id.toString() === variantId);
     if (index !== -1) {
-      if (resultSearch[index].status === "inactive") {
+      if (variantsResult[index].status === "inactive") {
         showError("Sản phẩm đã ngừng hoạt động");
         return;
       }
-      let variants: Array<VariantResponse> = [resultSearch[index]];
-      let newItems: Array<StockInOutItemsOther> = [
+      if (!variantsResult[index].on_hand && inventoryType === EnumStockInOutType.StockOut) {
+        showError("Sản phẩm không đủ tồn kho");
+        return;
+      }
+      const variants: Array<VariantResponse> = [variantsResult[index]];
+      const newItems: Array<StockInOutItemsOther> = [
         ...StockInOutProductUtils.convertVariantToStockInOutItem(variants, typePrice),
       ];
-      let newStockInOutOtherItems = StockInOutProductUtils.addProduct(
+      const newStockInOutOtherItems = StockInOutProductUtils.addProduct(
         stockInOutOtherItems,
         newItems,
         typePrice,
@@ -291,36 +172,10 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
       typePrice,
       "SELECT",
     );
-    // if (isSortSku) {
-    //   newStockInOutOtherItems = handleSortLineItems(newStockInOutOtherItems);
-    // }
     formMain.setFieldsValue({
       stock_in_out_other_items: newStockInOutOtherItems,
     });
-
-    // const oldStockInOutOtherItems = formMain.getFieldValue(StockInOutField.stock_in_out_other_items_old) || [];
-    // if (oldStockInOutOtherItems) {
-    //   const newOldStockInOutItems = StockInOutProductUtils.addProduct(oldStockInOutOtherItems, newItems, typePrice);
-    //   formMain.setFieldsValue({
-    //     stock_in_out_other_items_old: newOldStockInOutItems
-    //   })
-    // }
   };
-
-  // const updateOldStockInOutItem = (StockInOutItem: StockInOutItemsOther) => {
-  //   let oldStockInOutOtherItems: Array<StockInOutItemsOther> = formMain.getFieldValue(
-  //     StockInOutField.stock_in_out_other_items_old
-  //   );
-  //   if (oldStockInOutOtherItems && oldStockInOutOtherItems.length > 0) {
-  //     const index = oldStockInOutOtherItems.findIndex((a) => a.sku === StockInOutItem.sku);
-  //     if (index !== -1) {
-  //       oldStockInOutOtherItems[index] = StockInOutItem;
-  //       formMain.setFieldsValue({
-  //         stock_in_out_other_items_old: oldStockInOutOtherItems,
-  //       })
-  //     }
-  //   }
-  // }
 
   const handleChangeQuantityStockInOutItem = (
     quantity: number,
@@ -338,7 +193,6 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
         quantity,
         typePrice,
       );
-      // updateOldStockInOutItem(stockInOutOtherItems[indexOfItem]);
       formMain.setFieldsValue({
         stock_in_out_other_items: [...stockInOutOtherItems],
       });
@@ -349,22 +203,10 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
     let stockInOutOtherItems: Array<StockInOutItemsOther> = formMain.getFieldValue(
       StockInOutField.stock_in_out_other_items,
     );
-    // const lineItem = stockInOutOtherItems[index];
     stockInOutOtherItems.splice(index, 1);
     formMain.setFieldsValue({
       stock_in_out_other_items: [...stockInOutOtherItems],
     });
-
-    // let oldStockInOutItemsOther: Array<StockInOutItemsOther> = formMain.getFieldValue(StockInOutField.stock_in_out_other_items_old);
-    // if (oldStockInOutItemsOther) {
-    //   const indexOld = oldStockInOutItemsOther.findIndex((a) => a.sku === lineItem.sku);
-    //   if (indexOld !== -1) {
-    //     oldStockInOutItemsOther.splice(indexOld, 1);
-    //     formMain.setFieldsValue({
-    //       stock_in_out_other_items_old: [...oldStockInOutItemsOther]
-    //     });
-    //   }
-    // }
   };
 
   const onSearchProduct = () => {
@@ -394,9 +236,6 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
     formMain.setFieldsValue({
       [StockInOutField.stock_in_out_other_items]: newProcurementItemsOther,
     });
-    // if (isSortSku) {
-    //   formMain.setFieldsValue({ [StockInOutField.stock_in_out_other_items_old]: newProcurementItemsOther })
-    // }
   };
 
   const renderFormatValue = (value: string) => {
@@ -431,7 +270,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
             {({ getFieldValue }) => {
               const policy_price = getFieldValue(StockInOutField.policy_price);
               if (!policy_price) {
-                if (inventoryType === StockInOutType.stock_in) {
+                if (inventoryType === EnumStockInOutType.StockIn) {
                   formMain.setFieldsValue({
                     [StockInOutField.policy_price]: StockInOutPolicyPriceField.import_price,
                   });
@@ -445,7 +284,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
               return (
                 <Space size={20}>
                   <span>Chính sách giá:</span>
-                  {inventoryType === StockInOutType.stock_in ? (
+                  {inventoryType === EnumStockInOutType.StockIn ? (
                     <Form.Item name={[StockInOutField.policy_price]} style={{ margin: "0px" }}>
                       <Select
                         style={{ minWidth: 145, height: 38 }}
@@ -478,38 +317,39 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
       }
     >
       <Form.Item noStyle>
-        <div style={{ marginBottom: 12 }}>
-          <Row gutter={12}>
-            <Col flex="auto">
-              <CustomAutoComplete
-                loading={loadingSearch}
-                id="#product_search"
-                dropdownClassName="product"
-                placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F3)"
-                onSearch={debounce(onSearch, AppConfig.TYPING_TIME_REQUEST)}
-                dropdownMatchSelectWidth={456}
-                style={{ width: "100%" }}
-                showAdd={true}
-                textAdd="+ Thêm mới sản phẩm"
-                onSelect={handleSelectProduct}
-                options={renderResult}
-                ref={productSearchRef}
-                onClickAddNew={() => {
-                  window.open(`${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`, "_blank");
-                }}
-              />
-            </Col>
-            <Col flex="120px">
-              <BaseButton
-                style={{ width: "100%" }}
-                onClick={() => setVisibleManyProduct(true)}
-                icon={<IconAddMultiple width={12} height={12} />}
-              >
-                Chọn nhiều
-              </BaseButton>
-            </Col>
-          </Row>
-        </div>
+        <Input.Group className="multiple-select">
+          <CustomAutoComplete
+            loading={loadingSearch}
+            id="#product_search"
+            dropdownClassName="product"
+            placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F3)"
+            onSearch={debounce(onSearch, AppConfig.TYPING_TIME_REQUEST)}
+            dropdownMatchSelectWidth={456}
+            style={{ width: "100%" }}
+            showAdd={true}
+            textAdd="Thêm mới sản phẩm"
+            onSelect={handleSelectProduct}
+            options={renderResult}
+            ref={productSearchRef}
+            onClickAddNew={() => {
+              window.open(`${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`, "_blank");
+            }}
+          />
+          <BaseButton
+            style={{ marginLeft: 10 }}
+            onClick={() => {
+              const storeID = formMain.getFieldValue(StockInOutField.store_id);
+              if (!storeID) {
+                showError("Bạn chưa chọn kho hàng");
+                return;
+              }
+              setVisibleManyProduct(true);
+            }}
+            icon={<IconAddMultiple width={12} height={12} />}
+          >
+            Chọn nhiều
+          </BaseButton>
+        </Input.Group>
       </Form.Item>
       <Form.Item
         style={{ padding: 0 }}
@@ -544,33 +384,6 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                   </Empty>
                 ),
               }}
-              // sortDirections={["descend", null]}
-              // onChange={(pagination: TablePaginationConfig, filters: any, sorter: any) => {
-              //   if (sorter) {
-              //     if (sorter.order == null) {
-              //       setIsSortSku(false)
-              //       let data: Array<StockInOutItemsOther> = formMain.getFieldValue(
-              //         StockInOutField.stock_in_out_other_items_old
-              //       ) ?? [];
-              //       formMain.setFieldsValue({
-              //         stock_in_out_other_items: [...data],
-              //       });
-              //     }
-              //     else {
-              //       setIsSortSku(true)
-              //       let data: Array<StockInOutItemsOther> = formMain.getFieldValue(
-              //         StockInOutField.stock_in_out_other_items
-              //       ) ?? [];
-              //       formMain.setFieldsValue({
-              //         stock_in_out_other_items_old: [...data],
-              //       });
-              //       data = handleSortLineItems(data);
-              //       formMain.setFieldsValue({
-              //         stock_in_out_other_items: [...data],
-              //       });
-              //     }
-              //   }
-              // }}
               rowKey={(record: StockInOutItemsOther) => record.sku}
               rowClassName="product-table-row"
               columns={[
@@ -582,7 +395,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                 },
                 {
                   title: "Ảnh",
-                  width: "5%",
+                  width: "7%",
                   dataIndex: "variant_image",
                   render: (value) => (
                     <div className="product-item-image">
@@ -592,8 +405,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                 },
                 {
                   title: "Sản phẩm",
-                  width: "35%",
-                  // sorter: true,
+                  width: "30%",
                   className: "ant-col-info",
                   dataIndex: "variant_name",
                   render: (value: string, item: StockInOutItemsOther) => {
@@ -658,15 +470,6 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                     );
                   },
                 },
-                // {
-                //   title: "Chính sách giá",
-                //   align: "center",
-                //   dataIndex: "policy_price",
-                //   width: "15%",
-                //   render: (value, item) => {
-                //     return (StockInOutPolicyPriceMapping[value])
-                //   }
-                // },
                 {
                   title: (
                     <div
@@ -813,6 +616,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
         selected={[]}
         onCancel={() => setVisibleManyProduct(false)}
         visible={visibleManyProduct}
+        storeID={formMain.getFieldValue(StockInOutField.store_id)}
       />
     </Card>
   );

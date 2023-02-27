@@ -12,6 +12,7 @@ import StockInOutProductUtils from "../util/StockInOutProductUtils";
 import EditNote from "screens/order-online/component/edit-note";
 import { primaryColor } from "utils/global-styles/variables";
 import {
+  cancelledMultipleStockInOut,
   getDetailStockInOutOthers,
   printStockInOutOtherDetail,
   updateStockInOutOthers,
@@ -20,8 +21,8 @@ import { StockInOutOther } from "model/stock-in-out-other";
 import {
   StockInOutField,
   StockInOutPolicyPriceMapping,
-  StockInOutStatus,
-  StockInOutType,
+  EnumStockInOutStatus,
+  EnumStockInOutType,
   StockInOutTypeMapping,
   StockInReasonMappingField,
   StockOutReasonMappingField,
@@ -52,7 +53,7 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
   const [stockInOutData, setStockInOutData] = useState<StockInOutOther>();
   const [isError, setIsError] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [visibleDelete, setVisibleDelete] = useState<boolean>(false);
+  const [isVisibleDelete, setIsVisibleDelete] = useState<boolean>(false);
   const [printContent, setPrintContent] = useState<string>("");
   const { id } = useParams<StockInOutParam>();
 
@@ -111,6 +112,22 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
     }
   };
 
+  const cancelStockInOutOther = async () => {
+    if (stockInOutData) {
+      const res = await callApiNative(
+        { isShowError: true },
+        dispatch,
+        cancelledMultipleStockInOut,
+        stockInOutData.id.toString(),
+      );
+      if (res) {
+        showSuccess("Huỷ phiếu thành công");
+        getStockInOutDetail(id);
+      }
+    }
+    setIsVisibleDelete(false);
+  };
+
   const printContentCallback = useCallback((printContent: StockInOutOtherPrint) => {
     if (!printContent) return;
     setPrintContent(printContent.html_content);
@@ -139,7 +156,7 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
 
   return (
     <ContentContainer
-      title={`Phiếu ${stockInOutData?.type === StockInOutType.stock_in ? "nhập" : "xuất"} khác ${
+      title={`Phiếu ${stockInOutData?.type === EnumStockInOutType.StockIn ? "nhập" : "xuất"} khác ${
         stockInOutData?.code
       }`}
       isError={isError}
@@ -166,7 +183,7 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
                 className="ie-detail"
                 title={`THÔNG TIN ${StockInOutTypeMapping[stockInOutData.type].toUpperCase()} KHO`}
                 extra={
-                  stockInOutData.status === StockInOutStatus.finalized ? (
+                  stockInOutData.status === EnumStockInOutStatus.FINALIZED ? (
                     <>
                       <img
                         style={{
@@ -221,7 +238,7 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
                     }:`}</div>
                     <div>
                       <b>
-                        {stockInOutData.type === StockInOutType.stock_in
+                        {stockInOutData.type === EnumStockInOutType.StockIn
                           ? StockInReasonMappingField[stockInOutData.stock_in_out_reason]
                           : StockOutReasonMappingField[stockInOutData.stock_in_out_reason]}
                       </b>
@@ -276,7 +293,7 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
                       width: "35%",
                       className: "ant-col-info",
                       dataIndex: "variant_name",
-                      render: (value: string, item: StockInOutItemsOther, index: number) => {
+                      render: (value: string, item: StockInOutItemsOther) => {
                         return (
                           <div>
                             <div>
@@ -322,7 +339,7 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
                       width: "15%",
                       dataIndex: "quantity",
                       align: "center",
-                      render: (value, item: StockInOutItemsOther, index) => {
+                      render: (value) => {
                         return formatCurrency(value, ".");
                       },
                     },
@@ -347,7 +364,7 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
                       width: "15%",
                       align: "center",
                       dataIndex: stockInOutData.policy_price,
-                      render: (value, item, index) => {
+                      render: (value) => {
                         return (
                           <div>
                             {value ? formatCurrency(Math.round(value || 0), ".") : ""}
@@ -383,7 +400,7 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
                       ),
                       align: "center",
                       width: "20%",
-                      render: (value, item) => (
+                      render: (value) => (
                         <div>{value ? formatCurrency(Math.round(value || 0), ".") : ""}</div>
                       ),
                     },
@@ -491,7 +508,7 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
                         <EditNote
                           isHaveEditPermission={hasPermission}
                           note={stockInOutData.internal_note}
-                          title="Ghi chú nội bộ: "
+                          title="Ghi chú nội bộ"
                           color={primaryColor}
                           onOk={(newNote) => {
                             if (newNote.length > 255) {
@@ -508,7 +525,7 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
                         <EditNote
                           isHaveEditPermission={hasPermission}
                           note={stockInOutData.partner_note}
-                          title="Ghi chú đối tác: "
+                          title="Ghi chú đối tác"
                           color={primaryColor}
                           onOk={(newNote) => {
                             if (newNote.length > 255) {
@@ -536,13 +553,13 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
                 In phiếu
               </Button>
             </AuthWrapper>
-            {stockInOutData && stockInOutData?.status !== StockInOutStatus.cancelled && (
+            {stockInOutData && stockInOutData?.status !== EnumStockInOutStatus.CANCELLED && (
               <AuthWrapper acceptPermissions={[StockInOutOthersPermission.update]}>
                 <Button
                   type="ghost"
                   danger
                   onClick={() => {
-                    setVisibleDelete(true);
+                    setIsVisibleDelete(true);
                   }}
                 >
                   Hủy phiếu
@@ -567,13 +584,9 @@ const ImportExportProcurementOtherDetail: React.FC = () => {
       <Modal
         width={500}
         centered
-        visible={visibleDelete}
-        onCancel={() => setVisibleDelete(false)}
-        onOk={() => {
-          setVisibleDelete(false);
-          if (stockInOutData)
-            updateStockInOutOthersData(StockInOutStatus.cancelled, StockInOutField.status);
-        }}
+        visible={isVisibleDelete}
+        onCancel={() => setIsVisibleDelete(false)}
+        onOk={cancelStockInOutOther}
         cancelText={`Hủy`}
         okText={`Đồng ý`}
       >

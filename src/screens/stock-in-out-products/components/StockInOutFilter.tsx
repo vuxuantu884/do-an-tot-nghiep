@@ -13,7 +13,7 @@ import {
   StockInOutBaseFilter,
   StockInOutBaseFilterMapping,
   StockInOutOthersType,
-  StockInOutStatus,
+  EnumStockInOutStatus,
   StockInOutStatusMapping,
   StockInOutTypeMapping,
   stockInReason,
@@ -519,7 +519,7 @@ const StockInOutFilter: React.FC<StockInOutFilterProps> = (props: StockInOutFilt
                 case StockInOutAdvancedFilter.status:
                   component = (
                     <StockInOutStatusStyle>
-                      {Object.keys(StockInOutStatus).map((item) => (
+                      {Object.keys(EnumStockInOutStatus).map((item) => (
                         <Button
                           key={item}
                           value={item}
