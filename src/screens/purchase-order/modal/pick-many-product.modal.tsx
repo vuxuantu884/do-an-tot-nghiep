@@ -22,6 +22,7 @@ type PickManyProductModalType = {
 };
 
 let initQuery = {
+  status: "active",
   info: "",
   page: 1,
   limit: 10,
@@ -101,7 +102,8 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
 
   useEffect(() => {
     if (props.storeID) {
-      dispatch(inventoryGetVariantByStoreAction(query, onResultSuccess));
+      const newQuery = { ...query, store_ids: props.storeID };
+      dispatch(inventoryGetVariantByStoreAction(newQuery, onResultSuccess));
     } else {
       dispatch(
         searchVariantsRequestAction(
@@ -111,7 +113,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, onResultSuccess, query]);
+  }, [dispatch, onResultSuccess, query, props.storeID]);
 
   useEffect(() => {
     if (props.visible) {
@@ -144,20 +146,27 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
       visible={props.visible}
       cancelText="Thoát"
       footer={[
-        <Button type="default" onClick={() => {
-          setSelection([]);
-          setQuery(initQuery);
-          props.onCancel && props.onCancel();
-        }}>
+        <Button
+          type="default"
+          onClick={() => {
+            setSelection([]);
+            setQuery(initQuery);
+            props.onCancel && props.onCancel();
+          }}
+        >
           Thoát
         </Button>,
-        <Button disabled={selection.length === 0} type="primary" onClick={() => {
-          if (selection.length === 0) return;
-          props.onSave && props.onSave(selection);
-          setSelection([]);
-        }}>
+        <Button
+          disabled={selection.length === 0}
+          type="primary"
+          onClick={() => {
+            if (selection.length === 0) return;
+            props.onSave && props.onSave(selection);
+            setSelection([]);
+          }}
+        >
           Thêm sản phẩm
-        </Button>
+        </Button>,
       ]}
       width={1000}
       onCancel={() => {

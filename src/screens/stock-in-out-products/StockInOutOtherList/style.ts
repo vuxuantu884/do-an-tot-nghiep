@@ -15,7 +15,7 @@ export const StyledComponent = styled.div`
     }
   }
   .page-filter {
-    padding: 0px;
+    padding: 0;
   }
   .warning-confirm {
     word-break: break-word;
@@ -41,5 +41,9 @@ export const StyledComponent = styled.div`
       background: #f5f5f5;
       color: #666666;
     }
+  }
+
+  .ant-table-selection-column {
+    padding: 0 !important;
   }
 `;
