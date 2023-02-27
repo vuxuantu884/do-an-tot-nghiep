@@ -568,9 +568,9 @@ function CustomerVisitors() {
                         </Tooltip>
                       }
                       fixed={
-                        index > 0 && index < columns.length - 1
+                        index > 1 && index < columns.length - 1
                           ? undefined
-                          : index === 0
+                          : index <= 1
                           ? "left"
                           : "right"
                       }
