@@ -360,6 +360,7 @@ const StockInOutFilter: React.FC<StockInOutFilterProps> = (props: StockInOutFilt
                 rules={[{ max: 255, message: "Không thể tìm kiếm quá 255 ký tự" }]}
               >
                 <Input
+                  autoFocus
                   prefix={<img src={search} alt="" />}
                   style={{ minWidth: 350 }}
                   allowClear
