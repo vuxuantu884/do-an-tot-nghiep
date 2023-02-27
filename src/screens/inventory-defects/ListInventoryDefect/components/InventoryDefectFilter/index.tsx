@@ -243,6 +243,7 @@ const InventoryDefectFilter: React.FC<InventoryDefectFilterProps> = (
                     [DefectFilterEnum.condition]: e.target.value.trim(),
                   });
                 }}
+                autoFocus
               />
             </Item>
             <Item name={DefectFilterEnum.store_ids} className="select-item">

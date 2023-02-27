@@ -27,7 +27,7 @@ const ExportModal: React.FC<ExportModalProps> = (props: ExportModalProps) => {
     exportError,
     title,
     moduleText,
-    isHideOptionAll = false
+    isHideOptionAll = false,
   } = props;
   const onCancelClick = useCallback(() => {
     onCancel();
@@ -55,17 +55,17 @@ const ExportModal: React.FC<ExportModalProps> = (props: ExportModalProps) => {
         layout="vertical"
       >
         <Space direction="vertical" style={{ width: "100%" }}>
-          {!isLoading ? (
+          {statusExport === STATUS_IMPORT_EXPORT.NONE ? (
             <>
               <div className="title-address">Giới hạn kết quả xuất</div>
               <Form.Item name="record">
                 <Radio.Group>
                   <Space direction="vertical">
-                    <Radio value={TYPE_EXPORT.page}>Các { moduleText } trên trang này</Radio>
-                    <Radio value={TYPE_EXPORT.selected}>Các { moduleText } được chọn</Radio>
-                    <Radio value={TYPE_EXPORT.all}>Tất cả { moduleText } đủ điều kiện lọc</Radio>
+                    <Radio value={TYPE_EXPORT.page}>Các {moduleText} trên trang này</Radio>
+                    <Radio value={TYPE_EXPORT.selected}>Các {moduleText} được chọn</Radio>
+                    <Radio value={TYPE_EXPORT.all}>Tất cả {moduleText} đủ điều kiện lọc</Radio>
                     {!isHideOptionAll && (
-                      <Radio value={TYPE_EXPORT.allin}>Tất cả { moduleText }</Radio>
+                      <Radio value={TYPE_EXPORT.allin}>Tất cả {moduleText}</Radio>
                     )}
                   </Space>
                 </Radio.Group>

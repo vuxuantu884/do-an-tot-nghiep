@@ -727,7 +727,8 @@ export default function Order(props: PropTypes) {
       specialOrderForm
         .validateFields()
         .then((specialOrderFormValue) => {
-          handleUpdateOrderWithSpecialOrder(specialOrderFormValue);
+          const strSku = specialOrderFormValue.variant_skus.join(",");
+          handleUpdateOrderWithSpecialOrder({ ...specialOrderFormValue, variant_skus: strSku });
         })
         .catch((error) => {
           if (error?.errorFields) {

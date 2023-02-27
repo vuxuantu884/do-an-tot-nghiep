@@ -37,7 +37,7 @@ function PromotionCampaignCreate(): ReactElement {
       dispatch(
         createPromotionCampaignAction(body, (data) => {
           if (data) {
-            showSuccess("Tạo mới chiến dịch khuyến mại thành công");
+            showSuccess("Tạo mới chương trình khuyến mại thành công");
             history.push(`${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}/${data.id}`);
           }
           dispatch(hideLoading());
@@ -63,7 +63,7 @@ function PromotionCampaignCreate(): ReactElement {
 
   return (
     <ContentContainer
-      title="Tạo mới chiến dịch"
+      title="Tạo mới chương trình khuyến mại"
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -73,11 +73,11 @@ function PromotionCampaignCreate(): ReactElement {
           name: "Khuyến mại",
         },
         {
-          name: "Quản lý chiến dịch",
+          name: "Quản lý chương trình KM",
           path: `${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}`,
         },
         {
-          name: "Tạo mới chiến dịch",
+          name: "Tạo mới chương trình khuyến mại",
           path: `${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}/create`,
         },
       ]}
@@ -95,7 +95,7 @@ function PromotionCampaignCreate(): ReactElement {
         <PromotionCampaignForm form={form} />
 
         <BottomBarContainer
-          back="Quay lại danh sách chiến dịch"
+          back="Quay lại danh sách chương trình KM"
           backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}`)}
           rightComponent={
             <>
@@ -110,7 +110,7 @@ function PromotionCampaignCreate(): ReactElement {
                 Hủy
               </Button>
               <Button type="primary" onClick={() => form.submit()}>
-                Lưu chiến dịch
+                Lưu chương trình KM
               </Button>
             </>
           }

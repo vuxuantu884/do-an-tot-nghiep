@@ -6,7 +6,7 @@ import { Select, SelectProps, Spin } from "antd";
 import debounce from "lodash/debounce";
 
 interface Props extends SelectProps<any> {
-  mode: "multiple" | "tags" | undefined;
+  mode?: "multiple" | "tags" | undefined;
   // value: any;
   placeholder: string;
   style?: CSSProperties;
@@ -56,6 +56,7 @@ const DebounceSelect: FC<Props> = ({
       getPopupContainer={(trigger) => trigger.parentNode}
       {...props}
       options={options}
+      onClear={() => setOptions([])}
     />
   );
 }; // Usage of DebounceSelect

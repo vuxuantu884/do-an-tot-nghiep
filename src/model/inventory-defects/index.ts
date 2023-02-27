@@ -128,3 +128,34 @@ export const InventoryDefectFieldsMapping = {
   [InventoryDefectFields.defect]: "Số tồn lỗi",
   [InventoryDefectFields.note]: "Ghi chú",
 };
+
+export const InventoryDefectHistoryFields = {
+  code: "code",
+  sku: "sku",
+  variant_id: "variant_id",
+  variant_name: "variant_name",
+  image_url: "image_url",
+  on_hand: "on_hand",
+  note: "note",
+  defect: "defect",
+  store_id: "store_id",
+  store: "store",
+  name: "name",
+  quantity_adj: "quantity_adj",
+  updated_name: "updated_name",
+  updated_by: "updated_by",
+  updated_date: "updated_date",
+};
+
+export const InventoryDefectHistoryFieldsMapping = {
+  [InventoryDefectHistoryFields.sku]: "Mã sản phẩm",
+  [InventoryDefectHistoryFields.name]: "Tên sản phẩm",
+  [InventoryDefectHistoryFields.store_id]: "ID Cửa hàng",
+  [InventoryDefectHistoryFields.store]: "Cửa hàng",
+  [InventoryDefectHistoryFields.defect]: "Số tồn lỗi",
+  [InventoryDefectHistoryFields.quantity_adj]: "SL thay đổi",
+  [InventoryDefectHistoryFields.updated_by]: "ID người thao tác",
+  [InventoryDefectHistoryFields.updated_name]: "Người thao tác",
+  [InventoryDefectHistoryFields.updated_date]: "Ngày thao tác",
+  [InventoryDefectHistoryFields.note]: "Ghi chú",
+};

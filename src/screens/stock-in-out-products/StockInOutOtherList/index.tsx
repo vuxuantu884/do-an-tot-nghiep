@@ -8,8 +8,8 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { primaryColor } from "utils/global-styles/variables";
 import {
   StockInOutField,
-  StockInOutStatus,
-  StockInOutType,
+  EnumStockInOutStatus,
+  EnumStockInOutType,
   StockInOutTypeMapping,
   StockInReasonField,
   StockInReasonMappingField,
@@ -43,7 +43,7 @@ import * as XLSX from "xlsx";
 import moment from "moment";
 import { InventoryTransferDetailItem } from "../../../model/inventory/transfer";
 import { ExportModal } from "component";
-import { START_PROCESS_PERCENT } from "screens/products/helper";
+import { FINISH_PROCESS_PERCENT, START_PROCESS_PERCENT } from "screens/products/helper";
 import { exportFileV2, getFileV2 } from "service/other/import.inventory.service";
 import { HttpStatus } from "config/http-status.config";
 
@@ -66,7 +66,6 @@ const actionsDefault: Array<MenuAction> = [
 const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
   const { showExportModal, setShowExportModal } = props;
 
-  const [loading, setLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [data, setData] = useState<PageResponse<StockInOutOther>>({
     metadata: {
@@ -101,14 +100,13 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
   const getListStockInOutOther = useCallback(async () => {
     const queryString = generateQuery(paramsUrl);
     const response = await callApiNative(
-      { isShowError: true },
+      { isShowError: true, isShowLoading: true },
       dispatch,
       getStockInOutOtherList,
       queryString,
     );
     if (response) {
       setData(response);
-      setLoading(false);
     }
   }, [dispatch, paramsUrl]);
 
@@ -124,6 +122,10 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
       !value
     ) {
       showError("Không được để trống lý do");
+      return;
+    }
+    if (value.length > 255) {
+      showError("Ghi chú không được quá 255 ký tự");
       return;
     }
     const dataSubmit = { ...item, [StockInOutField.internal_note]: value };
@@ -192,7 +194,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
       {
         title: "Kho hàng",
         dataIndex: "store",
-        align: "center",
+        align: "left",
         width: "10%",
         render: (value) => {
           return <>{value}</>;
@@ -208,7 +210,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
             </div>
           </div>
         ),
-        align: "center",
+        align: "right",
         width: "9%",
         dataIndex: "stock_in_out_other_items",
         visible: true,
@@ -222,7 +224,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
       },
       {
         title: "Thành tiền",
-        align: "center",
+        align: "right",
         width: "10%",
         dataIndex: "stock_in_out_other_items",
         visible: true,
@@ -247,12 +249,12 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
             return "";
           }
           switch (record.status) {
-            case StockInOutStatus.finalized:
+            case EnumStockInOutStatus.FINALIZED:
               icon = stockInOutIconFinalized;
               color = "#27AE60";
               text = `Đã ${StockInOutTypeMapping[record.type]}`;
               break;
-            case StockInOutStatus.cancelled:
+            case EnumStockInOutStatus.CANCELLED:
               icon = stockInOutIconCancelled;
               color = "#E24343";
               text = "Đã hủy";
@@ -267,18 +269,18 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
             </>
           );
         },
-        align: "center",
+        align: "left",
       },
       {
         title: "Lý do",
         dataIndex: "stock_in_out_reason",
-        align: "center",
+        align: "left",
         width: "10%",
         visible: true,
         render: (value: string, record: StockInOutOther) => {
           return (
             <div>
-              {record.type === StockInOutType.stock_in
+              {record.type === EnumStockInOutType.StockIn
                 ? StockInReasonMappingField[value]
                 : StockOutReasonMappingField[value]}
             </div>
@@ -288,7 +290,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
       {
         title: "Người đề xuất",
         dataIndex: "account_code",
-        align: "center",
+        align: "left",
         width: "12%",
         visible: true,
         render: (value: string, record: StockInOutOther) => {
@@ -309,8 +311,9 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
         },
       },
       {
-        title: <div style={{ textAlign: "center" }}>Ghi chú</div>,
+        title: "Ghi chú",
         dataIndex: "internal_note",
+        align: "left",
         visible: true,
         width: "17%",
         render: (value: string, item: StockInOutOther) => {
@@ -384,6 +387,17 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
   const onCancelStockInOut = useCallback(async () => {
     if (selectedRowData.length === 0) {
       showWarning("Bạn chưa chọn phiếu nào");
+      return;
+    }
+    const cancelItems = selectedRowData.filter(
+      (item: StockInOutOther) => item.status === EnumStockInOutStatus.CANCELLED,
+    );
+    if (cancelItems.length > 0) {
+      cancelItems.forEach((el: StockInOutOther) => {
+        setTimeout(() => {
+          showError(`Mã phiếu ${el.code} đã hủy vui lòng chọn lại!`);
+        }, 0);
+      });
       return;
     }
     const ids = selectedRowData.map((item: StockInOutOther) => item.id).join(",");
@@ -479,7 +493,9 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
               dispatch,
               getStockInOutOtherList,
               `page=${index}&limit=${limit}&type=${
-                type === TYPE_EXPORT.allin ? StockInOutType.stock_in : StockInOutType.stock_out
+                type === TYPE_EXPORT.allin
+                  ? EnumStockInOutType.StockIn
+                  : EnumStockInOutType.StockOut
               }`,
             );
             if (res) {
@@ -503,10 +519,10 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
   const convertItemExport = (item: StockInOutOther) => {
     let text = "";
     switch (item.status) {
-      case StockInOutStatus.finalized:
+      case EnumStockInOutStatus.FINALIZED:
         text = `Đã ${StockInOutTypeMapping[item.type]}`;
         break;
-      case StockInOutStatus.cancelled:
+      case EnumStockInOutStatus.CANCELLED:
         text = "Đã hủy";
         break;
     }
@@ -521,7 +537,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
         [`Thành tiền`]: formatCurrency(product[item.policy_price] * product.quantity),
         [`Trạng thái`]: text,
         [`Lý do`]:
-          item.type === StockInOutType.stock_in
+          item.type === EnumStockInOutType.StockIn
             ? StockInReasonMappingField[item.stock_in_out_reason]
             : StockOutReasonMappingField[item.stock_in_out_reason],
         [`Người đề xuất`]: `${item.account_code} - ${item.account_name}`,
@@ -613,7 +629,9 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
   const resetExport = () => {
     setShowExportModal(false);
     setIsLoadingExport(false);
+    setListExportFileDetail([]);
     setExportProgressDetail(START_PROCESS_PERCENT);
+    setStatusExportDetail(STATUS_IMPORT_EXPORT.NONE);
   };
 
   const actionExportNXK = {
@@ -633,17 +651,18 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
         type: "TYPE_EXPORT_STOCK_IN_OUT_OTHERS",
       })
         .then((response) => {
-          console.log(response);
           if (response.code === HttpStatus.SUCCESS) {
             showSuccess("Đã gửi yêu cầu xuất file");
             setStatusExportDetail(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
-            setListExportFileDetail([...listExportFileDetail, response.data.code]);
+            setListExportFileDetail([response.data.code]);
           }
         })
         .catch(() => {
           setStatusExportDetail(STATUS_IMPORT_EXPORT.ERROR);
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
-          resetExport();
+          setIsLoadingExport(false);
+          setListExportFileDetail([]);
+          setExportProgressDetail(START_PROCESS_PERCENT);
         });
     },
     Cancel: () => {
@@ -662,18 +681,17 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
           }
           if (response.data && response.data.status === "FINISH") {
             setStatusExportDetail(STATUS_IMPORT_EXPORT.JOB_FINISH);
-            const fileCode = response.data.code;
-            const newListExportFile = listExportFileDetail.filter((item) => {
-              return item !== fileCode;
-            });
+            setIsLoadingExport(false);
+            setListExportFileDetail([]);
+            setExportProgressDetail(FINISH_PROCESS_PERCENT);
             let downLoad = document.createElement("a");
             downLoad.href = response.data.url;
             downLoad.download = "download";
             downLoad.click();
-            setListExportFileDetail(newListExportFile);
-            resetExport();
           } else if (response.data && response.data.status === "ERROR") {
             setStatusExportDetail(STATUS_IMPORT_EXPORT.ERROR);
+            setIsLoadingExport(false);
+            setListExportFileDetail([]);
             if (response.data.message) {
               showError(response.data.message);
             }
@@ -709,8 +727,6 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
         <div style={{ marginTop: -10 }}>
           <CustomTable
             isRowSelection
-            // selectedRowKey={selected.map(e => e.id)}
-            isLoading={loading}
             dataSource={data.items}
             sticky={{
               offsetScroll: 5,
@@ -718,7 +734,6 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
             }}
             columns={columnFinal}
             rowKey={(item: StockInOutOther) => item.id}
-            // scroll={{ x: 2000 }}
             pagination={{
               pageSize: data.metadata.limit,
               total: data.metadata.total,
@@ -749,8 +764,8 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
             setConfirmCancel(false);
             onCancelStockInOut();
           }}
-          title="Bạn chắc chắn xóa phiếu hàng ?"
-          subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+          title="Bạn chắc chắn hủy phiếu hàng ?"
+          subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị hủy."
           visible={confirmCancel}
         />
         {vExportDetailStockInOut && (
@@ -765,12 +780,13 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
         )}
         <ExportModal
           title="Xuất file danh sách phiếu nhập xuất khác"
-          moduleText="phiếu nhâp xuất"
+          moduleText="phiếu nhập xuất"
           onCancel={actionExportNXK.Cancel}
           onOk={actionExportNXK.Ok}
           isVisible={showExportModal}
           isLoading={isLoadingExport}
           exportProgress={exportProgressDetail}
+          statusExport={statusExportDetail}
         />
       </div>
     </StyledComponent>

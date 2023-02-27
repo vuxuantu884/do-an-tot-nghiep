@@ -1,12 +1,12 @@
 import { Button, Col, Form, Row, Space } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 
 import arrowLeft from "assets/icon/arrow-back.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
-import { useDispatch } from "react-redux";
-import { StockInOutPolicyPriceField, StockInOutType } from "../constant";
+import { useDispatch, useSelector } from "react-redux";
+import { StockInOutPolicyPriceField, EnumStockInOutType, StockInOutField, STATUS_IMPORT_STOCK_IO } from "../constant";
 import StockInOutWareHouseForm from "../components/StockInOutWareHouseForm";
 import { callApiNative } from "utils/ApiUtils";
 import { isEmpty } from "lodash";
@@ -27,6 +27,10 @@ import { ProductPermission } from "config/permissions/product.permission";
 import StockInOutAlertPricePermission from "../components/StockInOutAlertPricePermission";
 import { UploadOutlined } from "@ant-design/icons";
 import useAuthorization from "hook/useAuthorization";
+import { StockInOutCreateContext, StockInOutCreateProvider } from "../provider";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import StockOutOtherCreateWrapper from "./styles";
+import { HttpStatus } from "config/http-status.config";
 
 const StockOutOtherCreate: React.FC = () => {
   const [isRequireNote, setIsRequireNote] = useState<boolean>(false);
@@ -47,30 +51,36 @@ const StockOutOtherCreate: React.FC = () => {
   const [allowReadCostPrice] = useAuthorization({
     acceptPermissions: [ProductPermission.read_cost],
   });
+  const { variantsResult, setVariantsResult, storeID, setStoreID } =
+    useContext(StockInOutCreateContext);
+  const currentPermissions: string[] = useSelector(
+    (state: RootReducerType) => state.permissionReducer.permissions,
+  );
+  const readPricePermissions: string[] = currentPermissions.filter(
+    (el: string) => el === ProductPermission.read_cost || el === ProductPermission.read_import,
+  );
 
   const history = useHistory();
   const dispatch = useDispatch();
 
   const checkImportFile = () => {
-    BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/other-stock-io/import/${fileId}`).then(
-      (res: any) => {
-        if (res.code !== 20000000) {
-          setFileId(null);
-          setIsLoading(false);
-          setDataUploadError(res.errors);
-          return;
-        }
-        setData(res);
-        setDataProcess(res.process);
-
-        const newDataUpdateError =
-          !res.errors || (res.errors && res.errors.length === 0) ? null : res.errors;
-        setDataUploadError(newDataUpdateError);
-        if (res.status !== "FINISH") return;
+    BaseAxios.get(`${ApiConfig.STOCK_IN_OUT}/other-stock-io/import/${fileId}`).then((res: any) => {
+      if (res.code !== HttpStatus.SUCCESS) {
         setFileId(null);
         setIsLoading(false);
-      },
-    );
+        setDataUploadError(res.errors);
+        return;
+      }
+      setData(res);
+      setDataProcess(res.process);
+
+      const newDataUpdateError =
+        !res.errors || (res.errors && res.errors.length === 0) ? null : res.errors;
+      setDataUploadError(newDataUpdateError);
+      if (res.status !== STATUS_IMPORT_STOCK_IO.FINISH) return;
+      setFileId(null);
+      setIsLoading(false);
+    });
   };
 
   useEffect(() => {
@@ -101,14 +111,23 @@ const StockOutOtherCreate: React.FC = () => {
   };
 
   const importFile = () => {
-    if (fileList.length === 0 || !fileUrl) {
-      setIsEmptyFile(true);
+    const storeID = formMain.getFieldValue(StockInOutField.store_id);
+    if (!storeID) {
+      showError("Bạn chưa chọn kho hàng");
       return;
     }
-    setIsEmptyFile(false);
+    if (fileList.length === 0 || !fileUrl) {
+      setIsEmptyFile(true);
+      const element: any = document.getElementById("stock_in_out_file");
+      const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+      window.scrollTo({ top: y, behavior: "smooth" });
+      return;
+    }
 
-    BaseAxios.post(`${ApiConfig.PURCHASE_ORDER}/other-stock-io/import`, {
+    BaseAxios.post(`${ApiConfig.STOCK_IN_OUT}/other-stock-io/import`, {
       url: fileUrl,
+      store_id: formMain.getFieldValue(StockInOutField.store_id),
+      type: EnumStockInOutType.StockOut,
     })
       .then((res: any) => {
         if (res.data) {
@@ -130,6 +149,9 @@ const StockOutOtherCreate: React.FC = () => {
 
   const importProduct = () => {
     setIsStatusModalVisible(false);
+    setFileList([]);
+    setFileUrl("");
+    setFileId(null);
     if (!data) return;
     let newData = JSON.parse(data.data).map((i: any) => {
       let amount: any = i[typePrice] * i.quantity;
@@ -163,6 +185,13 @@ const StockOutOtherCreate: React.FC = () => {
     });
   };
 
+  const submitFailed = ({ errorFields }: any) => {
+    const element: any = document.getElementById(errorFields[0].name.join("_"));
+    element?.focus();
+    const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+    window.scrollTo({ top: y, behavior: "smooth" });
+  };
+
   return (
     <ContentContainer
       title="Nhập xuất khác"
@@ -180,72 +209,80 @@ const StockOutOtherCreate: React.FC = () => {
         },
       ]}
     >
-      <Form form={formMain} onFinish={onFinish}>
-        <Row gutter={24} style={{ paddingBottom: 30 }}>
-          <Col span={18}>
-            <StockInOutWareHouseForm
-              title="THÔNG TIN XUẤT KHO"
-              setFileUrl={(value) => setFileUrl(value)}
-              setIsEmptyFile={(value) => setIsEmptyFile(value)}
-              isEmptyFile={isEmptyFile}
-              fileList={fileList}
-              setFileList={(files) => setFileList(files)}
-              formMain={formMain}
-              stockInOutType={StockInOutType.stock_out}
-              setIsRequireNote={setIsRequireNote}
-            />
-            {(!allowReadImportPrice || !allowReadCostPrice) && (
-              <StockInOutAlertPricePermission
+      <StockOutOtherCreateWrapper>
+        <Form form={formMain} onFinish={onFinish} onFinishFailed={submitFailed}>
+          <Row gutter={24} style={{ paddingBottom: 30 }}>
+            <Col span={18}>
+              <StockInOutWareHouseForm
+                title="THÔNG TIN XUẤT KHO"
+                setFileUrl={(value) => setFileUrl(value)}
+                setIsEmptyFile={(value) => setIsEmptyFile(value)}
+                isEmptyFile={isEmptyFile}
+                fileList={fileList}
+                setFileList={(files) => setFileList(files)}
+                formMain={formMain}
+                stockInOutType={EnumStockInOutType.StockOut}
+                setIsRequireNote={setIsRequireNote}
+                setVariantsResult={setVariantsResult}
+                storeID={storeID}
+                setStoreID={setStoreID}
+              />
+              {(!allowReadImportPrice || !allowReadCostPrice) && (
+                <StockInOutAlertPricePermission
+                  allowReadImportPrice={allowReadImportPrice}
+                  allowReadCostPrice={allowReadCostPrice}
+                />
+              )}
+              <StockInOutProductForm
+                title="SẢN PHẨM XUẤT"
+                formMain={formMain}
+                typePrice={typePrice}
+                setTypePrice={(value) => setTypePrice(value)}
                 allowReadImportPrice={allowReadImportPrice}
                 allowReadCostPrice={allowReadCostPrice}
+                inventoryType={EnumStockInOutType.StockOut}
+                readPricePermissions={readPricePermissions}
+                variantsResult={variantsResult}
+                setVariantsResult={setVariantsResult}
               />
-            )}
-            <StockInOutProductForm
-              title="SẢN PHẨM XUẤT"
-              formMain={formMain}
-              typePrice={typePrice}
-              setTypePrice={(value) => setTypePrice(value)}
-              inventoryType={StockInOutType.stock_out}
-              allowReadImportPrice={allowReadImportPrice}
-              allowReadCostPrice={allowReadCostPrice}
-            />
-          </Col>
-          <Col span={6}>
-            <StockInOutInfoForm
-              title="THÔNG TIN PHIẾU XUẤT"
-              formMain={formMain}
-              isRequireNote={isRequireNote}
-              stockInOutType={StockInOutType.stock_out}
-            />
-          </Col>
-        </Row>
+            </Col>
+            <Col span={6}>
+              <StockInOutInfoForm
+                title="THÔNG TIN PHIẾU XUẤT"
+                formMain={formMain}
+                isRequireNote={isRequireNote}
+                stockInOutType={EnumStockInOutType.StockOut}
+              />
+            </Col>
+          </Row>
 
-        <BottomBarContainer
-          leftComponent={
-            <div
-              onClick={() => {
-                history.push(`${UrlConfig.STOCK_IN_OUT_OTHERS}`);
-                return;
-                // }
-              }}
-              style={{ cursor: "pointer" }}
-            >
-              <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
-              {"Quay lại danh sách"}
-            </div>
-          }
-          rightComponent={
-            <Space>
-              <Button onClick={() => importFile()} icon={<UploadOutlined />}>
-                Nhập file
-              </Button>
-              <Button type="primary" onClick={() => formMain.submit()}>
-                Xuất kho
-              </Button>
-            </Space>
-          }
-        />
-      </Form>
+          <BottomBarContainer
+            leftComponent={
+              <div
+                onClick={() => {
+                  history.push(`${UrlConfig.STOCK_IN_OUT_OTHERS}`);
+                  return;
+                  // }
+                }}
+                style={{ cursor: "pointer" }}
+              >
+                <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
+                {"Quay lại danh sách"}
+              </div>
+            }
+            rightComponent={
+              <Space>
+                <Button onClick={() => importFile()} icon={<UploadOutlined />}>
+                  Nhập file
+                </Button>
+                <Button type="primary" onClick={() => formMain.submit()}>
+                  Xuất kho
+                </Button>
+              </Space>
+            }
+          />
+        </Form>
+      </StockOutOtherCreateWrapper>
 
       {isStatusModalVisible && (
         <ModalImport
@@ -264,4 +301,10 @@ const StockOutOtherCreate: React.FC = () => {
   );
 };
 
-export default StockOutOtherCreate;
+const StockOutCreateWithProvider = (props: any) => (
+  <StockInOutCreateProvider>
+    <StockOutOtherCreate {...props} />
+  </StockInOutCreateProvider>
+);
+
+export default StockOutCreateWithProvider;

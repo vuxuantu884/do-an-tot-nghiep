@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { ShopRevenueModel } from "model/order/daily-revenue.model";
 import { PagingParam, ResultPaging } from "model/paging";
-import { AnalyticConditions } from "model/report";
+import { AnalyticConditions, AnalyticQuery, AnalyticResult } from "model/report";
 import { DailyRevenueTableModel } from "model/revenue";
 import { formatCurrency } from "utils/AppUtils";
 import { flatDataPaging } from "utils/Paging";
@@ -119,7 +119,7 @@ export const getAnalyticConditions = (where: any) => {
 export const getParamReport = (currentDate: string, currentStore: string) => {
   const conditions = getAnalyticConditions({ pos_location_name: [currentStore] });
 
-  const params: any = {
+  const params: AnalyticQuery = {
     columns: [
       {
         field: columnsReport.cashPayments,
@@ -154,7 +154,7 @@ export const getParamReport = (currentDate: string, currentStore: string) => {
     order_by: [["total_sales", "DESC"]],
   };
 
-  const query: any = generateRQuery(params);
+  const query = generateRQuery(params);
 
   return {
     q: query,
@@ -162,7 +162,7 @@ export const getParamReport = (currentDate: string, currentStore: string) => {
   };
 };
 
-export const getDataReport = (v: any) => {
+export const getDataReport = (v: AnalyticResult) => {
   let result: ShopRevenueModel = {
     cash_payments: 0,
     vnpay_payments: 0,
@@ -174,37 +174,35 @@ export const getDataReport = (v: any) => {
     total_revenue: 0,
   };
 
-  const indexCashPayments = v.columns.findIndex((p: any) => p.field === columnsReport.cashPayments);
+  const cashPaymentsIndex = v.columns.findIndex((p) => p.field === columnsReport.cashPayments);
 
-  const indexVnpayPayments = v.columns.findIndex(
-    (p: any) => p.field === columnsReport.vnpayPayments,
+  const vnpayPaymentsIndex = v.columns.findIndex((p) => p.field === columnsReport.vnpayPayments);
+
+  const momoPaymentsIndex = v.columns.findIndex((p) => p.field === columnsReport.momoPayments);
+
+  const transferPaymentsIndex = v.columns.findIndex(
+    (p) => p.field === columnsReport.transferPayments,
   );
 
-  const indexMomoPayments = v.columns.findIndex((p: any) => p.field === columnsReport.momoPayments);
+  const cardPaymentsIndex = v.columns.findIndex((p) => p.field === columnsReport.cardPayments);
 
-  const indexTransferPayments = v.columns.findIndex(
-    (p: any) => p.field === columnsReport.transferPayments,
+  const unknownPaymentsIndex = v.columns.findIndex(
+    (p) => p.field === columnsReport.unknownPayments,
   );
 
-  const indexCardPayments = v.columns.findIndex((p: any) => p.field === columnsReport.cardPayments);
-
-  const indexUnknownPayments = v.columns.findIndex(
-    (p: any) => p.field === columnsReport.unknownPayments,
-  );
-
-  const indexVcbPayments = v.columns.findIndex((p: any) => p.field === columnsReport.vcbPayments);
-  const indexTotalRevenue = v.columns.findIndex((p: any) => p.field === columnsReport.total_sales);
+  const vcbPaymentsIndex = v.columns.findIndex((p) => p.field === columnsReport.vcbPayments);
+  const totalRevenueIndex = v.columns.findIndex((p) => p.field === columnsReport.total_sales);
 
   if (v.data && v.data.length !== 0) {
     result = {
-      cash_payments: v.data[0][indexCashPayments] || 0,
-      vnpay_payments: v.data[0][indexVnpayPayments] || 0,
-      momo_payments: v.data[0][indexMomoPayments] || 0,
-      transfer_payments: v.data[0][indexTransferPayments] || 0,
-      card_payments: v.data[0][indexCardPayments] || 0,
-      unknown_payments: v.data[0][indexUnknownPayments] || 0,
-      vcb_payments: v.data[0][indexVcbPayments] || 0,
-      total_revenue: v.data[0][indexTotalRevenue] || 0,
+      cash_payments: v.data[0][cashPaymentsIndex] || 0,
+      vnpay_payments: v.data[0][vnpayPaymentsIndex] || 0,
+      momo_payments: v.data[0][momoPaymentsIndex] || 0,
+      transfer_payments: v.data[0][transferPaymentsIndex] || 0,
+      card_payments: v.data[0][cardPaymentsIndex] || 0,
+      unknown_payments: v.data[0][unknownPaymentsIndex] || 0,
+      vcb_payments: v.data[0][vcbPaymentsIndex] || 0,
+      total_revenue: v.data[0][totalRevenueIndex] || 0,
     };
   }
 

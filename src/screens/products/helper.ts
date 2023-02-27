@@ -100,6 +100,10 @@ const DOCUMENT_TYPES = [
     name: "Kiểm kho",
     value: "inventory_adjustment",
   },
+  {
+    name: "Nhập xuất khác",
+    value: "other_stock_io",
+  },
 ];
 
 const PRODUCT_ACTION_TYPES = [

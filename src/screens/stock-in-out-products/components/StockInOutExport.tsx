@@ -48,7 +48,7 @@ const StockInOutExport: React.FC<ExportModalProps> = (props: ExportModalProps) =
                   <Space direction="vertical">
                     <Radio value={TYPE_EXPORT.page}>Các phiếu trên trang này</Radio>
                     <Radio value={TYPE_EXPORT.selected}>Các phiếu được chọn</Radio>
-                    <Radio value={TYPE_EXPORT.all}>Tất cả phiếu chuyển theo điều kiện lọc</Radio>
+                    <Radio value={TYPE_EXPORT.all}>Tất cả phiếu theo điều kiện lọc</Radio>
                     <Radio value={TYPE_EXPORT.allin}>Tất cả phiếu nhập khác</Radio>
                     <Radio value={TYPE_EXPORT.all_out}>Tất cả phiếu xuất khác</Radio>
                   </Space>

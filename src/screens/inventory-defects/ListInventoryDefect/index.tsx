@@ -19,6 +19,7 @@ const InventoryDefects: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<string>(UrlConfig.INVENTORY_DEFECTS);
   const [isExportDefects, setIsExportDefects] = useState(false);
+  const [isExportHistoryDefects, setIsExportHistoryDefects] = useState(false);
 
   useEffect(() => {
     if (Object.values(UrlConfig).includes(path)) {
@@ -27,11 +28,16 @@ const InventoryDefects: React.FC = () => {
       setActiveTab(UrlConfig.INVENTORY_DEFECTS);
     }
     setIsExportDefects(false);
+    setIsExportHistoryDefects(false);
   }, [path]);
 
   const handleSetExportDefects = () => {
     if (UrlConfig.INVENTORY_DEFECTS === path) {
+      setIsExportHistoryDefects(false);
       setIsExportDefects(true);
+    } else {
+      setIsExportHistoryDefects(true);
+      setIsExportDefects(false);
     }
   };
 
@@ -81,7 +87,10 @@ const InventoryDefects: React.FC = () => {
             tab={<Link to={UrlConfig.INVENTORY_DEFECTS_HISTORY}>Lịch sử hàng lỗi</Link>}
             key={UrlConfig.INVENTORY_DEFECTS_HISTORY}
           >
-            <ListInventoryDefectHistory />
+            <ListInventoryDefectHistory
+              isExportHistoryDefects={isExportHistoryDefects}
+              setIsExportHistoryDefects={setIsExportHistoryDefects}
+            />
           </TabPane>
         </Tabs>
       </Card>
