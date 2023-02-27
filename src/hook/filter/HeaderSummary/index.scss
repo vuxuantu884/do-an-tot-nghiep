@@ -1,13 +1,15 @@
 .header-custom {
-  display: "inline-flex" !important;
+  display: inline-flex !important;
+  align-items: center !important;
 }
 .icon-action-sort {
   color: brown !important;
 }
 
 .block-sort {
-  display: "grid";
-  margin: auto 4px;
+  display: flex;
+  flex-direction: column;
+  margin-left: auto;
 }
 .field-active {
   color: #2a2a86 !important;

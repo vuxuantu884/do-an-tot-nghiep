@@ -541,16 +541,6 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
     [formBaseFilter, formAdvanceFilter],
   );
 
-  const customWidth = () => {
-    if (window.innerWidth >= 1600) {
-      return 1400;
-    } else if (window.innerWidth < 1600 && window.innerWidth >= 1200) {
-      return 1000;
-    } else {
-      return 800;
-    }
-  };
-
   const onSelectFilterConfig = useCallback(
     (index: number, id: number) => {
       setTagActive(index);
@@ -782,7 +772,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visible}
-        width={customWidth()}
+        width={700}
         className="order-filter-drawer"
         allowSave={true}
         onSaveFilter={onShowSaveFilter}
