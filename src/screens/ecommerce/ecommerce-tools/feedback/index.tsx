@@ -279,7 +279,7 @@ const FeedbacksScreen: React.FC = (props: any) => {
         key: "image",
         visible: true,
         render: (record: any) => {
-          return <img src={record.image} style={{ height: "80px" }} alt="" />;
+          return <img src={record.image} style={{ width: "80px" }} alt="" />;
         },
         fixed: "left",
         width: 100,
