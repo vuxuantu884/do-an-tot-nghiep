@@ -437,7 +437,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                         padding: "7px 14px",
                       }}
                     >
-                      <span>Số Lượng</span>
+                      <div>Số Lượng</div>
                       <span
                         style={{
                           color: "#2A2A86",
@@ -454,7 +454,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                       </span>
                     </div>
                   ),
-                  width: "15%",
+                  width: "20%",
                   dataIndex: "quantity",
                   render: (value, item: StockInOutItemsOther) => {
                     return (
