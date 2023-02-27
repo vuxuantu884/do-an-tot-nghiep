@@ -25,10 +25,12 @@ export const HeaderSummary = (
         style={{
           display: "inline-flex",
           wordBreak: "initial",
+          alignItems: "center",
+          width: "100%",
           ...{ lineHeight: total ? 1 : "unset" },
         }}
       >
-        {header}{" "}
+        <div style={{ flex: "1 1 auto" }}>{header}{" "}</div>
         <div className="block-sort">
           <CaretUpOutlined
             className={sortType === "asc" && active ? "field-active" : ""}
