@@ -194,7 +194,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
       {
         title: "Kho hàng",
         dataIndex: "store",
-        align: "center",
+        align: "left",
         width: "10%",
         render: (value) => {
           return <>{value}</>;
@@ -210,7 +210,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
             </div>
           </div>
         ),
-        align: "center",
+        align: "right",
         width: "9%",
         dataIndex: "stock_in_out_other_items",
         visible: true,
@@ -224,7 +224,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
       },
       {
         title: "Thành tiền",
-        align: "center",
+        align: "right",
         width: "10%",
         dataIndex: "stock_in_out_other_items",
         visible: true,
@@ -269,12 +269,12 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
             </>
           );
         },
-        align: "center",
+        align: "left",
       },
       {
         title: "Lý do",
         dataIndex: "stock_in_out_reason",
-        align: "center",
+        align: "left",
         width: "10%",
         visible: true,
         render: (value: string, record: StockInOutOther) => {
@@ -290,7 +290,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
       {
         title: "Người đề xuất",
         dataIndex: "account_code",
-        align: "center",
+        align: "left",
         width: "12%",
         visible: true,
         render: (value: string, record: StockInOutOther) => {
@@ -311,8 +311,9 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
         },
       },
       {
-        title: <div style={{ textAlign: "center" }}>Ghi chú</div>,
+        title: "Ghi chú",
         dataIndex: "internal_note",
+        align: "left",
         visible: true,
         width: "17%",
         render: (value: string, item: StockInOutOther) => {

@@ -5,6 +5,10 @@ export enum EnumStockInOutType {
   StockOut = "stock_out",
 }
 
+export enum EnumStockInOutInactiveStatus {
+  INACTIVE = "inactive"
+}
+
 export const StockInOutTypeMapping: any = {
   [EnumStockInOutType.StockIn]: "nhập",
   [EnumStockInOutType.StockOut]: "xuất",
@@ -158,4 +162,8 @@ export const StockInOutAdvancedFilterMapping = {
 export const PricePermissionMapping = {
   [ProductPermission.read_cost]: "giá vốn",
   [ProductPermission.read_import]: "giá nhập",
+};
+
+export const STATUS_IMPORT_STOCK_IO = {
+  FINISH: "FINISH"
 };

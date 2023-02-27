@@ -6,7 +6,7 @@ import React, { useEffect, useState, useContext } from "react";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { useDispatch, useSelector } from "react-redux";
-import { StockInOutPolicyPriceField, EnumStockInOutType, StockInOutField } from "../constant";
+import { StockInOutPolicyPriceField, EnumStockInOutType, StockInOutField, STATUS_IMPORT_STOCK_IO } from "../constant";
 import StockInOutWareHouseForm from "../components/StockInOutWareHouseForm";
 import { callApiNative } from "utils/ApiUtils";
 import { isEmpty } from "lodash";
@@ -77,7 +77,7 @@ const StockOutOtherCreate: React.FC = () => {
       const newDataUpdateError =
         !res.errors || (res.errors && res.errors.length === 0) ? null : res.errors;
       setDataUploadError(newDataUpdateError);
-      if (res.status !== "FINISH") return;
+      if (res.status !== STATUS_IMPORT_STOCK_IO.FINISH) return;
       setFileId(null);
       setIsLoading(false);
     });

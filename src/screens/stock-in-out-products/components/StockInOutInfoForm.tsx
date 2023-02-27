@@ -116,8 +116,8 @@ const InfoForm: React.FC<InfoFormProps> = (props: InfoFormProps) => {
               label="Địa chỉ"
               rules={[
                 {
-                  max: 500,
-                  message: "Không được nhập quá 500 ký tự",
+                  max: 255,
+                  message: "Không được nhập quá 255 ký tự",
                 },
               ]}
             >

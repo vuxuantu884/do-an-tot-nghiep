@@ -40,6 +40,7 @@ import {
   StockInOutPolicyPriceMapping,
   StockInOutField,
   EnumStockInOutType,
+  EnumStockInOutInactiveStatus,
 } from "../constant";
 import StockInOutProductUtils from "../util/StockInOutProductUtils";
 import { StockInOutItemsOther } from "model/stock-in-out-other";
@@ -133,7 +134,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
 
     const index = variantsResult.findIndex((item) => item.id.toString() === variantId);
     if (index !== -1) {
-      if (variantsResult[index].status === "inactive") {
+      if (variantsResult[index].status === EnumStockInOutInactiveStatus.INACTIVE) {
         showError("Sản phẩm đã ngừng hoạt động");
         return;
       }
