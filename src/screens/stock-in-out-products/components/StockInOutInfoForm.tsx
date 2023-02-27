@@ -109,7 +109,7 @@ const InfoForm: React.FC<InfoFormProps> = (props: InfoFormProps) => {
             <Form.Item
               className="ie-form-label"
               tooltip={{
-                title: "Địa chỉ không quá 500 ký tự",
+                title: "Địa chỉ không quá 255 ký tự",
                 icon: <InfoCircleOutlined />,
               }}
               name={[StockInOutField.partner_address]}
