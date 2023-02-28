@@ -519,7 +519,7 @@ export default function Order() {
   }, [totalOrderAmount, totalAmountPayment]);
 
   const handleCreateOrder = async (values: OrderRequest) => {
-    // console.log("values", values);
+    console.log("handleCreateOrder", values);
     const createOrder = async (createSpecialOrder?: (orderId: number) => Promise<void>) => {
       isUserCanCreateOrder.current = true;
       //return;
@@ -598,7 +598,11 @@ export default function Order() {
       specialOrderForm
         .validateFields()
         .then((specialOrderFormValue) => {
-          const strSku = specialOrderFormValue.variant_skus.join(",");
+          const strSku =
+            specialOrderFormValue.variant_skus && Array.isArray(specialOrderFormValue.variant_skus)
+              ? specialOrderFormValue.variant_skus.join(",")
+              : undefined;
+
           handleCreateOrderWithSpecialOrder({ ...specialOrderFormValue, variant_skus: strSku });
         })
         .catch((error) => {

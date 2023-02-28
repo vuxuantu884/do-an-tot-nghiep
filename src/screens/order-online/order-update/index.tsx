@@ -405,15 +405,15 @@ export default function Order(props: PropTypes) {
       };
     });
 
-    const fulfillmentActive= getFulfillmentActive(fulfillmentsUpdateItem);
-    
-    if(isFulfillmentConfirmed(fulfillmentActive)){
-      const ffmIndex= fulfillmentsUpdateItem.findIndex((p)=>p.id === fulfillmentActive?.id);
-      fulfillmentsUpdateItem[ffmIndex].stock_location_id=storeId;
-      let _shipment=fulfillmentsUpdateItem[ffmIndex].shipment;
-      if(_shipment){
-        _shipment.sender_address_id=storeId;
-        fulfillmentsUpdateItem[ffmIndex].shipment=_shipment;
+    const fulfillmentActive = getFulfillmentActive(fulfillmentsUpdateItem);
+
+    if (isFulfillmentConfirmed(fulfillmentActive)) {
+      const ffmIndex = fulfillmentsUpdateItem.findIndex((p) => p.id === fulfillmentActive?.id);
+      fulfillmentsUpdateItem[ffmIndex].stock_location_id = storeId;
+      let _shipment = fulfillmentsUpdateItem[ffmIndex].shipment;
+      if (_shipment) {
+        _shipment.sender_address_id = storeId;
+        fulfillmentsUpdateItem[ffmIndex].shipment = _shipment;
       }
     }
 
@@ -727,7 +727,10 @@ export default function Order(props: PropTypes) {
       specialOrderForm
         .validateFields()
         .then((specialOrderFormValue) => {
-          const strSku = specialOrderFormValue.variant_skus.join(",");
+          const strSku =
+            specialOrderFormValue.variant_skus && Array.isArray(specialOrderFormValue.variant_skus)
+              ? specialOrderFormValue.variant_skus.join(",")
+              : undefined;
           handleUpdateOrderWithSpecialOrder({ ...specialOrderFormValue, variant_skus: strSku });
         })
         .catch((error) => {
