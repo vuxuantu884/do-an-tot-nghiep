@@ -34,8 +34,6 @@ export default function DataDog() {
 
     datadogRum.setUser({
       id: account.code,
-      name: account.full_name,
-      phone: account.phone,
     });
   }
   return null;
