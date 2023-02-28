@@ -379,7 +379,9 @@ function Analytics() {
           rightComponent={
             <>
               <Button type="primary">
-                <Link to={`${matchPath}/customer-visitors`}>Nhập số lượng khách vào cửa hàng</Link>
+                <Link to={`${matchPath}/customer-visitors`}>
+                  Nhập số lượng khách hàng đã tư vấn
+                </Link>
               </Button>
             </>
           }

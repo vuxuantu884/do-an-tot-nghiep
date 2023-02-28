@@ -64,7 +64,7 @@ const reports: Array<RouteMenu> = [
       {
         path: `${UrlConfig.ANALYTIC_SALES_OFFLINE}/customer-visitors`,
         exact: true,
-        title: "Nhập số lượng khách vào cửa hàng",
+        title: "Nhập số lượng khách hàng đã tư vấn",
         icon: "icon-dot",
         component: CustomerVisitors,
         key: "submenureport03",
