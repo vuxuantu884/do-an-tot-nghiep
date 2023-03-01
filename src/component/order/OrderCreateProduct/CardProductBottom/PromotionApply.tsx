@@ -6,13 +6,14 @@ import { StyledComponent } from "./styles";
 import couponOrderIcon from "assets/icon/coupon-order.svg";
 import { formatCurrency, formatPercentage, totalAmount } from "utils/AppUtils";
 import discountCouponIcon from "assets/icon/discount-coupon.svg";
-import { DISCOUNT_TYPE } from "utils/Constants";
+import { DISCOUNT_TYPE, EnumOrderType } from "utils/Constants";
 
 type Props = {
   isEcommerceByOrderChannelCode?: boolean;
   items: OrderLineItemRequest[] | undefined;
   promotion: OrderDiscountRequest | null;
   levelOrder?: number;
+  orderType?: string;
   showDiscountModal: () => void;
   calculateChangeMoney: (
     _items: Array<OrderLineItemRequest>,
@@ -123,7 +124,8 @@ const PromotionApply: React.FC<Props> = (props: Props) => {
       <Row className="paymentRow" justify="space-between" align="middle">
         <Space align="center" style={{ position: "relative" }} id="promotion_order">
           {/* ko disable chiết khấu tổng */}
-          {(items && items.length > 0 && !isDiscountItem) || isEcommerceByOrderChannelCode ? (
+          {((items && items.length > 0 && !isDiscountItem) || isEcommerceByOrderChannelCode) &&
+          props.orderType !== EnumOrderType.b2b ? (
             <Typography.Link
               className="font-weight-400 discountTitle"
               onClick={() => {

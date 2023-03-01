@@ -12,6 +12,7 @@ import { OrderResponse, OrderSubStatusResponse } from "model/response/order/orde
 import { SourceResponse } from "model/response/order/source.response";
 import React, { useState } from "react";
 import SidebarOrderHistory from "screens/yd-page/yd-page-order-create/component/CreateOrderSidebar/SidebarOrderHistory";
+import { EnumOrderType } from "utils/Constants";
 import CreateOrderSidebarOrderExtraInformation from "../CreateOrderSidebarOrderExtraInformation";
 import CreateOrderSidebarOrderInformation from "../CreateOrderSidebarOrderInformation";
 import { StyledComponent } from "./styles";
@@ -36,6 +37,7 @@ type PropTypes = {
   orderPageType: OrderPageTypeModel;
   setIsSpecialOrderEcommerce?: (v: boolean) => void;
   orderSource?: SourceResponse | null;
+  orderType?: string;
 };
 
 /**
@@ -99,17 +101,20 @@ function CreateOrderSidebar(props: PropTypes): JSX.Element {
           defaultReceiveReturnStore={defaultReceiveReturnStore}
         />
       )}
-      <SideBarOrderSpecial
-        handleCreateOrUpdateSpecialOrder={handleCreateOrUpdateSpecialOrder}
-        handleDeleteSpecialOrder={() => {}}
-        specialOrderView={SpecialOrderType.update}
-        setSpecialOrderView={() => {}}
-        defaultSpecialType={undefined}
-        orderPageType={orderPageType}
-        form={specialOrderForm}
-        specialOrder={specialOrder || orderDetail?.special_order}
-        setIsSpecialOrderEcommerce={setIsSpecialOrderEcommerce}
-      />
+      {props.orderType !== EnumOrderType.b2b && (
+        <SideBarOrderSpecial
+          handleCreateOrUpdateSpecialOrder={handleCreateOrUpdateSpecialOrder}
+          handleDeleteSpecialOrder={() => {}}
+          specialOrderView={SpecialOrderType.update}
+          setSpecialOrderView={() => {}}
+          defaultSpecialType={undefined}
+          orderPageType={orderPageType}
+          form={specialOrderForm}
+          specialOrder={specialOrder || orderDetail?.special_order}
+          setIsSpecialOrderEcommerce={setIsSpecialOrderEcommerce}
+        />
+      )}
+
       <Card title="THÔNG TIN BỔ SUNG">
         <CreateOrderSidebarOrderExtraInformation
           onChangeTag={onChangeTag}

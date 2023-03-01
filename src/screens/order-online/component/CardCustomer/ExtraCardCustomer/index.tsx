@@ -18,18 +18,34 @@ import {
 import { StyleComponent } from "./style";
 import * as CONSTANTS from "utils/Constants";
 import { fullTextSearch } from "utils/StringUtils";
+import useAuthorization from "hook/useAuthorization";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 
 type Props = {
   orderDetail?: OrderResponse | null;
-  setOrderSource?: (value: SourceResponse | null) => void;
   isDisableSelectSource?: boolean;
   initialForm?: OrderRequest;
   updateOrder?: boolean;
+  setOrderSource?: (value: SourceResponse | null) => void;
+  setOrderType?: (value: string) => void;
 };
 
 let initListSource: SourceResponse[] = [];
 const ExtraCardCustomer: React.FC<Props> = (props: Props) => {
-  const { orderDetail, initialForm, updateOrder, isDisableSelectSource, setOrderSource } = props;
+  const {
+    orderDetail,
+    initialForm,
+    updateOrder,
+    isDisableSelectSource,
+    setOrderSource,
+    setOrderType,
+  } = props;
+
+  const [allowOrderB2BWrite] = useAuthorization({
+    acceptPermissions: [ORDER_PERMISSIONS.ORDERS_B2B_WRITE],
+    not: false,
+  });
+
   const dispatch = useDispatch();
   const sourceInputRef = useRef();
 
@@ -210,6 +226,7 @@ const ExtraCardCustomer: React.FC<Props> = (props: Props) => {
     },
     [listSource, setOrderSource],
   );
+
   const renderSelectOrderSource = () => {
     return (
       <div>
@@ -272,14 +289,88 @@ const ExtraCardCustomer: React.FC<Props> = (props: Props) => {
       </div>
     );
   };
+
+  const renderSelectOrderType = () => {
+    return allowOrderB2BWrite ? (
+      <div>
+        <span
+          style={{
+            float: "left",
+            lineHeight: "40px",
+            marginRight: "10px",
+          }}
+        >
+          Loại đơn <span className="text-error">*</span>
+        </span>
+        <Form.Item
+          name="type"
+          style={{ margin: "0px" }}
+          rules={[
+            {
+              required: true,
+              message: "Vui lòng chọn nguồn đơn hàng",
+            },
+          ]}
+        >
+          <CustomSelect
+            style={{ width: 140, borderRadius: "6px" }}
+            showArrow
+            placeholder="Loại đơn hàng"
+            onChange={(value) => {
+              setOrderType && setOrderType(value);
+            }}
+          >
+            <CustomSelect.Option
+              style={{ width: "100%" }}
+              key={1}
+              value={CONSTANTS.EnumOrderType.b2c}
+            >
+              Bán lẻ
+            </CustomSelect.Option>
+            <CustomSelect.Option
+              style={{ width: "100%" }}
+              key={2}
+              value={CONSTANTS.EnumOrderType.b2b}
+            >
+              Bán buôn
+            </CustomSelect.Option>
+          </CustomSelect>
+        </Form.Item>
+      </div>
+    ) : undefined;
+  };
+
+  const renderInfoOrderType = () => {
+    return (
+      <div className="d-flex align-items-center form-group-with-search">
+        <span
+          style={{
+            float: "left",
+            lineHeight: "40px",
+          }}
+        >
+          <span style={{ marginRight: "10px" }}>Loại đơn:</span>
+          <span className="text-error">
+            <span style={{ color: "red" }}>
+              {orderDetail?.type === CONSTANTS.EnumOrderType.b2b ? "Bán buôn" : "Bán lẻ"}
+            </span>
+          </span>
+        </span>
+      </div>
+    );
+  };
+  console.log("props.updateOrder", props.updateOrder);
   return (
     <StyleComponent>
-      {orderDetail
-        ? orderDetail.source?.toLocaleLowerCase() === CONSTANTS.POS.source.toLocaleLowerCase() ||
-          props.updateOrder
-          ? renderSelectOrderSource()
-          : renderInfoOrderSource()
-        : renderSelectOrderSource()}
+      <div className="flex-content">
+        {!props.updateOrder ? renderSelectOrderType() : renderInfoOrderType()}
+        {orderDetail
+          ? orderDetail.source?.toLocaleLowerCase() === CONSTANTS.POS.source.toLocaleLowerCase() ||
+            props.updateOrder
+            ? renderSelectOrderSource()
+            : renderInfoOrderSource()
+          : renderSelectOrderSource()}
+      </div>
     </StyleComponent>
   );
 };

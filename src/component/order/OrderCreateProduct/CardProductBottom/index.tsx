@@ -22,6 +22,7 @@ type PropTypes = {
     totalAmountReturn: number;
   };
   isCustomOriginalHandmadeDiscount?: boolean;
+  orderType?: string;
 };
 
 function CardProductBottom(props: PropTypes) {
@@ -52,58 +53,8 @@ function CardProductBottom(props: PropTypes) {
             levelOrder={props.levelOrder}
             showDiscountModal={props.showDiscountModal}
             calculateChangeMoney={props.calculateChangeMoney}
+            orderType={props.orderType}
           />
-
-          {/* <Row className="paymentRow" justify="space-between" align="middle">
-            <Space align="center">
-              {setPromotion && !isDisableOrderDiscount && items && items.length > 0 ? (
-                <Typography.Link className="font-weight-400 couponTitle" onClick={showCouponModal}>
-                  Mã giảm giá:
-                </Typography.Link>
-              ) : (
-                <div>
-                  <Tooltip title="Tắt chiết khấu tự động để nhập mã giảm giá">
-                    Mã giảm giá
-                    <span className="noteTooltip">
-                      <InfoCircleOutlined />
-                    </span>
-                  </Tooltip>
-                </div>
-              )}
-
-              {couponInputText && couponInputText !== "" && (
-                <Tag
-                  className="orders-tag orders-tag-danger couponTag--danger"
-                  closable
-                  onClose={() => {
-                    setPromotion && setPromotion(null);
-                    handleRemoveAllAutomaticDiscount();
-                    setCoupon && setCoupon("");
-                    setCouponInputText && setCouponInputText("");
-                  }}
-                >
-                  {couponInputText ? (
-                    isCouponValid ? (
-                      <React.Fragment>
-                        <CheckCircleOutlined className="couponTag__icon couponTag__icon--success" />
-                        <span style={{ color: successColor }}>
-                          {handleDisplayCoupon(couponInputText)}
-                        </span>
-                      </React.Fragment>
-                    ) : (
-                      <React.Fragment>
-                        <CloseCircleOutlined className="couponTag__icon couponTag__icon--danger" />
-                        <span style={{ color: dangerColor }}>
-                          {handleDisplayCoupon(couponInputText)}
-                        </span>
-                      </React.Fragment>
-                    )
-                  ) : undefined}
-                </Tag>
-              )}
-            </Space>
-            <div className="font-weight-500 ">-</div>
-          </Row> */}
 
           <Row className="paymentRow" justify="space-between">
             <div>Phí ship báo khách:</div>

@@ -553,4 +553,20 @@ export enum EnumConfirmModalType {
   ERROR = "error",
 }
 
+export enum EnumOrderType {
+  b2b = "B2B",
+  b2c = "B2C",
+}
+
+export const ORDER_TYPES_ONLINE = [
+  {
+    code: EnumOrderType.b2c,
+    name: "Bán lẻ",
+  },
+  {
+    code: EnumOrderType.b2b,
+    name: "Bán buôn",
+  },
+];
+
 export const ANT_PREFIX_CLS = "ant";

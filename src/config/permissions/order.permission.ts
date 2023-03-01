@@ -41,4 +41,7 @@ export const ORDER_PERMISSIONS = {
   orders_return_offline: "orders_return_offline", // trả tại quầy offline
   // EXPORT
   orders_export_vat: "orders_export_vat",
+  //WHOLESALE
+  ORDERS_B2B_WRITE: "orders_b2b_write",
+  ORDERS_B2B_READ: "orders_b2b_read",
 };

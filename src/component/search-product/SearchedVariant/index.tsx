@@ -3,11 +3,12 @@ import imgDefault from "assets/icon/img-default.svg";
 import { AppConfig } from "config/app.config";
 import { VariantResponse } from "model/product/product.model";
 import React from "react";
-import { findPrice, findVariantAvatar } from "utils/AppUtils";
+import { findPrice, findVariantAvatar, findWholesalePrice } from "utils/AppUtils";
 import { StyledComponent } from "./style";
 
 type PropTypes = {
   item: VariantResponse;
+  isWholesale?: boolean;
 };
 function SearchedVariant(props: PropTypes): JSX.Element {
   const { item } = props;
@@ -31,7 +32,9 @@ function SearchedVariant(props: PropTypes): JSX.Element {
         </Col>
         <Col span={6} className="variant-columns-3">
           <Col className="black-color">
-            {`${findPrice(item.variant_prices, AppConfig.currency)} `}
+            {props.isWholesale
+              ? findWholesalePrice(item.variant_prices, AppConfig.currency)
+              : findPrice(item.variant_prices, AppConfig.currency)}
             <span className="gray-color price">đ</span>
           </Col>
           <div className="gray-color text-ellipsis">

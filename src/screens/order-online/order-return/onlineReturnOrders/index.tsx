@@ -31,6 +31,7 @@ const initQuery: ReturnSearchQuery = {
   coordinator_codes: [],
   searched_product: null,
   returned_store_ids: [],
+  order_types: [],
 };
 type PropTypes = {
   location: any;

@@ -107,6 +107,7 @@ export interface OrderResponse extends BaseObject {
   returned_store_id?: number;
   uniform?: boolean | null | undefined;
   special_order?: SpecialOrderResponseModel;
+  type?: string;
 }
 
 export interface TaxLineModel {

@@ -389,6 +389,19 @@ export const findPriceInVariant = (
   return price;
 };
 
+export const findWholesalePriceInVariant = (
+  variantPrices: Array<VariantPricesResponse>,
+  currency_code: string,
+): number => {
+  let price: number = 0;
+  variantPrices.forEach((v) => {
+    if (v.currency_code === currency_code) {
+      price = v.wholesale_price || 0;
+    }
+  });
+  return price;
+};
+
 export const findTaxInVariant = (
   variantPrices: Array<VariantPricesResponse>,
   currency_code: string,
@@ -410,6 +423,19 @@ export const findPrice = (
   variantPrices.forEach((v) => {
     if (v.currency_code === currency_code) {
       price = v.retail_price.toString();
+    }
+  });
+  return formatCurrency(price);
+};
+
+export const findWholesalePrice = (
+  variantPrices: Array<VariantPricesResponse>,
+  currency_code: string,
+): string => {
+  let price: string = "0";
+  variantPrices.forEach((v) => {
+    if (v.currency_code === currency_code) {
+      price = (v.wholesale_price || 0).toString();
     }
   });
   return formatCurrency(price);

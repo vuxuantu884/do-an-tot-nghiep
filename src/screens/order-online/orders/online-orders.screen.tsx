@@ -102,6 +102,7 @@ function OrdersScreen(props: PropTypes) {
       is_expired_payment: null,
       expired_at: null,
       returned_store_ids: [],
+      types: [],
     };
   }, [initChannelCodes]);
 
