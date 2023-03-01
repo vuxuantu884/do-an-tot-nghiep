@@ -1,4 +1,4 @@
-import { Button, Col, Form, FormInstance, Input, Row, Select, Tag, InputNumber } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Tag, InputNumber } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -13,7 +13,7 @@ import {
   INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY,
   STATUS_INVENTORY_ADJUSTMENT_ARRAY,
 } from "../../constants";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import "./styles.scss";
 import ButtonSetting from "component/table/ButtonSetting";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
@@ -23,6 +23,7 @@ import { searchAccountPublicAction } from "domain/actions/account/account.action
 import { useDispatch } from "react-redux";
 import { PageResponse } from "model/base/base-metadata.response";
 import CustomFilter from "component/table/custom.filter";
+import TreeStore from "component/CustomTreeSelect";
 
 type InventoryAdjustmentFilterProps = {
   params: any;
@@ -40,7 +41,6 @@ type InventoryAdjustmentFilterProps = {
 };
 
 const { Item } = Form;
-const { Option } = Select;
 
 const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
   props: InventoryAdjustmentFilterProps,
@@ -440,29 +440,13 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
               />
             </Item>
             <Item name="adjusted_store_ids">
-              <Select
-                ref={customSelectRef}
+              <TreeStore
                 defaultOpen
-                style={{
-                  width: 300,
-                }}
-                allowClear
-                mode="multiple"
+                ref={customSelectRef}
                 placeholder="Chọn kho kiểm"
-                showArrow
-                showSearch
-                maxTagCount="responsive"
-                optionFilterProp="children"
-                onClear={() => formSearchRef?.current?.submit()}
-              >
-                {Array.isArray(stores) &&
-                  stores.length > 0 &&
-                  stores.map((item, index) => (
-                    <Option key={"adjusted_store_id" + index} value={item.id.toString()}>
-                      {item.name}
-                    </Option>
-                  ))}
-              </Select>
+                storeByDepartmentList={stores as unknown as StoreByDepartment[]}
+                style={{ width: 280 }}
+              />
             </Item>
             <Item>
               <Button type="primary" loading={loadingFilter} htmlType="submit">

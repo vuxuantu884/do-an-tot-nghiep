@@ -61,6 +61,7 @@ const initQuery: InventoryAdjustmentSearchQuery = {
   limit: 30,
   condition: null,
   adjusted_store_id: null,
+  adjusted_store_ids: null,
   from_total_variant: null,
   to_total_variant: null,
   from_total_quantity: null,
@@ -121,7 +122,14 @@ const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
     ...initQuery,
     ...getQueryParams(query),
   };
-  let [params, setPrams] = useState<InventoryAdjustmentSearchQuery>(dataQuery);
+  let [params, setPrams] = useState<InventoryAdjustmentSearchQuery>({
+    ...dataQuery,
+    adjusted_store_ids: dataQuery.adjusted_store_ids
+      ? Array.isArray(dataQuery.adjusted_store_ids)
+        ? dataQuery.adjusted_store_ids.map((i) => Number(i))
+        : [Number(dataQuery.adjusted_store_ids)]
+      : []
+  });
   const [data, setData] = useState<PageResponse<Array<InventoryAdjustmentDetailItem>>>({
     metadata: {
       limit: 30,
