@@ -7,7 +7,7 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { OrderResponse } from "model/response/order/order.response";
 import React, { useState } from "react";
-import { POS } from "utils/Constants";
+import { EnumOrderType, POS } from "utils/Constants";
 import { dangerColor, textBodyColor } from "utils/global-styles/variables";
 import InfoCustomer from "./CardCustomer/InfoCustomer";
 import OrderBillRequestButton from "./OrderBillRequest/OrderBillRequestButton";
@@ -73,6 +73,32 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (props: CustomerCa
             className="d-flex align-items-center form-group-with-search"
             style={{ flexDirection: "row" }}
           >
+            {props.OrderDetail?.type === EnumOrderType.b2b && (
+              <>
+                <span
+                  style={{
+                    float: "left",
+                    lineHeight: "40px",
+                  }}
+                >
+                  <span style={{ marginRight: "5px" }}>Loại đơn:</span>
+                  <span className="text-error">
+                    <span style={{ color: "red" }}>Bán buôn</span>
+                  </span>
+                </span>
+                <span
+                  style={{
+                    float: "left",
+                    lineHeight: "40px",
+                    margin: "0 10px",
+                  }}
+                >
+                  {" "}
+                  -{" "}
+                </span>
+              </>
+            )}
+
             <span
               style={{
                 float: "left",

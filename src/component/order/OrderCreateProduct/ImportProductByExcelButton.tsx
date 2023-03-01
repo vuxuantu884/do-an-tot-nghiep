@@ -9,6 +9,8 @@ type Props = {
   items?: OrderLineItemRequest[];
   handleItems?: (items: OrderLineItemRequest[]) => void;
   disabled?: boolean;
+  title?: string;
+  orderType?: string;
 };
 
 const ImportProductByExcelButton: React.FC<Props> = (props: Props) => {
@@ -17,7 +19,7 @@ const ImportProductByExcelButton: React.FC<Props> = (props: Props) => {
   return (
     <React.Fragment>
       <Button onClick={() => setVisible(true)} icon={<ImportOutlined />} disabled={disabled}>
-        Nhập File
+        {props.title || "Nhập File"}
       </Button>
       <ProductImportByExcel
         title="Nhập file sản phẩm"
@@ -27,6 +29,7 @@ const ImportProductByExcelButton: React.FC<Props> = (props: Props) => {
         storeId={storeId}
         handleItems={handleItems}
         items={items}
+        orderType={props.orderType}
       />
     </React.Fragment>
   );

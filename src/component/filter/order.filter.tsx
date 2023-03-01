@@ -46,7 +46,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { formatCurrency, replaceFormat } from "utils/AppUtils";
-import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
+import { FILTER_CONFIG_TYPE, ORDER_TYPES_ONLINE, POS } from "utils/Constants";
 import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
 import { ORDER_TYPES } from "utils/Order.constants";
 import { formatDateTimeOrderFilter, getTimeFormatOrderFilterTag } from "utils/OrderUtils";
@@ -54,6 +54,8 @@ import { fullTextSearch } from "utils/StringUtils";
 // import TreeSource from "../treeSource";
 import BaseFilter from "./base.filter";
 import UserCustomFilterTag from "./UserCustomFilterTag";
+import useAuthorization from "hook/useAuthorization";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 
 type Props = {
   params: OrderSearchQuery;
@@ -126,6 +128,11 @@ function OrdersFilter(props: Props): JSX.Element {
     userConfigs,
     handleCountForceFetchUserConfigs,
   } = props;
+
+  const [allowOrderB2BRead] = useAuthorization({
+    acceptPermissions: [ORDER_PERMISSIONS.ORDERS_B2B_READ],
+    not: false,
+  });
 
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
@@ -579,6 +586,9 @@ function OrdersFilter(props: Props): JSX.Element {
         case "returned_store":
           onFilter && onFilter({ ...params, returned_store_ids: undefined });
           break;
+        case "types":
+          onFilter && onFilter({ ...params, types: undefined });
+          break;
         default:
           break;
       }
@@ -672,6 +682,7 @@ function OrdersFilter(props: Props): JSX.Element {
           ? params.returned_store_ids.map((p) => Number(p))
           : [Number(params.returned_store_ids)]
         : [],
+      types: params.types ? (Array.isArray(params.types) ? params.types : [params.types]) : [],
 
       is_expired_payment: params.is_expired_payment === "true" ? true : undefined,
       uniform: params.uniform === "true" ? true : undefined,
@@ -832,6 +843,7 @@ function OrdersFilter(props: Props): JSX.Element {
       values.returned_date_min = formatDateTimeOrderFilter(values.returned_date_min, dateFormat);
       values.returned_date_max = formatDateTimeOrderFilter(values.returned_date_max, dateFormat);
       values.expired_at = values.expired_at === 0 ? undefined : values.expired_at;
+
       // console.log('values', values);
       // return;
       let discount_codes = [];
@@ -857,6 +869,7 @@ function OrdersFilter(props: Props): JSX.Element {
     onFilter,
     services,
     isExpiresPayment,
+    allowOrderB2BRead,
   ]);
 
   let filters = useMemo(() => {
@@ -1596,6 +1609,19 @@ function OrdersFilter(props: Props): JSX.Element {
         value: text,
       });
     }
+
+    if (initialValues.types && initialValues.types.length !== 0) {
+      const _orderTypes = ORDER_TYPES_ONLINE.filter((p) =>
+        initialValues.types.some((p1) => p1 === p.code),
+      );
+
+      let textRecord = _orderTypes.map((p) => p.name).join(", ");
+      list.push({
+        key: "types",
+        name: "Loại đơn bán",
+        value: <React.Fragment>{textRecord}</React.Fragment>,
+      });
+    }
     return list;
   }, [
     filterTagFormatted,
@@ -1652,6 +1678,7 @@ function OrdersFilter(props: Props): JSX.Element {
     initialValues.expired_at,
     initialValues?.is_expired_payment,
     initialValues?.uniform,
+    initialValues.types,
     initChannelCodes,
     orderType,
     listStore,
@@ -2629,12 +2656,32 @@ function OrdersFilter(props: Props): JSX.Element {
                 <Col span={8} xxl={8} hidden={orderType !== ORDER_TYPES.online}>
                   <Item name="returned_store_ids" label="Kho nhận hàng hoàn:">
                     <CustomTreeSelect
-                      placeholder="Cửa hàng"
+                      placeholder="Kho nhận hàng hoàn"
                       // treeData={listStore}
                       storeByDepartmentList={listStore as unknown as StoreByDepartment[]}
                       style={{ width: "100%" }}
                       autoClearSearchValue={false}
                     />
+                  </Item>
+                </Col>
+                <Col
+                  span={8}
+                  xxl={8}
+                  hidden={orderType !== ORDER_TYPES.online || !allowOrderB2BRead}
+                >
+                  <Item name="types" label="Loại đơn bán:">
+                    <Select
+                      placeholder="Loại đơn bán (Bán buôn/ bán lẻ)"
+                      style={{ width: "100%" }}
+                      allowClear
+                      mode="multiple"
+                    >
+                      {ORDER_TYPES_ONLINE.map((p, index) => (
+                        <Select.Option key={index} value={p.code}>
+                          {p.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
                   </Item>
                 </Col>
               </Row>

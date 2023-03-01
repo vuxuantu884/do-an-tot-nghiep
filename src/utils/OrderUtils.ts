@@ -1,6 +1,6 @@
 import { AccountStoreResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
-import { OrderPageTypeModel, OrderType, SpecialOrderValue } from "model/order/order.model";
+import { OrderModel, OrderPageTypeModel, OrderType, SpecialOrderValue } from "model/order/order.model";
 import {
   OrderItemDiscountRequest,
   OrderLineItemRequest,
@@ -26,6 +26,7 @@ import {
   DISCOUNT_TYPE,
   ECOMMERCE_CHANNEL_CODES,
   ECOMMERCE_CHANNEL_CODES_UPDATE_ORDER,
+  EnumOrderType,
   FulFillmentStatus,
   PaymentMethodCode,
   PaymentMethodType,
@@ -896,4 +897,8 @@ export const isSourceNameFacebook = (sourceName: string) => {
   return (
     fullTextSearch(keyword, sourceName) && subKeyword.some((p) => fullTextSearch(p, sourceName))
   );
+};
+
+export const isOrderWholesale = (order: OrderResponse | OrderModel |null|undefined) => {
+  return order?.type === EnumOrderType.b2b;
 };

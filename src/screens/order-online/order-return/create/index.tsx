@@ -117,6 +117,7 @@ import {
 import {
   ADMIN_ORDER,
   DEFAULT_COMPANY,
+  EnumOrderType,
   FulFillmentStatus,
   OrderStatus,
   PaymentMethodCode,
@@ -139,6 +140,7 @@ import {
   checkIfWebAppByOrderChannelCode,
   findPaymentMethodByCode,
   removeDiscountLineItem,
+  isOrderWholesale,
 } from "utils/OrderUtils";
 import { showError } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
@@ -974,7 +976,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         note: form.getFieldValue("note"),
         url: form.getFieldValue("url") || "",
         tags: tags,
-        type: orderReturnType,
+        //type: orderReturnType,
         //channel
         channel_id: getReturnChannel(OrderDetail).channelId,
         channel: getReturnChannel(OrderDetail).channel,
@@ -1021,7 +1023,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
     listReturnProducts,
     orderReturnReasonResponse?.id,
     orderReturnReasonResponse?.sub_reasons,
-    orderReturnType,
     printType.return,
     recentAccount.accountCode,
     recentAccount.accountFullName,
@@ -1633,7 +1634,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         note: "",
         url: "",
         tags: null,
-        type: orderReturnType,
+        //type: orderReturnType,
         // channel
         channel_id: getReturnChannel(OrderDetail).channelId,
         channel: getReturnChannel(OrderDetail).channel,
@@ -1681,7 +1682,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         order_exchange,
       };
       console.log("valuesExchange", valuesExchange);
-      // return;
+      //return;
       if (checkPointFocus(order_exchange)) {
         if (!order_exchange?.customer_id) {
           showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng!");
@@ -1892,51 +1893,53 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     handleChangeReturnProductQuantityCallback
                   }
                 />
+                {OrderDetail?.type !== EnumOrderType.b2b && (
+                  <OrderCreateProduct
+                    orderProductsAmount={orderProductsAmount}
+                    totalOrderAmount={totalOrderAmount}
+                    changeInfo={onChangeInfoProduct}
+                    setStoreId={(value) => {
+                      setStoreId(value);
+                      form.setFieldsValue({ store_id: value });
+                    }}
+                    storeId={storeId}
+                    shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
+                    setItemGift={setItemGift}
+                    form={form}
+                    items={listExchangeProducts}
+                    setItems={setListExchangeProducts}
+                    totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                    returnOrderInformation={{
+                      totalAmountReturn: totalAmountReturnProducts,
+                      totalAmountExchangePlusShippingFee,
+                    }}
+                    orderConfig={orderConfig}
+                    coupon={coupon}
+                    setCoupon={setCoupon}
+                    promotion={promotion}
+                    setPromotion={setPromotion}
+                    customer={customer}
+                    loyaltyPoint={loyaltyPoint}
+                    countFinishingUpdateCustomer={countFinishingUpdateCustomer}
+                    isCreateReturn
+                    isExchange={isExchange}
+                    shipmentMethod={shipmentMethod}
+                    stores={stores}
+                    isReturnOffline={orderReturnType === RETURN_TYPE_VALUES.offline}
+                    setPromotionTitle={setPromotionTitle}
+                    handleChangeShippingFeeApplyOrderSettings={
+                      handleChangeShippingFeeApplyOrderSettings
+                    }
+                    orderDetail={OrderDetail}
+                    isShowDiscountByInsert={isShowDiscountByInsert}
+                    initItemSuggestDiscounts={leftItemSuggestDiscounts}
+                    isWebAppOrder={checkIfWebAppByOrderChannelCode(OrderDetail?.channel_code)}
+                    isEcommerceOrder={isEcommerceOrder}
+                    initOrderSuggestDiscounts={initOrderSuggestDiscount}
+                    // handleApplyDiscountItemCallback={handleApplyDiscountItemCallback}
+                  />
+                )}
 
-                <OrderCreateProduct
-                  orderProductsAmount={orderProductsAmount}
-                  totalOrderAmount={totalOrderAmount}
-                  changeInfo={onChangeInfoProduct}
-                  setStoreId={(value) => {
-                    setStoreId(value);
-                    form.setFieldsValue({ store_id: value });
-                  }}
-                  storeId={storeId}
-                  shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
-                  setItemGift={setItemGift}
-                  form={form}
-                  items={listExchangeProducts}
-                  setItems={setListExchangeProducts}
-                  totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                  returnOrderInformation={{
-                    totalAmountReturn: totalAmountReturnProducts,
-                    totalAmountExchangePlusShippingFee,
-                  }}
-                  orderConfig={orderConfig}
-                  coupon={coupon}
-                  setCoupon={setCoupon}
-                  promotion={promotion}
-                  setPromotion={setPromotion}
-                  customer={customer}
-                  loyaltyPoint={loyaltyPoint}
-                  countFinishingUpdateCustomer={countFinishingUpdateCustomer}
-                  isCreateReturn
-                  isExchange={isExchange}
-                  shipmentMethod={shipmentMethod}
-                  stores={stores}
-                  isReturnOffline={orderReturnType === RETURN_TYPE_VALUES.offline}
-                  setPromotionTitle={setPromotionTitle}
-                  handleChangeShippingFeeApplyOrderSettings={
-                    handleChangeShippingFeeApplyOrderSettings
-                  }
-                  orderDetail={OrderDetail}
-                  isShowDiscountByInsert={isShowDiscountByInsert}
-                  initItemSuggestDiscounts={leftItemSuggestDiscounts}
-                  isWebAppOrder={checkIfWebAppByOrderChannelCode(OrderDetail?.channel_code)}
-                  isEcommerceOrder={isEcommerceOrder}
-                  initOrderSuggestDiscounts={initOrderSuggestDiscount}
-                  // handleApplyDiscountItemCallback={handleApplyDiscountItemCallback}
-                />
                 {/* hiện tại đang ẩn cái hoàn tiền khi trả */}
                 {/* {!isExchange && ( */}
                 {!isExchange && !isReturnAndNotShowMoneyRefund && canCreateMoneyRefund && (
@@ -2738,6 +2741,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   if (checkIfWrongPath()) {
     return <p style={{ marginTop: 20 }}>Vui lòng kiểm tra đường dẫn!</p>;
+  }
+  if (isOrderWholesale(OrderDetail) && orderReturnType === RETURN_TYPE_VALUES.offline) {
+    return <p style={{ marginTop: 20 }}>Đơn bán buôn không áp dụng cho đơn trả tại quầy!</p>;
   }
 
   return (

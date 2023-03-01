@@ -7,6 +7,7 @@ import {
   findAvatar,
   findPriceInVariant,
   findTaxInVariant,
+  findWholesalePriceInVariant,
   getLineAmountAfterLineDiscount,
   getLineItemDiscountAmount,
   getLineItemDiscountRate,
@@ -118,8 +119,12 @@ export const createItem = (
   discountType: string,
   discountValue: number,
   position: number,
+  isWholesale?: boolean,
 ) => {
-  const price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
+  let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
+  if (isWholesale) {
+    price = findWholesalePriceInVariant(variant.variant_prices, AppConfig.currency);
+  }
   const taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
   const amount = price * quantity;
   const avatar = findAvatar(variant.variant_images);

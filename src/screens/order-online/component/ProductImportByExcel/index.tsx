@@ -4,7 +4,7 @@ import { UploadFile } from "antd/lib/upload/interface";
 import React, { useCallback, useEffect, useState } from "react";
 import { StyledComponent } from "./styled";
 import * as XLSX from "xlsx";
-import { DISCOUNT_TYPE } from "utils/Constants";
+import { DISCOUNT_TYPE, EnumOrderType } from "utils/Constants";
 import {
   createItem,
   DISCOUNT_TYPES,
@@ -44,6 +44,7 @@ type Props = {
   storeId?: number | null;
   items?: OrderLineItemRequest[];
   handleItems?: (items: OrderLineItemRequest[]) => void;
+  orderType?: string;
 };
 
 const flowImportDataDefault = {
@@ -140,6 +141,7 @@ const ProductImportByExcel: React.FC<Props> = (props: Props) => {
     discountType: string,
     discountValue: number,
     position: number,
+    isWholesale?: boolean,
   ) =>
     new Promise<OrderLineItemRequest>((resolve, reject) => {
       const lineItem: OrderLineItemRequest = createItem(
@@ -148,6 +150,7 @@ const ProductImportByExcel: React.FC<Props> = (props: Props) => {
         discountType,
         discountValue,
         position,
+        isWholesale,
       );
       resolve(lineItem);
     });
@@ -204,6 +207,7 @@ const ProductImportByExcel: React.FC<Props> = (props: Props) => {
                 discountType,
                 fileDatas[index].promotion ?? 0,
                 index + 1,
+                props.orderType === EnumOrderType.b2b,
               ).then((response_i) => {
                 _items.unshift(response_i);
               });
@@ -234,7 +238,7 @@ const ProductImportByExcel: React.FC<Props> = (props: Props) => {
     };
     setIsLoading(true);
     handleProduct(firstIndex);
-  }, [fileDatas, items, storeId, handleItems]);
+  }, [fileDatas, items, storeId, handleItems, props.orderType]);
 
   useEffect(() => {
     handleClearState();
