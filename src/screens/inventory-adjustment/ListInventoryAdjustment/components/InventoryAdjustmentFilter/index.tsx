@@ -1,7 +1,7 @@
 import { Button, Col, Form, FormInstance, Input, Row, Select, Tag, InputNumber } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import { FilterOutlined } from "@ant-design/icons";
@@ -36,6 +36,7 @@ type InventoryAdjustmentFilterProps = {
   setAccounts?: (value: any) => void;
   onClearFilter?: () => void;
   stores?: Array<StoreResponse>;
+  isFirstLoad?: boolean;
 };
 
 const { Item } = Form;
@@ -55,7 +56,8 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     actions,
     accounts,
     setAccounts,
-    onMenuClick
+    onMenuClick,
+    isFirstLoad
   } = props;
   const [dateClick, setDateClick] = useState("");
   const [messageErrorQuality, setMessageErrorQuality] = useState("");
@@ -73,13 +75,13 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
   const [form] = Form.useForm();
 
   const [visible, setVisible] = useState(false);
-
   const loadingFilter = useMemo(() => {
     return !!isLoading;
   }, [isLoading]);
 
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
+  const customSelectRef = useRef<HTMLSelectElement>(null);
 
   const setDataAccount = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -96,6 +98,12 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     },
     [dispatch, setDataAccount],
   );
+
+  useEffect(() => {
+    if (isFirstLoad) return;
+
+    customSelectRef?.current?.focus();
+  }, [isFirstLoad]);
 
   useEffect(() => {
     const filter = {
@@ -432,7 +440,9 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
               />
             </Item>
             <Item name="adjusted_store_ids">
-              <CustomSelect
+              <Select
+                ref={customSelectRef}
+                defaultOpen
                 style={{
                   width: 300,
                 }}
@@ -452,7 +462,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                       {item.name}
                     </Option>
                   ))}
-              </CustomSelect>
+              </Select>
             </Item>
             <Item>
               <Button type="primary" loading={loadingFilter} htmlType="submit">
