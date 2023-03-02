@@ -2,7 +2,7 @@ import moment from "moment";
 import { formatCurrency } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 
-export const sellingPowerReportColumns = (selectedDate: string): any[] => {
+export const sellingPowerReportColumns = (selectedDate: string, summary: any): any[] => {
   const { DDMM, YYYYMMDD } = DATE_FORMAT;
   const date = selectedDate || moment().subtract(1, "days").format(YYYYMMDD);
   return [
@@ -55,6 +55,7 @@ export const sellingPowerReportColumns = (selectedDate: string): any[] => {
       dataIndex: "current_stock",
       key: "current_stock",
       width: 150,
+      sorter: (a: any, b: any) => a.current_stock - b.current_stock,
     },
     {
       title: "Giá vốn",
@@ -73,6 +74,7 @@ export const sellingPowerReportColumns = (selectedDate: string): any[] => {
       dataIndex: "stock_value_vy_current_stock",
       key: "stock_value_vy_current_stock",
       width: 160,
+      sorter: (a: any, b: any) => a.stock_value_vy_current_stock - b.stock_value_vy_current_stock,
     },
     {
       title: "Tỷ lệ tồn (%)",
@@ -80,18 +82,21 @@ export const sellingPowerReportColumns = (selectedDate: string): any[] => {
       key: "stock_percent_by_value",
       width: 150,
       unit: "%",
+      sorter: (a: any, b: any) => a.stock_percent_by_value - b.stock_percent_by_value,
     },
     {
       title: "SLSP bán 7 ngày",
       dataIndex: "total_quantity7",
       key: "total_quantity7",
       width: 150,
+      sorter: (a: any, b: any) => a.total_quantity7 - b.total_quantity7,
     },
     {
       title: "Doanh thu 7 ngày",
       dataIndex: "total_after_discount",
       key: "total_after_discount",
       width: 150,
+      sorter: (a: any, b: any) => a.total_after_discount - b.total_after_discount,
     },
     {
       title: "Số lượng bán TB/ ngày",
@@ -99,24 +104,28 @@ export const sellingPowerReportColumns = (selectedDate: string): any[] => {
       key: "average_sale",
       width: 170,
       format: "decimal",
+      sorter: (a: any, b: any) => a.average_sale - b.average_sale,
     },
     {
       title: "Ngày bán còn lại",
       dataIndex: "expected_days",
       key: "expected_days",
       width: 150,
+      sorter: (a: any, b: any) => a.expected_days - b.expected_days,
     },
     {
       title: "Tổng hàng còn về",
       dataIndex: "quantity_order",
       key: "quantity_order",
       width: 150,
+      sorter: (a: any, b: any) => a.quantity_order - b.quantity_order,
     },
     {
       title: "Hàng về đến cuối tháng",
       dataIndex: "quantity_order_month",
       key: "quantity_order_month",
       width: 170,
+      sorter: (a: any, b: any) => a.quantity_order_month - b.quantity_order_month,
     },
     {
       title: "Tồn HT",
@@ -238,43 +247,93 @@ export const sellingPowerReportColumns = (selectedDate: string): any[] => {
       item.children = item.children.map((child: any) => {
         return {
           ...child,
-          width: child.width ? child.width : 120,
-          className: "text-center",
-          render: (text: string | number | null, row: any) => {
-            return (text && typeof text === "number") || text === 0 ? (
-              child.unit !== "%" ? (
-                <span className={row.className}>{formatCurrency(text) ?? "-"}</span>
-              ) : (
-                <span className={row.className}>
-                  {+text.toFixed(2)}
-                  {child.unit}
-                </span>
-              )
-            ) : (
-              <span className={row.className}>{text ?? "-"}</span>
-            );
-          },
+          className: "x-text-center",
+          children: [
+            {
+              title:
+                (summary[child.key] && typeof summary[child.key] === "number") ||
+                summary[child.key] === 0 ? (
+                  child.unit !== "%" ? (
+                    <span>{formatCurrency(summary[child.key]) ?? "-"}</span>
+                  ) : (
+                    <span>
+                      {+summary[child.key].toFixed(2)}
+                      {child.unit}
+                    </span>
+                  )
+                ) : (
+                  <span>{summary[child.key] ?? "-"}</span>
+                ),
+              key: child.key,
+              dataIndex: child.dataIndex,
+              width: child.width ? child.width : 120,
+              className: "x-text-center",
+              fixed: child.fixed,
+              render: (text: string | number | null, row: any) => {
+                return (text && typeof text === "number") || text === 0 ? (
+                  child.unit !== "%" ? (
+                    <span className={row.className}>{formatCurrency(text) ?? "-"}</span>
+                  ) : (
+                    <span className={row.className}>
+                      {+text.toFixed(2)}
+                      {child.unit}
+                    </span>
+                  )
+                ) : (
+                  <span className={row.className}>{text ?? "-"}</span>
+                );
+              },
+            },
+          ],
         };
       });
     } else {
       return {
         ...item,
-        width: item.width ? item.width : 120,
-        className: "text-center",
-        render: (text: string | number | null, row: any) => {
-          return (text && typeof text === "number") || text === 0 ? (
-            item.unit !== "%" ? (
-              <span className={row.className}>{formatCurrency(text) ?? "-"}</span>
-            ) : (
-              <span className={row.className}>
-                {+text.toFixed(2)}
-                {item.unit}
-              </span>
-            )
-          ) : (
-            <span className={row.className}>{text ?? "-"}</span>
-          );
-        },
+        className: "x-text-center",
+        children: [
+          {
+            title: "-",
+            className: "x-text-center",
+            children: [
+              {
+                title:
+                  (summary[item.key] && typeof summary[item.key] === "number") ||
+                  summary[item.key] === 0 ? (
+                    item.unit !== "%" ? (
+                      <span>{formatCurrency(summary[item.key]) ?? "-"}</span>
+                    ) : (
+                      <span>
+                        {+summary[item.key].toFixed(2)}
+                        {item.unit}
+                      </span>
+                    )
+                  ) : (
+                    <span>{summary[item.key] ?? "-"}</span>
+                  ),
+                key: item.key,
+                dataIndex: item.dataIndex,
+                width: item.width ? item.width : 120,
+                className: "x-text-center",
+                fixed: item.fixed,
+                render: (text: string | number | null, row: any) => {
+                  return (text && typeof text === "number") || text === 0 ? (
+                    item.unit !== "%" ? (
+                      <span className={row.className}>{formatCurrency(text) ?? "-"}</span>
+                    ) : (
+                      <span className={row.className}>
+                        {+text.toFixed(2)}
+                        {item.unit}
+                      </span>
+                    )
+                  ) : (
+                    <span className={row.className}>{text ?? "-"}</span>
+                  );
+                },
+              },
+            ],
+          },
+        ],
       };
     }
     return item;

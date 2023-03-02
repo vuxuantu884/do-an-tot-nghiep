@@ -15,7 +15,7 @@ export const SellingPowerReportStyle = styled.div`
       border-right: 1px solid #d9d9d9 !important;
       border-bottom: 1px solid #d9d9d9 !important;
       white-space: pre-line;
-      padding: 4px;
+      padding: 1px 2px;
     }
   }
   .mb-2 {
@@ -41,5 +41,9 @@ export const SellingPowerReportStyle = styled.div`
 
   .ant-table-sticky-scroll {
     bottom: 1px !important;
+  }
+
+  .x-text-center {
+    text-align: center;
   }
 `;
