@@ -38,4 +38,36 @@ export const InventoryBalanceStyle = styled.div`
   .font-weight-bold {
     font-weight: bold;
   }
+
+  .background-red {
+    background-color: #fff1f0;
+    color: #cf1322;
+    border-radius: 2px;
+  }
+
+  .background-yellow {
+    background-color: #fff0dd;
+    color: #f3ab0cf2;
+    border-radius: 2px;
+  }
+
+  .background-green {
+    background-color: #f6ffed;
+    color: #389e0d;
+    border-radius: 2px;
+  }
+
+  .ant-table-sticky-scroll {
+    bottom: 1px !important;
+  }
+
+  .progressBar {
+    position: relative;
+    &-value {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
 `;

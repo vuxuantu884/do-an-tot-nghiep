@@ -260,12 +260,8 @@ function DiscountItemSearch(props: PropTypes) {
   }, [props.discountAmount, props.discountRate, selected]);
 
   useEffect(() => {
-    if (props.discountType) {
-      setSelected(props.discountType);
-    } else {
-      setSelected(selected);
-    }
-  }, [props.discountType, selected]);
+    if(props.discountType) setSelected(props.discountType);
+  }, [props.discountType]);
 
   useEffect(() => {
     var element = document.getElementById(`promotion_${props.index}`);

@@ -126,7 +126,7 @@ const supplierRoutes: Array<RouteMenu> = [
             key: "submenu223",
             isShow: true,
             header: null,
-            permissions: [PurchaseOrderPermission.return],
+            permissions: [PurchaseOrderPermission.read],
             subMenu: [],
           },
         ],

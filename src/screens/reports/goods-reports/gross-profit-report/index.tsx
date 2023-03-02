@@ -1,4 +1,4 @@
-import { Alert, Card, Table } from "antd";
+import { Alert, Card, Progress, Table } from "antd";
 import ContentContainer from "component/container/content.container";
 import { REPORTS_URL } from "config/url.config";
 import { useCallback, useEffect, useState } from "react";
@@ -29,8 +29,16 @@ function GrossProfitReport() {
       setEmptyMessage("Không có kết quả phù hợp với điều kiện lọc");
     }
     const { description } = response;
-    response.data.forEach((item: any, index: number) => {
-      item.no = index + 1;
+    response.data.forEach((item: any) => {
+      const { gross_profit_margin } = item;
+      if (gross_profit_margin >= 55) {
+        item.progressColor = "#389e0e";
+      } else if (gross_profit_margin >= 45 && gross_profit_margin < 55) {
+        item.progressColor = "#f3ab0c";
+      } else {
+        item.progressColor = "#cf1322";
+      }
+      return item;
     });
     const columnsFormatted = Object.keys(description).map((key: string, index: number) => {
       const { name, unit, format } = description[key];
@@ -38,16 +46,28 @@ function GrossProfitReport() {
         title: name,
         dataIndex: key,
         key,
-        // width: ["gross_profit_margin"].includes(key) ? 110 : 80,
-        align: ["gross_profit", "gross_profit_margin"].includes(key) ? "right" : "center",
-        render: (text: number) => {
+        width: ["gross_profit_margin"].includes(key) ? 110 : 80,
+        align: ["gross_profit"].includes(key) ? "right" : "center",
+        sorter: ["gross_profit", "gross_profit_margin"].includes(key)
+          ? (a: any, b: any) => a[key] - b[key]
+          : null,
+        render: (text: number, row: any) => {
           return format === "number" && unit === "VND" ? (
             <span>{formatCurrency(text) ?? "-"}</span>
           ) : format === "number" && unit === "%" ? (
-            <span>
-              {text}
-              {unit}
-            </span>
+            <div>
+              <Progress
+                percent={+text}
+                strokeWidth={15}
+                showInfo={false}
+                strokeColor={row.progressColor}
+                className="progressBar"
+              />
+              <span className="progressBar-value">
+                {text}
+                {unit}
+              </span>
+            </div>
           ) : (
             <span>{text}</span>
           );
