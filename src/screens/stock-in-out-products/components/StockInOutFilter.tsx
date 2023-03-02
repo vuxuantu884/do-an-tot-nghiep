@@ -520,18 +520,16 @@ const StockInOutFilter: React.FC<StockInOutFilterProps> = (props: StockInOutFilt
                 case StockInOutAdvancedFilter.status:
                   component = (
                     <StockInOutStatusStyle>
-                      {Object.values(EnumStockInOutStatus).map((item) => {
-                        return (
-                          <Button
-                            key={item}
-                            value={item}
-                            onClick={() => handleClickStatus(item)}
-                            className={selectedStatuses?.includes(item) ? "active" : ""}
-                          >
-                            {StockInOutStatusMapping[item]}
-                          </Button>
-                        );
-                      })}
+                      {Object.keys(EnumStockInOutStatus).map((item) => (
+                        <Button
+                          key={item}
+                          value={item}
+                          onClick={() => handleClickStatus(item)}
+                          className={selectedStatuses?.includes(item) ? "active" : ""}
+                        >
+                          {StockInOutStatusMapping[item]}
+                        </Button>
+                      ))}
                     </StockInOutStatusStyle>
                   );
                   break;
