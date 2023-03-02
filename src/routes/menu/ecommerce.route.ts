@@ -8,12 +8,14 @@ const EcommerceOrders = React.lazy(() => import("screens/ecommerce/orders"));
 const OrdersMapping = React.lazy(() => import("screens/ecommerce/orders-mapping"));
 const Products = React.lazy(() => import("screens/ecommerce/products"));
 const ProductsPushing = React.lazy(
-  () => import("screens/ecommerce/ecommerce-tools/products-pushing"),
+  () => import("screens/ecommerce/ecommerce-tools/products-pushing/index"),
 );
 
 const PushingDetails = React.lazy(
-  () => import("screens/ecommerce/ecommerce-tools/pushing-details"),
+  () => import("screens/ecommerce/ecommerce-tools/products-pushing/pushing-details"),
 );
+
+const Feedbacks = React.lazy(() => import("screens/ecommerce/ecommerce-tools/feedback"));
 
 const ordersMappingViewPermission = [EcommerceOrderPermission?.orders_mapping_view];
 
@@ -130,6 +132,17 @@ const ecommerce: Array<RouteMenu> = [
             subMenu: [],
           },
         ],
+      },
+      {
+        path: `${UrlConfig.ECOMMERCE}-tools/feedbacks`,
+        exact: true,
+        title: "Phản hồi đánh giá",
+        icon: "icon-dot",
+        component: Feedbacks,
+        key: "408",
+        isShow: true,
+        header: null,
+        subMenu: [],
       },
     ],
   },

@@ -159,6 +159,7 @@ export const createItem = (
     gifts: [],
     position: position,
     available: variant.available,
+    taxable: variant.taxable,
   };
 
   if (discountType === DISCOUNT_TYPE.PERCENT) {

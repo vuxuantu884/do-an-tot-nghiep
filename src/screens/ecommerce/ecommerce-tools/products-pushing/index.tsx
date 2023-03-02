@@ -5,7 +5,8 @@ import UrlConfig from "config/url.config";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { shopeeShopsDetailsProductPushingApi } from "service/ecommerce/ecommerce.service";
-import CustomTable from "../table/CustomTable";
+import { showError } from "utils/ToastUtils";
+import CustomTable from "../../table/CustomTable";
 
 import { StyledProductsPushing } from "./styled";
 
@@ -17,7 +18,13 @@ function ProductPushing(props: Props) {
   const getShopDetails = useCallback(async () => {
     try {
       const shopData = await shopeeShopsDetailsProductPushingApi();
-      setShopsData(shopData.data);
+      if (!shopData.errors) {
+        setShopsData(shopData.data);
+      } else {
+        shopData.errors.forEach((error: string) => {
+          showError(error);
+        });
+      }
       setLoadingData(false);
     } catch {}
   }, []);

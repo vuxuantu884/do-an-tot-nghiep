@@ -42,7 +42,7 @@ function EditSpecialOrder(props: PropTypes) {
     type: specialOrder?.type || undefined,
     order_original_code: specialOrder?.order_original_code || undefined,
     order_carer_code: specialOrder?.order_carer_code || undefined,
-    skus: variantSkus.length > 0 ? variantSkus : undefined,
+    variant_skus: variantSkus.length > 0 ? variantSkus : undefined,
     amount: specialOrder?.amount || undefined,
     order_return_code: specialOrder?.order_return_code || undefined,
     reason: specialOrder?.reason || undefined,

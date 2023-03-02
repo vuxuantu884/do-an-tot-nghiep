@@ -1,7 +1,14 @@
 import { Button, Col, Form, FormInstance, Input, Row, Tag } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
@@ -22,7 +29,8 @@ import { InventoryTransferTabUrl } from "config/url.config";
 import { useQuery } from "utils/useQuery";
 import TreeStore from "component/CustomTreeSelect";
 import { StoreByDepartment, StoreResponse } from "model/core/store.model";
-import { PageResponse } from "../../../../../../model/base/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
+import { RefTreeSelectProps } from "antd/es/tree-select";
 
 type OrderFilterProps = {
   accountStores?: Array<StoreResponse> | null;
@@ -61,6 +69,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
   const [formAdv] = Form.useForm();
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
+  const inputSearchRef = useRef<Input | null>(null);
+  const fromStoreSelectRef = useRef<RefTreeSelectProps | undefined>(undefined);
+  const toStoreSelectRef = useRef<RefTreeSelectProps | undefined>(undefined);
   let status: string[] = [];
   const query: any = useQuery();
   if (!query?.status) {
@@ -101,6 +112,30 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
   const initialValues = useMemo(() => {
     return filterFromParams;
   }, [filterFromParams]);
+
+  useEffect(() => {
+    if (!inputSearchRef) return;
+    if (activeTab === "") return;
+    if (activeTab === `${InventoryTransferTabUrl.LIST}/` || activeTab === InventoryTransferTabUrl.HISTORIES) {
+      inputSearchRef?.current?.focus();
+    }
+  }, [activeTab, inputSearchRef]);
+
+  useEffect(() => {
+    if (!toStoreSelectRef) return;
+    if (activeTab === "") return;
+    if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER) {
+      toStoreSelectRef?.current?.focus();
+    }
+  }, [activeTab, toStoreSelectRef]);
+
+  useEffect(() => {
+    if (!fromStoreSelectRef) return;
+    if (activeTab === "") return;
+    if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE) {
+      fromStoreSelectRef?.current?.focus();
+    }
+  }, [activeTab, fromStoreSelectRef]);
 
   useEffect(() => {
     if (activeTab === "") return;
@@ -523,6 +558,8 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
           >
             <Item name="from_store_id" className="select-item">
               <TreeStore
+                defaultOpen={activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE}
+                ref={fromStoreSelectRef}
                 placeholder="Kho gửi"
                 storeByDepartmentList={stores as unknown as StoreByDepartment[]}
                 style={{ width: 280 }}
@@ -530,6 +567,8 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
             </Item>
             <Item name="to_store_id" className="select-item">
               <TreeStore
+                defaultOpen={activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}
+                ref={toStoreSelectRef}
                 placeholder="Kho nhận"
                 storeByDepartmentList={stores as unknown as StoreByDepartment[]}
                 style={{ width: 280 }}
@@ -537,6 +576,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
             </Item>
             <Item name="condition" className="input-search">
               <Input
+                ref={inputSearchRef}
                 className="input-search"
                 prefix={<img src={search} alt="" />}
                 placeholder="Tìm kiếm theo mã phiếu chuyển, SKU"

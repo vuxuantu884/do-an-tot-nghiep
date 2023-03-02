@@ -1,5 +1,6 @@
 import { Button, Card, Form, Input, Select, Table, Tooltip } from "antd";
 import ContentContainer from "component/container/content.container";
+import TreeStore from "component/CustomTreeSelect";
 import UrlConfig from "config/url.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
@@ -12,7 +13,7 @@ import { CustomerVisitorsFilter, LocalStorageKey } from "model/report/customer-v
 import moment from "moment";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TreeStore from "component/CustomTreeSelect";
+import { CustomerVisitorsType } from "screens/reports/common/enums/customer-visitors-type.enum";
 import { getCustomerVisitors, updateCustomerVisitors } from "service/report/analytics.service";
 import { callApiNative } from "utils/ApiUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
@@ -215,10 +216,11 @@ function CustomerVisitors() {
           year: yearQuery,
           storeIds,
           assigneeCodes,
+          source: CustomerVisitorsType.Assignee,
         },
       );
       if (!customerVisitors) {
-        showError("Lỗi khi lấy số lượng khách vào cửa hàng");
+        showError("Lỗi khi lấy số lượng khách hàng đã tư vấn");
         setLoadingTable(false);
         setIsFilter(false);
       }
@@ -376,7 +378,7 @@ function CustomerVisitors() {
     const { storeIds, assigneeCodes } = form.getFieldsValue();
     if (storeIds.length && !assigneeCodes.length) {
       showError(
-        "Vui lòng chọn nhân viên bán hàng để cập nhật khách vào cửa hàng theo nhân từng viên bán hàng",
+        "Vui lòng chọn nhân viên bán hàng để cập nhật khách hàng đã tư vấn theo nhân từng viên bán hàng",
       );
       setLoadingTable(false);
       return;
@@ -389,7 +391,9 @@ function CustomerVisitors() {
           item.assignee_code.toLowerCase() === assigneeCode.toLowerCase(),
       );
     if (params && params.assignee_code.toLowerCase() === allStaffCode.toLowerCase()) {
-      showError("Vui lòng bấm lọc để tiếp tục cập nhật khách vào cửa hàng theo nhân viên đã chọn");
+      showError(
+        "Vui lòng bấm lọc để tiếp tục cập nhật khách hàng đã tư vấn theo nhân viên đã chọn",
+      );
       setLoadingTable(false);
       return;
     }
@@ -398,12 +402,12 @@ function CustomerVisitors() {
         { isShowError: true },
         dispatch,
         updateCustomerVisitors,
-        params,
+        { ...params, source: CustomerVisitorsType.Assignee },
       );
       if (response) {
-        showSuccess("Cập nhật lượng khách vào cửa hàng thành công");
+        showSuccess("Cập nhật lượng khách hàng đã tư vấn thành công");
       } else {
-        showError("Cập nhật lượng khách vào cửa hàng không thành công");
+        showError("Cập nhật lượng khách hàng đã tư vấn không thành công");
       }
     }
     setLoadingTable(false);
@@ -425,13 +429,13 @@ function CustomerVisitors() {
     <CustomerVisitorsStyle>
       <ContentContainer
         isLoading={loading}
-        title={"Nhập số lượng khách vào cửa hàng"}
+        title={"Nhập số lượng khách hàng đã tư vấn"}
         breadcrumb={[
           {
             name: `Danh sách báo cáo bán lẻ`,
             path: UrlConfig.ANALYTIC_SALES_OFFLINE,
           },
-          { name: "Nhập số lượng khách vào cửa hàng" },
+          { name: "Nhập số lượng khách hàng đã tư vấn" },
         ]}
       >
         <Form
@@ -527,7 +531,8 @@ function CustomerVisitors() {
             </div>
             <div className="pb-2">
               <em className="text-primary">
-                Lưu ý: Chỉ được chọn 1 cửa hàng khi muốn nhập khách vào cửa hàng theo từng nhân viên
+                Lưu ý: Chỉ được chọn 1 cửa hàng khi muốn nhập khách hàng đã tư vấn theo từng nhân
+                viên
               </em>
             </div>
           </Card>
@@ -566,9 +571,9 @@ function CustomerVisitors() {
                         </Tooltip>
                       }
                       fixed={
-                        index > 0 && index < columns.length - 1
+                        index > 1 && index < columns.length - 1
                           ? undefined
-                          : index === 0
+                          : index <= 1
                           ? "left"
                           : "right"
                       }

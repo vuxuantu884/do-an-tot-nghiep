@@ -1,7 +1,7 @@
 import { Button, Col, Form, FormInstance, Input, Row, Tag } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
@@ -20,7 +20,7 @@ import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
 import TreeStore from "component/CustomTreeSelect";
 import { StoreByDepartment, StoreResponse } from "model/core/store.model";
-import { PageResponse } from "../../../../../../model/base/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 
 const ACTIONS_STATUS_ARRAY = [
   {
@@ -84,6 +84,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
   const [formAdv] = Form.useForm();
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
+  const inputSearchRef = useRef<Input | null>(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const filterFromParams = {
     ...params,
@@ -303,6 +304,11 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
     return list;
   }, [initialValues, accounts]);
 
+  useEffect(() => {
+    if (!inputSearchRef) return;
+    inputSearchRef?.current?.focus();
+  }, [inputSearchRef]);
+
   return (
     <InventoryFiltersWrapper>
       <div className="custom-filter">
@@ -329,6 +335,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
             </Item>
             <Item name="condition" className="input-search">
               <Input
+                ref={inputSearchRef}
                 prefix={<img src={search} alt="" />}
                 placeholder="Tìm kiếm theo Mã phiếu"
                 onBlur={(e) => {

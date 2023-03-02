@@ -1097,15 +1097,6 @@ const deliveryServicesDataTest: any = [
     transport_types: [],
   },
   {
-    id: 13,
-    code: "BE",
-    external_service_code: "BE",
-    logo: "https://yody-prd-media.s3.ap-southeast-1.amazonaws.com/images/logo/best+express.png",
-    name: "BEST Express",
-    active: true,
-    transport_types: [],
-  },
-  {
     id: 14,
     code: "LEX",
     external_service_code: "LEX",

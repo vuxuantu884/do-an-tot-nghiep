@@ -9,7 +9,7 @@ import { getListStore } from "service/core/store.service";
 import { callApiNative } from "utils/ApiUtils";
 import {
   StockInOutField,
-  StockInOutType,
+  EnumStockInOutType,
   stockInReason,
   StockInReasonField,
   stockOutReason,
@@ -24,6 +24,8 @@ import * as FileSaver from "file-saver";
 import { UploadRequestOption } from "rc-upload/lib/interface";
 import { uploadFileApi } from "service/core/import.service";
 import { HttpStatus } from "config/http-status.config";
+import { VariantResponse } from "model/product/product.model";
+import ModalConfirm from "component/modal/ModalConfirm";
 
 interface StockInOutWareHouseFormProps {
   title: string;
@@ -35,6 +37,9 @@ interface StockInOutWareHouseFormProps {
   setFileUrl: (file: any) => any;
   setIsEmptyFile: (value: any) => any;
   setIsRequireNote: (require: boolean) => void;
+  setVariantsResult: React.Dispatch<React.SetStateAction<Array<VariantResponse>>>;
+  storeID: number | undefined;
+  setStoreID: React.Dispatch<React.SetStateAction<number | undefined>>;
 }
 
 type AccountStore = {
@@ -56,8 +61,12 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (
     isEmptyFile,
     setIsEmptyFile,
     setFileUrl,
+    storeID,
+    setVariantsResult,
+    setStoreID,
   } = props;
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
+  const [isShowModalChangeStore, setIsShowModalChangeStore] = useState<boolean>(false);
   const userStores: any = useSelector(
     (state: RootReducerType) => state.userReducer.account?.account_stores,
   );
@@ -143,6 +152,35 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (
     }
   };
 
+  const changeStore = (value: number | undefined) => {
+    if (storeID && value !== storeID) {
+      setIsShowModalChangeStore(true);
+      return;
+    }
+    setStoreID(value);
+  };
+
+  const confirmChangeStore = () => {
+    formMain.setFieldsValue({
+      [StockInOutField.stock_in_out_other_items]: [],
+    });
+    const newStoreID = formMain.getFieldValue(StockInOutField.store_id);
+    setVariantsResult([]);
+    setStoreID(newStoreID);
+    const store = listStore.find((item: StoreResponse) => item.id === newStoreID);
+    formMain.setFieldsValue({
+      [StockInOutField.store]: store?.name,
+    });
+    setIsShowModalChangeStore(false);
+  };
+
+  const cancelChangeStore = () => {
+    formMain.setFieldsValue({
+      [StockInOutField.store_id]: storeID,
+    });
+    setIsShowModalChangeStore(false);
+  };
+
   return (
     <Card title={title} bordered={false}>
       <Row className="upload">
@@ -157,7 +195,9 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (
             accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
           >
             <Button icon={<UploadOutlined />}>
-              <span className="btn-upload">Nhập file sản phẩm</span>
+              <span id="stock_in_out_file" className="btn-upload">
+                Nhập file sản phẩm
+              </span>
             </Button>
           </Upload>
         </div>
@@ -193,7 +233,9 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (
               showArrow
               optionFilterProp="children"
               placeholder="Chọn 1 kho hàng"
-              onSelect={(value: number) => {
+              onChange={changeStore}
+              onSelect={(value: number | undefined) => {
+                if (!value) return;
                 const store = listStore.find((item: StoreResponse) => item.id === value);
                 if (store)
                   formMain.setFieldsValue({
@@ -211,7 +253,7 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (
           </Form.Item>
         </Col>
         <Col span={12}>
-          {stockInOutType === StockInOutType.stock_in ? (
+          {stockInOutType === EnumStockInOutType.StockIn ? (
             <>
               <Text strong>Lý do nhập </Text>
               <span style={{ color: "red" }}>*</span>
@@ -282,6 +324,17 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (
           )}
         </Col>
       </Row>
+      {isShowModalChangeStore && (
+        <ModalConfirm
+          onCancel={cancelChangeStore}
+          onOk={confirmChangeStore}
+          okText="Đồng ý"
+          cancelText="Hủy"
+          title={`Bạn có chắc chắn đổi cửa hàng?`}
+          subTitle="Thông tin sản phẩm trong phiếu sẽ không được lưu."
+          visible={isShowModalChangeStore}
+        />
+      )}
     </Card>
   );
 };

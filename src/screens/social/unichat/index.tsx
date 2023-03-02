@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { useQuery } from "utils/useQuery";
 import { getToken, getUnichatSource, setUnichatSource } from "utils/LocalStorageUtils";
@@ -33,11 +33,24 @@ const Unichat: React.FC = () => {
     window.history.pushState({}, "", url.toString());
   };
 
-  const getUnichatIframeUrl = () => {
-    const pathParam = new URLSearchParams(window.location.search).get("path");
-    const path = pathParam ? pathParam : "";
-    return new URL(AppConfig.unichatUrl || "").origin + path;
-  };
+  const getUnichatIframeUrl = useMemo(() => {
+    let urlSearchParams = new URLSearchParams(window.location.search);
+
+    const pathParam = urlSearchParams.get("path");
+    let path = "";
+
+    if (!pathParam || pathParam === "/") {
+      path = `?v=${Date.now()}`;
+    } else {
+      if (!pathParam.includes("v=")) {
+        path = `${pathParam}?v=${Date.now()}`;
+      } else {
+        path = `${pathParam.replace(/(\bv=)\d+/, `v=${Date.now()}`)}`;
+      }
+    }
+    let newUrl = new URL(AppConfig.unichatUrl || "").origin + path;
+    return newUrl;
+  }, []);
 
   useEffect(() => {
     dispatch(hideLoading());
@@ -155,7 +168,7 @@ const Unichat: React.FC = () => {
           name="unichat-iframe"
           className="ydpage-iframe"
           title="unichat"
-          src={getUnichatIframeUrl()}
+          src={getUnichatIframeUrl}
           allow="clipboard-read; clipboard-write"
           style={{ width: "100%", height: "100%" }}
         ></iframe>

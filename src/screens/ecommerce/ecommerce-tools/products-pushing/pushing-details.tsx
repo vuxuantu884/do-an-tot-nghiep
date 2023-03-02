@@ -9,12 +9,13 @@ import {
   shopeeShopDetailsProductPushingApi,
   updateProductsPushingApi,
 } from "service/ecommerce/ecommerce.service";
-import CustomTable, { ICustomTableColumType } from "../table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "../../table/CustomTable";
 import PushingEditModal from "./pushing-edit-modal";
 
 import { StyledProductsPushing } from "./styled";
 import { ECOMMERCE_ICON } from "screens/ecommerce/common/commonAction";
 import defaultAvatarIcon from "assets/icon/default-avatar.svg";
+import { showError } from "utils/ToastUtils";
 
 type Props = {};
 type ShopIDParam = {
@@ -33,16 +34,22 @@ function PushingDetails(props: Props) {
   const getShopDetails = useCallback(async () => {
     try {
       const shopData = await shopeeShopDetailsProductPushingApi(id);
-      setShopData(
-        shopData.data.boosts.map((i: any, index: number) => {
-          return {
-            index: index + 1,
-            ...i,
-          };
-        }),
-      );
-      setShopName(shopData.data.shop_name);
-      setShopLogo(shopData.data.logo || defaultAvatarIcon);
+      if (!shopData.errors) {
+        setShopData(
+          shopData.data.boosts.map((i: any, index: number) => {
+            return {
+              index: index + 1,
+              ...i,
+            };
+          }),
+        );
+        setShopName(shopData.data.shop_name);
+        setShopLogo(shopData.data.logo || defaultAvatarIcon);
+      } else {
+        shopData.errors.forEach((error: string) => {
+          showError(error);
+        });
+      }
       setLoadingData(false);
     } catch {}
   }, [id]);

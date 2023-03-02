@@ -370,6 +370,7 @@ function OrderCreateProduct(props: PropTypes) {
   const [isLineItemChanging, setIsLineItemChanging] = useState(false);
   const [isFinishedCalculateItem, setIsFinishedCalculateItem] = useState(true);
 
+  const [isLoadingInventory, setLoadingInventory] = useState(false);
   const [storeArrayResponse, setStoreArrayResponse] = useState<Array<StoreResponse> | null>([]);
   // const [discountOrder, setDiscounts] = useState<SuggestDiscountResponseModel[]>([]);
   const [inventoryResponse, setInventoryResponse] = useState<Array<any> | null>(null);
@@ -2746,6 +2747,7 @@ function OrderCreateProduct(props: PropTypes) {
   }, [props.isSpecialOrderEcommerce?.isChange]);
 
   const getInventory = useCallback(() => {
+    setLoadingInventory(true);
     const shippingAddress = orderCustomer ? getCustomerShippingAddress(orderCustomer) : null;
 
     (async () => {
@@ -2763,24 +2765,25 @@ function OrderCreateProduct(props: PropTypes) {
       try {
         const inventorySuggest = await getSuggestStoreInventory(body);
         setInventoryResponse(inventorySuggest.data);
+        setLoadingInventory(false);
       } catch (error) {}
     })();
   }, [lineItemsUseInventory, orderCustomer]);
   useEffect(() => {
     // call khi thêm xoá sản phẩm (không call khi thay đổi số lượng)
-    if (lineItemsUseInventory.length > 0 && levelOrder <= 3) {
-      getInventory();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, levelOrder, lineItemsUseInventory.length]);
-
-  useEffect(() => {
-    // call lại api kiểm tra tồn (suggest kho bao gồm cả số lượng sản phẩm)
     if (lineItemsUseInventory.length > 0 && levelOrder <= 3 && isInventoryModalVisible) {
       getInventory();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, levelOrder, lineItemsUseInventory.length, isInventoryModalVisible, orderCustomer]);
+  }, [dispatch, isInventoryModalVisible]);
+
+  // useEffect(() => {
+  //   // call lại api kiểm tra tồn (suggest kho bao gồm cả số lượng sản phẩm)
+  //   if (lineItemsUseInventory.length > 0 && levelOrder <= 3) {
+  //     getInventory();
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [dispatch, levelOrder, lineItemsUseInventory.length, orderCustomer]);
 
   return (
     <StyledComponent>
@@ -2833,7 +2836,7 @@ function OrderCreateProduct(props: PropTypes) {
               storeId={storeId}
               items={items}
               handleItems={(items) => {
-                if (!isAutomaticDiscount && !coupon) {
+                if (!isAutomaticDiscount) {
                   calculateChangeMoney(items);
                 } else {
                   let result = items.map((item) => {
@@ -3055,6 +3058,7 @@ function OrderCreateProduct(props: PropTypes) {
             inventoryArray={inventoryResponse}
             storeArrayResponse={storeArrayResponse}
             handleCancel={handleInventoryCancel}
+            isLoading={isLoadingInventory}
           />
         )}
       </Card>

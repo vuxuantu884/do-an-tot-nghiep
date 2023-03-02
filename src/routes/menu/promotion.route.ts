@@ -276,7 +276,7 @@ const promotion: Array<RouteMenu> = [
   {
     path: `${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}`,
     exact: true,
-    title: "Quản lý chiến dịch",
+    title: "Quản lý chương trình KM",
     icon: "icon-dot",
     component: PromotionCampaignList,
     key: "promotion-campaigns",
@@ -287,7 +287,7 @@ const promotion: Array<RouteMenu> = [
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}/create`,
         exact: true,
-        title: "Tạo chiến dịch",
+        title: "Tạo chương trình KM",
         icon: "icon-dot",
         component: PromotionCampaignCreate,
         key: "promotion-campaign-create",
@@ -299,7 +299,7 @@ const promotion: Array<RouteMenu> = [
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}/:id`,
         exact: true,
-        title: "Chi tiết chiến dịch",
+        title: "Chi tiết chương trình KM",
         icon: "icon-dot",
         component: PromotionCampaignDetail,
         key: "promotion-campaigns-detail",
@@ -311,7 +311,7 @@ const promotion: Array<RouteMenu> = [
       {
         path: `${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}/:id/update`,
         exact: true,
-        title: "Sửa chiến dịch",
+        title: "Sửa chương trình KM",
         icon: "icon-dot",
         component: PromotionCampaignUpdate,
         key: "promotion-campaigns-update",
