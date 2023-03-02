@@ -6,7 +6,6 @@ export interface InventoryAdjustmentSearchQuery {
   limit: number;
   condition: string | null;
   adjusted_store_id: number | null;
-  adjusted_store_ids: string[] | null | number[];
   status: [] | null;
   audit_type: [] | null;
   from_total_variant: number | null;
