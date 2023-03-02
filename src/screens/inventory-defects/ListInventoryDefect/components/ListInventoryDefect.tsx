@@ -336,7 +336,7 @@ const ListInventoryDefect: React.FC<ListInventoryDefectProps> = (
       {
         title: "Cửa hàng",
         dataIndex: "store",
-        align: "left",
+        align: "center",
         visible: true,
         width: 150,
         render: (text: string, item: InventoryDefectResponse) => {
@@ -346,7 +346,7 @@ const ListInventoryDefect: React.FC<ListInventoryDefectProps> = (
       {
         title: <Tooltip title="Số tồn trong tại thời điểm hiện tại">Tồn trong kho</Tooltip>,
         dataIndex: "on_hand",
-        align: "right",
+        align: "center",
         visible: true,
         width: 120,
         render: (text: string, item: InventoryDefectResponse) => {
@@ -370,7 +370,7 @@ const ListInventoryDefect: React.FC<ListInventoryDefectProps> = (
         titleCustom: "Số tồn lỗi",
         dataIndex: "defect",
         width: 120,
-        align: "right",
+        align: "center",
         visible: true,
         render: (value, item: InventoryDefectResponse, index: number) => {
           const hasPermission = [InventoryDefectsPermission.update].some((element) => {
@@ -396,7 +396,6 @@ const ListInventoryDefect: React.FC<ListInventoryDefectProps> = (
       {
         title: "Ghi chú",
         dataIndex: "note",
-        align: "left",
         width: 280,
         visible: true,
         render: (value: string, item: InventoryDefectResponse) => {
