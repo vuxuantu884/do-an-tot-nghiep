@@ -133,11 +133,7 @@ const PurchaseOrderReturnList: React.FC<PurchaseOrderReturnProps> = (
         render: (value, record, index) => {
           return (
             <>
-              <Link
-                to={`${PurchaseOrderTabUrl.RETURN}/${record.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <Link to={`${PurchaseOrderTabUrl.RETURN}/${record.id}`} rel="noopener noreferrer">
                 <b>{value}</b>
               </Link>
               <div style={{ fontSize: 12 }}>
