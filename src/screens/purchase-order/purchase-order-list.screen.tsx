@@ -363,7 +363,6 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
               <Link
                 to={`${UrlConfig.PURCHASE_ORDERS}/${record.id}`}
                 style={{ fontWeight: 500, fontSize: 16, marginRight: 4 }}
-                target="_blank"
               >
                 {value}
               </Link>
