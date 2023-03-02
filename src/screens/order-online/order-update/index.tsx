@@ -75,6 +75,7 @@ import {
 } from "utils/AppUtils";
 import {
   DEFAULT_COMPANY,
+  EnumOrderType,
   FulFillmentStatus,
   OrderStatus,
   PaymentMethodCode,
@@ -88,7 +89,6 @@ import { DATE_FORMAT } from "utils/DateUtils";
 import {
   getFulfillmentActive,
   isFulfillmentConfirmed,
-  isFulfillmentPicked,
   sortFulfillments,
 } from "utils/fulfillmentUtils";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
@@ -139,6 +139,8 @@ export default function Order(props: PropTypes) {
   );
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [customerChange, setCustomerChange] = useState(false);
+
+  const [orderType, setOrderType] = useState<string>(EnumOrderType.b2c);
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
   const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone] = useState<string>();
@@ -1237,6 +1239,7 @@ export default function Order(props: PropTypes) {
             // automatic_discount: response.automatic_discount,
             automatic_discount: false, // sửa đơn hàng ko mặc định bật chiết khấu tự động
             uniform: response.uniform,
+            type: response.type || EnumOrderType.b2c,
           });
           setShippingFeeInformedToCustomer(response.shipping_fee_informed_to_customer);
           setPromotionTitle(promotionUtils.getPromotionTextFromResponse(response.note || ""));
@@ -1293,6 +1296,10 @@ export default function Order(props: PropTypes) {
               isEcommerce: true,
               isChange: false,
             });
+          }
+
+          if (response.type) {
+            setOrderType(response.type);
           }
         }
         if (response.source) {
@@ -1703,6 +1710,7 @@ export default function Order(props: PropTypes) {
                     handleChangeShippingFeeApplyOrderSettings={
                       handleChangeShippingFeeApplyOrderSettings
                     }
+                    orderType={orderType}
                   />
 
                   <OrderCreateProduct
@@ -1740,6 +1748,7 @@ export default function Order(props: PropTypes) {
                       handleChangeShippingFeeApplyOrderSettings
                     }
                     isSpecialOrderEcommerce={isSpecialOrderEcommerce}
+                    orderType={orderType}
                   />
                   <CardShowOrderPayments
                     OrderDetail={OrderDetail}
@@ -1925,6 +1934,7 @@ export default function Order(props: PropTypes) {
                           handleChangeShippingFeeApplyOrderSettings
                         }
                         setIsShippingFeeAlreadyChanged={setIsShippingFeeAlreadyChanged}
+                        orderType={orderType}
                       />
                     )}
                   </Card>
@@ -1962,6 +1972,7 @@ export default function Order(props: PropTypes) {
                       }
                     }}
                     orderSource={orderSource}
+                    orderType={orderType}
                   />
                 </Col>
               </Row>

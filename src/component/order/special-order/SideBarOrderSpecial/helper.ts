@@ -58,7 +58,7 @@ export const specialOrderTypes: SpecialOrderTypeModel = {
     displayFields: [specialOrderDisplayField.nhanVienCSDH, specialOrderDisplayField.donTra],
   },
   orders_cancel: {
-    title: "Hoàn, huỷ",
+    title: "Có vấn đề",
     value: "orders_cancel",
     displayFields: [specialOrderDisplayField.nhanVienCSDH, specialOrderDisplayField.lyDo],
   },

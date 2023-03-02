@@ -99,6 +99,7 @@ import {
   checkIfOrderHasNotFinishPaymentMomo,
   checkIfOrderSplit,
   isDeliveryOrderReturned,
+  isOrderWholesale,
 } from "utils/OrderUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import {
@@ -1268,7 +1269,7 @@ const OrderDetail = (props: PropTypes) => {
                   orderDetailHandover={orderDetailHandover}
                   currentStores={currentStores}
                 />
-                {!isOrderFromPOS(OrderDetail) && (
+                {!isOrderFromPOS(OrderDetail) && !isOrderWholesale(OrderDetail) && (
                   <SideBarOrderSpecial
                     specialOrder={OrderDetail?.special_order}
                     handleCreateOrUpdateSpecialOrder={handleCreateOrUpdateSpecialOrder}

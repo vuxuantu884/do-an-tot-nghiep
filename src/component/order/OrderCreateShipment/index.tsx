@@ -29,7 +29,7 @@ import { useDispatch, useSelector } from "react-redux";
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import useFetchExternalShippers from "screens/order-online/hooks/useFetchExternalShippers";
 import { getShippingAddressDefault, isOrderFinishedOrCancel, SumWeight } from "utils/AppUtils";
-import { ShipmentMethodOption, SHIPPING_REQUIREMENT } from "utils/Constants";
+import { EnumOrderType, ShipmentMethodOption, SHIPPING_REQUIREMENT } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { primaryColor } from "utils/global-styles/variables";
 import {
@@ -82,6 +82,7 @@ type PropTypes = {
     value: ChangeShippingFeeApplyOrderSettingParamModel,
   ) => void;
   setIsShippingFeeAlreadyChanged: (value: boolean) => void;
+  orderType?: string;
 };
 
 /**
@@ -193,7 +194,7 @@ function OrderCreateShipment(props: PropTypes) {
       name: "Chuyển hãng vận chuyển",
       value: ShipmentMethodOption.DELIVER_PARTNER,
       // icon: IconDelivery,
-      isDisabled: isOrderReturnOffline,
+      isDisabled: isOrderReturnOffline || props.orderType === EnumOrderType.b2b,
     },
     {
       name: "Tự giao hàng",
@@ -253,7 +254,8 @@ function OrderCreateShipment(props: PropTypes) {
                       items?.length &&
                       items?.length > 0 &&
                       button.value === 2 &&
-                      !isOrderDetailPage
+                      !isOrderDetailPage &&
+                      props.orderType !== EnumOrderType.b2b
                     ) {
                       handleChangeShippingFeeApplyOrderSettings({
                         customerShippingAddressCityId: shippingAddressDefault?.city_id,
@@ -409,7 +411,10 @@ function OrderCreateShipment(props: PropTypes) {
           form={form}
           renderButtonCreateActionHtml={renderButtonCreateActionHtml}
           orderPageType={orderPageType}
-          handleChangeShippingFeeApplyOrderSettings={handleChangeShippingFeeApplyOrderSettings}
+          handleChangeShippingFeeApplyOrderSettings={(value) => {
+            props.orderType !== EnumOrderType.b2b &&
+              handleChangeShippingFeeApplyOrderSettings(value);
+          }}
         />
       ),
       // Tự vận chuyển

@@ -141,6 +141,7 @@ export interface OrderModel extends BaseObject {
   actual_quantity?: number | null;
   uniform?: boolean | null;
   special_order?: SpecialOrderResponseModel;
+  type?: string;
 }
 
 export interface OrderSearchQuery {
@@ -225,6 +226,7 @@ export interface OrderSearchQuery {
   uniform?: boolean | string | null;
   expired_at?: number | null;
   returned_store_ids?: number[] | null;
+  types?: Array<string>;
 }
 
 export interface CustomOrderSearchQueryModel {

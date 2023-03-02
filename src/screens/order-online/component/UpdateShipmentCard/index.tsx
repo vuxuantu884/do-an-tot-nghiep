@@ -926,6 +926,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                   handleChangeShippingFeeApplyOrderSettings
                 }
                 setIsShippingFeeAlreadyChanged={setIsShippingFeeAlreadyChanged}
+                orderType={OrderDetail?.type}
               />
             </Form>
             {/*--- Giao hàng sau ----*/}

@@ -54,6 +54,7 @@ export interface OrderRequest {
   bill?: OrderBillRequestFormModel | null;
   uniform?: boolean | null | undefined;
   account?: string | null;
+  type?: string | null;
 }
 
 export interface ReturnRequest extends OrderRequest {
@@ -67,7 +68,7 @@ export interface ReturnRequest extends OrderRequest {
   store_code: string;
   store_phone_number: string;
   store_full_address: string;
-  type: string;
+  //type: string;
   money_refund: number;
   channel?: string | null;
   channel_code?: string | null;

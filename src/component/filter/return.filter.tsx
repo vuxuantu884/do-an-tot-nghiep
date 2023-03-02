@@ -1,4 +1,4 @@
-import { Button, Col, Form, FormInstance, Input, Row, Tag } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Select, Tag } from "antd";
 import React from "react";
 
 import { FilterOutlined, SettingOutlined } from "@ant-design/icons";
@@ -32,13 +32,15 @@ import TreeStore from "component/CustomTreeSelect";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
-import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
+import { FILTER_CONFIG_TYPE, ORDER_TYPES_ONLINE, POS } from "utils/Constants";
 import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
 import { ORDER_TYPES } from "utils/Order.constants";
 import { formatDateTimeOrderFilter, getTimeFormatOrderFilterTag } from "utils/OrderUtils";
 import BaseFilter from "./base.filter";
 import "./order.filter.scss";
 import UserCustomFilterTag from "./UserCustomFilterTag";
+import useAuthorization from "hook/useAuthorization";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 
 type Props = {
   params: ReturnSearchQuery;
@@ -79,6 +81,12 @@ function ReturnFilter(props: Props) {
     userConfigs,
     handleCountForceFetchUserConfigs,
   } = props;
+
+  const [allowOrderB2BRead] = useAuthorization({
+    acceptPermissions: [ORDER_PERMISSIONS.ORDERS_B2B_READ],
+    not: false,
+  });
+
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
   console.log("reasons", reasons);
@@ -170,7 +178,9 @@ function ReturnFilter(props: Props) {
         case "returned_store_ids":
           onFilter && onFilter({ ...params, returned_store_ids: [] });
           break;
-
+        case "order_types":
+          onFilter && onFilter({ ...params, order_types: [] });
+          break;
         default:
           break;
       }
@@ -213,19 +223,21 @@ function ReturnFilter(props: Props) {
       coordinator_codes: Array.isArray(params.coordinator_codes)
         ? params.coordinator_codes
         : [params.coordinator_codes],
+      returned_store_ids: Array.isArray(params.returned_store_ids)
+        ? params.returned_store_ids.map((i) => Number(i))
+        : [Number(params.returned_store_ids)],
+      order_types: params.order_types
+        ? Array.isArray(params.order_types)
+          ? params.order_types
+          : [params.order_types]
+        : [],
 
       created_on_min: formatDateFilter(params.created_on_min || undefined),
       created_on_max: formatDateFilter(params.created_on_max || undefined),
       received_on_min: formatDateFilter(params.received_on_min || undefined),
       received_on_max: formatDateFilter(params.received_on_max || undefined),
-
-      returned_store_ids: Array.isArray(params.returned_store_ids)
-        ? params.returned_store_ids.map((i) => Number(i))
-        : [Number(params.returned_store_ids)],
     };
   }, [params]);
-
-  // console.log('initialValues', initialValues)
 
   const sourcesResult = useMemo(() => {
     if (orderType === ORDER_TYPES.online) {
@@ -670,6 +682,18 @@ function ReturnFilter(props: Props) {
       });
     }
 
+    if (initialValues.order_types && initialValues.order_types.length !== 0) {
+      const _type = ORDER_TYPES_ONLINE.filter((p) =>
+        initialValues.order_types.some((p1) => p1 === p.code),
+      );
+      const textRecord = _type.map((p) => p.name).join(", ");
+      list.push({
+        key: "order_types",
+        name: "Loại đơn bán",
+        value: textRecord,
+      });
+    }
+
     return list;
   }, [
     initialValues.store_ids,
@@ -687,7 +711,8 @@ function ReturnFilter(props: Props) {
     initialValues.account_codes.length,
     initialValues?.searched_product,
     initialValues.coordinator_codes,
-    initialValues?.returned_store_ids,
+    initialValues.returned_store_ids,
+    initialValues.order_types,
     listStore,
     reasons,
     dateFormat,
@@ -1099,6 +1124,26 @@ function ReturnFilter(props: Props) {
                     </Item>
                   </Col>
                 )}
+                <Col
+                  span={8}
+                  xxl={8}
+                  hidden={orderType !== ORDER_TYPES.online || !allowOrderB2BRead}
+                >
+                  <Item name="order_types" label="Loại đơn bán:">
+                    <Select
+                      placeholder="Loại đơn bán (Bán buôn/ bán lẻ)"
+                      style={{ width: "100%" }}
+                      allowClear
+                      mode="multiple"
+                    >
+                      {ORDER_TYPES_ONLINE.map((p, index) => (
+                        <Select.Option key={index} value={p.code}>
+                          {p.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Item>
+                </Col>
               </Row>
             </Form>
           )}

@@ -29,7 +29,7 @@ import { successColor } from "utils/global-styles/variables";
 import { StyledComponent } from "./styles";
 import { DiscountUnitType } from "screens/promotion/constants";
 import { OrderStatus, FulFillmentStatus } from "utils/Constants";
-import { checkIfOrderSplit, fixOrderPositionItem } from "utils/OrderUtils";
+import { checkIfOrderSplit, fixOrderPositionItem, isOrderWholesale } from "utils/OrderUtils";
 
 type PropTypes = {
   shippingFeeInformedCustomer: number | null;
@@ -322,7 +322,7 @@ function UpdateProductCard(props: PropTypes) {
         extra={
           <Row>
             <Space>
-              {checkIfOrderSplit(OrderDetail) && (
+              {checkIfOrderSplit(OrderDetail) && !isOrderWholesale(OrderDetail) && (
                 <div className="view-inventory-box">
                   <Button
                     ghost

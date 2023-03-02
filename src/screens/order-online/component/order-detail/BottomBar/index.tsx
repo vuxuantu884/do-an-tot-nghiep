@@ -22,6 +22,7 @@ import {
   checkIfOrderFinished,
   checkIfOrderHasNotFinishPaymentMomo,
   isDeliveryOrderReturned,
+  isOrderWholesale,
 } from "utils/OrderUtils";
 import { StyledComponent } from "./styles";
 
@@ -192,7 +193,7 @@ function OrderDetailBottomBar(props: PropTypes) {
                     type="primary"
                     style={{ margin: "0 10px", padding: "0 25px" }}
                     className="create-button-custom ant-btn-outline fixed-button"
-                    disabled={!isPassed}
+                    disabled={!isPassed || isOrderWholesale(orderDetail)}
                   >
                     Trả lại tại quầy
                   </Button>
@@ -371,7 +372,8 @@ function OrderDetailBottomBar(props: PropTypes) {
                           !isPassed ||
                           (orderDetail?.order_return_origin !== null &&
                             orderDetail?.order_return_origin !== undefined) ||
-                          isOrderFromPOS(orderDetail)
+                          isOrderFromPOS(orderDetail) ||
+                          isOrderWholesale(orderDetail)
                         }
                       >
                         Sao chép đơn hàng

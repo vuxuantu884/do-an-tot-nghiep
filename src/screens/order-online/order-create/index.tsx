@@ -13,11 +13,11 @@ import {
   specialOrderTypes,
 } from "component/order/special-order/SideBarOrderSpecial/helper";
 import { AppConfig } from "config/app.config";
+import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
-import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   getLoyaltyPoint,
@@ -36,6 +36,7 @@ import {
   setIsExportBillAction,
   setIsShouldSetDefaultStoreBankAccountAction,
 } from "domain/actions/order/order.action";
+import useAuthorization from "hook/useAuthorization";
 import useFetchStores from "hook/useFetchStores";
 import { modalActionType } from "model/modal/modal.model";
 import { OrderPageTypeModel } from "model/order/order.model";
@@ -89,6 +90,7 @@ import {
 import {
   ADMIN_ORDER,
   DEFAULT_COMPANY,
+  EnumOrderType,
   FACEBOOK,
   OrderStatus,
   PaymentMethodCode,
@@ -118,6 +120,18 @@ import { StyledComponent } from "./styles";
 let typeButton = "";
 
 export default function Order() {
+  const [allowOrderB2BWrite] = useAuthorization({
+    acceptPermissions: [ORDER_PERMISSIONS.ORDERS_B2B_WRITE],
+    not: false,
+  });
+
+  const [allowOrderB2BRead] = useAuthorization({
+    acceptPermissions: [ORDER_PERMISSIONS.ORDERS_B2B_READ],
+    not: false,
+  });
+
+  console.log("useAuthorization", allowOrderB2BWrite, allowOrderB2BRead);
+
   const isUserCanCreateOrder = useRef(true);
   const dispatch = useDispatch();
   const history = useHistory();
@@ -153,6 +167,7 @@ export default function Order() {
 
   const [countFinishingUpdateCustomer, setCountFinishingUpdateCustomer] = useState(0);
   const [countFinishingUpdateSource, setCountFinishingUpdateSource] = useState(0);
+  const [countFinishingUpdateOrderType, setCountFinishingUpdateOrderType] = useState(0);
 
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
@@ -193,13 +208,14 @@ export default function Order() {
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [modalAction, setModalAction] = useState<modalActionType>("edit");
 
+  const [isCloneOrderFromPOS, setIsCloneOrderFromPOS] = useState(false);
+  const [orderType, setOrderType] = useState<string>(EnumOrderType.b2c);
+
   const queryParams = useQuery();
   const customerParam = queryParams.get("customer") || null;
   const actionParam = queryParams.get("action") || null;
   const cloneIdParam = queryParams.get("cloneId") || null;
   const typeParam = queryParams.get("type") || null;
-
-  const [isCloneOrderFromPOS, setIsCloneOrderFromPOS] = useState(false);
 
   const handleCustomer = (_objCustomer: CustomerResponse | null) => {
     setCountFinishingUpdateCustomer((prev) => prev + 1);
@@ -290,12 +306,11 @@ export default function Order() {
       billing_address: null,
       payments: [],
       channel_id: null,
-      automatic_discount: true,
+      automatic_discount: orderType === EnumOrderType.b2b ? false : true,
       export_bill: false,
-
-      type: undefined,
+      type: orderType,
     };
-  }, [userReducer.account?.code]);
+  }, [userReducer.account?.code, orderType]);
 
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
@@ -594,7 +609,7 @@ export default function Order() {
     };
     const specialOrderType = specialOrderForm.getFieldValue("type");
 
-    if (specialOrderType) {
+    if (specialOrderType && values.type !== EnumOrderType.b2b) {
       specialOrderForm
         .validateFields()
         .then((specialOrderFormValue) => {
@@ -949,6 +964,31 @@ export default function Order() {
     shippingServiceConfig,
   } = useCalculateShippingFee(orderProductsAmount, form, setShippingFeeInformedToCustomer, false);
 
+  const handleOrderB2BDefaultValue = useCallback(() => {
+    onSelectShipment(3);
+    ChangeShippingFeeCustomer(0);
+    setPaymentMethod(PaymentMethodOption.PRE_PAYMENT);
+    const paymentSingle = paymentMethods.find((p) => p.code === PaymentMethodCode.BANK_TRANSFER);
+    paymentSingle &&
+      setPayments([
+        {
+          payment_method_id: paymentSingle?.id || 0,
+          amount: 0,
+          paid_amount: 0,
+          return_amount: 0,
+          status: ORDER_PAYMENT_STATUS.paid,
+          name: paymentSingle?.name,
+          payment_method_code: paymentSingle?.code,
+          payment_method: paymentSingle?.name || "",
+          reference: "",
+          source: "",
+          customer_id: 1,
+          note: "",
+          type: "",
+        },
+      ]);
+  }, [onSelectShipment, paymentMethods, ChangeShippingFeeCustomer]);
+
   //Get danh sach promotion qua tang
 
   useEffect(() => {
@@ -1251,6 +1291,7 @@ export default function Order() {
             !checkIfECommerceByOrderChannelCodeUpdateOrder(response.channel_code) &&
             !checkIfECommerceByOrderChannelCodeUpdateOrder(response?.special_order?.ecommerce),
           uniform: response.uniform,
+          type: response.type,
         });
         form.resetFields();
         // load lại form sau khi set initialValue
@@ -1281,6 +1322,9 @@ export default function Order() {
             order_id: undefined,
           });
         }
+        if (response.type) {
+          setOrderType(response.type);
+        }
       }
     };
 
@@ -1309,6 +1353,12 @@ export default function Order() {
               setIsCloneOrderFromPOS(true);
               return;
             }
+
+            if (response.type === EnumOrderType.b2b) {
+              showError("Sao chép đơn hàng, không áp dụng cho đơn bán buôn");
+              return;
+            }
+
             if (response.source) {
               setOrderSource({
                 id: response.source_id,
@@ -1420,6 +1470,39 @@ export default function Order() {
     };
   }, [eventFunctional]);
 
+  useEffect(() => {
+    if (allowOrderB2BWrite) {
+      setInitialForm({
+        ...initialForm,
+        automatic_discount: false,
+        type: EnumOrderType.b2b,
+        store_id: null,
+      });
+      setOrderType(EnumOrderType.b2b);
+      setPaymentMethod(PaymentMethodOption.PRE_PAYMENT);
+      const paymentSingle = paymentMethods.find((p) => p.code === PaymentMethodCode.BANK_TRANSFER);
+      paymentSingle &&
+        setPayments([
+          {
+            payment_method_id: paymentSingle?.id || 0,
+            amount: 0,
+            paid_amount: 0,
+            return_amount: 0,
+            status: ORDER_PAYMENT_STATUS.paid,
+            name: paymentSingle?.name,
+            payment_method_code: paymentSingle?.code,
+            payment_method: paymentSingle?.name || "",
+            reference: "",
+            source: "",
+            customer_id: 1,
+            note: "",
+            type: "",
+          },
+        ]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allowOrderB2BWrite, paymentMethods]);
+
   if (isCloneOrderFromPOS) {
     return <div className="cannotClone">Đơn hàng offline không thể sao chép</div>;
   }
@@ -1493,7 +1576,7 @@ export default function Order() {
                       shippingAddressesSecondPhone={shippingAddressesSecondPhone}
                       setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
                       initialForm={initialForm}
-                      updateOrder
+                      // updateOrder
                       customerChange={customerChange}
                       setCustomerChange={setCustomerChange}
                       // handleOrderBillRequest={setOrderBillRequest}
@@ -1501,6 +1584,19 @@ export default function Order() {
                       handleChangeShippingFeeApplyOrderSettings={
                         handleChangeShippingFeeApplyOrderSettings
                       }
+                      setOrderType={(value) => {
+                        setOrderType(value);
+                        setCountFinishingUpdateOrderType((prev) => prev + 1);
+                        if (value === EnumOrderType.b2b) {
+                          handleOrderB2BDefaultValue();
+                        } else {
+                          setPaymentMethod(PaymentMethodOption.POST_PAYMENT);
+                          setPayments([]);
+                          onSelectShipment(4);
+                          ChangeShippingFeeCustomer(0);
+                        }
+                      }}
+                      orderType={orderType}
                     />
                     <OrderCreateProduct
                       orderProductsAmount={orderProductsAmount}
@@ -1527,6 +1623,7 @@ export default function Order() {
                       loyaltyPoint={loyaltyPoint}
                       countFinishingUpdateCustomer={countFinishingUpdateCustomer}
                       countFinishingUpdateSource={countFinishingUpdateSource}
+                      countFinishingUpdateOrderType={countFinishingUpdateOrderType}
                       shipmentMethod={shipmentMethod}
                       stores={stores}
                       setPromotionTitle={setPromotionTitle}
@@ -1534,6 +1631,7 @@ export default function Order() {
                         handleChangeShippingFeeApplyOrderSettings
                       }
                       isSpecialOrderEcommerce={isSpecialOrderEcommerce}
+                      orderType={orderType}
                     />
                     <Card title="THANH TOÁN">
                       <OrderCreatePayments
@@ -1599,6 +1697,7 @@ export default function Order() {
                           handleChangeShippingFeeApplyOrderSettings
                         }
                         setIsShippingFeeAlreadyChanged={setIsShippingFeeAlreadyChanged}
+                        orderType={orderType}
                       />
                     </Card>
                   </Col>
@@ -1630,6 +1729,7 @@ export default function Order() {
                         }
                       }}
                       orderSource={orderSource}
+                      orderType={orderType}
                     />
                   </Col>
                 </Row>

@@ -14,7 +14,7 @@ import { OrderResponse } from "model/response/order/order.response";
 import { SourceResponse } from "model/response/order/source.response";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { MODAL_ACTION_TYPE } from "utils/Constants";
+import { EnumOrderType, MODAL_ACTION_TYPE } from "utils/Constants";
 import CreateCustomer from "./CreateCustomer";
 import ExtraCardCustomer from "./ExtraCardCustomer";
 import { StyleComponent } from "./ExtraCardCustomer/style";
@@ -47,6 +47,8 @@ type CardCustomerProps = {
   handleChangeShippingFeeApplyOrderSettings: (
     value: ChangeShippingFeeApplyOrderSettingParamModel,
   ) => void;
+  setOrderType?: (value: string) => void;
+  orderType?: string;
 };
 
 const CardCustomer: React.FC<CardCustomerProps> = (props: CardCustomerProps) => {
@@ -139,9 +141,10 @@ const CardCustomer: React.FC<CardCustomerProps> = (props: CardCustomerProps) => 
     handleUpdateCustomer(null);
     if (setVisibleCustomer) setVisibleCustomer(false);
 
-    handleChangeShippingFeeApplyOrderSettings({
-      customerShippingAddressCityId: null,
-    });
+    props.orderType !== EnumOrderType.b2b &&
+      handleChangeShippingFeeApplyOrderSettings({
+        customerShippingAddressCityId: null,
+      });
     setKeySearchCustomer("");
     if (setShippingAddressesSecondPhone) setShippingAddressesSecondPhone("");
   };
@@ -165,6 +168,7 @@ const CardCustomer: React.FC<CardCustomerProps> = (props: CardCustomerProps) => 
             isDisableSelectSource={isDisableSelectSource}
             initialForm={initialForm}
             updateOrder={updateOrder}
+            setOrderType={props.setOrderType}
           />
         }
       >
@@ -216,7 +220,10 @@ const CardCustomer: React.FC<CardCustomerProps> = (props: CardCustomerProps) => 
             isPageOrderUpdate={OrderDetail ? true : false}
             billingAddress={billingAddress}
             setBillingAddress={setBillingAddress}
-            handleChangeShippingFeeApplyOrderSettings={handleChangeShippingFeeApplyOrderSettings}
+            handleChangeShippingFeeApplyOrderSettings={(value) => {
+              props.orderType !== EnumOrderType.b2b &&
+                handleChangeShippingFeeApplyOrderSettings(value);
+            }}
           />
         )}
       </Card>

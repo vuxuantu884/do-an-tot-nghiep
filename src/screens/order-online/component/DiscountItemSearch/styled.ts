@@ -113,7 +113,7 @@ export const StyledComponent = styled.div`
     color: red;
   }
   .input {
-    padding: 7px 27px 7px 14px;
+    padding: 7px 27px 4px 14px;
   }
   .close-discount-item {
     position: absolute;

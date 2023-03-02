@@ -69,6 +69,7 @@ export interface ReturnSearchQuery {
   coordinator_codes?: [];
   searched_product?: string | null;
   returned_store_ids?: number[] | null;
+  order_types?: string[];
 }
 
 export interface CustomReturnOrderSearchQueryModel {
