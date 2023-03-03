@@ -26,7 +26,7 @@ import {
   VariantUpdateRequest,
 } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { formatCurrencyValue, generateQuery, splitEllipsis } from "utils/AppUtils";
@@ -37,6 +37,7 @@ import {
   formatCurrencyForProduct,
   ACTIONS_INDEX,
   START_PROCESS_PERCENT,
+  ProductStatusEnum,
 } from "screens/products/helper";
 import { SupportedCurrencyType } from "utils/AppUtils";
 import { TYPE_EXPORT } from "utils/Constants";
@@ -54,6 +55,7 @@ import { HttpStatus } from "config/http-status.config";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
+import YDConfirmModal, { YDConfirmHandle } from "component/modal/YDConfirmModal";
 
 const initQuery: VariantSearchQuery = {
   info: "",
@@ -113,6 +115,9 @@ const TabProduct: React.FC<any> = (props) => {
   const [canReadSuppliers] = useAuthorization({
     acceptPermissions: [SuppliersPermissions.READ],
   });
+
+  const modalConfirmSaleableRef = useRef<YDConfirmHandle>(null);
+  const modalConfirmUnsaleableRef = useRef<YDConfirmHandle>(null);
 
   const actionsDefault: Array<MenuAction> = useMemo(() => {
     const disabled = !(variantsSelected && variantsSelected.length > 0);
@@ -198,6 +203,13 @@ const TabProduct: React.FC<any> = (props) => {
   );
 
   const onActive = useCallback(() => {
+    const inValidVariants = variantsSelected.filter(
+      (el: VariantResponse) => el.product.status === ProductStatusEnum.INACTIVE || el.saleable,
+    );
+    if (inValidVariants.length > 0) {
+      modalConfirmSaleableRef.current?.openModal();
+      return;
+    }
     if (variantsSelected.length > 0) {
       dispatch(showLoading());
       const request: Array<VariantUpdateRequest> = [];
@@ -212,6 +224,11 @@ const TabProduct: React.FC<any> = (props) => {
   }, [dispatch, onResultUpdateSaleable, variantsSelected]);
 
   const onInActive = useCallback(() => {
+    const inValidVariants = variantsSelected.filter((item: VariantResponse) => !item.saleable);
+    if (inValidVariants.length > 0) {
+      modalConfirmUnsaleableRef.current?.openModal();
+      return;
+    }
     if (variantsSelected.length > 0) {
       dispatch(showLoading());
       let request: Array<VariantUpdateRequest> = [];
@@ -681,6 +698,34 @@ const TabProduct: React.FC<any> = (props) => {
     dispatch(searchVariantsRequestAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
 
+  const renderInvalidVariantSaleable = () => {
+    const inValidVariants = variantsSelected.filter(
+      (el: VariantResponse) => el.product.status === ProductStatusEnum.INACTIVE || el.saleable,
+    );
+    return (
+      <ul>
+        {inValidVariants.map((item: VariantResponse) => {
+          return item.saleable ? (
+            <li>{item.sku} đã ở trạng thái cho phép bán.</li>
+          ) : (
+            <li>{item.sku} có mã cha dừng hoạt động.</li>
+          );
+        })}
+      </ul>
+    );
+  };
+
+  const renderInvalidVariantUnsaleable = () => {
+    const inValidVariants = variantsSelected.filter((el: VariantResponse) => !el.saleable);
+    return (
+      <ul>
+        {inValidVariants.map((item: VariantResponse) => (
+          <li>{item.sku} đã ở trạng thái dừng bán.</li>
+        ))}
+      </ul>
+    );
+  };
+
   return (
     <StyledComponent>
       <ProductFilter
@@ -757,6 +802,22 @@ const TabProduct: React.FC<any> = (props) => {
         isVisible={isVExportProduct}
         isLoading={isLoadingExport}
         exportProgress={exportProgressDetail}
+      />
+      <YDConfirmModal
+        type="error"
+        subTitle="Đã có lỗi xảy ra!"
+        description={renderInvalidVariantSaleable()}
+        ref={modalConfirmSaleableRef}
+        onOk={() => modalConfirmSaleableRef.current?.closeModal()}
+        onCancel={() => modalConfirmSaleableRef.current?.closeModal()}
+      />
+      <YDConfirmModal
+        type="error"
+        subTitle="Đã có lỗi xảy ra!"
+        description={renderInvalidVariantUnsaleable()}
+        ref={modalConfirmUnsaleableRef}
+        onOk={() => modalConfirmUnsaleableRef.current?.closeModal()}
+        onCancel={() => modalConfirmUnsaleableRef.current?.closeModal()}
       />
     </StyledComponent>
   );
