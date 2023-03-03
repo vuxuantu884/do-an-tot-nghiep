@@ -83,6 +83,8 @@ const FeedbackFilter: React.FC<FeedbackFilterProps> = (props: FeedbackFilterProp
     return {
       ...params,
       product_ids: Array.isArray(params.product_ids) ? params.product_ids : [params.product_ids],
+      shop_ids: Array.isArray(params.shop_ids) ? params.shop_ids : [params.shop_ids],
+      stars: Array.isArray(params.stars) ? params.stars : [params.stars],
     };
   }, [params]);
 
