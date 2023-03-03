@@ -11,8 +11,7 @@ import {
   Input,
   Row,
   Space,
-  Table,
-  Tag,
+  Table
 } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import purify from "dompurify";
@@ -32,7 +31,6 @@ import {
 } from "@ant-design/icons";
 import { ColumnsType } from "antd/lib/table/interface";
 import BottomBarContainer from "component/container/bottom-bar.container";
-import RowDetail from "screens/products/product/component/RowDetail";
 import { useHistory, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -86,7 +84,6 @@ import {
 } from "config/permissions/inventory-transfer.permission";
 import { RefSelectProps } from "antd/lib/select";
 import { callApiNative } from "utils/ApiUtils";
-import TextArea from "antd/es/input/TextArea";
 import { checkUserPermission } from "utils/AuthUtil";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { searchVariantsApi } from "service/product/product.service";
@@ -107,6 +104,13 @@ import ModalForward from "../common/ModalForward";
 import ForwardRecordTour from "./components/ForwardRecordTour";
 import { DELAY_TIME_FOR_TOUR } from "../../inventory-adjustment/helper";
 import { MAXIMUM_QUANTITY_LENGTH, MINIMUM_QUANTITY } from "../helper";
+import confirmedIcon from "assets/icon/cho_chuyen.svg";
+import transferringIcon from "assets/icon/dang_chuyen.svg";
+import pendingIcon from "assets/icon/cho_xu_ly.svg";
+import receivedIcon from "assets/icon/da_nhan.svg";
+import canceledIcon from "assets/icon/da_huy.svg";
+import EditPopover from "../../inventory-defects/ListInventoryDefect/components/EditPopover";
+import { primaryColor } from "utils/global-styles/variables";
 
 export interface InventoryParams {
   id: string;
@@ -121,7 +125,6 @@ const DetailTicket: FC = () => {
     (state: RootReducerType) => state.userReducer.account?.account_stores,
   );
   const [data, setData] = useState<InventoryTransferDetailItem | null>(null);
-  // const [dataShipment, setDataShipment] = useState<ShipmentItem | undefined>();
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
   const [isVisibleInventoryShipment, setIsVisibleInventoryShipment] = useState<boolean>(false);
   const [isBalanceTransfer, setIsBalanceTransfer] = useState<boolean>(false);
@@ -131,7 +134,6 @@ const DetailTicket: FC = () => {
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [isError, setError] = useState(false);
   const [isLoadingBtn, setLoadingBtn] = useState<boolean>(false);
-  const [isLoadingBtnSave, setIsLoadingBtnSave] = useState<boolean>(false);
   const [isVisibleModalReceiveWarning, setIsVisibleModalReceiveWarning] = useState<boolean>(false);
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
 
@@ -196,7 +198,6 @@ const DetailTicket: FC = () => {
     (result: InventoryTransferDetailItem | false) => {
       dispatch(hideLoading());
       setLoadingBtn(false);
-      setIsLoadingBtnSave(false);
       setIsDisableEditNote(false);
       if (!result) {
         setError(true);
@@ -310,30 +311,37 @@ const DetailTicket: FC = () => {
 
   let textTag: string;
   let classTag: string;
+  let img: string;
   switch (data?.status) {
     case STATUS_INVENTORY_TRANSFER.REQUESTED.status:
       textTag = STATUS_INVENTORY_TRANSFER.REQUESTED.name;
-      classTag = STATUS_INVENTORY_TRANSFER.CONFIRM.status;
+      classTag = STATUS_INVENTORY_TRANSFER.REQUESTED.status;
+      img = confirmedIcon;
       break;
     case STATUS_INVENTORY_TRANSFER.TRANSFERRING.status:
       textTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.name;
       classTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.status;
+      img = transferringIcon;
       break;
     case STATUS_INVENTORY_TRANSFER.PENDING.status:
       textTag = STATUS_INVENTORY_TRANSFER.PENDING.name;
       classTag = STATUS_INVENTORY_TRANSFER.PENDING.status;
+      img = pendingIcon;
       break;
     case STATUS_INVENTORY_TRANSFER.RECEIVED.status:
       textTag = STATUS_INVENTORY_TRANSFER.RECEIVED.name;
       classTag = STATUS_INVENTORY_TRANSFER.RECEIVED.status;
+      img = receivedIcon;
       break;
     case STATUS_INVENTORY_TRANSFER.CANCELED.status:
       textTag = STATUS_INVENTORY_TRANSFER.CANCELED.name;
       classTag = STATUS_INVENTORY_TRANSFER.CANCELED.status;
+      img = canceledIcon;
       break;
     default:
       textTag = STATUS_INVENTORY_TRANSFER.CONFIRM.name;
       classTag = STATUS_INVENTORY_TRANSFER.CONFIRM.status;
+      img = confirmedIcon;
       break;
   }
 
@@ -522,7 +530,6 @@ const DetailTicket: FC = () => {
   );
 
   const updateNoteApi = async (note: string) => {
-    setIsLoadingBtnSave(true);
     dispatch(showLoading());
     if (data && dataTable) {
       setIsDisableEditNote(true);
@@ -760,11 +767,10 @@ const DetailTicket: FC = () => {
     {
       title: (
         <div>
-          <div>SL Gửi</div>
-          <div className="text-center">{data && formatCurrency(data.total_quantity, ".")}</div>
+          <div>SL Gửi <span className="text-gray">{data && formatCurrency(data.total_quantity, ".")}</span></div>
         </div>
       ),
-      width: 100,
+      width: 150,
       align: "center",
       dataIndex: "transfer_quantity",
     },
@@ -772,7 +778,7 @@ const DetailTicket: FC = () => {
       title: "Giá bán",
       dataIndex: "price",
       align: "center",
-      width: 100,
+      width: 150,
       render: (value) => {
         return formatCurrency(value, ".");
       },
@@ -833,8 +839,7 @@ const DetailTicket: FC = () => {
     {
       title: (
         <div>
-          <div>SL Gửi</div>
-          <div className="text-center">{data && formatCurrency(data.total_quantity, ".")}</div>
+          <div>SL Gửi <span className="text-gray">{data && formatCurrency(data.total_quantity, ".")}</span></div>
         </div>
       ),
       width: 70,
@@ -847,8 +852,7 @@ const DetailTicket: FC = () => {
     {
       title: (
         <div>
-          <div>SL Nhận</div>
-          <div className="text-center">{getTotalRealQuantity()}</div>
+          <div>SL Nhận <span className="text-gray">{getTotalRealQuantity()}</span></div>
         </div>
       ),
       dataIndex: "real_quantity",
@@ -1184,7 +1188,7 @@ const DetailTicket: FC = () => {
         title={`Chuyển hàng ${data ? data.code : ""}`}
         breadcrumb={[
           {
-            name: "Tổng quan",
+            name: "Kho hàng",
             path: UrlConfig.HOME,
           },
           {
@@ -1201,19 +1205,57 @@ const DetailTicket: FC = () => {
           <>
             <Row gutter={24}>
               <Col span={18}>
-                <Card title="KHO HÀNG" bordered={false} className={"inventory-selectors"}>
+                <Card bordered={false} className={"inventory-selectors"}>
                   <Row gutter={24}>
                     <Col span={12}>
-                      <RowDetail title="Kho gửi" value={data.from_store_name} />
-                      <RowDetail title="Mã CH" value={data.from_store_code?.toString()} />
-                      <RowDetail title="SĐT" value={data.from_store_phone?.toString()} />
-                      <RowDetail title="Địa chỉ" value={ConvertFullAddress(data.store_transfer)} />
+                      <div className="container-store-info">
+                        <Row gutter={24}>
+                          <Col span={12}>
+                            <div className="store-title">Kho gửi</div>
+                          </Col>
+                          <Col span={12}>
+                            <div className="store-content text-right">{data.from_store_name}</div>
+                          </Col>
+                        </Row>
+                        <Row gutter={24}>
+                          <Col span={12}>
+                            <div className="store-detail">Mã CH: <span className="store-detail-content">{data.from_store_code?.toString()}</span></div>
+                          </Col>
+                          <Col span={12}>
+                            <div className="store-detail text-right">SĐT: <span className="store-detail-content">{data.from_store_phone?.toString()}</span></div>
+                          </Col>
+                        </Row>
+                        <Row gutter={24}>
+                          <Col span={24}>
+                            <div className="store-detail">{ConvertFullAddress(data.store_transfer)}</div>
+                          </Col>
+                        </Row>
+                      </div>
                     </Col>
                     <Col span={12}>
-                      <RowDetail title="Kho nhận" value={data.to_store_name} />
-                      <RowDetail title="Mã CH" value={data.to_store_code?.toString()} />
-                      <RowDetail title="SĐT" value={data.to_store_phone?.toString()} />
-                      <RowDetail title="Địa chỉ" value={ConvertFullAddress(data.store_receive)} />
+                      <div className="container-store-info">
+                        <Row gutter={24}>
+                          <Col span={12}>
+                            <div className="store-title">Kho nhận</div>
+                          </Col>
+                          <Col span={12}>
+                            <div className="store-content text-right">{data.to_store_name}</div>
+                          </Col>
+                        </Row>
+                        <Row gutter={24}>
+                          <Col span={12}>
+                            <div className="store-detail">Mã CH: <span className="store-detail-content">{data.to_store_code?.toString()}</span></div>
+                          </Col>
+                          <Col span={12}>
+                            <div className="store-detail text-right">SĐT: <span className="store-detail-content">{data.to_store_code?.toString()}</span></div>
+                          </Col>
+                        </Row>
+                        <Row gutter={24}>
+                          <Col span={24}>
+                            <div className="store-detail">{ConvertFullAddress(data.store_receive)}</div>
+                          </Col>
+                        </Row>
+                      </div>
                     </Col>
                   </Row>
                 </Card>
@@ -1224,12 +1266,11 @@ const DetailTicket: FC = () => {
                   <Card
                     title="DANH SÁCH SẢN PHẨM"
                     bordered={false}
-                    extra={<Tag className={classTag}>{textTag}</Tag>}
                     className={"inventory-transfer-table"}
                   >
                     <Table
+                      bordered
                       rowClassName="product-table-row"
-                      tableLayout="fixed"
                       scroll={{ x: "max-content" }}
                       pagination={false}
                       columns={columns}
@@ -1265,7 +1306,6 @@ const DetailTicket: FC = () => {
                         </div>
                       </div>
                     }
-                    bordered={false}
                     extra={
                       <>
                         {data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
@@ -1279,7 +1319,6 @@ const DetailTicket: FC = () => {
                             </Checkbox>
                           </>
                         )}
-                        <Tag className={classTag}>{textTag}</Tag>
                       </>
                     }
                     className={"inventory-transfer-table"}
@@ -1323,6 +1362,7 @@ const DetailTicket: FC = () => {
                       )}
 
                       <Table
+                        bordered
                         className="inventory-table"
                         rowClassName="product-table-row"
                         tableLayout="fixed"
@@ -1390,7 +1430,12 @@ const DetailTicket: FC = () => {
                   title={"THÔNG TIN PHIẾU"}
                   bordered={false}
                   className={"inventory-info"}
-                  extra={<Tag className={classTag}>{textTag}</Tag>}
+                  extra={<div className="status">
+                    <div className={classTag}>
+                      <img className="mr-5" src={img} alt="" />
+                      <span>{textTag}</span>
+                    </div>
+                  </div>}
                 >
                   <Col>
                     <div className="row-detail">
@@ -1458,37 +1503,30 @@ const DetailTicket: FC = () => {
                 </Card>
                 <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
                   <Row gutter={5} style={{ flexDirection: "column" }}>
-                    <Col span={24} style={{ marginBottom: 6 }}>
-                      <b>Ghi chú nội bộ:</b>
-                    </Col>
                     <Col span={24}>
                       <Form form={form}>
                         <Form.Item name="note">
-                          <TextArea
-                            disabled={isDisableEditNote}
-                            maxLength={250}
-                            placeholder="Nhập ghi chú nội bộ"
-                            autoSize={{ minRows: 4, maxRows: 6 }}
-                          />
+                          <div className="single">
+                            <EditPopover
+                              maxLength={255}
+                              isDisable={isDisableEditNote}
+                              content={data?.note}
+                              isHideContent
+                              title={`Sửa ghi chú nội bộ`}
+                              color={primaryColor}
+                              onOk={(newNote) => updateNoteApi(newNote)}
+                            />
+                            <div style={{ color: "#262626", fontWeight: 400, fontSize: 14 }}>Ghi chú nội bộ</div>
+                          </div>
+                          <div>{data?.note ? data.note : <span className="no-note">Không có ghi chú!</span>}</div>
                         </Form.Item>
-                        <div className="button-save">
-                          <Button
-                            disabled={isDisableEditNote}
-                            loading={isLoadingBtnSave}
-                            onClick={() => updateNoteApi(form.getFieldValue("note"))}
-                            size="small"
-                            type="primary"
-                          >
-                            Lưu
-                          </Button>
-                        </div>
                       </Form>
                     </Col>
                   </Row>
 
                   <Row className="margin-top-10" gutter={5} style={{ flexDirection: "column" }}>
                     <Col span={24} style={{ marginBottom: 6 }}>
-                      <b>Ghi chú hệ thống:</b>
+                      <div style={{ color: "#262626", fontWeight: 400, fontSize: 14 }}>Ghi chú hệ thống:</div>
                     </Col>
                     <Col span={24}>
                       {data.forward_store_id && (
@@ -1501,7 +1539,7 @@ const DetailTicket: FC = () => {
 
                   <Row className="margin-top-10" gutter={5} style={{ flexDirection: "column" }}>
                     <Col span={24} style={{ marginBottom: 6 }}>
-                      <b>File đính kèm:</b>
+                      <div style={{ color: "#262626", fontWeight: 400, fontSize: 14 }}>File đính kèm:</div>
                     </Col>
                     <Col span={24}>
                       <span className="text-focus">

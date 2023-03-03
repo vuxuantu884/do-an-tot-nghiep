@@ -23,7 +23,6 @@ import { UploadOutlined } from "@ant-design/icons";
 import { ColumnsType } from "antd/lib/table/interface";
 import NumberInput from "component/custom/number-input.custom";
 import { AiOutlineClose } from "react-icons/ai";
-import TextArea from "antd/es/input/TextArea";
 import PlusOutline from "assets/icon/plus-outline.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { useDispatch } from "react-redux";
@@ -66,6 +65,8 @@ import { searchVariantsApi } from "service/product/product.service";
 import { HttpStatus } from "config/http-status.config";
 import ModalShowError from "../common/ModalShowError";
 import { MAXIMUM_QUANTITY_LENGTH, MINIMUM_QUANTITY } from "../helper";
+import EditPopover from "../../inventory-defects/ListInventoryDefect/components/EditPopover";
+import { primaryColor } from "utils/global-styles/variables";
 
 const { Option } = Select;
 
@@ -75,6 +76,7 @@ const VARIANTS_FIELD = "line_items";
 
 const CreateTicket: FC = () => {
   const [fromStores, setFromStores] = useState<Array<AccountStoreResponse>>();
+  const [newNote, setNewNote] = useState<string>();
   const [form] = Form.useForm();
   const [quantityInput, setQuantityInput] = useState<any>({});
   const [dataTable, setDataTable] = useState<Array<VariantResponse> | any>(
@@ -986,18 +988,25 @@ const CreateTicket: FC = () => {
           </Col>
           <Col span={6}>
             <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
-              <Form.Item
-                name={"note"}
-                label={<b>Ghi chú nội bộ:</b>}
-                colon={false}
-                labelCol={{ span: 24, offset: 0 }}
-              >
-                <TextArea
-                  maxLength={250}
-                  placeholder="Nhập ghi chú nội bộ"
-                  autoSize={{ minRows: 4, maxRows: 6 }}
+              <Form.Item name={"note"} hidden></Form.Item>
+              <div style={{ display: "flex" }}>
+                <EditPopover
+                  maxLength={255}
+                  content={form.getFieldValue("note")}
+                  isHideContent
+                  title={`Sửa ghi chú nội bộ`}
+                  color={primaryColor}
+                  onOk={(newNote) => {
+                    form.setFieldsValue({
+                      note: newNote
+                    });
+
+                    setNewNote(newNote);
+                  }}
                 />
-              </Form.Item>
+                <div style={{ color: "#262626", fontWeight: 400, fontSize: 14, marginLeft: 5 }}>Ghi chú nội bộ</div>
+              </div>
+              <div>{newNote !== "" ? newNote : <span className="no-note">Không có ghi chú!</span>}</div>
 
               <Form.Item
                 labelCol={{ span: 24, offset: 0 }}

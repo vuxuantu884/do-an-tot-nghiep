@@ -4,23 +4,28 @@ import { STATUS_INVENTORY_TRANSFER } from "../../../constants";
 export const BG_COLOR_TAG = {
   TRANSFERRING: {
     color: "#FCAF17",
+    background: "#FFFBE6"
   },
   CONFIRM: {
     color: "#666666",
+    background: "#FAFAFA"
   },
   PENDING: {
     color: "#FCAF17",
+    background: "#FFFBE6"
   },
   RECEIVED: {
     color: "#27AE60",
+    background: "#FCFFE6"
   },
   CANCELED: {
     color: "#E24343",
+    background: "#FFF1F0",
   },
 };
 
 export const InventoryTransferTabWrapper = styled.div`
-  padding: 0px 0 20px 0;
+  padding: 0 0 20px 0;
 
   .file-pin {
     display: inline-block;
