@@ -297,7 +297,8 @@ function OrderCreateProduct(props: PropTypes) {
 
   const isShouldUpdateCouponRef = useRef(orderDetail || props.isPageOrderUpdate ? false : true);
   const isShouldUpdateDiscountRef = useRef(orderDetail || props.isPageOrderUpdate ? false : true);
-  const isShouldUpdateOrderTypeRef = useRef(orderDetail || props.isPageOrderUpdate ? false : true);
+  // const isShouldUpdateOrderTypeRef = useRef(orderDetail || props.isPageOrderUpdate ? false : true);
+  const isShouldUpdateOrderTypeRef = useRef(false);
   /**
    * Giảm giá thủ công tùy chỉnh
    * xử lí cho các trường hợp:
