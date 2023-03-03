@@ -15,6 +15,8 @@ import { useHistory, useLocation } from "react-router-dom";
 import {
   ecommerceGetApi,
   getFeedbacksApi,
+  getProgressDownloadEcommerceApi,
+  replyFeedbackApi,
   replyFeedbacksApi,
 } from "service/ecommerce/ecommerce.service";
 import { generateQuery } from "utils/AppUtils";
@@ -27,6 +29,7 @@ import "video-react/dist/video-react.css";
 
 import FeedbackFilter from "./filter";
 import Reply from "./reply";
+import ReplyModal from "./reply.modal";
 import { StyledComponent } from "./styled";
 
 const initQuery: FeedbackQuery = {
@@ -54,7 +57,19 @@ const FeedbacksScreen: React.FC = (props: any) => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedRow, setSelectedRow] = useState([]);
   const [shopsData, setShopsData] = useState<EcommerceResponse[]>([]);
-  // const [selectedRowCodes, setSelectedRowCodes] = useState([]);
+  const [visible, setVisible] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  // used when replying to many feedbacks at once
+  const [replying, setReplying] = useState(false);
+  const [processID, setProcessID] = useState("");
+  const [isReload, setIsReload] = useState(false);
+  const [dataReplying, setDataReplying] = useState<any>({
+    total: 1,
+    total_error: 0,
+    total_success: 0,
+    errors_msg: "",
+    finish: false,
+  });
 
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {
@@ -233,7 +248,7 @@ const FeedbacksScreen: React.FC = (props: any) => {
           shop_id: record.shop_id,
         };
         try {
-          const result = await replyFeedbacksApi(body);
+          const result = await replyFeedbackApi(body);
           if (
             !result.errors &&
             result.data.result_list.length &&
@@ -271,6 +286,94 @@ const FeedbacksScreen: React.FC = (props: any) => {
     },
     [data],
   );
+
+  const checkReplyProcess = useCallback(() => {
+    (async () => {
+      try {
+        const process = await getProgressDownloadEcommerceApi(processID);
+        console.log("process", process);
+        if (!process.errors) {
+          setDataReplying({
+            total: process.data.total,
+            total_error: process.data.total_error,
+            total_success: process.data.total_success,
+            errors_msg: process.data.errors_msg,
+            finish: process.data.finish,
+          });
+        } else {
+          process.errors.forEach((error: string) => {
+            showError(error);
+          });
+        }
+      } catch {
+        showError("Phản hồi đánh giá không thành công");
+      }
+    })();
+  }, [processID]);
+
+  const replyFeedbacks = useCallback(
+    (values) => {
+      let body = {};
+      switch (values.type) {
+        case "conditions":
+          body = {
+            conditions: {
+              ...params,
+              page: null,
+              limit: null,
+              is_replied: false,
+              product_ids: Array.isArray(params.product_ids)
+                ? params.product_ids
+                : [params.product_ids],
+              shop_ids: Array.isArray(params.shop_ids) ? params.shop_ids : [params.shop_ids],
+              stars: Array.isArray(params.stars) ? params.stars : [params.stars],
+            },
+            comment_ids: null,
+            content: values.content,
+          };
+          break;
+        case "selected":
+          body = {
+            conditions: null,
+            comment_ids: selectedRow.map((i: any) => i.comment_id),
+            content: values.content,
+          };
+          break;
+        default:
+          break;
+      }
+      (async () => {
+        try {
+          const result = await replyFeedbacksApi(body);
+          if (!result.errors) {
+            console.log("result", result);
+            setProcessID(result.data.process_id);
+            setReplying(true);
+            // checkReplyProcess();
+          } else {
+            setVisible(false);
+
+            result.errors.forEach((error: string) => {
+              showError(error);
+            });
+          }
+        } catch (error) {
+          setVisible(false);
+
+          showError("Phản hồi đánh giá không thành công");
+        }
+      })();
+    },
+    [params, selectedRow],
+  );
+
+  useEffect(() => {
+    if (!replying) return;
+    checkReplyProcess();
+
+    const getReplyInterval = setInterval(checkReplyProcess, 3000);
+    return () => clearInterval(getReplyInterval);
+  }, [checkReplyProcess, replying]);
 
   const columns: any = useMemo(() => {
     return [
@@ -371,6 +474,9 @@ const FeedbacksScreen: React.FC = (props: any) => {
     switch (index) {
       case 1:
         break;
+      case 2:
+        setVisible(true);
+        break;
 
       default:
         break;
@@ -383,16 +489,16 @@ const FeedbacksScreen: React.FC = (props: any) => {
         id: 1,
         name: "Xóa",
         icon: <DeleteOutlined />,
-        disabled: selectedRow.length ? false : true,
+        disabled: true,
       },
       {
         id: 2,
-        name: "Export",
+        name: "Phản hồi đánh giá",
         icon: <ExportOutlined />,
-        disabled: selectedRow.length ? false : true,
+        // disabled: selectedRow.length ? false : true,
       },
     ],
-    [selectedRow],
+    [],
   );
 
   const handleFetchData = useCallback(async (params) => {
@@ -441,8 +547,8 @@ const FeedbacksScreen: React.FC = (props: any) => {
     [handleFetchData, history, params],
   );
   const onSelectedChange = useCallback((selectedRow) => {
-    // const selectedRowCodes = selectedRow.map((row: any) => row.code);
-    // setSelectedRowCodes(selectedRowCodes);
+    const newSelected = selectedRow.map((item: any) => item.comment_id);
+    setSelectedRowKeys(newSelected);
     setSelectedRow(selectedRow);
   }, []);
 
@@ -467,8 +573,9 @@ const FeedbacksScreen: React.FC = (props: any) => {
     };
     setPrams(dataQuery);
     handleFetchData(dataQuery);
+    setIsReload(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handleFetchData, location.search]);
+  }, [handleFetchData, location.search, isReload]);
 
   return (
     <StyledComponent>
@@ -516,7 +623,7 @@ const FeedbacksScreen: React.FC = (props: any) => {
           />
 
           <CustomTable
-            // isRowSelection
+            isRowSelection
             isLoading={isLoading}
             showColumnSetting={true}
             scroll={{ x: 1200 }}
@@ -531,13 +638,50 @@ const FeedbacksScreen: React.FC = (props: any) => {
               onShowSizeChange: onPageChange,
             }}
             onSelectedChange={(selectedRows: any) => onSelectedChange(selectedRows)}
+            selectedRowKey={selectedRowKeys}
             dataSource={data.items}
             columns={columns}
-            rowKey={(item: any) => item.id}
+            rowKey={(item: any) => item.comment_id}
             bordered
             className="feedback-list"
           />
         </Card>
+        <ReplyModal
+          visible={visible}
+          replying={replying}
+          dataReplying={dataReplying}
+          selected={selectedRow.length ? true : false}
+          onOk={(values) => {
+            if (dataReplying.finish) {
+              setSelectedRowKeys([]);
+              setSelectedRow([]);
+              setVisible(false);
+              setReplying(false);
+              setIsReload(true);
+              setDataReplying({
+                total: 1,
+                total_error: 0,
+                total_success: 0,
+                errors_msg: "",
+                finish: false,
+              });
+            } else {
+              replyFeedbacks(values);
+            }
+          }}
+          onCancel={() => {
+            setVisible(false);
+            setSelectedRowKeys([]);
+            setSelectedRow([]);
+            setDataReplying({
+              total: 1,
+              total_error: 0,
+              total_success: 0,
+              errors_msg: "",
+              finish: false,
+            });
+          }}
+        />
       </ContentContainer>
     </StyledComponent>
   );

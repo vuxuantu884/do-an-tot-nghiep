@@ -265,9 +265,15 @@ export const getFeedbacksApi = (params: string): Promise<BaseResponse<any>> => {
   return BaseAxios.get(requestUrl);
 };
 
+//shoppe - reply feedback
+export const replyFeedbackApi = (body: any): Promise<any> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/product-reviews/reply`;
+  return BaseAxios.post(requestUrl, body);
+};
+
 //shoppe - reply feedbacks
 export const replyFeedbacksApi = (body: any): Promise<any> => {
-  const requestUrl = `${ApiConfig.ECOMMERCE}/product-reviews/reply`;
+  const requestUrl = `${ApiConfig.ECOMMERCE}/product-reviews/batch-reply`;
   return BaseAxios.post(requestUrl, body);
 };
 
