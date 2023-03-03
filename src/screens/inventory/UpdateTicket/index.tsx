@@ -21,7 +21,6 @@ import { UploadOutlined } from "@ant-design/icons";
 import { ColumnsType } from "antd/lib/table/interface";
 import NumberInput from "component/custom/number-input.custom";
 import { AiOutlineClose } from "react-icons/ai";
-import TextArea from "antd/es/input/TextArea";
 import PlusOutline from "assets/icon/plus-outline.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import arrowLeft from "assets/icon/arrow-back.svg";
@@ -76,6 +75,8 @@ import { HttpStatus } from "config/http-status.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { MAXIMUM_QUANTITY_LENGTH, MINIMUM_QUANTITY } from "../helper";
 import { STATUS_INVENTORY_TRANSFER } from "../constants";
+import EditPopover from "../../inventory-defects/ListInventoryDefect/components/EditPopover";
+import { primaryColor } from "utils/global-styles/variables";
 const { Option } = Select;
 
 const VARIANTS_FIELD = "line_items";
@@ -84,6 +85,7 @@ let barCode = "";
 
 const UpdateTicket: FC = () => {
   const [fromStores, setFromStores] = useState<Array<AccountStoreResponse>>();
+  const [newNote, setNewNote] = useState<string>();
   const [form] = Form.useForm();
   const [dataTable, setDataTable] = useState<Array<VariantResponse> | any>(
     [] as Array<VariantResponse>,
@@ -147,10 +149,13 @@ const UpdateTicket: FC = () => {
         return;
       } else {
         if (CopyId) {
-          result.note = `Bản sao của phiếu ${result.code}`;
+          const newNoteText = `Bản sao của phiếu ${result.code}`;
+          result.note = newNoteText;
+          setNewNote(newNoteText);
         }
         form.setFieldsValue(result);
         setInitDataForm(result);
+        setNewNote(result.note);
         setDataTable(result.line_items);
         const listFile: any = result.attached_files?.map((item: string) => {
           return {
@@ -1182,18 +1187,25 @@ const UpdateTicket: FC = () => {
             </Col>
             <Col span={6}>
               <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
-                <Form.Item
-                  name={"note"}
-                  label={<b>Ghi chú nội bộ:</b>}
-                  colon={false}
-                  labelCol={{ span: 24, offset: 0 }}
-                >
-                  <TextArea
-                    maxLength={250}
-                    placeholder="Nhập ghi chú nội bộ"
-                    autoSize={{ minRows: 4, maxRows: 6 }}
+                <Form.Item name={"note"} hidden></Form.Item>
+                <div style={{ display: "flex" }}>
+                  <EditPopover
+                    maxLength={255}
+                    content={form.getFieldValue("note")}
+                    isHideContent
+                    title={`Sửa ghi chú nội bộ`}
+                    color={primaryColor}
+                    onOk={(newNote) => {
+                      form.setFieldsValue({
+                        note: newNote
+                      });
+
+                      setNewNote(newNote);
+                    }}
                   />
-                </Form.Item>
+                  <div style={{ color: "#262626", fontWeight: 400, fontSize: 14, marginLeft: 5 }}>Ghi chú nội bộ</div>
+                </div>
+                <div>{newNote !== "" ? newNote : <span className="no-note">Không có ghi chú!</span>}</div>
 
                 <Form.Item
                   labelCol={{ span: 24, offset: 0 }}
@@ -1284,6 +1296,7 @@ const UpdateTicket: FC = () => {
         <ModalShowError
           onCancel={() => {
             setIsOpenModalErrors(false);
+            setIsLoading(false)
           }}
           errorData={errorData}
           onOk={() => continueData && continuesCreateData(continueData)}

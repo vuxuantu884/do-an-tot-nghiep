@@ -418,6 +418,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
         return (
           <div className="single">
             <EditPopover
+              maxLength={255}
               content={item}
               title={`Sửa ghi chú ${row?.code}`}
               color={primaryColor}
@@ -632,6 +633,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
                   return (
                     <div className="single">
                       <EditPopover
+                        maxLength={255}
                         content={item}
                         title={`Sửa ghi chú ${row?.code}`}
                         color={primaryColor}
