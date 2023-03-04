@@ -1,4 +1,4 @@
-import { successColor } from "utils/global-styles/variables";
+import { primaryColor, successColor } from "utils/global-styles/variables";
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
@@ -31,7 +31,7 @@ export const StyledComponent = styled.div`
   }
 
   .overflow-table .rules .active {
-    color: ${successColor};
+    color: ${primaryColor};
   }
 
   .tableElementSticky {

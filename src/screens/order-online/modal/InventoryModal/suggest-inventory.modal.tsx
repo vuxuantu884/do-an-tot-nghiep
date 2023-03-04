@@ -28,7 +28,7 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
 
   const rowHeight = 45;
 
-  const [storeData, setStoreData] = useState<any[] | null>([]);
+  const [storeData, setStoreData] = useState<any[] | null | undefined>([]);
 
   const [rowProductHeight, setRowProductHeight] = useState(rowHeight);
 
@@ -54,8 +54,31 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
   );
 
   useEffect(() => {
-    setStoreData(inventoryArray);
-  }, [inventoryArray, storeId]);
+    const inventoryArrayCheckItemSuccess: any[] | null | undefined = inventoryArray?.map(
+      (item: any) => {
+        let itemsSuccessFull = true;
+        columnsItem?.forEach((_itemi: any) => {
+          let variantDetails = item.variant_inventories.find(
+            (i: any) => i.variant_id === _itemi.variant_id,
+          );
+          if (!variantDetails || !variantDetails.available) {
+            variantDetails = {
+              ...variantDetails,
+              available: 0,
+            };
+          }
+          if (variantDetails.available < _itemi.quantity) {
+            itemsSuccessFull = false;
+          }
+        });
+        return {
+          ...item,
+          successFull: itemsSuccessFull,
+        };
+      },
+    );
+    setStoreData(inventoryArrayCheckItemSuccess);
+  }, [columnsItem, inventoryArray, storeId]);
 
   const element = document.getElementById("stickyRowProduct");
 
@@ -155,7 +178,9 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
                           className={storeId === item.store_id ? "condition active" : "condition"}
                           key={index}
                         >
-                          {item.store}{" "}
+                          <span style={item.successFull ? { color: successColor } : {}}>
+                            {item.store}{" "}
+                          </span>
                           <span style={{ color: dangerColor }}>
                             {index === 0 ? " - Kho gợi ý" : ""}
                           </span>
