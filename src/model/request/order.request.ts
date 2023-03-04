@@ -55,6 +55,7 @@ export interface OrderRequest {
   uniform?: boolean | null | undefined;
   account?: string | null;
   type?: string | null;
+  version?: number | null;
 }
 
 export interface ReturnRequest extends OrderRequest {

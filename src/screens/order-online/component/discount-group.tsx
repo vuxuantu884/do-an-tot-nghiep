@@ -219,7 +219,7 @@ function DiscountGroup(props: PropTypes) {
         }
         _itemDiscount.amount = v;
         _itemDiscount.rate = (v / _items[props.index].amount) * 100;
-        _itemDiscount.value = v / _items[props.index].quantity;
+        _itemDiscount.value = Math.round(v / _items[props.index].quantity);
         _itemDiscount.sub_type = DiscountValueType.FIXED_AMOUNT;
       } else {
         if (100 < v) {

@@ -667,7 +667,6 @@ export default function Order(props: PropTypes) {
 
   const handleUpdateOrder = (valuesCalculateReturnAmount: OrderRequest) => {
     console.log("OrderRequest", valuesCalculateReturnAmount);
-    // return;
     //return;
     const updateOrder = (updateSpecialOrder?: (orderId: number) => Promise<void>) => {
       dispatch(showLoading());
@@ -818,8 +817,9 @@ export default function Order(props: PropTypes) {
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
     values.channel_id = OrderDetail.channel_id;
     values.company_id = DEFAULT_COMPANY.company_id;
-
     values.export_bill = billingAddress?.tax_code ? true : false;
+    values.version = OrderDetail.version;
+
     if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
