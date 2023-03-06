@@ -83,23 +83,27 @@ function NoPermission() {
           <span className="guidline">
             Bạn không có quyền truy cập tính năng này.
             <br />
-            <a href="tel:0888464258" title="HOTLINE PHÒNG IT: 0888464258" style={{ color: "#666666" }}>
+            <a
+              href="tel:0888464258"
+              title="HOTLINE PHÒNG IT: 0888464258"
+              style={{ color: "#666666" }}
+            >
               Vui lòng liên hệ bộ phận hỗ trợ!
             </a>
           </span>
 
-          <Row gutter={24} align="middle" style={{ width: '50%', margin: '20px 0' }}>
+          <Row gutter={24} align="middle" style={{ width: "50%", margin: "20px 0" }}>
             <Col span={12}>
               <div className="hotline-info" style={{ justifyContent: "end", marginRight: 10 }}>
                 <img style={{ marginRight: 5 }} src={hotlineCBIcon} alt="hotlineCB" />
                 <span className="hotline-group">
-                <span style={{ marginBottom: "-3px", color: "#595959" }}> {"C&B - Hotline"}</span>
-                <Tooltip title="Click để gọi Mai C&B" color="blue" placement="bottom">
-                  <span className="phone-number" onClick={callHotlineCBSupport}>
-                    {hotlineCBNumber}
-                  </span>
-                </Tooltip>
-              </span>
+                  <span style={{ marginBottom: "-3px", color: "#595959" }}> {"C&B - Hotline"}</span>
+                  <Tooltip title="Click để gọi Vân Anh C&B" color="blue" placement="bottom">
+                    <span className="phone-number" onClick={callHotlineCBSupport}>
+                      {hotlineCBNumber}
+                    </span>
+                  </Tooltip>
+                </span>
               </div>
             </Col>
             <Col span={12}>
@@ -110,7 +114,13 @@ function NoPermission() {
                 target="_bank"
               >
                 <img style={{ marginRight: 5 }} src={gapoIcon} alt="gapo" />
-                <span> {"Nhóm hỗ trợ "} <span style={{ fontWeight: 600 }}>Gapo <DoubleRightOutlined /></span></span>
+                <span>
+                  {" "}
+                  {"Nhóm hỗ trợ "}{" "}
+                  <span style={{ fontWeight: 600 }}>
+                    Gapo <DoubleRightOutlined />
+                  </span>
+                </span>
               </a>
             </Col>
           </Row>
