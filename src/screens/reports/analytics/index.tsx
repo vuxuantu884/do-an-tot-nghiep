@@ -1,4 +1,4 @@
-import { Button, Card, Checkbox, Form, Input, List, Table } from "antd";
+import { Button, Card, Checkbox, Col, Form, Input, List, Row, Table } from "antd";
 import Color from "assets/css/export-variable.module.scss";
 import search from "assets/img/search.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
@@ -26,7 +26,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { getPermissionViewCustomizeReport } from "utils/ReportUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { usersViewInventoryBalance } from "../common/constant/inventory-balance/users-view-inventory-balance";
-import { ListAnalyticsStyle } from "./index.style";
+import { ListAnalyticsStyle, ReportBottomBarStyle } from "./index.style";
 import ModalCreateReport from "./shared/create-report-modal";
 import ModalFormAnalyticsInfo from "./shared/form-analytics-info-modal";
 import ListAnalyticsBlock from "./shared/list-analytics-block";
@@ -375,17 +375,27 @@ function Analytics() {
         />
       </Form.Provider>
       {[UrlConfig.ANALYTIC_SALES_OFFLINE].includes(matchPath) && (
-        <BottomBarContainer
-          rightComponent={
-            <>
-              <Button type="primary">
-                <Link to={`${matchPath}/customer-visitors`}>
-                  Nhập số lượng khách hàng đã tư vấn
-                </Link>
-              </Button>
-            </>
-          }
-        />
+        <ReportBottomBarStyle>
+          <BottomBarContainer
+            classNameContainer="report-bottom-bar-container"
+            rightComponent={
+              <Row>
+                <Col xs={24} sm={12}>
+                  <Button type="primary" ghost>
+                    <Link to={`${matchPath}/customer-assigned`}>Nhập số lượng khách được tiếp</Link>
+                  </Button>
+                </Col>
+                <Col xs={24} sm={12}>
+                  <Button type="primary">
+                    <Link to={`${matchPath}/customer-recepted`}>
+                      Nhập số lượng khách vào cửa hàng
+                    </Link>
+                  </Button>
+                </Col>
+              </Row>
+            }
+          />
+        </ReportBottomBarStyle>
       )}
     </ContentContainer>
   );

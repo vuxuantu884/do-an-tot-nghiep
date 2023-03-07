@@ -21,7 +21,15 @@ import { strForSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { CustomerVisitorsStyle } from "./index.style";
 
-function CustomerVisitors() {
+export interface CustomerVisitorsProps {
+  source: CustomerVisitorsType;
+  title: string;
+  name: string;
+  employee: string;
+}
+
+function CustomerVisitors(props: CustomerVisitorsProps) {
+  const { source, title, name, employee } = props;
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
@@ -216,11 +224,11 @@ function CustomerVisitors() {
           year: yearQuery,
           storeIds,
           assigneeCodes,
-          source: CustomerVisitorsType.Assignee,
+          source,
         },
       );
       if (!customerVisitors) {
-        showError("Lỗi khi lấy số lượng khách hàng đã tư vấn");
+        showError(`Lỗi khi lấy số lượng ${name}`);
         setLoadingTable(false);
         setIsFilter(false);
       }
@@ -331,7 +339,17 @@ function CustomerVisitors() {
     ) {
       fetchCustomerVisitors();
     }
-  }, [accountList, dispatch, form, isFilter, setTableColumns, stores, yearList.length]);
+  }, [
+    accountList,
+    dispatch,
+    form,
+    isFilter,
+    name,
+    setTableColumns,
+    source,
+    stores,
+    yearList.length,
+  ]);
 
   const onChangeStore = () => {
     getStaff();
@@ -377,9 +395,7 @@ function CustomerVisitors() {
     setLoadingTable(true);
     const { storeIds, assigneeCodes } = form.getFieldsValue();
     if (storeIds.length && !assigneeCodes.length) {
-      showError(
-        "Vui lòng chọn nhân viên bán hàng để cập nhật khách hàng đã tư vấn theo nhân từng viên bán hàng",
-      );
+      showError(`Vui lòng chọn nhân viên để cập nhật ${name} theo nhân từng viên`);
       setLoadingTable(false);
       return;
     }
@@ -391,9 +407,7 @@ function CustomerVisitors() {
           item.assignee_code.toLowerCase() === assigneeCode.toLowerCase(),
       );
     if (params && params.assignee_code.toLowerCase() === allStaffCode.toLowerCase()) {
-      showError(
-        "Vui lòng bấm lọc để tiếp tục cập nhật khách hàng đã tư vấn theo nhân viên đã chọn",
-      );
+      showError(`Vui lòng bấm lọc để tiếp tục cập nhật ${name} theo nhân viên đã chọn`);
       setLoadingTable(false);
       return;
     }
@@ -402,12 +416,12 @@ function CustomerVisitors() {
         { isShowError: true },
         dispatch,
         updateCustomerVisitors,
-        { ...params, source: CustomerVisitorsType.Assignee },
+        { ...params, source },
       );
       if (response) {
-        showSuccess("Cập nhật lượng khách hàng đã tư vấn thành công");
+        showSuccess(`Cập nhật lượng ${name} thành công`);
       } else {
-        showError("Cập nhật lượng khách hàng đã tư vấn không thành công");
+        showError(`Cập nhật lượng ${name} không thành công`);
       }
     }
     setLoadingTable(false);
@@ -429,13 +443,13 @@ function CustomerVisitors() {
     <CustomerVisitorsStyle>
       <ContentContainer
         isLoading={loading}
-        title={"Nhập số lượng khách hàng đã tư vấn"}
+        title={title}
         breadcrumb={[
           {
             name: `Danh sách báo cáo bán lẻ`,
             path: UrlConfig.ANALYTIC_SALES_OFFLINE,
           },
-          { name: "Nhập số lượng khách hàng đã tư vấn" },
+          { name: title },
         ]}
       >
         <Form
@@ -467,7 +481,7 @@ function CustomerVisitors() {
                 className="input-width filter-item"
               >
                 <Select
-                  placeholder="Chọn nhân viên bán hàng"
+                  placeholder={`Chọn ${employee}`}
                   mode="multiple"
                   maxTagCount="responsive"
                   allowClear
@@ -531,8 +545,7 @@ function CustomerVisitors() {
             </div>
             <div className="pb-2">
               <em className="text-primary">
-                Lưu ý: Chỉ được chọn 1 cửa hàng khi muốn nhập khách hàng đã tư vấn theo từng nhân
-                viên
+                Lưu ý: Chỉ được chọn 1 cửa hàng khi muốn nhập {name} theo từng nhân viên
               </em>
             </div>
           </Card>
