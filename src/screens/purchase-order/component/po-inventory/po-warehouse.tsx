@@ -1,4 +1,5 @@
-import { Col, Form, Input, Row, Select, Table, Tooltip } from "antd";
+import { FieldTimeOutlined } from "@ant-design/icons";
+import { Col, Form, Input, Row, Select, Table, TimePicker, Tooltip } from "antd";
 import { FormInstance } from "antd/es/form/Form";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
@@ -28,7 +29,7 @@ import styled from "styled-components";
 import { callApiNative } from "utils/ApiUtils";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { ProcumentStatus, ProcurementStatus } from "utils/Constants";
-import { ConvertDateToUtc, DATE_FORMAT } from "utils/DateUtils";
+import { ConvertDateToUtc, convertHouseOrMinuteToString, DATE_FORMAT } from "utils/DateUtils";
 import { showError } from "utils/ToastUtils";
 import { v4 as uuidv4 } from "uuid";
 const DEFAULT_SPAN = window.screen.width <= 1360 ? 8 : window.screen.width <= 1600 ? 7 : 5;
@@ -43,6 +44,8 @@ interface IExpectReceiptDates {
   uuid: string;
   option: EnumOptionValueOrPercent;
   value: number;
+  time_to_warehouse: string | Date;
+  is_time_to_warehouse: boolean;
 }
 
 interface IProps {
@@ -91,12 +94,7 @@ export const PoWareHouse = (props: IProps) => {
     });
   };
 
-  const handleSetQuantityWarehouses = (
-    indexData: number,
-    value: number,
-    uuid: string,
-    indexTable?: number,
-  ) => {
+  const handleSetQuantityWarehouses = (indexData: number, value: number, uuid: string) => {
     const procurementItemsIndex: PurchaseProcumentLineItem[] = procurementsAll
       .reduce((acc, val) => acc.concat(val), [])
       .reduce((acc, val) => acc.concat(val.procurement_items), [] as PurchaseProcumentLineItem[])
@@ -164,7 +162,7 @@ export const PoWareHouse = (props: IProps) => {
 
   const onChangeNumber = (indexData: number, index: number, value: number, uuid: string) => {
     procurementTable[indexData].plannedQuantities[index] = value;
-    handleSetQuantityWarehouses(indexData, value, uuid + index, index);
+    handleSetQuantityWarehouses(indexData, value, uuid + index);
     setProcurementTable([...procurementTable]);
   };
 
@@ -228,6 +226,49 @@ export const PoWareHouse = (props: IProps) => {
     [expectReceiptDates, formMain],
   );
 
+  const onChangeTimeWarehouse = useCallback(
+    (value: moment.Moment | null, dateString: string, date: IExpectReceiptDates) => {
+      const indexExpect = expectReceiptDates.findIndex((item) => item.uuid === date.uuid);
+      if (indexExpect >= 0) {
+        const dateValue = new Date(
+          moment(date.date, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.MM_DD_YYYY) + " " + dateString,
+        );
+        console.log("dateString", dateString);
+        expectReceiptDates[indexExpect].time_to_warehouse = dateValue;
+        const procurements: PurchaseProcument[] = (
+          formMain?.getFieldValue(POField.procurements) as PurchaseProcument[]
+        ).map((procurement) => {
+          if (procurement.uuid === expectReceiptDates[indexExpect].uuid) {
+            const timeToWarehouse = date.date
+              ? ConvertDateToUtc(
+                  moment(date.date, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.MM_DD_YYYY) +
+                    " " +
+                    dateString,
+                )
+              : "";
+
+            return {
+              ...procurement,
+              procurement_items: procurement.procurement_items.map((item) => {
+                return {
+                  ...item,
+                };
+              }),
+              time_to_warehouse: timeToWarehouse,
+            };
+          }
+          return {
+            ...procurement,
+          };
+        });
+        setExpectReceiptDates([...expectReceiptDates]);
+        formMain?.setFieldsValue({ procurements });
+        formMain && handleChangeProcument(formMain);
+      }
+    },
+    [expectReceiptDates, formMain],
+  );
+
   const handleSetProcurementTableByExpectedDate = (procurements: PurchaseProcument[]) => {
     const line_items: PurchaseOrderLineItem[] =
       (formMain?.getFieldsValue()?.line_items as PurchaseOrderLineItem[]) || [];
@@ -272,6 +313,8 @@ export const PoWareHouse = (props: IProps) => {
         date: "",
         option: EnumOptionValueOrPercent.PERCENT,
         value: 0,
+        time_to_warehouse: "",
+        is_time_to_warehouse: false,
       });
       formMain?.setFieldsValue({
         ["expectedDate" + (expectReceiptDates.length - 1)]: "",
@@ -507,10 +550,57 @@ export const PoWareHouse = (props: IProps) => {
           ["expectedDate" + index]: date.date,
         });
       }
+      const dateToWarehouse = new Date(date.time_to_warehouse);
+
       return (
         <StyleHeader>
           <div style={{ display: "flex", alignItems: "center" }}>
-            <StyledButton type="button">{index + 1}</StyledButton>
+            {date.status !== ProcurementStatus.draft &&
+              (!date.is_time_to_warehouse && !isEditDetail ? (
+                <StyledFieldTimeOutlined
+                  style={{
+                    fontSize: "24px",
+                    color: `${
+                      date.is_time_to_warehouse || date.time_to_warehouse ? "#2a2a86" : ""
+                    } `,
+                  }}
+                />
+              ) : (
+                <Tooltip
+                  color="white"
+                  title={
+                    <>
+                      {date.is_time_to_warehouse ? (
+                        <span style={{ color: "black" }}>
+                          {`${convertHouseOrMinuteToString(
+                            dateToWarehouse.getHours(),
+                          )}:${convertHouseOrMinuteToString(dateToWarehouse.getMinutes())}`}{" "}
+                        </span>
+                      ) : isEditDetail ? (
+                        <>
+                          <TimePicker
+                            format={DATE_FORMAT.HH_mm}
+                            value={date.time_to_warehouse ? moment(dateToWarehouse) : undefined}
+                            placeholder="Thời gian giao hàng"
+                            onChange={(value: moment.Moment | null, dateString: string) => {
+                              onChangeTimeWarehouse(value, dateString, date);
+                            }}
+                          />
+                        </>
+                      ) : undefined}
+                    </>
+                  }
+                >
+                  <StyledFieldTimeOutlined
+                    style={{
+                      fontSize: "24px",
+                      color: `${
+                        date.is_time_to_warehouse || date.time_to_warehouse ? "#2a2a86" : ""
+                      } `,
+                    }}
+                  />
+                </Tooltip>
+              ))}
             {date.isAdd || (!(received || notReceived) && isEditDetail) ? (
               <Form.Item
                 name={"expectedDate" + index}
@@ -617,6 +707,7 @@ export const PoWareHouse = (props: IProps) => {
       expectReceiptDates,
       isEditDetail,
       purchaseOrder,
+      onChangeTimeWarehouse,
       formMain?.getFieldValue(POField.procurements),
     ],
   );
@@ -666,6 +757,10 @@ export const PoWareHouse = (props: IProps) => {
               : "",
             option: EnumOptionValueOrPercent.PERCENT,
             value: 0,
+            time_to_warehouse:
+              Object.values(procurementFitterStatus)[0][0]?.time_to_warehouse || "",
+            is_time_to_warehouse:
+              !!Object.values(procurementFitterStatus)[0][0]?.is_time_to_warehouse,
           };
         },
       );
@@ -906,4 +1001,8 @@ const StyleHeader = styled.div`
   .ant-select-selection-item {
     font-size: 12px !important;
   }
+`;
+
+const StyledFieldTimeOutlined = styled(FieldTimeOutlined)`
+  margin-left: 8px;
 `;
