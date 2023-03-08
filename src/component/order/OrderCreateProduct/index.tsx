@@ -2982,7 +2982,7 @@ function OrderCreateProduct(props: PropTypes) {
           <SuggestInventoryModal
             visible={isInventoryModalVisible}
             setVisible={setInventoryModalVisible}
-            setVisibleOrderSplitModal={setVisibleOrderSplitModal}
+            setVisibleOrderSplitModal={levelOrder ? setVisibleOrderSplitModal : undefined}
             storeId={storeId}
             onChangeStore={onChangeStore}
             columnsItem={lineItemsUseInventory}
