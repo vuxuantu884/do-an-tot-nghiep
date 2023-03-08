@@ -24,6 +24,7 @@ export interface PurchaseProcument extends BaseObject {
   uuidParent?: string;
   percent?: number;
   cancelled_date?: string | null;
+  time_to_warehouse: Date | string;
   [key: string]: any;
 }
 export interface ProcurementItem {
