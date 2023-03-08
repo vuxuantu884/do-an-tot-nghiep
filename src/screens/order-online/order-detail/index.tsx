@@ -3,7 +3,6 @@ import { Col, Form, Modal, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
-import { promotionUtils } from "component/order/promotion.utils";
 import ActionHistory from "component/order/Sidebar/ActionHistory";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
 import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
@@ -119,7 +118,7 @@ import UpdateCustomerCard from "../component/update-customer-card";
 import UpdateShipmentCard from "../component/UpdateShipmentCard";
 import useGetDefaultReturnOrderReceivedStore from "../hooks/useGetDefaultReturnOrderReceivedStore";
 import CancelOrderModal from "../modal/cancel-order.modal";
-import OrderSplitModel from "../modal/OrderSplitModal";
+import OrderSplitModal from "../modal/OrderSplitModal";
 import CardReturnReceiveProducts from "../order-return/components/CardReturnReceiveProducts";
 import { StyledComponent, UniformText } from "./styles";
 
@@ -1330,7 +1329,7 @@ const OrderDetail = (props: PropTypes) => {
           OrderDetail={OrderDetail}
         />
         {checkIfOrderSplit(OrderDetail) && visibleOrderSplitModal && (
-          <OrderSplitModel
+          <OrderSplitModal
             setVisible={setVisibleOrderSplitModal}
             visible={visibleOrderSplitModal}
             OrderDetail={OrderDetail}

@@ -1,6 +1,11 @@
 import { AccountStoreResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
-import { OrderModel, OrderPageTypeModel, OrderType, SpecialOrderValue } from "model/order/order.model";
+import {
+  OrderModel,
+  OrderPageTypeModel,
+  OrderType,
+  SpecialOrderValue,
+} from "model/order/order.model";
 import {
   OrderItemDiscountRequest,
   OrderLineItemRequest,
@@ -775,7 +780,7 @@ export const compareProducts = (
   return check;
 };
 
-export const checkIfOrderSplit = (OrderDetail: OrderResponse | null) => {
+export const checkIfOrderSplit = (OrderDetail?: OrderResponse | null) => {
   return (
     OrderDetail?.status === OrderStatus.DRAFT ||
     (OrderDetail?.status === OrderStatus.FINALIZED &&
@@ -899,6 +904,6 @@ export const isSourceNameFacebook = (sourceName: string) => {
   );
 };
 
-export const isOrderWholesale = (order: OrderResponse | OrderModel |null|undefined) => {
+export const isOrderWholesale = (order: OrderResponse | OrderModel | null | undefined) => {
   return order?.type === EnumOrderType.b2b;
 };

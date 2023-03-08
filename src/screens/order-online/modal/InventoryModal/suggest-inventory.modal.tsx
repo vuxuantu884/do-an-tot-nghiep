@@ -1,5 +1,5 @@
 import { SearchOutlined } from "@ant-design/icons";
-import { Button, Col, Input, Modal, Radio, Row, Spin } from "antd";
+import { Button, Col, Input, Modal, Row, Spin } from "antd";
 import { StoreResponse } from "model/core/store.model";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useEffect, useState } from "react";
@@ -11,6 +11,7 @@ import { fullTextSearch } from "utils/StringUtils";
 type SuggestInventoryModalProps = {
   visible: boolean;
   setVisible: (item: boolean) => void;
+  setVisibleOrderSplitModal?: (item: boolean) => void;
   storeId: number | null;
   onChangeStore: (item: number) => void;
   columnsItem?: Array<OrderLineItemRequest>;
@@ -23,8 +24,16 @@ type SuggestInventoryModalProps = {
 const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
   props: SuggestInventoryModalProps,
 ) => {
-  const { visible, columnsItem, inventoryArray, storeId, onChangeStore, setVisible, handleCancel } =
-    props;
+  const {
+    visible,
+    columnsItem,
+    inventoryArray,
+    storeId,
+    onChangeStore,
+    setVisible,
+    setVisibleOrderSplitModal,
+    handleCancel,
+  } = props;
 
   const rowHeight = 45;
 
@@ -109,13 +118,17 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
       }
       visible={visible}
       centered
-      okText="Chọn kho"
+      okText="Tách đơn"
       cancelText="Thoát"
       width={900}
+      onOk={() => {
+        setVisible(false);
+        setVisibleOrderSplitModal && setVisibleOrderSplitModal(true);
+      }}
       onCancel={handleCancel}
       className="inventory-modal"
       closable={false}
-      okButtonProps={{ hidden: true }}
+      okButtonProps={{ hidden: setVisibleOrderSplitModal ? false : true }}
     >
       <StyledComponent>
         <Spin spinning={props.isLoading} tip="đang tải dữ liệu ...">

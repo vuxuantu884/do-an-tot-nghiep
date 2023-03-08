@@ -5,37 +5,79 @@ import { LineItemOrderSplitModel, OrderSplitModel } from "./_model";
 import NumberInput from "component/custom/number-input.custom";
 import { CloseCircleOutlined } from "@ant-design/icons";
 import { Button, Card, Table } from "antd";
-import InventoryModal from "../InventoryModal/inventory.modal";
+import SuggestInventoryModal from "screens/order-online/modal/InventoryModal/suggest-inventory.modal";
 import { InventoryResponse } from "model/inventory";
 import { StoreResponse } from "model/core/store.model";
 import discountCouponSuccess from "assets/icon/discount-coupon-success.svg";
+import { useDispatch, useSelector } from "react-redux";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { flattenArray, getCustomerShippingAddress } from "utils/AppUtils";
+import _ from "lodash";
+import { getSuggestStoreInventory } from "service/core/store.service";
 
 type Props = {
   index: number;
   orderSplit: OrderSplitModel;
-  inventoryResponse: InventoryResponse[] | null;
   storeArrayResponse: StoreResponse[] | null;
   handleChangeOrderSplit?: (order: OrderSplitModel) => void;
   handleRemoveOrderSplit?: () => void;
 };
 
 const OrderSplit: React.FC<Props> = (props: Props) => {
+  const dispatch = useDispatch();
   const { index, orderSplit, handleChangeOrderSplit, handleRemoveOrderSplit } = props;
   const [randomKeyTable, setRandomKeyTable] = useState(0);
   const [isInventoryModalVisible, setInventoryModalVisible] = useState(false);
   const [data, setData] = useState<LineItemOrderSplitModel[]>([]);
-  // const [columnsItem, setColumnsItem] = useState<OrderLineItemRequest[]>([]);
+  const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
+
+  const orderCustomer = useSelector(
+    (state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer,
+  );
+  const [isLoadingInventory, setLoadingInventory] = useState(false);
 
   const items = useMemo(() => {
-    return orderSplit?.items || [];
+    console.log("orderSplit.items", orderSplit.items);
+    if (!orderSplit.items) return [];
+    const _variant = _.cloneDeep(orderSplit.items);
+    const _variantGifts = orderSplit.items.map((p) => p.gifts);
+    const _variantGiftsIdConvertArray = flattenArray(_variantGifts);
+    const _variants: any[] = [..._variant, ..._variantGiftsIdConvertArray];
+    return _variants;
   }, [orderSplit.items]);
 
-  console.log("items split", items);
+  const getInventory = useCallback(() => {
+    setLoadingInventory(true);
+    const shippingAddress = orderCustomer ? getCustomerShippingAddress(orderCustomer) : null;
+
+    (async () => {
+      const body = {
+        address: {
+          city_id: shippingAddress?.city_id,
+        },
+        line_item: items.map((p) => {
+          return {
+            variant_id: p.variant_id,
+            quantity: p.quantity,
+          };
+        }),
+      };
+      try {
+        const inventorySuggest = await getSuggestStoreInventory(body);
+        setInventoryResponse(inventorySuggest.data);
+        setLoadingInventory(false);
+      } catch (error) {}
+    })();
+  }, [items, orderCustomer]);
+  useEffect(() => {
+    if (items.length > 0 && isInventoryModalVisible) {
+      getInventory();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, isInventoryModalVisible]);
+
   const orderStoreId = useMemo(() => orderSplit?.store_id || null, [orderSplit]);
-  // const orderStore = useMemo(
-  //   () => storeArrayResponse?.find((p) => p.id === orderStoreId),
-  //   [orderStoreId, storeArrayResponse],
-  // );
+
   const columns: ICustomTableColumType<LineItemOrderSplitModel>[] = [
     {
       title: "Tên sản phẩm",
@@ -72,7 +114,6 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
       width: "20%",
       className: "product-name",
       render: (value: any, record: LineItemOrderSplitModel, index: number) => {
-        console.log("LineItemOrderSplitModel column", record.gifts);
         return record?.gifts?.map((p) => (
           <React.Fragment>
             <div className="sku">{p.sku}</div>
@@ -122,21 +163,7 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
       width: "10%",
       render: (value: any, record: LineItemOrderSplitModel, index: number) => <div>{value}</div>,
     },
-    // {
-    //   key: "btn_store",
-    //   visible: true,
-    //   align: "center",
-    //   width: "15%",
-    //   render: (value: any, record: LineItemOrderSplitModel, index: number) => {
-    //     return (
-    //       <React.Fragment>
-    //         {/* <ButtonInventory
 
-    //             /> */}
-    //       </React.Fragment>
-    //     );
-    //   },
-    // },
     {
       key: "btn_remove",
       visible: true,
@@ -191,7 +218,7 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
 
   useEffect(() => {
     const _data = items.map((item, index) => {
-      const _gifts = item.gifts.map((p) => ({
+      const _gifts = item.gifts.map((p: any) => ({
         sku: p.sku,
         variant: p.variant,
         available: p.available,
@@ -240,16 +267,19 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
           key={randomKeyTable}
         />
       </Card>
-      <InventoryModal
-        isModalVisible={isInventoryModalVisible}
-        setInventoryModalVisible={setInventoryModalVisible}
-        storeId={orderStoreId}
-        onChangeStore={(storeId) => handleChangeStore(storeId)}
-        columnsItem={items}
-        inventoryArray={props.inventoryResponse}
-        storeArrayResponse={props.storeArrayResponse}
-        handleCancel={() => setInventoryModalVisible(false)}
-      />
+      {isInventoryModalVisible && (
+        <SuggestInventoryModal
+          visible={isInventoryModalVisible}
+          setVisible={setInventoryModalVisible}
+          storeId={orderStoreId}
+          onChangeStore={(storeId) => handleChangeStore(storeId)}
+          columnsItem={items}
+          inventoryArray={inventoryResponse}
+          storeArrayResponse={props.storeArrayResponse}
+          handleCancel={() => setInventoryModalVisible(false)}
+          isLoading={isLoadingInventory}
+        />
+      )}
     </StyledComponent>
   );
 };
