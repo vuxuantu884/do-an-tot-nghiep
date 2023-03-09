@@ -26,10 +26,11 @@ export interface CustomerVisitorsProps {
   title: string;
   name: string;
   employee: string;
+  tableTitle: string;
 }
 
 function CustomerVisitors(props: CustomerVisitorsProps) {
-  const { source, title, name, employee } = props;
+  const { source, title, name, employee, tableTitle } = props;
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
@@ -549,10 +550,7 @@ function CustomerVisitors(props: CustomerVisitorsProps) {
               </em>
             </div>
           </Card>
-          <Card
-            title="Bảng số lượng khách hàng đến các cửa hàng"
-            headStyle={{ padding: "8px 20px" }}
-          >
+          <Card title={`Bảng số lượng ${tableTitle}`} headStyle={{ padding: "8px 20px" }}>
             {customerVisitors && (
               <Table
                 dataSource={customerVisitors}

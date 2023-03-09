@@ -9,6 +9,7 @@ function CustomerAssigned() {
       source={CustomerVisitorsType.Assignee}
       name={"khách được tiếp"}
       employee={"nhân viên tư vấn"}
+      tableTitle={"khách hàng đã tiếp tại các cửa hàng"}
     ></CustomerVisitors>
   );
 }
