@@ -89,14 +89,16 @@ export const PoSplitGoods = (props: IProps) => {
     setDateSelected(dateSelected);
     setDateOption(dateOption);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [purchaseOrder?.procurements]);
+  }, [purchaseOrder?.procurements, formMain]);
 
   useEffect(() => {
+    console.log("dateOption", dateOption);
     if (dateOption) {
       const line_items = formMain?.getFieldsValue()?.line_items as PurchaseOrderLineItem[];
       const procurements = formMain?.getFieldsValue()?.procurements
         ? (formMain?.getFieldsValue()?.procurements as PurchaseProcument[])
         : purchaseOrder?.procurements;
+      console.log("procurements", procurements);
 
       const procurementsItems = procurements
         .filter(
@@ -161,7 +163,7 @@ export const PoSplitGoods = (props: IProps) => {
       }
       setDataStore(dataStore);
     }
-  }, [dateOption, purchaseOrder?.procurements]);
+  }, [dateOption, purchaseOrder?.procurements, formMain]);
 
   useEffect(() => {
     const columns: Array<ICustomTableColumType<PurchaseProcumentLineItem>> = [
