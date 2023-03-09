@@ -79,7 +79,11 @@ type PurchaseOrderCreateAction = {
     line_items: PurchaseOrderLineItem[],
     procurementsAll: Array<PurchaseProcument[]>,
   ) => void;
-  handleChangeProcument: (formMain: FormInstance<any>) => void;
+  handleChangeProcument: (
+    formMain: FormInstance<any>,
+    procurementsData?: PurchaseProcument[],
+    lineItemsData?: PurchaseOrderLineItem[],
+  ) => void;
   handleSortProcurements: (procurements: PurchaseProcument[]) => PurchaseProcument[];
 };
 
@@ -189,11 +193,17 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
     }
   };
 
-  const handleChangeProcument = (formMain: FormInstance<any>) => {
-    const procurements: PurchaseProcument[] =
-      (formMain.getFieldsValue()?.procurements as PurchaseProcument[]) || [];
-    const lineItems: PurchaseOrderLineItem[] =
-      (formMain.getFieldsValue()?.line_items as PurchaseOrderLineItem[]) || [];
+  const handleChangeProcument = (
+    formMain: FormInstance<any>,
+    procurementsData?: PurchaseProcument[],
+    lineItemsData?: PurchaseOrderLineItem[],
+  ) => {
+    const procurements: PurchaseProcument[] = procurementsData
+      ? procurementsData
+      : (formMain.getFieldsValue()?.procurements as PurchaseProcument[]) || [];
+    const lineItems: PurchaseOrderLineItem[] = lineItemsData
+      ? lineItemsData
+      : (formMain.getFieldsValue()?.line_items as PurchaseOrderLineItem[]) || [];
     let lineItemsBackUp = cloneDeep(lineItems) as PurchaseOrderLineItem[];
     const procurementsBackUp = procurements.map((procurement) => {
       procurement.procurement_items.forEach((procurementItem, indexProcurementItem) => {

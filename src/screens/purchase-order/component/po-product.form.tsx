@@ -75,6 +75,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     procurementTableData,
     expectedDate,
     handleChangeProcument,
+
     procurementTable,
     setProcurementTable,
   } = useContext(PurchaseOrderCreateContext);
@@ -160,7 +161,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       formMain.setFieldsValue({
         procurements: newProcument,
       });
-      handleChangeProcument(formMain);
+      handleChangeProcument(formMain, newProcument, newLineItemsFilter);
     }
   };
   const handleDeleteLineItem = (lineItemDelete: PurchaseOrderLineItem) => {
