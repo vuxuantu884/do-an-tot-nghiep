@@ -177,7 +177,7 @@ const convertEndDateToTimestamp = (date: any) => {
 };
 
 const convertHouseOrMinuteToString = (house: number) => {
-  if (house > 0 || house < 9) {
+  if (Number(house) > 0 && Number(house) < 9) {
     return "0" + house;
   }
   return house;
