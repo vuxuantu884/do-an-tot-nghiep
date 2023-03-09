@@ -9,7 +9,7 @@ function CustomerRecepted() {
       source={CustomerVisitorsType.Receptionist}
       name={"khách vào cửa hàng"}
       employee={"nhân viên tiếp đón"}
-      tableTitle={"khách hàng vào tại các cửa hàng"}
+      tableTitle={"khách vào tại các cửa hàng"}
     ></CustomerVisitors>
   );
 }
