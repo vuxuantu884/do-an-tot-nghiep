@@ -92,13 +92,11 @@ export const PoSplitGoods = (props: IProps) => {
   }, [purchaseOrder?.procurements, formMain]);
 
   useEffect(() => {
-    console.log("dateOption", dateOption);
     if (dateOption) {
       const line_items = formMain?.getFieldsValue()?.line_items as PurchaseOrderLineItem[];
       const procurements = formMain?.getFieldsValue()?.procurements
         ? (formMain?.getFieldsValue()?.procurements as PurchaseProcument[])
         : purchaseOrder?.procurements;
-      console.log("procurements", procurements);
 
       const procurementsItems = procurements
         .filter(
@@ -513,6 +511,9 @@ export const PoSplitGoods = (props: IProps) => {
         }}
       />
       <Form.Item name={POField.line_items} hidden noStyle>
+        <Input />
+      </Form.Item>
+      <Form.Item name={POField.procurements} hidden noStyle>
         <Input />
       </Form.Item>
     </StyledPOSplGood>
