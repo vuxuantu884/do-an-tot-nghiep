@@ -161,6 +161,8 @@ export interface AnalyticTemplateData {
   timeAtOption: string;
   chart_query?: string;
   group: AnalyticGroup;
+  source?: "report" | "other";
+  link?: string;
 }
 
 export interface AnalyticCustomizeTemplateForCreate {

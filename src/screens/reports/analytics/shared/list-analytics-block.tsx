@@ -16,8 +16,20 @@ function ListAnalyticsBlock({ matchPath, data, title }: Props) {
         grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 4, xxl: 5 }}
         dataSource={data || []}
         renderItem={(item, index) => {
-          return (
+          return item.source !== "other" ? (
             <Link to={`${matchPath}/${item.id}`} key={index}>
+              <List.Item className="pointer">
+                <div className={`template-report__card `}>
+                  <div className="template-report__icon ">
+                    <img src={templates(`./${item.iconImg}`)} alt={item.name} />
+                  </div>
+                  <div className="template-report__type"> {item.type} </div>
+                  <div className="template-report__name"> {item.name.toUpperCase()} </div>
+                </div>
+              </List.Item>
+            </Link>
+          ) : (
+            <Link to={`${matchPath}/${item.link}`} key={index}>
               <List.Item className="pointer">
                 <div className={`template-report__card `}>
                   <div className="template-report__icon ">
