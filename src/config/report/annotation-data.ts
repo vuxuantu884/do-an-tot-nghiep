@@ -64,7 +64,7 @@ export const AnnotationDataList: AnnotationData[] = [
       },
       {
         annotation: "Doanh thu",
-        desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm - Tổng trả + Hoàn điểm",
+        desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm - Tổng trả",
       },
       {
         annotation: "TB giá trị đơn hàng",
@@ -115,8 +115,52 @@ export const AnnotationDataList: AnnotationData[] = [
     cubes: [AnalyticCube.Sales],
     data: [
       {
+        annotation: "Doanh thu sau chiết khấu",
+        desc: "Tổng bán - Tổng chiết khấu (chiết khấu trên từng sản phẩm + chiết khấu phân bổ từ tổng đơn)",
+      },
+      {
+        annotation: "Doanh thu sau chiết khấu - trả hàng",
+        desc: "Tổng bán  - Tổng chiết khấu - Tổng trả thành công",
+      },
+      {
+        annotation: "Doanh thu sau chiết khấu - tiêu điểm",
+        desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm",
+      },
+      {
+        annotation: "Doanh thu sau chiết khấu - tiêu điểm - trả hàng",
+        desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm - Tổng trả",
+      },
+      {
+        annotation: "Doanh thu (đơn tạo)",
+        desc: "Tổng bán (đơn tạo) - Tổng chiết khấu (đơn tạo) - Tiêu điểm - Tổng trả  - Phí ship báo khách (đơn tạo)",
+      },
+      {
+        annotation: "Doanh thu (thành công)",
+        desc: "Tổng bán (thành công) - Tổng chiết khấu (thành công) - Tiêu điểm - Tổng trả + Phí ship báo khách (thành công)",
+      },
+      {
+        annotation: "Doanh thu sau chiết khấu - tiêu điểm - trả hàng (đơn tạo)",
+        desc: "Tổng bán (đơn tạo) - Tổng chiết khấu (đơn tạo) - Tiêu điểm - Tổng trả ",
+      },
+      {
+        annotation: "Phí ship báo khách (đơn tạo)",
+        desc: "Phí ship báo cho khách của những đơn được tạo ra",
+      },
+      {
+        annotation: "Phí ship báo khách",
+        desc: "Phí ship báo cho khách của những đơn thành công",
+      },
+      {
+        annotation: "SL đơn hàng (đơn tạo)",
+        desc: "Số lượng đơn hàng được tạo ra trong khoảng thời gian chọn",
+      },
+      {
         annotation: "SL đơn hàng",
         desc: "Số lượng đơn hàng thành công trong khoảng thời gian chọn",
+      },
+      {
+        annotation: "SL hàng bán ra (đơn tạo)",
+        desc: "Số lượng sản phẩm trên đơn hàng được tạo ra",
       },
       {
         annotation: "SL hàng bán ra",
@@ -129,6 +173,10 @@ export const AnnotationDataList: AnnotationData[] = [
       {
         annotation: "SL hàng trả lại",
         desc: "Số lượng sản phẩm trả lại trên đơn trả thành công",
+      },
+      {
+        annotation: "SL hàng thực bán (đơn tạo)",
+        desc: "SL hàng bán ra (đơn tạo) - SL hàng trả lại",
       },
       {
         annotation: "SL hàng thực bán",
@@ -157,30 +205,6 @@ export const AnnotationDataList: AnnotationData[] = [
       {
         annotation: "Tổng trả",
         desc: "Tổng tiền trả khách (Tổng đơn giá đơn trả sau chiết khấu - Hoàn điểm)",
-      },
-      {
-        annotation: "Doanh thu sau chiết khấu",
-        desc: "Tổng bán - Tổng chiết khấu (chiết khấu trên từng sản phẩm + chiết khấu phân bổ từ tổng đơn)",
-      },
-      {
-        annotation: "Doanh thu sau chiết khấu - trả hàng",
-        desc: "Tổng bán  - Tổng chiết khấu - Tổng trả thành công",
-      },
-      {
-        annotation: "Doanh thu sau chiết khấu - tiêu điểm",
-        desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm",
-      },
-      {
-        annotation: "Doanh thu sau chiết khấu - tiêu điểm - trả hàng",
-        desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm - Tổng trả",
-      },
-      {
-        annotation: "Phí ship báo khách",
-        desc: "Phí ship báo cho khách của những đơn thành công",
-      },
-      {
-        annotation: "Doanh thu",
-        desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm - Tổng trả + Phí ship báo khách + Hoàn điểm",
       },
       {
         annotation: "TB giá trị đơn hàng",
@@ -227,20 +251,8 @@ export const AnnotationDataList: AnnotationData[] = [
         desc: "Tiền mặt + chuyển khoản + quẹt thẻ + thanh toán QR pay + COD + thanh toán khác",
       },
       {
-        annotation: "SL đơn hàng (đơn tạo)",
-        desc: "Số lượng đơn hàng được tạo ra trong khoảng thời gian chọn",
-      },
-      {
         annotation: "Tỷ lệ thành công (%)",
         desc: "Doanh thu/Doanh thu (đơn tạo)",
-      },
-      {
-        annotation: "SL hàng bán ra (đơn tạo)",
-        desc: "Số lượng sản phẩm trên đơn hàng được tạo ra",
-      },
-      {
-        annotation: "SL hàng thực bán (đơn tạo)",
-        desc: "SL hàng bán ra (đơn tạo) - SL hàng trả lại",
       },
       {
         annotation: "Tổng bán (đơn tạo)",
@@ -249,18 +261,6 @@ export const AnnotationDataList: AnnotationData[] = [
       {
         annotation: "Tổng chiết khấu (đơn tạo)",
         desc: "Tổng chiết khấu của từng sản phẩm và chiết khẩu của cả đơn hàng của những đơn được tạo ra",
-      },
-      {
-        annotation: "Doanh thu sau chiết khấu - tiêu điểm - trả hàng (đơn tạo)",
-        desc: "Tổng bán (đơn tạo) - Tổng chiết khấu (đơn tạo) - Tiêu điểm - Tổng trả ",
-      },
-      {
-        annotation: "Phí ship báo khách (đơn tạo)",
-        desc: "Phí ship báo cho khách của những đơn được tạo ra",
-      },
-      {
-        annotation: "Doanh thu (đơn tạo)",
-        desc: "Tổng bán (đơn tạo) - Tổng chiết khấu (đơn tạo) - Tiêu điểm - Tổng trả  - Phí ship báo khách (đơn tạo)",
       },
     ],
     documentLink:
@@ -375,8 +375,8 @@ export const AnnotationDataList: AnnotationData[] = [
         desc: "Phí ship báo cho khách của những đơn thành công",
       },
       {
-        annotation: "Doanh thu",
-        desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm - Tổng trả + Phí ship báo khách + Hoàn điểm",
+        annotation: "Doanh thu (thành công)",
+        desc: "Tổng bán (thành công) - Tổng chiết khấu (thành công) - Tiêu điểm - Tổng trả + Phí ship báo khách (thành công)",
       },
       {
         annotation: "TB giá trị đơn hàng",
@@ -474,4 +474,15 @@ export const AnnotationDataList: AnnotationData[] = [
     documentLink:
       "https://hdsd-yody.gitbook.io/unicorn-free/bao-cao/huong-dan-su-dung-bao-cao-tinh-nang-co-ban",
   },
-];
+].map((item) => {
+  item.data = item.data.sort((a: any, b: any) => {
+    if (a.annotation < b.annotation) {
+      return -1;
+    }
+    if (a.annotation > b.annotation) {
+      return 1;
+    }
+    return 0;
+  });
+  return item;
+});
