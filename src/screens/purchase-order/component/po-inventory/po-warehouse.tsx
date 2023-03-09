@@ -10,7 +10,7 @@ import { IConPlan } from "component/icon/Plan";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import { AppConfig } from "config/app.config";
 import { EnumOptionValueOrPercent } from "config/enum.config";
-import { groupBy } from "lodash";
+import { cloneDeep, groupBy } from "lodash";
 import { ProcurementLineItemField } from "model/procurement/field";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
@@ -155,8 +155,9 @@ export const PoWareHouse = (props: IProps) => {
         }
       });
     });
+    console.log("cloneDeep(procurements)", cloneDeep(procurements));
     formMain?.setFieldsValue({
-      [POField.procurements]: [...JSON.parse(JSON.stringify(procurements))],
+      [POField.procurements]: cloneDeep(procurements),
     });
   };
 
@@ -689,6 +690,7 @@ export const PoWareHouse = (props: IProps) => {
       expectReceiptDates,
       isEditDetail,
       purchaseOrder,
+      procurementTable,
       onChangeTimeWarehouse,
       formMain?.getFieldValue(POField.procurements),
     ],
