@@ -1,4 +1,4 @@
-import { Form, FormInstance, Modal, Progress, Table } from "antd";
+import { Form, FormInstance, Modal, Table } from "antd";
 import CustomRangeDatePicker from "component/custom/new-date-range-picker";
 import CustomSelect from "component/custom/select.custom";
 import moment from "moment";
