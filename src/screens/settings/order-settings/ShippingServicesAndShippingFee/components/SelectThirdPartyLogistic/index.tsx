@@ -13,12 +13,14 @@ type PropType = {
 
 function SelectThirdPartyLogistic(props: PropType) {
   const { initialFormValue, list3rdPartyLogistic, form } = props;
-  const list3rdPartyLogisticFormat = list3rdPartyLogistic.map((single) => {
-    return {
-      ...single,
-      key: single.id,
-    };
-  });
+  const list3rdPartyLogisticFormat = list3rdPartyLogistic
+    .filter((i: any) => i.logo || i.transport_types.length > 0)
+    .map((single) => {
+      return {
+        ...single,
+        key: single.id,
+      };
+    });
   let list_external_service_transport_type_ids: any[] =
     initialFormValue.external_service_transport_type_ids;
 
