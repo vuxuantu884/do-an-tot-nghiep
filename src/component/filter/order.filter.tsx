@@ -56,6 +56,7 @@ import BaseFilter from "./base.filter";
 import UserCustomFilterTag from "./UserCustomFilterTag";
 import useAuthorization from "hook/useAuthorization";
 import { ORDER_PERMISSIONS } from "config/permissions/order.permission";
+import { specialOrderTypes } from "component/order/special-order/SideBarOrderSpecial/helper";
 
 type Props = {
   params: OrderSearchQuery;
@@ -264,6 +265,16 @@ function OrdersFilter(props: Props): JSX.Element {
     [],
   );
 
+  const specialOrderTypesArr = useMemo(() => {
+    let types = [];
+    for (const property in specialOrderTypes) {
+      types.push({
+        ...specialOrderTypes[property],
+      });
+    }
+    return types;
+  }, []);
+
   const serviceVariables = {
     deliver4h: "4h_delivery",
     deliverStandard: "standard_delivery",
@@ -292,6 +303,7 @@ function OrdersFilter(props: Props): JSX.Element {
   const [accountFound, setAccountFound] = useState<Array<AccountResponse>>([]);
   const [marketerFound, setMarketerFound] = useState<Array<AccountResponse>>([]);
   const [coordinatorFound, setCoordinatorFound] = useState<Array<AccountResponse>>([]);
+  const [orderCarerFound, setOrderCarerFound] = useState<Array<AccountResponse>>([]);
 
   const [isShowModalSaveFilter, setIsShowModalSaveFilter] = useState(false);
 
@@ -496,6 +508,9 @@ function OrdersFilter(props: Props): JSX.Element {
         case "coordinator_codes":
           onFilter && onFilter({ ...params, coordinator_codes: [] });
           break;
+        case "order_carer_codes":
+          onFilter && onFilter({ ...params, order_carer_codes: [] });
+          break;
         case "marketer_codes":
           onFilter && onFilter({ ...params, marketer_codes: [] });
           break;
@@ -519,6 +534,9 @@ function OrdersFilter(props: Props): JSX.Element {
           break;
         case "delivery_provider_ids":
           onFilter && onFilter({ ...params, delivery_provider_ids: [] });
+          break;
+        case "special_types":
+          onFilter && onFilter({ ...params, special_types: [] });
           break;
         case "shipper_codes":
           onFilter && onFilter({ ...params, shipper_codes: [] });
@@ -650,6 +668,9 @@ function OrdersFilter(props: Props): JSX.Element {
       delivery_provider_ids: Array.isArray(params.delivery_provider_ids)
         ? params.delivery_provider_ids
         : [params.delivery_provider_ids],
+      special_types: Array.isArray(params.special_types)
+        ? params.special_types
+        : [params.special_types],
       shipper_codes: Array.isArray(params.shipper_codes)
         ? params.shipper_codes
         : [params.shipper_codes],
@@ -670,6 +691,9 @@ function OrdersFilter(props: Props): JSX.Element {
       coordinator_codes: Array.isArray(params.coordinator_codes)
         ? params.coordinator_codes
         : [params.coordinator_codes],
+      order_carer_codes: Array.isArray(params.order_carer_codes)
+        ? params.order_carer_codes
+        : [params.order_carer_codes],
       marketer_codes: Array.isArray(params.marketer_codes)
         ? params.marketer_codes
         : [params.marketer_codes],
@@ -753,6 +777,12 @@ function OrdersFilter(props: Props): JSX.Element {
         data: initialValues.coordinator_codes,
         isShorten: isShortenFilterTag,
         isCanShorten: initialValues.coordinator_codes.length > numberTagShorten,
+      },
+
+      order_carer_codes: {
+        data: initialValues.order_carer_codes,
+        isShorten: isShortenFilterTag,
+        isCanShorten: initialValues.order_carer_codes.length > numberTagShorten,
       },
       marketer_codes: {
         data: initialValues.marketer_codes,
@@ -1343,6 +1373,23 @@ function OrdersFilter(props: Props): JSX.Element {
       });
     }
 
+    if (initialValues.order_carer_codes.length) {
+      let text = getFilterString(
+        orderCarerFound,
+        "full_name",
+        UrlConfig.ACCOUNTS,
+        "code",
+        "order_carer_codes",
+        filterTagFormatted.order_carer_codes.isCanShorten,
+        filterTagFormatted.order_carer_codes.isShorten,
+      );
+      list.push({
+        key: "order_carer_codes",
+        name: "Nhân viên CSĐH",
+        value: text,
+      });
+    }
+
     if (initialValues.marketer_codes.length) {
       let text = getFilterString(
         marketerFound,
@@ -1404,6 +1451,18 @@ function OrdersFilter(props: Props): JSX.Element {
       list.push({
         key: "delivery_provider_ids",
         name: "Đơn vị vận chuyển",
+        value: text,
+      });
+    }
+
+    if (initialValues.special_types.length) {
+      let mappedSpecialTypes = specialOrderTypesArr?.filter((type) =>
+        initialValues.special_types?.some((item: any) => item === type.value.toString()),
+      );
+      let text = getFilterString(mappedSpecialTypes, "title", undefined, undefined);
+      list.push({
+        key: "special_types",
+        name: "Loại đơn hàng",
         value: text,
       });
     }
@@ -1653,12 +1712,14 @@ function OrdersFilter(props: Props): JSX.Element {
     initialValues.services.length,
     initialValues.account_codes.length,
     initialValues.coordinator_codes.length,
+    initialValues.order_carer_codes.length,
     initialValues.marketer_codes.length,
     initialValues.price_min,
     initialValues.price_max,
     initialValues.payment_method_ids,
     initialValues.delivery_types,
     initialValues.delivery_provider_ids,
+    initialValues.special_types,
     initialValues.shipper_codes,
     initialValues.channel_codes,
     initialValues.note,
@@ -1693,10 +1754,12 @@ function OrdersFilter(props: Props): JSX.Element {
     serviceListVariables,
     accountFound,
     coordinatorFound,
+    orderCarerFound,
     marketerFound,
     listPaymentMethod,
     serviceType,
     deliveryService,
+    specialOrderTypesArr,
     shippers,
     listChannel,
   ]);
@@ -1830,11 +1893,19 @@ function OrdersFilter(props: Props): JSX.Element {
         setCoordinatorFound(response.data.items);
       });
     }
+    if (params.order_carer_codes && params.order_carer_codes?.length > 0) {
+      searchAccountPublicApi({
+        codes: params.order_carer_codes,
+      }).then((response) => {
+        setOrderCarerFound(response.data.items);
+      });
+    }
   }, [
     params.assignee_codes,
     params.account_codes,
     params.marketer_codes,
     params.coordinator_codes,
+    params.order_carer_codes,
   ]);
 
   useEffect(() => {
@@ -2682,6 +2753,36 @@ function OrdersFilter(props: Props): JSX.Element {
                         </Select.Option>
                       ))}
                     </Select>
+                  </Item>
+                </Col>
+                <Col span={8} xxl={8} hidden={orderType !== ORDER_TYPES.online}>
+                  <Item name="special_types" label="Loại đơn hàng">
+                    <Select
+                      placeholder="Loại đơn hàng"
+                      style={{ width: "100%" }}
+                      allowClear
+                      mode="multiple"
+                    >
+                      {specialOrderTypesArr.map((p, index) => (
+                        <Select.Option key={index} value={p.value}>
+                          {p.title}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Item>
+                </Col>
+                <Col span={8} xxl={8} hidden={orderType !== ORDER_TYPES.online}>
+                  <Item name="order_carer_codes" label="Nhân viên CSĐH">
+                    <AccountCustomSearchSelect
+                      placeholder="Tìm theo họ tên hoặc mã nhân viên"
+                      dataToSelect={accountData}
+                      setDataToSelect={setAccountData}
+                      initDataToSelect={accounts}
+                      mode="multiple"
+                      getPopupContainer={(trigger: any) => trigger.parentNode}
+                      maxTagCount="responsive"
+                      autoClearSearchValue={false}
+                    />
                   </Item>
                 </Col>
               </Row>
