@@ -241,9 +241,17 @@ const ImportOneStoreMultipleInventory: FC = () => {
 
   const viewProcessingDetail = (fileAttr: any, processingDetailTemp: any) => {
     setIsStatusModalVisible(true);
+    if (!processingDetailTemp.data) {
+      setProcessingDetail({
+        errorsFile: processingDetailTemp.errors,
+        fileName: fileAttr.name,
+        uid: fileAttr.uid,
+      });
+      return;
+    }
+
     setProcessingDetail({
-      ...processingDetailTemp,
-      errorsFile: processingDetailTemp.errors,
+      ...processingDetailTemp.data,
       fileName: fileAttr.name,
       uid: fileAttr.uid,
     });
@@ -289,7 +297,7 @@ const ImportOneStoreMultipleInventory: FC = () => {
                 <Link target="_blank" to={`${UrlConfig.INVENTORY_TRANSFERS}/${res.data.data.id}`}>Phiếu chuyển
                   hàng</Link>
               </Button> : <Button style={{ marginLeft: "auto" }} type="default"
-                                  onClick={() => viewProcessingDetail(fileAttr, res.data)}>
+                                  onClick={() => viewProcessingDetail(fileAttr, res)}>
                 Xem chi tiết
               </Button>}
             </div>,
@@ -807,7 +815,7 @@ const ImportOneStoreMultipleInventory: FC = () => {
                 {processingDetail?.errorsFile?.map((i: any, index: number) => {
                   return (
                     <li key={index}>
-                      <Text type="danger">{i}</Text>
+                      <Text type="danger">{i.code ? i.code : i}</Text>
                     </li>
                   );
                 })}
@@ -829,7 +837,8 @@ const ImportOneStoreMultipleInventory: FC = () => {
                         })}
                       </>
                     )}
-                    {processingDetail.code !== HttpStatus.BAD_REQUEST && processingDetail?.errors?.length > 0 ? (
+                    {processingDetail.code !== HttpStatus.BAD_REQUEST
+                    && processingDetail?.errors?.length > 0 && (
                       <>
                         {processingDetail?.errors?.map((i: any, index: number) => {
                           return (
@@ -839,7 +848,8 @@ const ImportOneStoreMultipleInventory: FC = () => {
                           );
                         })}
                       </>
-                    ) : (
+                    )}
+                    {processingDetail.code !== HttpStatus.BAD_REQUEST && processingDetail?.errors?.length === 0 && (
                       <li>
                         <Text type="danger">{processingDetail?.message}</Text>
                       </li>
