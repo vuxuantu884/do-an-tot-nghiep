@@ -29,7 +29,10 @@ import {
   mathRoundAmount,
   mathRoundPercentage,
 } from "utils/AppUtils";
-import { isOrderDetailHasPointPayment } from "utils/OrderUtils";
+import {
+  handleReCalculateReturnProductDiscountAmount,
+  isOrderDetailHasPointPayment,
+} from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
 // import { fullTextSearch } from "utils/StringUtils";
 import CardReturnProducts from "../../CardReturnProducts";
@@ -107,6 +110,7 @@ function CardReturnProductContainer(props: PropTypes) {
     let result = [...listReturnProducts];
     if (indexSelectedVariant === -1) {
       selectedVariantWithMaxQuantity.quantity = 1;
+      handleReCalculateReturnProductDiscountAmount(selectedVariantWithMaxQuantity);
       result = [selectedVariantWithMaxQuantity, ...listReturnProducts];
     } else {
       let selectedVariant = result[indexSelectedVariant];
@@ -115,6 +119,7 @@ function CardReturnProductContainer(props: PropTypes) {
         selectedVariant.quantity < selectedVariant.maxQuantityCanBeReturned
       ) {
         selectedVariant.quantity += 1;
+        handleReCalculateReturnProductDiscountAmount(selectedVariant);
       }
     }
     if (setListReturnProducts) {
@@ -155,24 +160,29 @@ function CardReturnProductContainer(props: PropTypes) {
     }
     if (e.target.checked) {
       const resultReturnProducts: ReturnProductModel[] = listItemCanBeReturn.map((single) => {
-        return {
+        let convert = {
           ...single,
           maxQuantityCanBeReturned: single.quantity,
           amount: single.quantity * single.price,
           line_amount_after_line_discount: single.quantity * (single.price - single.discount_value),
         };
+        handleReCalculateReturnProductDiscountAmount(convert);
+        return convert;
       });
+
       if (setListReturnProducts) {
         setListReturnProducts(resultReturnProducts);
       }
       checkIfIsCanReturn(resultReturnProducts);
     } else {
       const result: ReturnProductModel[] = listItemCanBeReturn.map((single) => {
-        return {
+        let convert = {
           ...single,
           quantity: 0,
           maxQuantityCanBeReturned: single.quantity,
         };
+        handleReCalculateReturnProductDiscountAmount(convert);
+        return convert;
       });
       if (setListReturnProducts) {
         setListReturnProducts(result);
@@ -180,6 +190,7 @@ function CardReturnProductContainer(props: PropTypes) {
       checkIfIsCanReturn(result);
     }
     setIsCheckReturnAll(e.target.checked);
+    handleChangeReturnProductQuantityCallback();
   };
 
   useEffect(() => {
@@ -287,26 +298,7 @@ function CardReturnProductContainer(props: PropTypes) {
     );
     if (value) {
       resultListReturnProducts[index].amount = resultListReturnProducts[index].price * value;
-      resultListReturnProducts[index].discount_items = listReturnProducts[index].discount_items.map(
-        (discount) => {
-          return {
-            ...discount,
-            rate: mathRoundPercentage(discount.rate),
-            amount: mathRoundAmount(value * discount.value),
-          };
-        },
-      );
-      resultListReturnProducts[index].discount_value = getLineItemDiscountValue(
-        resultListReturnProducts[index],
-      );
-      resultListReturnProducts[index].discount_rate = getLineItemDiscountRate(
-        resultListReturnProducts[index],
-      );
-      resultListReturnProducts[index].discount_amount = getLineItemDiscountAmount(
-        resultListReturnProducts[index],
-      );
-      resultListReturnProducts[index].line_amount_after_line_discount =
-        getLineAmountAfterLineDiscount(resultListReturnProducts[index]);
+      handleReCalculateReturnProductDiscountAmount(resultListReturnProducts[index]);
     }
     if (setListReturnProducts) {
       setListReturnProducts(resultListReturnProducts);
