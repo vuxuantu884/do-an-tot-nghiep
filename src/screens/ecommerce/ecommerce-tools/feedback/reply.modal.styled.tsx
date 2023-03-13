@@ -27,4 +27,39 @@ export const ModalStyled = styled.div`
       }
     }
   }
+  .ant-form {
+    p {
+      color: #222222;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    .date-option {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      .ant-btn {
+        width: 30%;
+        padding: 0px 5px;
+        height: 33.5px;
+        line-height: 29px;
+      }
+    }
+    .ant-picker {
+      height: 40px;
+    }
+    .date-range {
+      display: flex;
+      .swap-right-icon {
+        width: 10%;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .anticon-swap-right {
+          font-size: 23px;
+          color: #757575;
+        }
+      }
+    }
+  }
 `;

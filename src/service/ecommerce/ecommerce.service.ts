@@ -277,6 +277,12 @@ export const replyFeedbacksApi = (body: any): Promise<any> => {
   return BaseAxios.post(requestUrl, body);
 };
 
+//shoppe - getting reply feedbacks
+export const gettingReplyFeedbacksApi = (body: any): Promise<any> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/product-reviews/download`;
+  return BaseAxios.post(requestUrl, body);
+};
+
 //get log inventory follow variant
 export const getLogInventoryVariantApi = (variant_id: any) => {
   let link = `${ApiConfig.ECOMMERCE}/variants/sync-stock-logs/${variant_id}`;
