@@ -59,8 +59,6 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
     switch (AppConfig.ENV) {
       case "DEV":
         return `https://htnd-dev.yody.io/?code=${user_code}`;
-      case "UAT":
-        return `https://htnd.yody.io/?code=${user_code}`;
       case "PROD":
         return `https://htnd.yody.io/?code=${user_code}`;
       default:
