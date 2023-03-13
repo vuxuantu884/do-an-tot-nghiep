@@ -7,8 +7,9 @@ export const ModalWrapper = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px;
     border-radius: 3px;
     background-color: #f2f2f2;
     img {

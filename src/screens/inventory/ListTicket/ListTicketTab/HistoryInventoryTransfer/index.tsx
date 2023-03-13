@@ -36,38 +36,70 @@ const ACTIONS_INDEX = {
 };
 
 const ACTIONS_STATUS = {
-  CREATE: {
-    value: "CREATE",
-    name: "Tạo phiếu chuyển kho",
+  // REQUEST: {
+  //   value: "requested",
+  //   name: "Tạo phiếu yêu cầu",
+  // },
+  CONFIRM: {
+    value: "confirmed",
+    name: "Xác nhận phiếu chuyển"
   },
   UPDATE: {
-    value: "UPDATE",
-    name: "Sửa phiếu chuyển kho",
+    value: "updated",
+    name: "Cập nhật thông tin"
+  },
+  EXPORT: {
+    value: "exported",
+    name: "Xuất hàng khỏi kho"
   },
   PENDING: {
-    value: "PENDING",
-    name: "Chờ xử lý",
+    value: "pending",
+    name: "Chờ xử lý"
   },
-  DELETE: {
-    value: "DELETE",
-    name: "Huỷ phiếu chuyển kho",
-  },
-  CANCEL_SHIPMENT: {
-    value: "CANCEL_SHIPMENT",
-    name: "Huỷ phiếu chuyển kho",
-  },
-  CONFIRM_EXCEPTION: {
-    value: "CONFIRM_EXCEPTION",
-    name: "Nhập lại tồn chênh lệch",
-  },
-  EXPORT_SHIPMENT: {
-    value: "EXPORT_SHIPMENT",
-    name: "Xuất hàng khỏi kho",
+  BALANCE: {
+    value: "balanced",
+    name: "Nhận lại tồn chênh lệch"
   },
   RECEIVE: {
-    value: "RECEIVE",
-    name: "Nhận hàng",
+    value: "received",
+    name: "Nhận hàng"
   },
+  DELETE: {
+    value: "deleted",
+    name: "Xóa phiếu"
+  },
+  CANCEL: {
+    value: "canceled",
+    name: "Hủy phiếu"
+  },
+  FORWARD: {
+    value: "forward",
+    name: "Chuyển tiếp kho"
+  },
+  FROM_STORE_CHANGED: {
+    value: "from_store_changed",
+    name: "Thay đổi kho gửi"
+  },
+  TO_STORE_CHANGED: {
+    value: "to_store_changed",
+    name: "Thay đổi kho nhận"
+  },
+  LINE_ITEM_ADDED: {
+    value: "line_item_added",
+    name: "Thêm dòng sản phẩm"
+  },
+  LINE_ITEM_REMOVED: {
+    value: "line_item_removed",
+    name: "Xóa dòng sản phẩm"
+  },
+  LINE_ITEM_UPDATED: {
+    value: "line_item_updated",
+    name: "Cập nhật dòng sản phẩm"
+  },
+  GENERAL_UPDATED: {
+    value: "general_updated",
+    name: "Cập nhật"
+  }
 };
 const initQuery: InventoryTransferLogSearchQuery = {
   page: 1,
@@ -75,6 +107,7 @@ const initQuery: InventoryTransferLogSearchQuery = {
   condition: null,
   from_store_id: null,
   to_store_id: null,
+  created_by: [],
   updated_by: [],
   action: [],
   from_created_date: null,
@@ -149,16 +182,14 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
   const [columns, setColumn] = useState<Array<any>>([
     {
       title: "Mã phiếu chuyển",
-      dataIndex: "data",
+      dataIndex: "transfer_code",
+      align: "left",
       width: "150px",
       fixed: "left",
       visible: true,
-      align: "center",
-      render: (value: string) => {
-        const dataItem = JSON.parse(value);
-
+      render: (value: string, item: InventoryTransferLog) => {
         return (
-          <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${dataItem?.id}`}>{dataItem?.code}</Link>
+          <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${item.transfer_id}`}>{value}</Link>
         );
       },
     },
@@ -166,67 +197,93 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
       title: "Kho gửi",
       dataIndex: "from_store_name",
       visible: true,
-      align: "center",
+      align: "left",
     },
     {
       title: "Kho nhận",
       dataIndex: "to_store_name",
       visible: true,
-      align: "center",
+      align: "left",
     },
     {
       title: "Người sửa",
       dataIndex: "updated_by",
       visible: true,
-      align: "center",
+      align: "left",
       render: (value: string, item: InventoryTransferLog) => {
         return (
           <>
             <div>
-              <b>{JSON.parse(item.data).updated_by ?? ""}</b>
+              <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${value}`}>
+                {value}
+              </Link>
             </div>
-            <div>{JSON.parse(item.data).updated_name ?? ""}</div>
+            <div>{item.updated_name}</div>
           </>
         );
       },
     },
     {
       title: "Log ID",
-      dataIndex: "id",
+      dataIndex: "log_id",
       visible: true,
-      align: "center",
+      align: "left",
     },
     {
       title: "Thao tác",
       dataIndex: "action",
       visible: true,
-      align: "center",
+      align: "left",
       render: (value: string) => {
         let displayName = "";
-        switch (value.toUpperCase()) {
-          case ACTIONS_STATUS.CREATE.value:
-            displayName = ACTIONS_STATUS.CREATE.name;
-            break;
+        switch (value) {
+          // case ACTIONS_STATUS.REQUEST.value:
+          //   displayName = ACTIONS_STATUS.REQUEST.name;
+          //   break;
           case ACTIONS_STATUS.UPDATE.value:
             displayName = ACTIONS_STATUS.UPDATE.name;
             break;
-          case ACTIONS_STATUS.DELETE.value:
-            displayName = ACTIONS_STATUS.DELETE.name;
+          case ACTIONS_STATUS.CONFIRM.value:
+            displayName = ACTIONS_STATUS.CONFIRM.name;
             break;
-          case ACTIONS_STATUS.CANCEL_SHIPMENT.value:
-            displayName = ACTIONS_STATUS.CANCEL_SHIPMENT.name;
-            break;
-          case ACTIONS_STATUS.CONFIRM_EXCEPTION.value:
-            displayName = ACTIONS_STATUS.CONFIRM_EXCEPTION.name;
+          case ACTIONS_STATUS.EXPORT.value:
+            displayName = ACTIONS_STATUS.EXPORT.name;
             break;
           case ACTIONS_STATUS.PENDING.value:
             displayName = ACTIONS_STATUS.PENDING.name;
             break;
-          case ACTIONS_STATUS.EXPORT_SHIPMENT.value:
-            displayName = ACTIONS_STATUS.EXPORT_SHIPMENT.name;
+          case ACTIONS_STATUS.BALANCE.value:
+            displayName = ACTIONS_STATUS.BALANCE.name;
             break;
           case ACTIONS_STATUS.RECEIVE.value:
             displayName = ACTIONS_STATUS.RECEIVE.name;
+            break;
+          case ACTIONS_STATUS.DELETE.value:
+            displayName = ACTIONS_STATUS.DELETE.name;
+            break;
+          case ACTIONS_STATUS.CANCEL.value:
+            displayName = ACTIONS_STATUS.CANCEL.name;
+            break;
+          case ACTIONS_STATUS.FORWARD.value:
+            displayName = ACTIONS_STATUS.FORWARD.name;
+            break;
+          case ACTIONS_STATUS.FROM_STORE_CHANGED.value:
+            displayName = ACTIONS_STATUS.FROM_STORE_CHANGED.name;
+            break;
+          case ACTIONS_STATUS.TO_STORE_CHANGED.value:
+            displayName = ACTIONS_STATUS.TO_STORE_CHANGED.name;
+            break;
+          case ACTIONS_STATUS.LINE_ITEM_ADDED.value:
+            displayName = ACTIONS_STATUS.LINE_ITEM_ADDED.name;
+            break;
+          case ACTIONS_STATUS.LINE_ITEM_REMOVED.value:
+            displayName = ACTIONS_STATUS.LINE_ITEM_REMOVED.name;
+            break;
+          case ACTIONS_STATUS.LINE_ITEM_UPDATED.value:
+            displayName = ACTIONS_STATUS.LINE_ITEM_UPDATED.name;
+            break;
+          case ACTIONS_STATUS.GENERAL_UPDATED.value:
+            displayName = ACTIONS_STATUS.GENERAL_UPDATED.name;
             break;
         }
         return `${displayName}`;
@@ -236,7 +293,7 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
       title: "Thời gian",
       dataIndex: "updated_date",
       visible: true,
-      align: "center",
+      align: "left",
       render: (value: string) => {
         return ConvertUtcToLocalDate(value, "DD/MM/YYYY HH:mm:ss");
       },

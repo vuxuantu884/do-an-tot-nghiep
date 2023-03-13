@@ -50,7 +50,7 @@ export const getListLogInventoryTransferApi = (
   query: InventoryTransferLogSearchQuery,
 ): Promise<BaseResponse<PageResponse<InventoryTransferLog>>> => {
   const queryString = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/logs?${queryString}`);
+  return BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/histories?${queryString}`);
 };
 
 export const inventorGetDetailApi = (id: number) => {
@@ -58,14 +58,14 @@ export const inventorGetDetailApi = (id: number) => {
 };
 
 export const inventorGetCopyDetailApi = (id: number) => {
-  return BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/clone/${id}`);
+  return BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${id}/clone`);
 };
 
 export const DeleteInventoryService = (
   id: string,
   request: DeleteTicketRequest,
 ): Promise<BaseResponse<InventoryTransferDetailItem>> => {
-  return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/cancel/${id}`, request);
+  return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${id}/cancel`, request);
 };
 
 export const getInfoDeliveryFees = (
@@ -161,7 +161,7 @@ const TransferService = {
     id: number,
     data: StockTransferSubmit,
   ): Promise<BaseResponse<string>> => {
-    return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/receive/${id}`, data);
+    return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${id}/receive`, data);
   },
 
   //cancel shipment

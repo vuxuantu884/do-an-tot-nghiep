@@ -34,27 +34,23 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import { useHistory, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  acceptInventoryAction,
+  // acceptInventoryAction,
   cancelShipmentInventoryTransferAction,
-  checkDuplicateInventoryTransferAction,
+  // checkDuplicateInventoryTransferAction,
   deleteInventoryTransferAction,
   exportInventoryAction,
   getDetailInventoryTransferAction,
-  getFeesAction,
   inventoryGetSenderStoreAction,
   inventoryGetVariantByStoreAction,
   receivedInventoryTransferAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { InventoryTransferDetailItem, LineItem, Store } from "model/inventory/transfer";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
-import { ConvertFullAddress } from "utils/ConvertAddress";
 import DeleteTicketModal from "../common/DeleteTicketPopup";
-import InventoryShipment from "../common/ChosesShipment";
 import {
   findAvatar,
   formatCurrency,
   handleDelayActionWhenInsertTextInSearchInput,
-  SumWeightInventory,
 } from "utils/AppUtils";
 import { Link, useLocation } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
@@ -94,8 +90,8 @@ import { TransferExportField, TransferExportLineItemField } from "model/inventor
 import * as XLSX from "xlsx";
 import moment from "moment";
 import { InventoryType } from "domain/types/inventory.type";
-import { HttpStatus } from "config/http-status.config";
-import ModalShowError from "../common/ModalShowError";
+// import { HttpStatus } from "config/http-status.config";
+// import ModalShowError from "../common/ModalShowError";
 import TagStatus from "component/tag/tag-status";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import queryString from "query-string";
@@ -103,7 +99,7 @@ import { updateNoteTransferApi } from "service/inventory/transfer/index.service"
 import ModalForward from "../common/ModalForward";
 import ForwardRecordTour from "./components/ForwardRecordTour";
 import { DELAY_TIME_FOR_TOUR } from "../../inventory-adjustment/helper";
-import { MAXIMUM_QUANTITY_LENGTH, MINIMUM_QUANTITY } from "../helper";
+import { KeyEvent, MAXIMUM_QUANTITY_LENGTH, MINIMUM_QUANTITY, VARIANT_STATUS } from "../helper";
 import confirmedIcon from "assets/icon/cho_chuyen.svg";
 import transferringIcon from "assets/icon/dang_chuyen.svg";
 import pendingIcon from "assets/icon/cho_xu_ly.svg";
@@ -117,6 +113,7 @@ export interface InventoryParams {
 }
 
 let barCode = "";
+let isBarCode = false;
 
 const DetailTicket: FC = () => {
   const history = useHistory();
@@ -126,7 +123,6 @@ const DetailTicket: FC = () => {
   );
   const [data, setData] = useState<InventoryTransferDetailItem | null>(null);
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
-  const [isVisibleInventoryShipment, setIsVisibleInventoryShipment] = useState<boolean>(false);
   const [isBalanceTransfer, setIsBalanceTransfer] = useState<boolean>(false);
   const [isDisableEditNote, setIsDisableEditNote] = useState<boolean>(false);
   const [isReceiveAllProducts, setIsReceiveAllProducts] = useState<boolean>(false);
@@ -137,16 +133,13 @@ const DetailTicket: FC = () => {
   const [isVisibleModalReceiveWarning, setIsVisibleModalReceiveWarning] = useState<boolean>(false);
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
 
+  // const [isOpenModalErrors, setIsOpenModalErrors] = useState<boolean>(false);
+  const [isOpenModalForward, setIsOpenModalForward] = useState(false);
   const [keySearch, setKeySearch] = useState<string>("");
   const productAutoCompleteRef = createRef<RefSelectProps>();
-
-  const [infoFees, setInfoFees] = useState<Array<any>>([]);
-  const productSearchRef = React.useRef<any>(null);
-
-  const [isOpenModalErrors, setIsOpenModalErrors] = useState<boolean>(false);
-  const [isOpenModalForward, setIsOpenModalForward] = useState(false);
-  const [errorData, setErrorData] = useState([]);
+  // const [errorData, setErrorData] = useState([]);
   const location = useLocation();
+  const productSearchRef = React.useRef<any>(null);
 
   const { id } = useParams<InventoryParams>();
   const idNumber = parseInt(id);
@@ -177,6 +170,13 @@ const DetailTicket: FC = () => {
   const pageBreak = "<div class='pageBreak'></div>";
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
+  });
+
+  const editPermission = [InventoryTransferPermission.update];
+
+  const [isHaveEditPermission] = useAuthorization({
+    acceptPermissions: editPermission,
+    not: false,
   });
 
   const printContentCallback = useCallback(
@@ -225,8 +225,6 @@ const DetailTicket: FC = () => {
 
         setData(result);
         form.setFieldsValue({ note: result.note });
-        // setDataShipment(result.shipment);
-        setIsVisibleInventoryShipment(false);
         setIsReceiveAllProducts(result.received_method === "received_all");
       }
     },
@@ -280,12 +278,8 @@ const DetailTicket: FC = () => {
   });
 
   const isDisabledCancelTicket = () => {
-    return (
-      !allowCancel ||
-      (data?.status !== STATUS_INVENTORY_TRANSFER.REQUESTED.status &&
-        data?.status !== STATUS_INVENTORY_TRANSFER.TRANSFERRING.status &&
-        data?.status !== STATUS_INVENTORY_TRANSFER.CONFIRM.status)
-    );
+    return !allowCancel || (data?.status !== STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
+      && data?.status !== STATUS_INVENTORY_TRANSFER.CONFIRM.status)
   };
 
   const actions: Array<MenuAction> = [
@@ -313,11 +307,11 @@ const DetailTicket: FC = () => {
   let classTag: string;
   let img: string;
   switch (data?.status) {
-    case STATUS_INVENTORY_TRANSFER.REQUESTED.status:
-      textTag = STATUS_INVENTORY_TRANSFER.REQUESTED.name;
-      classTag = STATUS_INVENTORY_TRANSFER.REQUESTED.status;
-      img = confirmedIcon;
-      break;
+    // case STATUS_INVENTORY_TRANSFER.REQUESTED.status:
+    //   textTag = STATUS_INVENTORY_TRANSFER.REQUESTED.name;
+    //   classTag = STATUS_INVENTORY_TRANSFER.REQUESTED.status;
+    //   img = confirmedIcon;
+    //   break;
     case STATUS_INVENTORY_TRANSFER.TRANSFERRING.status:
       textTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.name;
       classTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.status;
@@ -420,6 +414,7 @@ const DetailTicket: FC = () => {
         setDataTable([dataSelected, ...dataTemp]);
       }
       setResultSearch([]);
+      isBarCode = false;
     },
     [data?.status, data?.to_store_id, dataTable],
   );
@@ -523,7 +518,7 @@ const DetailTicket: FC = () => {
         setDataTable(result.line_items);
         dispatch(getDetailInventoryTransferAction(idNumber, onResult));
       } else {
-        dispatch(showLoading());
+        dispatch(hideLoading());
       }
     },
     [dispatch, idNumber, onResult],
@@ -535,8 +530,7 @@ const DetailTicket: FC = () => {
       setIsDisableEditNote(true);
 
       const newNote = {
-        version: data?.version,
-        note,
+        note
       };
 
       const response = await callApiNative(
@@ -544,15 +538,17 @@ const DetailTicket: FC = () => {
         dispatch,
         updateNoteTransferApi,
         data.id,
-        newNote,
-      );
+        newNote
+      )
 
       setIsDisableEditNote(false);
       dispatch(hideLoading());
 
       if (response) {
         showSuccess("Đổi dữ liệu thành công");
-        onReload();
+        const newData: InventoryTransferDetailItem | null = {...data, note};
+        setData(newData);
+        form.setFieldsValue({ note: newNote });
       }
     }
   };
@@ -598,62 +594,64 @@ const DetailTicket: FC = () => {
     }
   }, [createCallback, data, dataTable, dispatch, isReceiveAllProducts, stores]);
 
-  const checkCallback = useCallback(
-    (result: any) => {
-      dispatch(hideLoading());
-      if (result.responseData.code === HttpStatus.SUCCESS) {
-        dispatch(acceptInventoryAction(Number(data?.id), onReload));
-      } else if (result.responseData.code === HttpStatus.BAD_REQUEST) {
-        setIsOpenModalErrors(true);
-        setErrorData(result.responseData.data);
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [history, data],
-  );
+  // const checkCallback = useCallback(
+  //   (result: any) => {
+  //     dispatch(hideLoading());
+  //     if (result.responseData.code === HttpStatus.SUCCESS) {
+  //       dispatch(acceptInventoryAction(Number(data?.id), onReload));
+  //     } else if (result.responseData.code === HttpStatus.BAD_REQUEST) {
+  //       setIsOpenModalErrors(true);
+  //       setErrorData(result.responseData.data);
+  //     }
+  //   },
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [history, data],
+  // );
 
-  const checkDuplicateRecord = () => {
-    if (data) {
-      let dataCheck: any = {};
-
-      stores.forEach((store) => {
-        if (store.id === Number(data?.from_store_id)) {
-          dataCheck.store_transfer = {
-            id: data?.store_transfer?.id,
-            store_id: store.id,
-            hotline: store.hotline,
-            address: store.address,
-            name: store.name,
-            code: store.code,
-          };
-        }
-        if (store.id === Number(data?.to_store_id)) {
-          dataCheck.store_receive = {
-            id: data?.store_receive?.id,
-            store_id: store.id,
-            hotline: store.hotline,
-            address: store.address,
-            name: store.name,
-            code: store.code,
-          };
-        }
-
-        dataCheck.line_items = dataTable;
-        dataCheck.ignore_id = data.id;
-      });
-      dispatch(showLoading());
-      dispatch(checkDuplicateInventoryTransferAction(dataCheck, checkCallback));
-    }
-  };
+  // const checkDuplicateRecord = () => {
+  //   if (data) {
+  //     let dataCheck: any = {};
+  //
+  //     stores.forEach((store) => {
+  //       if (store.id === Number(data?.from_store_id)) {
+  //         dataCheck.store_transfer = {
+  //           id: data?.store_transfer?.id,
+  //           store_id: store.id,
+  //           hotline: store.hotline,
+  //           address: store.address,
+  //           name: store.name,
+  //           code: store.code,
+  //         };
+  //       }
+  //       if (store.id === Number(data?.to_store_id)) {
+  //         dataCheck.store_receive = {
+  //           id: data?.store_receive?.id,
+  //           store_id: store.id,
+  //           hotline: store.hotline,
+  //           address: store.address,
+  //           name: store.name,
+  //           code: store.code,
+  //         };
+  //       }
+  //
+  //       dataCheck.line_items = dataTable;
+  //       dataCheck.ignore_id = data.id;
+  //     });
+  //     dispatch(showLoading());
+  //     dispatch(checkDuplicateInventoryTransferAction(dataCheck, checkCallback));
+  //   }
+  //
 
   const handleSearchProduct = useCallback(
     async (keyCode: string, code: string) => {
-      barCode = "";
-      if (keyCode === "Enter" && code) {
+      if (keyCode !== "2") {
+        barCode = "";
+      }
+      if (keyCode === KeyEvent.ENTER && code) {
         setKeySearch("");
-
+        isBarCode = true;
         let res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, {
-          status: "active",
+          status: VARIANT_STATUS.ACTIVE,
           barcode: code,
           store_ids: data?.from_store_id ?? null,
         });
@@ -672,9 +670,10 @@ const DetailTicket: FC = () => {
   const eventKeyPress = useCallback(
     (event: KeyboardEvent) => {
       if (event.target instanceof HTMLBodyElement) {
-        if (event.key !== "Enter") {
+        if (event.key !== KeyEvent.ENTER) {
           barCode = barCode + event.key;
-        } else if (event && event.key === "Enter") {
+          barCode = barCode.replaceAll(KeyEvent.CONTROL, "").trim();
+        } else if (event && event.key === KeyEvent.ENTER) {
           if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
             handleSearchProduct(event.key, barCode);
           }
@@ -691,7 +690,7 @@ const DetailTicket: FC = () => {
     (event: KeyboardEvent) => {
       if (event.target instanceof HTMLInputElement) {
         if (event.target.id === "product_search_variant") {
-          if (event.key !== "Enter" && event.key !== "Shift") barCode = barCode + event.key;
+          if (event.key !== KeyEvent.ENTER) barCode = barCode + event.key;
 
           handleDelayActionWhenInsertTextInSearchInput(
             productAutoCompleteRef,
@@ -708,7 +707,10 @@ const DetailTicket: FC = () => {
 
   const onSelect = useCallback(
     (o, obj) => {
-      onSelectProduct(o, obj.label.props.data);
+      setTimeout(() => {
+        if (isBarCode) return;
+        onSelectProduct(o, obj.label.props.data);
+      }, 0);
     },
     [onSelectProduct],
   );
@@ -766,18 +768,18 @@ const DetailTicket: FC = () => {
     },
     {
       title: (
-        <div>
-          <div>SL Gửi <span className="text-gray">{data && formatCurrency(data.total_quantity, ".")}</span></div>
+        <div style={{ textAlign: "right" }}>
+          <div>SL Gửi <span className="text-gray">{data && formatCurrency(data.total_sent_quantity, ".")}</span></div>
         </div>
       ),
       width: 150,
-      align: "center",
+      align: "right",
       dataIndex: "transfer_quantity",
     },
     {
       title: "Giá bán",
       dataIndex: "price",
-      align: "center",
+      align: "right",
       width: 150,
       render: (value) => {
         return formatCurrency(value, ".");
@@ -830,7 +832,7 @@ const DetailTicket: FC = () => {
     {
       title: "Giá bán",
       dataIndex: "price",
-      align: "center",
+      align: "right",
       width: 100,
       render: (value) => {
         return formatCurrency(value, ".");
@@ -839,11 +841,11 @@ const DetailTicket: FC = () => {
     {
       title: (
         <div>
-          <div>SL Gửi <span className="text-gray">{data && formatCurrency(data.total_quantity, ".")}</span></div>
+          <div>SL Gửi <span className="text-gray">{data && formatCurrency(data.total_sent_quantity, ".")}</span></div>
         </div>
       ),
       width: 70,
-      align: "center",
+      align: "right",
       dataIndex: "transfer_quantity",
       render: (value: any) => {
         return formatCurrency(value, ".");
@@ -856,7 +858,7 @@ const DetailTicket: FC = () => {
         </div>
       ),
       dataIndex: "real_quantity",
-      align: "center",
+      align: "right",
       width: 70,
       render: (value: any, row: any, index: number) => {
         if (row.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
@@ -888,7 +890,7 @@ const DetailTicket: FC = () => {
     },
     {
       title: "Lệch",
-      align: "center",
+      align: "right",
       width: 100,
       render: (item, row: LineItem) => {
         const totalDifference = (row.real_quantity - row.transfer_quantity) * row.price;
@@ -900,7 +902,7 @@ const DetailTicket: FC = () => {
     },
     {
       title: "Tồn kho nhận",
-      align: "center",
+      align: "right",
       width: 80,
       dataIndex: "receive_on_hand",
       key: "receive_on_hand",
@@ -912,7 +914,8 @@ const DetailTicket: FC = () => {
       title: "",
       fixed: dataTable?.length !== 0 && "right",
       width: 40,
-      dataIndex: "transfer_quantity",
+      dataIndex: "action",
+      key: "action",
       render: (value: string, row: any, index: number) => {
         const isExistInOriginList =
           originalDataTable.length > 0
@@ -928,11 +931,9 @@ const DetailTicket: FC = () => {
           return false;
         }
         return (
-          <Button
-            onClick={() => onDeleteItem(index)}
-            className="product-item-delete"
-            icon={<AiOutlineClose />}
-          />
+          <div className="text-center">
+            <AiOutlineClose style={{ cursor: "pointer" }} onClick={() => onDeleteItem(index)} />
+          </div>
         );
       },
     },
@@ -952,7 +953,7 @@ const DetailTicket: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onDeleteTicket = (value: string | undefined) => {
+  const deleteTicket = (value: string | undefined) => {
     setLoadingBtn(true);
     dispatch(showLoading());
     dispatch(
@@ -1014,43 +1015,6 @@ const DetailTicket: FC = () => {
     setDataTable([...newDataTable, ...newData]);
     setIsImport(false);
   };
-
-  useEffect(() => {
-    if (!stores || !data) return;
-    else {
-      const fromStoreData = stores.find((item) => item.id === data?.from_store_id);
-      const toStoreData = stores.find((item) => item.id === data?.to_store_id);
-
-      let request = {
-        from_city_id: fromStoreData?.city_id,
-        from_city: fromStoreData?.city_name,
-        from_district_id: fromStoreData?.district_id,
-        from_district: fromStoreData?.district_name,
-        from_ward_id: fromStoreData?.ward_id,
-        to_country_id: toStoreData?.country_id,
-        to_city_id: toStoreData?.city_id,
-        to_city: toStoreData?.city_name,
-        to_district_id: toStoreData?.district_id,
-        to_district: toStoreData?.district_name,
-        to_ward_id: toStoreData?.ward_id,
-        from_address: fromStoreData?.address,
-        to_address: toStoreData?.full_address,
-        price: data?.total_amount,
-        quantity: 1,
-        weight: SumWeightInventory(data?.line_items),
-        length: 0,
-        height: 0,
-        width: 0,
-        service_id: 0,
-        service: "",
-        option: "",
-        insurance: 0,
-        coupon: "",
-        cod: 0,
-      };
-      dispatch(getFeesAction(request, setInfoFees));
-    }
-  }, [data, dispatch, stores]);
 
   useEffect(() => {
     dispatch(inventoryGetSenderStoreAction({ status: "active", simple: true }, setStores));
@@ -1227,7 +1191,7 @@ const DetailTicket: FC = () => {
                         </Row>
                         <Row gutter={24}>
                           <Col span={24}>
-                            <div className="store-detail">{ConvertFullAddress(data.store_transfer)}</div>
+                            <div className="store-detail">{data.from_store_address.toString()}</div>
                           </Col>
                         </Row>
                       </div>
@@ -1252,7 +1216,7 @@ const DetailTicket: FC = () => {
                         </Row>
                         <Row gutter={24}>
                           <Col span={24}>
-                            <div className="store-detail">{ConvertFullAddress(data.store_receive)}</div>
+                            <div className="store-detail">{data.to_store_address.toString()}</div>
                           </Col>
                         </Row>
                       </div>
@@ -1261,7 +1225,7 @@ const DetailTicket: FC = () => {
                 </Card>
 
                 {(data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
-                  data.status === STATUS_INVENTORY_TRANSFER.REQUESTED.status ||
+                  // data.status === STATUS_INVENTORY_TRANSFER.REQUESTED.status ||
                   data.status === STATUS_INVENTORY_TRANSFER.CANCELED.status) && (
                   <Card
                     title="DANH SÁCH SẢN PHẨM"
@@ -1281,8 +1245,8 @@ const DetailTicket: FC = () => {
                             <Table.Summary.Cell align={"right"} index={2} colSpan={3}>
                               <b>Tổng số lượng:</b>
                             </Table.Summary.Cell>
-                            <Table.Summary.Cell align={"center"} index={3}>
-                              <b>{data.total_quantity}</b>
+                            <Table.Summary.Cell align={"right"} index={3}>
+                              <b>{data.total_sent_quantity}</b>
                             </Table.Summary.Cell>
                             <Table.Summary.Cell index={4} />
                           </Table.Summary.Row>
@@ -1371,7 +1335,7 @@ const DetailTicket: FC = () => {
                         columns={
                           data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
                             ? columnsTransfer.filter((column) => column.key !== "receive_on_hand")
-                            : columnsTransfer
+                            : columnsTransfer.filter((column) => column.key !== "action")
                         }
                         dataSource={dataTable}
                         summary={() => {
@@ -1384,7 +1348,7 @@ const DetailTicket: FC = () => {
                                 <Table.Summary.Cell index={2} />
 
                                 <Table.Summary.Cell align={"center"} index={3}>
-                                  <b>{formatCurrency(data.total_quantity, ".")}</b>
+                                  <b>{formatCurrency(data.total_sent_quantity, ".")}</b>
                                 </Table.Summary.Cell>
 
                                 <Table.Summary.Cell align={"center"} index={5}>
@@ -1508,6 +1472,7 @@ const DetailTicket: FC = () => {
                         <Form.Item name="note">
                           <div className="single">
                             <EditPopover
+                              isHaveEditPermission={isHaveEditPermission}
                               maxLength={255}
                               isDisable={isDisableEditNote}
                               content={data?.note}
@@ -1525,13 +1490,15 @@ const DetailTicket: FC = () => {
                   </Row>
 
                   <Row className="margin-top-10" gutter={5} style={{ flexDirection: "column" }}>
-                    <Col span={24} style={{ marginBottom: 6 }}>
-                      <div style={{ color: "#262626", fontWeight: 400, fontSize: 14 }}>Ghi chú hệ thống:</div>
-                    </Col>
+                    {data.forward_note && (
+                      <Col span={24} style={{ marginBottom: 6 }}>
+                        <div style={{ color: "#262626", fontWeight: 400, fontSize: 14 }}>Ghi chú hệ thống:</div>
+                      </Col>
+                    )}
                     <Col span={24}>
-                      {data.forward_store_id && (
+                      {data.forward_note && (
                         <div>
-                          Chuyển tiếp từ kho {data.store_forward.name} đến kho {data.to_store_name}
+                          {data.forward_note}
                         </div>
                       )}
                     </Col>
@@ -1600,7 +1567,7 @@ const DetailTicket: FC = () => {
                       {" In phiếu chuyển"}
                     </Button>
                   </AuthWrapper>
-                  {data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
+                  {data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && !data.forward_note && (
                     <AuthWrapper acceptPermissions={[InventoryTransferPermission.update]}>
                       <Button
                         disabled={
@@ -1615,7 +1582,7 @@ const DetailTicket: FC = () => {
                     </AuthWrapper>
                   )}
                   <ActionButton
-                    type="text"
+                    type="default"
                     placement="topLeft"
                     menu={actions}
                     onMenuClick={onMenuClick}
@@ -1646,37 +1613,37 @@ const DetailTicket: FC = () => {
                       </Button>
                     </AuthWrapper>
                   )}
-                  {data.status === STATUS_INVENTORY_TRANSFER.REQUESTED.status && (
-                    <AuthWrapper acceptPermissions={[InventoryTransferPermission.update]}>
-                      <Button
-                        onClick={() => {
-                          history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${data?.id}/update`);
-                        }}
-                      >
-                        <EditOutlined /> Sửa thông tin
-                      </Button>
-                    </AuthWrapper>
-                  )}
-                  {data.status === STATUS_INVENTORY_TRANSFER.REQUESTED.status && (
-                    <AuthWrapper
-                      acceptPermissions={[InventoryTransferPermission.create]}
-                      acceptStoreIds={myStores.length > 0 ? [data.from_store_id] : []}
-                    >
-                      <Button
-                        className="export-button"
-                        type="primary"
-                        loading={isLoadingBtn}
-                        onClick={() => {
-                          if (data) {
-                            dispatch(showLoading());
-                            checkDuplicateRecord();
-                          }
-                        }}
-                      >
-                        Xác nhận
-                      </Button>
-                    </AuthWrapper>
-                  )}
+                  {/*{data.status === STATUS_INVENTORY_TRANSFER.REQUESTED.status && (*/}
+                  {/*  <AuthWrapper acceptPermissions={[InventoryTransferPermission.update]}>*/}
+                  {/*    <Button*/}
+                  {/*      onClick={() => {*/}
+                  {/*        history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${data?.id}/update`);*/}
+                  {/*      }}*/}
+                  {/*    >*/}
+                  {/*      <EditOutlined /> Sửa thông tin*/}
+                  {/*    </Button>*/}
+                  {/*  </AuthWrapper>*/}
+                  {/*)}*/}
+                  {/*{data.status === STATUS_INVENTORY_TRANSFER.REQUESTED.status && (*/}
+                  {/*  <AuthWrapper*/}
+                  {/*    acceptPermissions={[InventoryTransferPermission.create]}*/}
+                  {/*    acceptStoreIds={myStores.length > 0 ? [data.from_store_id] : []}*/}
+                  {/*  >*/}
+                  {/*    <Button*/}
+                  {/*      className="export-button"*/}
+                  {/*      type="primary"*/}
+                  {/*      loading={isLoadingBtn}*/}
+                  {/*      onClick={() => {*/}
+                  {/*        if (data) {*/}
+                  {/*          dispatch(showLoading());*/}
+                  {/*          checkDuplicateRecord();*/}
+                  {/*        }*/}
+                  {/*      }}*/}
+                  {/*    >*/}
+                  {/*      Xác nhận*/}
+                  {/*    </Button>*/}
+                  {/*  </AuthWrapper>*/}
+                  {/*)}*/}
                   {data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status && (
                     <AuthWrapper
                       acceptPermissions={[ShipmentInventoryTransferPermission.export]}
@@ -1757,7 +1724,7 @@ const DetailTicket: FC = () => {
         )}
         {isDeleteTicket && (
           <DeleteTicketModal
-            onOk={onDeleteTicket}
+            onOk={deleteTicket}
             onCancel={() => setIsDeleteTicket(false)}
             visible={isDeleteTicket}
             icon={WarningRedIcon}
@@ -1792,19 +1759,6 @@ const DetailTicket: FC = () => {
             visible={visibleManyProduct}
           />
         )}
-        {isVisibleInventoryShipment && (
-          <InventoryShipment
-            visible={isVisibleInventoryShipment}
-            dataTicket={data}
-            onCancel={() => setIsVisibleInventoryShipment(false)}
-            onOk={(item) => {
-              if (item) {
-                onReload();
-              }
-            }}
-            infoFees={infoFees}
-          />
-        )}
         <ImportExcel
           onCancel={() => {
             setIsImport(false);
@@ -1816,26 +1770,26 @@ const DetailTicket: FC = () => {
           visible={isImport}
           dataTable={dataTable}
         />
-        {isOpenModalErrors && (
-          <ModalShowError
-            onCancel={() => {
-              setIsOpenModalErrors(false);
-              setLoadingBtn(false);
-            }}
-            loading={isLoadingBtn}
-            errorData={errorData}
-            onOk={() => {
-              dispatch(showLoading());
-              dispatch(acceptInventoryAction(Number(data?.id), onReload));
-              setIsOpenModalErrors(false);
-              setLoadingBtn(false);
-            }}
-            title={
-              "Có một số phiếu chuyển tương tự được tạo trong 1 tháng trở lại đây. Tiếp tục thực hiện?"
-            }
-            visible={isOpenModalErrors}
-          />
-        )}
+        {/*{isOpenModalErrors && (*/}
+        {/*  <ModalShowError*/}
+        {/*    onCancel={() => {*/}
+        {/*      setIsOpenModalErrors(false);*/}
+        {/*      setLoadingBtn(false);*/}
+        {/*    }}*/}
+        {/*    loading={isLoadingBtn}*/}
+        {/*    errorData={errorData}*/}
+        {/*    onOk={() => {*/}
+        {/*      dispatch(showLoading());*/}
+        {/*      dispatch(acceptInventoryAction(Number(data?.id), onReload));*/}
+        {/*      setIsOpenModalErrors(false);*/}
+        {/*      setLoadingBtn(false);*/}
+        {/*    }}*/}
+        {/*    title={*/}
+        {/*      "Có một số phiếu chuyển tương tự được tạo trong 1 tháng trở lại đây. Tiếp tục thực hiện?"*/}
+        {/*    }*/}
+        {/*    visible={isOpenModalErrors}*/}
+        {/*  />*/}
+        {/*)}*/}
         <ForwardRecordTour isRun={isRun} setIsRun={setIsRun} />
         {isOpenModalForward && (
           <ModalForward
