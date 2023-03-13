@@ -896,7 +896,7 @@ const ImportMultipleInventory: FC = () => {
                 {processingDetail?.errorsFile?.map((i: any, index: number) => {
                   return (
                     <li key={index}>
-                      <Text type="danger">{i}</Text>
+                      <Text type="danger">{i.code ? i.code : i}</Text>
                     </li>
                   );
                 })}
@@ -919,7 +919,7 @@ const ImportMultipleInventory: FC = () => {
                         })}
                       </>
                     )}
-                    {processingDetail.code !== HttpStatus.BAD_REQUEST && processingDetail?.errors?.length > 0 ? (
+                    {processingDetail.code !== HttpStatus.BAD_REQUEST && processingDetail?.errors?.length > 0 && (
                       <>
                         {processingDetail?.errors?.map((i: any, index: number) => {
                           return (
@@ -929,7 +929,8 @@ const ImportMultipleInventory: FC = () => {
                           );
                         })}
                       </>
-                    ) : (
+                    )}
+                    {processingDetail.code !== HttpStatus.BAD_REQUEST && processingDetail?.errors?.length === 0 && (
                       <li>
                         <Text type="danger">{processingDetail?.message}</Text>
                       </li>

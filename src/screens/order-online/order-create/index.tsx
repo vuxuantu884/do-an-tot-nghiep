@@ -970,7 +970,7 @@ export default function Order() {
     shippingServiceConfig,
   } = useCalculateShippingFee(orderProductsAmount, form, setShippingFeeInformedToCustomer, false);
 
-  const handleOrderB2BDefaultValue = useCallback(() => {
+  const handleOrderB2BDefaultValue = () => {
     onSelectShipment(3);
     ChangeShippingFeeCustomer(0);
     setPaymentMethod(PaymentMethodOption.PRE_PAYMENT);
@@ -993,7 +993,7 @@ export default function Order() {
           type: "",
         },
       ]);
-  }, [onSelectShipment, paymentMethods, ChangeShippingFeeCustomer]);
+  };
 
   //Get danh sach promotion qua tang
 
@@ -1477,7 +1477,7 @@ export default function Order() {
   }, [eventFunctional]);
 
   useEffect(() => {
-    if (allowOrderB2BWrite) {
+    if (allowOrderB2BWrite && !isCloneOrder) {
       setInitialForm({
         ...initialForm,
         automatic_discount: false,

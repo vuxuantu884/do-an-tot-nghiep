@@ -1,3 +1,5 @@
+import { Type } from "config/type.config";
+import _ from "lodash";
 import { AccountStoreResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import {
@@ -6,6 +8,7 @@ import {
   OrderType,
   SpecialOrderValue,
 } from "model/order/order.model";
+import { DiscountValueType } from "model/promotion/price-rules.model";
 import {
   OrderItemDiscountRequest,
   OrderLineItemRequest,
@@ -19,12 +22,16 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment, { Moment } from "moment";
+import { ORDER_PERMISSIONS } from "../config/permissions/order.permission";
+import { select_type_especially_order } from "../screens/order-online/common/fields.export";
 import {
   formatCurrency,
   getLineAmountAfterLineDiscount,
   getLineItemDiscountAmount,
   getLineItemDiscountRate,
   getLineItemDiscountValue,
+  mathRoundAmount,
+  mathRoundPercentage,
 } from "./AppUtils";
 import {
   DELIVERY_SERVICE_PROVIDER_CODE,
@@ -41,23 +48,19 @@ import {
   WEIGHT_UNIT,
 } from "./Constants";
 import {
-  FulfillmentCancelStatus,
-  OrderStatus,
-  ORDER_PAYMENT_STATUS,
-  ORDER_SUB_STATUS,
-} from "./Order.constants";
-import { ORDER_PERMISSIONS } from "../config/permissions/order.permission";
-import { select_type_especially_order } from "../screens/order-online/common/fields.export";
-import { DiscountValueType } from "model/promotion/price-rules.model";
-import _ from "lodash";
-import { Type } from "config/type.config";
-import { fullTextSearch } from "./StringUtils";
-import {
   getFulfillmentActive,
   isFulfillmentReturned,
   isFulfillmentReturning,
   sortFulfillments,
 } from "./fulfillmentUtils";
+import {
+  DISCOUNT_VALUE_TYPE,
+  FulfillmentCancelStatus,
+  OrderStatus,
+  ORDER_PAYMENT_STATUS,
+  ORDER_SUB_STATUS,
+} from "./Order.constants";
+import { fullTextSearch } from "./StringUtils";
 
 export const isOrderDetailHasPointPayment = (
   OrderDetail: OrderResponse | null | undefined,
@@ -906,4 +909,20 @@ export const isSourceNameFacebook = (sourceName: string) => {
 
 export const isOrderWholesale = (order: OrderResponse | OrderModel | null | undefined) => {
   return order?.type === EnumOrderType.b2b;
+};
+
+export const handleReCalculateReturnProductDiscountAmount = (item: OrderLineItemResponse) => {
+  item.amount = item.quantity * item.price;
+  item.discount_items.forEach((discount) => {
+    discount.rate = mathRoundPercentage(discount.rate);
+    if (discount.type === DISCOUNT_VALUE_TYPE.percentage) {
+      discount.amount = mathRoundAmount(item.quantity * ((discount.rate / 100) * item.price));
+    } else {
+      discount.amount = mathRoundAmount(item.quantity * discount.value);
+    }
+  });
+  item.discount_value = getLineItemDiscountValue(item);
+  item.discount_rate = getLineItemDiscountRate(item);
+  item.discount_amount = getLineItemDiscountAmount(item);
+  item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(item);
 };
