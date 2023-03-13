@@ -56,6 +56,7 @@ export interface InventoryTransferLogSearchQuery {
   condition: string | null;
   from_store_id: number | null;
   to_store_id: number | null;
+  created_by: [];
   updated_by: [];
   action: [];
   from_created_date: any;
@@ -141,28 +142,20 @@ export interface FileUrl {
 }
 
 export type StockTransferSubmit = {
-  store_transfer: {
-    id?: number;
-    store_id: number;
-    hotline: string;
-    address: string;
-    name: string;
-    code: string;
-  };
-  store_receive: {
-    id?: number;
-    store_id: number;
-    hotline: string;
-    address: string;
-    name: string;
-    code: string;
-  };
+  from_store_name: string;
+  to_store_name: string;
   from_store_id?: number;
   to_store_id?: number;
+  from_store_address: string;
+  to_store_address: string;
+  from_store_phone: string;
+  from_store_code: string;
+  to_store_phone: string;
+  to_store_code: string;
   note: string;
-  attached_files: FileUrl[];
+  attached_files?: FileUrl[];
   line_items: LineItem[];
-  exception_items: [];
+  exception_items?: [];
 };
 
 export interface ForwardStoreData {
@@ -235,9 +228,9 @@ export interface InventoryTransferDetailItem {
   to_store_id: number;
   to_store_name: string;
   status: string;
-  total_variant: number;
-  total_quantity: number;
-  total_amount: number;
+  total_sent_variant: number;
+  total_sent_quantity: number;
+  total_sent_amount: number;
   pending_date: string;
   received_method: string;
   transfer_date: Date;
@@ -252,7 +245,7 @@ export interface InventoryTransferDetailItem {
   exception_items: [];
   sub_status: string;
   store_forward: Store;
-  forward_store_id: number;
+  forward_note: string;
 }
 
 export interface InventoryExportImportTransferDetailItem {
@@ -269,12 +262,12 @@ export interface InventoryExportImportTransferDetailItem {
   variant_name: string;
   variant_id: number;
   transfer_quantity: number;
-  received_quantity: number;
+  real_quantity: number;
   price: number;
   amount: number;
-  exported_code: string;
-  exported_name: string;
-  exported_date: Date;
+  transfer_by: string;
+  transfer_name: string;
+  transfer_date: Date;
   received_by: string;
   received_name: string;
   receive_date: Date;
@@ -363,6 +356,6 @@ export interface InventoryProcessImport {
 }
 
 export interface GetTopReceivedStoreParam {
-  from_store_id: number,
-  limit: number
+  from_store_id: number;
+  limit: number;
 }

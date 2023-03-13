@@ -79,8 +79,9 @@ export const StyledWrapper = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px;
     border-radius: 3px;
     background-color: #f2f2f2;
 
@@ -351,5 +352,17 @@ export const StyledWrapper = styled.div`
     .ant-table-cell {
       border: none !important;
     }
+  }
+
+  .ant-table.ant-table-bordered > .ant-table-container {
+    border-left: none;
+  }
+
+  .ant-table-container table > thead > tr:first-child th:first-child {
+    border-left: 1px solid #e5e5e5;
+  }
+
+  .ant-table-tbody > tr > td:first-child {
+    border-left: 1px solid #e5e5e5;
   }
 `;

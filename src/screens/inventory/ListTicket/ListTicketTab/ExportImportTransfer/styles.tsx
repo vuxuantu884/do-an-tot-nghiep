@@ -20,7 +20,7 @@ export const BG_COLOR_TAG = {
 };
 
 export const ExportImportTransferTabWrapper = styled.div`
-  padding: 0px 0 20px 0;
+  padding: 0 0 20px 0;
 
   .file-pin {
     display: inline-block;
@@ -46,9 +46,6 @@ export const ExportImportTransferTabWrapper = styled.div`
     }
     .${STATUS_INVENTORY_TRANSFER.CANCELED.status} {
       color: ${BG_COLOR_TAG.CANCELED.color};
-    }
-    .${STATUS_INVENTORY_TRANSFER.REQUESTED.status} {
-      color: ${BG_COLOR_TAG.CONFIRM.color};
     }
     .${STATUS_INVENTORY_TRANSFER.CONFIRM.status} {
       color: ${BG_COLOR_TAG.CONFIRM.color};
@@ -136,5 +133,9 @@ export const ExportImportTransferTabWrapper = styled.div`
   .mrh-5 {
     margin-right: 5px;
     height: 20px;
+  }
+
+  .ant-table-selection-column {
+    padding: 0 !important;
   }
 `;

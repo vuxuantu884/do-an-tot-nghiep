@@ -18,7 +18,7 @@ const UpdateTicket = React.lazy(() => import("screens/inventory/UpdateTicket"));
 const CopyTicket = React.lazy(() => import("screens/inventory/UpdateTicket"));
 const CreateTicketFromExcel = React.lazy(() => import("screens/inventory/UpdateTicket"));
 const CreateTicket = React.lazy(() => import("screens/inventory/CreateTicket/index"));
-const RequestTicket = React.lazy(() => import("screens/inventory/RequestTicket/index"));
+// const RequestTicket = React.lazy(() => import("screens/inventory/RequestTicket/index"));
 const ImportInventoryScreen = React.lazy(() => import("screens/inventory/ImportInventory/index"));
 const ImportMultipleInventoryScreen = React.lazy(
   () => import("screens/inventory/ImportInventory/ImportMultipleInventory"),
@@ -173,18 +173,18 @@ export const inventory: Array<RouteMenu> = [
         permissions: [InventoryTransferPermission.create],
         subMenu: [],
       },
-      {
-        path: `${UrlConfig.INVENTORY_TRANSFERS}/request`,
-        exact: true,
-        title: "Yêu cầu phiếu chuyển hàng",
-        icon: "icon-dot",
-        component: RequestTicket,
-        key: "submenu31_7",
-        isShow: true,
-        header: null,
-        // permissions:[InventoryTransferPermission.request],
-        subMenu: [],
-      },
+      // {
+      //   path: `${UrlConfig.INVENTORY_TRANSFERS}/request`,
+      //   exact: true,
+      //   title: "Yêu cầu phiếu chuyển hàng",
+      //   icon: "icon-dot",
+      //   component: RequestTicket,
+      //   key: "submenu31_7",
+      //   isShow: true,
+      //   header: null,
+      //   // permissions:[InventoryTransferPermission.request],
+      //   subMenu: [],
+      // },
       {
         path: `${UrlConfig.INVENTORY_TRANSFERS}/:id`,
         exact: true,

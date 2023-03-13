@@ -25,7 +25,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   inventoryGetSenderStoreAction
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import { InventoryTransferDetailItem, Store } from "model/inventory/transfer";
+import { InventoryTransferDetailItem, StockTransferSubmit, Store } from "model/inventory/transfer";
 
 import { useHistory, useParams } from "react-router";
 import { InventoryParams } from "../DetailTicket";
@@ -269,7 +269,22 @@ const UpdateTicket: FC = () => {
       note: form.getFieldValue("note")
     };
 
-    createInventoryTransfer(newDataToCreate).then((res: any) => {
+    const newFormatDataToCreate: StockTransferSubmit = {
+      from_store_id: newDataToCreate.store_transfer.store_id,
+      from_store_phone: newDataToCreate.store_transfer.hotline,
+      from_store_address: newDataToCreate.store_transfer.address,
+      from_store_code: newDataToCreate.store_transfer.code,
+      from_store_name: newDataToCreate.store_transfer.name,
+      to_store_id: newDataToCreate.store_receive.store_id,
+      to_store_phone: newDataToCreate.store_receive.hotline,
+      to_store_address: newDataToCreate.store_receive.address,
+      to_store_code: newDataToCreate.store_receive.code,
+      to_store_name: newDataToCreate.store_receive.name,
+      line_items: data.job_data,
+      note: form.getFieldValue("note")
+    }
+
+    createInventoryTransfer(newFormatDataToCreate).then((res: any) => {
       if (res.code === HttpStatus.SUCCESS) {
         setRecordCreated((recordCreated: any) => {
           return [
@@ -614,7 +629,7 @@ const UpdateTicket: FC = () => {
                   <div>
                     <Text>Tổng phiếu</Text>
                   </div>
-                  <div>
+                  <div className="text-centert">
                     <b>{totalRecord}</b>
                   </div>
                 </Col>
@@ -622,7 +637,7 @@ const UpdateTicket: FC = () => {
                   <div>
                     <Text>Thành công</Text>
                   </div>
-                  <div>
+                  <div className="text-centert">
                     <Text type="success">
                       <b>{processedRecord}</b>
                     </Text>
@@ -630,7 +645,7 @@ const UpdateTicket: FC = () => {
                 </Col>
                 <Col span={8}>
                   <div>Lỗi</div>
-                  <div>
+                  <div className="text-centert">
                     <Text type="danger">
                       <b>{failedRecord}</b>
                     </Text>

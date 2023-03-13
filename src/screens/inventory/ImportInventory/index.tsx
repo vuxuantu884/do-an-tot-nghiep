@@ -62,6 +62,7 @@ const UpdateTicket: FC = () => {
   const [file, setFile] = useState<UploadFile | null>(null);
   const dispatch = useDispatch();
   const history = useHistory();
+  const [messageError, setMessageError] = useState<string>("");
 
   const onChangeFile = useCallback((info) => {
     setFile(info.file);
@@ -98,23 +99,8 @@ const UpdateTicket: FC = () => {
     dispatch(inventoryGetSenderStoreAction({ status: "active", simple: true }, setStores));
   }, [dispatch, idNumber, onResult]);
 
-  // validate
-  const validateStore = (rule: any, value: any, callback: any): void => {
-    if (value) {
-      const from_store_id = form.getFieldValue("from_store_id");
-      const to_store_id = form.getFieldValue("to_store_id");
-      if (from_store_id === to_store_id) {
-        callback(`Kho gửi không được trùng với kho nhận`);
-      } else {
-        callback();
-      }
-    } else {
-      callback();
-    }
-  };
-
   const checkImportFile = () => {
-    BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import/${fileId}`).then(
+    BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${fileId}/import`).then(
       (res: any) => {
         if (!res.data) {
           setFileId(null);
@@ -122,23 +108,19 @@ const UpdateTicket: FC = () => {
         }
         if (res.data.data) {
           stores.forEach((store) => {
-            if (store.id === Number(form.getFieldValue("from_store_id"))) {
-              res.data.data.store_transfer = {
-                store_id: store.id,
-                hotline: store.hotline,
-                address: store.address,
-                name: store.name,
-                code: store.code,
-              };
+            if (store?.id === Number(form.getFieldValue("from_store_id"))) {
+              res.data.data.from_store_id = store?.id;
+              res.data.data.from_store_phone = store?.hotline;
+              res.data.data.from_store_address = store?.address;
+              res.data.data.from_store_code = store?.code;
+              res.data.data.from_store_name = store?.name;
             }
-            if (store.id === Number(form.getFieldValue("to_store_id"))) {
-              res.data.data.store_receive = {
-                store_id: store.id,
-                hotline: store.hotline,
-                address: store.address,
-                name: store.name,
-                code: store.code,
-              };
+            if (store?.id === Number(form.getFieldValue("to_store_id"))) {
+              res.data.data.to_store_id = store?.id;
+              res.data.data.to_store_phone = store?.hotline;
+              res.data.data.to_store_address = store?.address;
+              res.data.data.to_store_code = store?.code;
+              res.data.data.to_store_name = store?.name;
             }
           });
         }
@@ -177,31 +159,30 @@ const UpdateTicket: FC = () => {
         showWarning("Vui lòng chọn ít nhất một file.");
         return;
       }
+      if (messageError !== "") {
+        setIsLoading(false);
+        showWarning("Kho gửi không được trùng với kho nhận");
+        return;
+      }
       setIsLoading(true);
       if (stores) {
         stores.forEach((store) => {
-          if (store.id === Number(data.from_store_id)) {
-            data.store_transfer = {
-              store_id: store.id,
-              hotline: store.hotline,
-              address: store.address,
-              name: store.name,
-              code: store.code,
-            };
+          if (store?.id === Number(data.from_store_id)) {
+            data.from_store_id = store?.id;
+            data.from_store_phone = store?.hotline;
+            data.from_store_address = store?.address;
+            data.from_store_code = store?.code;
+            data.from_store_name = store?.name;
           }
-          if (store.id === Number(data.to_store_id)) {
-            data.store_receive = {
-              store_id: store.id,
-              hotline: store.hotline,
-              address: store.address,
-              name: store.name,
-              code: store.code,
-            };
+          if (store?.id === Number(data.to_store_id)) {
+            data.to_store_id = store?.id;
+            data.to_store_phone = store?.hotline;
+            data.to_store_address = store?.address;
+            data.to_store_code = store?.code;
+            data.to_store_name = store?.name;
           }
         });
       }
-      delete data.from_store_id;
-      delete data.to_store_id;
       const newBody = {
         ...data,
         url,
@@ -227,7 +208,7 @@ const UpdateTicket: FC = () => {
           showError(err);
         });
     },
-    [file, stores, url],
+    [file, messageError, stores, url],
   );
 
   const myStores: any = useSelector(
@@ -345,7 +326,7 @@ const UpdateTicket: FC = () => {
                   <Col span={24}>
                     <Radio.Group value={createType} onChange={(e) => setCreateType(e.target.value)}>
                       <Radio value="CREATE">Tạo phiếu</Radio>
-                      <Radio value="REQUEST">Tạo yêu cầu</Radio>
+                      {/*<Radio value="REQUEST">Tạo yêu cầu</Radio>*/}
                     </Radio.Group>
                   </Col>
                 </Row>
@@ -353,6 +334,7 @@ const UpdateTicket: FC = () => {
                   <Col span={12}>
                     <Form.Item
                       name="from_store_id"
+                      style={{ marginBottom: 10 }}
                       label={<b>Kho gửi</b>}
                       rules={
                         createType === "CREATE"
@@ -360,9 +342,6 @@ const UpdateTicket: FC = () => {
                               {
                                 required: true,
                                 message: "Vui lòng chọn kho gửi",
-                              },
-                              {
-                                validator: validateStore,
                               },
                             ]
                           : []
@@ -374,6 +353,10 @@ const UpdateTicket: FC = () => {
                         showArrow
                         showSearch
                         optionFilterProp="children"
+                        onChange={(value: number) => {
+                          const to_store_id = form.getFieldValue("to_store_id");
+                          setMessageError(to_store_id === value ? "Kho gửi không được trùng với kho nhận" : "")
+                        }}
                         filterOption={(input: String, option: any) => {
                           if (option.props.value) {
                             return strForSearch(option.props.children).includes(
@@ -402,13 +385,11 @@ const UpdateTicket: FC = () => {
                     <Form.Item
                       name="to_store_id"
                       label={<b>Kho nhận</b>}
+                      style={{ marginBottom: 10 }}
                       rules={[
                         {
                           required: true,
                           message: "Vui lòng chọn kho nhận",
-                        },
-                        {
-                          validator: validateStore,
                         },
                       ]}
                       labelCol={{ span: 24, offset: 0 }}
@@ -418,6 +399,10 @@ const UpdateTicket: FC = () => {
                         showArrow
                         showSearch
                         optionFilterProp="children"
+                        onChange={(value: number) => {
+                          const from_store_id = form.getFieldValue("from_store_id");
+                          setMessageError(from_store_id === value ? "Kho gửi không được trùng với kho nhận" : "")
+                        }}
                         filterOption={(input: String, option: any) => {
                           if (option.props.value) {
                             return strForSearch(option.props.children).includes(
@@ -437,6 +422,7 @@ const UpdateTicket: FC = () => {
                     </Form.Item>
                   </Col>
                 </Row>
+                {messageError !== "" && <div className="message-error mb-10">{messageError}</div>}
                 <Row>
                   <Upload
                     onChange={onChangeFile}

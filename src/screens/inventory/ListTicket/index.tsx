@@ -210,9 +210,9 @@ const InventoryListScreen: React.FC = () => {
                 <img src={importIcon} style={{ marginRight: 8 }} alt="" /> Nhập file
               </Dropdown.Button>
             </AuthWrapper>
-            <AuthWrapper acceptPermissions={[InventoryTransferPermission.request]}>
-              <ButtonCreate children="Yêu cầu" path={`${UrlConfig.INVENTORY_TRANSFERS}/request`} />
-            </AuthWrapper>
+            {/*<AuthWrapper acceptPermissions={[InventoryTransferPermission.request]}>*/}
+            {/*  <ButtonCreate children="Yêu cầu" path={`${UrlConfig.INVENTORY_TRANSFERS}/request`} />*/}
+            {/*</AuthWrapper>*/}
             <AuthWrapper acceptPermissions={[InventoryTransferPermission.create]}>
               <ButtonCreate path={`${UrlConfig.INVENTORY_TRANSFERS}/create`} />
             </AuthWrapper>

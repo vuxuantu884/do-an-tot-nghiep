@@ -23,34 +23,70 @@ import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { PageResponse } from "model/base/base-metadata.response";
 
 const ACTIONS_STATUS_ARRAY = [
+  // {
+  //   value: "requested",
+  //   name: "Tạo phiếu yêu cầu",
+  // },
   {
-    value: "CREATE",
-    name: "Tạo phiếu chuyển kho",
+    value: "confirmed",
+    name: "Xác nhận phiếu chuyển",
   },
   {
-    value: "UPDATE",
-    name: "Sửa phiếu chuyển kho",
-  },
-  {
-    value: "PENDING",
-    name: "Chờ xử lý",
-  },
-  {
-    value: "DELETE,CANCEL_SHIPMENT",
-    name: "Huỷ phiếu chuyển kho",
-  },
-  {
-    value: "CONFIRM_EXCEPTION",
-    name: "Nhập lại tồn chênh lệch",
-  },
-  {
-    value: "EXPORT_SHIPMENT",
+    value: "exported",
     name: "Xuất hàng khỏi kho",
   },
   {
-    value: "RECEIVE",
+    value: "pending",
+    name: "Chờ xử lý",
+  },
+  {
+    value: "balanced",
+    name: "Nhận lại tồn chênh lệch",
+  },
+  {
+    value: "received",
     name: "Nhận hàng",
   },
+  {
+    value: "deleted",
+    name: "Xóa phiếu",
+  },
+  {
+    value: "updated",
+    name: "Cập nhật phiếu",
+  },
+  {
+    value: "canceled",
+    name: "Hủy phiếu",
+  },
+  {
+    value: "forward",
+    name: "Chuyển tiếp kho",
+  },
+  {
+    value: "from_store_changed",
+    name: "Thay đổi kho gửi",
+  },
+  {
+    value: "to_store_changed",
+    name: "Thay đổi kho nhận",
+  },
+  {
+    value: "line_item_added",
+    name: "Thêm dòng sản phẩm",
+  },
+  {
+    value: "line_item_removed",
+    name: "Xóa dòng sản phẩm",
+  },
+  {
+    value: "line_item_updated",
+    name: "Cập nhật dòng sản phẩm",
+  },
+  {
+    value: "general_updated",
+    name: "Cập nhật",
+  }
 ];
 
 type InventoryFilterProps = {
@@ -337,7 +373,7 @@ const InventoryListLogFilters: React.FC<InventoryFilterProps> = (props: Inventor
               <Input
                 ref={inputSearchRef}
                 prefix={<img src={search} alt="" />}
-                placeholder="Tìm kiếm theo Mã phiếu"
+                placeholder="Tìm kiếm theo mã phiếu"
                 onBlur={(e) => {
                   formSearchRef?.current?.setFieldsValue({
                     condition: e.target.value.trim(),

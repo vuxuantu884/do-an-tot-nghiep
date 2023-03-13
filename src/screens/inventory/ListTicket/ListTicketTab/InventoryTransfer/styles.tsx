@@ -52,9 +52,6 @@ export const InventoryTransferTabWrapper = styled.div`
     .${STATUS_INVENTORY_TRANSFER.CANCELED.status} {
       color: ${BG_COLOR_TAG.CANCELED.color};
     }
-    .${STATUS_INVENTORY_TRANSFER.REQUESTED.status} {
-      color: ${BG_COLOR_TAG.CONFIRM.color};
-    }
     .${STATUS_INVENTORY_TRANSFER.CONFIRM.status} {
       color: ${BG_COLOR_TAG.CONFIRM.color};
     }
@@ -77,5 +74,9 @@ export const InventoryTransferTabWrapper = styled.div`
   .mr-5 {
     margin-right: 5px;
     height: 20px;
+  }
+
+  .ant-table-selection-column {
+    padding: 0 !important;
   }
 `;

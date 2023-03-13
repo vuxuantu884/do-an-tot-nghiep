@@ -64,7 +64,7 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { AccountStoreResponse } from "model/account/account.model";
 import { callApiNative } from "utils/ApiUtils";
-import { getStoreApi, updateAvailableApi } from "service/inventory/transfer/index.service";
+import { getStoreApi } from "service/inventory/transfer/index.service";
 import { getAccountDetail } from "service/accounts/account.service";
 import { RefSelectProps } from "antd/lib/select";
 import { RegUtil } from "utils/RegUtils";
@@ -73,7 +73,7 @@ import { searchVariantsApi } from "service/product/product.service";
 import ModalShowError from "../common/ModalShowError";
 import { HttpStatus } from "config/http-status.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { MAXIMUM_QUANTITY_LENGTH, MINIMUM_QUANTITY } from "../helper";
+import { KeyEvent, MAXIMUM_QUANTITY_LENGTH, MINIMUM_QUANTITY, VARIANT_STATUS } from "../helper";
 import { STATUS_INVENTORY_TRANSFER } from "../constants";
 import EditPopover from "../../inventory-defects/ListInventoryDefect/components/EditPopover";
 import { primaryColor } from "utils/global-styles/variables";
@@ -82,6 +82,7 @@ const { Option } = Select;
 const VARIANTS_FIELD = "line_items";
 
 let barCode = "";
+let isBarCode = false;
 
 const UpdateTicket: FC = () => {
   const [fromStores, setFromStores] = useState<Array<AccountStoreResponse>>();
@@ -95,6 +96,7 @@ const UpdateTicket: FC = () => {
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [messageError, setMessageError] = useState<string>("");
   const [isLoadingTable, setIsLoadingTable] = useState<boolean>(false);
 
   const [fileList, setFileList] = useState<Array<UploadFile>>([]);
@@ -134,9 +136,10 @@ const UpdateTicket: FC = () => {
     if (!initDataForm) return;
 
     const confirmStatus = STATUS_INVENTORY_TRANSFER.CONFIRM.status;
-    const requestedStatus = STATUS_INVENTORY_TRANSFER.REQUESTED.status;
+    // const requestedStatus = STATUS_INVENTORY_TRANSFER.REQUESTED.status;
 
-    if (initDataForm.status !== confirmStatus && initDataForm.status !== requestedStatus) {
+    // if (initDataForm.status !== confirmStatus && initDataForm.status !== requestedStatus) {
+    if (initDataForm.status !== confirmStatus) {
       if (CopyId || stateImport) return;
 
       window.open(`${BASE_NAME_ROUTER}${UrlConfig.INVENTORY_TRANSFERS}/${idNumber}`, "_self");
@@ -235,14 +238,8 @@ const UpdateTicket: FC = () => {
   );
 
   const checkDuplicateRecord = useCallback((dataImport: any) => {
-    const dataCheck: any = {
-      line_items: dataImport.line_items,
-      store_receive: dataImport.store_receive,
-      store_transfer: dataImport.store_transfer,
-      note: dataImport.note,
-    };
     dispatch(showLoading());
-    dispatch(checkDuplicateInventoryTransferAction(dataCheck, checkCallback));
+    dispatch(checkDuplicateInventoryTransferAction(dataImport, checkCallback));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -307,21 +304,6 @@ const UpdateTicket: FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stores, fromStores, initDataForm]);
-
-  // validate
-  const validateStore = (rule: any, value: any, callback: any): void => {
-    if (value) {
-      const from_store_id = form.getFieldValue("from_store_id");
-      const to_store_id = form.getFieldValue("to_store_id");
-      if (from_store_id === to_store_id) {
-        callback(`Kho gửi không được trùng với kho nhận`);
-      } else {
-        callback();
-      }
-    } else {
-      callback();
-    }
-  };
 
   const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse> | any>();
 
@@ -411,6 +393,7 @@ const UpdateTicket: FC = () => {
       }
       setKeySearch("");
       barCode = "";
+      isBarCode = false;
       setResultSearch([]);
     },
     [resultSearch, dataTable],
@@ -621,6 +604,9 @@ const UpdateTicket: FC = () => {
           if (variants_id?.length > 0) {
             setIsLoadingTable(true);
             changeFromStore(variants_id, storeData).then();
+
+            const to_store_id = form.getFieldValue("to_store_id");
+            setMessageError(to_store_id === storeData.id ? "Kho gửi không được trùng với kho nhận" : "")
           } else {
             setModalConfirm({ visible: false });
           }
@@ -632,30 +618,28 @@ const UpdateTicket: FC = () => {
 
   const onFinish = useCallback(
     (data: StockTransferSubmit) => {
+      if (messageError !== "") return;
+
       if (CopyId || stateImport) {
         const dataCreate: any = {};
         stores.forEach((store) => {
-          if (store.id === Number(data.from_store_id)) {
-            dataCreate.store_transfer = {
-              store_id: store.id,
-              hotline: store.hotline,
-              address: store.address,
-              name: store.name,
-              code: store.code,
-            };
+          if (store?.id === Number(data?.from_store_id)) {
+            dataCreate.from_store_id = store?.id;
+            dataCreate.from_store_phone = store?.hotline;
+            dataCreate.from_store_address = store?.address;
+            dataCreate.from_store_code = store?.code;
+            dataCreate.from_store_name = store?.name;
           }
-          if (store.id === Number(data.to_store_id)) {
-            dataCreate.store_receive = {
-              store_id: store.id,
-              hotline: store.hotline,
-              address: store.address,
-              name: store.name,
-              code: store.code,
-            };
+          if (store?.id === Number(data?.to_store_id)) {
+            dataCreate.to_store_id = store?.id;
+            dataCreate.to_store_phone = store?.hotline;
+            dataCreate.to_store_address = store?.address;
+            dataCreate.to_store_code = store?.code;
+            dataCreate.to_store_name = store?.name;
           }
         });
 
-        if (dataTable.length === 0 && data.line_items.length === 0) {
+        if ((dataTable.length === 0 && data.line_items.length === 0) || !dataTable) {
           showError("Vui lòng chọn sản phẩm");
           return;
         }
@@ -692,25 +676,19 @@ const UpdateTicket: FC = () => {
       } else {
         if (stores) {
           stores.forEach((store) => {
-            if (store.id === Number(data.from_store_id)) {
-              data.store_transfer = {
-                id: initDataForm?.store_transfer?.id,
-                store_id: store.id,
-                hotline: store.hotline,
-                address: store.address,
-                name: store.name,
-                code: store.code,
-              };
+            if (store?.id === Number(data?.from_store_id)) {
+              data.from_store_id = store?.id;
+              data.from_store_phone = store?.hotline;
+              data.from_store_address = store?.address;
+              data.from_store_code = store?.code;
+              data.from_store_name = store?.name;
             }
-            if (store.id === Number(data.to_store_id)) {
-              data.store_receive = {
-                id: initDataForm?.store_receive?.id,
-                store_id: store.id,
-                hotline: store.hotline,
-                address: store.address,
-                name: store.name,
-                code: store.code,
-              };
+            if (store?.id === Number(data?.to_store_id)) {
+              data.to_store_id = store?.id;
+              data.to_store_phone = store?.hotline;
+              data.to_store_address = store?.address;
+              data.to_store_code = store?.code;
+              data.to_store_name = store?.name;
             }
           });
         }
@@ -720,8 +698,6 @@ const UpdateTicket: FC = () => {
           return;
         }
         data.line_items = dataTable;
-        delete data.from_store_id;
-        delete data.to_store_id;
         if (initDataForm) {
           setIsLoading(true);
           dispatch(showLoading());
@@ -729,19 +705,10 @@ const UpdateTicket: FC = () => {
         }
       }
     },
-    [
-      CopyId,
-      checkDuplicateRecord,
-      createCallback,
-      dataTable,
-      dispatch,
-      initDataForm,
-      stateImport,
-      stores,
-    ],
+    [CopyId, checkDuplicateRecord, createCallback, dataTable, dispatch, initDataForm, messageError, stateImport, stores],
   );
 
-  const onDeleteTicket = (value: string | undefined) => {
+  const deleteTicket = (value: string | undefined) => {
     dispatch(showLoading());
     dispatch(
       deleteInventoryTransferAction(
@@ -776,8 +743,11 @@ const UpdateTicket: FC = () => {
 
   const handleSearchProduct = useCallback(
     async (keyCode: string, code: string) => {
-      if (keyCode === "Enter" && code) {
+      if (keyCode !== "2") {
         barCode = "";
+      }
+
+      if (keyCode === KeyEvent.ENTER && code) {
         setKeySearch("");
 
         if (RegUtil.BARCODE_NUMBER.test(code)) {
@@ -786,10 +756,11 @@ const UpdateTicket: FC = () => {
             showError("Vui lòng chọn kho gửi");
             return;
           }
+          isBarCode = true;
           let res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, {
             barcode: code,
             store_ids: storeId ?? null,
-            status: "active",
+            status: VARIANT_STATUS.ACTIVE,
           });
           if (res && res.items && res.items.length > 0) {
             onSelectProduct(res.items[0].id.toString(), res.items[0]);
@@ -805,11 +776,28 @@ const UpdateTicket: FC = () => {
     [onSelectProduct, form, dispatch, onSearchProduct],
   );
 
+  const eventKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLBodyElement) {
+        if (event.key !== KeyEvent.ENTER) {
+          barCode = barCode + event.key;
+          barCode = barCode.replaceAll(KeyEvent.CONTROL, "").trim();
+        } else if (event && event.key === KeyEvent.ENTER) {
+          handleSearchProduct(event.key, barCode);
+        }
+        return;
+      }
+    },
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, handleSearchProduct],
+  );
+
   const eventKeydown = useCallback(
     (event: KeyboardEvent) => {
       if (event.target instanceof HTMLInputElement) {
         if (event.target.id === "product_search_variant") {
-          if (event.key !== "Enter" && event.key !== "Shift") barCode = barCode + event.key;
+          if (event.key !== KeyEvent.ENTER) barCode = barCode + event.key;
 
           handleDelayActionWhenInsertTextInSearchInput(
             productAutoCompleteRef,
@@ -825,18 +813,23 @@ const UpdateTicket: FC = () => {
   );
 
   const onSelect = useCallback(
-    (o) => {
-      onSelectProduct(o);
+    (o, obj) => {
+      setTimeout(() => {
+        if (isBarCode) return;
+        onSelectProduct(o, obj.label.props.data);
+      }, 0);
     },
     [onSelectProduct],
   );
 
   useEffect(() => {
     window.addEventListener("keydown", eventKeydown);
+    window.addEventListener("keypress", eventKeyPress);
     return () => {
       window.removeEventListener("keydown", eventKeydown);
+      window.removeEventListener("keypress", eventKeyPress);
     };
-  }, [eventKeydown]);
+  }, [eventKeyPress, eventKeydown]);
 
   const columns: ColumnsType<any> = [
     {
@@ -912,7 +905,7 @@ const UpdateTicket: FC = () => {
             min={MINIMUM_QUANTITY}
             maxLength={MAXIMUM_QUANTITY_LENGTH}
             value={value}
-            className="border-input"
+            className={value > row.available ? "border-red" : "border-input"}
             onChange={(quantity) => {
               onQuantityChange(quantity, index);
             }}
@@ -925,11 +918,9 @@ const UpdateTicket: FC = () => {
       fixed: dataTable.length !== 0 && "right",
       width: 50,
       render: (_: string, row, index) => (
-        <Button
-          onClick={() => onDeleteItem(index)}
-          className="product-item-delete"
-          icon={<AiOutlineClose />}
-        />
+        <div className="text-center">
+          <AiOutlineClose style={{ cursor: "pointer" }} onClick={() => onDeleteItem(index)} />
+        </div>
       ),
     },
   ];
@@ -937,18 +928,6 @@ const UpdateTicket: FC = () => {
   const continuesCreateData = (continueData: any) => {
     dispatch(showLoading());
     dispatch(creatInventoryTransferAction(continueData, createCallback));
-  };
-
-  const updateAvailable = async () => {
-    dispatch(showLoading());
-    const res = await callApiNative({ isShowError: false }, dispatch, updateAvailableApi, id);
-
-    dispatch(hideLoading());
-
-    if (res) {
-      showSuccess("Cập nhật tồn Có thể bán trong kho thành công");
-      dispatch(getDetailInventoryTransferAction(idNumber, onResult));
-    }
   };
 
   return (
@@ -1003,9 +982,6 @@ const UpdateTicket: FC = () => {
                                 required: true,
                                 message: "Vui lòng chọn kho gửi",
                               },
-                              {
-                                validator: validateStore,
-                              },
                             ]
                       }
                       labelCol={{ span: 24, offset: 0 }}
@@ -1040,6 +1016,7 @@ const UpdateTicket: FC = () => {
                           ))}
                       </Select>
                     </Form.Item>
+                    {messageError !== "" && <div style={{ color: "#e24343" }}>{messageError}</div>}
                     {fromStoreData ? (
                       <>
                         <RowDetail title="Mã CH" value={fromStoreData.code} />
@@ -1052,7 +1029,7 @@ const UpdateTicket: FC = () => {
                         <RowDetail title="SĐT" value={initDataForm.from_store_phone?.toString()} />
                         <RowDetail
                           title="Địa chỉ"
-                          value={ConvertFullAddress(initDataForm.store_transfer)}
+                          value={initDataForm.from_store_address}
                         />
                       </>
                     )}
@@ -1066,9 +1043,6 @@ const UpdateTicket: FC = () => {
                           required: true,
                           message: "Vui lòng chọn kho nhận",
                         },
-                        {
-                          validator: validateStore,
-                        },
                       ]}
                       labelCol={{ span: 24, offset: 0 }}
                     >
@@ -1078,6 +1052,8 @@ const UpdateTicket: FC = () => {
                         showSearch
                         optionFilterProp="children"
                         onChange={(value: number) => {
+                          const from_store_id = form.getFieldValue("from_store_id");
+                          setMessageError(from_store_id === value ? "Kho gửi không được trùng với kho nhận" : "")
                           stores.forEach((element) => {
                             if (element.id === value) {
                               setToStoreData(element);
@@ -1115,7 +1091,7 @@ const UpdateTicket: FC = () => {
                         <RowDetail title="SĐT" value={initDataForm.to_store_phone?.toString()} />
                         <RowDetail
                           title="Địa chỉ"
-                          value={ConvertFullAddress(initDataForm.store_receive)}
+                          value={initDataForm.to_store_address}
                         />
                       </>
                     )}
@@ -1242,12 +1218,6 @@ const UpdateTicket: FC = () => {
                   <Button onClick={() => setIsDeleteTicket(true)}>Huỷ phiếu</Button>
                 )}
 
-                {!CopyId && !stateImport && (
-                  <Button type="primary" onClick={updateAvailable}>
-                    Cập nhật lại tồn
-                  </Button>
-                )}
-
                 <Button disabled={isLoading} htmlType={"submit"} type="primary" loading={isLoading}>
                   {CopyId || stateImport ? "Tạo" : "Lưu"}
                 </Button>
@@ -1269,7 +1239,7 @@ const UpdateTicket: FC = () => {
       <ModalConfirm {...modalConfirm} />
       {isDeleteTicket && (
         <DeleteTicketModal
-          onOk={onDeleteTicket}
+          onOk={deleteTicket}
           onCancel={() => setIsDeleteTicket(false)}
           visible={isDeleteTicket}
           icon={WarningRedIcon}

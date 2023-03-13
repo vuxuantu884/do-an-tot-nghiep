@@ -9,8 +9,17 @@ const ImportStatuses = {
   ERROR: "error",
 };
 
+const VARIANT_STATUS = {
+  ACTIVE: "active",
+};
+
+const KeyEvent = {
+  ENTER: "Enter",
+  CONTROL: "Control"
+}
+
 const MINIMUM_QUANTITY= 0;
-const MAXIMUM_QUANTITY_LENGTH = 5;
+const MAXIMUM_QUANTITY_LENGTH = 6;
 
 const EXCEL_FILE_TYPE_XLS =
   "https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_327a5d28-35ad-4bd1-a78f-1a7e34a53645_original.xls";
@@ -71,5 +80,7 @@ export {
   ImportStatuses,
   InventoryTransferPendingStatus,
   beforeUploadFile,
-  initQuery
+  initQuery,
+  KeyEvent,
+  VARIANT_STATUS
 };

@@ -8,11 +8,12 @@ type ExportModalProps = {
   onOk: (record: string) => void;
   exportProgress?: number;
   statusExport?: number;
+  title: string;
 };
 
 const TransferExport: React.FC<ExportModalProps> = (props: ExportModalProps) => {
   const [form] = Form.useForm();
-  const { visible, onCancel, onOk, exportProgress, statusExport = 0 } = props;
+  const { visible, onCancel, onOk, exportProgress, statusExport = 0, title } = props;
   const onCancelClick = useCallback(() => {
     onCancel();
   }, [onCancel]);
@@ -27,7 +28,7 @@ const TransferExport: React.FC<ExportModalProps> = (props: ExportModalProps) => 
       visible={visible}
       cancelText="Hủy"
       onOk={onOkClick}
-      title="Xuất file chuyển kho"
+      title={title}
       okText="Xuất file"
     >
       <Form
