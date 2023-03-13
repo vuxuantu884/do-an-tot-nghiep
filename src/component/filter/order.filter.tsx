@@ -2757,18 +2757,26 @@ function OrdersFilter(props: Props): JSX.Element {
                 </Col>
                 <Col span={8} xxl={8} hidden={orderType !== ORDER_TYPES.online}>
                   <Item name="special_types" label="Loại đơn hàng">
-                    <Select
-                      placeholder="Loại đơn hàng"
-                      style={{ width: "100%" }}
-                      allowClear
+                    <CustomSelect
                       mode="multiple"
+                      showSearch
+                      allowClear
+                      showArrow
+                      placeholder="Loại đơn hàng"
+                      notFoundContent="Không tìm thấy kết quả"
+                      style={{ width: "100%" }}
+                      optionFilterProp="children"
+                      getPopupContainer={(trigger) => trigger.parentNode}
+                      maxTagCount="responsive"
+                      autoClearSearchValue={false}
                     >
-                      {specialOrderTypesArr.map((p, index) => (
-                        <Select.Option key={index} value={p.value}>
-                          {p.title}
-                        </Select.Option>
-                      ))}
-                    </Select>
+                      {specialOrderTypesArr &&
+                        specialOrderTypesArr.map((p, index) => (
+                          <CustomSelect.Option key={index} value={p.value}>
+                            {p.title}
+                          </CustomSelect.Option>
+                        ))}
+                    </CustomSelect>
                   </Item>
                 </Col>
                 <Col span={8} xxl={8} hidden={orderType !== ORDER_TYPES.online}>
