@@ -454,7 +454,7 @@ const FeedbacksScreen: React.FC = (props: any) => {
 
     const getReplyInterval = setInterval(checkGettingReplyProcess, 3000);
     return () => clearInterval(getReplyInterval);
-  }, [checkGettingReplyProcess, gettingReply]);
+  }, [checkGettingReplyProcess, dataGettingReply.finish, gettingReply]);
 
   const columns: any = useMemo(() => {
     return [
