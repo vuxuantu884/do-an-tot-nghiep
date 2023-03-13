@@ -22,7 +22,7 @@ function GetReplyModal(props: GetReplyModalPropTypes) {
 
   const [form] = Form.useForm();
   const formRef = createRef<FormInstance>();
-  const [issuedClick, setIssuedClick] = useState("");
+  const [timeClick, setTimeClick] = useState("");
   const [page, setPage] = useState(1);
   const initialFormValues = {
     shop_id: undefined,
@@ -32,23 +32,30 @@ function GetReplyModal(props: GetReplyModalPropTypes) {
 
   const onSubmit = () => {
     form.validateFields().then((values) => {
-      if (!values.update_time_from || !values.update_time_to) {
-        formRef?.current?.setFields([
-          {
-            name: "update_time_from",
-            errors: ["Vui lòng chọn khoảng thời gian"],
-          },
-          {
-            name: "update_time_to",
-            errors: [""],
-          },
-        ]);
+      if (dataReplying.finish) {
+        onOk({});
       } else {
-        onOk({
-          ...values,
-          update_time_from: moment(values.update_time_from).startOf("day").valueOf(),
-          update_time_to: moment(values.update_time_to).endOf("day").valueOf(),
-        });
+        if (!values.update_time_from || !values.update_time_to) {
+          console.log("123");
+          formRef?.current?.setFields([
+            {
+              name: "update_time_from",
+              errors: ["Vui lòng chọn khoảng thời gian"],
+            },
+            {
+              name: "update_time_to",
+              errors: [""],
+            },
+          ]);
+        } else {
+          onOk({
+            ...values,
+            update_time_from: moment(values.update_time_from, "DD-MM-YYYY")
+              .startOf("day")
+              .valueOf(),
+            update_time_to: moment(values.update_time_to, "DD-MM-YYYY").endOf("day").valueOf(),
+          });
+        }
       }
     });
   };
@@ -98,6 +105,8 @@ function GetReplyModal(props: GetReplyModalPropTypes) {
         update_time_from: null,
         update_time_to: moment().format("DD-MM-YYYY"),
       });
+      setTimeClick("");
+      setPage(1);
     }
   }, [form, visible]);
 
@@ -166,8 +175,8 @@ function GetReplyModal(props: GetReplyModalPropTypes) {
             <CustomRangeDatePicker
               fieldNameFrom="update_time_from"
               fieldNameTo="update_time_to"
-              activeButton={issuedClick}
-              setActiveButton={setIssuedClick}
+              activeButton={timeClick}
+              setActiveButton={setTimeClick}
               format="DD-MM-YYYY"
               formRef={formRef}
             />

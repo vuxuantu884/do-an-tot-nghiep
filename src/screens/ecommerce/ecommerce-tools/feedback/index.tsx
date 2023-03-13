@@ -331,7 +331,7 @@ const FeedbacksScreen: React.FC = (props: any) => {
         const process = await getProgressDownloadEcommerceApi(processGettingReplyID);
         console.log("process", process);
         if (!process.errors) {
-          setDataReplying({
+          setDataGettingReply({
             total: process.data.total,
             total_error: process.data.total_error,
             total_success: process.data.total_success,
