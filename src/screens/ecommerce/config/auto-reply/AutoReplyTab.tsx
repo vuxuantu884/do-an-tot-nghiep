@@ -1,10 +1,11 @@
-import { Button, Table } from "antd";
+import { Button, Switch, Table } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   createSettingAutoReplyApi,
   deleteSettingAutoReplyApi,
   editSettingAutoReplyApi,
   getSettingAutoReplyApi,
+  statusSettingAutoReplyApi,
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import editIcon from "assets/icon/edit.svg";
@@ -29,6 +30,7 @@ function AutoReplyTab(props: Props) {
 
   const [visible, setVisible] = useState(false);
   const [autoReplyData, setAutoReplyData] = useState<any>({});
+  const [enabled, setEnabled] = useState(false);
   // type: create, edit, delete
   const [configType, setConfigType] = useState("");
 
@@ -38,16 +40,22 @@ function AutoReplyTab(props: Props) {
     setPage(page);
   }, []);
 
-  const handleEdit = useCallback((value) => {
-    setVisible(true);
-    setAutoReplyData(value);
-    setConfigType("edit");
-  }, []);
-  const handleDelete = useCallback((value) => {
-    setVisible(true);
-    setAutoReplyData(value);
-    setConfigType("delete");
-  }, []);
+  const handleEdit = useCallback(
+    (value) => {
+      setVisible(true);
+      setAutoReplyData(value);
+      setConfigType("edit");
+    },
+    [setVisible],
+  );
+  const handleDelete = useCallback(
+    (value) => {
+      setVisible(true);
+      setAutoReplyData(value);
+      setConfigType("delete");
+    },
+    [setVisible],
+  );
 
   const handleOk = useCallback(
     (content) => {
@@ -115,7 +123,7 @@ function AutoReplyTab(props: Props) {
           break;
       }
     },
-    [autoReplyData.id, configType, shopID, shopName, star],
+    [autoReplyData.id, configType, setVisible, shopID, shopName, star],
   );
 
   const renderActionColumn = useCallback(
@@ -186,13 +194,14 @@ function AutoReplyTab(props: Props) {
           const result = await getSettingAutoReplyApi(`shop_id=${shopID}&star=${star}`);
           if (!result.errors) {
             setData(
-              result.data.map((i: any, index: number) => {
+              result.data.configs.map((i: any, index: number) => {
                 return {
                   ...i,
                   index: index + 1,
                 };
               }),
             );
+            setEnabled(result.data.shop_info ? result.data.shop_info.enabled : false);
           } else {
             result.errors.forEach((error: string) => {
               showError(error);
@@ -216,7 +225,7 @@ function AutoReplyTab(props: Props) {
     if (activeTab === star.toString() && !visible) {
       setIsAddAutoReply();
     }
-  }, [activeTab, isAddAutoReply, setIsAddAutoReply, star, visible]);
+  }, [activeTab, isAddAutoReply, setIsAddAutoReply, setVisible, star, visible]);
 
   return (
     <StyledAutoReply>
@@ -226,22 +235,48 @@ function AutoReplyTab(props: Props) {
         </p>
       )}
       {shopID && (
-        <Table
-          loading={isLoading}
-          scroll={{ x: 1200 }}
-          sticky={{ offsetScroll: 10, offsetHeader: 50 }}
-          pagination={{
-            pageSize: 10,
-            total: data.length,
-            current: page,
-            showSizeChanger: false,
-            onChange: onPageChange,
-          }}
-          dataSource={data}
-          columns={columns}
-          rowKey={(item: any) => item.id}
-          bordered
-        />
+        <>
+          <p>
+            <Switch
+              checked={enabled}
+              onChange={(value) => {
+                setEnabled(value);
+                (async () => {
+                  try {
+                    const result = await statusSettingAutoReplyApi(
+                      `shop/${shopID}/star/${star}/${value ? "enabled" : "disabled"}`,
+                    );
+                    if (!result.errors) {
+                    } else {
+                      result.errors.forEach((error: string) => {
+                        showError(error);
+                      });
+                    }
+                  } catch (error) {
+                    showError("Đổi trạng thái cấu hình đánh giá tự động không thành công");
+                  }
+                })();
+              }}
+            />
+            <span style={{ marginLeft: 20, fontWeight: 700 }}>Kích hoạt phản hồi tự động</span>
+          </p>
+          <Table
+            loading={isLoading}
+            scroll={{ x: 1200 }}
+            sticky={{ offsetScroll: 10, offsetHeader: 50 }}
+            pagination={{
+              pageSize: 10,
+              total: data.length,
+              current: page,
+              showSizeChanger: false,
+              onChange: onPageChange,
+            }}
+            dataSource={data}
+            columns={columns}
+            rowKey={(item: any) => item.id}
+            bordered
+          />
+        </>
       )}
       <AutoReplyModal
         visible={visible}

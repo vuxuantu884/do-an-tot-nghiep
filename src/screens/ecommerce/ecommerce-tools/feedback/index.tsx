@@ -684,7 +684,17 @@ const FeedbacksScreen: React.FC = (props: any) => {
               >
                 Cập nhật đánh giá
               </Button>
-              <Button type="primary" className="ant-btn-primary" size={"large"} onClick={() => {}}>
+              <Button
+                type="primary"
+                className="ant-btn-primary"
+                size={"large"}
+                onClick={() => {
+                  window.open(
+                    `${process.env.PUBLIC_URL}${UrlConfig.ECOMMERCE}-tools/feedbacks/auto-reply`,
+                    "_blank",
+                  );
+                }}
+              >
                 Cấu hình phản hồi tự động
               </Button>
             </Space>

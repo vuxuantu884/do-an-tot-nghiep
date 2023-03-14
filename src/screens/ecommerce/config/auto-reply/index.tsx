@@ -1,7 +1,7 @@
+import { PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import CustomSelect from "component/custom/select.custom";
-import UrlConfig from "config/url.config";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 import { useCallback, useEffect, useState } from "react";
 import { ecommerceGetApi } from "service/ecommerce/ecommerce.service";
@@ -44,17 +44,16 @@ function AutoReply(props: Props) {
         title="Phản hồi tự động"
         breadcrumb={[
           {
-            name: "Tổng quan",
-            path: `${UrlConfig.HOME}`,
+            name: "Sàn TMĐT",
           },
           {
             name: "Sàn TMĐT",
           },
           {
-            name: " Công cụ",
+            name: "Phản hồi đánh giá sản phẩm Shopee",
           },
           {
-            name: "Phản hồi tự động",
+            name: "Cấu hình phản hồi tự động",
           },
         ]}
       >
@@ -96,6 +95,8 @@ function AutoReply(props: Props) {
                   onClick={() => {
                     setIsAddAutoReply(true);
                   }}
+                  type="primary"
+                  icon={<PlusOutlined />}
                 >
                   Thêm mới phản hồi
                 </Button>
