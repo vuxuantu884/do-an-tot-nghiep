@@ -676,7 +676,7 @@ const InventoryAdjustment = (props: InventoryAdjustmentProps) => {
 
   const onFilter = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: 1 };
+      let newPrams = { ...params, ...values, page: 1, limit: params.limit };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}?${queryParam}`);
