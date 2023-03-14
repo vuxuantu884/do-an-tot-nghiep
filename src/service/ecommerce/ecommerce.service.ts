@@ -277,6 +277,36 @@ export const replyFeedbacksApi = (body: any): Promise<any> => {
   return BaseAxios.post(requestUrl, body);
 };
 
+//shoppe - get setting auto reply
+export const getSettingAutoReplyApi = (params: string): Promise<any> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/product-reviews/auto-configs?${params}`;
+  return BaseAxios.get(requestUrl);
+};
+
+//shoppe - create setting auto reply
+export const createSettingAutoReplyApi = (body: any): Promise<any> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/product-reviews/auto-configs`;
+  return BaseAxios.post(requestUrl, body);
+};
+
+//shoppe - edit setting auto reply
+export const editSettingAutoReplyApi = (params: any): Promise<any> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/product-reviews/auto-configs/${params.id}`;
+  return BaseAxios.put(requestUrl, params);
+};
+//shoppe - delete setting auto reply
+export const deleteSettingAutoReplyApi = (params: any): Promise<any> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/product-reviews/auto-configs/${params.id}`;
+  return BaseAxios.delete(requestUrl);
+};
+
+//shoppe - change status setting auto reply
+export const statusSettingAutoReplyApi = (params: string): Promise<any> => {
+  // params = "shop/" + shop_id + "star/" + star + "/" + status
+  // example params = shop/750685476/star/5/enabled
+  const requestUrl = `${ApiConfig.ECOMMERCE}/product-reviews/auto-configs/${params}`;
+  return BaseAxios.put(requestUrl);
+};
 //shoppe - getting reply feedbacks
 export const gettingReplyFeedbacksApi = (body: any): Promise<any> => {
   const requestUrl = `${ApiConfig.ECOMMERCE}/product-reviews/download`;

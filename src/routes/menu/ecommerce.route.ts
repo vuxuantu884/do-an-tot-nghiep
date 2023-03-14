@@ -17,6 +17,8 @@ const PushingDetails = React.lazy(
 
 const Feedbacks = React.lazy(() => import("screens/ecommerce/ecommerce-tools/feedback"));
 
+const AutoReply = React.lazy(() => import("screens/ecommerce/config/auto-reply"));
+
 const ordersMappingViewPermission = [EcommerceOrderPermission?.orders_mapping_view];
 
 const ecommerce: Array<RouteMenu> = [
@@ -140,6 +142,17 @@ const ecommerce: Array<RouteMenu> = [
         icon: "icon-dot",
         component: Feedbacks,
         key: "408",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.ECOMMERCE}-tools/auto-reply`,
+        exact: true,
+        title: "Phản hồi tự động",
+        icon: "icon-dot",
+        component: AutoReply,
+        key: "409",
         isShow: true,
         header: null,
         subMenu: [],
