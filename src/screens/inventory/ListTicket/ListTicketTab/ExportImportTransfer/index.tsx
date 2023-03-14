@@ -735,17 +735,17 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       [TransferExportLineItemField.created_name]:
         !item.created_by || !item.created_name ? "" : `${item.created_by} - ${item.created_name}`,
       [TransferExportLineItemField.transfer_date]: ConvertUtcToLocalDate(
-        item.transfer_date,
+        item.inventory_transfer.transfer_date,
         DATE_FORMAT.DDMMYY_HHmm,
       ),
       [TransferExportLineItemField.receive_date]: ConvertUtcToLocalDate(
-        item.receive_date,
+        item.inventory_transfer.receive_date,
         DATE_FORMAT.DDMMYY_HHmm,
       ),
       [TransferExportLineItemField.updated_name]:
-        !item.received_by || !item.received_name
+        !item.inventory_transfer.received_by || !item.inventory_transfer.received_name
           ? ""
-          : `${item.received_by} - ${item.received_name}`,
+          : `${item.inventory_transfer.received_by} - ${item.inventory_transfer.received_name}`,
       [TransferExportLineItemField.note]: item.inventory_transfer.note ?? "",
     };
   };
