@@ -131,10 +131,9 @@ function AutoReplyTab(props: Props) {
       return (
         <>
           <Button
-            icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
+            icon={<img alt="" src={editIcon} />}
             type="text"
             style={{
-              paddingLeft: 24,
               background: "transparent",
               border: "none",
             }}
@@ -142,10 +141,10 @@ function AutoReplyTab(props: Props) {
           />
 
           <Button
-            icon={<img style={{ marginRight: 12 }} alt="" src={deleteIcon} />}
+            icon={<img alt="" src={deleteIcon} />}
             type="text"
             style={{
-              paddingLeft: 24,
+              marginLeft: 10,
               background: "transparent",
               border: "none",
               color: "red",
@@ -179,6 +178,7 @@ function AutoReplyTab(props: Props) {
         title: "",
         visible: true,
         fixed: "right",
+        align: "center",
         width: 120,
         className: "auto-reply-action ",
         render: (value: any) => renderActionColumn(value),
@@ -264,13 +264,17 @@ function AutoReplyTab(props: Props) {
             loading={isLoading}
             scroll={{ x: 1200 }}
             sticky={{ offsetScroll: 10, offsetHeader: 50 }}
-            pagination={{
-              pageSize: 10,
-              total: data.length,
-              current: page,
-              showSizeChanger: false,
-              onChange: onPageChange,
-            }}
+            pagination={
+              data.length > 10
+                ? {
+                    pageSize: 10,
+                    total: data.length,
+                    current: page,
+                    showSizeChanger: false,
+                    onChange: onPageChange,
+                  }
+                : false
+            }
             dataSource={data}
             columns={columns}
             rowKey={(item: any) => item.id}
