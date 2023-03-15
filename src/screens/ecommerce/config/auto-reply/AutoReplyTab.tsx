@@ -187,7 +187,7 @@ function AutoReplyTab(props: Props) {
   }, [renderActionColumn]);
 
   useEffect(() => {
-    if (shopID && reload) {
+    if (shopID) {
       setIsLoading(true);
       (async () => {
         try {

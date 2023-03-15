@@ -15,10 +15,11 @@ type AutoReplyModalPropTypes = {
 
 function AutoReplyModal(props: AutoReplyModalPropTypes) {
   const { visible, type, autoReplyData, onOk, onCancel } = props;
+  const [form] = Form.useForm();
+
   const initialFormValues = {
     content: "",
   };
-  const [form] = Form.useForm();
 
   const okText = useMemo(() => {
     switch (type) {
@@ -55,7 +56,7 @@ function AutoReplyModal(props: AutoReplyModalPropTypes) {
   useEffect(() => {
     if (visible) {
       form.setFieldsValue({
-        content: autoReplyData.template,
+        content: autoReplyData.template ? autoReplyData.template : "",
       });
     }
   }, [autoReplyData.template, form, visible]);
