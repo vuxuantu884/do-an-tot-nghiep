@@ -108,4 +108,7 @@ export const CustomerVisitorsStyle = styled.div`
       }
     }
   }
+  .cursor-pointer {
+    cursor: pointer;
+  }
 `;

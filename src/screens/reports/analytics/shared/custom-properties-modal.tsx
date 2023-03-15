@@ -4,7 +4,7 @@ import { FormInstance } from "antd/es/form/Form";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import _ from "lodash";
 import { AnalyticAggregate, AnalyticProperties } from "model/report/analytics.model";
-import React, { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { RoleStyled } from "screens/settings/roles/card-authorize-detail/index.style";
 import { checkArrayHasAllValue, checkArrayHasAnyValue } from "utils/ReportUtils";
 import { AddPropertiesModalStyle } from "../index.style";
@@ -190,6 +190,7 @@ function CustomPropertiesModal({ properties, aggregates, form, warningChooseColu
         onOk={handleOk}
         onCancel={handleCanel}
         width={800}
+        bodyStyle={{ height: 500, overflow: "auto" }}
         footer={[
           <Button key="submit" type="primary" onClick={handleOk}>
             Xác nhận
