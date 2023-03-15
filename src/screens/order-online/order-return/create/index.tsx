@@ -44,7 +44,6 @@ import useFetchStores from "hook/useFetchStores";
 import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 import { cloneDeep } from "lodash";
 import { StoreResponse } from "model/core/store.model";
-import { InventoryResponse } from "model/inventory";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { RefundModel } from "model/order/return.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -54,7 +53,6 @@ import {
   ExchangeRequest,
   FulFillmentRequest,
   OrderDiscountRequest,
-  OrderItemDiscountRequest,
   OrderLineItemRequest,
   OrderPaymentRequest,
   OrderRequest,
@@ -77,7 +75,6 @@ import {
   LineItemCreateReturnSuggestDiscountResponseModel,
   SuggestDiscountResponseModel,
 } from "model/response/order/promotion.response";
-import { SourceResponse } from "model/response/order/source.response";
 import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TiWarningOutline } from "react-icons/ti";
@@ -128,6 +125,7 @@ import {
   TaxTreatment,
 } from "utils/Constants";
 import {
+  DISCOUNT_VALUE_TYPE,
   ORDER_PAYMENT_STATUS,
   PAYMENT_METHOD_ENUM,
   RETURN_MONEY_TYPE,
@@ -135,12 +133,12 @@ import {
 } from "utils/Order.constants";
 import {
   changeTypeQrCode,
-  checkIfECommerceByOrderChannelCodeUpdateOrder,
   checkIfECommerceByOrderChannelCode,
   checkIfWebAppByOrderChannelCode,
   findPaymentMethodByCode,
-  removeDiscountLineItem,
+  handleReCalculateReturnProductDiscountAmount,
   isOrderWholesale,
+  removeDiscountLineItem,
 } from "utils/OrderUtils";
 import { showError } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
@@ -539,14 +537,19 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const handleApplyDiscountItemCallback = (items: OrderLineItemRequest[]) => {
     let result = deepClone(initItemSuggestDiscounts);
     console.log("items", items);
+    console.log("result", result);
     items.forEach((item) => {
       let appliedDiscount =
         item.discount_items && item.discount_items.length > 0 ? item.discount_items[0] : null;
       if (appliedDiscount) {
+        let appliedDiscountValue =
+          appliedDiscount.sub_type === DISCOUNT_VALUE_TYPE.percentage
+            ? appliedDiscount.rate
+            : appliedDiscount.value;
         let appliedIndex = result.findIndex(
           (single) =>
             single.title === appliedDiscount?.promotion_title &&
-            single.value === appliedDiscount.value,
+            single.value === appliedDiscountValue,
         );
         console.log("item", item);
         console.log("appliedIndex", appliedIndex);
@@ -2263,6 +2266,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
               if (indexSelectedVariant === -1) {
                 selectedVariantWithMaxQuantity.quantity = 1;
+                handleReCalculateReturnProductDiscountAmount(selectedVariantWithMaxQuantity);
                 result = [selectedVariantWithMaxQuantity, ...listReturnProducts];
               } else {
                 let selectedVariant = result[indexSelectedVariant];
@@ -2271,6 +2275,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   selectedVariant.quantity < selectedVariant.maxQuantityCanBeReturned
                 ) {
                   selectedVariant.quantity += 1;
+                  handleReCalculateReturnProductDiscountAmount(selectedVariant);
                 }
               }
               setListReturnProducts(result);
@@ -2635,7 +2640,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
   useEffect(() => {
     let result: LineItemCreateReturnSuggestDiscountResponseModel[] = [];
     result = listReturnProducts
-      .filter((single) => single.discount_items.length > 0 && single.quantity > 0)
+      .filter(
+        (single) =>
+          single.discount_items.length > 0 &&
+          single.quantity > 0 &&
+          single.discount_items[0]?.amount > 0,
+      )
       .map((product) => {
         let discount = product.discount_items[0];
         let discountValue = discount.amount / product.quantity;
