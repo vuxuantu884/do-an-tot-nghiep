@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useRouteMatch } from "react-router";
 import { getAllPublicSimpleStoreApi } from "service/core/store.service";
+import { getStoreApi } from "service/inventory/transfer/index.service";
 import { callApiNative } from "utils/ApiUtils";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -59,7 +60,10 @@ const InventoryScreen: React.FC = () => {
   }, [history, path, conditionFilter, storeIds]);
 
   const getAllStores = async () => {
-    callApiNative({ isShowLoading: false }, dispatch, getAllPublicSimpleStoreApi).then((res) => {
+    callApiNative({ isShowLoading: false }, dispatch, getStoreApi, {
+      status: "active",
+      simple: true,
+    }).then((res) => {
       setStores(res);
     });
   };

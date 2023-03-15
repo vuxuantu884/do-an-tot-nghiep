@@ -215,7 +215,7 @@ export interface VariantSearchQuery extends BaseQuery {
   saleable?: boolean;
   active?: boolean;
   store_id?: number;
-  store_ids?: number | null;
+  store_ids?: number | number[] | null;
   sort_column?: string;
   sort_type?: string;
   variant_ids?: string;

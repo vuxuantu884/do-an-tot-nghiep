@@ -38,6 +38,19 @@ export interface InventoryQuery extends BaseQuery {
   status?: string;
   store_adj?: number;
   remain?: string;
+  info?: string;
+  sizes?: number | Array<number>;
+  designer_codes?: string;
+  merchandiser_codes?: string;
+  collections?: string;
+  made_in_ids?: number;
+  category_ids?: number;
+  variant_sku3?: string;
+  variant_sku7?: string;
+  tags?: string | Array<string>;
+  from_price?: number;
+  to_price?: number;
+  store_ids?: number | Array<number>;
 }
 export interface InventoryVariantListQuery extends InventoryQuery {
   variant_ids?: Array<number>;
