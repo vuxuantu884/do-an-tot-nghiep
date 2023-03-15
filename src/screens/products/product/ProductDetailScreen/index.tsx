@@ -69,7 +69,7 @@ import { VN_CODE } from "screens/settings/tax/helper";
 import { getAllPublicSimpleStoreApi } from "service/core/store.service";
 import { productUpdateApi } from "service/product/product.service";
 import { callApiNative } from "utils/ApiUtils";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { ProductSteps, RowDetail, VariantList } from "../component";
 import { TabAdvertisingHistory, TabProductHistory, TabProductInventory } from "../tab";
 import { StyledComponent } from "./styles";
@@ -209,6 +209,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
   const onResultUpdate = useCallback((data: ProductResponse | false) => {
     setIsLoadingVariant(false);
     if (!data) {
+      showError("Đã có lỗi xảy ra!");
     } else {
       setData(data);
       showSuccess("Cập nhật thông tin thành công");
@@ -302,7 +303,7 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
           request.collections = data.collections.map((e: CollectionCreateRequest) => e.code);
         }
         const res = await callApiNative(
-          { isShowLoading: false },
+          { isShowLoading: false, isShowError: true },
           dispatch,
           productUpdateApi,
           idNumber,
@@ -310,9 +311,11 @@ const ProductDetailScreen = (props: { setTitle: (value: string) => void }) => {
         );
         setIsLoadingVariantUpdate(false);
 
-        if (!res) {
-          setData(cloneDeep(data));
-        } else {
+        if (res.errors) {
+          res.errors.forEach((err: string) => showError(err));
+          return;
+        }
+        if (res) {
           setData(res);
           showSuccess("Cập nhật thông tin thành công");
         }
