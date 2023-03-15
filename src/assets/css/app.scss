@@ -209,7 +209,7 @@ label {
     display: block;
   }
   &-flex {
-    display: flex;
+    display: flex !important;
   }
   &-none {
     display: none;
