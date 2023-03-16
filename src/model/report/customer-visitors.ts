@@ -1,6 +1,7 @@
 export enum CustomerVisitorsFilter {
   StoreIds = "storeIds",
   AssigneeCodes = "assigneeCodes",
+  Day = "day",
   Month = "month",
   Year = "year",
 }

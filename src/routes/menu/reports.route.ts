@@ -1,4 +1,8 @@
 import { ReportPermissions } from "config/permissions/report.permisstion";
+import {
+  customerAssignedTitle,
+  customerReceptedTitle,
+} from "config/report/customer-visitor-titles";
 import UrlConfig, { REPORTS_URL } from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
@@ -10,9 +14,8 @@ const ReadCustomizeAnalytics = React.lazy(
 const ReadTemplateAnalytics = React.lazy(
   () => import("screens/reports/analytics/read-template/index"),
 );
-const CustomerVisitors = React.lazy(
-  () => import("screens/reports/analytics/shared/customer-visitors"),
-);
+const CustomerRecepted = React.lazy(() => import("screens/reports/analytics/customer-recepted"));
+const CustomerAssigned = React.lazy(() => import("screens/reports/analytics/customer-assigned"));
 
 const InventoryBalance = React.lazy(() => import("screens/reports/inventory-balance"));
 
@@ -62,11 +65,22 @@ const reports: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.ANALYTIC_SALES_OFFLINE}/customer-visitors`,
+        path: `${UrlConfig.ANALYTIC_SALES_OFFLINE}/customer-assigned`,
         exact: true,
-        title: "Nhập số lượng khách hàng đã tư vấn",
+        title: customerAssignedTitle,
         icon: "icon-dot",
-        component: CustomerVisitors,
+        component: CustomerAssigned,
+        key: "submenureport03",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.ANALYTIC_SALES_OFFLINE}/customer-recepted`,
+        exact: true,
+        title: customerReceptedTitle,
+        icon: "icon-dot",
+        component: CustomerRecepted,
         key: "submenureport03",
         isShow: true,
         header: null,

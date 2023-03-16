@@ -21,11 +21,21 @@ import { strForSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { CustomerVisitorsStyle } from "./index.style";
 
-function CustomerVisitors() {
+export interface CustomerVisitorsProps {
+  source: CustomerVisitorsType;
+  title: string;
+  name: string;
+  employee: string;
+  tableTitle: string;
+}
+
+function CustomerVisitors(props: CustomerVisitorsProps) {
+  const { source, title, name, employee, tableTitle } = props;
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
-  const [accountList, setAccountList] = useState<Array<AccountResponse>>([]);
+  const [accountList, setAccountList] = useState<any[]>([]);
+  const [dayList, setDayList] = useState<string[]>([]);
   const [yearList, setYearList] = useState<string[]>([]);
   const [customerVisitors, setCustomerVisitors] = useState<any[]>([]);
   const [customerVisitorsUpdate, setCustomerVisitorsUpdate] = useState<any[]>([]);
@@ -44,6 +54,8 @@ function CustomerVisitors() {
   const [loadingTable, setLoadingTable] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [isFilter, setIsFilter] = useState<boolean>(true);
+  const [employeeList, setEmployeeList] = useState<any[]>([]);
+  const [spEmployeeList, setSpEmployeeList] = useState<any[]>([]);
 
   const myStores: any = useSelector(
     (state: RootReducerType) => state.userReducer.account?.account_stores,
@@ -54,18 +66,51 @@ function CustomerVisitors() {
   const startYear = 2018;
   const initialFilterValues = {
     [CustomerVisitorsFilter.StoreIds]: [],
+    [CustomerVisitorsFilter.Day]: null,
     [CustomerVisitorsFilter.Month]: currentMonth,
     [CustomerVisitorsFilter.Year]: currentYear,
     [CustomerVisitorsFilter.AssigneeCodes]: [],
   };
   const allStaffCode = "Tất cả NV";
 
+  const onSelectDay = () => {
+    const { day } = form.getFieldsValue();
+    setAccountList(
+      _.uniqBy(
+        [
+          ...employeeList,
+          ...spEmployeeList.filter((item) => !day || item[`day${day > 9 ? day : "0" + day}`]),
+        ],
+        "code",
+      ),
+    );
+  };
+
   const getStaff = useCallback(
-    (condition?: string) => {
-      const { storeIds } = form.getFieldsValue();
+    async (condition?: string) => {
+      const { storeIds, day, month, year } = form.getFieldsValue();
       if (!stores.length || !storeIds?.length || storeIds?.length > 1) {
         return;
       }
+      const customerVisitors: any[] = await callApiNative(
+        { isShowError: true },
+        dispatch,
+        getCustomerVisitors,
+        {
+          month,
+          year,
+          storeIds,
+          source,
+        },
+      );
+      const inputAccounts = customerVisitors.map((item) => {
+        return {
+          code: item.assignee_code.toUpperCase(),
+          full_name: item.assignee_name,
+          ...item,
+        };
+      });
+      setSpEmployeeList(inputAccounts);
       dispatch(
         searchAccountPublicAction(
           { store_ids: storeIds.join(","), status: "active", condition, limit: 200 },
@@ -94,18 +139,31 @@ function CustomerVisitors() {
               });
             }
             if (data) {
-              setAccountList(data.items);
+              setEmployeeList(data.items);
+              setAccountList(
+                _.uniqBy(
+                  [
+                    ...data.items,
+                    ...inputAccounts.filter(
+                      (item) => !day || item[`day${day > 9 ? day : "0" + day}`],
+                    ),
+                  ],
+                  "code",
+                ),
+              );
+            } else {
+              setAccountList(inputAccounts);
             }
           },
         ),
       );
     },
-    [dispatch, form, stores],
+    [dispatch, form, source, stores.length],
   );
 
   const setTableColumns = useCallback(() => {
-    const { month, year } = form.getFieldsValue();
-    const columnsTmp: any[] = [];
+    const { day, month, year } = form.getFieldsValue();
+    let columnsTmp: any[] = [];
     Array.from(
       { length: moment(`${year}-${month}`, "YYYY-M").daysInMonth() },
       (x, i) =>
@@ -122,7 +180,9 @@ function CustomerVisitors() {
       };
       columnsTmp.push(column);
     });
-
+    if (day) {
+      columnsTmp = columnsTmp.filter((item) => +item.title === day);
+    }
     setColumns((prev) => [
       ...prev,
       ...columnsTmp,
@@ -155,6 +215,22 @@ function CustomerVisitors() {
     }
     setYearList(years);
   }, [currentYear]);
+
+  useEffect(() => {
+    const { year, month } = form.getFieldsValue();
+    const yearValue = year || currentYear;
+    const monthValue = month || currentMonth;
+    const daysInMonth = Array.from(
+      { length: moment(`${yearValue}-${monthValue}`, "YYYY-M").daysInMonth() },
+      (x, i) => {
+        return `${moment(`${yearValue}-${monthValue}`, "YYYY-M")
+          .startOf("month")
+          .add(i, "days")
+          .format("DD")}`;
+      },
+    );
+    setDayList(daysInMonth);
+  }, [currentMonth, currentYear, form]);
 
   useEffect(() => {
     dispatch(
@@ -215,16 +291,35 @@ function CustomerVisitors() {
           month: monthQuery,
           year: yearQuery,
           storeIds,
-          assigneeCodes,
-          source: CustomerVisitorsType.Assignee,
+          // assigneeCodes,
+          source,
         },
       );
       if (!customerVisitors) {
-        showError("Lỗi khi lấy số lượng khách hàng đã tư vấn");
+        showError(`Lỗi khi lấy số lượng ${name}`);
         setLoadingTable(false);
         setIsFilter(false);
       }
       const dataMapper: any = [];
+      const customerVisitorsOfStore: any[] = customerVisitors
+        .filter(
+          (item) => item.assignee_code.toLocaleLowerCase() !== allStaffCode.toLocaleLowerCase(),
+        )
+        .reduce((res, item) => {
+          const existedStoreIdx = res.findIndex(
+            (storeItem: any) => storeItem.store_id === item.store_id,
+          );
+          if (existedStoreIdx === -1) {
+            res.push({ ...item, assignee_name: allStaffCode, assignee_code: allStaffCode });
+          } else {
+            Object.keys(item).forEach((key) => {
+              if (key.includes("day")) {
+                res[existedStoreIdx][key] += item[key];
+              }
+            });
+          }
+          return res;
+        }, []);
       if (assigneeCodes.length && storeIds.length === 1) {
         const storeInfo = stores.find((store) => store.id === storeIds[0]);
         assigneeCodes.forEach((assigneeCode: any) => {
@@ -265,35 +360,26 @@ function CustomerVisitors() {
             ...customerVisitorValue,
           });
         });
-        setCustomerVisitors(dataMapper);
+        setCustomerVisitors([
+          ...customerVisitorsOfStore.map((item) => {
+            return {
+              ...item,
+              storeName: storeInfo?.name,
+              code: storeInfo?.code,
+              department: storeInfo?.department,
+            };
+          }),
+          ...dataMapper,
+        ]);
         setTableColumns();
         setLoadingTable(false);
         setIsFilter(false);
         return;
       }
-      if (!assigneeCodes.length) {
-        customerVisitors = customerVisitors
-          .filter(
-            (item) => item.assignee_code.toLocaleLowerCase() !== allStaffCode.toLocaleLowerCase(),
-          )
-          .reduce((res, item) => {
-            const existedStoreIdx = res.findIndex(
-              (storeItem: any) => storeItem.store_id === item.store_id,
-            );
-            if (existedStoreIdx === -1) {
-              res.push({ ...item, assignee_name: allStaffCode, assignee_code: allStaffCode });
-            } else {
-              Object.keys(item).forEach((key) => {
-                if (key.includes("day")) {
-                  res[existedStoreIdx][key] += item[key];
-                }
-              });
-            }
-            return res;
-          }, []);
-      }
-      customerVisitors.forEach((customerVisitor: any) => {
-        const storeInfo = stores.find((store) => store.id === customerVisitor.store_id);
+
+      storeIds.forEach((storeId: any) => {
+        const storeInfo = stores.find((store) => store.id === storeId);
+        const customerVisitor = customerVisitorsOfStore.find((item) => item.store_id === storeId);
         const dayValues = Array.from(
           { length: moment(`${year}-${month}`, "YYYY-M").daysInMonth() },
           (x, i) => {
@@ -307,15 +393,28 @@ function CustomerVisitors() {
         ).reduce((result, item) => {
           return { ...result, ...item };
         }, {});
-        dataMapper.push({
-          year,
-          month,
-          ...dayValues,
-          storeName: storeInfo?.name,
-          code: storeInfo?.code,
-          department: storeInfo?.department,
-          ...customerVisitor,
-        });
+        if (!customerVisitor) {
+          dataMapper.push({
+            assignee_code: allStaffCode,
+            assignee_name: allStaffCode,
+            year,
+            month,
+            ...dayValues,
+            storeName: storeInfo?.name,
+            code: storeInfo?.code,
+            department: storeInfo?.department,
+          });
+        } else {
+          dataMapper.push({
+            year,
+            month,
+            ...dayValues,
+            storeName: storeInfo?.name,
+            code: storeInfo?.code,
+            department: storeInfo?.department,
+            ...customerVisitor,
+          });
+        }
       });
       setCustomerVisitors(dataMapper);
       setTableColumns();
@@ -331,7 +430,17 @@ function CustomerVisitors() {
     ) {
       fetchCustomerVisitors();
     }
-  }, [accountList, dispatch, form, isFilter, setTableColumns, stores, yearList.length]);
+  }, [
+    accountList,
+    dispatch,
+    form,
+    isFilter,
+    name,
+    setTableColumns,
+    source,
+    stores,
+    yearList.length,
+  ]);
 
   const onChangeStore = () => {
     getStaff();
@@ -377,9 +486,7 @@ function CustomerVisitors() {
     setLoadingTable(true);
     const { storeIds, assigneeCodes } = form.getFieldsValue();
     if (storeIds.length && !assigneeCodes.length) {
-      showError(
-        "Vui lòng chọn nhân viên bán hàng để cập nhật khách hàng đã tư vấn theo nhân từng viên bán hàng",
-      );
+      showError(`Vui lòng chọn nhân viên để cập nhật ${name} theo nhân từng viên`);
       setLoadingTable(false);
       return;
     }
@@ -391,9 +498,7 @@ function CustomerVisitors() {
           item.assignee_code.toLowerCase() === assigneeCode.toLowerCase(),
       );
     if (params && params.assignee_code.toLowerCase() === allStaffCode.toLowerCase()) {
-      showError(
-        "Vui lòng bấm lọc để tiếp tục cập nhật khách hàng đã tư vấn theo nhân viên đã chọn",
-      );
+      showError(`Vui lòng bấm lọc để tiếp tục cập nhật ${name} theo nhân viên đã chọn`);
       setLoadingTable(false);
       return;
     }
@@ -402,40 +507,48 @@ function CustomerVisitors() {
         { isShowError: true },
         dispatch,
         updateCustomerVisitors,
-        { ...params, source: CustomerVisitorsType.Assignee },
+        { ...params, source },
       );
       if (response) {
-        showSuccess("Cập nhật lượng khách hàng đã tư vấn thành công");
+        showSuccess(`Cập nhật lượng ${name} thành công`);
       } else {
-        showError("Cập nhật lượng khách hàng đã tư vấn không thành công");
+        showError(`Cập nhật lượng ${name} không thành công`);
       }
     }
     setLoadingTable(false);
     setIsFilter(true);
   };
 
-  const currentDay = document.querySelector(".current-day");
+  const onClickDay = (selectedDay: string) => {
+    const { day } = form.getFieldsValue();
+    if (+day !== +selectedDay) {
+      form.setFieldsValue({ [CustomerVisitorsFilter.Day]: +selectedDay });
+      handleFilter();
+    }
+  };
+
+  const currentDayElm = document.querySelector(".current-day");
   useLayoutEffect(() => {
-    if (currentDay) {
-      currentDay.scrollIntoView({
+    if (currentDayElm) {
+      currentDayElm.scrollIntoView({
         block: "center",
         behavior: "auto",
         inline: "center",
       });
     }
-  }, [currentDay]);
+  }, [currentDayElm]);
 
   return (
     <CustomerVisitorsStyle>
       <ContentContainer
         isLoading={loading}
-        title={"Nhập số lượng khách hàng đã tư vấn"}
+        title={title}
         breadcrumb={[
           {
             name: `Danh sách báo cáo bán lẻ`,
             path: UrlConfig.ANALYTIC_SALES_OFFLINE,
           },
-          { name: "Nhập số lượng khách hàng đã tư vấn" },
+          { name: title },
         ]}
       >
         <Form
@@ -467,7 +580,7 @@ function CustomerVisitors() {
                 className="input-width filter-item"
               >
                 <Select
-                  placeholder="Chọn nhân viên bán hàng"
+                  placeholder={`Chọn ${employee}`}
                   mode="multiple"
                   maxTagCount="responsive"
                   allowClear
@@ -491,11 +604,18 @@ function CustomerVisitors() {
                   })}
                 </Select>
               </Form.Item>
-              <Form.Item
-                name={CustomerVisitorsFilter.Month}
-                className="input-width filter-item"
-                help={false}
-              >
+              <Form.Item name={CustomerVisitorsFilter.Day} className="filter-item" help={false}>
+                <Select placeholder="Chọn ngày" allowClear onChange={() => onSelectDay()}>
+                  {dayList.map((day) => {
+                    return (
+                      <Select.Option key={day} value={+day}>
+                        Ngày {day}
+                      </Select.Option>
+                    );
+                  })}
+                </Select>
+              </Form.Item>
+              <Form.Item name={CustomerVisitorsFilter.Month} className="filter-item" help={false}>
                 <Select placeholder="Chọn tháng">
                   {["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"].map(
                     (month) => {
@@ -508,11 +628,7 @@ function CustomerVisitors() {
                   )}
                 </Select>
               </Form.Item>
-              <Form.Item
-                name={CustomerVisitorsFilter.Year}
-                className="input-width filter-item"
-                help={false}
-              >
+              <Form.Item name={CustomerVisitorsFilter.Year} className="filter-item" help={false}>
                 <Select placeholder="Chọn năm">
                   {yearList.map((year) => {
                     return (
@@ -531,15 +647,11 @@ function CustomerVisitors() {
             </div>
             <div className="pb-2">
               <em className="text-primary">
-                Lưu ý: Chỉ được chọn 1 cửa hàng khi muốn nhập khách hàng đã tư vấn theo từng nhân
-                viên
+                Lưu ý: Chỉ được chọn 1 cửa hàng khi muốn nhập {name} theo từng nhân viên
               </em>
             </div>
           </Card>
-          <Card
-            title="Bảng số lượng khách hàng đến các cửa hàng"
-            headStyle={{ padding: "8px 20px" }}
-          >
+          <Card title={`Bảng số lượng ${tableTitle}`} headStyle={{ padding: "8px 20px" }}>
             {customerVisitors && (
               <Table
                 dataSource={customerVisitors}
@@ -567,7 +679,14 @@ function CustomerVisitors() {
                               : item.title
                           }
                         >
-                          <span className={item.isToday ? "text-primary" : ""}>{item.title}</span>
+                          <span
+                            className={
+                              item.isToday ? "text-primary cursor-pointer" : "cursor-pointer"
+                            }
+                            onClick={() => onClickDay(item.title)}
+                          >
+                            {item.title}
+                          </span>
                         </Tooltip>
                       }
                       fixed={
