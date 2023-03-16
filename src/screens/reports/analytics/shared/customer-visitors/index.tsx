@@ -63,11 +63,10 @@ function CustomerVisitors(props: CustomerVisitorsProps) {
 
   const currentYear = moment().year();
   const currentMonth = moment().month() + 1;
-  const currentDay = moment().date();
   const startYear = 2018;
   const initialFilterValues = {
     [CustomerVisitorsFilter.StoreIds]: [],
-    [CustomerVisitorsFilter.Day]: currentDay,
+    [CustomerVisitorsFilter.Day]: null,
     [CustomerVisitorsFilter.Month]: currentMonth,
     [CustomerVisitorsFilter.Year]: currentYear,
     [CustomerVisitorsFilter.AssigneeCodes]: [],
@@ -80,7 +79,7 @@ function CustomerVisitors(props: CustomerVisitorsProps) {
       _.uniqBy(
         [
           ...employeeList,
-          ...spEmployeeList.filter((item) => item[`day${day > 9 ? day : "0" + day}`]),
+          ...spEmployeeList.filter((item) => !day || item[`day${day > 9 ? day : "0" + day}`]),
         ],
         "code",
       ),
@@ -145,7 +144,9 @@ function CustomerVisitors(props: CustomerVisitorsProps) {
                 _.uniqBy(
                   [
                     ...data.items,
-                    ...inputAccounts.filter((item) => item[`day${day > 9 ? day : "0" + day}`]),
+                    ...inputAccounts.filter(
+                      (item) => !day || item[`day${day > 9 ? day : "0" + day}`],
+                    ),
                   ],
                   "code",
                 ),
@@ -290,7 +291,7 @@ function CustomerVisitors(props: CustomerVisitorsProps) {
           month: monthQuery,
           year: yearQuery,
           storeIds,
-          assigneeCodes,
+          // assigneeCodes,
           source,
         },
       );
