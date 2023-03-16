@@ -316,7 +316,6 @@ const BarcodeProductScreen: React.FC = () => {
                 className="button-pick-many"
                 icon={<BiAddToQueue />}
                 onClick={() => setIsShowModalPickManyProduct(true)}
-                style={{ width: 132, marginLeft: 10 }}
               >
                 Chọn nhiều
               </Button>

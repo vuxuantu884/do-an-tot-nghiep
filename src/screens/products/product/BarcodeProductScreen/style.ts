@@ -13,11 +13,15 @@ export const StyledComponent = styled.div`
     background-color: white;
     color: #222222;
     border: 1px solid ${borderColor};
+    margin-left: 10px;
   }
   .avatar {
     width: 45px;
     height: 45px;
     border-radius: 3px;
     object-fit: cover;
+  }
+  .display-flex {
+    display: flex;
   }
 `;
