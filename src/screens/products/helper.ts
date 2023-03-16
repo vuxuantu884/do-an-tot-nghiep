@@ -79,6 +79,11 @@ enum ProductHistoryDocumentTypes {
   OTHER_STOCK_IN_OUT = "other_stock_in_out",
 }
 
+enum ProductStatusEnum {
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+}
+
 const DOCUMENT_TYPES = [
   {
     name: "Nhà cung cấp",
@@ -804,6 +809,7 @@ export {
   ImportResponseStatuses,
   EInventoryStatus,
   ProductHistoryDocumentTypes,
+  ProductStatusEnum,
   getArrCategory,
   convertCategory,
   formatCurrencyForProduct,

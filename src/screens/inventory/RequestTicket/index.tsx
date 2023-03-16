@@ -1,9 +1,8 @@
 import React, { createRef, FC, useCallback, useEffect, useMemo, useState } from "react";
 import "./index.scss";
-import UrlConfig from "config/url.config";
+import UrlConfig, {BASE_NAME_ROUTER} from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import {
-  AutoComplete,
   Button,
   Card,
   Col,
@@ -61,6 +60,8 @@ import { strForSearch } from "utils/StringUtils";
 import { searchVariantsApi } from "service/product/product.service";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import CustomAutoComplete from "component/custom/autocomplete.cusom";
+import debounce from "lodash/debounce";
 import { MAXIMUM_QUANTITY_LENGTH, MINIMUM_QUANTITY } from "../helper";
 
 const { Option } = Select;
@@ -89,7 +90,6 @@ const RequestTicket: FC = () => {
 
   const [fromStoreData, setFormStoreData] = useState<Store>();
   const [toStoreData, setToStoreData] = useState<Store>();
-  const [keySearch, setKeySearch] = useState<string>("");
   const productAutoCompleteRef = createRef<RefSelectProps>();
 
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
@@ -193,6 +193,10 @@ const RequestTicket: FC = () => {
 
   const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse> | any>();
 
+  const onSearchProductDebounce = debounce((key: string) => {
+    onSearchProduct(key);
+  }, 300);
+
   const onSearchProduct = useCallback(
     (value: string) => {
       if (value.trim() !== "" && value.length >= 3) {
@@ -227,23 +231,18 @@ const RequestTicket: FC = () => {
     return options;
   }, [resultSearch]);
 
-  const onSearch = useCallback(
+  const selectProduct = useCallback(
     (value: string) => {
-      setKeySearch(value);
-    },
-    [setKeySearch],
-  );
-
-  const onSelectProduct = useCallback(
-    (value: string, item: VariantResponse) => {
       let dataTemp = [...dataTable];
-      let selectedItem = item;
+      const selectedItem = resultSearch?.items?.find(
+          (variant: VariantResponse) => variant.id.toString() === value,
+      );
 
       if (!dataTemp.some((variant: VariantResponse) => variant.sku === selectedItem?.sku)) {
         setDataTable((prev: any) => prev.concat([{ ...selectedItem, transfer_quantity: 1 }]));
         dataTemp = [...[{ ...selectedItem, transfer_quantity: 1 }], ...dataTemp];
       } else {
-        const indexItem = dataTemp.findIndex((e) => e.sku === item.sku);
+        const indexItem = dataTemp.findIndex((e) => e.id.toString() === value);
 
         dataTemp[indexItem].transfer_quantity += 1;
       }
@@ -252,7 +251,7 @@ const RequestTicket: FC = () => {
 
       form.setFieldsValue({ [VARIANTS_FIELD]: dataTemp });
     },
-    [dataTable, form],
+    [dataTable, form, resultSearch],
   );
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
@@ -416,22 +415,18 @@ const RequestTicket: FC = () => {
   const onFinish = (data: StockTransferSubmit) => {
     stores.forEach((store) => {
       if (store?.id === Number(data?.from_store_id)) {
-        data.store_transfer = {
-          store_id: store?.id,
-          hotline: store?.hotline,
-          address: store?.address,
-          name: store?.name,
-          code: store?.code,
-        };
+        data.from_store_id = store?.id;
+        data.from_store_phone = store?.hotline;
+        data.from_store_address = store?.address;
+        data.from_store_code = store?.code;
+        data.from_store_name = store?.name;
       }
       if (store?.id === Number(data?.to_store_id)) {
-        data.store_receive = {
-          store_id: store?.id,
-          hotline: store?.hotline,
-          address: store?.address,
-          name: store?.name,
-          code: store?.code,
-        };
+        data.to_store_id = store?.id;
+        data.to_store_phone = store?.hotline;
+        data.to_store_address = store?.address;
+        data.to_store_code = store?.code;
+        data.to_store_name = store?.name;
       }
     });
 
@@ -493,21 +488,20 @@ const RequestTicket: FC = () => {
       barCode = "";
 
       if (keyCode === "Enter" && code) {
-        setKeySearch("");
         let res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, {
           barcode: code,
         });
-        if (res && res.items && res.items.length > 0) {
-          onSelectProduct(res.items[0].id.toString(), res.items[0]);
+        if (res && res.items && Array.isArray(res.items) && res.items.length > 0) {
+          selectProduct(res.items[0].id.toString());
         }
       } else {
-        const txtSearchProductElement: any = document.getElementById("product_search_variant");
+        const txtSearchProductElement = document.getElementById("product_search_variant") as HTMLInputElement;
 
         onSearchProduct(txtSearchProductElement?.value);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, onSelectProduct, onSearchProduct, form],
+    [dispatch, selectProduct, onSearchProduct, form],
   );
 
   const eventKeyPress = useCallback(
@@ -545,13 +539,6 @@ const RequestTicket: FC = () => {
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [handleSearchProduct],
-  );
-
-  const onSelect = useCallback(
-    (o, obj) => {
-      onSelectProduct(o, obj.label.props.data);
-    },
-    [onSelectProduct],
   );
 
   useEffect(() => {
@@ -779,10 +766,16 @@ const RequestTicket: FC = () => {
                       }}
                     >
                       {Array.isArray(myStores) &&
-                        myStores.length > 0 &&
+                      myStores.length > 0 ?
                         myStores.map((item, index) => (
-                          <Option key={"to_store_id" + index} value={item.store_id.toString()}>
+                          <Option key={"to_store_id" + index} value={item.store_id ? item.store_id.toString() : ''}>
                             {item.store}
+                          </Option>
+                        )) : Array.isArray(stores) &&
+                        stores.length > 0 &&
+                        stores.map((item, index) => (
+                          <Option key={"to_store_id" + index} value={item.id.toString()}>
+                            {item.name}
                           </Option>
                         ))}
                     </Select>
@@ -800,50 +793,32 @@ const RequestTicket: FC = () => {
 
             <Card title="THÔNG TIN SẢN PHẨM" bordered={false}>
               <div>
-                <Input.Group>
-                  <Row gutter={12}>
-                    <Col flex="auto">
-                      <AutoComplete
-                        notFoundContent={
-                          keySearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
-                        }
-                        value={keySearch}
-                        ref={productAutoCompleteRef}
-                        onSelect={onSelect}
-                        style={{ width: "100%" }}
-                        dropdownClassName="product dropdown-search-header"
-                        dropdownMatchSelectWidth={635}
-                        className="w-100 searchProductId"
-                        onSearch={onSearch}
-                        options={renderResult}
-                        defaultActiveFirstOption
-                        onBlur={() => {
-                          setResultSearch([]);
-                          setKeySearch("");
-                        }}
-                        id="product_search_variant"
-                      >
-                        <Input
-                          size="middle"
-                          className="yody-search"
-                          placeholder="Tìm kiếm Mã vạch, Mã sản phẩm, Tên sản phẩm"
-                          prefix={<i className="icon-search icon" />}
-                          ref={productSearchRef}
-                        />
-                      </AutoComplete>
-                    </Col>
-
-                    <Col flex="120px">
-                      <Button
-                        onClick={() => {
-                          setVisibleManyProduct(true);
-                        }}
-                        icon={<img src={PlusOutline} alt="" />}
-                      >
-                        &nbsp;&nbsp; Chọn nhiều
-                      </Button>
-                    </Col>
-                  </Row>
+                <Input.Group className="display-flex">
+                  <CustomAutoComplete
+                    id="#product_search_variant"
+                    dropdownClassName="product"
+                    placeholder="Tìm kiếm Mã vạch, Mã sản phẩm, Tên sản phẩm"
+                    onSearch={(key: string) => onSearchProductDebounce(key)}
+                    dropdownMatchSelectWidth={456}
+                    style={{ width: "100%" }}
+                    showAdd={true}
+                    textAdd="Thêm mới sản phẩm"
+                    onSelect={selectProduct}
+                    options={renderResult}
+                    ref={productSearchRef}
+                    onClickAddNew={() => {
+                      window.open(`${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`, "_blank");
+                    }}
+                  />
+                  <Button
+                    onClick={() => {
+                      setVisibleManyProduct(true);
+                    }}
+                    style={{ width: 132, marginLeft: 10 }}
+                    icon={<img src={PlusOutline} alt="" />}
+                  >
+                    &nbsp;&nbsp; Chọn nhiều
+                  </Button>
                 </Input.Group>
                 <Table
                   scroll={{ x: "max-content" }}
@@ -907,7 +882,7 @@ const RequestTicket: FC = () => {
           }
           rightComponent={
             <Space>
-              <Button loading={isLoading} disabled={isLoading} htmlType={"submit"} type="primary">
+              <Button onKeyDown={(e)=> e.key === "Enter" ? e.preventDefault(): ''} loading={isLoading} disabled={isLoading} htmlType={"submit"} type="primary">
                 Tạo yêu cầu
               </Button>
             </Space>

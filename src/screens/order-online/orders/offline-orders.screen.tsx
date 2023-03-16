@@ -66,6 +66,7 @@ function PosOrders(props: PropTypes) {
     coordinator_codes: [],
     marketer_codes: [],
     assignee_codes: [],
+    order_carer_codes: [],
     price_min: undefined,
     price_max: undefined,
     payment_method_ids: [],
@@ -81,6 +82,7 @@ function PosOrders(props: PropTypes) {
     services: [],
     channel_codes: [],
     discount_codes: [],
+    special_types: [],
   };
 
   return (

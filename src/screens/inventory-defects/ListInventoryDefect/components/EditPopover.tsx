@@ -1,5 +1,5 @@
 import { EditOutlined } from "@ant-design/icons";
-import { Button, Input, Popover } from "antd";
+import { Button, Form, Input, Popover } from "antd";
 import React, { useState } from "react";
 
 type EditPopoverProps = {
@@ -11,8 +11,11 @@ type EditPopoverProps = {
   onOk: (newContent: string) => void;
   label?: string;
   isRequire?: boolean;
+  isHideContent?: boolean;
+  maxLength?: number;
 };
 const EditPopover: React.FC<EditPopoverProps> = (props: EditPopoverProps) => {
+  const [form] = Form.useForm();
   const {
     content,
     title,
@@ -21,6 +24,8 @@ const EditPopover: React.FC<EditPopoverProps> = (props: EditPopoverProps) => {
     label,
     isHaveEditPermission = true,
     isRequire,
+    isHideContent = false,
+    maxLength
   } = props;
   const [visible, setVisible] = useState(false);
   const [newContent, setNewContent] = useState(content);
@@ -31,17 +36,37 @@ const EditPopover: React.FC<EditPopoverProps> = (props: EditPopoverProps) => {
   const onChangeContent = (e: any) => {
     setNewContent(e.target.value);
   };
+
   return (
     <div className="wrapper">
       <Popover
         content={
-          <div>
-            <Input.TextArea
-              value={newContent}
-              onChange={(e) => onChangeContent(e)}
-              style={{ width: 300 }}
-              disabled={isDisable}
-            />
+          <Form
+            initialValues={{
+              note: newContent
+            }}
+            form={form}
+            onFinish={() => {
+              onOk(newContent);
+              setVisible(false);
+              isRequire && !newContent && setNewContent(content);
+            }}
+          >
+            <Form.Item
+              name="note"
+              rules={[
+                {
+                  max: maxLength, message: `Không được nhập quá ${maxLength} ký tự`
+                },
+              ]}
+            >
+              <Input.TextArea
+                value={newContent}
+                onChange={(e) => onChangeContent(e)}
+                style={{ width: 300 }}
+                disabled={isDisable}
+              />
+            </Form.Item>
             <div
               style={{
                 marginTop: 10,
@@ -50,13 +75,9 @@ const EditPopover: React.FC<EditPopoverProps> = (props: EditPopoverProps) => {
               }}
             >
               <Button
+                htmlType="submit"
                 type="primary"
                 style={{ marginRight: 10 }}
-                onClick={() => {
-                  onOk(newContent);
-                  setVisible(false);
-                  isRequire && !newContent && setNewContent(content);
-                }}
                 disabled={isDisable}
               >
                 Lưu
@@ -70,7 +91,7 @@ const EditPopover: React.FC<EditPopoverProps> = (props: EditPopoverProps) => {
                 Huỷ
               </Button>
             </div>
-          </div>
+          </Form>
         }
         title={title ?? "Sửa ghi chú"}
         trigger="click"
@@ -86,7 +107,9 @@ const EditPopover: React.FC<EditPopoverProps> = (props: EditPopoverProps) => {
       </Popover>
       <span>
         {label && <strong>{label}</strong>}
-        <span className="noteText">{content}</span>
+        {!isHideContent && (
+          <span className="noteText">{content}</span>
+        )}
       </span>
     </div>
   );

@@ -44,7 +44,7 @@ export const LoginWeb = (props: IProps) => {
               <img style={{ marginRight: 5 }} src={hotlineCBIcon} alt="hotlineCB" />
               <span className="hotline-group">
                 <span style={{ marginBottom: "-3px", color: "#595959" }}> {"C&B - Hotline"}</span>
-                <Tooltip title="Click để gọi Mai C&B" color="blue" placement="bottom">
+                <Tooltip title="Click để gọi Vân Anh C&B" color="blue" placement="bottom">
                   <span className="phone-number" onClick={callHotlineCBSupport}>
                     {hotlineCBNumber}
                   </span>
@@ -56,7 +56,10 @@ export const LoginWeb = (props: IProps) => {
             <div className="hotline-info">
               <img style={{ marginRight: 5 }} src={hotlineIcon} alt="hotline" />
               <span className="hotline-group">
-                <span style={{ marginBottom: "-3px", color: "#595959" }}> {"Hotline hỗ trợ: "}</span>
+                <span style={{ marginBottom: "-3px", color: "#595959" }}>
+                  {" "}
+                  {"Hotline hỗ trợ: "}
+                </span>
                 <Tooltip title="Click để gọi hỗ trợ" color="blue" placement="bottom">
                   <span className="phone-number" onClick={callHotlineSupport}>
                     {hotlineNumber}
@@ -66,9 +69,17 @@ export const LoginWeb = (props: IProps) => {
             </div>
           </Col>
           <Col span={8}>
-            <a style={{ color: "#595959" }} className="hotline-info" href="https://www.gapowork.vn/group/unicorn" target="_bank">
+            <a
+              style={{ color: "#595959" }}
+              className="hotline-info"
+              href="https://www.gapowork.vn/group/unicorn"
+              target="_bank"
+            >
               <img style={{ marginRight: 5 }} src={gapoIcon} alt="gapo" />
-              <span> {"Nhóm hỗ trợ "} <span style={{ fontWeight: 600 }}>Gapo</span></span>
+              <span>
+                {" "}
+                {"Nhóm hỗ trợ "} <span style={{ fontWeight: 600 }}>Gapo</span>
+              </span>
             </a>
           </Col>
         </Row>

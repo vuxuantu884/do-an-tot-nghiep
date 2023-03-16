@@ -39,6 +39,10 @@ const Login = () => {
   );
   if (isLogin) {
     let url = query.get("returnUrl");
+    if (url?.startsWith("http://") || url?.startsWith("https://")) {
+      window.location.href = url;
+      return null;
+    }
     return <Redirect to={url !== null ? url : UrlConfig.HOME} />;
   }
   window.onresize = () => {
@@ -63,7 +67,12 @@ const Login = () => {
           loading={loading}
         />
       ) : (
-        <LoginWeb callHotlineCBSupport={callHotlineCBSupport} callHotlineSupport={callHotlineSupport} onFinish={onFinish} loading={loading} />
+        <LoginWeb
+          callHotlineCBSupport={callHotlineCBSupport}
+          callHotlineSupport={callHotlineSupport}
+          onFinish={onFinish}
+          loading={loading}
+        />
       )}
     </>
   );

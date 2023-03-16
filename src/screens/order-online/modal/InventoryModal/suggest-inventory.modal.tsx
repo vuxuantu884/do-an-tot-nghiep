@@ -1,5 +1,5 @@
 import { SearchOutlined } from "@ant-design/icons";
-import { Button, Col, Input, Modal, Radio, Row, Spin } from "antd";
+import { Button, Col, Input, Modal, Row, Spin } from "antd";
 import { StoreResponse } from "model/core/store.model";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useEffect, useState } from "react";
@@ -11,6 +11,7 @@ import { fullTextSearch } from "utils/StringUtils";
 type SuggestInventoryModalProps = {
   visible: boolean;
   setVisible: (item: boolean) => void;
+  setVisibleOrderSplitModal?: (item: boolean) => void;
   storeId: number | null;
   onChangeStore: (item: number) => void;
   columnsItem?: Array<OrderLineItemRequest>;
@@ -23,12 +24,20 @@ type SuggestInventoryModalProps = {
 const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
   props: SuggestInventoryModalProps,
 ) => {
-  const { visible, columnsItem, inventoryArray, storeId, onChangeStore, setVisible, handleCancel } =
-    props;
+  const {
+    visible,
+    columnsItem,
+    inventoryArray,
+    storeId,
+    onChangeStore,
+    setVisible,
+    setVisibleOrderSplitModal,
+    handleCancel,
+  } = props;
 
   const rowHeight = 45;
 
-  const [storeData, setStoreData] = useState<any[] | null>([]);
+  const [storeData, setStoreData] = useState<any[] | null | undefined>([]);
 
   const [rowProductHeight, setRowProductHeight] = useState(rowHeight);
 
@@ -54,8 +63,31 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
   );
 
   useEffect(() => {
-    setStoreData(inventoryArray);
-  }, [inventoryArray, storeId]);
+    const inventoryArrayCheckItemSuccess: any[] | null | undefined = inventoryArray?.map(
+      (item: any) => {
+        let itemsSuccessFull = true;
+        columnsItem?.forEach((_itemi: any) => {
+          let variantDetails = item.variant_inventories.find(
+            (i: any) => i.variant_id === _itemi.variant_id,
+          );
+          if (!variantDetails || !variantDetails.available) {
+            variantDetails = {
+              ...variantDetails,
+              available: 0,
+            };
+          }
+          if (variantDetails.available < _itemi.quantity) {
+            itemsSuccessFull = false;
+          }
+        });
+        return {
+          ...item,
+          successFull: itemsSuccessFull,
+        };
+      },
+    );
+    setStoreData(inventoryArrayCheckItemSuccess);
+  }, [columnsItem, inventoryArray, storeId]);
 
   const element = document.getElementById("stickyRowProduct");
 
@@ -86,13 +118,17 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
       }
       visible={visible}
       centered
-      okText="Chọn kho"
+      okText="Tách đơn"
       cancelText="Thoát"
       width={900}
+      onOk={() => {
+        setVisible(false);
+        setVisibleOrderSplitModal && setVisibleOrderSplitModal(true);
+      }}
       onCancel={handleCancel}
       className="inventory-modal"
       closable={false}
-      okButtonProps={{ hidden: true }}
+      okButtonProps={{ hidden: setVisibleOrderSplitModal ? false : true }}
     >
       <StyledComponent>
         <Spin spinning={props.isLoading} tip="đang tải dữ liệu ...">
@@ -155,7 +191,9 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
                           className={storeId === item.store_id ? "condition active" : "condition"}
                           key={index}
                         >
-                          {item.store}{" "}
+                          <span style={item.successFull ? { color: successColor } : {}}>
+                            {item.store}{" "}
+                          </span>
                           <span style={{ color: dangerColor }}>
                             {index === 0 ? " - Kho gợi ý" : ""}
                           </span>

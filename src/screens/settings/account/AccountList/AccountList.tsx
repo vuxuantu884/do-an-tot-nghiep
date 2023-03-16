@@ -388,7 +388,6 @@ const ListAccountScreen: React.FC = () => {
           visible={showSettingColumn}
           onCancel={() => setShowSettingColumn(false)}
           onOk={(data) => {
-            console.log(data);
             setShowSettingColumn(false);
             setColumns(data);
           }}

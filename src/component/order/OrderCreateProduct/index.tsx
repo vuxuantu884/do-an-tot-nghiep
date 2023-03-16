@@ -114,6 +114,7 @@ import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import {
   checkIfECommerceByOrderChannelCode,
   checkIfECommerceByOrderChannelCodeUpdateOrder,
+  checkIfOrderSplit,
   compareProducts,
   getLineItemCalculationMoney,
   getPositionLineItem,
@@ -132,6 +133,7 @@ import DiscountGroup from "screens/order-online/component/discount-group";
 import { DiscountUnitType } from "screens/promotion/constants";
 import { getSuggestStoreInventory } from "service/core/store.service";
 import SuggestInventoryModal from "screens/order-online/modal/InventoryModal/suggest-inventory.modal";
+import OrderSplitModal from "screens/order-online/modal/OrderSplitModal";
 
 type PropTypes = {
   storeId: number | null;
@@ -287,9 +289,6 @@ function OrderCreateProduct(props: PropTypes) {
     handleApplyDiscountItemCallback,
   } = props;
 
-  console.log("items666", items);
-
-  // console.log('promotion', promotion)
   const orderCustomer = useSelector(
     (state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer,
   );
@@ -323,7 +322,6 @@ function OrderCreateProduct(props: PropTypes) {
     props.isCreateReturn,
     props.isSpecialOrderEcommerce?.isEcommerce,
   ]);
-  console.log("isCustomOriginalHandmadeDiscount", isCustomOriginalHandmadeDiscount);
 
   const discountRequestModel: DiscountRequestModel = {
     order_id: orderDetail?.id || null,
@@ -383,9 +381,9 @@ function OrderCreateProduct(props: PropTypes) {
   const [storeArrayResponse, setStoreArrayResponse] = useState<Array<StoreResponse> | null>([]);
   // const [discountOrder, setDiscounts] = useState<SuggestDiscountResponseModel[]>([]);
   const [inventoryResponse, setInventoryResponse] = useState<Array<any> | null>(null);
-  console.log("storeArrayResponse", storeArrayResponse, inventoryResponse);
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+  const [visibleOrderSplitModal, setVisibleOrderSplitModal] = useState<boolean>(false);
 
   const discountRate = promotion?.rate || 0;
   const discountValue = promotion?.value || 0;
@@ -445,7 +443,6 @@ function OrderCreateProduct(props: PropTypes) {
               if (splitLine || index === -1) {
                 _items.unshift(item);
                 if (!isAutomaticDiscount && !coupon) {
-                  console.log("calculatesChangeMoney 4");
                   calculateChangeMoney(_items);
                 }
               } else {
@@ -457,7 +454,6 @@ function OrderCreateProduct(props: PropTypes) {
                   variantItems[firstIndex].discount_items[0]?.amount *
                     variantItems[firstIndex].quantity;
                 if (!isAutomaticDiscount && !coupon) {
-                  console.log("calculatesChangeMoney 1");
                   calculateChangeMoney(_items);
                 }
               }
@@ -480,7 +476,6 @@ function OrderCreateProduct(props: PropTypes) {
             } else if (isOrderSemiAutomatic) {
               handUpdateDiscountWhenChangingOrderInformation(_items);
             } else if (isAutomaticDiscount) {
-              console.log("isLineItemSemiAutomatic 2222");
               handleApplyDiscount(_items);
             }
             setIsInputSearchProductFocus(false);
@@ -625,7 +620,6 @@ function OrderCreateProduct(props: PropTypes) {
           if (isShouldAutomaticDiscount) {
             handleApplyDiscount(_items);
           } else {
-            console.log("calculatesChangeMoney 6");
             calculateChangeMoney(_items);
           }
         },
@@ -641,7 +635,6 @@ function OrderCreateProduct(props: PropTypes) {
     //   );
     // }
     else {
-      console.log("calculatesChangeMoney 7");
       handleDelayActionWhenInsertTextInSearchInput(
         inputRef,
         () => calculateChangeMoney(_items),
@@ -665,9 +658,7 @@ function OrderCreateProduct(props: PropTypes) {
       !isAutomaticDiscount && _items.some((p) => p.discount_items[0]?.promotion_id); // xác định là không có ck tự động, nhưng có ck line item
     const isNotAutomaticIsOrderSemiAutomatic = !isAutomaticDiscount && promotion?.promotion_id; // xác định là không có ck tự động, nhưng có ck đơn hàng
 
-    console.log("handleChangeInputLineItem", isLineItemSemiAutomatic, isOrderSemiAutomatic);
     if (isLineItemSemiAutomatic || isNotAutomaticIsLineItemSemiAutomatic) {
-      console.log("là chiết khấu line item", index);
       handleDelayActionWhenInsertTextInSearchInput(
         lineItemQuantityInputTimeoutRef,
         async () => {
@@ -687,7 +678,6 @@ function OrderCreateProduct(props: PropTypes) {
           if (!isCustomOriginalHandmadeDiscount) {
             setIsLineItemChanging(true);
             checkValidOrderSuitableDiscount(_items);
-            console.log("là chiết khấu đơn hàng");
           } else {
             calculateChangeMoney(_items);
           }
@@ -695,14 +685,12 @@ function OrderCreateProduct(props: PropTypes) {
         QUANTITY_DELAY_TIME,
       );
     } else {
-      console.log("là chiết khấu tự động");
       handleDelayActionWhenInsertTextInSearchInput(
         lineItemQuantityInputTimeoutRef,
         () => {
           if (isAutomaticDiscount) {
             handleApplyDiscount(_items);
           } else {
-            console.log("calculatesChangeMoney 6");
             calculateChangeMoney(_items);
           }
         },
@@ -793,7 +781,6 @@ function OrderCreateProduct(props: PropTypes) {
     width: "34%",
     className: "yody-pos-name 2",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
-      console.log("OrderLineItemRequest Column", l);
       return (
         <div className="w-100 columnBody__product">
           <div className="d-flex align-items-center">
@@ -868,7 +855,6 @@ function OrderCreateProduct(props: PropTypes) {
       );
     },
   };
-  // console.log('isLineItemChanging', isLineItemChanging)
   const checkIfOtherLineItemIsChanged = () => {
     if (isLineItemChanging) {
       return true;
@@ -891,7 +877,6 @@ function OrderCreateProduct(props: PropTypes) {
     width: "9%",
     align: "right",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
-      // console.log('lgg', l)
       return (
         <div className="yody-pos-qtt columnBody__amount">
           <NumberInput
@@ -1011,7 +996,6 @@ function OrderCreateProduct(props: PropTypes) {
       // const initItemSuggestDiscountResult = initItemSuggestDiscounts?.filter((single) => {
       //   return single.price * single.quantity <= l.quantity * l.price;
       // });
-      console.log("itemss111", l);
 
       const initItemSuggestDiscountResult = initItemSuggestDiscounts;
 
@@ -1044,8 +1028,6 @@ function OrderCreateProduct(props: PropTypes) {
               if (!items) return;
               let _items = [...items];
               _items[index] = _item;
-              console.log("discount search item ", _item);
-              console.log("discount search item ", _items);
               calculateChangeMoney(_items);
               handleApplyDiscountItemCallback && handleApplyDiscountItemCallback(_item);
             }}
@@ -1093,8 +1075,6 @@ function OrderCreateProduct(props: PropTypes) {
               if (!items) return;
               let _items = [...items];
               _items[index] = _item;
-              console.log("discount search item ", _item);
-              console.log("discount search item ", _items);
               calculateChangeMoney(_items);
               handleApplyDiscountItemCallback && handleApplyDiscountItemCallback(_item);
             }}
@@ -1282,7 +1262,6 @@ function OrderCreateProduct(props: PropTypes) {
       });
     }
     _items.splice(index, 1);
-    console.log("onDeleteItem", _items);
     if (_items.length === 0) {
       calculateChangeMoney(_items, null);
     } else {
@@ -1323,7 +1302,6 @@ function OrderCreateProduct(props: PropTypes) {
         ? DISCOUNT_TYPE.MONEY
         : DISCOUNT_TYPE.MONEY;
 
-    console.log("discountType 12321", discountType);
     const discountItem: OrderItemDiscountRequest = {
       ..._item.discount_items[0],
       rate,
@@ -1397,7 +1375,6 @@ function OrderCreateProduct(props: PropTypes) {
 
       result = result.concat(discountMulti);
     }
-    console.log("suggested_discounts automatic", result, items);
     return result;
   };
 
@@ -1580,8 +1557,6 @@ function OrderCreateProduct(props: PropTypes) {
             return getLineItemCalculationMoney(single);
           });
 
-          console.log("handleApplyDiscount newItem", newItem);
-
           if (response.data.line_items.length > 0) {
             if (
               isOrderHasDiscountLineItems(response.data) &&
@@ -1591,7 +1566,6 @@ function OrderCreateProduct(props: PropTypes) {
               let totalDiscountOrder = getTotalDiscountOrder(response.data, newItem);
               if (totalDiscountLineItems >= totalDiscountOrder) {
                 let result = getApplyDiscountLineItem(response, newItem);
-                console.log("calculatesChangeMoney 9");
                 calculateChangeMoney(result, null);
               } else {
                 // let itemsAfterRemove = items.map((single) => {
@@ -1602,35 +1576,18 @@ function OrderCreateProduct(props: PropTypes) {
                 if (promotionResult) {
                   setPromotionTitle(promotionResult.reason || "");
                 }
-                console.log("calculatesChangeMoney 10");
                 calculateChangeMoney(newItem, promotionResult);
               }
             } else if (isOrderHasDiscountLineItems(response.data)) {
               let result = getApplyDiscountLineItem(response, newItem);
-              console.log("calculatesChangeMoney 11");
               calculateChangeMoney(result, null);
             } else if (isOrderHasDiscountOrder(response.data)) {
-              // let itemsAfterRemove = items.map((single) => {
-              //   single.discount_items = [];
-              //   return single;
-              // });
               let promotionResult = handleApplyDiscountOrder(response, newItem);
               if (promotionResult) {
-                // form.setFieldsValue({
-                //   note: `(${promotionResult.reason})`,
-                // });
                 setPromotionTitle(promotionResult.reason || "");
               }
-              console.log("calculatesChangeMoney 12");
               calculateChangeMoney(items, promotionResult);
             } else {
-              // let itemsAfterRemoveAutomaticDiscount = items.map((single) => {
-              //   //removeAutomaticDiscountItem(single);
-              //   single.discount_items = [];
-              //   return single;
-              // });
-              // handleApplyDiscountOrder(response, newItem);
-              console.log("calculatesChangeMoney 13");
               calculateChangeMoney(newItem, null);
               if (isShouldUpdatePrivateNote) {
                 // form.setFieldsValue({
@@ -1643,17 +1600,14 @@ function OrderCreateProduct(props: PropTypes) {
             setPromotionTitle("");
             setPromotion && setPromotion(null);
             // showError("Có lỗi khi áp dụng chiết khấu!");
-            console.log("calculatesChangeMoney 14");
             calculateChangeMoney(items);
           }
         } else {
-          console.log("calculatesChangeMoney 15");
           calculateChangeMoney(items);
           handleFetchApiError(response, "Áp dụng chiết khấu", dispatch);
         }
       })
       .catch((error) => {
-        console.log("error", error);
         showError("Cập nhật chiết khấu tự động thất bại!");
       })
       .finally(() => {
@@ -1713,7 +1667,6 @@ function OrderCreateProduct(props: PropTypes) {
               }
               setCoupon && setCoupon("");
               setItems(_items);
-              console.log("calculatesChangeMoney 16");
               calculateChangeMoney(_items);
               setPromotion && setPromotion(null);
             } else {
@@ -1832,7 +1785,6 @@ function OrderCreateProduct(props: PropTypes) {
                       removeAutomaticDiscountItem(singleItem);
                     }
                   });
-                  console.log("calculatesChangeMoney 17");
                   calculateChangeMoney(_items);
                   setPromotion &&
                     setPromotion({
@@ -1851,18 +1803,14 @@ function OrderCreateProduct(props: PropTypes) {
                 // });
               }
               setPromotionTitle(`(${applyDiscountResponse.code}-${applyDiscountResponse.title})`);
-              console.log("calculatesChangeMoney 18");
               calculateChangeMoney(_items, promotionResult);
             }
           } else {
-            console.log("calculatesChangeMoney 19");
             calculateChangeMoney(_items);
             handleFetchApiError(response, "Áp dụng chiết khấu", dispatch);
           }
         })
         .catch((error) => {
-          console.log("error", error);
-          console.log("calculatesChangeMoney 20");
           calculateChangeMoney(_items);
           showError("Có lỗi khi áp dụng chiết khấu!");
         })
@@ -1894,7 +1842,6 @@ function OrderCreateProduct(props: PropTypes) {
           if (splitLine || index === -1) {
             _items.unshift(item);
             if (!isAutomaticDiscount) {
-              console.log("calculatesChangeMoney 3");
               calculateChangeMoney(_items);
             }
           } else {
@@ -1908,7 +1855,6 @@ function OrderCreateProduct(props: PropTypes) {
               single.amount = single.value * selectedItem.quantity;
             });
             if (!isAutomaticDiscount) {
-              console.log("calculatesChangeMoney 2");
               calculateChangeMoney(_items);
             }
           }
@@ -1931,13 +1877,9 @@ function OrderCreateProduct(props: PropTypes) {
         } else if (isOrderSemiAutomatic) {
           handUpdateDiscountWhenChangingOrderInformation(_items);
         } else if (isAutomaticDiscount) {
-          console.log("isLineItemSemiAutomatic 2222");
           handleApplyDiscount(_items);
         }
-        //  else if (couponInputText && _items.length > 0) {
-        //   console.log("isLineItemSemiAutomatic 3333");
-        //   handleApplyCouponWhenInsertCoupon(couponInputText, _items);
-        // }
+
         setIsInputSearchProductFocus(false);
         onClearVariantSearch();
         autoCompleteRef?.current?.blur();
@@ -2089,12 +2031,7 @@ function OrderCreateProduct(props: PropTypes) {
         sub_type: discountOrder?.value_type || "",
       };
 
-      // if (coupon) {
-      //   console.log("handleApplyCouponWhenInsertCoupon 1");
-      //   handleApplyCouponWhenInsertCoupon(coupon);
-      // }
       if (items) {
-        console.log("calculatesChangeMoney 1");
         calculateChangeMoney(items, _promotion);
       }
       showSuccess("Thêm chiết khấu thành công!");
@@ -2148,10 +2085,8 @@ function OrderCreateProduct(props: PropTypes) {
     _items: Array<OrderLineItemRequest>,
     _promotion?: OrderDiscountRequest | null,
   ) => {
-    console.log("calculateChangeMoney active", _promotion, "promotion", promotion);
     if (_promotion === undefined) {
       if (promotion) {
-        console.log("promotion default", promotion);
         let _value = promotion?.value || 0;
         let _rate = promotion?.rate || 0;
         let totalOrderAmount = totalAmount(_items);
@@ -2169,7 +2104,6 @@ function OrderCreateProduct(props: PropTypes) {
           _value = (_rate * totalOrderAmount) / 100;
         }
 
-        console.log("discountType calculateChangeMoney", promotion.type);
         _promotion = {
           order_id: promotion.order_id,
           source: promotion.source,
@@ -2197,7 +2131,6 @@ function OrderCreateProduct(props: PropTypes) {
       _promotion = null;
     }
 
-    console.log("_items calculateChangeMoney", _items);
     props.changeInfo(_items, _promotion);
     fillCustomNote(_items);
     dispatch(changeOrderLineItemsAction(_items));
@@ -2315,7 +2248,6 @@ function OrderCreateProduct(props: PropTypes) {
     _itemGifts.forEach((itemGift) => (itemGift.position = _items[indexItem].position));
     _items[indexItem].gifts = itemGifts;
 
-    console.log("_items gifts", _items);
     setItems(_items);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, itemGifts, indexItem]);
@@ -2360,7 +2292,6 @@ function OrderCreateProduct(props: PropTypes) {
       _promotion = null;
     }
     setPromotionTitle("");
-    console.log("calculatesChangeMoney 23");
     calculateChangeMoney(_items, _promotion);
   };
 
@@ -2580,7 +2511,6 @@ function OrderCreateProduct(props: PropTypes) {
             return false;
           };
           const check = isDiscount();
-          console.log("checkValidOrderSuitableDiscount", check);
           check ? calculateChangeMoney(_itemsRequest) : calculateChangeMoney(_itemsRequest, null);
         } else {
           handleFetchApiError(response, "apply chiết khấu", dispatch);
@@ -2733,22 +2663,7 @@ function OrderCreateProduct(props: PropTypes) {
    * với trường hợp thay đổi loại đơn đặc biệt khác với loại thay thế, có sàn.
    */
   useEffect(() => {
-    console.log(
-      "calculateChangeMoney remover discount",
-      props.isSpecialOrderEcommerce?.isChange,
-      items,
-    );
     if (props.isSpecialOrderEcommerce?.isChange === true && items) {
-      //chỉ xóa chiết khấu không có promotion_id
-      // let newItems = _.cloneDeep(items);
-      // newItems.map((item) => {
-      //   if (item.discount_items[0] && !item.discount_items[0].promotion_id) {
-      //     return removeDiscountLineItem(item);
-      //   } else {
-      //     return { ...item };
-      //   }
-      // });
-
       const newItems = removeAllDiscountLineItems(items);
       calculateChangeMoney(newItems, null);
     }
@@ -2779,20 +2694,11 @@ function OrderCreateProduct(props: PropTypes) {
     })();
   }, [lineItemsUseInventory, orderCustomer]);
   useEffect(() => {
-    // call khi thêm xoá sản phẩm (không call khi thay đổi số lượng)
     if (lineItemsUseInventory.length > 0 && levelOrder <= 3 && isInventoryModalVisible) {
       getInventory();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, isInventoryModalVisible]);
-
-  // useEffect(() => {
-  //   // call lại api kiểm tra tồn (suggest kho bao gồm cả số lượng sản phẩm)
-  //   if (lineItemsUseInventory.length > 0 && levelOrder <= 3) {
-  //     getInventory();
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [dispatch, levelOrder, lineItemsUseInventory.length, orderCustomer]);
 
   return (
     <StyledComponent>
@@ -3077,6 +2983,7 @@ function OrderCreateProduct(props: PropTypes) {
           <SuggestInventoryModal
             visible={isInventoryModalVisible}
             setVisible={setInventoryModalVisible}
+            setVisibleOrderSplitModal={levelOrder ? setVisibleOrderSplitModal : undefined}
             storeId={storeId}
             onChangeStore={onChangeStore}
             columnsItem={lineItemsUseInventory}
@@ -3084,6 +2991,14 @@ function OrderCreateProduct(props: PropTypes) {
             storeArrayResponse={storeArrayResponse}
             handleCancel={handleInventoryCancel}
             isLoading={isLoadingInventory}
+          />
+        )}
+
+        {checkIfOrderSplit(orderDetail) && visibleOrderSplitModal && (
+          <OrderSplitModal
+            setVisible={setVisibleOrderSplitModal}
+            visible={visibleOrderSplitModal}
+            OrderDetail={{ ...orderDetail, items }}
           />
         )}
       </Card>

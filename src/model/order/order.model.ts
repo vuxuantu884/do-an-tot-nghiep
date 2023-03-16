@@ -193,11 +193,13 @@ export interface OrderSearchQuery {
   assignee_codes?: [];
   coordinator_codes?: [];
   marketer_codes?: [];
+  order_carer_codes?: [];
   price_min: number | undefined;
   price_max: number | undefined;
   payment_method_ids: [];
   delivery_types: [];
   delivery_provider_ids: [];
+  special_types?: [];
   shipper_ids?: [];
   shipper_codes?: [];
   note: string | null;

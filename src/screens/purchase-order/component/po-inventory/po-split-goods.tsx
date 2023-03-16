@@ -89,7 +89,7 @@ export const PoSplitGoods = (props: IProps) => {
     setDateSelected(dateSelected);
     setDateOption(dateOption);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [purchaseOrder?.procurements]);
+  }, [purchaseOrder?.procurements, formMain]);
 
   useEffect(() => {
     if (dateOption) {
@@ -161,7 +161,7 @@ export const PoSplitGoods = (props: IProps) => {
       }
       setDataStore(dataStore);
     }
-  }, [dateOption, purchaseOrder?.procurements]);
+  }, [dateOption, purchaseOrder?.procurements, formMain]);
 
   useEffect(() => {
     const columns: Array<ICustomTableColumType<PurchaseProcumentLineItem>> = [
@@ -511,6 +511,9 @@ export const PoSplitGoods = (props: IProps) => {
         }}
       />
       <Form.Item name={POField.line_items} hidden noStyle>
+        <Input />
+      </Form.Item>
+      <Form.Item name={POField.procurements} hidden noStyle>
         <Input />
       </Form.Item>
     </StyledPOSplGood>

@@ -783,7 +783,7 @@ export const compareProducts = (
   return check;
 };
 
-export const checkIfOrderSplit = (OrderDetail: OrderResponse | null) => {
+export const checkIfOrderSplit = (OrderDetail?: OrderResponse | null) => {
   return (
     OrderDetail?.status === OrderStatus.DRAFT ||
     (OrderDetail?.status === OrderStatus.FINALIZED &&

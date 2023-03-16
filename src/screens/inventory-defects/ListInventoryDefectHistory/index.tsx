@@ -178,7 +178,7 @@ export const ListInventoryDefectHistory: React.FC<ListInventoryDefectHistoryProp
       {
         title: "Cửa hàng",
         dataIndex: "store",
-        align: "center",
+        align: "left",
         visible: true,
         width: "14%",
         render: (text: string, item) => {
@@ -204,7 +204,7 @@ export const ListInventoryDefectHistory: React.FC<ListInventoryDefectHistoryProp
           );
         },
         dataIndex: "defect",
-        align: "center",
+        align: "right",
         visible: true,
         width: "9%",
         render: (value: number) => {
@@ -214,7 +214,7 @@ export const ListInventoryDefectHistory: React.FC<ListInventoryDefectHistoryProp
       {
         title: "SL thay đổi",
         dataIndex: "quantity_adj",
-        align: "center",
+        align: "right",
         visible: true,
         width: "9%",
         render: (value: number | null) => {
@@ -225,7 +225,7 @@ export const ListInventoryDefectHistory: React.FC<ListInventoryDefectHistoryProp
       {
         title: "Người thao tác",
         dataIndex: "updated_name",
-        align: "center",
+        align: "left",
         visible: true,
         width: "15%",
         render: (text: string, item) => {
@@ -242,7 +242,7 @@ export const ListInventoryDefectHistory: React.FC<ListInventoryDefectHistoryProp
       {
         title: "Ngày thao tác",
         dataIndex: "updated_date",
-        align: "center",
+        align: "left",
         visible: true,
         width: "10%",
         render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
@@ -250,7 +250,7 @@ export const ListInventoryDefectHistory: React.FC<ListInventoryDefectHistoryProp
       {
         title: "Ghi chú",
         dataIndex: "note",
-        align: "center",
+        align: "left",
         visible: true,
         width: "20%",
       },

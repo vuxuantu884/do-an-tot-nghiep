@@ -77,6 +77,9 @@ const AvdAllFilter = {
   variant_sku3: "variant_sku3",
   variant_sku7: "variant_sku7",
   colors: "colors",
+  sort_column: "sort_column",
+  sort_type: "sort_type",
+  remain: "remain",
 };
 
 const AllInventoryMappingField = {
@@ -96,6 +99,20 @@ const AllInventoryMappingField = {
   [AvdAllFilter.variant_sku3]: "Mã 3",
   [AvdAllFilter.variant_sku7]: "Mã 7",
   [AvdAllFilter.colors]: "Màu sắc",
+  [AvdAllFilter.sort_column]: "Sắp xếp",
+  [AvdAllFilter.remain]: "Trạng thái tồn",
+};
+
+const InventoryRemainFields = {
+  total_stock: "total_stock",
+  available: "available",
+  on_hand: "on_hand",
+};
+
+const InventoryRemainFieldsMapping = {
+  [InventoryRemainFields.on_hand]: "Còn tồn trong kho",
+  [InventoryRemainFields.available]: "Còn có thể bán",
+  [InventoryRemainFields.total_stock]: "Còn tồn",
 };
 
 const InventoryColumnField = {
@@ -131,6 +148,16 @@ const InventoryExportField = {
   [InventoryColumnField.transferring]: "Hàng chuyển đến",
   [InventoryColumnField.on_way]: "Hàng chuyển đi",
   [InventoryColumnField.shipping]: "Đang giao",
+};
+
+const InventorySortType = {
+  asc: "asc",
+  desc: "desc",
+};
+
+const InventorySortTypeMapping = {
+  [InventorySortType.asc]: "Sắp xếp tăng dần",
+  [InventorySortType.desc]: "Sắp xếp giảm dần",
 };
 
 const HistoryInventoryMappingField = {
@@ -230,4 +257,8 @@ export {
   TransferLineItemField,
   TransferExportLineItemField,
   InventoryColumnField,
+  InventorySortType,
+  InventorySortTypeMapping,
+  InventoryRemainFields,
+  InventoryRemainFieldsMapping,
 };

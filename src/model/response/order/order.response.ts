@@ -2,7 +2,6 @@ import { BaseObject } from "model/base/base.response";
 import { StoreResponse } from "model/core/store.model";
 import { ReasonReturn } from "model/order/return.model";
 import { GoodsReceiptsResponse } from "../pack/pack.response";
-import { OrderItemDiscountRequest } from "../../request/order.request";
 import { SpecialOrderResponseModel } from "model/order/special-order.model";
 
 export interface OrderResponse extends BaseObject {

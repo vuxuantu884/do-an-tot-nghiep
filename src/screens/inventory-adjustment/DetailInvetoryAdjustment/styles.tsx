@@ -226,6 +226,10 @@ export const StyledWrapper = styled.div`
     border-radius: 4px;
     padding: 10px;
     margin: 10px 0 !important;
+    
+    .ant-row {
+      flex-wrap: unset !important;
+    }
   }
   .icon {
     position: absolute;
