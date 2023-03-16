@@ -600,7 +600,6 @@ export const PoWareHouse = (props: IProps) => {
       expectReceiptDates,
       isEditDetail,
       purchaseOrder,
-      procurementTable,
       formMain?.getFieldValue(POField.procurements),
     ],
   );

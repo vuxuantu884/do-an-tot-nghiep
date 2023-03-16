@@ -33,7 +33,7 @@ import {
 } from "service/purchase-order/purchase-order.service";
 import { callApiNative } from "utils/ApiUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
-import { convertHouseOrMinuteToString, ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import ImageProduct from "screens/products/product/component/ImageProduct";
 import { POUtils } from "utils/POUtils";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
@@ -317,7 +317,7 @@ const ProcurementDetailScreen: React.FC = () => {
     }
     return false;
   };
-  const dateToWarehouse = new Date(procurementData?.time_to_warehouse || "");
+
   return (
     <ContentContainer
       isError={isError}
@@ -438,21 +438,6 @@ const ProcurementDetailScreen: React.FC = () => {
                           />
                         )}
                       </Col>
-                    </Row>
-                    <Row>
-                      {procurementData?.time_to_warehouse && (
-                        <Col span={6} style={{ paddingLeft: 54 }}>
-                          Thời gian giao hàng:{" "}
-                          <div>
-                            <Text strong>
-                              {" "}
-                              {`${convertHouseOrMinuteToString(
-                                dateToWarehouse.getHours(),
-                              )}:${convertHouseOrMinuteToString(dateToWarehouse.getMinutes())}`}
-                            </Text>
-                          </div>
-                        </Col>
-                      )}
                     </Row>
                   </Space>
                 </div>
