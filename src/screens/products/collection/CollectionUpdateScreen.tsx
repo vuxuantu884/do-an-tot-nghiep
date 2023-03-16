@@ -35,6 +35,7 @@ import CustomPagination from "component/table/CustomPagination";
 import { callApiNative } from "utils/ApiUtils";
 import { updateCollectionApi } from "service/product/collection.service";
 import { backAction } from "../helper";
+import { CollectionUpdateWrapper } from "./CollectionUpdateStyles";
 
 type CollectionParam = {
   id: string;
@@ -400,140 +401,142 @@ const GroupUpdate: React.FC = () => {
       ]}
     >
       {detail !== null && (
-        <Form ref={formRef} onFinish={updateCollection} initialValues={detail} layout="vertical">
-          <Card>
-            <Row gutter={50}>
-              <Col span={12}>
-                <Form.Item name="version" hidden></Form.Item>
-                <Form.Item
-                  rules={[
-                    { max: 500, message: "Không được nhập quá 500 ký tự" },
-                    { required: true, message: "Vui lòng nhập tên nhóm hàng" },
-                    {
-                      pattern: RegUtil.STRINGUTF8,
-                      message: "Tên nhóm hàng không gồm kí tự đặc biệt",
-                    },
-                  ]}
-                  label="Tên nhóm hàng"
-                  name="name"
+        <CollectionUpdateWrapper>
+          <Form ref={formRef} onFinish={updateCollection} initialValues={detail} layout="vertical">
+            <Card>
+              <Row gutter={50}>
+                <Col span={12}>
+                  <Form.Item name="version" hidden></Form.Item>
+                  <Form.Item
+                    rules={[
+                      { max: 500, message: "Không được nhập quá 500 ký tự" },
+                      { required: true, message: "Vui lòng nhập tên nhóm hàng" },
+                      {
+                        pattern: RegUtil.STRINGUTF8,
+                        message: "Tên nhóm hàng không gồm kí tự đặc biệt",
+                      },
+                    ]}
+                    label="Tên nhóm hàng"
+                    name="name"
+                  >
+                    <Input placeholder="Nhập nhóm hàng" maxLength={255} />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="description"
+                    label="Mô tả"
+                    rules={[{ max: 500, message: "Không được nhập quá 500 ký tự" }]}
+                  >
+                    <TextArea placeholder="Mô tả nhóm hàng" autoSize={{ minRows: 1, maxRows: 1 }} />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
+            <Card title="Thông tin sản phẩm" bordered={false} className="product">
+              <Input.Group className="display-flex">
+                <CustomAutoComplete
+                  loading={isLoadingSearchProduct}
+                  dropdownClassName="product"
+                  placeholder="Thêm sản phẩm vào nhóm hàng"
+                  onSearch={onSearchProduct}
+                  dropdownMatchSelectWidth={456}
+                  style={{ width: "100%" }}
+                  showAdd={true}
+                  textAdd="+ Thêm mới sản phẩm"
+                  onSelect={selectProduct}
+                  options={renderResult}
+                  ref={productSearchRef}
+                  onClickAddNew={() => {
+                    window.open(`${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`, "_blank");
+                  }}
+                />
+                <Button
+                  onClick={() => {
+                    setIsVisibleManyProduct(true);
+                  }}
+                  className="btn-pick-many"
+                  icon={<img src={PlusOutline} alt="" />}
                 >
-                  <Input placeholder="Nhập nhóm hàng" maxLength={255} />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  name="description"
-                  label="Mô tả"
-                  rules={[{ max: 500, message: "Không được nhập quá 500 ký tự" }]}
-                >
-                  <TextArea placeholder="Mô tả nhóm hàng" autoSize={{ minRows: 1, maxRows: 1 }} />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Card>
-          <Card title="Thông tin sản phẩm" bordered={false} className="product">
-            <Input.Group className="display-flex">
-              <CustomAutoComplete
-                loading={isLoadingSearchProduct}
-                dropdownClassName="product"
-                placeholder="Thêm sản phẩm vào nhóm hàng"
-                onSearch={onSearchProduct}
-                dropdownMatchSelectWidth={456}
-                style={{ width: "100%" }}
-                showAdd={true}
-                textAdd="+ Thêm mới sản phẩm"
-                onSelect={selectProduct}
-                options={renderResult}
-                ref={productSearchRef}
-                onClickAddNew={() => {
-                  window.open(`${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`, "_blank");
-                }}
-              />
-              <Button
-                onClick={() => {
-                  setIsVisibleManyProduct(true);
-                }}
-                style={{ width: 132, marginLeft: 10 }}
-                icon={<img src={PlusOutline} alt="" />}
-              >
-                &nbsp;&nbsp; Chọn nhiều
-              </Button>
-              <Input
-                name="key_search"
-                value={keySearch}
-                onChange={(e) => {
-                  setKeySearch(e.target.value);
-                  changeKeySearch(e.target.value);
-                }}
-                style={{ marginLeft: 8 }}
-                placeholder="Tìm kiếm sản phẩm trong phiếu"
-                addonAfter={
-                  <SearchOutlined
-                    onClick={() => {
-                      changeKeySearch(null);
-                    }}
-                    style={{ color: "#2A2A86" }}
-                  />
-                }
-              />
-            </Input.Group>
-            <CustomTable
-              isLoading={isTableLoading}
-              isRowSelection
-              bordered
-              style={{ marginTop: 20 }}
-              rowClassName="product-table-row"
-              tableLayout="fixed"
-              scroll={{ y: 300 }}
-              columns={defaultColumns}
-              dataSource={dataProductItem.items}
-              onSelectedChange={(selectedRows) => changeSelectedRows(selectedRows)}
-              rowKey={(item: ProductResponse) => item.id}
-              pagination={false}
-            />
-            <CustomPagination
-              pagination={{
-                showSizeChanger: true,
-                pageSize: dataProductItem.metadata.limit,
-                current: dataProductItem.metadata.page,
-                total: dataProductItem.metadata.total,
-                onChange: changePage,
-                onShowSizeChange: changePage,
-              }}
-            />
-          </Card>
-          <PickManyProductModal
-            selected={dataProductItem.items}
-            onSave={pickManyProduct}
-            onCancel={() => setIsVisibleManyProduct(false)}
-            visible={isVisibleManyProduct}
-          />
-          <ModalDeleteConfirm
-            onCancel={() => setIsConfirmDelete(false)}
-            onOk={deleteProduct}
-            title="Bạn chắc chắn xóa sản phẩm?"
-            visible={isConfirmDelete}
-          />
-          <BottomBarContainer
-            back={"Quay lại danh sách"}
-            backAction={() =>
-              backAction(
-                formRef.current?.getFieldsValue(),
-                detail,
-                setModalConfirm,
-                history,
-                UrlConfig.COLLECTIONS,
-              )
-            }
-            rightComponent={
-              <AuthWrapper acceptPermissions={[ProductPermission.categories_update]}>
-                <Button loading={isLoading} htmlType="submit" type="primary">
-                  Lưu lại
+                  &nbsp;&nbsp; Chọn nhiều
                 </Button>
-              </AuthWrapper>
-            }
-          />
-        </Form>
+
+                <Input
+                  name="key_search"
+                  value={keySearch}
+                  onChange={(e) => {
+                    setKeySearch(e.target.value);
+                    changeKeySearch(e.target.value);
+                  }}
+                  placeholder="Tìm kiếm sản phẩm trong phiếu"
+                  addonAfter={
+                    <SearchOutlined
+                      onClick={() => {
+                        changeKeySearch(null);
+                      }}
+                      style={{ color: "#2A2A86" }}
+                    />
+                  }
+                />
+              </Input.Group>
+              <CustomTable
+                isLoading={isTableLoading}
+                isRowSelection
+                bordered
+                style={{ marginTop: 20 }}
+                rowClassName="product-table-row"
+                tableLayout="fixed"
+                scroll={{ y: 300 }}
+                columns={defaultColumns}
+                dataSource={dataProductItem.items}
+                onSelectedChange={(selectedRows) => changeSelectedRows(selectedRows)}
+                rowKey={(item: ProductResponse) => item.id}
+                pagination={false}
+              />
+              <CustomPagination
+                pagination={{
+                  showSizeChanger: true,
+                  pageSize: dataProductItem.metadata.limit,
+                  current: dataProductItem.metadata.page,
+                  total: dataProductItem.metadata.total,
+                  onChange: changePage,
+                  onShowSizeChange: changePage,
+                }}
+              />
+            </Card>
+            <PickManyProductModal
+              selected={dataProductItem.items}
+              onSave={pickManyProduct}
+              onCancel={() => setIsVisibleManyProduct(false)}
+              visible={isVisibleManyProduct}
+            />
+            <ModalDeleteConfirm
+              onCancel={() => setIsConfirmDelete(false)}
+              onOk={deleteProduct}
+              title="Bạn chắc chắn xóa sản phẩm?"
+              visible={isConfirmDelete}
+            />
+            <BottomBarContainer
+              back={"Quay lại danh sách"}
+              backAction={() =>
+                backAction(
+                  formRef.current?.getFieldsValue(),
+                  detail,
+                  setModalConfirm,
+                  history,
+                  UrlConfig.COLLECTIONS,
+                )
+              }
+              rightComponent={
+                <AuthWrapper acceptPermissions={[ProductPermission.categories_update]}>
+                  <Button loading={isLoading} htmlType="submit" type="primary">
+                    Lưu lại
+                  </Button>
+                </AuthWrapper>
+              }
+            />
+          </Form>
+        </CollectionUpdateWrapper>
       )}
       <ModalConfirm {...modalConfirm} />
     </ContentContainer>
