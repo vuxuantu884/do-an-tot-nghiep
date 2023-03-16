@@ -175,4 +175,11 @@ const convertEndDateToTimestamp = (date: any) => {
   const dateTime = newDate + " " + time;
   return moment(new Date(dateTime)).unix();
 };
-export { convertStartDateToTimestamp, convertEndDateToTimestamp };
+
+const convertHouseOrMinuteToString = (house: number) => {
+  if (house > 0 || house < 9) {
+    return "0" + house;
+  }
+  return house;
+};
+export { convertStartDateToTimestamp, convertEndDateToTimestamp, convertHouseOrMinuteToString };

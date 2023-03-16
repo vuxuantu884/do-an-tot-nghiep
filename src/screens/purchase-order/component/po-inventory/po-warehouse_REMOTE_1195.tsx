@@ -9,7 +9,7 @@ import { IConPlan } from "component/icon/Plan";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import { AppConfig } from "config/app.config";
 import { EnumOptionValueOrPercent } from "config/enum.config";
-import { cloneDeep, groupBy } from "lodash";
+import { groupBy } from "lodash";
 import { ProcurementLineItemField } from "model/procurement/field";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
@@ -157,9 +157,8 @@ export const PoWareHouse = (props: IProps) => {
         }
       });
     });
-    console.log("cloneDeep(procurements)", cloneDeep(procurements));
     formMain?.setFieldsValue({
-      [POField.procurements]: cloneDeep(procurements),
+      [POField.procurements]: [...JSON.parse(JSON.stringify(procurements))],
     });
   };
 
@@ -171,10 +170,7 @@ export const PoWareHouse = (props: IProps) => {
 
   const onChangeExpectedDate = useCallback(
     async (index: number, value?: string) => {
-      if (!value) {
-        onRemoveExpectedByDate(expectReceiptDates[index]);
-        return;
-      }
+      // if (!value) return;
       const dataCheckDate = expectReceiptDates.map((item) => item.date);
       try {
         if (dataCheckDate.includes(value || "") && value) {
@@ -418,24 +414,45 @@ export const PoWareHouse = (props: IProps) => {
     // }
   };
 
-  const onRemoveExpectedByDate = (expectReceiptDate: IExpectReceiptDates) => {
+  const onRemoveExpectedDate = () => {
     if (expectReceiptDates.length === 1) return;
-    const procurements = formMain?.getFieldValue(POField.procurements) as PurchaseProcument[];
-    let procurementsBackUp = [...procurements];
-    const indexExpectReceipt = expectReceiptDates.findIndex(
-      (item) => item.uuid === expectReceiptDate.uuid,
-    );
-    procurementsBackUp = procurementsBackUp.filter((item) => item.uuid !== expectReceiptDate.uuid);
-    formMain?.setFieldsValue({
-      [POField.procurements]: procurementsBackUp,
-    });
-    expectReceiptDates.splice(indexExpectReceipt, 1);
-    formMain?.setFieldsValue({
-      ["expectedDate" + (expectReceiptDates.length - 1)]: "",
-    });
-    handleSetRadio(expectReceiptDates);
-    setExpectReceiptDates([...expectReceiptDates]);
-    handleSetProcurementTableByExpectedDate(procurementsBackUp);
+    for (
+      let indexExpectReceipt = expectReceiptDates.length - 1;
+      indexExpectReceipt >= 0;
+      indexExpectReceipt--
+    ) {
+      const procurements = formMain?.getFieldValue(POField.procurements) as PurchaseProcument[];
+      let procurementsBackUp = [...procurements];
+      let check = false;
+      procurements.forEach((procurement, index) => {
+        const status = procurements
+          .filter(
+            (procurementChildren) =>
+              procurementChildren.uuid === expectReceiptDates[indexExpectReceipt].uuid,
+          )
+          .every((item) => item.status === ProcurementStatus.draft);
+
+        if (status && indexExpectReceipt !== 0) {
+          procurementsBackUp = procurementsBackUp.filter(
+            (item) => item.uuid !== expectReceiptDates[indexExpectReceipt].uuid,
+          );
+          check = true;
+        }
+      });
+      formMain?.setFieldsValue({
+        [POField.procurements]: procurementsBackUp,
+      });
+      if (check) {
+        expectReceiptDates.splice(indexExpectReceipt, 1);
+        formMain?.setFieldsValue({
+          ["expectedDate" + (expectReceiptDates.length - 1)]: "",
+        });
+        handleSetRadio(expectReceiptDates);
+        setExpectReceiptDates([...expectReceiptDates]);
+        handleSetProcurementTableByExpectedDate(procurementsBackUp);
+        return;
+      }
+    }
   };
 
   const onChangeExpectedNumber = (index: number, value: number | null) => {
@@ -600,7 +617,6 @@ export const PoWareHouse = (props: IProps) => {
       expectReceiptDates,
       isEditDetail,
       purchaseOrder,
-      procurementTable,
       formMain?.getFieldValue(POField.procurements),
     ],
   );
@@ -673,19 +689,16 @@ export const PoWareHouse = (props: IProps) => {
           width: receivedOrNotReceived ? 50 : 40,
           render: (value, record, index) => {
             const real_quantity = record?.realQuantities?.length
-              ? //@ts-ignore
-                record.realQuantities[indexDate] === NaN
+              ? record.realQuantities[indexDate] === NaN
                 ? NaN
                 : record.realQuantities[indexDate] || 0
               : 0;
             const planned_quantity = record?.plannedQuantities?.length
-              ? //@ts-ignore
-                record.plannedQuantities[indexDate] === NaN
+              ? record.plannedQuantities[indexDate] === NaN
                 ? NaN
                 : record.plannedQuantities[indexDate] || 0
               : 0;
             const uuid = record?.uuids?.length ? record.uuids[indexDate] || "" : "";
-            //@ts-ignore
             if (real_quantity === NaN || planned_quantity === NaN) return <></>;
             return (
               <>
@@ -788,6 +801,13 @@ export const PoWareHouse = (props: IProps) => {
         receive_status !== ProcumentStatus.FINISHED &&
         receive_status !== ProcumentStatus.CANCELLED && (
           <Col span={24 - ratio.span} style={{ padding: 0 }}>
+            <ButtonRemove
+              style={{
+                marginTop: "12px",
+                marginRight: "4px",
+              }}
+              onClick={onRemoveExpectedDate}
+            />
             <ButtonAdd
               style={{
                 marginTop: "4px",
