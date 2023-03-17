@@ -1,7 +1,6 @@
 import { SearchOutlined } from "@ant-design/icons";
 import { Button, Col, Input, Modal, Row, Spin } from "antd";
 import { StoreResponse } from "model/core/store.model";
-import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useEffect, useState } from "react";
 import { dangerColor, grayF5Color, successColor } from "utils/global-styles/variables";
 import { StyledComponent } from "./inventory.modal.styles";
@@ -14,7 +13,7 @@ type SuggestInventoryModalProps = {
   setVisibleOrderSplitModal?: (item: boolean) => void;
   storeId: number | null;
   onChangeStore: (item: number) => void;
-  columnsItem?: Array<OrderLineItemRequest>;
+  columnsItem?: Array<any>;
   inventoryArray: Array<any> | null;
   storeArrayResponse: Array<StoreResponse> | null;
   handleCancel: () => void;
@@ -63,8 +62,13 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
   );
 
   useEffect(() => {
-    const inventoryArrayCheckItemSuccess: any[] | null | undefined = inventoryArray?.map(
-      (item: any) => {
+    const khoTong = inventoryArray?.find((i) => i.id === 225);
+    console.log("khoTong khoTong", khoTong);
+    const inventoryWithOutKhoTong = inventoryArray
+      ? inventoryArray?.filter((i) => i.id !== 225)
+      : [];
+    const inventoryArrayCheckItemSuccess: any[] | null | undefined = inventoryWithOutKhoTong?.map(
+      (item: any, index: number) => {
         let itemsSuccessFull = true;
         columnsItem?.forEach((_itemi: any) => {
           let variantDetails = item.variant_inventories.find(
@@ -83,10 +87,15 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
         return {
           ...item,
           successFull: itemsSuccessFull,
+          suggest: index === 0 ? true : false,
         };
       },
     );
-    setStoreData(inventoryArrayCheckItemSuccess);
+    if (khoTong) {
+      setStoreData([khoTong, ...inventoryArrayCheckItemSuccess]);
+    } else {
+      setStoreData(inventoryArrayCheckItemSuccess);
+    }
   }, [columnsItem, inventoryArray, storeId]);
 
   const element = document.getElementById("stickyRowProduct");
@@ -194,9 +203,9 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
                           <span style={item.successFull ? { color: successColor } : {}}>
                             {item.store}{" "}
                           </span>
-                          <span style={{ color: dangerColor }}>
-                            {index === 0 ? " - Kho gợi ý" : ""}
-                          </span>
+                          {item.suggest && (
+                            <span style={{ color: dangerColor }}>{" - Kho gợi ý"}</span>
+                          )}
                         </th>
 
                         {columnsItem?.map((_itemi, index) => {

@@ -152,7 +152,9 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
       visible: true,
       align: "center",
       width: "7%",
-      render: (value: any, record: LineItemOrderSplitModel, index: number) => <div>{value}</div>,
+      render: (value: any, record: LineItemOrderSplitModel, index: number) => (
+        <div>{value || 0}</div>
+      ),
     },
     {
       title: "Đơn giá",
@@ -273,7 +275,7 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
           setVisible={setInventoryModalVisible}
           storeId={orderStoreId}
           onChangeStore={(storeId) => handleChangeStore(storeId)}
-          columnsItem={items}
+          columnsItem={data}
           inventoryArray={inventoryResponse}
           storeArrayResponse={props.storeArrayResponse}
           handleCancel={() => setInventoryModalVisible(false)}
