@@ -1434,6 +1434,19 @@ export const splitEllipsis = (value: string, length: number, lastLength: number)
   return `${strFirst} [...] ${strLast}`;
 };
 
+export const truncateMiddleWithEllipsis =(str:string, maxLength:number)=>{
+  if (str.length <= maxLength) {
+    return str;
+  }
+  const ellipsis = '...';
+  const truncatedLength = maxLength - ellipsis.length;
+  const startLength = Math.ceil(truncatedLength / 2);
+  const endLength = Math.floor(truncatedLength / 2);
+  const start = str.slice(0, startLength);
+  const end = str.slice(str.length - endLength);
+  return start + ellipsis + end;
+}
+
 export const trimText = (text?: string) => {
   if (!text) return;
   return text.replace(/(\s)+/g, "");

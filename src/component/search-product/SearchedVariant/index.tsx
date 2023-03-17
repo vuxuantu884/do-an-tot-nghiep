@@ -32,9 +32,10 @@ function SearchedVariant(props: PropTypes): JSX.Element {
         </Col>
         <Col span={6} className="variant-columns-3">
           <Col className="black-color">
-            {props.isWholesale
+            {/* {props.isWholesale
               ? findWholesalePrice(item.variant_prices, AppConfig.currency)
-              : findPrice(item.variant_prices, AppConfig.currency)}
+              : findPrice(item.variant_prices, AppConfig.currency)} */}
+            {findPrice(item.variant_prices, AppConfig.currency)}
             <span className="gray-color price">đ</span>
           </Col>
           <div className="gray-color text-ellipsis">
