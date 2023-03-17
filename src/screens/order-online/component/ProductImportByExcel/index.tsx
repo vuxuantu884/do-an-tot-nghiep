@@ -10,18 +10,28 @@ import {
   DISCOUNT_TYPES,
   ERROR,
   FILE_DOWNLOAD,
+  FILE_DOWNLOAD_WHOLESALE,
   handleFileExcel,
+  handleWholesaleImportFileExcel,
   isValidDiscountGreaterPrice,
   isValidObjKeys,
 } from "./helper";
 import { showWarning } from "utils/ToastUtils";
 import { searchVariantsApi } from "service/product/product.service";
 import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
-import { isFetchApiSuccessful } from "utils/AppUtils";
+import {
+  getLineAmountAfterLineDiscount,
+  getLineItemDiscountAmount,
+  getLineItemDiscountRate,
+  getLineItemDiscountValue,
+  isFetchApiSuccessful,
+  truncateMiddleWithEllipsis,
+} from "utils/AppUtils";
 import { OrderLineItemRequest } from "model/request/order.request";
 
 interface ImportFileProduct {
   sku: string | null;
+  price: number | null;
   quantity: number | null;
   promotion: number | null;
   discountType: string | null;
@@ -104,26 +114,31 @@ const ProductImportByExcel: React.FC<Props> = (props: Props) => {
         return;
       }
 
-      const { errorDatas, jsonDatas } = await handleFileExcel(range);
-      if (errorDatas && errorDatas.length !== 0) {
+      let result = undefined;
+      if (EnumOrderType.b2b === props.orderType) {
+        result = await handleWholesaleImportFileExcel(range);
+      } else {
+        result = await handleFileExcel(range);
+      }
+      if (result.errorDatas && result.errorDatas.length !== 0) {
         setIsLoading(false);
-        setFileError(errorDatas);
+        setFileError(result.errorDatas);
         handleRemoveFile();
         return;
       }
       setFileError([]);
-      setFileDatas(jsonDatas);
+      setFileDatas(result.jsonDatas);
       setFile(file);
       setIsLoading(false);
       setFlowImportData({
-        total: jsonDatas.length,
+        total: result.jsonDatas.length,
         processed: 0,
         percent: 0,
         success: 0,
         error: 0,
       });
     },
-    [handleRemoveFile],
+    [handleRemoveFile, props.orderType],
   );
 
   const beforeUploadFile = (file: any) => {
@@ -141,7 +156,8 @@ const ProductImportByExcel: React.FC<Props> = (props: Props) => {
     discountType: string,
     discountValue: number,
     position: number,
-    isWholesale?: boolean,
+    wholesalePrice?: number | null,
+    // isWholesale?: boolean,
   ) =>
     new Promise<OrderLineItemRequest>((resolve, reject) => {
       const lineItem: OrderLineItemRequest = createItem(
@@ -150,7 +166,8 @@ const ProductImportByExcel: React.FC<Props> = (props: Props) => {
         discountType,
         discountValue,
         position,
-        isWholesale,
+        wholesalePrice,
+        // isWholesale,
       );
       resolve(lineItem);
     });
@@ -161,24 +178,34 @@ const ProductImportByExcel: React.FC<Props> = (props: Props) => {
       ...flowImportDataDefault,
       total: fileDatas.length,
     };
+
     let error: string[] = [];
     let _items: OrderLineItemRequest[] = [...items];
     const totalIndex = fileDatas.length;
     let firstIndex = 0;
 
     const handleProduct = (index: number) => {
+      const importFileProduct: ImportFileProduct = {
+        sku: fileDatas[index].sku,
+        price: props.orderType === EnumOrderType.b2b ? fileDatas[index].price : null,
+        quantity: fileDatas[index].quantity,
+        promotion: props.orderType !== EnumOrderType.b2b ? fileDatas[index].promotion : null,
+        discountType: props.orderType !== EnumOrderType.b2b ? fileDatas[index].discountType : null,
+      };
+
       const discountType =
-        fileDatas[index].discountType === DISCOUNT_TYPES[1]
+        importFileProduct.discountType === DISCOUNT_TYPES[1]
           ? DISCOUNT_TYPE.PERCENT
-          : DISCOUNT_TYPE.MONEY;
-      const quantity = fileDatas[index].quantity ?? 0;
+          : importFileProduct.discountType === DISCOUNT_TYPES[0]
+          ? DISCOUNT_TYPE.MONEY
+          : "";
 
       const initQueryVariant: VariantSearchQuery = {
         limit: 10,
         page: 1,
         saleable: true,
         active: true,
-        info: fileDatas[index].sku || "",
+        info: importFileProduct.sku || "",
         store_ids: storeId,
       };
       searchVariantsApi(initQueryVariant)
@@ -186,36 +213,55 @@ const ProductImportByExcel: React.FC<Props> = (props: Props) => {
           if (isFetchApiSuccessful(response)) {
             if (response.data.items.length !== 1) {
               flowImport.error += 1;
-              error.push(`${fileDatas[index].sku} - dòng ${index + 2}: ${ERROR.notFoundProduct}`);
+              error.push(`${importFileProduct.sku} - dòng ${index + 2}: ${ERROR.notFoundProduct}`);
             } else if (
               discountType === DISCOUNT_TYPE.MONEY &&
               !isValidDiscountGreaterPrice(
                 response.data.items[0],
-                fileDatas[index].promotion ?? 0,
-                fileDatas[index].quantity ?? 0,
+                importFileProduct.promotion ?? 0,
+                importFileProduct.quantity ?? 0,
               )
             ) {
               flowImport.error += 1;
               error.push(
-                `${fileDatas[index].sku} - dòng ${index + 2}: ${ERROR.discountBiggerProductValue}`,
+                `${importFileProduct.sku} - dòng ${index + 2}: ${ERROR.discountBiggerProductValue}`,
               );
             } else {
               flowImport.success += 1;
               handleCreateItem(
                 response.data.items[0],
-                quantity,
+                Number(importFileProduct.quantity) ?? 0,
                 discountType,
-                fileDatas[index].promotion ?? 0,
+                Number(importFileProduct.promotion) ?? 0,
                 index + 1,
-                props.orderType === EnumOrderType.b2b,
-              ).then((response_i) => {
-                _items.unshift(response_i);
+                props.orderType === EnumOrderType.b2b ? Number(importFileProduct.price) : null,
+              ).then((lineItem) => {
+                const checkDuplicate = _items.some(
+                  (p) => p.variant_id === lineItem.variant_id && p.price === lineItem.price,
+                );
+
+                if (checkDuplicate && props.orderType === EnumOrderType.b2b) {
+                  let variantItems = _items.filter(
+                    (item) => item.variant_id === lineItem.variant_id,
+                  );
+
+                  let selectedItem = variantItems[0];
+
+                  selectedItem.quantity += lineItem.quantity;
+                  selectedItem.discount_value = getLineItemDiscountValue(selectedItem);
+                  selectedItem.discount_amount = getLineItemDiscountAmount(selectedItem);
+                  selectedItem.discount_rate = getLineItemDiscountRate(selectedItem);
+                  selectedItem.line_amount_after_line_discount =
+                    getLineAmountAfterLineDiscount(selectedItem);
+                } else {
+                  _items.unshift(lineItem);
+                }
               });
             }
           } else {
             flowImport.error += 1;
             response?.errors?.forEach((e: any) =>
-              error.push(`${fileDatas[index].sku} - dòng ${index + 2}: ${e}`),
+              error.push(`${importFileProduct.sku} - dòng ${index + 2}: ${e}`),
             );
           }
 
@@ -252,7 +298,7 @@ const ProductImportByExcel: React.FC<Props> = (props: Props) => {
       onCancel={onCancel}
       width={600}
       okText="Nhập file"
-      cancelText="Hủy bỏ"
+      cancelText="Đóng"
       confirmLoading={isLoading}
       cancelButtonProps={{ loading: isLoading }}
       okButtonProps={{ disabled: fileDatas.length === 0 }}
@@ -277,11 +323,12 @@ const ProductImportByExcel: React.FC<Props> = (props: Props) => {
               </Upload>
               {file && (
                 <div className="file-name-import">
-                  <Typography.Text>{file.name}</Typography.Text>{" "}
+                  <Typography.Text>{truncateMiddleWithEllipsis(file.name, 35)}</Typography.Text>{" "}
                   <DeleteOutlined
                     onClick={() => {
                       setFlowImportData(flowImportDataDefault);
                       handleRemoveFile();
+                      setFileError([]);
                     }}
                     hidden={isLoading}
                   />
@@ -292,9 +339,16 @@ const ProductImportByExcel: React.FC<Props> = (props: Props) => {
           <Col md={12}>
             <Space direction="vertical">
               <Typography.Title level={5}>File excel mẫu</Typography.Title>
-              <Typography.Link href={FILE_DOWNLOAD} className="download-file-color">
+              <Typography.Link
+                href={
+                  props.orderType === EnumOrderType.b2b ? FILE_DOWNLOAD_WHOLESALE : FILE_DOWNLOAD
+                }
+                className="download-file-color"
+              >
                 {" "}
-                Ấn để tải xuống file mẫu <DownloadOutlined />
+                Ấn để tải xuống file mẫu{" "}
+                {props.orderType === EnumOrderType.b2b ? "cho đơn bán buôn" : ""}{" "}
+                <DownloadOutlined />
               </Typography.Link>
             </Space>
           </Col>

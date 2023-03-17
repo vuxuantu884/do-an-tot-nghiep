@@ -433,10 +433,7 @@ function OrderCreateProduct(props: PropTypes) {
           if (data) {
             let _items = [...items];
             let index = _items.findIndex((i) => i.variant_id === data.id);
-            const item: OrderLineItemRequest = createItem(
-              data,
-              props.orderType === EnumOrderType.b2b,
-            );
+            const item: OrderLineItemRequest = createItem(data);
 
             item.position = items.length + 1;
             if (true) {
@@ -968,9 +965,9 @@ function OrderCreateProduct(props: PropTypes) {
             disabled={
               levelOrder > 3 ||
               checkIfLineItemHasAutomaticDiscount(l) ||
-              couponInputText !== "" ||
               promotion !== null ||
-              userReducer?.account?.role_id !== ACCOUNT_ROLE_ID.admin ||
+              (userReducer?.account?.role_id !== ACCOUNT_ROLE_ID.admin &&
+                props.orderType === EnumOrderType.b2c) ||
               isLoadingDiscount ||
               checkIfOtherLineItemIsChanged()
             }
@@ -1183,10 +1180,13 @@ function OrderCreateProduct(props: PropTypes) {
   ];
 
   const autoCompleteRef = createRef<RefSelectProps>();
-  const createItem = (variant: VariantResponse, isWholesale?: boolean) => {
+  const createItem = (
+    variant: VariantResponse,
+    isWholesale?: boolean, // bán buôn
+  ) => {
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
     if (isWholesale) {
-      price = findWholesalePriceInVariant(variant.variant_prices, AppConfig.currency);
+      price = findWholesalePriceInVariant(variant.variant_prices, AppConfig.currency); //lấy giá bán buôn
     }
     const taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
     const avatar = findAvatar(variant.variant_images);
@@ -1835,7 +1835,7 @@ function OrderCreateProduct(props: PropTypes) {
         let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);
         let index = _items.findIndex((i) => i.variant_id === newV);
         let r: VariantResponse = resultSearchVariant.items[indexSearch];
-        const item: OrderLineItemRequest = createItem(r, props.orderType === EnumOrderType.b2b);
+        const item: OrderLineItemRequest = createItem(r);
         item.position = getPositionLineItem(items);
 
         if (r.id === newV && checkInventory(item) === true) {
