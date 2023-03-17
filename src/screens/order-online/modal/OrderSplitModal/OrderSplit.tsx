@@ -44,7 +44,8 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
     const _variantGiftsIdConvertArray = flattenArray(_variantGifts);
     const _variants: any[] = [..._variant, ..._variantGiftsIdConvertArray];
     return _variants;
-  }, [orderSplit.items]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderSplit.items, randomKeyTable]);
 
   const getInventory = useCallback(() => {
     setLoadingInventory(true);
@@ -218,7 +219,7 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
 
   useEffect(() => {
     const _data = items.map((item, index) => {
-      const _gifts = item.gifts.map((p: any) => ({
+      const _gifts = item.gifts?.map((p: any) => ({
         sku: p.sku,
         variant: p.variant,
         available: p.available,
