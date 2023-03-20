@@ -248,6 +248,11 @@ export const THIRD_PARTY_LOGISTICS_INTEGRATION = {
     code: "ube",
     guideUrl: "",
   },
+  vnpost: {
+    name: "VN Post",
+    code: "vnp",
+    guideUrl: "",
+  },
 };
 
 export const DISPLAYED_ORDER_ACTION_LOGS = [

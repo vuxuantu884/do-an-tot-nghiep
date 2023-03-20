@@ -19,9 +19,9 @@ import { StyledComponent } from "./styles";
 
 type PropTypes = {};
 
-function SingleThirdPartyLogisticUbe(props: PropTypes) {
-  const external_service_code = THIRD_PARTY_LOGISTICS_INTEGRATION.ube.code;
-  const guideUrl = THIRD_PARTY_LOGISTICS_INTEGRATION.ube.guideUrl;
+function SingleThirdPartyLogisticVnpost(props: PropTypes) {
+  const external_service_code = THIRD_PARTY_LOGISTICS_INTEGRATION.vnpost.code;
+  const guideUrl = THIRD_PARTY_LOGISTICS_INTEGRATION.vnpost.guideUrl;
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const [thirdPartyLogistics, setThirdPartyLogistics] = useState<DeliveryServiceResponse | null>(
@@ -51,7 +51,7 @@ function SingleThirdPartyLogisticUbe(props: PropTypes) {
         };
       });
       const formValueFormatted = {
-        external_service_code,
+        external_service_code: "vnpost",
         status: isConnected ? DELIVER_SERVICE_STATUS.active : DELIVER_SERVICE_STATUS.inactive,
         token: form.getFieldValue("token"),
         username: "",
@@ -65,7 +65,7 @@ function SingleThirdPartyLogisticUbe(props: PropTypes) {
   const handleConnect3PL = () => {
     form.validateFields(["token"]).then(() => {
       const params: updateConfigReQuestModel = {
-        external_service_code,
+        external_service_code: "vnpost",
         token: form.getFieldValue("token"),
         status: DELIVER_SERVICE_STATUS.active,
       };
@@ -95,7 +95,7 @@ function SingleThirdPartyLogisticUbe(props: PropTypes) {
       return;
     }
     const params = {
-      external_service_code,
+      external_service_code: "vnpost",
       token: form.getFieldValue("token"),
       status: DELIVER_SERVICE_STATUS.inactive,
     };
@@ -201,4 +201,4 @@ function SingleThirdPartyLogisticUbe(props: PropTypes) {
   );
 }
 
-export default SingleThirdPartyLogisticUbe;
+export default SingleThirdPartyLogisticVnpost;
