@@ -1211,7 +1211,7 @@ const DetailTicket: FC = () => {
                             <div className="store-detail">Mã CH: <span className="store-detail-content">{data.to_store_code?.toString()}</span></div>
                           </Col>
                           <Col span={12}>
-                            <div className="store-detail text-right">SĐT: <span className="store-detail-content">{data.to_store_code?.toString()}</span></div>
+                            <div className="store-detail text-right">SĐT: <span className="store-detail-content">{data.to_store_phone?.toString()}</span></div>
                           </Col>
                         </Row>
                         <Row gutter={24}>
