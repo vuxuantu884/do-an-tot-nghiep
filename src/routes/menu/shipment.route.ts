@@ -32,6 +32,10 @@ const SingleThirdPartyLogisticsIntegrationScreen_UnicornBestExpress = React.lazy
   () => import("screens/settings/third-party-logistics-integration/best-express"),
 );
 
+const SingleThirdPartyLogisticsIntegrationScreen_VNPost = React.lazy(
+  () => import("screens/settings/third-party-logistics-integration/vn-post"),
+);
+
 const SingleThirdPartyLogisticsIntegrationScreen_Snappy = React.lazy(
   () => import("screens/settings/third-party-logistics-integration/snappy"),
 );
@@ -166,6 +170,18 @@ const shipments: Array<RouteMenu> = [
         icon: "icon-dot",
         component: SingleThirdPartyLogisticsIntegrationScreen_UnicornBestExpress,
         key: "unicorn-best-express",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        pathIgnore: ["create"],
+      },
+      {
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/vnpost`,
+        exact: true,
+        title: "VN Post",
+        icon: "icon-dot",
+        component: SingleThirdPartyLogisticsIntegrationScreen_VNPost,
+        key: "vn-post",
         isShow: true,
         header: null,
         subMenu: [],
