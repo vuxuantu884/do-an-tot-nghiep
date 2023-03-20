@@ -67,6 +67,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
     accountStores,
   } = props;
   const [formAdv] = Form.useForm();
+  const [formSearch] = Form.useForm();
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
   const inputSearchRef = useRef<Input | null>(null);
@@ -192,7 +193,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
 
     const valuesForm = {
       ...values,
-      condition: values.condition ? values.condition.trim() : null,
+      condition: formSearch.getFieldValue("condition") !== "" ? formSearch.getFieldValue("condition").trim() : "",
       from_created_date: formAdv.getFieldValue("from_created_date")
         ? getStartOfDayCommon(formAdv.getFieldValue("from_created_date"))?.format()
         : null,
@@ -223,9 +224,11 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
       to_pending_date: formAdv.getFieldValue("to_pending_date")
         ? getEndOfDayCommon(formAdv.getFieldValue("to_pending_date"))?.format()
         : null,
+      from_store_id: formSearch.getFieldValue("from_store_id").join(','),
+      to_store_id: formSearch.getFieldValue("to_store_id").join(',')
     };
     onFilter && onFilter(valuesForm);
-  }, [formAdv, onFilter]);
+  }, [formAdv, formSearch, onFilter]);
 
   const onClearFilterClick = useCallback(() => {
     onClearFilter && onClearFilter();
@@ -551,6 +554,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
       <div className="custom-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions} actionDisable={isLoadingAction}>
           <Form
+            form={formSearch}
             onFinish={onFinish}
             ref={formSearchRef}
             initialValues={initialValues}
