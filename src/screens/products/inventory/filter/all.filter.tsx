@@ -659,20 +659,20 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
     onCloseFilterConfig();
   }, [formAdvanceFilter, onCloseFilterConfig]);
 
-  const onChangeStore = useCallback(
-    (e: Array<number>) => {
-      if (e) {
-        let newParams = {
-          ...params,
-          store_ids: e.length === 0 ? undefined : e.toString(),
-        };
-        let queryParam = generateQuery({ ...newParams });
+  // const onChangeStore = useCallback(
+  //   (e: Array<number>) => {
+  //     if (e) {
+  //       let newParams = {
+  //         ...params,
+  //         store_ids: e.length === 0 ? undefined : e.toString(),
+  //       };
+  //       let queryParam = generateQuery({ ...newParams });
 
-        history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
-      }
-    },
-    [history, params],
-  );
+  //       history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
+  //     }
+  //   },
+  //   [history, params],
+  // );
 
   const onChangeRemain = useCallback(
     (e: string) => {
@@ -768,7 +768,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
               placeholder="Chọn cửa hàng"
               autoClearSearchValue={false}
               storeByDepartmentList={listStore}
-              onChange={onChangeStore}
+              // onChange={onChangeStore}
             />
           </Item>
           <Item>
@@ -845,7 +845,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
                   autoClearSearchValue={false}
                   placeholder="Chọn cửa hàng"
                   storeByDepartmentList={listStore}
-                  onChange={onChangeStore}
+                  // onChange={onChangeStore}
                 />
               </Item>
             </Col>
