@@ -3083,7 +3083,7 @@ function OrderCreateProduct(props: PropTypes) {
           <OrderSplitModal
             setVisible={setVisibleOrderSplitModal}
             visible={visibleOrderSplitModal}
-            OrderDetail={{ ...orderDetail, items }}
+            OrderDetail={{ ...orderDetail }}
           />
         )}
       </Card>
