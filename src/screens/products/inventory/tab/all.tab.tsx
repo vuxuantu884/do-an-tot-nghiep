@@ -977,9 +977,16 @@ const AllTab: React.FC<any> = (props) => {
     });
     const newParams = {
       ...params,
-      store_ids: params.store_ids ? params.store_ids : storeParams,
       remain: params.remain ? params.remain : "total_stock",
     };
+
+    if (params.store_ids && Array.isArray(params.store_ids) && params.store_ids.length > 0) {
+      newParams.store_ids = params.store_ids.map((i) => Number(i));
+    } else if (params.store_ids && !Array.isArray(params.store_ids)) {
+      newParams.store_ids = [Number(params.store_ids)];
+    } else {
+      newParams.store_ids = storeParams;
+    }
     setPrams(newParams);
     getInventories(newParams);
     // eslint-disable-next-line react-hooks/exhaustive-deps
