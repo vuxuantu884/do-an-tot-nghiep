@@ -281,7 +281,7 @@ const UpdateTicket: FC = () => {
   return (
     <StyledWrapper>
       <ContentContainer
-        title="1 bao hàng tới 1 kho"
+        title="1 bao hàng cho 1 kho"
         breadcrumb={[
           {
             name: "Kho hàng",
@@ -292,7 +292,7 @@ const UpdateTicket: FC = () => {
             path: `${UrlConfig.INVENTORY_TRANSFERS}`,
           },
           {
-            name: `1 bao hàng tới 1 kho`,
+            name: `1 bao hàng cho 1 kho`,
           },
         ]}
       >
