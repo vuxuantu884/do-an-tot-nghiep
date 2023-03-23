@@ -131,7 +131,7 @@ const InventoryListScreen: React.FC = () => {
 
   const menuItems = [
     {
-      name: "1 bao hàng tới 1 kho",
+      name: "1 bao hàng cho 1 kho",
       url: `${UrlConfig.INVENTORY_TRANSFERS}/import`
     },
     {
