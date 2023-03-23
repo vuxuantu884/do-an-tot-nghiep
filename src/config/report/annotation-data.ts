@@ -255,10 +255,6 @@ export const AnnotationDataList: AnnotationData[] = [
         desc: "SL hàng bán ra (đơn tạo) x Đơn giá bán trên mỗi đơn hàng trên các đơn được tạo ra",
       },
       {
-        annotation: "Tổng chiết khấu (đơn tạo)",
-        desc: "Tổng chiết khấu của từng sản phẩm và chiết khẩu của cả đơn hàng của những đơn được tạo ra",
-      },
-      {
         annotation: "Doanh thu (đơn tạo)",
         desc: "Tổng bán (đơn tạo) - Tổng chiết khấu (đơn tạo) - Tiêu điểm (đơn tạo) - Tổng trả (đơn tạo)",
       },
