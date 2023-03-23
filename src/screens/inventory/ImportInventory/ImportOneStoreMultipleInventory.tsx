@@ -498,18 +498,18 @@ const ImportOneStoreMultipleInventory: FC = () => {
   return (
     <StyledWrapper>
       <ContentContainer
-        title="Nhập file"
+        title="Nhiều bao hàng cho 1 kho"
         breadcrumb={[
           {
             name: "Tổng quan",
             path: UrlConfig.HOME,
           },
           {
-            name: "Chuyển hàng",
+            name: "Chuyển hàng nâng cao",
             path: `${UrlConfig.INVENTORY_TRANSFERS}`,
           },
           {
-            name: `Nhập file`,
+            name: `Nhiều bao hàng cho 1 kho`,
           },
         ]}
       >

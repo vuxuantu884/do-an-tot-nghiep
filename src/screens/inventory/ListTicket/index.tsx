@@ -131,19 +131,19 @@ const InventoryListScreen: React.FC = () => {
 
   const menuItems = [
     {
-      name: "Nhập file 1 kho nhận",
+      name: "1 bao hàng cho 1 kho",
       url: `${UrlConfig.INVENTORY_TRANSFERS}/import`
     },
     {
-      name: "Nhập nhiều file 1 kho nhận",
+      name: "Nhiều bao hàng cho 1 kho",
       url: `${UrlConfig.INVENTORY_TRANSFERS}/import-multiple-file-one-store`
     },
     {
-      name: "Nhập file nhiều kho nhận 1 file",
+      name: "1 danh sách hàng cho nhiều kho",
       url: `${UrlConfig.INVENTORY_TRANSFERS}/import-multiple-from-store`
     },
     {
-      name: "Nhập file nhiều kho nhận nhiều file",
+      name: "Nhiều bao hàng cho nhiều kho",
       url: `${UrlConfig.INVENTORY_TRANSFERS}/import-multiple`
     },
   ];
@@ -207,7 +207,7 @@ const InventoryListScreen: React.FC = () => {
                 onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}/import`)}
                 overlay={menu}
               >
-                <img src={importIcon} style={{ marginRight: 8 }} alt="" /> Nhập file
+                <img src={importIcon} style={{ marginRight: 8 }} alt="" /> Chuyển hàng nâng cao
               </Dropdown.Button>
             </AuthWrapper>
             {/*<AuthWrapper acceptPermissions={[InventoryTransferPermission.request]}>*/}

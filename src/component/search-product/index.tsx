@@ -19,6 +19,9 @@ type Props = {
   storeId?: number | null;
   dataSource?: any;
   ref?: React.RefObject<RefSelectProps>;
+  placeholder?: string;
+  reloadVariantDataFlag?: number;
+  defaultActiveFirstOption?: boolean;
 };
 
 var barCode = "";
@@ -34,6 +37,7 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
 
   const onSearchVariantSelect = useCallback(
     (v, variant) => {
+      console.log("eventKeydownProduct search", isBarcode);
       let newV = parseInt(v);
       const result = [...resultSearchVariant];
       const index = result.findIndex((p) => p.id === newV);
@@ -63,6 +67,7 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
           (data) => {
             if (data.items.length === 0) {
               showError("Không tìm thấy sản phẩm!");
+              setResultSearchVariant([]);
             } else {
               setResultSearchVariant(data.items);
             }
@@ -85,8 +90,10 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
         setIsSearchingProducts(true);
       } else {
         setIsSearchingProducts(false);
-        setResultSearchVariant([]);
       }
+
+      setResultSearchVariant([]);
+
       handleDelayActionWhenInsertTextInSearchInput(
         autoCompleteRef,
         () => {
@@ -113,7 +120,8 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
         setResultSearchVariant([]);
       }
     }
-  }, [handleSearchProductData, keySearch, storeId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.reloadVariantDataFlag]);
 
   const convertResultSearchVariant = useMemo(() => {
     let options: any[] = [];
@@ -159,15 +167,18 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
   const eventKeydownProduct = useCallback(
     (event: any) => {
       if (event.key === "Enter") {
-        isBarcode = true;
         if (barCode !== "" && event) {
+          isBarcode = true;
           let barCodeCopy = barCode;
           handleBarcodeProduct(barCodeCopy);
           barCode = "";
+
+          console.log("eventKeydownProduct enter", isBarcode);
         }
       } else {
         barCode = barCode + event.key;
         isBarcode = false;
+        console.log("eventKeydownProduct", isBarcode);
         handleDelayActionWhenInsertTextInSearchInput(
           autoCompleteRef,
           () => {
@@ -180,7 +191,7 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
       return;
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [handleSearchProductData, setKeySearch, dataSource],
+    [handleBarcodeProduct],
   );
 
   const handleBlur = useCallback(() => {
@@ -202,14 +213,14 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
         onBlur={handleBlur}
         options={convertResultSearchVariant}
         maxLength={255}
-        defaultActiveFirstOption
+        defaultActiveFirstOption={props.defaultActiveFirstOption || false}
         ref={autoCompleteRef}
         dropdownClassName="search-layout dropdown-search-header"
         style={{ width: "100%" }}
       >
         <Input
           size="middle"
-          placeholder="Tìm sản phẩm /Barcode sản phẩm"
+          placeholder={props.placeholder || "Tìm sản phẩm /Barcode sản phẩm"}
           prefix={
             isSearchingProducts ? (
               <LoadingOutlined style={{ color: "#2a2a86" }} />

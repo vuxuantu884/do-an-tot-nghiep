@@ -1,6 +1,5 @@
-import { EditOutlined, LoadingOutlined, SearchOutlined } from "@ant-design/icons";
+import { EditOutlined } from "@ant-design/icons";
 import {
-  AutoComplete,
   Button,
   Card,
   Checkbox,
@@ -25,7 +24,6 @@ import discountCouponSuccess from "assets/icon/discount-coupon-success.svg";
 import BaseResponse from "base/base.response";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
-import SearchedVariant from "component/search-product/SearchedVariant";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
@@ -36,16 +34,12 @@ import {
   changeOrderLineItemsAction,
   setIsShouldSetDefaultStoreBankAccountAction,
 } from "domain/actions/order/order.action";
-import {
-  SearchBarCode,
-  searchVariantsOrderRequestAction,
-} from "domain/actions/product/products.action";
+// import { SearchBarCode } from "domain/actions/product/products.action";
 import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 import _ from "lodash";
-import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { ChangeShippingFeeApplyOrderSettingParamModel } from "model/order/order.model";
-import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
+import { VariantResponse } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   OrderDiscountRequest,
@@ -134,6 +128,7 @@ import { DiscountUnitType } from "screens/promotion/constants";
 import { getSuggestStoreInventory } from "service/core/store.service";
 import SuggestInventoryModal from "screens/order-online/modal/InventoryModal/suggest-inventory.modal";
 import OrderSplitModal from "screens/order-online/modal/OrderSplitModal";
+import SearchProductComponent from "component/search-product";
 
 type PropTypes = {
   storeId: number | null;
@@ -189,16 +184,16 @@ type PropTypes = {
   orderType?: string;
 };
 
-var barcode = "";
-var isBarcode = false;
+// var barcode = "";
+// var isBarcode = false;
 const hubOnlineStoreId = 78;
 
-const initQueryVariant: VariantSearchQuery = {
-  limit: 10,
-  page: 1,
-  saleable: true,
-  active: true,
-};
+// const initQueryVariant: VariantSearchQuery = {
+//   limit: 10,
+//   page: 1,
+//   saleable: true,
+//   active: true,
+// };
 
 /**
  * component dùng trong trang tạo đơn, update đơn hàng, đổi trả đơn hàng
@@ -341,26 +336,26 @@ function OrderCreateProduct(props: PropTypes) {
     taxes_included: true,
     tax_exempt: false,
   };
-  const [loadingAutomaticDiscount] = useState(false);
+  // const [loadingAutomaticDiscount] = useState(false);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
   const [keySearchVariant, setKeySearchVariant] = useState("");
-  const [resultSearchVariant, setResultSearchVariant] = useState<PageResponse<VariantResponse>>({
-    metadata: {
-      limit: 0,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
+  // const [resultSearchVariant, setResultSearchVariant] = useState<PageResponse<VariantResponse>>({
+  //   metadata: {
+  //     limit: 0,
+  //     page: 1,
+  //     total: 0,
+  //   },
+  //   items: [],
+  // });
 
   const [isVisibleGift, setVisibleGift] = useState(false);
-  const [searchProducts, setSearchProducts] = useState(false);
+  // const [searchProducts, setSearchProducts] = useState(false);
   const [indexItem, setIndexItem] = useState<number>(-1);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
   // const [discountType, setDiscountType] = useState<string>(DISCOUNT_TYPE.MONEY);
-  const [isShowProductSearch, setIsShowProductSearch] = useState(true);
-  const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(true);
+  // const [isShowProductSearch, setIsShowProductSearch] = useState(true);
+  // const [isInputSearchProductFocus, setIsInputSearchProductFocus] = useState(true);
   const [isAutomaticDiscount, setIsAutomaticDiscount] = useState(
     form.getFieldValue("automatic_discount") || false,
   );
@@ -426,114 +421,111 @@ function OrderCreateProduct(props: PropTypes) {
     return;
   };
 
-  const handleSearchBarcode = useCallback(
-    (barCode, items) => {
-      dispatch(
-        SearchBarCode(barCode, (data: VariantResponse) => {
-          if (data) {
-            let _items = [...items];
-            let index = _items.findIndex((i) => i.variant_id === data.id);
-            const item: OrderLineItemRequest = createItem(
-              data,
-              props.orderType === EnumOrderType.b2b,
-            );
+  // const handleSearchBarcode = useCallback(
+  //   (barCode, items) => {
+  //     dispatch(
+  //       SearchBarCode(barCode, (data: VariantResponse) => {
+  //         if (data) {
+  //           let _items = [...items];
+  //           let index = _items.findIndex((i) => i.variant_id === data.id);
+  //           const item: OrderLineItemRequest = createItem(data);
 
-            item.position = items.length + 1;
-            if (true) {
-              if (splitLine || index === -1) {
-                _items.unshift(item);
-                if (!isAutomaticDiscount && !coupon) {
-                  calculateChangeMoney(_items);
-                }
-              } else {
-                let variantItems = _items.filter((item) => item.variant_id === data.id);
-                let firstIndex = 0;
-                variantItems[firstIndex].quantity += 1;
-                variantItems[firstIndex].line_amount_after_line_discount +=
-                  variantItems[firstIndex].price -
-                  variantItems[firstIndex].discount_items[0]?.amount *
-                    variantItems[firstIndex].quantity;
-                if (!isAutomaticDiscount && !coupon) {
-                  calculateChangeMoney(_items);
-                }
-              }
-            }
+  //           item.position = items.length + 1;
+  //           if (true) {
+  //             if (splitLine || index === -1) {
+  //               _items.unshift(item);
+  //               if (!isAutomaticDiscount && !coupon) {
+  //                 calculateChangeMoney(_items);
+  //               }
+  //             } else {
+  //               let variantItems = _items.filter((item) => item.variant_id === data.id);
+  //               let firstIndex = 0;
+  //               variantItems[firstIndex].quantity += 1;
+  //               variantItems[firstIndex].line_amount_after_line_discount +=
+  //                 variantItems[firstIndex].price -
+  //                 variantItems[firstIndex].discount_items[0]?.amount *
+  //                   variantItems[firstIndex].quantity;
+  //               if (!isAutomaticDiscount && !coupon) {
+  //                 calculateChangeMoney(_items);
+  //               }
+  //             }
+  //           }
 
-            const isLineItemSemiAutomatic = _items.some((p) => p.isLineItemSemiAutomatic); // xác định là ck line item thủ công
-            const isOrderSemiAutomatic = promotion?.isOrderSemiAutomatic; //xác định là ck đơn hàng thủ công
-            if (isLineItemSemiAutomatic) {
-              if (
-                props.isPageOrderUpdate &&
-                !splitLine &&
-                items.some((p: any) => p.sku === item.sku && p?.discount_items[0])
-              ) {
-                const _index = _items.findIndex((p) => p.sku === item.sku);
-                _items[index].discount_items[0] &&
-                  handUpdateDiscountWhenChangingOrderInformation(_items, _index);
-              } else if (!props.isPageOrderUpdate) {
-                handUpdateDiscountWhenChangingOrderInformation(_items);
-              }
-            } else if (isOrderSemiAutomatic) {
-              handUpdateDiscountWhenChangingOrderInformation(_items);
-            } else if (isAutomaticDiscount) {
-              handleApplyDiscount(_items);
-            }
-            setIsInputSearchProductFocus(false);
-          }
-        }),
-      );
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [couponInputText, dispatch, isAutomaticDiscount, splitLine, props.orderType],
-  );
+  //           const isLineItemSemiAutomatic = _items.some((p) => p.isLineItemSemiAutomatic); // xác định là ck line item thủ công
+  //           const isOrderSemiAutomatic = promotion?.isOrderSemiAutomatic; //xác định là ck đơn hàng thủ công
+  //           if (isLineItemSemiAutomatic) {
+  //             if (
+  //               props.isPageOrderUpdate &&
+  //               !splitLine &&
+  //               items.some((p: any) => p.sku === item.sku && p?.discount_items[0])
+  //             ) {
+  //               const _index = _items.findIndex((p) => p.sku === item.sku);
+  //               _items[index].discount_items[0] &&
+  //                 handUpdateDiscountWhenChangingOrderInformation(_items, _index);
+  //             } else if (!props.isPageOrderUpdate) {
+  //               handUpdateDiscountWhenChangingOrderInformation(_items);
+  //             }
+  //           } else if (isOrderSemiAutomatic) {
+  //             handUpdateDiscountWhenChangingOrderInformation(_items);
+  //           } else if (isAutomaticDiscount) {
+  //             handleApplyDiscount(_items);
+  //           }
+  //           setIsInputSearchProductFocus(false);
+  //         }
+  //       }),
+  //     );
+  //   },
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [couponInputText, dispatch, isAutomaticDiscount, splitLine, props.orderType],
+  // );
 
-  const eventKeyPress = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLBodyElement) {
-        if (event.key !== "Enter") {
-          barcode = barcode + event.key;
-        } else if (event.key === "Enter") {
-          if (barcode !== "" && event && items) {
-            handleSearchBarcode(barcode, items);
-            barcode = "";
-          }
-        }
-        return;
-      }
-    },
+  // const eventKeyPress = useCallback(
+  //   (event: KeyboardEvent) => {
+  //     if (event.target instanceof HTMLBodyElement) {
+  //       if (event.key !== "Enter") {
+  //         barcode = barcode + event.key;
+  //       } else if (event.key === "Enter") {
+  //         if (barcode !== "" && event && items) {
+  //           handleSearchBarcode(barcode, items);
+  //           barcode = "";
+  //         }
+  //       }
+  //       return;
+  //     }
+  //   },
 
-    [items, handleSearchBarcode],
-  );
+  //   [items, handleSearchBarcode],
+  // );
 
-  const eventKeydown = useCallback(
-    (event: any) => {
-      if (event.target instanceof HTMLInputElement) {
-        if (event.target.id === "search_product") {
-          if (event.key !== "Enter") barcode = barcode + event.key;
+  // const eventKeydown = useCallback(
+  //   (event: any) => {
+  //     if (event.target instanceof HTMLInputElement) {
+  //       if (event.target.id === "search_product") {
+  //         if (event.key !== "Enter") barcode = barcode + event.key;
 
-          if (event.key === "Enter") {
-            onClearVariantSearch();
-            isBarcode = true;
-            if (barcode !== "" && event && items) {
-              handleSearchBarcode(barcode, items);
-              barcode = "";
-            }
-          } else {
-            isBarcode = false;
-            handleDelayActionWhenInsertTextInSearchInput(
-              autoCompleteRef,
-              () => {
-                barcode = "";
-              },
-              500,
-            );
-          }
-        }
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [handleSearchBarcode, items],
-  );
+  //         if (event.key === "Enter") {
+  //           onClearVariantSearch();
+  //           isBarcode = true;
+  //           if (barcode !== "" && event && items) {
+  //             handleSearchBarcode(barcode, items);
+  //             barcode = "";
+  //           }
+  //         } else {
+  //           isBarcode = false;
+  //           handleDelayActionWhenInsertTextInSearchInput(
+  //             autoCompleteRef,
+  //             () => {
+  //               barcode = "";
+  //             },
+  //             500,
+  //           );
+  //         }
+  //       }
+  //     }
+  //   },
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [handleSearchBarcode, items],
+  // );
 
   const isShouldUpdatePrivateNote = useMemo(() => {
     if (props.isPageOrderUpdate && form.getFieldValue("note")) {
@@ -752,16 +744,16 @@ function OrderCreateProduct(props: PropTypes) {
     }
   };
 
-  const convertResultSearchVariant = useMemo(() => {
-    let options: any[] = [];
-    resultSearchVariant.items.forEach((item: VariantResponse, index: number) => {
-      options.push({
-        label: <SearchedVariant item={item} isWholesale={props.orderType === EnumOrderType.b2b} />,
-        value: item.id ? item.id.toString() : "",
-      });
-    });
-    return options;
-  }, [resultSearchVariant, props.orderType]);
+  // const convertResultSearchVariant = useMemo(() => {
+  //   let options: any[] = [];
+  //   resultSearchVariant.items.forEach((item: VariantResponse, index: number) => {
+  //     options.push({
+  //       label: <SearchedVariant item={item} isWholesale={props.orderType === EnumOrderType.b2b} />,
+  //       value: item.id ? item.id.toString() : "",
+  //     });
+  //   });
+  //   return options;
+  // }, [resultSearchVariant, props.orderType]);
 
   const checkIfLineItemHasAutomaticDiscount = (lineItem: OrderLineItemRequest) => {
     return lineItem.discount_items.some(
@@ -968,9 +960,9 @@ function OrderCreateProduct(props: PropTypes) {
             disabled={
               levelOrder > 3 ||
               checkIfLineItemHasAutomaticDiscount(l) ||
-              couponInputText !== "" ||
               promotion !== null ||
-              userReducer?.account?.role_id !== ACCOUNT_ROLE_ID.admin ||
+              (userReducer?.account?.role_id !== ACCOUNT_ROLE_ID.admin &&
+                props.orderType === EnumOrderType.b2c) ||
               isLoadingDiscount ||
               checkIfOtherLineItemIsChanged()
             }
@@ -1183,10 +1175,13 @@ function OrderCreateProduct(props: PropTypes) {
   ];
 
   const autoCompleteRef = createRef<RefSelectProps>();
-  const createItem = (variant: VariantResponse, isWholesale?: boolean) => {
+  const createItem = (
+    variant: VariantResponse,
+    isWholesale?: boolean, // bán buôn
+  ) => {
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
     if (isWholesale) {
-      price = findWholesalePriceInVariant(variant.variant_prices, AppConfig.currency);
+      price = findWholesalePriceInVariant(variant.variant_prices, AppConfig.currency); //lấy giá bán buôn
     }
     const taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
     const avatar = findAvatar(variant.variant_images);
@@ -1822,30 +1817,113 @@ function OrderCreateProduct(props: PropTypes) {
     }
   };
 
-  const onSearchVariantSelect = useCallback(
-    (v, o) => {
+  // const onSearchVariantSelect = useCallback(
+  //   (v, o) => {
+  //     const selectProduct = () => {
+  //       if (isBarcode === true) return;
+  //       if (!items) {
+  //         return;
+  //       }
+
+  //       let newV = parseInt(v);
+  //       let _items = [...items];
+  //       let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);
+  //       let index = _items.findIndex((i) => i.variant_id === newV);
+  //       let r: VariantResponse = resultSearchVariant.items[indexSearch];
+  //       const item: OrderLineItemRequest = createItem(r);
+  //       item.position = getPositionLineItem(items);
+
+  //       if (r.id === newV && checkInventory(item) === true) {
+  //         if (splitLine || index === -1) {
+  //           _items.unshift(item);
+  //           if (!isAutomaticDiscount) {
+  //             calculateChangeMoney(_items);
+  //           }
+  //         } else {
+  //           let variantItems = _items.filter((item) => item.variant_id === newV);
+  //           let firstIndex = 0;
+  //           let selectedItem = variantItems[firstIndex];
+  //           selectedItem.quantity += 1;
+  //           selectedItem.line_amount_after_line_discount +=
+  //             selectedItem.price - selectedItem.discount_items[0]?.amount * selectedItem.quantity;
+  //           selectedItem.discount_items.forEach((single) => {
+  //             single.amount = single.value * selectedItem.quantity;
+  //           });
+  //           if (!isAutomaticDiscount) {
+  //             calculateChangeMoney(_items);
+  //           }
+  //         }
+  //       }
+
+  //       const isLineItemSemiAutomatic = _items.some((p) => p.isLineItemSemiAutomatic); // xác định là ck line item thủ công
+  //       const isOrderSemiAutomatic = promotion?.isOrderSemiAutomatic; //xác định là ck đơn hàng thủ công
+  //       if (isLineItemSemiAutomatic) {
+  //         if (
+  //           props.isPageOrderUpdate &&
+  //           !splitLine &&
+  //           items.some((p) => p.sku === item.sku && p?.discount_items[0])
+  //         ) {
+  //           const _index = _items.findIndex((p) => p.sku === item.sku);
+  //           _items[index].discount_items[0] &&
+  //             handUpdateDiscountWhenChangingOrderInformation(_items, _index);
+  //         } else if (!props.isPageOrderUpdate) {
+  //           handUpdateDiscountWhenChangingOrderInformation(_items);
+  //         }
+  //       } else if (isOrderSemiAutomatic) {
+  //         handUpdateDiscountWhenChangingOrderInformation(_items);
+  //       } else if (isAutomaticDiscount) {
+  //         handleApplyDiscount(_items);
+  //       }
+
+  //       setIsInputSearchProductFocus(false);
+  //       onClearVariantSearch();
+  //       autoCompleteRef?.current?.blur();
+  //     };
+  //     handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () => selectProduct());
+  //   },
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [
+  //     items,
+  //     resultSearchVariant.items,
+  //     promotion,
+  //     isAutomaticDiscount,
+  //     couponInputText,
+  //     autoCompleteRef,
+  //     splitLine,
+  //     handleApplyDiscount,
+  //     handleApplyCouponWhenInsertCoupon,
+  //     props.orderType,
+  //   ],
+  // );
+
+  console.log("sellable_inventory", orderConfig?.sellable_inventory);
+  const updateLineItemInformation = useCallback(
+    (_variant: VariantResponse) => {
       const selectProduct = () => {
-        if (isBarcode === true) return;
         if (!items) {
           return;
         }
 
-        let newV = parseInt(v);
         let _items = [...items];
-        let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);
-        let index = _items.findIndex((i) => i.variant_id === newV);
-        let r: VariantResponse = resultSearchVariant.items[indexSearch];
-        const item: OrderLineItemRequest = createItem(r, props.orderType === EnumOrderType.b2b);
+        let index = _items.findIndex((i) => i.variant_id === _variant.id);
+        const item: OrderLineItemRequest = createItem(_variant);
         item.position = getPositionLineItem(items);
+        console.log(
+          "updateProductInformation",
+          index,
+          item,
+          _items,
+          orderConfig?.sellable_inventory,
+        );
 
-        if (r.id === newV && checkInventory(item) === true) {
+        if (checkInventory(item, orderConfig?.sellable_inventory) === true) {
           if (splitLine || index === -1) {
             _items.unshift(item);
             if (!isAutomaticDiscount) {
               calculateChangeMoney(_items);
             }
           } else {
-            let variantItems = _items.filter((item) => item.variant_id === newV);
+            let variantItems = _items.filter((item) => item.variant_id === _variant.id);
             let firstIndex = 0;
             let selectedItem = variantItems[firstIndex];
             selectedItem.quantity += 1;
@@ -1880,36 +1958,32 @@ function OrderCreateProduct(props: PropTypes) {
           handleApplyDiscount(_items);
         }
 
-        setIsInputSearchProductFocus(false);
-        onClearVariantSearch();
-        autoCompleteRef?.current?.blur();
+        // setIsInputSearchProductFocus(false);
+        // onClearVariantSearch();
       };
       handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () => selectProduct());
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       items,
-      resultSearchVariant.items,
       promotion,
       isAutomaticDiscount,
-      couponInputText,
-      autoCompleteRef,
       splitLine,
       handleApplyDiscount,
-      handleApplyCouponWhenInsertCoupon,
-      props.orderType,
+      orderConfig?.sellable_inventory,
     ],
   );
 
   /**
    * kiểm tra Sản phẩm thêm ăn theo cấu hình cài đặt của tồn kho bán
    */
-  const checkInventory = (item: OrderLineItemRequest) => {
+  const checkInventory = (item: OrderLineItemRequest, sellablInventory?: boolean) => {
     if (!item) return true;
 
     let available = item.available === null ? 0 : item.available;
 
-    if (available <= 0 && orderConfig?.sellable_inventory !== true) {
+    console.log("checkInventory", sellablInventory);
+    if (available <= 0 && sellablInventory !== true) {
       showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
       return false;
     }
@@ -1917,65 +1991,65 @@ function OrderCreateProduct(props: PropTypes) {
     return true;
   };
 
-  const onChangeProductSearch = useCallback(
-    async (value: string) => {
-      setIsInputSearchProductFocus(true);
-      setKeySearchVariant(value);
+  // const onChangeProductSearch = useCallback(
+  //   async (value: string) => {
+  //     setIsInputSearchProductFocus(true);
+  //     setKeySearchVariant(value);
 
-      if (!isShowProductSearch || !isInputSearchProductFocus) {
-        return;
-      }
-      if (orderConfig?.allow_choose_item && value) {
-        await form?.validateFields(["store_id"]).catch(() => {
-          return;
-        });
-      }
+  //     if (!isShowProductSearch || !isInputSearchProductFocus) {
+  //       return;
+  //     }
+  //     if (orderConfig?.allow_choose_item && value) {
+  //       await form?.validateFields(["store_id"]).catch(() => {
+  //         return;
+  //       });
+  //     }
 
-      initQueryVariant.info = value;
-      initQueryVariant.store_ids = form?.getFieldValue(["store_id"]);
-      if (value.length >= 3) {
-        setSearchProducts(true);
-      } else {
-        setSearchProducts(false);
-      }
-      const handleSearchProduct = () => {
-        if (isBarcode === false) {
-          if (value.trim()) {
-            (async () => {
-              try {
-                await dispatch(
-                  searchVariantsOrderRequestAction(
-                    initQueryVariant,
-                    (data) => {
-                      setResultSearchVariant(data);
-                      setSearchProducts(false);
-                      setIsShowProductSearch(true);
-                      if (data.items.length === 0) {
-                        showError("Không tìm thấy sản phẩm!");
-                      }
-                    },
-                    () => {
-                      setSearchProducts(false);
-                    },
-                  ),
-                );
-              } catch {
-                setSearchProducts(false);
-              }
-            })();
-          } else {
-            setSearchProducts(false);
-          }
-        } else {
-          onClearVariantSearch();
-          setSearchProducts(false);
-        }
-      };
-      handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () => handleSearchProduct());
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [form],
-  );
+  //     initQueryVariant.info = value;
+  //     initQueryVariant.store_ids = form?.getFieldValue(["store_id"]);
+  //     if (value.length >= 3) {
+  //       setSearchProducts(true);
+  //     } else {
+  //       setSearchProducts(false);
+  //     }
+  //     const handleSearchProduct = () => {
+  //       if (isBarcode === false) {
+  //         if (value.trim()) {
+  //           (async () => {
+  //             try {
+  //               await dispatch(
+  //                 searchVariantsOrderRequestAction(
+  //                   initQueryVariant,
+  //                   (data) => {
+  //                     setResultSearchVariant(data);
+  //                     setSearchProducts(false);
+  //                     setIsShowProductSearch(true);
+  //                     if (data.items.length === 0) {
+  //                       showError("Không tìm thấy sản phẩm!");
+  //                     }
+  //                   },
+  //                   () => {
+  //                     setSearchProducts(false);
+  //                   },
+  //                 ),
+  //               );
+  //             } catch {
+  //               setSearchProducts(false);
+  //             }
+  //           })();
+  //         } else {
+  //           setSearchProducts(false);
+  //         }
+  //       } else {
+  //         onClearVariantSearch();
+  //         setSearchProducts(false);
+  //       }
+  //     };
+  //     handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () => handleSearchProduct());
+  //   },
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [form],
+  // );
 
   const showInventoryModal = useCallback(() => {
     if (items !== null && items?.length) setInventoryModalVisible(true);
@@ -2295,31 +2369,31 @@ function OrderCreateProduct(props: PropTypes) {
     calculateChangeMoney(_items, _promotion);
   };
 
-  const onInputSearchProductFocus = () => {
-    setIsInputSearchProductFocus(true);
-    autoCompleteRef.current?.focus();
-  };
+  // const onInputSearchProductFocus = () => {
+  //   setIsInputSearchProductFocus(true);
+  //   autoCompleteRef.current?.focus();
+  // };
 
-  const onInputSearchProductBlur = () => {
-    setIsInputSearchProductFocus(false);
-  };
+  // const onInputSearchProductBlur = () => {
+  //   setIsInputSearchProductFocus(false);
+  // };
 
   const onClearVariantSearch = () => {
     setKeySearchVariant("");
-    setResultSearchVariant({
-      metadata: {
-        limit: 0,
-        page: 1,
-        total: 0,
-      },
-      items: [],
-    });
+    // setResultSearchVariant({
+    //   metadata: {
+    //     limit: 0,
+    //     page: 1,
+    //     total: 0,
+    //   },
+    //   items: [],
+    // });
   };
 
   const onChangeStore = useCallback(
     (value: number) => {
       setStoreId(value);
-      setIsShowProductSearch(true);
+      // setIsShowProductSearch(true);
       onClearVariantSearch();
       if (items && inventoryResponse) {
         let inventoryInStore = inventoryResponse?.find((p) => p.store_id === value);
@@ -2520,11 +2594,11 @@ function OrderCreateProduct(props: PropTypes) {
       .finally(() => {});
   };
 
-  useEffect(() => {
-    if (items && items.length > 0) {
-      setIsShowProductSearch(true);
-    }
-  }, [items]);
+  // useEffect(() => {
+  //   if (items && items.length > 0) {
+  //     setIsShowProductSearch(true);
+  //   }
+  // }, [items]);
 
   useEffect(() => {
     dispatch(StoreSearchListAction("", setStoreArrayResponse));
@@ -2603,15 +2677,15 @@ function OrderCreateProduct(props: PropTypes) {
   }, [props.isPageOrderUpdate]);
 
   useEffect(() => {
-    window.addEventListener("keypress", eventKeyPress);
-    window.addEventListener("keydown", eventKeydown);
+    // window.addEventListener("keypress", eventKeyPress);
+    // window.addEventListener("keydown", eventKeydown);
     window.addEventListener("keydown", handlePressKeyBoards);
     return () => {
-      window.removeEventListener("keypress", eventKeyPress);
-      window.removeEventListener("keydown", eventKeydown);
+      // window.removeEventListener("keypress", eventKeyPress);
+      // window.removeEventListener("keydown", eventKeydown);
       window.removeEventListener("keydown", handlePressKeyBoards);
     };
-  }, [eventKeyPress, handlePressKeyBoards, eventKeydown]);
+  }, [handlePressKeyBoards]);
 
   useEffect(() => {
     if (isCustomOriginalHandmadeDiscount || props.orderType === EnumOrderType.b2b) {
@@ -2820,7 +2894,7 @@ function OrderCreateProduct(props: PropTypes) {
                   if (value) {
                     onChangeStore(value);
                   } else {
-                    setIsShowProductSearch(false);
+                    // setIsShowProductSearch(false);
                   }
                   dispatch(setIsShouldSetDefaultStoreBankAccountAction(true));
                 }}
@@ -2836,7 +2910,7 @@ function OrderCreateProduct(props: PropTypes) {
           </Col>
           <Col md={16}>
             <Form.Item>
-              <AutoComplete
+              {/* <AutoComplete
                 notFoundContent={
                   keySearchVariant.length >= 3
                     ? searchProducts
@@ -2875,7 +2949,18 @@ function OrderCreateProduct(props: PropTypes) {
                   }
                   disabled={levelOrder > 3}
                 />
-              </AutoComplete>
+              </AutoComplete> */}
+              <SearchProductComponent
+                keySearch={keySearchVariant}
+                setKeySearch={setKeySearchVariant}
+                id="search_product"
+                onSelect={(variant) => {
+                  variant && updateLineItemInformation(variant);
+                }}
+                placeholder="Tìm sản phẩm mã 7... (F3)/ Barcode sản phẩm"
+                storeId={storeId}
+                defaultActiveFirstOption={true}
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -2998,7 +3083,7 @@ function OrderCreateProduct(props: PropTypes) {
           <OrderSplitModal
             setVisible={setVisibleOrderSplitModal}
             visible={visibleOrderSplitModal}
-            OrderDetail={{ ...orderDetail, items }}
+            OrderDetail={{ ...orderDetail }}
           />
         )}
       </Card>

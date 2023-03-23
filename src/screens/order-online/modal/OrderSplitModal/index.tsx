@@ -243,7 +243,7 @@ const OrderSplitModal: React.FC<Props> = (props: Props) => {
     _order.store = null;
     let _orderSplits: OrderSplitModel[] = [_order];
     setOrderSplit(_orderSplits);
-  }, [props.OrderDetail]);
+  }, [props.OrderDetail, props.OrderDetail.items]);
 
   return (
     <React.Fragment>

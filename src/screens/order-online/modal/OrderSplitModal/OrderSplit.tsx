@@ -36,16 +36,14 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
   );
   const [isLoadingInventory, setLoadingInventory] = useState(false);
 
-  const items = useMemo(() => {
-    console.log("orderSplit.items", orderSplit.items);
+  const variantInventory = useMemo(() => {
     if (!orderSplit.items) return [];
     const _variant = _.cloneDeep(orderSplit.items);
     const _variantGifts = orderSplit.items.map((p) => p.gifts);
     const _variantGiftsIdConvertArray = flattenArray(_variantGifts);
     const _variants: any[] = [..._variant, ..._variantGiftsIdConvertArray];
     return _variants;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderSplit.items, randomKeyTable]);
+  }, [orderSplit]);
 
   const getInventory = useCallback(() => {
     setLoadingInventory(true);
@@ -56,7 +54,7 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
         address: {
           city_id: shippingAddress?.city_id,
         },
-        line_item: items.map((p) => {
+        line_item: variantInventory.map((p) => {
           return {
             variant_id: p.variant_id,
             quantity: p.quantity,
@@ -69,9 +67,9 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
         setLoadingInventory(false);
       } catch (error) {}
     })();
-  }, [items, orderCustomer]);
+  }, [variantInventory, orderCustomer]);
   useEffect(() => {
-    if (items.length > 0 && isInventoryModalVisible) {
+    if (variantInventory.length > 0 && isInventoryModalVisible) {
       getInventory();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -135,13 +133,6 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
           <NumberInput
             value={record.quantity}
             onChange={(value) => handleChangeQuantity(value, index)}
-            onBlur={(e) => {
-              console.log(e.target.value);
-              //   if (!orderSplitCheckQuantityOriginalOrder(data, items, record.index)) {
-              //     showError("Số lượng sản phẩm tách, không được vượt quá sản phẩm gốc");
-              //     handleChangeQuantityItems(record.quantity, index);
-              //   }
-            }}
           />
         );
       },
@@ -153,7 +144,9 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
       visible: true,
       align: "center",
       width: "7%",
-      render: (value: any, record: LineItemOrderSplitModel, index: number) => <div>{value}</div>,
+      render: (value: any, record: LineItemOrderSplitModel, index: number) => (
+        <div>{value || 0}</div>
+      ),
     },
     {
       title: "Đơn giá",
@@ -218,7 +211,7 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
   );
 
   useEffect(() => {
-    const _data = items.map((item, index) => {
+    const _data = orderSplit.items.map((item, index) => {
       const _gifts = item.gifts?.map((p: any) => ({
         sku: p.sku,
         variant: p.variant,
@@ -240,9 +233,8 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
       };
     });
 
-    console.log("LineItemOrderSplitModel data", _data);
     setData(_data);
-  }, [items]);
+  }, [orderSplit]);
 
   return (
     <StyledComponent>
@@ -274,7 +266,7 @@ const OrderSplit: React.FC<Props> = (props: Props) => {
           setVisible={setInventoryModalVisible}
           storeId={orderStoreId}
           onChangeStore={(storeId) => handleChangeStore(storeId)}
-          columnsItem={items}
+          columnsItem={variantInventory}
           inventoryArray={inventoryResponse}
           storeArrayResponse={props.storeArrayResponse}
           handleCancel={() => setInventoryModalVisible(false)}

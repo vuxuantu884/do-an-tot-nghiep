@@ -1476,38 +1476,39 @@ export default function Order() {
     };
   }, [eventFunctional]);
 
-  useEffect(() => {
-    if (allowOrderB2BWrite && !isCloneOrder) {
-      setInitialForm({
-        ...initialForm,
-        automatic_discount: false,
-        type: EnumOrderType.b2b,
-        store_id: null,
-      });
-      setOrderType(EnumOrderType.b2b);
-      setPaymentMethod(PaymentMethodOption.PRE_PAYMENT);
-      const paymentSingle = paymentMethods.find((p) => p.code === PaymentMethodCode.BANK_TRANSFER);
-      paymentSingle &&
-        setPayments([
-          {
-            payment_method_id: paymentSingle?.id || 0,
-            amount: 0,
-            paid_amount: 0,
-            return_amount: 0,
-            status: ORDER_PAYMENT_STATUS.paid,
-            name: paymentSingle?.name,
-            payment_method_code: paymentSingle?.code,
-            payment_method: paymentSingle?.name || "",
-            reference: "",
-            source: "",
-            customer_id: 1,
-            note: "",
-            type: "",
-          },
-        ]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allowOrderB2BWrite, paymentMethods]);
+  // có quyền bán buồn, default các thông tin theo đơn bán buôn
+  // useEffect(() => {
+  //   if (allowOrderB2BWrite && !isCloneOrder) {
+  //     setInitialForm({
+  //       ...initialForm,
+  //       automatic_discount: false,
+  //       type: EnumOrderType.b2b,
+  //       store_id: null,
+  //     });
+  //     setOrderType(EnumOrderType.b2b);
+  //     setPaymentMethod(PaymentMethodOption.PRE_PAYMENT);
+  //     const paymentSingle = paymentMethods.find((p) => p.code === PaymentMethodCode.BANK_TRANSFER);
+  //     paymentSingle &&
+  //       setPayments([
+  //         {
+  //           payment_method_id: paymentSingle?.id || 0,
+  //           amount: 0,
+  //           paid_amount: 0,
+  //           return_amount: 0,
+  //           status: ORDER_PAYMENT_STATUS.paid,
+  //           name: paymentSingle?.name,
+  //           payment_method_code: paymentSingle?.code,
+  //           payment_method: paymentSingle?.name || "",
+  //           reference: "",
+  //           source: "",
+  //           customer_id: 1,
+  //           note: "",
+  //           type: "",
+  //         },
+  //       ]);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [allowOrderB2BWrite, paymentMethods]);
 
   if (isCloneOrderFromPOS) {
     return <div className="cannotClone">Đơn hàng offline không thể sao chép</div>;

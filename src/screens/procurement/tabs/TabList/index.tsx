@@ -208,7 +208,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         title: "Mã phiếu nhập kho",
         dataIndex: "code",
         fixed: "left",
-        width: "12%",
+        width: "14%",
         visible: true,
         render: (value, record) => {
           // Cải tiến UI chuyển từ modal sang chế độ view full screen
@@ -249,19 +249,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
                 color="white"
                 title={
                   <>
-                    {record.purchase_order.code && (
-                      <div className="text-muted">
-                        Mã đơn đặt hàng:{" "}
-                        <Link
-                          to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {record.purchase_order.code}
-                        </Link>
-                      </div>
-                    )}
-
                     {record?.purchase_order?.reference && (
                       <div className="text-muted">
                         Mã tham chiếu:{" "}
@@ -307,6 +294,18 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
               >
                 <InfoCircleTwoTone />
               </Tooltip>
+              {record.purchase_order.code && (
+                <div className="text-muted">
+                  Mã đơn:{" "}
+                  <Link
+                    to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {record.purchase_order.code}
+                  </Link>
+                </div>
+              )}
               <div style={{ color: color }}>
                 {icon && (
                   <img
@@ -385,7 +384,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         title: "Người nhập hàng",
         dataIndex: "stock_in_by",
         visible: true,
-        width: "15%",
+        width: "13%",
         render: (value) => {
           if (value) {
             const stockInByName = value.split("-");
