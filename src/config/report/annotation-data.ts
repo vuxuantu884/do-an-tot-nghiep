@@ -48,7 +48,7 @@ export const AnnotationDataList: AnnotationData[] = [
       },
       {
         annotation: "Tổng trả",
-        desc: "Tổng tiền trả khách (Tổng đơn giá đơn trả sau chiết khấu - Hoàn điểm)",
+        desc: "Tổng tiền trả khách (Tổng đơn giá đơn trả sau chiết khấu và bao gồm Hoàn điểm)<br>Ví dụ: Mua 1 sản phẩm có nguyên giá là 300.000, chiết khấu là 10.000, tiêu điểm là 20, vậy tổng trả là 270.000",
       },
       {
         annotation: "Doanh thu sau chiết khấu",
@@ -56,23 +56,27 @@ export const AnnotationDataList: AnnotationData[] = [
       },
       {
         annotation: "Doanh thu sau chiết khấu - trả hàng",
-        desc: "Tổng bán - Tổng chiết khấu - Tổng trả",
+        desc: "Tổng bán - Tổng chiết khấu - Tổng trả thành công",
       },
       {
         annotation: "Doanh thu sau chiết khấu - tiêu điểm",
         desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm",
       },
       {
+        annotation: "Doanh thu sau chiết khấu - tiêu điểm - trả hàng",
+        desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm - Tổng trả",
+      },
+      {
         annotation: "Doanh thu",
-        desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm - Tổng trả + Hoàn điểm",
+        desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm - Tổng trả (Hoàn điểm đã được tính trong Tổng trả)",
       },
       {
         annotation: "TB giá trị đơn hàng",
-        desc: "Doanh thu/(SL đơn hàng - SL đơn trả)",
+        desc: "Doanh thu / SL đơn hàng",
       },
       {
         annotation: "SL khách hàng",
-        desc: '<p> Số lượng khách hàng duy nhất trong khoảng thời gian chọn.</p><p> <em data-renderer-mark="true"><strong data-renderer-mark="true">Ví dụ:</strong></em></p><ul class="ak-ul" data-indent-level="1"> <li>     <p>         Khách hàng A mua 2 đơn: Đơn 1 ngày         28/04/2022, đơn 2 ngày 30/04/2022     </p> </li> <li>     <p>         Khách hàng B mua 3 đơn: Đơn 1 ngày         28/04/2022, đơn 2 ngày 30/04/2022, đơn 3         ngày 27/05/2022     </p> </li> <li>     <p>         Khách hàng C mua 2 đơn: Đơn 1 ngày         01/04/2020, đơn 2 ngày 30/04/2022     </p> </li></ul><p> <em data-renderer-mark="true"><strong data-renderer-mark="true">-&gt; Tổng số lượng khách hàng </strong>khoảng thời gian từ 28/04/2022 đến 28/05/2022 =     3 (Khách A, B, C)</em></p>',
+        desc: '<p data-renderer-start-pos="7995">Số lượng khách hàng duy nhất trong khoảng thời gian chọn.<br>Ví dụ:<br>Khách hàng A mua 2 đơn: Đơn 1 ngày 28/04/2022, đơn 2 ngày 30/04/2022<br>Khách hàng B mua 3 đơn: Đơn 1 ngày 28/04/2022, đơn 2 ngày 30/04/2022, đơn 3 ngày 27/05/2022<br>Khách hàng C mua 2 đơn: Đơn 1 ngày 01/04/2020, đơn 2 ngày 30/04/2022<br>-&gt; Tổng số lượng khách hàng khoảng thời gian từ 28/04/2022 đến 28/05/2022 = 3 (Khách A, B, C)</p>',
       },
       {
         annotation: "TB chi tiêu của khách hàng",
@@ -84,11 +88,11 @@ export const AnnotationDataList: AnnotationData[] = [
       },
       {
         annotation: "Tiền mặt",
-        desc: "Số tiền mặt thu được và trả lại khách",
+        desc: "Số tiền mặt thu được (Số tiền mặt khách trả - số tiền mặt trả lại khách)",
       },
       {
         annotation: "Chuyển khoản",
-        desc: "Số tiền thu được từ phương thức chuyển khoản hoặc chuyển lại cho khách",
+        desc: "Số tiền thu được từ phương thức chuyển khoản (Số tiền mặt khách chuyển cho mình - số tiền mình chuyển lại cho khách)",
       },
       {
         annotation: "Quẹt thẻ",
@@ -99,12 +103,24 @@ export const AnnotationDataList: AnnotationData[] = [
         desc: "Số tiền thu được từ hình thức QR Pay",
       },
       {
+        annotation: "COD",
+        desc: "Số tiền sử dụng dịch vụ phát hàng thu tiền hộ",
+      },
+      {
         annotation: "Thanh toán khác",
         desc: "Số tiền thu được bằng hình thức thanh toán khác",
       },
       {
         annotation: "Tiền đã thanh toán",
-        desc: "Tiền mặt + chuyển khoản + quẹt thẻ + thanh toán QR pay + thanh toán khác",
+        desc: "Tiền mặt + chuyển khoản + quẹt thẻ + thanh toán QR pay + COD + thanh toán khác",
+      },
+      {
+        annotation: "Thuế ( thành công)",
+        desc: "VAT của sp + VAT của chiết khấu (đã đăng ký bct, là gồm chiết khấu của sp và chiết khấu của tổng đơn được phân biệt) của đơn thành công",
+      },
+      {
+        annotation: "Doanh thu thuần",
+        desc: "Doanh thu - Thuế",
       },
     ],
     documentLink:
@@ -114,14 +130,6 @@ export const AnnotationDataList: AnnotationData[] = [
     alias: UrlConfig.ANALYTIC_SALES_ONLINE,
     cubes: [AnalyticCube.Sales],
     data: [
-      {
-        annotation: "SL đơn hàng",
-        desc: "Số lượng đơn hàng thành công trong khoảng thời gian chọn",
-      },
-      {
-        annotation: "SL hàng bán ra",
-        desc: "Số lượng sản phẩm bán ra thành công ",
-      },
       {
         annotation: "SL đơn trả",
         desc: "Số lượng đơn hàng trả lại thành công",
@@ -139,12 +147,16 @@ export const AnnotationDataList: AnnotationData[] = [
         desc: "SL hàng bán ra x Đơn giá bán trên mỗi đơn hàng của các đơn thành công",
       },
       {
-        annotation: "Tổng chiết khấu",
+        annotation: "Tổng chiết khấu (thành công)",
         desc: "Tổng chiết khấu của từng sản phẩm và chiết khấu của cả đơn hàng của những đơn thành công. (Nếu báo cáo theo từng sản phẩm thì bằng Tổng chiết khấu của sản phẩm và chiết khẩu phân bổ từ tổng đơn hàng)",
       },
       {
+        annotation: "Tổng chiết khấu (đơn tạo)",
+        desc: "Tổng chiết khấu của từng sản phẩm và chiết khẩu của cả đơn hàng của những đơn được tạo ra",
+      },
+      {
         annotation: "Tiêu điểm",
-        desc: "Số tiền ứng với điểm khách hàng sử dụng trên đơn ",
+        desc: "Số tiền ứng với điểm khách hàng sử dụng trên đơn",
       },
       {
         annotation: "Hoàn điểm",
@@ -156,7 +168,7 @@ export const AnnotationDataList: AnnotationData[] = [
       },
       {
         annotation: "Tổng trả",
-        desc: "Tổng tiền trả khách (Tổng đơn giá đơn trả sau chiết khấu - Hoàn điểm)",
+        desc: "Tổng tiền trả khách (Tổng đơn giá đơn trả sau chiết khấu và bao gồm Hoàn điểm)<br>Ví dụ: Mua 1 sản phẩm có nguyên giá là 300.000, chiết khấu là 10.000, tiêu điểm là 20, vậy tổng trả là 270.000",
       },
       {
         annotation: "Doanh thu sau chiết khấu",
@@ -164,7 +176,7 @@ export const AnnotationDataList: AnnotationData[] = [
       },
       {
         annotation: "Doanh thu sau chiết khấu - trả hàng",
-        desc: "Tổng bán  - Tổng chiết khấu - Tổng trả thành công",
+        desc: "Tổng bán - Tổng chiết khấu - Tổng trả thành công",
       },
       {
         annotation: "Doanh thu sau chiết khấu - tiêu điểm",
@@ -175,20 +187,16 @@ export const AnnotationDataList: AnnotationData[] = [
         desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm - Tổng trả",
       },
       {
-        annotation: "Phí ship báo khách",
-        desc: "Phí ship báo cho khách của những đơn thành công",
-      },
-      {
-        annotation: "Doanh thu",
-        desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm - Tổng trả + Phí ship báo khách + Hoàn điểm",
+        annotation: "Phí ship báo khách (thành công)",
+        desc: "Phí ship báo khách của những đơn thành công",
       },
       {
         annotation: "TB giá trị đơn hàng",
-        desc: "Doanh thu/(SL đơn hàng - SL đơn trả)",
+        desc: "Doanh thu / SL đơn hàng",
       },
       {
         annotation: "SL khách hàng",
-        desc: '<p> Số lượng khách hàng duy nhất trong khoảng thời gian chọn.</p><p> <em data-renderer-mark="true"><strong data-renderer-mark="true">Ví dụ:</strong></em></p><ul class="ak-ul" data-indent-level="1"> <li>     <p>         Khách hàng A mua 2 đơn: Đơn 1 ngày         28/04/2022, đơn 2 ngày 30/04/2022     </p> </li> <li>     <p>         Khách hàng B mua 3 đơn: Đơn 1 ngày         28/04/2022, đơn 2 ngày 30/04/2022, đơn 3         ngày 27/05/2022     </p> </li> <li>     <p>         Khách hàng C mua 2 đơn: Đơn 1 ngày         01/04/2020, đơn 2 ngày 30/04/2022     </p> </li></ul><p> <em data-renderer-mark="true"><strong data-renderer-mark="true">-&gt; Tổng số lượng khách hàng </strong>khoảng thời gian từ 28/04/2022 đến 28/05/2022 =     3 (Khách A, B, C)</em></p>',
+        desc: '<p data-renderer-start-pos="11564">Số lượng khách hàng duy nhất trong khoảng thời gian chọn.<br>Ví dụ:<br>Khách hàng A mua 2 đơn: Đơn 1 ngày 28/04/2022, đơn 2 ngày 30/04/2022</p>\n                    <p data-renderer-start-pos="11699">Khách hàng B mua 3 đơn: Đơn 1 ngày 28/04/2022, đơn 2 ngày 30/04/2022, đơn 3 ngày 27/05/2022</p>\n                    <p data-renderer-start-pos="11792">Khách hàng C mua 2 đơn: Đơn 1 ngày 01/04/2020, đơn 2 ngày 30/04/2022</p>\n                    <p data-renderer-start-pos="11862">-&gt; Tổng số lượng khách hàng khoảng thời gian từ 28/04/2022 đến 28/05/2022 = 3 (Khách A, B, C)</p>',
       },
       {
         annotation: "TB chi tiêu của khách hàng",
@@ -247,20 +255,40 @@ export const AnnotationDataList: AnnotationData[] = [
         desc: "SL hàng bán ra (đơn tạo) x Đơn giá bán trên mỗi đơn hàng trên các đơn được tạo ra",
       },
       {
-        annotation: "Tổng chiết khấu (đơn tạo)",
-        desc: "Tổng chiết khấu của từng sản phẩm và chiết khẩu của cả đơn hàng của những đơn được tạo ra",
+        annotation: "Doanh thu (đơn tạo)",
+        desc: "Tổng bán (đơn tạo) - Tổng chiết khấu (đơn tạo) - Tiêu điểm (đơn tạo) - Tổng trả (đơn tạo)",
       },
       {
-        annotation: "Doanh thu sau chiết khấu - tiêu điểm - trả hàng (đơn tạo)",
-        desc: "Tổng bán (đơn tạo) - Tổng chiết khấu (đơn tạo) - Tiêu điểm - Tổng trả ",
+        annotation: "Doanh thu (thành công)",
+        desc: "Tổng bán (thành công) - Tổng chiết khấu (thành công) - Tiêu điểm (thành công) - Tổng trả (thành công)",
       },
       {
         annotation: "Phí ship báo khách (đơn tạo)",
         desc: "Phí ship báo cho khách của những đơn được tạo ra",
       },
       {
-        annotation: "Doanh thu (đơn tạo)",
-        desc: "Tổng bán (đơn tạo) - Tổng chiết khấu (đơn tạo) - Tiêu điểm - Tổng trả  - Phí ship báo khách (đơn tạo)",
+        annotation: "Doanh thu bao gồm phí ship báo khách (đơn tạo)",
+        desc: "Tổng bán (đơn tạo) - Tổng chiết khấu (đơn tạo) - Tiêu điểm (đơn tạo) - Tổng trả (đơn tạo) + Phí ship báo khách (đơn tạo)",
+      },
+      {
+        annotation: "Doanh thu bao gồm phí ship báo khách (thành công)",
+        desc: "Tổng bán (thành công) - Tổng chiết khấu (thành công) - Tiêu điểm (thành công) - Tổng trả (thành công) + Phí ship báo khách (thành công)",
+      },
+      {
+        annotation: "Doanh thu thuần (thành công)",
+        desc: "Doanh thu (thành công) - Thuế (thành công)",
+      },
+      {
+        annotation: "Doanh thu thuần (đơn tạo)",
+        desc: "Doanh thu (đơn tạo) - Thuế (đơn tạo)",
+      },
+      {
+        annotation: "Thuế ( đơn tạo)",
+        desc: "VAT của sản phẩm + VAT của chiết khấu (đã đăng ký Bộ công thương, là gồm chiết khấu của sản phẩm và chiết khấu của tổng đơn được phân bổ) của đơn tạo",
+      },
+      {
+        annotation: "Thuế ( thành công)",
+        desc: "VAT của sản phẩm + VAT của chiết khấu (đã đăng ký Bộ công thương, là gồm chiết khấu của sản phẩm và chiết khấu của tổng đơn được phân bổ) của đơn thành công",
       },
     ],
     documentLink:
@@ -316,7 +344,7 @@ export const AnnotationDataList: AnnotationData[] = [
       },
       {
         annotation: "SL hàng bán ra",
-        desc: "Số lượng sản phẩm bán ra thành công ",
+        desc: "Số lượng sản phẩm bán ra thành công",
       },
       {
         annotation: "SL đơn trả",
@@ -335,12 +363,12 @@ export const AnnotationDataList: AnnotationData[] = [
         desc: "SL hàng bán ra x Đơn giá bán trên mỗi đơn hàng của các đơn thành công",
       },
       {
-        annotation: "Tổng chiết khấu",
+        annotation: "Tổng chiết khấu (thành công)",
         desc: "Tổng chiết khấu của từng sản phẩm và chiết khấu của cả đơn hàng của những đơn thành công. (Nếu báo cáo theo từng sản phẩm thì bằng Tổng chiết khấu của sản phẩm và chiết khẩu phân bổ từ tổng đơn hàng)",
       },
       {
         annotation: "Tiêu điểm",
-        desc: "Số tiền ứng với điểm khách hàng sử dụng trên đơn ",
+        desc: "Số tiền ứng với điểm khách hàng sử dụng trên đơn",
       },
       {
         annotation: "Hoàn điểm",
@@ -352,7 +380,7 @@ export const AnnotationDataList: AnnotationData[] = [
       },
       {
         annotation: "Tổng trả",
-        desc: "Tổng tiền trả khách (Tổng đơn giá đơn trả sau chiết khấu - Hoàn điểm)",
+        desc: "Tổng tiền trả khách (Tổng đơn giá đơn trả sau chiết khấu và bao gồm Hoàn điểm)<br>Ví dụ: Mua 1 sản phẩm có nguyên giá là 300.000, chiết khấu là 10.000, tiêu điểm là 20, vậy tổng trả là 270.000",
       },
       {
         annotation: "Doanh thu sau chiết khấu",
@@ -360,43 +388,39 @@ export const AnnotationDataList: AnnotationData[] = [
       },
       {
         annotation: "Doanh thu sau chiết khấu - trả hàng",
-        desc: "Tổng bán  - Tổng chiết khấu - Tổng trả thành công",
+        desc: "Tổng bán - Tổng chiết khấu - Tổng trả thành công",
       },
       {
         annotation: "Doanh thu sau chiết khấu - tiêu điểm",
         desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm",
       },
       {
-        annotation: "Doanh thu sau chiết khấu - tiêu điểm - trả hàng",
-        desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm - Tổng trả",
+        annotation: "Doanh thu (đơn tạo)",
+        desc: "Tổng bán (đơn tạo) - Tổng chiết khấu (đơn tạo) - Tiêu điểm (đơn tạo) - Tổng trả (đơn tạo)",
       },
       {
-        annotation: "Phí ship báo khách",
-        desc: "Phí ship báo cho khách của những đơn thành công",
+        annotation: "Doanh thu (thành công)",
+        desc: "Tổng bán (thành công) - Tổng chiết khấu (thành công) - Tiêu điểm (thành công) - Tổng trả (thành công)",
       },
       {
-        annotation: "Doanh thu",
-        desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm - Tổng trả + Phí ship báo khách + Hoàn điểm",
+        annotation: "Phí ship báo khách (thành công)",
+        desc: "Phí ship báo khách của những đơn thành công",
       },
       {
         annotation: "TB giá trị đơn hàng",
-        desc: "Doanh thu/(SL đơn hàng - SL đơn trả)",
+        desc: "Doanh thu / SL đơn hàng",
       },
       {
         annotation: "Tiền vốn",
         desc: "Giá vốn * SL hàng thực bán",
       },
       {
-        annotation: "Lợi nhuận gộp",
-        desc: "Doanh thu - Tiền vốn ",
-      },
-      {
         annotation: "Tỷ suất lợi nhuận gộp",
-        desc: "(Lợi nhuận gộp / Doanh thu) x 100%",
+        desc: "(Lợi nhuận gộp/ Doanh thu) x 100%",
       },
       {
         annotation: "SL khách hàng",
-        desc: '<p> Số lượng khách hàng duy nhất trong khoảng thời gian chọn.</p><p> <em data-renderer-mark="true"><strong data-renderer-mark="true">Ví dụ:</strong></em></p><ul class="ak-ul" data-indent-level="1"> <li>     <p>         Khách hàng A mua 2 đơn: Đơn 1 ngày         28/04/2022, đơn 2 ngày 30/04/2022     </p> </li> <li>     <p>         Khách hàng B mua 3 đơn: Đơn 1 ngày         28/04/2022, đơn 2 ngày 30/04/2022, đơn 3         ngày 27/05/2022     </p> </li> <li>     <p>         Khách hàng C mua 2 đơn: Đơn 1 ngày         01/04/2020, đơn 2 ngày 30/04/2022     </p> </li></ul><p> <em data-renderer-mark="true"><strong data-renderer-mark="true">-&gt; Tổng số lượng khách hàng </strong>khoảng thời gian từ 28/04/2022 đến 28/05/2022 =     3 (Khách A, B, C)</em></p>',
+        desc: '<p data-renderer-start-pos="2493">Số lượng khách hàng duy nhất trong khoảng thời gian chọn.<br>Ví dụ:<br>Khách hàng A mua 2 đơn: Đơn 1 ngày 28/04/2022, đơn 2 ngày 30/04/2022</p>\n                    <p data-renderer-start-pos="2628">Khách hàng B mua 3 đơn: Đơn 1 ngày 28/04/2022, đơn 2 ngày 30/04/2022, đơn 3 ngày 27/05/2022</p>\n                    <p data-renderer-start-pos="2721">Khách hàng C mua 2 đơn: Đơn 1 ngày 01/04/2020, đơn 2 ngày 30/04/2022</p>\n                    <p data-renderer-start-pos="2791">-&gt; Tổng số lượng khách hàng khoảng thời gian từ 28/04/2022 đến 28/05/2022 = 3 (Khách A, B, C)</p>',
       },
       {
         annotation: "TB chi tiêu của khách hàng",
@@ -459,19 +483,54 @@ export const AnnotationDataList: AnnotationData[] = [
         desc: "Tổng chiết khấu của từng sản phẩm và chiết khẩu của cả đơn hàng của những đơn được tạo ra",
       },
       {
-        annotation: "Doanh thu sau chiết khấu - tiêu điểm - trả hàng (đơn tạo)",
-        desc: "Tổng bán (đơn tạo) - Tổng chiết khấu (đơn tạo) - Tiêu điểm - Tổng trả ",
-      },
-      {
         annotation: "Phí ship báo khách (đơn tạo)",
         desc: "Phí ship báo cho khách của những đơn được tạo ra",
       },
       {
-        annotation: "Doanh thu (đơn tạo)",
-        desc: "Tổng bán (đơn tạo) - Tổng chiết khấu (đơn tạo) - Tiêu điểm - Tổng trả  - Phí ship báo khách (đơn tạo)",
+        annotation: "Doanh thu bao gồm phí ship báo khách (đơn tạo)",
+        desc: "Tổng bán (đơn tạo) - Tổng chiết khấu (đơn tạo) - Tiêu điểm (đơn tạo) - Tổng trả (đơn tạo) + Phí ship báo khách (đơn tạo)",
+      },
+      {
+        annotation: "Doanh thu bao gồm phí ship báo khách (thành công)",
+        desc: "Tổng bán (thành công) - Tổng chiết khấu (thành công) - Tiêu điểm (thành công) - Tổng trả (thành công) + Phí ship báo khách (thành công)",
+      },
+      {
+        annotation: "Doanh thu thuần (thành công)",
+        desc: "Doanh thu (thành công) - Thuế (thành công)",
+      },
+      {
+        annotation: "Doanh thu thuần (đơn tạo)",
+        desc: "Doanh thu (đơn tạo) - Thuế (đơn tạo)",
+      },
+      {
+        annotation: "Thuế ( đơn tạo)",
+        desc: "VAT của sản phẩm + VAT của chiết khấu (đã đăng ký Bộ công thương, là gồm chiết khấu của sản phẩm và chiết khấu của tổng đơn được phân bổ) của đơn tạo",
+      },
+      {
+        annotation: "Thuế ( thành công)",
+        desc: "VAT của sản phẩm + VAT của chiết khấu (đã đăng ký Bộ công thương, là gồm chiết khấu của sản phẩm và chiết khấu của tổng đơn được phân bổ) của đơn thành công",
+      },
+      {
+        annotation: "Lợi nhuận gộp (thành công)",
+        desc: "Doanh thu thuần (thành công) - Tiền vốn (thành công)",
+      },
+      {
+        annotation: "Lợi nhuận gộp (đơn tạo)",
+        desc: "Doanh thu thuần (đơn tạo) - Tiền vốn (đơn tạo)",
       },
     ],
     documentLink:
       "https://hdsd-yody.gitbook.io/unicorn-free/bao-cao/huong-dan-su-dung-bao-cao-tinh-nang-co-ban",
   },
-];
+].map((item) => {
+  item.data = item.data.sort((a: any, b: any) => {
+    if (a.annotation < b.annotation) {
+      return -1;
+    }
+    if (a.annotation > b.annotation) {
+      return 1;
+    }
+    return 0;
+  });
+  return item;
+});
