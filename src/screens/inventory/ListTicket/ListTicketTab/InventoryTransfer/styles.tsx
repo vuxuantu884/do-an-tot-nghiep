@@ -4,23 +4,28 @@ import { STATUS_INVENTORY_TRANSFER } from "../../../constants";
 export const BG_COLOR_TAG = {
   TRANSFERRING: {
     color: "#FCAF17",
+    background: "#FFFBE6"
   },
   CONFIRM: {
     color: "#666666",
+    background: "#FAFAFA"
   },
   PENDING: {
     color: "#FCAF17",
+    background: "#FFFBE6"
   },
   RECEIVED: {
     color: "#27AE60",
+    background: "#FCFFE6"
   },
   CANCELED: {
     color: "#E24343",
+    background: "#FFF1F0",
   },
 };
 
 export const InventoryTransferTabWrapper = styled.div`
-  padding: 0px 0 20px 0;
+  padding: 0 0 20px 0;
 
   .file-pin {
     display: inline-block;
@@ -47,9 +52,6 @@ export const InventoryTransferTabWrapper = styled.div`
     .${STATUS_INVENTORY_TRANSFER.CANCELED.status} {
       color: ${BG_COLOR_TAG.CANCELED.color};
     }
-    .${STATUS_INVENTORY_TRANSFER.REQUESTED.status} {
-      color: ${BG_COLOR_TAG.CONFIRM.color};
-    }
     .${STATUS_INVENTORY_TRANSFER.CONFIRM.status} {
       color: ${BG_COLOR_TAG.CONFIRM.color};
     }
@@ -72,5 +74,9 @@ export const InventoryTransferTabWrapper = styled.div`
   .mr-5 {
     margin-right: 5px;
     height: 20px;
+  }
+
+  .ant-table-selection-column {
+    padding: 0 !important;
   }
 `;

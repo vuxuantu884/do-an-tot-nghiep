@@ -446,7 +446,7 @@ const InventoryDefectCreate: React.FC = () => {
           store_ids: storeId ?? null,
         });
 
-        if (res && res.items && res.items.length > 0) {
+        if (res && res.items && Array.isArray(res.items) && res.items.length > 0) {
           onSelectProduct(res.items[0], dataTable);
         }
       }

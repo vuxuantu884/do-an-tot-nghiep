@@ -23,7 +23,6 @@ import { UploadOutlined } from "@ant-design/icons";
 import { ColumnsType } from "antd/lib/table/interface";
 import NumberInput from "component/custom/number-input.custom";
 import { AiOutlineClose } from "react-icons/ai";
-import TextArea from "antd/es/input/TextArea";
 import PlusOutline from "assets/icon/plus-outline.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { useDispatch } from "react-redux";
@@ -65,16 +64,20 @@ import { strForSearch } from "utils/StringUtils";
 import { searchVariantsApi } from "service/product/product.service";
 import { HttpStatus } from "config/http-status.config";
 import ModalShowError from "../common/ModalShowError";
-import { MAXIMUM_QUANTITY_LENGTH, MINIMUM_QUANTITY } from "../helper";
+import { KeyEvent, MAXIMUM_QUANTITY_LENGTH, MINIMUM_QUANTITY, VARIANT_STATUS } from "../helper";
+import EditPopover from "../../inventory-defects/ListInventoryDefect/components/EditPopover";
+import { primaryColor } from "utils/global-styles/variables";
 
 const { Option } = Select;
 
 let barCode = "";
+let isBarCode = false;
 
 const VARIANTS_FIELD = "line_items";
 
 const CreateTicket: FC = () => {
   const [fromStores, setFromStores] = useState<Array<AccountStoreResponse>>();
+  const [newNote, setNewNote] = useState<string>();
   const [form] = Form.useForm();
   const [quantityInput, setQuantityInput] = useState<any>({});
   const [dataTable, setDataTable] = useState<Array<VariantResponse> | any>(
@@ -257,6 +260,7 @@ const CreateTicket: FC = () => {
       }
       setDataTable([...dataTemp]);
       setResultSearch([]);
+      isBarCode = false;
 
       form.setFieldsValue({ [VARIANTS_FIELD]: dataTemp });
     },
@@ -467,27 +471,23 @@ const CreateTicket: FC = () => {
   const onFinish = (data: StockTransferSubmit) => {
     stores.forEach((store) => {
       if (store?.id === Number(data?.from_store_id)) {
-        data.store_transfer = {
-          store_id: store?.id,
-          hotline: store?.hotline,
-          address: store?.address,
-          name: store?.name,
-          code: store?.code,
-        };
+        data.from_store_id = store?.id;
+        data.from_store_phone = store?.hotline;
+        data.from_store_address = store?.address;
+        data.from_store_code = store?.code;
+        data.from_store_name = store?.name;
       }
       if (store?.id === Number(data?.to_store_id)) {
-        data.store_receive = {
-          store_id: store?.id,
-          hotline: store?.hotline,
-          address: store?.address,
-          name: store?.name,
-          code: store?.code,
-        };
+        data.to_store_id = store?.id;
+        data.to_store_phone = store?.hotline;
+        data.to_store_address = store?.address;
+        data.to_store_code = store?.code;
+        data.to_store_name = store?.name;
       }
     });
 
     const dataLineItems = form.getFieldValue(VARIANTS_FIELD);
-    if (dataLineItems.length === 0) {
+    if (!dataLineItems || dataLineItems.length === 0) {
       showError("Vui lòng chọn sản phẩm");
       return;
     }
@@ -516,9 +516,6 @@ const CreateTicket: FC = () => {
       };
     });
 
-    delete data.from_store_id;
-    delete data.to_store_id;
-
     setIsLoading(true);
     dispatch(showLoading());
     dispatch(checkDuplicateInventoryTransferAction(data, checkCallback));
@@ -541,9 +538,11 @@ const CreateTicket: FC = () => {
 
   const handleSearchProduct = useCallback(
     async (keyCode: string, code: string) => {
-      barCode = "";
+      if (keyCode !== "2") {
+        barCode = "";
+      }
 
-      if (keyCode === "Enter" && code) {
+      if (keyCode === KeyEvent.ENTER && code) {
         setKeySearch("");
 
         const storeId = form.getFieldValue("from_store_id");
@@ -551,10 +550,11 @@ const CreateTicket: FC = () => {
           showError("Vui lòng chọn kho gửi");
           return;
         }
+        isBarCode = true;
         let res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, {
           barcode: code,
           store_ids: storeId ?? null,
-          status: "active",
+          status: VARIANT_STATUS.ACTIVE,
         });
         if (res && res.items && res.items.length > 0) {
           onSelectProduct(res.items[0].id.toString(), res.items[0]);
@@ -572,9 +572,10 @@ const CreateTicket: FC = () => {
   const eventKeyPress = useCallback(
     (event: KeyboardEvent) => {
       if (event.target instanceof HTMLBodyElement) {
-        if (event.key !== "Enter") {
+        if (event.key !== KeyEvent.ENTER) {
           barCode = barCode + event.key;
-        } else if (event && event.key === "Enter") {
+          barCode = barCode.replaceAll(KeyEvent.CONTROL, "").trim();
+        } else if (event && event.key === KeyEvent.ENTER) {
           handleSearchProduct(event.key, barCode);
         }
         return;
@@ -589,7 +590,7 @@ const CreateTicket: FC = () => {
     (event: KeyboardEvent) => {
       if (event.target instanceof HTMLInputElement) {
         if (event.target.id === "product_search_variant") {
-          if (event.key !== "Enter") {
+          if (event.key !== KeyEvent.ENTER) {
             barCode = barCode + event.key;
           }
           handleDelayActionWhenInsertTextInSearchInput(
@@ -607,7 +608,10 @@ const CreateTicket: FC = () => {
 
   const onSelect = useCallback(
     (o, obj) => {
-      onSelectProduct(o, obj.label.props.data);
+      setTimeout(() => {
+        if (isBarCode) return;
+        onSelectProduct(o, obj.label.props.data);
+      }, 0);
     },
     [onSelectProduct],
   );
@@ -668,7 +672,7 @@ const CreateTicket: FC = () => {
     {
       title: "Tồn trong kho",
       dataIndex: "on_hand",
-      align: "center",
+      align: "right",
       width: 100,
       render: (value) => {
         return value || 0;
@@ -677,7 +681,7 @@ const CreateTicket: FC = () => {
     {
       title: "Có thể bán",
       dataIndex: "available",
-      align: "center",
+      align: "right",
       width: 100,
       render: (value) => {
         return value || 0;
@@ -687,11 +691,11 @@ const CreateTicket: FC = () => {
       title: (
         <div>
           <div>Số lượng</div>
-          <div className="text-center">{getTotalQuantity()}</div>
+          <div style={{ textAlign: "right" }}>{getTotalQuantity()}</div>
         </div>
       ),
       width: 100,
-      align: "center",
+      align: "right",
       dataIndex: "transfer_quantity",
       render: (value, row, index) => (
         <NumberInput
@@ -712,11 +716,9 @@ const CreateTicket: FC = () => {
       fixed: dataTable.length !== 0 && "right",
       width: 50,
       render: (_: string, row, i) => (
-        <Button
-          onClick={() => onDeleteItem(row.id, i)}
-          className="product-item-delete"
-          icon={<AiOutlineClose />}
-        />
+        <div className="text-center">
+          <AiOutlineClose style={{ cursor: "pointer" }} onClick={() => onDeleteItem(row.id, i)} />
+        </div>
       ),
     },
   ];
@@ -974,11 +976,15 @@ const CreateTicket: FC = () => {
                     return (
                       <Table.Summary>
                         <Table.Summary.Row>
-                          <Table.Summary.Cell index={0} align="right" colSpan={5}><b>Tổng số lượng:</b></Table.Summary.Cell>
-                          <Table.Summary.Cell index={1} align="center"><b>{getTotalQuantity()}</b></Table.Summary.Cell>
+                          <Table.Summary.Cell index={0} align="right" colSpan={5}>
+                            <b>Tổng số lượng:</b>
+                          </Table.Summary.Cell>
+                          <Table.Summary.Cell index={1} align="right">
+                            <b>{getTotalQuantity()}</b>
+                          </Table.Summary.Cell>
                         </Table.Summary.Row>
                       </Table.Summary>
-                    )
+                    );
                   }}
                 />
               </div>
@@ -986,18 +992,29 @@ const CreateTicket: FC = () => {
           </Col>
           <Col span={6}>
             <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
-              <Form.Item
-                name={"note"}
-                label={<b>Ghi chú nội bộ:</b>}
-                colon={false}
-                labelCol={{ span: 24, offset: 0 }}
-              >
-                <TextArea
-                  maxLength={250}
-                  placeholder="Nhập ghi chú nội bộ"
-                  autoSize={{ minRows: 4, maxRows: 6 }}
+              <Form.Item name={"note"} hidden></Form.Item>
+              <div style={{ display: "flex" }}>
+                <EditPopover
+                  maxLength={255}
+                  content={form.getFieldValue("note")}
+                  isHideContent
+                  title={`Sửa ghi chú nội bộ`}
+                  color={primaryColor}
+                  onOk={(newNote) => {
+                    form.setFieldsValue({
+                      note: newNote,
+                    });
+
+                    setNewNote(newNote);
+                  }}
                 />
-              </Form.Item>
+                <div style={{ color: "#262626", fontWeight: 400, fontSize: 14, marginLeft: 5 }}>
+                  Ghi chú nội bộ
+                </div>
+              </div>
+              <div>
+                {newNote !== "" ? newNote : <span className="no-note">Không có ghi chú!</span>}
+              </div>
 
               <Form.Item
                 labelCol={{ span: 24, offset: 0 }}

@@ -29,7 +29,11 @@ import {
   AllInventoryMappingField,
   AvdAllFilter,
   AvdInventoryFilter,
+  InventoryExportField,
   InventoryQueryField,
+  InventoryRemainFields,
+  InventoryRemainFieldsMapping,
+  InventorySortTypeMapping,
 } from "model/inventory/field";
 import { modalActionType } from "model/modal/modal.model";
 import { FilterConfig, FilterConfigRequest } from "model/other";
@@ -59,6 +63,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { SizeResponse } from "model/product/size.model";
 import { sizeSearchAction } from "domain/actions/product/size.action";
 import SizeSearchSelect from "component/custom/select-search/size-search";
+import { cloneDeep } from "lodash";
 
 export interface InventoryFilterProps {
   params: any;
@@ -72,9 +77,18 @@ export interface InventoryFilterProps {
 }
 
 const ArrRemain = [
-  { key: "total_stock", value: "Còn tồn" },
-  { key: "available", value: "Còn có thể bán" },
-  { key: "on_hand", value: "Còn tồn trong kho" },
+  {
+    key: InventoryRemainFields.total_stock,
+    value: InventoryRemainFieldsMapping[InventoryRemainFields.total_stock],
+  },
+  {
+    key: InventoryRemainFields.available,
+    value: InventoryRemainFieldsMapping[InventoryRemainFields.available],
+  },
+  {
+    key: InventoryRemainFields.on_hand,
+    value: InventoryRemainFieldsMapping[InventoryRemainFields.on_hand],
+  },
 ];
 
 const { Item } = Form;
@@ -99,7 +113,7 @@ function tagRender(props: any) {
 
 const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterProps) => {
   const { params, listStore, onFilter, openColumn } = props;
-  let [advanceFilters, setAdvanceFilters] = useState<any>({});
+  const [advanceFilters, setAdvanceFilters] = useState<any>({});
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const { account } = userReducer;
   const [lstConfigFilter, setLstConfigFilter] = useState<Array<FilterConfig>>();
@@ -412,6 +426,16 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
               case AvdAllFilter.info:
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${newValues.toString()}`;
                 break;
+              case AvdAllFilter.remain:
+                renderTxt = `${AllInventoryMappingField[filterKey]} : ${
+                  InventoryRemainFieldsMapping[newValues.toString()]
+                }`;
+                break;
+              case AvdAllFilter.sort_column:
+                renderTxt = `${InventoryExportField[filters.sort_column]} : ${
+                  InventorySortTypeMapping[filters.sort_type]
+                }`;
+                break;
               default:
                 break;
             }
@@ -528,6 +552,13 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilt
           ...formBaseFilter.getFieldsValue(true),
           [field]: undefined,
           [AvdAllFilter.to_price]: undefined,
+        };
+      }
+      if (field === AvdAllFilter.sort_column) {
+        newFieldsValue = {
+          ...formBaseFilter.getFieldsValue(true),
+          [field]: undefined,
+          [AvdAllFilter.sort_type]: undefined,
         };
       }
       formBaseFilter.setFieldsValue({

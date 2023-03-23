@@ -352,7 +352,7 @@ const ImportMultipleInventory: FC = () => {
   };
 
   const checkImportFile = (fileAttr: any, fileId: any) => {
-    BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import/${fileId}`).then(
+    BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${fileId}/import`).then(
       (res: any) => {
         if (!res.data) {
           return;
@@ -416,7 +416,11 @@ const ImportMultipleInventory: FC = () => {
     const item = [...dataTable.values()][count];
     const newBody = {
       ...body,
-      store_receive: item.storeReceive,
+      to_store_id: item.storeReceive.store_id,
+      to_store_phone: item.storeReceive.hotline,
+      to_store_address: item.storeReceive.address,
+      to_store_code: item.storeReceive.code,
+      to_store_name: item.storeReceive.name,
       note: item.noteValue,
       url: item.url,
       can_write: true
@@ -540,19 +544,15 @@ const ImportMultipleInventory: FC = () => {
       setDisabled(true);
       if (stores) {
         stores.forEach((store) => {
-          if (store.id === Number(data.from_store_id)) {
-            data.store_transfer = {
-              store_id: store.id,
-              hotline: store.hotline,
-              address: store.address,
-              name: store.name,
-              code: store.code,
-            };
+          if (store?.id === Number(data.from_store_id)) {
+            data.from_store_id = store?.id;
+            data.from_store_phone = store?.hotline;
+            data.from_store_address = store?.address;
+            data.from_store_code = store?.code;
+            data.from_store_name = store?.name;
           }
         });
       }
-      delete data.from_store_id;
-      delete data.to_store_id;
 
       let count: number = 0;
       dispatch(showLoading());
@@ -740,7 +740,7 @@ const ImportMultipleInventory: FC = () => {
                       label=" "
                       labelCol={{ span: 2, offset: 0 }}
                     >
-                      <div style={{ color: "#FF0000" }}>{messageError}</div>
+                      <div className="message-error">{messageError}</div>
                     </Form.Item>
                   )}
 
@@ -820,22 +820,8 @@ const ImportMultipleInventory: FC = () => {
                 <Button
                   type="primary"
                   onClick={() => {
-                    const {
-                      store_transfer,
-                      store_receive,
-                      note,
-                      attached_files,
-                      line_items,
-                    } = processingDetail?.data;
-                    const newBody = {
-                      store_transfer,
-                      store_receive,
-                      note,
-                      attached_files,
-                      line_items,
-                    };
                     dispatch(showLoading());
-                    dispatch(creatInventoryTransferAction(newBody, createCallback));
+                    dispatch(creatInventoryTransferAction(processingDetail?.data, createCallback));
                   }}
                 >
                   Xác nhận tạo
@@ -896,7 +882,7 @@ const ImportMultipleInventory: FC = () => {
                 {processingDetail?.errorsFile?.map((i: any, index: number) => {
                   return (
                     <li key={index}>
-                      <Text type="danger">{i}</Text>
+                      <Text type="danger">{i.code ? i.code : i}</Text>
                     </li>
                   );
                 })}
@@ -919,7 +905,7 @@ const ImportMultipleInventory: FC = () => {
                         })}
                       </>
                     )}
-                    {processingDetail.code !== HttpStatus.BAD_REQUEST && processingDetail?.errors?.length > 0 ? (
+                    {processingDetail.code !== HttpStatus.BAD_REQUEST && processingDetail?.errors?.length > 0 && (
                       <>
                         {processingDetail?.errors?.map((i: any, index: number) => {
                           return (
@@ -929,7 +915,8 @@ const ImportMultipleInventory: FC = () => {
                           );
                         })}
                       </>
-                    ) : (
+                    )}
+                    {processingDetail.code !== HttpStatus.BAD_REQUEST && processingDetail?.errors?.length === 0 && (
                       <li>
                         <Text type="danger">{processingDetail?.message}</Text>
                       </li>

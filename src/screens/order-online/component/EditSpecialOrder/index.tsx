@@ -15,6 +15,7 @@ import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { specialOrderServices } from "service/order/special-order.service";
 import { formatCurrency, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import { ACCOUNT_CODE_LOCAL_STORAGE } from "utils/LocalStorageUtils";
 import { getArrayFromObject } from "utils/OrderUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
@@ -41,7 +42,10 @@ function EditSpecialOrder(props: PropTypes) {
   const initialFormValue: SpecialOrderFormValueModel = {
     type: specialOrder?.type || undefined,
     order_original_code: specialOrder?.order_original_code || undefined,
-    order_carer_code: specialOrder?.order_carer_code || undefined,
+    order_carer_code:
+      specialOrder?.order_carer_code ||
+      localStorage.getItem(ACCOUNT_CODE_LOCAL_STORAGE) ||
+      undefined,
     variant_skus: variantSkus.length > 0 ? variantSkus : undefined,
     amount: specialOrder?.amount || undefined,
     order_return_code: specialOrder?.order_return_code || undefined,

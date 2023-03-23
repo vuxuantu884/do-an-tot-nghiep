@@ -2,7 +2,7 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { AppConfig } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
-import UrlConfig, { InventoryTabUrl } from "config/url.config";
+import UrlConfig from "config/url.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { inventoryByVariantAction } from "domain/actions/inventory/inventory.action";
 import { hideLoading } from "domain/actions/loading.action";
@@ -21,7 +21,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HiChevronDoubleRight, HiOutlineChevronDoubleDown } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { getInventoryConfigService, updateInventoryConfigService } from "service/inventory";
 import { generateQuery } from "utils/AppUtils";
 import {
@@ -62,6 +62,8 @@ import useGetChannels from "hook/order/useGetChannels";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { BaseQuery } from "model/base/base.query";
 import { EnumJobStatus } from "config/enum.config";
+import { AccountStoreResponse } from "model/account/account.model";
+import queryString from "query-string";
 
 let variantName = "";
 let variantSKU = "";
@@ -115,10 +117,11 @@ const AllTab: React.FC<any> = (props) => {
   const history = useHistory();
   const pageSizeOptions: Array<string> = ["50", "100"];
   const [objSummaryTable, setObjSummaryTable] = useState<SummaryInventory>();
-
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+  const { account } = userReducer;
   const query = useQuery();
-
   const dispatch = useDispatch();
+  const location = useLocation();
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   let dataQuery: VariantSearchQuery = {
     ...getQueryParams(query),
@@ -138,8 +141,6 @@ const AllTab: React.FC<any> = (props) => {
     new Map(),
   );
 
-  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-  const { account } = userReducer;
   const [lstConfig, setLstConfig] = useState<Array<FilterConfig>>([]);
   const [selected, setSelected] = useState<Array<InventoryResponse>>([]);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
@@ -286,15 +287,48 @@ const AllTab: React.FC<any> = (props) => {
     [channels, params],
   );
 
+  const onResult = useCallback((result: PageResponse<VariantResponse> | false) => {
+    setLoading(false);
+    if (result) {
+      setInventoryVariant(new Map());
+      setData(result);
+      setExpandRow([]);
+      if (result.items && result.items.length > 0) {
+        const objSum = sumTable(result.items);
+
+        setObjSummaryTable({ ...objSum });
+      } else {
+        setObjSummaryTable({ ...({} as SummaryInventory) });
+      }
+    }
+  }, []);
+
+  const getInventories = useCallback(
+    async (paramsQuery: VariantSearchQuery) => {
+      const temps = { ...paramsQuery, limit: paramsQuery.limit ?? 50 };
+      delete temps.status;
+      setLoading(true);
+      const res = await callApiNative(
+        { isShowLoading: false },
+        dispatch,
+        searchVariantsInventoriesApi,
+        temps,
+      );
+      onResult(res);
+    },
+    [dispatch, onResult],
+  );
+
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.push(`${UrlConfig.INVENTORY}${history.location.hash}?${queryParam}`);
+      getInventories(params);
+      history.push(`${location.pathname}?${queryParam}`);
     },
-    [history, params],
+    [getInventories, history, location.pathname, params],
   );
 
   const onFilter = useCallback(
@@ -304,11 +338,11 @@ const AllTab: React.FC<any> = (props) => {
       setConditionFilter(newPrams.info);
       setStoreIds(newPrams.store_ids);
       setPrams(newPrams);
+      getInventories(newPrams);
       let queryParam = generateQuery(newPrams);
-
-      history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
+      history.push(`${location.pathname}?${queryParam}`);
     },
-    [history, params, setConditionFilter, setStoreIds],
+    [getInventories, history, location.pathname, params, setConditionFilter, setStoreIds],
   );
 
   const onSort = useCallback(
@@ -883,21 +917,6 @@ const AllTab: React.FC<any> = (props) => {
     }
   }, []);
 
-  const onResult = useCallback((result: PageResponse<VariantResponse> | false) => {
-    setLoading(false);
-    if (result) {
-      setInventoryVariant(new Map());
-      setData(result);
-      setExpandRow([]);
-      if (result.items && result.items.length > 0) {
-        const objSum = sumTable(result.items);
-
-        setObjSummaryTable({ ...objSum });
-      } else {
-        setObjSummaryTable({ ...({} as SummaryInventory) });
-      }
-    }
-  }, []);
   const columnsFinal = useMemo(() => columns.filter((item) => item.visible), [columns]);
 
   const fetchInventoryByVariant = useCallback(
@@ -934,9 +953,10 @@ const AllTab: React.FC<any> = (props) => {
         const newPrams = { ...params, ...newValues, page: 1 };
         setPrams(newPrams);
         let queryParam = generateQuery(newPrams);
-        history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
+        getInventories(newPrams);
+        history.push(`${location.pathname}?${queryParam}`);
       }, 300),
-    [params, history],
+    [params, getInventories, history, location.pathname],
   );
 
   const onChangeKeySearch = useCallback(
@@ -947,20 +967,23 @@ const AllTab: React.FC<any> = (props) => {
   );
 
   useEffect(() => {
-    const getInventories = async () => {
-      const temps = { ...params, limit: params.limit ?? 50 };
-      delete temps.status;
-      setLoading(true);
-      const res = await callApiNative(
-        { isShowLoading: false },
-        dispatch,
-        searchVariantsInventoriesApi,
-        temps,
-      );
-      onResult(res);
+    if (stores.length === 0) return;
+    const storeParams: Array<number> = [];
+    account?.account_stores.forEach((el: AccountStoreResponse) => {
+      const store = stores.find((item: StoreResponse) => item.id === el.store_id);
+      if (store) {
+        storeParams.push(store.id);
+      }
+    });
+    const newParams = {
+      ...params,
+      store_ids: params.store_ids ? params.store_ids : storeParams,
+      remain: params.remain ? params.remain : "total_stock",
     };
-    getInventories();
-  }, [dispatch, onResult, params]);
+    setPrams(newParams);
+    getInventories(newParams);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account, stores, getInventories]);
 
   const storeRef = useRef<Map<number, string>>(new Map<number, string>());
   useEffect(() => {

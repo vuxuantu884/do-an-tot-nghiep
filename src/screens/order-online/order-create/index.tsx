@@ -229,10 +229,13 @@ export default function Order() {
     setShippingAddress(_objShippingAddress);
   };
 
-  const ChangeShippingFeeCustomer = (value: number | null) => {
-    form.setFieldsValue({ shipping_fee_informed_to_customer: value });
-    setShippingFeeInformedToCustomer(value);
-  };
+  const ChangeShippingFeeCustomer = useCallback(
+    (value: number | null) => {
+      form.setFieldsValue({ shipping_fee_informed_to_customer: value });
+      setShippingFeeInformedToCustomer(value);
+    },
+    [form],
+  );
 
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
@@ -254,17 +257,20 @@ export default function Order() {
     }
   };
 
-  const onSelectShipment = (value: number) => {
-    setShipmentMethod(value);
-    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
-      setIsDisablePostPayment(true);
-      if (paymentMethod === PaymentMethodOption.POST_PAYMENT) {
-        setPaymentMethod(PaymentMethodOption.COD);
+  const onSelectShipment = useCallback(
+    (value: number) => {
+      setShipmentMethod(value);
+      if (value === ShipmentMethodOption.DELIVER_PARTNER) {
+        setIsDisablePostPayment(true);
+        if (paymentMethod === PaymentMethodOption.POST_PAYMENT) {
+          setPaymentMethod(PaymentMethodOption.COD);
+        }
+      } else {
+        setIsDisablePostPayment(false);
       }
-    } else {
-      setIsDisablePostPayment(false);
-    }
-  };
+    },
+    [paymentMethod],
+  );
 
   const [isLoadForm, setIsLoadForm] = useState(false);
 

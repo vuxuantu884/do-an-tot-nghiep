@@ -1,30 +1,31 @@
 import React, { useMemo, useCallback, useEffect, useState } from "react";
 import { StyledComponent } from "./styled";
 import { Button, Divider, Modal, Spin } from "antd";
-// import "assets/css/_modal.scss";
-import { InventoryResponse } from "model/inventory";
-import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreResponse } from "model/core/store.model";
 import { StoreSearchListAction } from "domain/actions/core/store.action";
 import { OrderLineItemResponse, OrderResponse } from "model/response/order/order.response";
 import { OrderSplitModel } from "./_model";
-import OrderSplit from "./OrderSqlit";
+import OrderSplit from "./OrderSplit";
 import _ from "lodash";
 import { AppConfig } from "config/app.config";
 import { DEFAULT_COMPANY, TaxTreatment } from "utils/Constants";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderRequest } from "model/request/order.request";
 import { createRequest } from "./helper";
-import { orderCreateAction } from "domain/actions/order/order.action";
+// import { orderCreateAction } from "domain/actions/order/order.action";
 import UrlConfig from "config/url.config";
-import { showError, showModalSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { Type } from "config/type.config";
+import { defaultSpecialOrderParams } from "component/order/special-order/SideBarOrderSpecial/helper";
+import { specialOrderServices } from "service/order/special-order.service";
+import { ACCOUNT_CODE_LOCAL_STORAGE } from "utils/LocalStorageUtils";
+import { orderPostApi } from "service/order/order.service";
 
 type Props = {
   visible?: boolean;
   setVisible?: (v: boolean) => void;
-  OrderDetail: OrderResponse | null;
+  OrderDetail: OrderResponse | any;
 };
 
 const OrderSplitModal: React.FC<Props> = (props: Props) => {
@@ -33,11 +34,10 @@ const OrderSplitModal: React.FC<Props> = (props: Props) => {
   const [loading, setLoading] = useState(false);
   const [orderSplits, setOrderSplit] = useState<OrderSplitModel[]>([]);
 
-  const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
   const [storeArrayResponse, setStoreArrayResponse] = useState<Array<StoreResponse> | null>([]);
 
-  const items = useMemo(() => props.OrderDetail?.items || [], [props.OrderDetail]);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+
   let initialRequest: OrderRequest = useMemo(() => {
     return {
       action: "", //finalized
@@ -82,9 +82,9 @@ const OrderSplitModal: React.FC<Props> = (props: Props) => {
     };
   }, [userReducer.account?.code]);
 
-  const onCancel = () => {
+  const onCancel = useCallback(() => {
     props.setVisible && props.setVisible(false);
-  };
+  }, [props]);
 
   /**
    * thêm một đơn tách
@@ -145,6 +145,21 @@ const OrderSplitModal: React.FC<Props> = (props: Props) => {
     [orderSplits],
   );
 
+  const handleCreateOrUpdateSpecialOrder = (id: string | number, order_original_code: string) => {
+    (async () => {
+      try {
+        let resultParams = {
+          ...defaultSpecialOrderParams,
+          order_carer_code: localStorage.getItem(ACCOUNT_CODE_LOCAL_STORAGE),
+          order_original_code: order_original_code,
+          type: "orders_split",
+        };
+        await specialOrderServices.createOrUpdate(id, resultParams);
+        window.open(`${process.env.PUBLIC_URL}${UrlConfig.ORDER}/${id}`, "_blank");
+      } catch (error) {}
+    })();
+  };
+
   const onFinish = useCallback(() => {
     if (orderSplits.some((p) => p.items.some((p1) => !p1.quantity || p1.quantity === 0))) {
       showError("Số lượng không được nhỏ hơn hoặc bằng 0");
@@ -156,63 +171,41 @@ const OrderSplitModal: React.FC<Props> = (props: Props) => {
       return;
     }
 
-    const totalIndex = orderSplits.length - 1;
-    const firstIndex = 0;
-    let lastIndex = 0;
-    let newOrderId: number[] = [];
-    const createOrder = async (index: number) => {
+    (async () => {
+      let newOrderSuccess: any[] = [];
+      let newOrderFailed: string[] = [];
       setLoading(true);
-      const request = createRequest(initialRequest, orderSplits[index]) as OrderRequest;
-      request.note = `${request.note} Đơn tách ${index + 1} từ ${orderSplits[index].code}`;
-      console.log("onFinish request index", index, request);
-      try {
-        await dispatch(
-          orderCreateAction(
-            request,
-            (data) => {
-              newOrderId.push(data.id);
-              lastIndex += 1;
-              setTimeout(() => {
-                if (lastIndex <= totalIndex) {
-                  createOrder(lastIndex);
-                } else {
-                  setLoading(false);
-                  showModalSuccess("Tách đơn thành công");
-                  newOrderId.forEach((p) => {
-                    onCancel();
-                    p && window.open(`${process.env.PUBLIC_URL}${UrlConfig.ORDER}/${p}`, "_blank");
-                  });
-                }
-              }, 1500);
-            },
-            () => {
-              setLoading(false);
-              onCancel();
-              showModalSuccess("Tách đơn xảy ra lỗi!");
-              console.log(
-                "Thời gian nhận response tạo đơn check đơn trùng:",
-                `Thời gian:${new Date().toJSON()}`,
-              );
-            },
-          ),
-        );
-      } catch (error) {
-        showModalSuccess("Tách đơn xảy ra lỗi!");
-        onCancel();
-        console.log("error", error);
-        setLoading(false);
-      }
-
-      // lastIndex += 1;
-      // setTimeout(() => {
-      //   if (lastIndex <= totalIndex) {
-      //     createOrder(lastIndex);
-      //   }
-      // }, 3000);
-    };
-    createOrder(firstIndex);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, initialRequest, orderSplits]);
+      await Promise.all(
+        orderSplits.map(async (orderSplits: any, index: number) => {
+          const request = createRequest(initialRequest, orderSplits) as OrderRequest;
+          request.note = `${request.note} Đơn tách ${index + 1} từ ${orderSplits.code}`;
+          try {
+            const createOrder = await orderPostApi(request);
+            if (!createOrder.errors) {
+              newOrderSuccess.push({
+                orderSplitsCode: orderSplits.code,
+                newOrderID: createOrder.data.id,
+                newOrderCode: createOrder.data.code,
+              });
+            } else {
+              newOrderFailed.push(`Đơn tách ${index + 1} từ ${orderSplits.code} đã xảy ra lỗi!`);
+            }
+          } catch (error) {
+            console.log("error", error);
+          }
+        }),
+      );
+      newOrderSuccess.forEach((order: any) => {
+        showSuccess(`Tạo thành công đơn tách ${order.newOrderCode}`);
+        handleCreateOrUpdateSpecialOrder(order.newOrderID, order.orderSplitsCode);
+      });
+      newOrderFailed.forEach((error: string) => {
+        showError(error);
+      });
+      setLoading(false);
+      onCancel();
+    })();
+  }, [initialRequest, onCancel, orderSplits]);
 
   /**
    * lấy toàn bộ thông tin cửa hàng
@@ -220,17 +213,6 @@ const OrderSplitModal: React.FC<Props> = (props: Props) => {
   useEffect(() => {
     dispatch(StoreSearchListAction("", setStoreArrayResponse));
   }, [dispatch]);
-
-  /**
-   * lấy thông tin tồn kho bao gôm sản phẩm và quà tặng
-   */
-  useEffect(() => {
-    if (items && items != null && items?.length > 0) {
-      let variant_id: Array<number> = [];
-      items.forEach((element) => variant_id.push(element.variant_id));
-      dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
-    }
-  }, [dispatch, items, items?.length]);
 
   /**
    * mở modal thì hiển thị trước 1 đơn tách
@@ -289,7 +271,6 @@ const OrderSplitModal: React.FC<Props> = (props: Props) => {
               <OrderSplit
                 index={index}
                 orderSplit={data}
-                inventoryResponse={inventoryResponse}
                 storeArrayResponse={storeArrayResponse}
                 handleChangeOrderSplit={(order) => handleChangeOrderSplit(order, index)}
                 handleRemoveOrderSplit={() => handleRemoveOrderSplit(index)}

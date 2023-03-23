@@ -69,13 +69,13 @@ const updateOnHandItemOnlineInventoryApi = (
   data: any,
 ): Promise<BaseResponse<string>> => {
   return BaseAxios.put(
-    `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/lines-item/${lineId}/update-on-hand`,
+    `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/lines-item/${lineId}/reload-inventory`,
     data,
   );
 };
 
 const updateOnlineInventoryApi = (id: number): Promise<BaseResponse<string>> => {
-  return BaseAxios.put(`${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/audit/${id}`);
+  return BaseAxios.put(`${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/audit`);
 };
 
 const cancelInventoryTicket = (id?: number): Promise<BaseResponse<string>> => {
@@ -83,7 +83,7 @@ const cancelInventoryTicket = (id?: number): Promise<BaseResponse<string>> => {
 };
 
 const adjustInventoryApi = (id: number): Promise<BaseResponse<string>> => {
-  return BaseAxios.put(`${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/adjust/${id}`);
+  return BaseAxios.put(`${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/adjust`);
 };
 
 const getPrintTicketIdsService = (

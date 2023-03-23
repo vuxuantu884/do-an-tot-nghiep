@@ -30,6 +30,7 @@ import { EditOutlined, EllipsisOutlined } from "@ant-design/icons";
 import { ColumnsType } from "antd/lib/table";
 import currency from "currency.js";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
+import { MaterialListStyleWrapper } from "./MaterialListStyleWrapper";
 
 const { Item } = Form;
 const ListMaterial: React.FC = () => {
@@ -337,64 +338,65 @@ const ListMaterial: React.FC = () => {
         </AuthWrapper>
       }
     >
-      <Card>
-        <div className="custom-filter">
-          <div className="page-filter">
-            <div className="page-filter-heading">
-              {/* <div className="page-filter-left"></div> */}
-              <div className="page-filter-right">
-                <Space size={12}>
-                  <Form onFinish={searchMaterial} initialValues={params} layout="inline">
-                    <Item name="info" className="input-search">
-                      <Input
-                        prefix={<img src={search} alt="" />}
-                        placeholder="Tên / Mã chất liệu"
-                      />
-                    </Item>
-                    <Item name="component">
-                      <Input
-                        prefix={<img src={search} alt="" />}
-                        style={{ width: 200 }}
-                        placeholder="Thành phần"
-                      />
-                    </Item>
-                    <Item name="description">
-                      <Input
-                        prefix={<img src={search} alt="" />}
-                        style={{ width: 200 }}
-                        placeholder="Ghi chú"
-                      />
-                    </Item>
-                    <Item>
-                      <Button type="primary" htmlType="submit">
-                        Lọc
-                      </Button>
-                    </Item>
-                  </Form>
-                </Space>
+      <MaterialListStyleWrapper>
+        <Card>
+          <div className="custom-filter">
+            <div className="page-filter">
+              <div className="page-filter-heading">
+                <div className="page-filter-right padding-none">
+                  <Space size={12}>
+                    <Form onFinish={searchMaterial} initialValues={params} layout="inline">
+                      <Item name="info" className="input-search">
+                        <Input
+                          prefix={<img src={search} alt="" />}
+                          placeholder="Tên / Mã chất liệu"
+                        />
+                      </Item>
+                      <Item name="component">
+                        <Input
+                          prefix={<img src={search} alt="" />}
+                          style={{ width: 200 }}
+                          placeholder="Thành phần"
+                        />
+                      </Item>
+                      <Item name="description">
+                        <Input
+                          prefix={<img src={search} alt="" />}
+                          style={{ width: 200 }}
+                          placeholder="Ghi chú"
+                        />
+                      </Item>
+                      <Item>
+                        <Button type="primary" htmlType="submit">
+                          Lọc
+                        </Button>
+                      </Item>
+                    </Form>
+                  </Space>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <CustomTable
-          bordered
-          isLoading={isLoading}
-          pagination={{
-            pageSize: data.metadata.limit,
-            total: data.metadata.total,
-            current: data.metadata.page,
-            showSizeChanger: true,
-            onChange: changePage,
-            onShowSizeChange: changePage,
-          }}
-          isShowPaginationAtHeader
-          dataSource={data.items}
-          columns={columns}
-          scroll={{ x: 1360 }}
-          sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
-          rowKey={(item: MaterialResponse) => item.id}
-        />
-      </Card>
+          <CustomTable
+            bordered
+            isLoading={isLoading}
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: changePage,
+              onShowSizeChange: changePage,
+            }}
+            isShowPaginationAtHeader
+            dataSource={data.items}
+            columns={columns}
+            scroll={{ x: 1360 }}
+            sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
+            rowKey={(item: MaterialResponse) => item.id}
+          />
+        </Card>
+      </MaterialListStyleWrapper>
     </ContentContainer>
   );
 };

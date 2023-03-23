@@ -6,12 +6,12 @@ import {
 } from "@ant-design/icons";
 import { YDConfirmModalStyled } from "./style";
 import Modal, { ModalProps } from "antd/lib/modal/Modal";
-import React, { forwardRef, useImperativeHandle, useState } from "react";
+import React, { forwardRef, ReactNode, useImperativeHandle, useState } from "react";
 import { EnumConfirmModalType } from "utils/Constants";
 
 type CustomModalProps = {
   subTitle?: string;
-  description: string;
+  description: string | ReactNode;
   type?: "success" | "warning" | "error" | "info";
 };
 

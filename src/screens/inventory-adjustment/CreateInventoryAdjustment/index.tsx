@@ -2,19 +2,18 @@ import React, { createRef, FC, useCallback, useEffect, useMemo, useState } from 
 import "./index.scss";
 import UrlConfig, { BASE_NAME_ROUTER, InventoryTabUrl } from "config/url.config";
 import ContentContainer from "component/container/content.container";
-import { Button, Card, Col, Empty, Form, Input, Row, Select, Space, Upload } from "antd";
+import { Button, Card, Col, Empty, Form, Input, Row, Select, Space } from "antd";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
-import { SearchOutlined, UploadOutlined } from "@ant-design/icons";
+import { SearchOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
 import PlusOutline from "assets/icon/plus-outline.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { useDispatch, useSelector } from "react-redux";
 import {
   inventoryGetSenderStoreAction,
-  inventoryGetVariantByStoreAction,
-  inventoryUploadFileAction,
+  inventoryGetVariantByStoreAction
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { Store } from "model/inventory/transfer";
 import { InventoryAdjustmentDetailItem, LineItemAdjustment } from "model/inventoryadjustment";
@@ -23,9 +22,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { VariantImage, VariantResponse } from "model/product/product.model";
 import PickManyProductModal from "../../purchase-order/modal/pick-many-product.modal";
 import ProductItem from "../../purchase-order/component/product-item";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import { UploadRequestOption } from "rc-upload/lib/interface";
-import { UploadFile } from "antd/es/upload/interface";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { findAvatar, formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { useHistory } from "react-router";
 import ModalConfirm from "component/modal/ModalConfirm";
@@ -231,8 +228,6 @@ const CreateInventoryAdjustment: FC = () => {
     }
   };
 
-  const [fileList, setFileList] = useState<Array<UploadFile>>([]);
-
   const renderResult = useMemo(() => {
     let options: any[] = [];
     resultSearch?.items?.forEach((item: VariantResponse) => {
@@ -342,72 +337,6 @@ const CreateInventoryAdjustment: FC = () => {
     setIsLoadingTable(false);
     setVisibleManyProduct(false);
     drawColumns(newResult);
-  };
-
-  const onBeforeUpload = useCallback(
-    (file) => {
-      const isLt2M = file.size / 1024 / 1024 < 10;
-      if (!isLt2M) {
-        showWarning("Cần chọn file nhỏ hơn 10mb");
-      }
-      const fileListFiltered = fileList.filter((oldFile) => oldFile.name === file.name);
-      if (fileListFiltered.length > 0) {
-        showWarning("File tải lên bị trùng.");
-        return Upload.LIST_IGNORE;
-      }
-      return isLt2M ? true : Upload.LIST_IGNORE;
-    },
-    [fileList],
-  );
-
-  const onCustomRequest = (options: UploadRequestOption) => {
-    const { file } = options;
-    let files: Array<File> = [];
-    if (file instanceof File) {
-      let uuid = file.uid;
-      files.push(file);
-      dispatch(
-        inventoryUploadFileAction({ files: files }, (data: false | Array<string>) => {
-          let index = fileList.findIndex((item) => item.uid === uuid);
-          if (!!data) {
-            if (index !== -1) {
-              fileList[index].status = "done";
-              fileList[index].url = data[0];
-              let fileCurrent: Array<string> = form.getFieldValue("list_attached_files");
-              if (!fileCurrent) {
-                fileCurrent = [];
-              }
-              let newFileCurrent = [...fileCurrent, data[0]];
-              form.setFieldsValue({ list_attached_files: newFileCurrent });
-            }
-          } else {
-            fileList.splice(index, 1);
-            showError("Upload file không thành công");
-          }
-          setFileList([...fileList]);
-        }),
-      );
-    }
-  };
-
-  const onChangeFile = useCallback((info) => {
-    setFileList(info.fileList);
-  }, []);
-
-  const onRemoveFile = (data: UploadFile<any>) => {
-    let index = fileList.findIndex((item) => item.uid === data.uid);
-    if (index !== -1) {
-      fileList.splice(index, 1);
-      let fileCurrent: Array<string> = form.getFieldValue("list_attached_files");
-      if (!fileCurrent) {
-        fileCurrent = [];
-      } else {
-        fileCurrent.splice(index, 1);
-      }
-      let newFileCurrent = [...fileCurrent];
-      form.setFieldsValue({ list_attached_files: newFileCurrent });
-    }
-    setFileList([...fileList]);
   };
 
   const createCallback = useCallback(
@@ -1069,26 +998,6 @@ const CreateInventoryAdjustment: FC = () => {
                 rules={[{ max: 500, message: "Không được nhập quá 500 ký tự" }]}
               >
                 <TextArea placeholder="Nhập ghi chú nội bộ" autoSize={{ minRows: 4, maxRows: 6 }} />
-              </Form.Item>
-
-              <Form.Item
-                labelCol={{ span: 24, offset: 0 }}
-                label={<b>File đính kèm</b>}
-                colon={false}
-              >
-                <Upload
-                  beforeUpload={onBeforeUpload}
-                  multiple={true}
-                  fileList={fileList}
-                  onChange={onChangeFile}
-                  customRequest={onCustomRequest}
-                  onRemove={onRemoveFile}
-                >
-                  <Button icon={<UploadOutlined />}>Chọn file</Button>
-                </Upload>
-              </Form.Item>
-              <Form.Item noStyle hidden name="list_attached_files">
-                <Input />
               </Form.Item>
             </Card>
           </Col>

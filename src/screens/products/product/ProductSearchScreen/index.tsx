@@ -1,4 +1,4 @@
-import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
+import { DownloadOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Card, Row, Space, Tabs } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
@@ -8,18 +8,27 @@ import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig, { ProductTabUrl } from "config/url.config";
 import useAuthorization from "hook/useAuthorization";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { GoPlus } from "react-icons/go";
 import { Link, useHistory, useRouteMatch } from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
 import { StyledComponent } from "../tab/style";
-import "./index.scss"
+import "./index.scss";
 const { TabPane } = Tabs;
 
-const TabProduct = React.lazy(() => import("../tab").then(module => ({ default: module.TabProduct })));
-const TabProductWrapper = React.lazy(() => import("../tab").then(module => ({ default: module.TabProductWrapper })));
-const TabHistoryInfo = React.lazy(() => import("../tab").then(module => ({ default: module.TabHistoryInfo })));
-const TabHistoryPrice = React.lazy(() => import("../tab").then(module => ({ default: module.TabHistoryPrice })));
-const TabHistoryInStamp = React.lazy(() => import("../tab").then(module => ({ default: module.TabHistoryInStamp })));
+const TabProduct = React.lazy(() =>
+  import("../tab").then((module) => ({ default: module.TabProduct })),
+);
+const TabProductWrapper = React.lazy(() =>
+  import("../tab").then((module) => ({ default: module.TabProductWrapper })),
+);
+const TabHistoryInfo = React.lazy(() =>
+  import("../tab").then((module) => ({ default: module.TabHistoryInfo })),
+);
+const TabHistoryPrice = React.lazy(() =>
+  import("../tab").then((module) => ({ default: module.TabHistoryPrice })),
+);
+const TabHistoryInStamp = React.lazy(() =>
+  import("../tab").then((module) => ({ default: module.TabHistoryInStamp })),
+);
 
 const ListProductScreen: React.FC = () => {
   const [canReadHistories] = useAuthorization({
@@ -90,7 +99,10 @@ const ListProductScreen: React.FC = () => {
         name: "Danh sách sản phẩm",
         key: ProductTabUrl.VARIANTS,
         component: (
-          <TabProduct isVExportProduct={isVExportProduct} setIsVExportProduct={setIsVExportProduct} />
+          <TabProduct
+            isVExportProduct={isVExportProduct}
+            setIsVExportProduct={setIsVExportProduct}
+          />
         ),
         isShow: canReadVariants,
       },
@@ -156,7 +168,7 @@ const ListProductScreen: React.FC = () => {
                 <Button
                   className="btn-view"
                   size="large"
-                  icon={<UploadOutlined className="btn-view-icon"/>}
+                  icon={<UploadOutlined className="btn-view-icon" />}
                 >
                   Nhập file
                 </Button>
@@ -168,7 +180,7 @@ const ListProductScreen: React.FC = () => {
                 <Button
                   className="btn-view"
                   size="large"
-                  icon={<DownloadOutlined className="btn-view-icon"/>}
+                  icon={<DownloadOutlined className="btn-view-icon" />}
                   onClick={() => {
                     setIsVExportProduct(true);
                   }}
@@ -188,7 +200,7 @@ const ListProductScreen: React.FC = () => {
                 onClick={togglePickManyModal}
                 size="large"
                 type="primary"
-                icon={<GoPlus style={{ marginRight: "0.2em" }} />}
+                icon={<PlusOutlined />}
               >
                 In mã vạch
               </Button>

@@ -255,6 +255,13 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     }
   };
 
+  const editPermission = [InventoryTransferPermission.update];
+
+  const [isHaveEditPermission] = useAuthorization({
+    acceptPermissions: editPermission,
+    not: false,
+  });
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const defaultColumns = [
     {
@@ -294,17 +301,17 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       title: "Trạng thái",
       dataIndex: "status",
       visible: true,
-      align: "center",
+      align: "left",
       render: (item: string) => {
         let textTag: string;
         let classTag: string;
         let img: any;
         switch (item) {
-          case STATUS_INVENTORY_TRANSFER.REQUESTED.status:
-            textTag = STATUS_INVENTORY_TRANSFER.REQUESTED.name;
-            classTag = STATUS_INVENTORY_TRANSFER.REQUESTED.status;
-            img = confirmedIcon;
-            break;
+          // case STATUS_INVENTORY_TRANSFER.REQUESTED.status:
+          //   textTag = STATUS_INVENTORY_TRANSFER.REQUESTED.name;
+          //   classTag = STATUS_INVENTORY_TRANSFER.REQUESTED.status;
+          //   img = confirmedIcon;
+          //   break;
 
           case STATUS_INVENTORY_TRANSFER.TRANSFERRING.status:
             textTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.name;
@@ -354,7 +361,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
           </>
         );
       },
-      dataIndex: "total_variant",
+      dataIndex: "total_sent_variant",
       visible: true,
       align: "right",
       render: (value: number) => {
@@ -372,7 +379,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
           </>
         );
       },
-      dataIndex: "total_quantity",
+      dataIndex: "total_sent_quantity",
       visible: true,
       align: "right",
       render: (value: number) => {
@@ -392,7 +399,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       },
       visible: true,
       dataIndex: "total_received_quantity",
-      align: "center",
+      align: "right",
       width: 100,
       render: (value: number) => {
         return formatCurrency(value, ".");
@@ -400,9 +407,9 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     },
     {
       title: "Thành tiền",
-      dataIndex: "total_amount",
+      dataIndex: "total_sent_amount",
       visible: true,
-      align: "center",
+      align: "right",
       width: 150,
       render: (value: number) => {
         return formatCurrency(value, ".");
@@ -418,6 +425,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
         return (
           <div className="single">
             <EditPopover
+              isHaveEditPermission={isHaveEditPermission}
+              maxLength={255}
               content={item}
               title={`Sửa ghi chú ${row?.code}`}
               color={primaryColor}
@@ -436,9 +445,9 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       align: "left",
       width: "220px",
       render: (item: string, row: InventoryTransferDetailItem) => {
-        return row.forward_store_id ? (
+        return row.forward_note ? (
           <div className="single">
-            Chuyển tiếp từ kho {item} đến kho {row.to_store_name}
+            {row.forward_note}
           </div>
         ) : (
           <></>
@@ -449,7 +458,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       title: "Ngày chuyển",
       dataIndex: "transfer_date",
       visible: true,
-      align: "center",
+      align: "left",
       width: "110px",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYY_HHmm)}</div>,
     },
@@ -457,7 +466,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       title: "Ngày nhận",
       dataIndex: "receive_date",
       visible: true,
-      align: "center",
+      align: "left",
       width: "100px",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYY_HHmm)}</div>,
     },
@@ -465,7 +474,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       title: "Ngày hủy",
       dataIndex: "cancel_date",
       visible: true,
-      align: "center",
+      align: "left",
       width: "100px",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYY_HHmm)}</div>,
     },
@@ -509,11 +518,12 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRowKeys]);
 
-  const onDeleteTicket = async (value: string | undefined) => {
+  const deleteTicket = async (value: string | undefined) => {
     setLoadingBtn(true);
-    const ids = selectedRowKeys.map((i) => {
+    const ids = selectedRowData.map((i) => {
       return {
-        id: i,
+        id: i.id,
+        code: i.code
       };
     });
     dispatch(
@@ -550,15 +560,15 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
           let totalProduct = 0;
 
           result.items.forEach((item: any) => {
-            total = total + item.total_quantity;
-            totalProduct = totalProduct + item.total_variant;
+            total = total + item.total_sent_quantity;
+            totalProduct = totalProduct + item.total_sent_variant;
             totalReceivedQuantity = totalReceivedQuantity + item.total_received_quantity;
           });
 
           const newColumns = [...columns];
 
           for (let i = 0; i < newColumns.length; i++) {
-            if (newColumns[i].dataIndex === "total_quantity") {
+            if (newColumns[i].dataIndex === "total_sent_quantity") {
               newColumns[i] = {
                 // eslint-disable-next-line no-loop-func
                 title: () => {
@@ -570,7 +580,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
                   );
                 },
                 titleCustom: "SL Gửi",
-                dataIndex: "total_quantity",
+                dataIndex: "total_sent_quantity",
                 visible: true,
                 align: "right",
                 render: (value: number) => {
@@ -600,7 +610,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
                 width: 100,
               };
             }
-            if (newColumns[i].dataIndex === "total_variant") {
+            if (newColumns[i].dataIndex === "total_sent_variant") {
               newColumns[i] = {
                 // eslint-disable-next-line no-loop-func
                 title: () => {
@@ -612,7 +622,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
                   );
                 },
                 titleCustom: "SP",
-                dataIndex: "total_variant",
+                dataIndex: "total_sent_variant",
                 visible: true,
                 align: "right",
                 render: (value: number) => {
@@ -632,6 +642,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
                   return (
                     <div className="single">
                       <EditPopover
+                        maxLength={255}
+                        isHaveEditPermission={isHaveEditPermission}
                         content={item}
                         title={`Sửa ghi chú ${row?.code}`}
                         color={primaryColor}
@@ -735,6 +747,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     setTableLoading(false);
     if (data.code === HttpStatus.SUCCESS) {
       setSelectedRowKeys([]);
+      setSelectedRowData([]);
       setIsDeleteTicket(false);
       showSuccess(`Hủy phiếu chuyển thành công`);
       setParams({
@@ -750,6 +763,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
         ...params,
       });
       setSelectedRowKeys([]);
+      setSelectedRowData([]);
       setDataUploadError(data.errors);
     }
   };
@@ -763,6 +777,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       setParams({
         ...params,
       });
+      setSelectedRowKeys([]);
+      setSelectedRowData([]);
       return;
     }
 
@@ -775,9 +791,10 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const exportMultiple = async () => {
     setTableLoading(true);
-    const ids = selectedRowKeys.map((i) => {
+    const ids = selectedRowData.map((i) => {
       return {
-        id: i,
+        id: i.id,
+        code: i.code
       };
     });
     const queryParamsParsed: any = queryString.parse(location.search);
@@ -878,9 +895,9 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       [TransferExportField.status]: STATUS_INVENTORY_TRANSFER_ARRAY.find(
         (e) => e.value === item.status,
       )?.name,
-      [TransferExportField.total_variant]: item.total_variant,
-      [TransferExportField.total_quantity]: item.total_quantity === 0 ? null : item.total_quantity,
-      [TransferExportField.total_amount]: item.total_amount,
+      [TransferExportField.total_variant]: item.total_sent_variant,
+      [TransferExportField.total_quantity]: item.total_sent_quantity === 0 ? null : item.total_sent_quantity,
+      [TransferExportField.total_amount]: item.total_sent_amount,
       [TransferExportField.created_date]: ConvertUtcToLocalDate(
         item.created_date,
         DATE_FORMAT.DDMMYY_HHmm,
@@ -1215,7 +1232,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
 
       {isDeleteTicket && (
         <DeleteTicketModal
-          onOk={onDeleteTicket}
+          onOk={deleteTicket}
           loading={loadingBtn}
           onCancel={() => setIsDeleteTicket(false)}
           visible={isDeleteTicket}
@@ -1241,6 +1258,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
       <TransferExport
         onCancel={actionExport.Cancel}
         onOk={actionExport.Ok}
+        title={vExportTransfer ? "Xuất file chuyển kho danh sách" : "Xuất file chuyển kho chi tiết"}
         visible={vExportTransfer || vExportDetailTransfer}
         exportProgress={exportProgress}
         statusExport={statusExport}

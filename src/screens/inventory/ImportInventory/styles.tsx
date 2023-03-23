@@ -23,6 +23,14 @@ export const StyledWrapper = styled.div`
       color: #FF0000; 
     }
   }
+
+  .message-error {
+    color: #e24343;
+  }
+  
+  .mb-10 {
+    margin-bottom: 10px;
+  }
 `;
 
 export const ImportStatusWrapper = styled.div`

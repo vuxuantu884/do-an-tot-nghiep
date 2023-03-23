@@ -45,6 +45,8 @@ import { OFFSET_HEADER_UNDER_NAVBAR, STATUS_IMPORT_EXPORT, TYPE_EXPORT } from "u
 import moment from "moment";
 import * as XLSX from "xlsx";
 import { TransferExportLineItemField } from "model/inventory/field";
+import {InventoryTransferPermission} from "config/permissions/inventory-transfer.permission";
+import useAuthorization from "hook/useAuthorization";
 import { StoreResponse } from "../../../../../model/core/store.model";
 const { TextArea } = Input;
 
@@ -126,6 +128,13 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
     items: [],
   });
 
+  const editPermission = [InventoryTransferPermission.update];
+
+  const [isHaveEditPermission] = useAuthorization({
+    acceptPermissions: editPermission,
+    not: false,
+  });
+
   const defaultColumns = [
     {
       title: "Sản phẩm",
@@ -162,17 +171,17 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
         <div>
           <div className="custom-title">
             <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${row.inventory_transfer.id}`}>
-              {value}
+              {row.inventory_transfer.code}
             </Link>
           </div>
           <div className="product-item-name custom-name">
-            Ngày tạo: {ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYY_HHmm)}
+            Ngày tạo: {ConvertUtcToLocalDate(row.inventory_transfer.created_date, DATE_FORMAT.DDMMYY_HHmm)}
           </div>
           <div className="product-item-name custom-name">
-            Ngày gửi: {ConvertUtcToLocalDate(row.exported_date, DATE_FORMAT.DDMMYY_HHmm)}
+            Ngày gửi: {ConvertUtcToLocalDate(row.inventory_transfer.transfer_date, DATE_FORMAT.DDMMYY_HHmm)}
           </div>
           <div className="product-item-name custom-name">
-            Ngày nhận: {ConvertUtcToLocalDate(row.receive_date, DATE_FORMAT.DDMMYY_HHmm)}
+            Ngày nhận: {ConvertUtcToLocalDate(row.inventory_transfer.receive_date, DATE_FORMAT.DDMMYY_HHmm)}
           </div>
         </div>
       ),
@@ -197,17 +206,17 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       title: "Trạng thái",
       dataIndex: "status",
       visible: true,
-      align: "center",
+      align: "left",
       render: (item: string, row: InventoryExportImportTransferDetailItem) => {
         let textTag: string;
         let classTag: string;
         let img: any;
         switch (row.inventory_transfer.status) {
-          case STATUS_INVENTORY_TRANSFER.REQUESTED.status:
-            textTag = STATUS_INVENTORY_TRANSFER.REQUESTED.name;
-            classTag = STATUS_INVENTORY_TRANSFER.REQUESTED.status;
-            img = confirmedIcon;
-            break;
+          // case STATUS_INVENTORY_TRANSFER.REQUESTED.status:
+          //   textTag = STATUS_INVENTORY_TRANSFER.REQUESTED.name;
+          //   classTag = STATUS_INVENTORY_TRANSFER.REQUESTED.status;
+          //   img = confirmedIcon;
+          //   break;
 
           case STATUS_INVENTORY_TRANSFER.TRANSFERRING.status:
             textTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.name;
@@ -250,7 +259,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
     {
       title: () => {
         return (
-          <div className="text-center">
+          <div style={{ textAlign: "right" }}>
             <div>SL Gửi</div>
             <div className="total-quantity">{formatCurrency(0, ".")}</div>
           </div>
@@ -258,7 +267,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       },
       dataIndex: "total_quantity",
       visible: true,
-      align: "left",
+      align: "right",
       render: (value: number, row: InventoryExportImportTransferDetailItem) => {
         return (
           <div>
@@ -271,19 +280,19 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
     {
       title: () => {
         return (
-          <div className="text-center">
+          <div style={{ textAlign: "right" }}>
             <div>SL Nhận</div>
             <div className="total-quantity">{formatCurrency(0, ".")}</div>
           </div>
         );
       },
-      dataIndex: "received_quantity",
+      dataIndex: "real_quantity",
       visible: true,
-      align: "left",
+      align: "right",
       render: (value: number, row: InventoryExportImportTransferDetailItem) => {
         return (
           <div>
-            <span>{formatCurrency(row.received_quantity, ".")}</span>
+            <span>{formatCurrency(row.real_quantity, ".")}</span>
           </div>
         );
       },
@@ -293,7 +302,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       title: "Giá bán",
       dataIndex: "price",
       visible: true,
-      align: "center",
+      align: "right",
       width: 100,
       render: (value: number) => {
         return (
@@ -308,6 +317,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       dataIndex: "amount",
       visible: true,
       width: 120,
+      align: "right",
       render: (value: number, row: InventoryExportImportTransferDetailItem) => {
         return (
           <div>
@@ -320,7 +330,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
             <div>
               Nhận:{" "}
               <span className="text-bold">
-                {formatCurrency(row.received_quantity * row.price, ".")}
+                {formatCurrency(row.real_quantity * row.price, ".")}
               </span>
             </div>
           </div>
@@ -340,12 +350,12 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
             </Col>
             <Col span={15}>
               <div className="product-item-sku custom-title">
-                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record.created_by}`}>
-                  {record.created_by}
+                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record.inventory_transfer.created_by}`}>
+                  {record.inventory_transfer.created_by}
                 </Link>
               </div>
               <div className="product-item-name custom-name">
-                <span className="product-item-name-detail">{record.created_name}</span>
+                <span className="product-item-name-detail">{record.inventory_transfer.created_name}</span>
               </div>
             </Col>
           </Row>
@@ -355,12 +365,12 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
             </Col>
             <Col span={15}>
               <div className="product-item-sku custom-title">
-                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record.exported_code}`}>
-                  {record.exported_code}
+                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record.inventory_transfer.transfer_by}`}>
+                  {record.inventory_transfer.transfer_by}
                 </Link>
               </div>
               <div className="product-item-name custom-name">
-                <span className="product-item-name-detail">{record.exported_name}</span>
+                <span className="product-item-name-detail">{record.inventory_transfer.transfer_name}</span>
               </div>
             </Col>
           </Row>
@@ -370,12 +380,12 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
             </Col>
             <Col span={15}>
               <div className="product-item-sku custom-title">
-                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record.received_by}`}>
-                  {record.received_by}
+                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record.inventory_transfer.received_by}`}>
+                  {record.inventory_transfer.received_by}
                 </Link>
               </div>
               <div className="product-item-name custom-name">
-                <span className="product-item-name-detail">{record.received_name}</span>
+                <span className="product-item-name-detail">{record.inventory_transfer.received_name}</span>
               </div>
             </Col>
           </Row>
@@ -392,13 +402,15 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
         return (
           <div className={item ? "note" : ""}>
             <span className="mr-5">{row.inventory_transfer.note}</span>
-            <FormOutlined
-              onClick={() => {
-                setItemData(row);
-                setIsModalVisibleNote(true);
-              }}
-              className={item ? "note-icon" : ""}
-            />
+            {isHaveEditPermission && (
+              <FormOutlined
+                onClick={() => {
+                  setItemData(row);
+                  setIsModalVisibleNote(true);
+                }}
+                className={item ? "note-icon" : ""}
+              />
+            )}
           </div>
         );
       },
@@ -479,13 +491,15 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       { ...params },
     );
 
+    setTableLoading(false);
+
     if (response.items.length > 0) {
       let total = 0;
       let totalReceived = 0;
 
       response.items.forEach((item: any) => {
         total = total + item.transfer_quantity;
-        totalReceived = totalReceived + item.received_quantity;
+        totalReceived = totalReceived + item.real_quantity;
       });
 
       const newColumns = [...columns];
@@ -496,7 +510,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
             // eslint-disable-next-line no-loop-func
             title: () => {
               return (
-                <div className="text-center">
+                <div style={{ textAlign: "right" }}>
                   <div>SL Gửi</div>
                   <div className="total-quantity">{formatCurrency(total, ".")}</div>
                 </div>
@@ -504,7 +518,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
             },
             dataIndex: "total_quantity",
             visible: true,
-            align: "center",
+            align: "right",
             // eslint-disable-next-line no-loop-func
             render: (value: number, row: InventoryExportImportTransferDetailItem) => {
               return (
@@ -516,25 +530,25 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
             width: "100px",
           };
         }
-        if (newColumns[i].dataIndex === "received_quantity") {
+        if (newColumns[i].dataIndex === "real_quantity") {
           newColumns[i] = {
             // eslint-disable-next-line no-loop-func
             title: () => {
               return (
-                <div className="text-center">
+                <div style={{ textAlign: "right" }}>
                   <div>SL Nhận</div>
                   <div className="total-quantity">{formatCurrency(totalReceived, ".")}</div>
                 </div>
               );
             },
-            dataIndex: "received_quantity",
+            dataIndex: "real_quantity",
             visible: true,
-            align: "center",
+            align: "right",
             // eslint-disable-next-line no-loop-func
             render: (value: number, row: InventoryExportImportTransferDetailItem) => {
               return (
                 <div>
-                  <span>{formatCurrency(row.received_quantity, ".")}</span>
+                  <span>{formatCurrency(row.real_quantity, ".")}</span>
                 </div>
               );
             },
@@ -547,8 +561,6 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
     } else {
       setColumn(defaultColumns);
     }
-
-    setTableLoading(false);
 
     setData(response);
     if (firstLoad) {
@@ -703,7 +715,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
 
   const convertItemExport = (item: InventoryExportImportTransferDetailItem) => {
     return {
-      [TransferExportLineItemField.code]: item.code,
+      [TransferExportLineItemField.code]: item.inventory_transfer.code,
       [TransferExportLineItemField.from_store]: item.inventory_transfer.from_store_name,
       [TransferExportLineItemField.to_store]: item.inventory_transfer.to_store_name,
       [TransferExportLineItemField.status]: STATUS_INVENTORY_TRANSFER_ARRAY.find(
@@ -715,7 +727,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       [TransferExportLineItemField.price]: item.price,
       [TransferExportLineItemField.transfer_quantity]: item.transfer_quantity,
       [TransferExportLineItemField.total_amount]: item.amount ?? 0,
-      [TransferExportLineItemField.real_quantity]: item.received_quantity,
+      [TransferExportLineItemField.real_quantity]: item.real_quantity,
       [TransferExportLineItemField.created_date]: ConvertUtcToLocalDate(
         item.created_date,
         DATE_FORMAT.DDMMYY_HHmm,
@@ -723,17 +735,17 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       [TransferExportLineItemField.created_name]:
         !item.created_by || !item.created_name ? "" : `${item.created_by} - ${item.created_name}`,
       [TransferExportLineItemField.transfer_date]: ConvertUtcToLocalDate(
-        item.exported_date,
+        item.inventory_transfer.transfer_date,
         DATE_FORMAT.DDMMYY_HHmm,
       ),
       [TransferExportLineItemField.receive_date]: ConvertUtcToLocalDate(
-        item.receive_date,
+        item.inventory_transfer.receive_date,
         DATE_FORMAT.DDMMYY_HHmm,
       ),
       [TransferExportLineItemField.updated_name]:
-        !item.received_by || !item.received_name
+        !item.inventory_transfer.received_by || !item.inventory_transfer.received_name
           ? ""
-          : `${item.received_by} - ${item.received_name}`,
+          : `${item.inventory_transfer.received_by} - ${item.inventory_transfer.received_name}`,
       [TransferExportLineItemField.note]: item.inventory_transfer.note ?? "",
     };
   };
@@ -861,13 +873,13 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
             form={formNote}
             initialValues={itemData}
             onFinish={(data) => {
-              const newData = {
+              const newNote = {
                 version: itemData?.inventory_transfer.version,
                 note: data.note,
               };
 
               if (itemData?.id) {
-                updateNote(itemData.inventory_transfer.id, newData).then();
+                updateNote(itemData.inventory_transfer.id, newNote).then();
               }
             }}
             onFinishFailed={() => {}}
@@ -898,6 +910,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
         data={columns}
       />
       <TransferExport
+        title="Xuất file sản phẩm chuyển kho"
         onCancel={actionExport.Cancel}
         onOk={actionExport.Ok}
         visible={vExportDetailTransfer}

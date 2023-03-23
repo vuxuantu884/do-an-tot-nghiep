@@ -7,6 +7,10 @@
 }
 .product-detail {
   margin-top: 20px;
+
+  .ant-row {
+    flex-wrap: unset !important;
+  }
 }
 .product-table {
   margin-top: 20px;

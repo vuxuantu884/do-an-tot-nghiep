@@ -28,10 +28,10 @@ type HeaderContainerProps = {
 
 const UNICORN_HOTLINE = "0888 464 258";
 const UNICORN_GAPO_URL = "https://www.gapowork.vn/group/unicorn";
-const FEEDBACK_FORM_URL = "https://htnd.yody.io/";
 const OTHER_YODY_PLATFORMS_URL = "https://yody.io";
 
 const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerProps) => {
+  const user_code = useSelector((state: RootReducerType) => state.userReducer.account?.code);
   const user_id = useSelector((state: RootReducerType) => state.userReducer.account?.user_id);
   const myName = useSelector((state: RootReducerType) => state.userReducer.account?.full_name);
 
@@ -54,6 +54,17 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
       setFirstCharName(myName.charAt(0));
     }
   }, [myName]);
+
+  const HandleReturnFeedBackUrl = () => {
+    switch (AppConfig.ENV) {
+      case "DEV":
+        return `https://htnd-dev.yody.io/?code=${user_code}`;
+      case "PROD":
+        return `https://htnd.yody.io/?code=${user_code}`;
+      default:
+        return `https://htnd-dev.yody.io/?code=${user_code}`;
+    }
+  };
 
   const Logo = () => {
     if (AppConfig.ENV === "DEV") {
@@ -137,7 +148,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
               </a>
 
               <a
-                href={FEEDBACK_FORM_URL}
+                href={HandleReturnFeedBackUrl()}
                 target={"_blank"}
                 rel="noreferrer"
                 className="support-link"

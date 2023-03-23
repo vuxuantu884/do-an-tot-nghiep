@@ -1448,7 +1448,7 @@ const DetailInventoryAdjustment: FC = () => {
                         )}
                       </TabPane>
                       <TabPane tab={`Tất cả (${total})`} key="2">
-                        <Input.Group style={{ paddingTop: 16 }} className="display-flex">
+                        <Input.Group className="display-flex">
                           {isHaveEditPermission && renderSearchComponent()}
                           <Input
                             name="key_search"

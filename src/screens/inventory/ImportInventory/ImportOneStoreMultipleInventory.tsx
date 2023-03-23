@@ -68,6 +68,7 @@ const ImportOneStoreMultipleInventory: FC = () => {
   const [, setFileId] = useState<string | null>(null);
   const [, setData] = useState<any>(null);
   const [createType, setCreateType] = useState<string>("CREATE");
+  const [messageError, setMessageError] = useState<string>("");
 
   const [fileList, setFileList] = useState<Array<UploadFile>>([]);
   const dispatch = useDispatch();
@@ -224,33 +225,26 @@ const ImportOneStoreMultipleInventory: FC = () => {
     <CheckCircleOutlined style={{ fontSize: 14 }} />
   ), []);
 
-  // validate
-  const validateStore = (rule: any, value: any, callback: any): void => {
-    if (value) {
-      const from_store_id = form.getFieldValue("from_store_id");
-      const to_store_id = form.getFieldValue("to_store_id");
-      if (from_store_id === to_store_id) {
-        callback(`Kho gửi không được trùng với kho nhận`);
-      } else {
-        callback();
-      }
-    } else {
-      callback();
-    }
-  };
-
   const viewProcessingDetail = (fileAttr: any, processingDetailTemp: any) => {
     setIsStatusModalVisible(true);
+    if (!processingDetailTemp.data) {
+      setProcessingDetail({
+        errorsFile: processingDetailTemp.errors,
+        fileName: fileAttr.name,
+        uid: fileAttr.uid,
+      });
+      return;
+    }
+
     setProcessingDetail({
-      ...processingDetailTemp,
-      errorsFile: processingDetailTemp.errors,
+      ...processingDetailTemp.data,
       fileName: fileAttr.name,
       uid: fileAttr.uid,
     });
   };
 
   const checkImportFile = (fileAttr: any, fileId: any) => {
-    BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import/${fileId}`).then(
+    BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${fileId}/import`).then(
       (res: any) => {
         if (!res.data) return;
         setData(res.data);
@@ -289,7 +283,7 @@ const ImportOneStoreMultipleInventory: FC = () => {
                 <Link target="_blank" to={`${UrlConfig.INVENTORY_TRANSFERS}/${res.data.data.id}`}>Phiếu chuyển
                   hàng</Link>
               </Button> : <Button style={{ marginLeft: "auto" }} type="default"
-                                  onClick={() => viewProcessingDetail(fileAttr, res.data)}>
+                                  onClick={() => viewProcessingDetail(fileAttr, res)}>
                 Xem chi tiết
               </Button>}
             </div>,
@@ -413,31 +407,29 @@ const ImportOneStoreMultipleInventory: FC = () => {
         showWarning("Vui lòng chọn ít nhất một file.");
         return;
       }
+      if (messageError !== "") {
+        showWarning("Kho gửi không được trùng với kho nhận");
+        return;
+      }
       setDisabled(true);
       if (stores) {
         stores.forEach((store) => {
-          if (store.id === Number(data.from_store_id)) {
-            data.store_transfer = {
-              store_id: store.id,
-              hotline: store.hotline,
-              address: store.address,
-              name: store.name,
-              code: store.code,
-            };
+          if (store?.id === Number(data.from_store_id)) {
+            data.from_store_id = store?.id;
+            data.from_store_phone = store?.hotline;
+            data.from_store_address = store?.address;
+            data.from_store_code = store?.code;
+            data.from_store_name = store?.name;
           }
-          if (store.id === Number(data.to_store_id)) {
-            data.store_receive = {
-              store_id: store.id,
-              hotline: store.hotline,
-              address: store.address,
-              name: store.name,
-              code: store.code,
-            };
+          if (store?.id === Number(data.to_store_id)) {
+            data.to_store_id = store?.id;
+            data.to_store_phone = store?.hotline;
+            data.to_store_address = store?.address;
+            data.to_store_code = store?.code;
+            data.to_store_name = store?.name;
           }
         });
       }
-      delete data.from_store_id;
-      delete data.to_store_id;
       data.is_transfer_request = JSON.stringify(createType === "REQUEST");
 
       let count: number = 0;
@@ -583,7 +575,7 @@ const ImportOneStoreMultipleInventory: FC = () => {
                   <Col span={24}>
                     <Radio.Group value={createType} onChange={(e) => setCreateType(e.target.value)}>
                       <Radio value="CREATE">Tạo phiếu</Radio>
-                      <Radio value="REQUEST">Tạo yêu cầu</Radio>
+                      {/*<Radio value="REQUEST">Tạo yêu cầu</Radio>*/}
                     </Radio.Group>
                   </Col>
                 </Row>
@@ -591,6 +583,7 @@ const ImportOneStoreMultipleInventory: FC = () => {
                   <Col span={12}>
                     <Form.Item
                       name="from_store_id"
+                      style={{ marginBottom: 15 }}
                       label={<b>Kho gửi</b>}
                       rules={
                         createType === "CREATE"
@@ -598,9 +591,6 @@ const ImportOneStoreMultipleInventory: FC = () => {
                             {
                               required: true,
                               message: "Vui lòng chọn kho gửi",
-                            },
-                            {
-                              validator: validateStore,
                             },
                           ]
                           : []
@@ -613,6 +603,10 @@ const ImportOneStoreMultipleInventory: FC = () => {
                         showArrow
                         showSearch
                         optionFilterProp="children"
+                        onChange={(value: number) => {
+                          const to_store_id = form.getFieldValue("to_store_id");
+                          setMessageError(to_store_id === value ? "Kho gửi không được trùng với kho nhận" : "")
+                        }}
                         filterOption={(input: String, option: any) => {
                           if (option.props.value) {
                             return strForSearch(option.props.children).includes(
@@ -640,14 +634,12 @@ const ImportOneStoreMultipleInventory: FC = () => {
                   <Col span={12}>
                     <Form.Item
                       name="to_store_id"
+                      style={{ marginBottom: 15 }}
                       label={<b>Kho nhận</b>}
                       rules={[
                         {
                           required: true,
                           message: "Vui lòng chọn kho nhận",
-                        },
-                        {
-                          validator: validateStore,
                         },
                       ]}
                       labelCol={{ span: 24, offset: 0 }}
@@ -658,6 +650,10 @@ const ImportOneStoreMultipleInventory: FC = () => {
                         showArrow
                         showSearch
                         optionFilterProp="children"
+                        onChange={(value: number) => {
+                          const from_store_id = form.getFieldValue("from_store_id");
+                          setMessageError(from_store_id === value ? "Kho gửi không được trùng với kho nhận" : "")
+                        }}
                         filterOption={(input: String, option: any) => {
                           if (option.props.value) {
                             return strForSearch(option.props.children).includes(
@@ -677,6 +673,7 @@ const ImportOneStoreMultipleInventory: FC = () => {
                     </Form.Item>
                   </Col>
                 </Row>
+                {messageError !== "" && <div className="message-error mb-10">{messageError}</div>}
                 <Table
                   loading={loadingTable}
                   bordered
@@ -727,26 +724,11 @@ const ImportOneStoreMultipleInventory: FC = () => {
                   Huỷ
                 </Button>,
                 <Button
-                  // disabled={!!processingDetail?.data.errors || data?.status !== "FINISH"}
                   type="primary"
                   onClick={() => {
-                    const {
-                      store_transfer,
-                      store_receive,
-                      note,
-                      attached_files,
-                      line_items,
-                    } = processingDetail?.data;
-                    const newBody = {
-                      store_transfer,
-                      store_receive,
-                      note,
-                      attached_files,
-                      line_items,
-                    };
                     dispatch(createType === "REQUEST"
-                      ? creatInventoryTransferRequestAction(newBody, createCallback)
-                      : creatInventoryTransferAction(newBody, createCallback));
+                      ? creatInventoryTransferRequestAction(processingDetail?.data, createCallback)
+                      : creatInventoryTransferAction(processingDetail?.data, createCallback));
                   }}
                 >
                   Xác nhận tạo
@@ -807,7 +789,7 @@ const ImportOneStoreMultipleInventory: FC = () => {
                 {processingDetail?.errorsFile?.map((i: any, index: number) => {
                   return (
                     <li key={index}>
-                      <Text type="danger">{i}</Text>
+                      <Text type="danger">{i.code ? i.code : i}</Text>
                     </li>
                   );
                 })}
@@ -829,7 +811,8 @@ const ImportOneStoreMultipleInventory: FC = () => {
                         })}
                       </>
                     )}
-                    {processingDetail.code !== HttpStatus.BAD_REQUEST && processingDetail?.errors?.length > 0 ? (
+                    {processingDetail.code !== HttpStatus.BAD_REQUEST
+                    && processingDetail?.errors?.length > 0 && (
                       <>
                         {processingDetail?.errors?.map((i: any, index: number) => {
                           return (
@@ -839,7 +822,8 @@ const ImportOneStoreMultipleInventory: FC = () => {
                           );
                         })}
                       </>
-                    ) : (
+                    )}
+                    {processingDetail.code !== HttpStatus.BAD_REQUEST && processingDetail?.errors?.length === 0 && (
                       <li>
                         <Text type="danger">{processingDetail?.message}</Text>
                       </li>

@@ -1,7 +1,7 @@
-import { Button, Col, Form, FormInstance, Input, Row, Select, Tag, InputNumber } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Tag, InputNumber } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import { FilterOutlined } from "@ant-design/icons";
@@ -13,7 +13,7 @@ import {
   INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY,
   STATUS_INVENTORY_ADJUSTMENT_ARRAY,
 } from "../../constants";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import "./styles.scss";
 import ButtonSetting from "component/table/ButtonSetting";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
@@ -23,6 +23,7 @@ import { searchAccountPublicAction } from "domain/actions/account/account.action
 import { useDispatch } from "react-redux";
 import { PageResponse } from "model/base/base-metadata.response";
 import CustomFilter from "component/table/custom.filter";
+import TreeStore from "component/CustomTreeSelect";
 
 type InventoryAdjustmentFilterProps = {
   params: any;
@@ -36,10 +37,10 @@ type InventoryAdjustmentFilterProps = {
   setAccounts?: (value: any) => void;
   onClearFilter?: () => void;
   stores?: Array<StoreResponse>;
+  isFirstLoad?: boolean;
 };
 
 const { Item } = Form;
-const { Option } = Select;
 
 const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
   props: InventoryAdjustmentFilterProps,
@@ -55,7 +56,8 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     actions,
     accounts,
     setAccounts,
-    onMenuClick
+    onMenuClick,
+    isFirstLoad
   } = props;
   const [dateClick, setDateClick] = useState("");
   const [messageErrorQuality, setMessageErrorQuality] = useState("");
@@ -80,6 +82,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
 
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
+  const customSelectRef = useRef<HTMLSelectElement>(null);
 
   const setDataAccount = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -96,6 +99,12 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     },
     [dispatch, setDataAccount],
   );
+
+  useEffect(() => {
+    if (isFirstLoad) return;
+
+    customSelectRef?.current?.focus();
+  }, [isFirstLoad]);
 
   useEffect(() => {
     const filter = {
@@ -432,27 +441,13 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
               />
             </Item>
             <Item name="adjusted_store_ids">
-              <CustomSelect
-                style={{
-                  width: 300,
-                }}
-                allowClear
-                mode="multiple"
+              <TreeStore
+                defaultOpen
+                ref={customSelectRef}
                 placeholder="Chọn kho kiểm"
-                showArrow
-                showSearch
-                maxTagCount="responsive"
-                optionFilterProp="children"
-                onClear={() => formSearchRef?.current?.submit()}
-              >
-                {Array.isArray(stores) &&
-                  stores.length > 0 &&
-                  stores.map((item, index) => (
-                    <Option key={"adjusted_store_id" + index} value={item.id.toString()}>
-                      {item.name}
-                    </Option>
-                  ))}
-              </CustomSelect>
+                storeByDepartmentList={stores as unknown as StoreByDepartment[]}
+                style={{ width: 280 }}
+              />
             </Item>
             <Item>
               <Button type="primary" loading={loadingFilter} htmlType="submit">

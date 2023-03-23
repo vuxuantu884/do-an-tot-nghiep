@@ -1,7 +1,6 @@
 import { Button, Card, Checkbox, Form, Input, List, Table } from "antd";
 import Color from "assets/css/export-variable.module.scss";
 import search from "assets/img/search.svg";
-import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { AppConfig } from "config/app.config";
@@ -374,19 +373,6 @@ function Analytics() {
           subTitle="Bạn có chắc chắn muốn xóa báo cáo này?"
         />
       </Form.Provider>
-      {[UrlConfig.ANALYTIC_SALES_OFFLINE].includes(matchPath) && (
-        <BottomBarContainer
-          rightComponent={
-            <>
-              <Button type="primary">
-                <Link to={`${matchPath}/customer-visitors`}>
-                  Nhập số lượng khách hàng đã tư vấn
-                </Link>
-              </Button>
-            </>
-          }
-        />
-      )}
     </ContentContainer>
   );
 }

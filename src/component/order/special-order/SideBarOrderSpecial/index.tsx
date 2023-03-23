@@ -8,6 +8,7 @@ import {
   SpecialOrderType,
 } from "model/order/special-order.model";
 import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { ACCOUNT_CODE_LOCAL_STORAGE } from "utils/LocalStorageUtils";
 import {
   checkIfECommerceByOrderChannelCodeUpdateOrder,
   checkIfOrderPageType,
@@ -65,7 +66,10 @@ const SideBarOrderSpecial: React.FC<Props> = (props: Props) => {
   const initialFormValue: SpecialOrderFormValueModel = {
     type: specialOrder?.type || defaultSpecialType,
     order_original_code: specialOrder?.order_original_code || undefined,
-    order_carer_code: specialOrder?.order_carer_code || undefined,
+    order_carer_code:
+      specialOrder?.order_carer_code ||
+      localStorage.getItem(ACCOUNT_CODE_LOCAL_STORAGE) ||
+      undefined,
     variant_skus: variantSkus.length > 0 ? variantSkus : undefined,
     amount: specialOrder?.amount ?? undefined,
     order_return_code: specialOrder?.order_return_code || undefined,
@@ -93,7 +97,7 @@ const SideBarOrderSpecial: React.FC<Props> = (props: Props) => {
     const initialFormValue: SpecialOrderFormValueModel = {
       type: v || defaultSpecialType,
       order_original_code: undefined,
-      order_carer_code: undefined,
+      order_carer_code: localStorage.getItem(ACCOUNT_CODE_LOCAL_STORAGE) || undefined,
       variant_skus: undefined,
       amount: undefined,
       order_return_code: undefined,

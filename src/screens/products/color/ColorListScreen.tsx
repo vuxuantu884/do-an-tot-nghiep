@@ -139,12 +139,13 @@ const ColorListScreen: React.FC = () => {
       title: "Tên màu",
       dataIndex: "name",
       visible: true,
+      width: 200,
     },
     {
       title: "Số sản phẩm",
       dataIndex: "total_variant",
       visible: true,
-      width: 150,
+      width: 120,
       align: "center",
       render: (value: number, item: ColorResponse) => {
         return (
@@ -202,7 +203,7 @@ const ColorListScreen: React.FC = () => {
         );
       },
       visible: true,
-      width: 150,
+      width: 120,
     },
     {
       title: "Người tạo",
@@ -231,6 +232,7 @@ const ColorListScreen: React.FC = () => {
       dataIndex: "description",
       visible: true,
       width: "5%",
+      fixed: "right",
       render: (value, record) => RenderActionColumn(value, record),
     },
   ]);
@@ -404,8 +406,9 @@ const ColorListScreen: React.FC = () => {
             onShowSizeChange: changePage,
           }}
           isShowPaginationAtHeader
-          sticky={{ offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
+          sticky={{ offsetScroll: 10, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           isLoading={isTableLoading}
+          scroll={{ x: "max-content" }}
           dataSource={data.items}
           showColumnSetting={true}
           onShowColumnSetting={() => setIsShowSettingColumn(true)}

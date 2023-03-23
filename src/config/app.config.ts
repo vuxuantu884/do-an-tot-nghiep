@@ -43,7 +43,7 @@ export const AppConfig = {
   },
 };
 export const hotlineNumber = "0888 464 258";
-export const hotlineCBNumber = "0352526862";
+export const hotlineCBNumber = "0389503828";
 export const STORE_ID_0 = 0;
 export const MAX_LENGTH_VALUE_SEARCH = 15;
 export const DATE_CURRENT = 1;
