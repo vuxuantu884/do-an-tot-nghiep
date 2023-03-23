@@ -387,8 +387,12 @@ export const AnnotationDataList: AnnotationData[] = [
         desc: "Giá vốn * SL hàng thực bán",
       },
       {
-        annotation: "Lợi nhuận gộp",
-        desc: "Doanh thu - Tiền vốn ",
+        annotation: "Lợi nhuận gộp (đơn tạo)",
+        desc: "Doanh thu thuần (đơn tạo) - Tiền vốn ",
+      },
+      {
+        annotation: "Lợi nhuận gộp (thành công)",
+        desc: "Doanh thu thuần (thành công) - Tiền vốn ",
       },
       {
         annotation: "Tỷ suất lợi nhuận gộp",
