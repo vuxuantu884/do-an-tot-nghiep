@@ -158,6 +158,18 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
             ? params.from_store_id.map((storeId) => Number(storeId))
             : [],
       });
+    } else if (activeTab === `${InventoryTransferTabUrl.LIST}/`) {
+      formSearchRef.current?.setFieldsValue({
+        ...params,
+        from_store_id:
+          params.from_store_id && Array.isArray(params.from_store_id) && params.from_store_id.length > 0
+            ? params.from_store_id.map((storeId) => Number(storeId))
+            : [],
+        to_store_id:
+          params.to_store_id && Array.isArray(params.to_store_id) && params.to_store_id.length > 0
+            ? params.to_store_id.map((storeId) => Number(storeId))
+            : [],
+      });
     } else {
       formSearchRef.current?.setFieldsValue({
         ...params,

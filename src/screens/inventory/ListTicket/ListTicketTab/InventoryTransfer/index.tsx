@@ -1148,7 +1148,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
 
     switch (activeTab) {
       case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
-      case `${InventoryTransferTabUrl.LIST}/`:
         newParams = {
           ...newParams,
           from_store_id: params.from_store_id
