@@ -63,10 +63,6 @@ export const AnnotationDataList: AnnotationData[] = [
         desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm",
       },
       {
-        annotation: "Doanh thu sau chiết khấu - tiêu điểm - trả hàng",
-        desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm - Tổng trả",
-      },
-      {
         annotation: "Doanh thu",
         desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm - Tổng trả (Hoàn điểm đã được tính trong Tổng trả)",
       },
@@ -181,10 +177,6 @@ export const AnnotationDataList: AnnotationData[] = [
       {
         annotation: "Doanh thu sau chiết khấu - tiêu điểm",
         desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm",
-      },
-      {
-        annotation: "Doanh thu sau chiết khấu - tiêu điểm - trả hàng",
-        desc: "Tổng bán - Tổng chiết khấu - Tiêu điểm - Tổng trả",
       },
       {
         annotation: "Phí ship báo khách (thành công)",
@@ -416,7 +408,7 @@ export const AnnotationDataList: AnnotationData[] = [
       },
       {
         annotation: "Tỷ suất lợi nhuận gộp",
-        desc: "(Lợi nhuận gộp/ Doanh thu) x 100%",
+        desc: "(Lợi nhuận gộp/ Doanh thu thuần) x 100%",
       },
       {
         annotation: "SL khách hàng",
