@@ -251,4 +251,18 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     timeAtOption: TimeAtOptionValue.CompletedAt,
     group: AnalyticGroup.Sales,
   },
+  {
+    type: "Báo cáo đơn hàng",
+    name: "theo vùng kinh tế",
+    query: `SHOW net_sales_v2, orders, return_count, average_order_value BY economic_region FROM sales WHERE sale_area IN ('Khối KD Online') AND cancelled IN ('Chưa hủy') 
+        SINCE ${TODAY} UNTIL ${TODAY} 
+        ORDER BY net_sales_v2 DESC `,
+    cube: AnalyticCube.Sales,
+    alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
+    iconImg: "nguon-ban-hang.svg",
+    id: 15,
+    chartColumnSelected: [],
+    timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.Sales,
+  },
 ];

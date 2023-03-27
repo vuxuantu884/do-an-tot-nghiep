@@ -136,4 +136,18 @@ export const FINANCE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     timeAtOption: TimeAtOptionValue.CompletedAt,
     group: AnalyticGroup.Costs,
   },
+  {
+    type: "Báo cáo lợi nhuận",
+    name: "theo vùng kinh tế",
+    query: `SHOW net_sales_v2, gross_profit, gross_margin, orders, return_count, average_order_value BY economic_region FROM costs  
+      SINCE ${TODAY}  UNTIL ${TODAY} 
+      ORDER BY gross_profit desc `,
+    cube: AnalyticCube.Costs,
+    iconImg: "dia-chi-kh.png",
+    alias: [UrlConfig.ANALYTIC_FINACE],
+    id: 17,
+    chartColumnSelected: [],
+    timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.Costs,
+  },
 ];

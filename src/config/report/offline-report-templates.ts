@@ -190,4 +190,18 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     source: "other",
     link: `customer-recepted`,
   },
+  {
+    type: "Báo cáo bán hàng",
+    name: "theo vùng kinh tế",
+    query: `SHOW net_sales_v2, orders, return_count, average_order_value BY day,economic_region FROM offline_sales 
+    SINCE ${TODAY} UNTIL ${TODAY} 
+    ORDER BY net_sales_v2 DESC `,
+    cube: AnalyticCube.OfflineSales,
+    alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
+    iconImg: "cua-hang.svg",
+    id: 10,
+    chartColumnSelected: [],
+    timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.OfflineSales,
+  },
 ];
