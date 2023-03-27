@@ -273,7 +273,7 @@ export const compare2RangeDate = (date1: moment.Moment[], date2: moment.Moment[]
 
 export const removeSpacesAndEnterCharacters = (str: string) => {
   if (str) {
-    return str.replace(/\r?\n|\r/g, " ").replace(/\s+/g, " ");
+    return str.replace(/\r?\n|\r/g, " ");
   } else {
     return str;
   }

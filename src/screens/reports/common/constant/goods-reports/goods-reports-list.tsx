@@ -5,12 +5,12 @@ export const goodsReportsList: IGoodsReport[] = [
     id: 1,
     name: "Tồn bán sức bán",
     link: "selling-power",
-    icon: "thanh-toan-nhom kh.png",
+    icon: "ton-suc-ban.svg",
   },
   {
     id: 2,
     name: "Lợi nhuận gộp theo mã 3, nhóm hàng",
     link: "gross-profit",
-    icon: "thanh-toan-nhom kh.png",
+    icon: "ma-3-nhom-hang.svg",
   },
 ];
