@@ -250,7 +250,12 @@ export const THIRD_PARTY_LOGISTICS_INTEGRATION = {
   },
   vnpost: {
     name: "VN Post",
-    code: "vnp",
+    code: "vnpost",
+    guideUrl: "",
+  },
+  nhattin: {
+    name: "Nhất tín",
+    code: "nt",
     guideUrl: "",
   },
 };
