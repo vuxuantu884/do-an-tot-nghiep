@@ -170,70 +170,12 @@ function OrdersFilter(props: Props): JSX.Element {
   }, [initSubStatus]);
 
   const [keySearchVariant, setKeySearchVariant] = useState("");
-  // const [resultSearchVariant, setResultSearchVariant] = useState<PageResponse<VariantResponse>>({
-  //   metadata: {
-  //     limit: 0,
-  //     page: 1,
-  //     total: 0,
-  //   },
-  //   items: [],
-  // });
-  // const [isSearchingProducts, setIsSearchingProducts] = useState(false);
-
-  // const autoCompleteRef = createRef<RefSelectProps>();
-
-  // const handleSearchProduct = useCallback((value: string) => {
-  //   if (value.trim()) {
-  //     (async () => {
-  //       try {
-  //         await dispatch(
-  //           searchVariantsOrderRequestAction(initQueryVariant, (data) => {
-  //             setResultSearchVariant(data);
-  //             setIsSearchingProducts(false);
-  //             if (data.items.length === 0) {
-  //               showError("Không tìm thấy sản phẩm!")
-  //             }
-  //           }, () => {
-  //             setIsSearchingProducts(false);
-  //           })
-  //         );
-  //       } catch {
-  //         setIsSearchingProducts(false);
-  //       }
-  //     })();
-  //   } else {
-  //     setIsSearchingProducts(false);
-  //   }
-  // }, [dispatch]);
-
-  // const onChangeProductSearch = useCallback(
-  //   async (value: string) => {
-  //     setKeySearchVariant(value);
-
-  //     initQueryVariant.info = value;
-  //     if (value.length >= 3) {
-  //       setIsSearchingProducts(true);
-  //     } else {
-  //       setIsSearchingProducts(false);
-  //     }
-  //     handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () =>
-  //       handleSearchProduct(value)
-  //     );
-  //   },
-  //   [autoCompleteRef, handleSearchProduct]
-  // );
 
   const fulfillmentStatus = useMemo(
     () => [
       { name: "Chưa giao", value: "unshipped" },
-      // {name: "Đã lấy hàng", value: "picked"},
-      // {name: "Giao một phần", value: "partial"},
-      // {name: "Đã đóng gói", value: "packed"},
       { name: "Đang giao", value: "shipping" },
       { name: "Đã giao", value: "shipped" },
-      // {name: "Đã hủy", value: "cancelled"},
-      // {name: "Đang trả lại", value: "returning"},
-      // {name: "Đã trả lại", value: "returned"}
     ],
     [],
   );
@@ -275,6 +217,22 @@ function OrdersFilter(props: Props): JSX.Element {
     return types;
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const orderToBeProcessed = [
+    {
+      value: "packed_late",
+      title: "Đóng trễ",
+    },
+    {
+      value: "picked_late",
+      title: "Lấy trễ",
+    },
+    {
+      value: "cancelled_after_shipping",
+      title: "Hủy sau xuất",
+    },
+  ];
+
   const serviceVariables = {
     deliver4h: "4h_delivery",
     deliverStandard: "standard_delivery",
@@ -296,7 +254,6 @@ function OrdersFilter(props: Props): JSX.Element {
 
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
-  // const [optionsVariant, setOptionsVariant] = useState<{ label: string; value: string }[]>([]);
 
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
   const [assigneeFound, setAssigneeFound] = useState<Array<AccountResponse>>([]);
@@ -307,7 +264,6 @@ function OrdersFilter(props: Props): JSX.Element {
 
   const [isShowModalSaveFilter, setIsShowModalSaveFilter] = useState(false);
 
-  // lưu bộ lọc
   const onShowSaveFilter = useCallback(() => {
     let values = formRef.current?.getFieldsValue();
 
@@ -538,6 +494,9 @@ function OrdersFilter(props: Props): JSX.Element {
         case "special_types":
           onFilter && onFilter({ ...params, special_types: [] });
           break;
+        case "violation_types":
+          onFilter && onFilter({ ...params, violation_types: [] });
+          break;
         case "shipper_codes":
           onFilter && onFilter({ ...params, shipper_codes: [] });
           break;
@@ -610,8 +569,6 @@ function OrdersFilter(props: Props): JSX.Element {
         default:
           break;
       }
-      // const tags = filters.filter((tag: any) => tag.key !== key);
-      // filters = tags
     },
     [onFilter, params],
   );
@@ -671,6 +628,9 @@ function OrdersFilter(props: Props): JSX.Element {
       special_types: Array.isArray(params.special_types)
         ? params.special_types
         : [params.special_types],
+      violation_types: Array.isArray(params.violation_types)
+        ? params.violation_types
+        : [params.violation_types],
       shipper_codes: Array.isArray(params.shipper_codes)
         ? params.shipper_codes
         : [params.shipper_codes],
@@ -823,8 +783,6 @@ function OrdersFilter(props: Props): JSX.Element {
     if (!error) {
       const baseFilterValue = formRef?.current?.getFieldsValue();
       const filterValue = formSearchRef.current?.getFieldsValue();
-      // console.log("filterValue",filterValue)
-      // console.log("baseFilterValue",baseFilterValue)
       let values: any = undefined;
       if (baseFilterValue) {
         values = { ...baseFilterValue, ...filterValue };
@@ -874,8 +832,6 @@ function OrdersFilter(props: Props): JSX.Element {
       values.returned_date_max = formatDateTimeOrderFilter(values.returned_date_max, dateFormat);
       values.expired_at = values.expired_at === 0 ? undefined : values.expired_at;
 
-      // console.log('values', values);
-      // return;
       let discount_codes = [];
       if (values.discount_codes) {
         discount_codes = values.discount_codes.split(",").map((p: string) => p?.trim());
@@ -1477,6 +1433,17 @@ function OrdersFilter(props: Props): JSX.Element {
         value: text,
       });
     }
+    if (initialValues.violation_types.length) {
+      let mappedSpecialTypes = orderToBeProcessed?.filter((type) =>
+        initialValues.violation_types?.some((item: any) => item === type.value.toString()),
+      );
+      let text = getFilterString(mappedSpecialTypes, "title", undefined, undefined);
+      list.push({
+        key: "violation_types",
+        name: "Đơn cần xử lý",
+        value: text,
+      });
+    }
 
     if (
       initialValues.channel_codes.length &&
@@ -1721,6 +1688,7 @@ function OrdersFilter(props: Props): JSX.Element {
     initialValues.delivery_provider_ids,
     initialValues.special_types,
     initialValues.shipper_codes,
+    initialValues.violation_types,
     initialValues.channel_codes,
     initialValues.note,
     initialValues.customer_note,
@@ -1761,6 +1729,7 @@ function OrdersFilter(props: Props): JSX.Element {
     deliveryService,
     specialOrderTypesArr,
     shippers,
+    orderToBeProcessed,
     listChannel,
   ]);
 
@@ -1917,7 +1886,6 @@ function OrdersFilter(props: Props): JSX.Element {
       sub_status_code: params.sub_status_code,
       search_product: params?.searched_product,
     });
-    // bỏ formSearchRef
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params?.searched_product,
@@ -2139,7 +2107,6 @@ function OrdersFilter(props: Props): JSX.Element {
                   <Item name="source_ids" label="Nguồn đơn hàng">
                     <CustomTreeSelect
                       placeholder="Nguồn đơn hàng"
-                      //name="source_ids"
                       storeByDepartmentList={listSource as unknown as StoreByDepartment[]}
                       style={{ width: "100%" }}
                       autoClearSearchValue={false}
@@ -2362,7 +2329,6 @@ function OrdersFilter(props: Props): JSX.Element {
                         maxTagCount="responsive"
                         autoClearSearchValue={false}
                       >
-                        {/* <Option value="">Hình thức vận chuyển</Option> */}
                         {serviceType?.map((item) => (
                           <CustomSelect.Option key={item.value} value={item.value}>
                             {item.name}
@@ -2728,7 +2694,6 @@ function OrdersFilter(props: Props): JSX.Element {
                   <Item name="returned_store_ids" label="Kho nhận hàng hoàn:">
                     <CustomTreeSelect
                       placeholder="Kho nhận hàng hoàn"
-                      // treeData={listStore}
                       storeByDepartmentList={listStore as unknown as StoreByDepartment[]}
                       style={{ width: "100%" }}
                       autoClearSearchValue={false}
@@ -2791,6 +2756,29 @@ function OrdersFilter(props: Props): JSX.Element {
                       maxTagCount="responsive"
                       autoClearSearchValue={false}
                     />
+                  </Item>
+                </Col>
+                <Col span={8} xxl={8} hidden={orderType !== ORDER_TYPES.online}>
+                  <Item name="violation_types" label="Đơn cần xử lý">
+                    <CustomSelect
+                      mode="multiple"
+                      showSearch
+                      allowClear
+                      showArrow
+                      placeholder="Đơn cần xử lý"
+                      notFoundContent="Không tìm thấy kết quả"
+                      style={{ width: "100%" }}
+                      optionFilterProp="children"
+                      getPopupContainer={(trigger) => trigger.parentNode}
+                      maxTagCount="responsive"
+                      autoClearSearchValue={false}
+                    >
+                      {orderToBeProcessed.map((p, index) => (
+                        <CustomSelect.Option key={index} value={p.value}>
+                          {p.title}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
                   </Item>
                 </Col>
               </Row>
