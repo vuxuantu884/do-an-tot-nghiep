@@ -19,9 +19,9 @@ import { StyledComponent } from "./styles";
 
 type PropTypes = {};
 
-function SingleThirdPartyLogisticVnpost(props: PropTypes) {
-  const external_service_code = THIRD_PARTY_LOGISTICS_INTEGRATION.vnpost.code;
-  const guideUrl = THIRD_PARTY_LOGISTICS_INTEGRATION.vnpost.guideUrl;
+function SingleThirdPartyLogisticNhattin(props: PropTypes) {
+  const external_service_code = THIRD_PARTY_LOGISTICS_INTEGRATION.nhattin.code;
+  const guideUrl = THIRD_PARTY_LOGISTICS_INTEGRATION.nhattin.guideUrl;
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const [thirdPartyLogistics, setThirdPartyLogistics] = useState<DeliveryServiceResponse | null>(
@@ -201,4 +201,4 @@ function SingleThirdPartyLogisticVnpost(props: PropTypes) {
   );
 }
 
-export default SingleThirdPartyLogisticVnpost;
+export default SingleThirdPartyLogisticNhattin;
