@@ -1,11 +1,9 @@
 import { Image } from "antd";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import { StoreResponse } from "model/core/store.model";
 import { callApiNative } from "utils/ApiUtils";
-import { getStoreApi } from "service/inventory/transfer/index.service";
 import { generateQuery, splitEllipsis } from "utils/AppUtils";
 import UrlConfig from "config/url.config";
 import {
@@ -30,7 +28,7 @@ import { showError, showWarning } from "utils/ToastUtils";
 import { cloneDeep } from "lodash";
 import { formatCurrencyForProduct } from "screens/products/helper";
 import InventoryDefectHistoryFilter from "./components/InventoryDefectHistoryFilter";
-import { AccountResponse } from "model/account/account.model";
+import { AccountResponse, AccountStoreResponse } from "model/account/account.model";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { ExportFileStatus, ExportFileType } from "utils/ExportFileConstants";
 import ExportFileModal, { ResultLimitModel } from "component/modal/ExportFileModal/ExportFileModal";
@@ -40,12 +38,14 @@ import { utils, writeFile } from "xlsx";
 type ListInventoryDefectHistoryProps = {
   isExportHistoryDefects: boolean;
   setIsExportHistoryDefects: (value: boolean) => void;
+  stores: Array<StoreResponse>;
+  myStores: Array<AccountStoreResponse>;
 };
 
 export const ListInventoryDefectHistory: React.FC<ListInventoryDefectHistoryProps> = (
   props: ListInventoryDefectHistoryProps,
 ) => {
-  const { isExportHistoryDefects, setIsExportHistoryDefects } = props;
+  const { isExportHistoryDefects, setIsExportHistoryDefects, stores, myStores } = props;
   const dispatch = useDispatch();
   const history = useHistory();
   const query = useQuery();
@@ -64,7 +64,6 @@ export const ListInventoryDefectHistory: React.FC<ListInventoryDefectHistoryProp
     COLUMN_CONFIG_TYPE.COLUMN_INVENTORY_DEFECT_HISTORY,
   );
 
-  const [stores, setStores] = useState<Array<StoreResponse>>([]);
   const [showSettingColumn, setShowSettingColumn] = useState<boolean>(false);
   const [data, setData] = useState<PageResponse<InventoryDefectHistoryResponse>>({
     metadata: {
@@ -264,41 +263,31 @@ export const ListInventoryDefectHistory: React.FC<ListInventoryDefectHistoryProp
 
   const [params, setParams] = useState<InventoryDefectQuery>(dataQuery);
 
-  const myStores = useSelector(
-    (state: RootReducerType) => state.userReducer.account?.account_stores,
+  const getInventoryDefectsHistory = useCallback(
+    async (queryParams?: InventoryDefectQuery) => {
+      const res = await callApiNative(
+        { isShowError: true, isShowLoading: true },
+        dispatch,
+        getListInventoryDefectHistory,
+        queryParams,
+      );
+      if (res) {
+        setData(res);
+      }
+    },
+    [dispatch],
   );
-
-  const getInventoryDefectsHistory = useCallback(async () => {
-    const res = await callApiNative(
-      { isShowError: true, isShowLoading: true },
-      dispatch,
-      getListInventoryDefectHistory,
-      params,
-    );
-    if (res) {
-      setData(res);
-    }
-  }, [dispatch, params]);
-
-  const getStores = useCallback(async () => {
-    const response = await callApiNative({ isShowError: true }, dispatch, getStoreApi, {
-      status: "active",
-      simple: true,
-    });
-    if (response) {
-      setStores(response);
-    }
-  }, [dispatch]);
 
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
       setParams({ ...params });
-      let queryParam = generateQuery(params);
+      getInventoryDefectsHistory({ ...params });
+      const queryParam = generateQuery(params);
       history.push(`${UrlConfig.INVENTORY_DEFECTS_HISTORY}?${queryParam}`);
     },
-    [params, history],
+    [params, getInventoryDefectsHistory, history],
   );
 
   const columnFinal = useMemo(() => {
@@ -329,13 +318,33 @@ export const ListInventoryDefectHistory: React.FC<ListInventoryDefectHistoryProp
   }, []);
 
   useEffect(() => {
-    getInventoryDefectsHistory();
-  }, [getInventoryDefectsHistory, params]);
+    if (stores.length === 0) return;
+    const storeParams: Array<number> = [];
+    myStores.forEach((el: AccountStoreResponse) => {
+      const store = stores.find((item: StoreResponse) => item.id === el.store_id);
+      if (store) {
+        storeParams.push(store.id);
+      }
+    });
+    const newParams = {
+      ...params,
+    };
+
+    if (params.store_ids && Array.isArray(params.store_ids) && params.store_ids.length > 0) {
+      newParams.store_ids = params.store_ids.map((i) => Number(i));
+    } else if (params.store_ids && !Array.isArray(params.store_ids)) {
+      newParams.store_ids = [Number(params.store_ids)];
+    } else {
+      newParams.store_ids = storeParams;
+    }
+    setParams(newParams);
+    getInventoryDefectsHistory(newParams);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getInventoryDefectsHistory, stores, myStores]);
 
   useEffect(() => {
-    getStores();
     dispatch(searchAccountPublicAction({ page: 1 }, setDataAccounts));
-  }, [dispatch, getStores, setDataAccounts]);
+  }, [dispatch, setDataAccounts]);
 
   useEffect(() => {
     return () => {
@@ -554,6 +563,7 @@ export const ListInventoryDefectHistory: React.FC<ListInventoryDefectHistoryProp
   const filterDefectHistory = (values: InventoryDefectQuery) => {
     const newParams = { ...params, ...values, page: 1 };
     setParams(newParams);
+    getInventoryDefectsHistory(newParams);
     const queryParam = generateQuery(newParams);
     history.push(`${history.location.pathname}?${queryParam}`);
   };
@@ -561,6 +571,7 @@ export const ListInventoryDefectHistory: React.FC<ListInventoryDefectHistoryProp
   const clearFilterDefectHistory = () => {
     setParams(initialQuery);
     const queryParams = generateQuery(initialQuery);
+    getInventoryDefectsHistory(initialQuery);
     history.push(`${UrlConfig.INVENTORY_DEFECTS_HISTORY}?${queryParams}`);
   };
 

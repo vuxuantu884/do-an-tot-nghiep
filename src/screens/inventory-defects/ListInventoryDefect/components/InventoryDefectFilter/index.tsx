@@ -5,7 +5,7 @@ import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomFilter from "component/table/custom.filter";
 import { AccountStoreResponse } from "model/account/account.model";
-import { StoreResponse } from "model/core/store.model";
+import { StoreByDepartment, StoreResponse } from "model/core/store.model";
 import { InventoryDefectQuery } from "model/inventory-defects";
 import { DefectFilterEnum, DefectFilterTag } from "model/inventory-defects/filter";
 import { strForSearch } from "utils/StringUtils";
@@ -14,6 +14,8 @@ import { FilterOutlined } from "@ant-design/icons";
 import BaseFilter from "component/filter/base.filter";
 import { FilterDefectAdvWrapper, InventoryDefectFilterWrapper } from "./styles";
 import { KeyboardKey } from "model/other/keyboard/keyboard.model";
+import TreeStore from "component/CustomTreeSelect";
+import TextShowMore from "component/container/show-more/text-show-more";
 
 type InventoryDefectFilterProps = {
   menuClick: (index: number) => void;
@@ -131,7 +133,7 @@ const InventoryDefectFilter: React.FC<InventoryDefectFilterProps> = (
         );
         textStoreId = storeObj ? storeObj.name + "; " : "";
       } else if (storeIds.length > 1) {
-        storeIds.forEach((storeId: string) => {
+        storeIds.forEach((storeId: number) => {
           const findStore = stores.find((store: StoreResponse) => store.id === Number(storeId));
           textStoreId = findStore ? textStoreId + findStore.name + "; " : "";
         });
@@ -230,7 +232,7 @@ const InventoryDefectFilter: React.FC<InventoryDefectFilterProps> = (
       <div className="custom-filter">
         <CustomFilter onMenuClick={menuClick} menu={menuAction}>
           <Form onFinish={filterBase} layout="inline" initialValues={formValues} form={formBase}>
-            <Item style={{ flex: 1 }} name={DefectFilterEnum.condition} className="input-search">
+            <Item name={DefectFilterEnum.condition} className="input-search">
               <Input
                 allowClear
                 prefix={<img src={search} alt="" />}
@@ -246,37 +248,13 @@ const InventoryDefectFilter: React.FC<InventoryDefectFilterProps> = (
                 autoFocus
               />
             </Item>
-            <Item name={DefectFilterEnum.store_ids} className="select-item">
-              <Select
-                autoClearSearchValue={false}
-                style={{ width: "300px" }}
+            <Item name={DefectFilterEnum.store_ids}>
+              <TreeStore
                 placeholder="Chọn cửa hàng"
-                maxTagCount={"responsive" as const}
-                mode="multiple"
-                showArrow
-                showSearch
-                allowClear
-                filterOption={(input: String, option: any) => {
-                  if (option.props.value) {
-                    return strForSearch(option.props.children).includes(strForSearch(input));
-                  }
-                  return false;
-                }}
-              >
-                {myStores?.length || stores?.length
-                  ? myStores?.length
-                    ? myStores?.map((item: AccountStoreResponse, index: number) => (
-                        <Option key={"store_id" + index} value={item.store_id?.toString() || ""}>
-                          {item.store}
-                        </Option>
-                      ))
-                    : stores?.map((item, index) => (
-                        <Option key={"store_id" + index} value={item.id.toString()}>
-                          {item.name}
-                        </Option>
-                      ))
-                  : null}
-              </Select>
+                autoClearSearchValue={false}
+                storeByDepartmentList={stores as unknown as StoreByDepartment[]}
+                style={{ minWidth: 350 }}
+              />
             </Item>
             <Item>
               <Button htmlType="submit" type="primary">
@@ -335,39 +313,11 @@ const InventoryDefectFilter: React.FC<InventoryDefectFilterProps> = (
                 <Col span={12}>
                   <div className="font-weight-500 mb-10">Cửa hàng</div>
                   <Item name={DefectFilterEnum.store_ids} className="select-item">
-                    <Select
-                      autoClearSearchValue={false}
-                      style={{ width: "300px" }}
+                    <TreeStore
                       placeholder="Chọn cửa hàng"
-                      maxTagCount={"responsive" as const}
-                      mode="multiple"
-                      showArrow
-                      showSearch
-                      allowClear
-                      filterOption={(input: String, option: any) => {
-                        if (option.props.value) {
-                          return strForSearch(option.props.children).includes(strForSearch(input));
-                        }
-                        return false;
-                      }}
-                    >
-                      {myStores?.length || stores?.length
-                        ? myStores?.length
-                          ? myStores?.map((item: AccountStoreResponse, index: number) => (
-                              <Option
-                                key={"store_id" + index}
-                                value={item.store_id?.toString() || ""}
-                              >
-                                {item.store}
-                              </Option>
-                            ))
-                          : stores?.map((item, index) => (
-                              <Option key={"store_id" + index} value={item.id.toString()}>
-                                {item.name}
-                              </Option>
-                            ))
-                        : null}
-                    </Select>
+                      autoClearSearchValue={false}
+                      storeByDepartmentList={stores as unknown as StoreByDepartment[]}
+                    />
                   </Item>
                 </Col>
                 <Col span={12}>
@@ -404,7 +354,7 @@ const InventoryDefectFilter: React.FC<InventoryDefectFilterProps> = (
         {renderTagFilter().map((filter: DefectFilterTag) => {
           return (
             <Tag className="tag" closable onClose={(e) => closeTag(e, filter)}>
-              {filter.name}: {filter.value}
+              {filter.name}: <TextShowMore>{filter.value}</TextShowMore>
             </Tag>
           );
         })}

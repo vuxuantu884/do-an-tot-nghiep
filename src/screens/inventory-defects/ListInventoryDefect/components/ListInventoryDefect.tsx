@@ -16,7 +16,6 @@ import ImageProduct from "screens/products/product/component/ImageProduct";
 import { primaryColor } from "utils/global-styles/variables";
 import { callApiNative } from "utils/ApiUtils";
 import { useDispatch, useSelector } from "react-redux";
-import { getStoreApi } from "service/inventory/transfer/index.service";
 import EditNote from "screens/order-online/component/edit-note";
 import {
   createInventoryDefect,
@@ -64,15 +63,16 @@ const actionsDefault: Array<MenuAction> = [
 type ListInventoryDefectProps = {
   isExportDefects: boolean;
   setIsExportDefects: (isExport: boolean) => void;
+  stores: Array<StoreResponse>;
+  myStores: Array<AccountStoreResponse>;
 };
 
 const ListInventoryDefect: React.FC<ListInventoryDefectProps> = (
   props: ListInventoryDefectProps,
 ) => {
-  const { isExportDefects, setIsExportDefects } = props;
+  const { isExportDefects, setIsExportDefects, stores, myStores } = props;
   const dispatch = useDispatch();
   const [showSettingColumn, setShowSettingColumn] = useState<boolean>(false);
-  const [stores, setStores] = useState<Array<StoreResponse>>([]);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [statusExport, setStatusExport] = useState<number>(ExportFileStatus.Export);
   const [exportProgress, setExportProgress] = useState<number>(0);
@@ -85,10 +85,6 @@ const ListInventoryDefect: React.FC<ListInventoryDefectProps> = (
 
   const currentPermissions: string[] = useSelector(
     (state: RootReducerType) => state.permissionReducer.permissions,
-  );
-
-  const myStores: Array<AccountStoreResponse> | undefined = useSelector(
-    (state: RootReducerType) => state.userReducer.account?.account_stores,
   );
 
   const initialQuery: InventoryDefectQuery = {
@@ -150,35 +146,45 @@ const ListInventoryDefect: React.FC<ListInventoryDefectProps> = (
     },
   ];
 
-  const getInventoryDefects = useCallback(async () => {
-    const res = await callApiNative(
-      { isShowError: true, isShowLoading: true },
-      dispatch,
-      getListInventoryDefect,
-      params,
-    );
-    if (res) {
-      setData(res);
-    }
-  }, [dispatch, params]);
+  const getInventoryDefects = useCallback(
+    async (params?: InventoryDefectQuery) => {
+      const res = await callApiNative(
+        { isShowError: true, isShowLoading: true },
+        dispatch,
+        getListInventoryDefect,
+        params,
+      );
+      if (res) {
+        setData(res);
+      }
+    },
+    [dispatch],
+  );
 
-  const getStores = useCallback(async () => {
-    const response = await callApiNative({ isShowError: true }, dispatch, getStoreApi, {
-      status: "active",
-      simple: true,
+  useEffect(() => {
+    if (stores.length === 0) return;
+    const storeParams: Array<number> = [];
+    myStores.forEach((el: AccountStoreResponse) => {
+      const store = stores.find((item: StoreResponse) => item.id === el.store_id);
+      if (store) {
+        storeParams.push(store.id);
+      }
     });
-    if (response) {
-      setStores(response);
+    const newParams = {
+      ...params,
+    };
+
+    if (params.store_ids && Array.isArray(params.store_ids) && params.store_ids.length > 0) {
+      newParams.store_ids = params.store_ids.map((i) => Number(i));
+    } else if (params.store_ids && !Array.isArray(params.store_ids)) {
+      newParams.store_ids = [Number(params.store_ids)];
+    } else {
+      newParams.store_ids = storeParams;
     }
-  }, [dispatch]);
-
-  useEffect(() => {
-    getStores();
-  }, [getStores]);
-
-  useEffect(() => {
-    getInventoryDefects();
-  }, [params, getInventoryDefects]);
+    setParams(newParams);
+    getInventoryDefects(newParams);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getInventoryDefects, myStores, stores]);
 
   const editItemDefect = useCallback(
     async (value: any, field: string, itemObject: InventoryDefectResponse) => {
@@ -513,10 +519,11 @@ const ListInventoryDefect: React.FC<ListInventoryDefectProps> = (
       params.page = page;
       params.limit = size;
       setParams({ ...params });
+      getInventoryDefects({ ...params });
       let queryParam = generateQuery(params);
       history.replace(`${UrlConfig.INVENTORY_DEFECTS}?${queryParam}`);
     },
-    [params, history],
+    [params, getInventoryDefects, history],
   );
 
   const [canDeleteDefect] = useAuthorization({
@@ -606,12 +613,14 @@ const ListInventoryDefect: React.FC<ListInventoryDefectProps> = (
   const filterDefects = (values: InventoryDefectQuery) => {
     const newParams = { ...params, ...values, page: 1 };
     setParams(newParams);
+    getInventoryDefects(newParams);
     const queryParam = generateQuery(newParams);
     history.push(`${history.location.pathname}?${queryParam}`);
   };
 
   const clearFilterDefect = () => {
     setParams(initialQuery);
+    getInventoryDefects(initialQuery);
     const queryParams = generateQuery(initialQuery);
     history.push(`${UrlConfig.INVENTORY_DEFECTS}?${queryParams}`);
   };

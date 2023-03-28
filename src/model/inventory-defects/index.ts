@@ -21,7 +21,7 @@ export interface InventoryDefectQuery {
   page: number;
   limit: number;
   condition?: string;
-  store_ids?: Array<string>;
+  store_ids?: Array<number>;
   from_date?: Date | string;
   to_date?: Date | string;
   from_defect?: number;

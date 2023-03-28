@@ -1,6 +1,6 @@
 import { Button, Card, Row, Space, Tabs } from "antd";
 import { Link, useHistory } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
@@ -10,16 +10,27 @@ import ListInventoryDefect from "./components/ListInventoryDefect";
 import UrlConfig from "config/url.config";
 import { ListInventoryDefectHistory } from "../ListInventoryDefectHistory";
 import { DownloadOutlined } from "@ant-design/icons";
+import { callApiNative } from "utils/ApiUtils";
+import { useDispatch, useSelector } from "react-redux";
+import { StoreResponse } from "model/core/store.model";
+import { getStorePublicService } from "service/core/store.service";
+import { AccountStoreResponse } from "model/account/account.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 const { TabPane } = Tabs;
 
 const InventoryDefects: React.FC = () => {
   const history = useHistory();
+  const dispatch = useDispatch();
   const path = history.location.pathname;
 
   const [activeTab, setActiveTab] = useState<string>(UrlConfig.INVENTORY_DEFECTS);
   const [isExportDefects, setIsExportDefects] = useState(false);
   const [isExportHistoryDefects, setIsExportHistoryDefects] = useState(false);
+  const [stores, setStores] = useState<Array<StoreResponse>>([]);
+  const myStores: Array<AccountStoreResponse> = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.account_stores ?? [],
+  );
 
   useEffect(() => {
     if (Object.values(UrlConfig).includes(path)) {
@@ -41,13 +52,23 @@ const InventoryDefects: React.FC = () => {
     }
   };
 
+  const getStores = useCallback(async () => {
+    const response = await callApiNative({ isShowError: true }, dispatch, getStorePublicService);
+    if (response) {
+      setStores(response);
+    }
+  }, [dispatch]);
+
+  useEffect(() => {
+    getStores();
+  }, [getStores]);
+
   return (
     <ContentContainer
       title="Hàng lỗi"
       breadcrumb={[
         {
           name: "Kho hàng",
-          // path: UrlConfig.HOME,
         },
         {
           name: "Hàng lỗi",
@@ -81,6 +102,8 @@ const InventoryDefects: React.FC = () => {
             <ListInventoryDefect
               isExportDefects={isExportDefects}
               setIsExportDefects={setIsExportDefects}
+              stores={stores}
+              myStores={myStores}
             />
           </TabPane>
           <TabPane
@@ -90,6 +113,8 @@ const InventoryDefects: React.FC = () => {
             <ListInventoryDefectHistory
               isExportHistoryDefects={isExportHistoryDefects}
               setIsExportHistoryDefects={setIsExportHistoryDefects}
+              stores={stores}
+              myStores={myStores}
             />
           </TabPane>
         </Tabs>
