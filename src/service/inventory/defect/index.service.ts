@@ -32,14 +32,14 @@ const deleteInventoryDefects = (params: DeleteInventoryDefects): Promise<BaseRes
 };
 
 const getListInventoryDefect = (
-  params: InventoryDefectQuery,
+  params?: InventoryDefectQuery,
 ): Promise<BaseResponse<Array<InventoryDefectResponse>>> => {
   const queryString = generateQuery(params);
   return BaseAxios.get(`${ApiConfig.INVENTORY_DEFECT}/defects?${queryString}`);
 };
 
 const getListInventoryDefectHistory = (
-  params: InventoryDefectQuery,
+  params?: InventoryDefectQuery,
 ): Promise<BaseResponse<Array<InventoryDefectResponse>>> => {
   const queryString = generateQuery(params);
   return BaseAxios.get(`${ApiConfig.INVENTORY_DEFECT}/defects/history?${queryString}`);
