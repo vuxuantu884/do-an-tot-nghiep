@@ -88,6 +88,7 @@ function OrdersScreen(props: PropTypes) {
       delivery_provider_ids: [],
       order_carer_codes: [],
       special_types: [],
+      violation_types: [],
       shipper_codes: [],
       note: null,
       customer_note: null,

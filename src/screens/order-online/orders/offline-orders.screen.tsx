@@ -83,6 +83,7 @@ function PosOrders(props: PropTypes) {
     channel_codes: [],
     discount_codes: [],
     special_types: [],
+    violation_types: [],
   };
 
   return (
