@@ -157,7 +157,6 @@ export const PoWareHouse = (props: IProps) => {
         }
       });
     });
-    console.log("cloneDeep(procurements)", cloneDeep(procurements));
     formMain?.setFieldsValue({
       [POField.procurements]: cloneDeep(procurements),
     });
@@ -454,7 +453,8 @@ export const PoWareHouse = (props: IProps) => {
             valueExpectedDate -= procurementTable[indexItem].plannedQuantities[indexDate] || 0;
           }
         });
-        const valueExpectedDateItem = Math.floor((valueExpectedDate * (value || 0)) / 100);
+        const valueExpectedDateItem =
+          valueExpectedDate >= 0 ? Math.floor((valueExpectedDate * (value || 0)) / 100) : 0;
         procurementTable[indexItem].plannedQuantities[index] = valueExpectedDateItem;
         const totalValueExpectedDateItem =
           procurementTable[indexItem].plannedQuantities.reduce(
