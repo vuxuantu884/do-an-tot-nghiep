@@ -515,14 +515,26 @@ export const AnnotationDataList: AnnotationData[] = [
       "https://hdsd-yody.gitbook.io/unicorn-free/bao-cao/huong-dan-su-dung-bao-cao-tinh-nang-co-ban",
   },
 ].map((item) => {
-  item.data = item.data.sort((a: any, b: any) => {
-    if (a.annotation < b.annotation) {
-      return -1;
-    }
-    if (a.annotation > b.annotation) {
-      return 1;
-    }
-    return 0;
-  });
+  item.data = item.data
+    .sort((a: any, b: any) => {
+      if (a.annotation < b.annotation) {
+        return -1;
+      }
+      if (a.annotation > b.annotation) {
+        return 1;
+      }
+      return 0;
+    })
+    .map((i) => {
+      return {
+        ...i,
+        normalize: i.annotation
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D")
+          .toLowerCase(),
+      };
+    });
   return item;
 });
