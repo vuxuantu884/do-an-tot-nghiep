@@ -200,6 +200,7 @@ export interface OrderSearchQuery {
   delivery_types: [];
   delivery_provider_ids: [];
   special_types?: [];
+  violation_types?: [];
   shipper_ids?: [];
   shipper_codes?: [];
   note: string | null;

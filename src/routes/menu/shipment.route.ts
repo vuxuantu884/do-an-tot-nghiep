@@ -40,6 +40,10 @@ const SingleThirdPartyLogisticsIntegrationScreen_Snappy = React.lazy(
   () => import("screens/settings/third-party-logistics-integration/snappy"),
 );
 
+const SingleThirdPartyLogisticsIntegrationScreen_NhatTin = React.lazy(
+  () => import("screens/settings/third-party-logistics-integration/nhat-tin"),
+);
+
 const shipments: Array<RouteMenu> = [
   {
     path: `${UrlConfig.SHIPMENTS}`,
@@ -176,12 +180,24 @@ const shipments: Array<RouteMenu> = [
         pathIgnore: ["create"],
       },
       {
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/nt`,
+        exact: true,
+        title: "Nhất Tín",
+        icon: "icon-dot",
+        component: SingleThirdPartyLogisticsIntegrationScreen_NhatTin,
+        key: "nhat-tin",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        pathIgnore: ["create"],
+      },
+      {
         path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/vnpost`,
         exact: true,
         title: "VN Post",
         icon: "icon-dot",
         component: SingleThirdPartyLogisticsIntegrationScreen_VNPost,
-        key: "vn-post",
+        key: "vnpost",
         isShow: true,
         header: null,
         subMenu: [],
