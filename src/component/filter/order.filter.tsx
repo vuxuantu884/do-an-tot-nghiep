@@ -227,10 +227,10 @@ function OrdersFilter(props: Props): JSX.Element {
       value: "picked_late",
       title: "Lấy trễ",
     },
-    {
-      value: "cancelled_after_shipping",
-      title: "Hủy sau xuất",
-    },
+    // {
+    //   value: "cancelled_after_shipping",
+    //   title: "Hủy sau xuất",
+    // },
   ];
 
   const serviceVariables = {
