@@ -73,6 +73,22 @@ function CustomerVisitors(props: CustomerVisitorsProps) {
   };
   const allStaffCode = "Tất cả NV";
 
+  const setDayListByMonth = useCallback(() => {
+    const { year, month } = form.getFieldsValue();
+    const yearValue = year || currentYear;
+    const monthValue = month || currentMonth;
+    const daysInMonth = Array.from(
+      { length: moment(`${yearValue}-${monthValue}`, "YYYY-M").daysInMonth() },
+      (x, i) => {
+        return `${moment(`${yearValue}-${monthValue}`, "YYYY-M")
+          .startOf("month")
+          .add(i, "days")
+          .format("DD")}`;
+      },
+    );
+    setDayList(daysInMonth);
+  }, [currentMonth, currentYear, form]);
+
   const onSelectDay = () => {
     const { day } = form.getFieldsValue();
     setAccountList(
@@ -84,6 +100,20 @@ function CustomerVisitors(props: CustomerVisitorsProps) {
         "code",
       ),
     );
+  };
+
+  const onSelectMonth = () => {
+    form.setFieldsValue({
+      day: undefined,
+    });
+    setDayListByMonth();
+  };
+
+  const onSelectYear = () => {
+    form.setFieldsValue({
+      day: undefined,
+    });
+    setDayListByMonth();
   };
 
   const getStaff = useCallback(
@@ -217,20 +247,8 @@ function CustomerVisitors(props: CustomerVisitorsProps) {
   }, [currentYear]);
 
   useEffect(() => {
-    const { year, month } = form.getFieldsValue();
-    const yearValue = year || currentYear;
-    const monthValue = month || currentMonth;
-    const daysInMonth = Array.from(
-      { length: moment(`${yearValue}-${monthValue}`, "YYYY-M").daysInMonth() },
-      (x, i) => {
-        return `${moment(`${yearValue}-${monthValue}`, "YYYY-M")
-          .startOf("month")
-          .add(i, "days")
-          .format("DD")}`;
-      },
-    );
-    setDayList(daysInMonth);
-  }, [currentMonth, currentYear, form]);
+    setDayListByMonth();
+  }, [setDayListByMonth]);
 
   useEffect(() => {
     dispatch(
@@ -616,7 +634,7 @@ function CustomerVisitors(props: CustomerVisitorsProps) {
                 </Select>
               </Form.Item>
               <Form.Item name={CustomerVisitorsFilter.Month} className="filter-item" help={false}>
-                <Select placeholder="Chọn tháng">
+                <Select placeholder="Chọn tháng" onChange={() => onSelectMonth()}>
                   {["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"].map(
                     (month) => {
                       return (
@@ -629,7 +647,7 @@ function CustomerVisitors(props: CustomerVisitorsProps) {
                 </Select>
               </Form.Item>
               <Form.Item name={CustomerVisitorsFilter.Year} className="filter-item" help={false}>
-                <Select placeholder="Chọn năm">
+                <Select placeholder="Chọn năm" onChange={() => onSelectYear()}>
                   {yearList.map((year) => {
                     return (
                       <Select.Option key={year} value={+year}>
