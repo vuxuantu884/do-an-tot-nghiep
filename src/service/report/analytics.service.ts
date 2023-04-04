@@ -57,27 +57,21 @@ export const getCustomerVisitors = (
   params: {
     month: number;
     year: number;
-    storeIds?: number[];
+    storeIds: string;
     assigneeCodes?: any[];
     source: CustomerVisitorsType;
   },
   config?: AxiosRequestConfig,
 ): Promise<BaseResponse<any>> => {
   const { month, year, storeIds, assigneeCodes, source } = params;
-  let endpoint = `${ApiConfig.CUSTOMER_VISITORS}?month.equals=${month}&year.equals=${year}&source.in[0]=${source}`;
-  let storeParam = "";
+  let endpoint = `${ApiConfig.CUSTOMER_VISITORS}?month.equals=${month}&year.equals=${year}&source.in[0]=${source}&storeIds=${storeIds}`;
   let assigneeCodeParam = "";
-  if (storeIds?.length) {
-    storeIds.forEach((id, index) => {
-      storeParam += `&storeId.in[${index}]=${id}`;
-    });
-  }
   if (assigneeCodes?.length) {
     assigneeCodes.forEach((id, index) => {
       assigneeCodeParam += `&assigneeCode.in[${index}]=${id.toLowerCase()}`;
     });
   }
-  return BaseAxiosApi.get(`${endpoint}${storeParam}${assigneeCodeParam}`, { ...config });
+  return BaseAxiosApi.get(`${endpoint}${assigneeCodeParam}`, { ...config });
 };
 
 export const updateCustomerVisitors = (params: any): Promise<BaseResponse<any>> => {
