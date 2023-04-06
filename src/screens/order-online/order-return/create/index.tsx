@@ -134,7 +134,7 @@ import {
 import {
   changeTypeQrCode,
   checkIfECommerceByOrderChannelCode,
-  checkIfWebAppByOrderChannelCode,
+  // checkIfWebAppByOrderChannelCode,
   findPaymentMethodByCode,
   handleReCalculateReturnProductDiscountAmount,
   isOrderWholesale,
@@ -1039,13 +1039,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
     return single.quantity > 0;
   });
 
-  const isShowDiscountByInsert = useMemo(() => {
-    return (
-      checkIfECommerceByOrderChannelCode(OrderDetail?.channel_code) ||
-      checkIfWebAppByOrderChannelCode(OrderDetail?.channel_code)
-    );
-  }, [OrderDetail?.channel_code]);
-
   const onReturn = useCallback(() => {
     // if (orderReturnType === RETURN_TYPE_VALUES.offline && !isOrderFromPOS(OrderDetail)) {
     //   showError(
@@ -1934,9 +1927,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
                       handleChangeShippingFeeApplyOrderSettings
                     }
                     orderDetail={OrderDetail}
-                    isShowDiscountByInsert={isShowDiscountByInsert}
                     initItemSuggestDiscounts={leftItemSuggestDiscounts}
-                    isWebAppOrder={checkIfWebAppByOrderChannelCode(OrderDetail?.channel_code)}
+                    // isWebAppOrder={checkIfWebAppByOrderChannelCode(OrderDetail?.channel_code)}
                     isEcommerceOrder={isEcommerceOrder}
                     initOrderSuggestDiscounts={initOrderSuggestDiscount}
                     // handleApplyDiscountItemCallback={handleApplyDiscountItemCallback}

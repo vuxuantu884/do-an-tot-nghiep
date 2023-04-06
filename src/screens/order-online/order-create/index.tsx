@@ -192,7 +192,7 @@ export default function Order() {
   const [specialOrderValue, setSpecialOrderValue] = useState<SpecialOrderResponseModel>();
   const [isSpecialOrderEcommerce, setIsSpecialOrderEcommerce] = useState({
     isEcommerce: false,
-    isChange: false,
+    isChange: true,
   });
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
@@ -1380,7 +1380,7 @@ export default function Order() {
               checkIfECommerceByOrderChannelCodeUpdateOrder(special_order?.ecommerce);
             setIsSpecialOrderEcommerce({
               isEcommerce: _isSpecialOrderEcommerce,
-              isChange: false,
+              isChange: !_isSpecialOrderEcommerce,
             });
             if (checkIfECommerceByOrderChannelCodeUpdateOrder(channel_code)) {
               setSpecialOrderValue({
@@ -1723,17 +1723,10 @@ export default function Order() {
                       specialOrderForm={specialOrderForm}
                       specialOrder={specialOrderValue as any}
                       setIsSpecialOrderEcommerce={(value: boolean) => {
-                        if (value) {
-                          setIsSpecialOrderEcommerce({
-                            isEcommerce: value,
-                            isChange: false,
-                          });
-                        } else {
-                          setIsSpecialOrderEcommerce({
-                            isEcommerce: value,
-                            isChange: true,
-                          });
-                        }
+                        setIsSpecialOrderEcommerce({
+                          isEcommerce: value,
+                          isChange: !value,
+                        });
                       }}
                       orderSource={orderSource}
                       orderType={orderType}

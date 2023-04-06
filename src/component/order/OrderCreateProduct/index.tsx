@@ -171,8 +171,7 @@ type PropTypes = {
   handleChangeShippingFeeApplyOrderSettings: (
     value: ChangeShippingFeeApplyOrderSettingParamModel,
   ) => void;
-  isShowDiscountByInsert?: boolean;
-  isWebAppOrder?: boolean;
+  // isWebAppOrder?: boolean;
   isEcommerceOrder?: boolean;
   initItemSuggestDiscounts?: LineItemCreateReturnSuggestDiscountResponseModel[];
   initOrderSuggestDiscounts?: SuggestDiscountResponseModel[];
@@ -277,8 +276,7 @@ function OrderCreateProduct(props: PropTypes) {
     isReturnOffline,
     setPromotionTitle,
     handleChangeShippingFeeApplyOrderSettings,
-    isShowDiscountByInsert,
-    isWebAppOrder,
+    // isWebAppOrder,
     initItemSuggestDiscounts,
     initOrderSuggestDiscounts,
     handleApplyDiscountItemCallback,
@@ -991,7 +989,7 @@ function OrderCreateProduct(props: PropTypes) {
 
       const initItemSuggestDiscountResult = initItemSuggestDiscounts;
 
-      return !isShowDiscountByInsert && !isCustomOriginalHandmadeDiscount ? (
+      return !isCustomOriginalHandmadeDiscount ? (
         <div className="site-input-group-wrapper saleorder-input-group-wrapper discountGroup columnBody__discount">
           <DiscountItemSearch
             index={index}
@@ -1071,7 +1069,7 @@ function OrderCreateProduct(props: PropTypes) {
               handleApplyDiscountItemCallback && handleApplyDiscountItemCallback(_item);
             }}
             initItemSuggestDiscounts={initItemSuggestDiscountResult || []}
-            isShowSuggestDiscount={isWebAppOrder}
+            //isShowSuggestDiscount={isWebAppOrder}
           />
         </div>
       );
