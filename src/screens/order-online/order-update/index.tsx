@@ -1959,17 +1959,10 @@ export default function Order(props: PropTypes) {
                     specialOrderForm={specialOrderForm}
                     specialOrder={OrderDetail?.special_order}
                     setIsSpecialOrderEcommerce={(value: boolean) => {
-                      if (value) {
-                        setIsSpecialOrderEcommerce({
-                          isEcommerce: value,
-                          isChange: false,
-                        });
-                      } else {
-                        setIsSpecialOrderEcommerce({
-                          isEcommerce: value,
-                          isChange: true,
-                        });
-                      }
+                      setIsSpecialOrderEcommerce({
+                        isEcommerce: value,
+                        isChange: !value,
+                      });
                     }}
                     orderSource={orderSource}
                     orderType={orderType}

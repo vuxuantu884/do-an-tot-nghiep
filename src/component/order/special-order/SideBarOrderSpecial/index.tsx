@@ -87,7 +87,6 @@ const SideBarOrderSpecial: React.FC<Props> = (props: Props) => {
       const ecommerce =
         value.type === specialOrderTypes.orders_replace.value &&
         checkIfECommerceByOrderChannelCodeUpdateOrder(value.ecommerce);
-      console.log("handleChangeOrderSpecialEcommerce", ecommerce, value.type, value.ecommerce);
       setIsSpecialOrderEcommerce && setIsSpecialOrderEcommerce(ecommerce);
     },
     [setIsSpecialOrderEcommerce],

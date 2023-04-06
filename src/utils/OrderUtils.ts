@@ -426,22 +426,25 @@ export const checkIfECommerceByOrderChannelCode = (orderChannelCode?: string | n
   );
 };
 
-export const checkIfWebAppByOrderChannelCode = (orderChannelCode?: string | null) => {
-  if (!orderChannelCode) {
-    return false;
-  }
-  return WEB_APP_CHANNEL_CODES.map((code) => code.toLowerCase()).includes(
-    orderChannelCode.toLowerCase(),
-  );
-};
+// export const checkIfWebAppByOrderChannelCode = (orderChannelCode?: string | null) => {
+//   if (!orderChannelCode) {
+//     return false;
+//   }
+//   return WEB_APP_CHANNEL_CODES.map((code) => code.toLowerCase()).includes(
+//     orderChannelCode.toLowerCase(),
+//   );
+// };
 
 export const checkIfECommerceByOrderChannelCodeUpdateOrder = (orderChannelCode?: string | null) => {
   if (!orderChannelCode) {
     return false;
   }
-  return ECOMMERCE_CHANNEL_CODES_UPDATE_ORDER.map((p) => p.channel_code.toLowerCase()).includes(
-    orderChannelCode.toLowerCase(),
-  );
+  return ECOMMERCE_CHANNEL_CODES_UPDATE_ORDER.filter(
+    (p) =>
+      !WEB_APP_CHANNEL_CODES.map((p) => p.toLowerCase()).includes(p.channel_code.toLowerCase()),
+  )
+    .map((p) => p.channel_code.toLowerCase())
+    .includes(orderChannelCode.toLowerCase());
 };
 
 export const getTotalAmountBeforeDiscount = (items: Array<OrderLineItemRequest>) => {
