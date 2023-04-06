@@ -33,12 +33,17 @@ type PropTypes = {
   onBlur: () => void;
   handleApplyDiscountItem: (_item: any) => void;
   initItemSuggestDiscounts: SuggestDiscountResponseModel[];
-  isShowSuggestDiscount?: boolean;
+  // isShowSuggestDiscount?: boolean;
 };
 
 function DiscountGroup(props: PropTypes) {
   console.log("props", props);
-  const { items, disabled = false, initItemSuggestDiscounts, isShowSuggestDiscount } = props;
+  const {
+    items,
+    disabled = false,
+    initItemSuggestDiscounts,
+    //, isShowSuggestDiscount
+  } = props;
   const { Text } = Typography;
   console.log("DiscountGroup discountType", props.discountType);
   const [selected, setSelected] = useState(props.discountType);
@@ -181,7 +186,10 @@ function DiscountGroup(props: PropTypes) {
       }
       // khi clear chiết khấu mà có initItemSuggestDiscounts thì show lên
       if (!v) {
-        if (initItemSuggestDiscounts.length > 0 && isShowSuggestDiscount) {
+        if (
+          initItemSuggestDiscounts.length > 0
+          //&& isShowSuggestDiscount
+        ) {
           setShowSearchPromotion(true);
         }
       } else {
@@ -245,7 +253,13 @@ function DiscountGroup(props: PropTypes) {
       console.log("_items", _items);
       props.handleCardItems(_items);
     },
-    [initItemSuggestDiscounts.length, isShowSuggestDiscount, items, props, selected],
+    [
+      initItemSuggestDiscounts.length,
+      //isShowSuggestDiscount,
+      items,
+      props,
+      selected,
+    ],
   );
 
   useEffect(() => {
@@ -292,7 +306,10 @@ function DiscountGroup(props: PropTypes) {
           onFocus={(e) => {
             console.log("e", e);
             // setIsInputFocus(true);
-            if (e.target.value === "0" && isShowSuggestDiscount) {
+            if (
+              e.target.value === "0"
+              //&& isShowSuggestDiscount
+            ) {
               console.log("3333333");
               setShowSearchPromotion(true);
             }
