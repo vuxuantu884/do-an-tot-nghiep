@@ -47,3 +47,4 @@ export const hotlineCBNumber = "0389503828";
 export const STORE_ID_0 = 0;
 export const MAX_LENGTH_VALUE_SEARCH = 15;
 export const DATE_CURRENT = 1;
+export const IP_IGNORE = ["117.0.24.240", "117.0.24.170", "117.0.24.55"];
