@@ -873,6 +873,12 @@ export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
   for (const singleReturn of OrderDetail.order_returns) {
     //xử lý trường hợp 1 sản phẩm có số lượng nhiều đổi trả nhiều lần
     for (const singleReturnItem of singleReturn.items) {
+      let originOrderItem = OrderDetail.items.find(
+        (item) => item.id === singleReturnItem.order_line_item_id,
+      ); // lấy index của item để push discount item, backend hiện ko lưu nếu đơn hàng có order_returns
+      if (originOrderItem) {
+        singleReturnItem.discount_items = [...originOrderItem.discount_items];
+      }
       let index = orderReturnItems.findIndex(
         (item) =>
           item.variant_id === singleReturnItem.variant_id &&
@@ -945,11 +951,14 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
   const OrderDetailClone = cloneDeep(OrderDetail);
   let result: OrderLineItemResponse[] = [];
   let listReturned = getListReturnedOrders(OrderDetailClone);
+  console.log("OrderDetail11", OrderDetail);
+  console.log("OrderDetailClone", OrderDetailClone);
+  console.log("listReturned", listReturned);
   let orderReturnItems = [...listReturned];
   let _orderReturnItems = orderReturnItems.filter((single) => single.quantity > 0);
   let newReturnItems = cloneDeep(_orderReturnItems);
   // let normalItems = _.cloneDeep(OrderDetail.items).filter(item=>item.type !==Type.SERVICE);
-  // console.log('_orderReturnItems', _orderReturnItems)
+  console.log("_orderReturnItems", _orderReturnItems);
   for (const singleOrder of OrderDetailClone.items) {
     // trường hợp line item trùng nhau, trùng loại (trường hợp sp và quà tặng trùng nhau, nếu có order_line_item_id thì check luôn)
     let duplicatedItem = newReturnItems.find((single) => {
@@ -960,7 +969,7 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
         (single.order_line_item_id ? single.order_line_item_id === singleOrder.id : true)
       );
     });
-    // console.log('duplicatedItem', duplicatedItem)
+    console.log("duplicatedItem", duplicatedItem);
     if (duplicatedItem) {
       let index = newReturnItems.findIndex(
         (single) =>
@@ -987,7 +996,7 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
       result.push(singleOrder);
     }
   }
-  // console.log('result111', result)
+  console.log("result111", result);
   return result;
 };
 
@@ -1434,18 +1443,18 @@ export const splitEllipsis = (value: string, length: number, lastLength: number)
   return `${strFirst} [...] ${strLast}`;
 };
 
-export const truncateMiddleWithEllipsis =(str:string, maxLength:number)=>{
+export const truncateMiddleWithEllipsis = (str: string, maxLength: number) => {
   if (str.length <= maxLength) {
     return str;
   }
-  const ellipsis = '...';
+  const ellipsis = "...";
   const truncatedLength = maxLength - ellipsis.length;
   const startLength = Math.ceil(truncatedLength / 2);
   const endLength = Math.floor(truncatedLength / 2);
   const start = str.slice(0, startLength);
   const end = str.slice(str.length - endLength);
   return start + ellipsis + end;
-}
+};
 
 export const trimText = (text?: string) => {
   if (!text) return;
