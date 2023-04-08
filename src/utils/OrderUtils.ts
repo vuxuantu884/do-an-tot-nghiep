@@ -928,4 +928,7 @@ export const handleReCalculateReturnProductDiscountAmount = (item: OrderLineItem
   item.discount_rate = getLineItemDiscountRate(item);
   item.discount_amount = getLineItemDiscountAmount(item);
   item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(item);
+  item.single_distributed_order_discount = item.quantity
+    ? (item.distributed_order_discount ?? 0) / item.quantity
+    : item.quantity;
 };
