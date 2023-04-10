@@ -9,6 +9,7 @@ import { BrowserRouter } from "react-router-dom";
 import MainRoute from "routes";
 import { GlobalStyle } from "utils/global-styles";
 import SplashScreen from "./screens/splash.screen";
+import { deleteAllCookies } from "utils/ApiUtils";
 
 function App() {
   const dispatch = useDispatch();
@@ -33,6 +34,10 @@ function App() {
       dispatch(profilePermissionAction(user_id));
     }
   }, [dispatch, user_id]);
+
+  useEffect(() => {
+    deleteAllCookies();
+  }, []);
 
   return (
     <>
