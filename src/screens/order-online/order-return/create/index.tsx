@@ -2678,6 +2678,11 @@ const ScreenReturnCreate = (props: PropTypes) => {
             let lineItemDistributedOrderDiscount =
               getProductDiscountPerOrder(OrderDetail, single) * single.quantity;
             result = result + lineItemDistributedOrderDiscount;
+            console.log(
+              "getProductDiscountPerOrder(OrderDetail, single)",
+              getProductDiscountPerOrder(OrderDetail, single),
+            );
+            console.log("lineItemDistributedOrderDiscount", lineItemDistributedOrderDiscount);
           }
         });
       }
@@ -2693,6 +2698,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
       ) {
         let orderDiscount = OrderDetail?.discounts[0];
         let value = calculateDistributedOrderDiscount();
+        console.log("listReturnProducts", listReturnProducts);
+        console.log("value orderdiscount", value);
+        console.log("orderDiscount orderdiscount", orderDiscount);
         let orderDiscountResult: SuggestDiscountResponseModel = {
           allocation_count: null,
           allocation_limit: null,

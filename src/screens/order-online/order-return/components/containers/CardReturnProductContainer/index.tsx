@@ -165,6 +165,9 @@ function CardReturnProductContainer(props: PropTypes) {
           maxQuantityCanBeReturned: single.quantity,
           amount: single.quantity * single.price,
           line_amount_after_line_discount: single.quantity * (single.price - single.discount_value),
+          single_distributed_order_discount: single.quantity
+            ? (single.distributed_order_discount ?? 0) / single.quantity
+            : single.quantity,
         };
         handleReCalculateReturnProductDiscountAmount(convert);
         return convert;
