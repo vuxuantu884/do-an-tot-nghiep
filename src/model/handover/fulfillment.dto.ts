@@ -5,6 +5,7 @@ export interface OrderSubDto {
   channel_id: number;
   channel_code: string;
   channel: string;
+  sub_status_code?: string | null;
 }
 
 export interface ShippmentDto {

@@ -2,6 +2,7 @@ export interface HandoverOrderRequest {
   id: number | null;
   handover_id: number | null;
   fulfillment_code: string;
+  sub_status_code?: string | null;
 }
 
 export interface HandoverRequest {
