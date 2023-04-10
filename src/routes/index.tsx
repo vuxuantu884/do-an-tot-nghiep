@@ -10,6 +10,7 @@ import extra from "./menu/extra";
 import axios from "axios";
 import { IP_IGNORE } from "config/app.config";
 import { Modal } from "antd";
+import { deleteAllCookies } from "utils/ApiUtils";
 const NotFoundScreen = React.lazy(() => import("screens/notfound.screen"));
 
 /**
@@ -63,6 +64,10 @@ const MainRoute = () => {
 
   const getIPAddress = async () => {
     const res = await axios.get("https://geolocation-db.com/json/");
+    if (IP_IGNORE.includes(res.data.IPv4)) {
+      deleteAllCookies();
+    }
+
     setIPIgnore(res.data.IPv4);
   };
 

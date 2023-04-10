@@ -146,3 +146,14 @@ export const callApiNative = async <Fn extends (...args: any[]) => any, R extend
     if (notifyAction === "SHOW_ALL" || isShowLoading) dispatch(hideLoading());
   }
 };
+
+export function deleteAllCookies() {
+  const cookies = document.cookie.split(";");
+
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i];
+    const eqPos = cookie.indexOf("=");
+    const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+    document.cookie = name + "=;expires=Thu" + new Date(0).toUTCString();
+  }
+}
