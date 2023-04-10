@@ -69,6 +69,7 @@ export const StyledComponent = styled.div`
       cursor: pointer;
       .sider-user-info {
         margin: 0 10px;
+        line-height: 2;
       }
     }
   }

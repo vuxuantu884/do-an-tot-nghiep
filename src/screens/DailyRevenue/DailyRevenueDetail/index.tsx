@@ -148,10 +148,12 @@ function DailyRevenueDetail() {
   }, [dispatch, id]);
 
   const fetchDailyRevenueReport = useCallback(() => {
-    if (!storeDetail?.name) return;
+    if (!storeDetail?.id) {
+      return;
+    }
     const currentDate = moment(dailyRevenueDetail?.created_at).format(dateFormat);
 
-    const fullParams = getParamReport(currentDate, storeDetail?.name);
+    const fullParams = getParamReport(currentDate, storeDetail?.id);
     return new Promise<void>((resolve, reject) => {
       executeAnalyticsQueryService(fullParams)
         .then((response: any) => {
@@ -164,7 +166,7 @@ function DailyRevenueDetail() {
           reject();
         });
     });
-  }, [dailyRevenueDetail?.created_at, dateFormat, storeDetail?.name]);
+  }, [dailyRevenueDetail?.created_at, dateFormat, storeDetail?.id]);
 
   const handleUpdateDailyRevenueDetail = () => {
     if (!id) {

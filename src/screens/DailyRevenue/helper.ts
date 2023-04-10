@@ -91,11 +91,10 @@ export const filterNumberDiff = (
   };
   return result;
 };
-
-export const getAnalyticConditions = (where: any) => {
+export const getAnalyticConditions = (where: { [key: string]: any[] }) => {
   const whereParams: AnalyticConditions =
     where &&
-    Object.keys(JSON.parse(JSON.stringify(where))).map((key: string) => {
+    Object.keys(JSON.parse(JSON.stringify(where))).map((key) => {
       const value: Array<string> = where[key];
       const operator = _.isEqual(value, [""]) ? "!=" : "IN";
       let values: string | Array<string> = "";
@@ -116,9 +115,9 @@ export const getAnalyticConditions = (where: any) => {
   return whereParams;
 };
 
-export const getParamReport = (currentDate: string, currentStore: string) => {
-  const conditions = getAnalyticConditions({ pos_location_name: [currentStore] });
-
+export const getParamReport = (currentDate: string, currentStoreId: number) => {
+  const conditions = getAnalyticConditions({ pos_location_id: [currentStoreId] });
+  console.log("conditions", conditions);
   const params: AnalyticQuery = {
     columns: [
       {
