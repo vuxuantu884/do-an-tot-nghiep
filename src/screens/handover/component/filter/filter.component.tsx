@@ -1,4 +1,4 @@
-import { FilterOutlined } from "@ant-design/icons";
+import { FilterOutlined, SettingOutlined } from "@ant-design/icons";
 import { Button, Form, FormInstance, Input, Row, Tag } from "antd";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import CustomSelect from "component/custom/select.custom";
@@ -24,69 +24,81 @@ const RenderKey: React.FC<RenderKeyHandoverProps> = (props: RenderKeyHandoverPro
   let { value, params, onCloseTag, deliveryServices, channels } = props;
   const title = useMemo(() => {
     switch (value) {
-      case 'delivery_service_provider_ids':
-        return 'HVC';
-      case 'channel_ids':
-        return 'Kênh';
-      case 'types':
-        return 'Loại biên bản';
+      case "delivery_service_provider_ids":
+        return "HVC";
+      case "channel_ids":
+        return "Kênh";
+      case "types":
+        return "Loại biên bản";
       default:
-        return '';
+        return "";
     }
   }, [value]);
 
   const valueKey = useMemo(() => {
     switch (value) {
-      case 'delivery_service_provider_ids':
+      case "delivery_service_provider_ids":
         return params.delivery_service_provider_ids;
-      case 'channel_ids':
+      case "channel_ids":
         return params.channel_ids;
-      case 'types':
+      case "types":
         return params.types;
       default:
-        return ''
+        return "";
     }
   }, [params.channel_ids, params.delivery_service_provider_ids, params.types, value]);
 
   const fillTag = useMemo(() => {
     switch (value) {
-      case 'delivery_service_provider_ids':
-        return params.delivery_service_provider_ids?.map((item) => {
-          if (item.toString() === '-1') {
-            return "Tự vận chuyển";
-          }
-          let index = deliveryServices.findIndex((value) => value.id.toString() === item.toString())
-          if (index === -1) return ''
-          return deliveryServices[index].name
-        })
-          .filter(item => item !== '')
+      case "delivery_service_provider_ids":
+        return params.delivery_service_provider_ids
+          ?.map((item) => {
+            if (item.toString() === "-1") {
+              return "Tự vận chuyển";
+            }
+            let index = deliveryServices.findIndex(
+              (value) => value.id.toString() === item.toString(),
+            );
+            if (index === -1) return "";
+            return deliveryServices[index].name;
+          })
+          .filter((item) => item !== "")
           .join(", ");
-      case 'types':
-        return params.types?.map((item) => {
-          if (item.toString() === '-1') {
-            return "Tự vận chuyển";
-          }
-          let index = HandoverType.findIndex((value) => value.value === item);
-          if (index === -1) return ''
-          return HandoverType[index].display;
-        })
-          .filter(item => item !== '')
+      case "types":
+        return params.types
+          ?.map((item) => {
+            if (item.toString() === "-1") {
+              return "Tự vận chuyển";
+            }
+            let index = HandoverType.findIndex((value) => value.value === item);
+            if (index === -1) return "";
+            return HandoverType[index].display;
+          })
+          .filter((item) => item !== "")
           .join(", ");
-      case 'channel_ids':
-        return params.channel_ids?.map((item) => {
-          if (item.toString() === '-1') {
-            return "Tự vận chuyển";
-          }
-          let index = channels.findIndex((value) => value.id.toString() === item.toString());
-          if (index === -1) return ''
-          return channels[index].name;
-        })
-          .filter(item => item !== '')
+      case "channel_ids":
+        return params.channel_ids
+          ?.map((item) => {
+            if (item.toString() === "-1") {
+              return "Tự vận chuyển";
+            }
+            let index = channels.findIndex((value) => value.id.toString() === item.toString());
+            if (index === -1) return "";
+            return channels[index].name;
+          })
+          .filter((item) => item !== "")
           .join(", ");
     }
-  }, [channels, deliveryServices, params.channel_ids, params.delivery_service_provider_ids, params.types, value]);
+  }, [
+    channels,
+    deliveryServices,
+    params.channel_ids,
+    params.delivery_service_provider_ids,
+    params.types,
+    value,
+  ]);
 
-  if (valueKey === undefined || valueKey === null || valueKey === '' || fillTag === '') {
+  if (valueKey === undefined || valueKey === null || valueKey === "" || fillTag === "") {
     return null;
   }
 
@@ -95,8 +107,8 @@ const RenderKey: React.FC<RenderKeyHandoverProps> = (props: RenderKeyHandoverPro
       <span className="">{title}: </span>
       {fillTag}
     </Tag>
-  )
-}
+  );
+};
 
 type ReturnFilterProps = {
   params: HandoverSearchRequest;
@@ -107,12 +119,24 @@ type ReturnFilterProps = {
   loadingFilter: boolean;
   deliveryServices: Array<DeliveryServiceResponse>;
   channels: Array<ChannelsResponse>;
+  onShowColumnSetting?: () => void;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: HandoverSearchRequest) => void;
 };
 
 const HandoverFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
-  const { onMenuClick, actions, params, stores, deliveryServices, loadingFilter, loadingMaster, onFilter, channels } = props;
+  const {
+    onMenuClick,
+    actions,
+    params,
+    stores,
+    deliveryServices,
+    loadingFilter,
+    loadingMaster,
+    onFilter,
+    channels,
+    onShowColumnSetting,
+  } = props;
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
   const [form] = Form.useForm();
@@ -124,34 +148,40 @@ const HandoverFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
     (index: number) => {
       onMenuClick && onMenuClick(index);
     },
-    [onMenuClick]
+    [onMenuClick],
   );
 
   const initialValues = useMemo(() => {
     return {
       ...params,
-    }
+    };
   }, [params]);
 
-  const onFinish = useCallback((value) => {
-    let request: HandoverSearchRequest = {
-      ...params,
-      ...value
-    }
-    onFilter && onFilter(request);
-  }, [onFilter, params]);
+  const onFinish = useCallback(
+    (value) => {
+      let request: HandoverSearchRequest = {
+        ...params,
+        ...value,
+      };
+      onFilter && onFilter(request);
+    },
+    [onFilter, params],
+  );
 
-  const onFinishOtherForm = useCallback((value) => {
-    let request: HandoverSearchRequest = {
-      ...params,
-      from_created_date: value.from_created_date ? value.from_created_date : null,
-      to_created_date: value.to_created_date ? value.to_created_date : null,
-      channel_ids: value.channel_ids,
-      delivery_service_provider_ids: value.delivery_service_provider_ids,
-      types: value.types
-    }
-    onFilter && onFilter(request);
-  }, [onFilter, params]);
+  const onFinishOtherForm = useCallback(
+    (value) => {
+      let request: HandoverSearchRequest = {
+        ...params,
+        from_created_date: value.from_created_date ? value.from_created_date : null,
+        to_created_date: value.to_created_date ? value.to_created_date : null,
+        channel_ids: value.channel_ids,
+        delivery_service_provider_ids: value.delivery_service_provider_ids,
+        types: value.types,
+      };
+      onFilter && onFilter(request);
+    },
+    [onFilter, params],
+  );
 
   const openFilter = useCallback(() => {
     setVisible(true);
@@ -168,37 +198,44 @@ const HandoverFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
       to_created_date: null,
       channel_ids: undefined,
       delivery_service_provider_ids: undefined,
-      types: undefined
+      types: undefined,
     };
     setVisible(false);
     onFilter && onFilter(newParams);
+  }, [onFilter, params]);
 
-  }, [onFilter, params])
-
-  const onCloseTag = useCallback((key) => {
-    let newParams = {
-      ...params,
-      [key]: undefined,
-    }
-    form.setFieldsValue(newParams);
-    form.submit();
-  }, [form, params]);
+  const onCloseTag = useCallback(
+    (key) => {
+      let newParams = {
+        ...params,
+        [key]: undefined,
+      };
+      form.setFieldsValue(newParams);
+      form.submit();
+    },
+    [form, params],
+  );
 
   const onFilterClick = useCallback(() => {
     setVisible(false);
     formRef.current?.submit();
-  }, [formRef])
+  }, [formRef]);
   useEffect(() => {
     setVisible(false);
-  }, []); 
+  }, []);
   return (
     <HandoverFilterComponent>
       <div className="handover-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
-          <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
-            <div style={{ width: '100%' }}>
+          <Form
+            onFinish={onFinish}
+            ref={formSearchRef}
+            initialValues={initialValues}
+            layout="inline"
+          >
+            <div style={{ width: "100%" }}>
               <Row>
-                <Form.Item name="store_ids" style={{ width: '20%' }}>
+                <Form.Item name="store_ids" style={{ width: "20%" }}>
                   <CustomSelect
                     disabled={loadingMaster || loadingFilter}
                     placeholder="Chọn cửa hàng"
@@ -208,13 +245,11 @@ const HandoverFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
                     maxTagCount="responsive"
                     showSearch
                   >
-                    {
-                      stores.map((item) => (
-                        <CustomSelect.Option key={item.id} value={item.id.toString()}>
-                          {item.name}
-                        </CustomSelect.Option>
-                      ))
-                    }
+                    {stores.map((item) => (
+                      <CustomSelect.Option key={item.id} value={item.id.toString()}>
+                        {item.name}
+                      </CustomSelect.Option>
+                    ))}
                   </CustomSelect>
                 </Form.Item>
                 <Form.Item name="query" style={{ flex: 1 }}>
@@ -234,8 +269,15 @@ const HandoverFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
                   </Button>
                 </Form.Item>
                 <Form.Item>
-                  <Button disabled={loadingMaster || loadingFilter} icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
+                  <Button
+                    disabled={loadingMaster || loadingFilter}
+                    icon={<FilterOutlined />}
+                    onClick={openFilter}
+                  >
+                    Thêm bộ lọc
+                  </Button>
                 </Form.Item>
+                <Button icon={<SettingOutlined />} onClick={onShowColumnSetting} />
               </Row>
             </div>
           </Form>
@@ -245,8 +287,15 @@ const HandoverFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           width={400}
-          visible={visible}>
-          <Form form={form} onFinish={onFinishOtherForm} ref={formRef} initialValues={initialValues} layout="vertical">
+          visible={visible}
+        >
+          <Form
+            form={form}
+            onFinish={onFinishOtherForm}
+            ref={formRef}
+            initialValues={initialValues}
+            layout="vertical"
+          >
             <Form.Item label="Hãng vận chuyển" name="delivery_service_provider_ids">
               <CustomSelect
                 placeholder="Chọn hãng vận chuyển"
@@ -259,13 +308,11 @@ const HandoverFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
                 <CustomSelect.Option key={-1} value="-1">
                   Tự vận chuyển
                 </CustomSelect.Option>
-                {
-                  deliveryServices.map((item) => (
-                    <CustomSelect.Option key={item.id} value={item.id.toString()}>
-                      {item.name}
-                    </CustomSelect.Option>
-                  ))
-                }
+                {deliveryServices.map((item) => (
+                  <CustomSelect.Option key={item.id} value={item.id.toString()}>
+                    {item.name}
+                  </CustomSelect.Option>
+                ))}
               </CustomSelect>
             </Form.Item>
             <Form.Item label="Loại" name="types">
@@ -277,13 +324,11 @@ const HandoverFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
                 maxTagCount="responsive"
                 showSearch
               >
-                {
-                  HandoverType.map((item) => (
-                    <CustomSelect.Option key={item.value} value={item.value}>
-                      {item.display}
-                    </CustomSelect.Option>
-                  ))
-                }
+                {HandoverType.map((item) => (
+                  <CustomSelect.Option key={item.value} value={item.value}>
+                    {item.display}
+                  </CustomSelect.Option>
+                ))}
               </CustomSelect>
             </Form.Item>
             <Form.Item label="Thời gian tạo">
@@ -308,31 +353,31 @@ const HandoverFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) =
                 <CustomSelect.Option key={-1} value="-1">
                   Biên bản tự tạo
                 </CustomSelect.Option>
-                {
-                  channels.map((item) => (
-                    <CustomSelect.Option key={item.id} value={item.id.toString()}>
-                      {item.name}
-                    </CustomSelect.Option>
-                  ))
-                }
+                {channels.map((item) => (
+                  <CustomSelect.Option key={item.id} value={item.id.toString()}>
+                    {item.name}
+                  </CustomSelect.Option>
+                ))}
               </CustomSelect>
             </Form.Item>
           </Form>
-
         </BaseFilter>
       </div>
       <div className="result-tags">
-        {
-          Object.keys(params)
-            .map((value, index) => <React.Fragment key={index}>
-              <RenderKey channels={channels} deliveryServices={deliveryServices} params={params} value={value} onCloseTag={onCloseTag} />
-            </React.Fragment>)
-        }
+        {Object.keys(params).map((value, index) => (
+          <React.Fragment key={index}>
+            <RenderKey
+              channels={channels}
+              deliveryServices={deliveryServices}
+              params={params}
+              value={value}
+              onCloseTag={onCloseTag}
+            />
+          </React.Fragment>
+        ))}
       </div>
     </HandoverFilterComponent>
-  )
+  );
 };
 
 export default HandoverFilter;
-
-
