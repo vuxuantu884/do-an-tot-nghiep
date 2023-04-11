@@ -449,6 +449,7 @@ export interface GetFeesRequest {
   insurance: number | 0;
   coupon: string | null;
   cod: number | 0;
+  product_value?: number | null;
 }
 
 export interface ConfirmDraftOrderRequest {

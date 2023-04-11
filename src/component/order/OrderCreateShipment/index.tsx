@@ -28,7 +28,12 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import useFetchExternalShippers from "screens/order-online/hooks/useFetchExternalShippers";
-import { getShippingAddressDefault, isOrderFinishedOrCancel, SumWeight } from "utils/AppUtils";
+import {
+  getShippingAddressDefault,
+  getTotalAmount,
+  isOrderFinishedOrCancel,
+  SumWeight,
+} from "utils/AppUtils";
 import { EnumOrderType, ShipmentMethodOption, SHIPPING_REQUIREMENT } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { primaryColor } from "utils/global-styles/variables";
@@ -498,6 +503,7 @@ function OrderCreateShipment(props: PropTypes) {
         setAddressError("Thiếu thông tin địa chỉ cửa hàng!");
         return;
       }
+
       let request = {
         from_city_id: storeDetail?.city_id,
         from_city: storeDetail?.city_name,
@@ -524,6 +530,7 @@ function OrderCreateShipment(props: PropTypes) {
         insurance: 0,
         coupon: "",
         cod: 0,
+        product_value: getTotalAmount(items),
       };
       setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));
