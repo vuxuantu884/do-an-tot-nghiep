@@ -193,7 +193,7 @@ const HandoverScreen: React.FC = () => {
             <React.Fragment>
               <Link to={`${UrlConfig.HANDOVER}/${data}`}>{item.code}</Link>
               <div style={{ fontSize: "0.86em", lineHeight: "1.25" }}>
-                {moment(item.created_date).format("DD/MM/YYYY HH:ss")}
+                {moment(item.created_date).format("DD/MM/YYYY HH:mm")}
               </div>
               <div className="shipment-details">{service_name}</div>
             </React.Fragment>
