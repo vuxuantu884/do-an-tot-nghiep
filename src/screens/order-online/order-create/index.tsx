@@ -1401,6 +1401,7 @@ export default function Order() {
             } else if (special_order) {
               setSpecialOrderValue(special_order);
             }
+            setOrderChannel(special_order?.ecommerce || ADMIN_ORDER.channel_name);
 
             if (customer_id) {
               dispatch(

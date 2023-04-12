@@ -1750,7 +1750,11 @@ export default function Order(props: PropTypes) {
                     }
                     isSpecialOrderEcommerce={isSpecialOrderEcommerce}
                     orderType={orderType}
-                    orderChannel={OrderDetail?.channel_code || ADMIN_ORDER.channel_name}
+                    orderChannel={
+                      OrderDetail?.special_order?.ecommerce ||
+                      OrderDetail?.channel_code ||
+                      ADMIN_ORDER.channel_name
+                    }
                   />
                   <CardShowOrderPayments
                     OrderDetail={OrderDetail}
