@@ -17,6 +17,7 @@ import SpecialOrderCreateForm from "../SpecialOrderCreateForm";
 import SpecialOrderDetail from "../SpecialOrderDetail";
 import { specialOrderTypes } from "./helper";
 import { StyledComponent } from "./styles";
+import { ADMIN_ORDER } from "utils/Constants";
 
 type Props = {
   defaultSpecialType: string | undefined;
@@ -28,6 +29,7 @@ type Props = {
   setSpecialOrderView: React.Dispatch<React.SetStateAction<SpecialOrderType>>;
   orderPageType: OrderPageTypeModel;
   setIsSpecialOrderEcommerce?: (v: boolean) => void;
+  setOrderChannel?: (v: string) => void;
 };
 
 const SideBarOrderSpecial: React.FC<Props> = (props: Props) => {
@@ -41,6 +43,7 @@ const SideBarOrderSpecial: React.FC<Props> = (props: Props) => {
     defaultSpecialType,
     orderPageType,
     setIsSpecialOrderEcommerce,
+    setOrderChannel,
   } = props;
 
   const isOrderCreatePage = checkIfOrderPageType.isOrderCreatePage(orderPageType);
@@ -84,12 +87,16 @@ const SideBarOrderSpecial: React.FC<Props> = (props: Props) => {
 
   const handleChangeOrderSpecialEcommerce = useCallback(
     (value: SpecialOrderFormValueModel) => {
+      const isOrdersReplace = value.type === specialOrderTypes.orders_replace.value;
       const ecommerce =
-        value.type === specialOrderTypes.orders_replace.value &&
-        checkIfECommerceByOrderChannelCodeUpdateOrder(value.ecommerce);
+        isOrdersReplace && checkIfECommerceByOrderChannelCodeUpdateOrder(value.ecommerce);
       setIsSpecialOrderEcommerce && setIsSpecialOrderEcommerce(ecommerce);
+      setOrderChannel &&
+        setOrderChannel(
+          isOrdersReplace ? value.ecommerce || ADMIN_ORDER.channel_name : ADMIN_ORDER.channel_name,
+        );
     },
-    [setIsSpecialOrderEcommerce],
+    [setIsSpecialOrderEcommerce, setOrderChannel],
   );
   const handleChangeType = (v: string | undefined) => {
     setDisplayOrderSpecialType(v);
@@ -128,6 +135,7 @@ const SideBarOrderSpecial: React.FC<Props> = (props: Props) => {
                 form.setFieldsValue({
                   type: specialOrderTypes.orders_recall.value,
                 });
+                setOrderChannel && setOrderChannel(ADMIN_ORDER.channel_name);
               }}
               disabled={!isEditSpecialOrder}
             >
@@ -138,6 +146,7 @@ const SideBarOrderSpecial: React.FC<Props> = (props: Props) => {
                 displayOrderSpecialType === specialOrderTypes.orders_partial.value && "active"
               }`}
               onClick={() => {
+                setOrderChannel && setOrderChannel(ADMIN_ORDER.channel_name);
                 handleChangeType(specialOrderTypes.orders_partial.value);
                 handleChangeOrderSpecialEcommerce({
                   type: specialOrderTypes.orders_partial.value,
@@ -201,6 +210,7 @@ const SideBarOrderSpecial: React.FC<Props> = (props: Props) => {
               ecommerce: value,
             } as any);
             setOrderSpecialEcommerce(value);
+            console.log("setOrderSpecialEcommerce", value);
           }}
         />
       </div>
