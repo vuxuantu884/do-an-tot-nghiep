@@ -74,6 +74,7 @@ import {
   totalAmount,
 } from "utils/AppUtils";
 import {
+  ADMIN_ORDER,
   DEFAULT_COMPANY,
   EnumOrderType,
   FulFillmentStatus,
@@ -1749,6 +1750,7 @@ export default function Order(props: PropTypes) {
                     }
                     isSpecialOrderEcommerce={isSpecialOrderEcommerce}
                     orderType={orderType}
+                    orderChannel={OrderDetail?.channel_code || ADMIN_ORDER.channel_name}
                   />
                   <CardShowOrderPayments
                     OrderDetail={OrderDetail}
