@@ -38,6 +38,7 @@ type PropTypes = {
   setIsSpecialOrderEcommerce?: (v: boolean) => void;
   orderSource?: SourceResponse | null;
   orderType?: string;
+  setOrderChannel?: (v: string) => void;
 };
 
 /**
@@ -112,6 +113,7 @@ function CreateOrderSidebar(props: PropTypes): JSX.Element {
           form={specialOrderForm}
           specialOrder={specialOrder || orderDetail?.special_order}
           setIsSpecialOrderEcommerce={setIsSpecialOrderEcommerce}
+          setOrderChannel={props.setOrderChannel}
         />
       )}
 

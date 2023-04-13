@@ -11,7 +11,7 @@ import { validateHandoverService } from "service/handover/handover.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { PUSHING_STATUS } from "utils/Constants";
 import { FulfillmentStatus } from "utils/FulfillmentStatus.constant";
-import { showModalError, showSuccess } from "utils/ToastUtils";
+import { showSuccess } from "utils/ToastUtils";
 import { HandoverReturn, HandoverTransfer } from "../../handover.config";
 import HandoverTable from "../table/handover-table.component";
 import { StyledComponent } from "./styles";
@@ -215,9 +215,10 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
               id: null,
               handover_id: id,
               fulfillment_code: data.code,
+              sub_status_code: data.order.sub_status_code,
             };
-            const newOrderValue = [newOrder, ...orders];
-            const newOrderDisplay = [data, ...order_display];
+            const newOrderValue = [...orders, newOrder];
+            const newOrderDisplay = [...order_display, data];
             if (props.onUpdate) {
               props.onUpdate(newOrderValue, newOrderDisplay, toggleInput);
               return;

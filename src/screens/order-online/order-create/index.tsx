@@ -211,6 +211,8 @@ export default function Order() {
   const [isCloneOrderFromPOS, setIsCloneOrderFromPOS] = useState(false);
   const [orderType, setOrderType] = useState<string>(EnumOrderType.b2c);
 
+  const [orderChannel, setOrderChannel] = useState(ADMIN_ORDER.channel_name);
+
   const queryParams = useQuery();
   const customerParam = queryParams.get("customer") || null;
   const actionParam = queryParams.get("action") || null;
@@ -1399,6 +1401,7 @@ export default function Order() {
             } else if (special_order) {
               setSpecialOrderValue(special_order);
             }
+            setOrderChannel(special_order?.ecommerce || ADMIN_ORDER.channel_name);
 
             if (customer_id) {
               dispatch(
@@ -1639,6 +1642,7 @@ export default function Order() {
                       }
                       isSpecialOrderEcommerce={isSpecialOrderEcommerce}
                       orderType={orderType}
+                      orderChannel={orderChannel}
                     />
                     <Card title="THANH TOÁN">
                       <OrderCreatePayments
@@ -1730,6 +1734,7 @@ export default function Order() {
                       }}
                       orderSource={orderSource}
                       orderType={orderType}
+                      setOrderChannel={setOrderChannel}
                     />
                   </Col>
                 </Row>

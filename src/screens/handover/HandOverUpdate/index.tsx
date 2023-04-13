@@ -314,6 +314,7 @@ const CreateHandoverScreen: React.FC<any> = (props: any) => {
                       >
                         <Select
                           showSearch
+                          allowClear
                           style={{ width: "95%" }}
                           placeholder="Chọn cửa hàng"
                           notFoundContent="Không tìm thấy kết quả"

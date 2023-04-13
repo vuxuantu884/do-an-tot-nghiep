@@ -41,6 +41,7 @@ import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import HandoverFilter from "../component/filter/filter.component";
 import { HandoverTransfer, HandoverType } from "../handover.config";
 import { StyledComponent } from "./styled";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
 
 interface MasterDataLoad<T> {
   isLoad: boolean;
@@ -135,6 +136,8 @@ const HandoverScreen: React.FC = () => {
 
   const [htmlContent, setHtmlContent] = useState<string | string[]>("");
 
+  const [showSettingColumn, setShowSettingColumn] = useState(false);
+
   const onSelectedChange = useCallback(
     (selectedRow: Array<HandoverResponse>) => {
       let order = selectedRow.filter(function (el) {
@@ -169,150 +172,171 @@ const HandoverScreen: React.FC = () => {
     [data, dispatch],
   );
 
-  const columns = useMemo(
-    () =>
-      [
-        {
-          title: "Mã biên bản",
-          key: "id",
-          dataIndex: "id",
-          align: "center",
-          fixed: "left",
-          width: "150px",
-          render: (data: number, item: HandoverResponse, index: number) => {
-            let service_name = item.delivery_service_provider;
-            if (item.delivery_service_provider_id === -1) {
-              service_name = "TVC";
-            }
-            return (
-              <React.Fragment>
-                <Link to={`${UrlConfig.HANDOVER}/${data}`}>{item.code}</Link>
-                <div style={{ fontSize: "0.86em", lineHeight: "1.25" }}>
-                  {moment(item.created_date).format("DD/MM/YYYY HH:ss")}
-                </div>
-                <div className="shipment-details">{service_name}</div>
-              </React.Fragment>
-            );
-          },
-        },
-        {
-          title: "Tên cửa hàng",
-          dataIndex: "store",
-          key: "store",
-          width: "150px",
-          visible: true,
-          align: "center",
-        },
-        {
-          title: "Loại",
-          key: "type",
-          dataIndex: "type",
-          width: "120px",
-          visible: true,
-          align: "center",
-          render: (data: string, item: HandoverResponse, index: number) => {
-            return (
-              <div>
-                <p style={{ marginBottom: 0 }}>
-                  {data === HandoverTransfer ? HandoverType[0].display : HandoverType[1].display}
-                </p>
-                {item.channel_id !== -1 && (
-                  <p style={{ color: "#2A2A86", marginBottom: 0 }}>({item.channel})</p>
-                )}
+  const [columns, setColumns] = useState<Array<ICustomTableColumType<any>>>([]);
+
+  useEffect(() => {
+    setColumns([
+      {
+        title: "Mã biên bản",
+        key: "id",
+        dataIndex: "id",
+        align: "center",
+        visible: true,
+        fixed: "left",
+        width: "150px",
+        render: (data: number, item: HandoverResponse, index: number) => {
+          let service_name = item.delivery_service_provider;
+          if (item.delivery_service_provider_id === -1) {
+            service_name = "TVC";
+          }
+          return (
+            <React.Fragment>
+              <Link to={`${UrlConfig.HANDOVER}/${data}`}>{item.code}</Link>
+              <div style={{ fontSize: "0.86em", lineHeight: "1.25" }}>
+                {moment(item.created_date).format("DD/MM/YYYY HH:mm")}
               </div>
-            );
-          },
+              <div className="shipment-details">{service_name}</div>
+            </React.Fragment>
+          );
         },
-        {
-          title: "SL SP",
-          dataIndex: "quantity",
-          key: "quantity",
-          width: "100px",
-          visible: true,
-          align: "center",
+      },
+      {
+        title: "Tên cửa hàng",
+        dataIndex: "store",
+        key: "store",
+        width: "150px",
+        visible: true,
+        align: "center",
+      },
+      {
+        title: "Loại",
+        key: "type",
+        dataIndex: "type",
+        width: "120px",
+        visible: true,
+        align: "center",
+        render: (data: string, item: HandoverResponse, index: number) => {
+          return (
+            <div>
+              <p style={{ marginBottom: 0 }}>
+                {data === HandoverTransfer ? HandoverType[0].display : HandoverType[1].display}
+              </p>
+              {item.channel_id !== -1 && (
+                <p style={{ color: "#2A2A86", marginBottom: 0 }}>({item.channel})</p>
+              )}
+            </div>
+          );
         },
-        {
-          title: "Số đơn",
-          dataIndex: "total",
-          key: "total",
-          width: "100px",
-          visible: true,
-          align: "center",
+      },
+      {
+        title: "SL SP",
+        dataIndex: "quantity",
+        key: "quantity",
+        width: "100px",
+        visible: true,
+        align: "center",
+      },
+      {
+        title: "Số đơn",
+        dataIndex: "total",
+        key: "total",
+        width: "100px",
+        visible: true,
+        align: "center",
+      },
+      {
+        title: "Đơn gửi HVC",
+        dataIndex: "send",
+        width: "100px",
+        key: "send",
+        align: "center",
+        visible: true,
+        render: (item: any) => {
+          return item ? item : 0;
         },
-        {
-          title: "Đơn gửi HVC",
-          dataIndex: "total",
-          width: "100px",
-          key: "total",
-          align: "center",
+      },
+      {
+        title: "Đơn đang chuyển",
+        dataIndex: "shipping",
+        width: "100px",
+        key: "shipping",
+        visible: true,
+        align: "center",
+      },
+      {
+        title: "Đơn huỷ đã gửi HVC",
+        dataIndex: "cancelled_after_sent",
+        width: "100px",
+        key: "cancelled_after_sent",
+        visible: false,
+        align: "center",
+        render: (item: any) => {
+          return item ? item : 0;
         },
-        {
-          title: "Đơn đang chuyển",
-          dataIndex: "shipping",
-          width: "100px",
-          key: "shipping",
-          visible: true,
-          align: "center",
+      },
+      {
+        title: "Đơn đang hoàn",
+        dataIndex: "returning",
+        width: "100px",
+        key: "returning",
+        visible: true,
+        align: "center",
+      },
+      {
+        title: "Đơn đã hoàn",
+        dataIndex: "qreturned",
+        key: "qreturned",
+        width: "100px",
+        visible: false,
+        align: "center",
+        render: (item: any) => {
+          return item ? item : 0;
         },
-        {
-          title: "Đơn chưa lấy",
-          dataIndex: "not_received",
-          key: "not_received",
-          width: "100px",
-          visible: true,
-          align: "center",
-        },
-        {
-          title: "Đang đang hoàn",
-          dataIndex: "returning",
-          key: "returning",
-          width: "100px",
-          visible: true,
-          align: "center",
-        },
-        {
-          title: "Đơn thành công",
-          dataIndex: "shipped",
-          width: "100px",
-          key: "shipped",
-          visible: true,
-          align: "center",
-        },
-        {
-          title: "Ghi chú",
-          dataIndex: "note",
-          key: "note",
-          visible: true,
-          width: "200px",
-          align: "left",
-          render: (value: string, record: HandoverResponse) => (
-            <div className="orderNotes">
-              <div className="inner">
-                <div className="single">
-                  <EditNote
-                    note={value}
-                    color={"#2a2a86"}
-                    onOk={(newNote) => onUpdateNote(record.id, newNote)}
-                  />
-                </div>
+      },
+      {
+        title: "Đơn thành công",
+        dataIndex: "shipped",
+        width: "100px",
+        key: "shipped",
+        visible: true,
+        align: "center",
+      },
+      {
+        title: "Ghi chú",
+        dataIndex: "note",
+        key: "note",
+        visible: true,
+        width: "200px",
+        align: "left",
+        render: (value: string, record: HandoverResponse) => (
+          <div className="orderNotes">
+            <div className="inner">
+              <div className="single">
+                <EditNote
+                  note={value}
+                  color={"#2a2a86"}
+                  onOk={(newNote) => onUpdateNote(record.id, newNote)}
+                />
               </div>
             </div>
-          ),
-        },
-        {
-          title: "Người tạo",
-          dataIndex: "created_by",
-          key: "created_by",
-          visible: true,
-          width: "150px",
-          align: "center",
-          render: (item: string, record: HandoverResponse, index) => (
-            <Link to={`${UrlConfig.ACCOUNTS}/${item}`}>{record.created_name}</Link>
-          ),
-        },
-      ] as Array<ICustomTableColumType<HandoverResponse>>,
-    [onUpdateNote],
-  );
+          </div>
+        ),
+      },
+      {
+        title: "Người tạo",
+        dataIndex: "created_by",
+        key: "created_by",
+        visible: true,
+        width: "150px",
+        align: "center",
+        render: (item: string, record: HandoverResponse, index) => (
+          <Link to={`${UrlConfig.ACCOUNTS}/${item}`}>{record.created_name}</Link>
+        ),
+      },
+    ]);
+  }, [onUpdateNote]);
+
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   const [allowCreateGoodsReceipt] = useAuthorization({
     acceptPermissions: [ORDER_PERMISSIONS.CREATE_GOODS_RECEIPT],
@@ -602,6 +626,7 @@ const HandoverScreen: React.FC = () => {
             onMenuClick={onMenuClick}
             params={params}
             onFilter={onFilter}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
           />
           <CustomTable
             scroll={{
@@ -615,7 +640,7 @@ const HandoverScreen: React.FC = () => {
             dataSource={data.items}
             selectedRowKey={selected}
             onSelectedChange={onSelectedChange}
-            columns={columns}
+            columns={columnFinal}
             rowKey={(item) => item.id.toString()}
             pagination={{
               pageSize: data.metadata.limit,
@@ -625,6 +650,16 @@ const HandoverScreen: React.FC = () => {
               onChange: onChangePage,
               onShowSizeChange: onChangePage,
             }}
+          />
+          <ModalSettingColumn
+            visible={showSettingColumn}
+            onCancel={() => setShowSettingColumn(false)}
+            onOk={(data) => {
+              console.log("data data", data);
+              setShowSettingColumn(false);
+              setColumns(data);
+            }}
+            data={columns}
           />
         </Card>
         <Modal

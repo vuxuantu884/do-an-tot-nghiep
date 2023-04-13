@@ -37,7 +37,6 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
 
   const onSearchVariantSelect = useCallback(
     (v, variant) => {
-      console.log("eventKeydownProduct search", isBarcode);
       let newV = parseInt(v);
       const result = [...resultSearchVariant];
       const index = result.findIndex((p) => p.id === newV);
@@ -172,13 +171,10 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
           let barCodeCopy = barCode;
           handleBarcodeProduct(barCodeCopy);
           barCode = "";
-
-          console.log("eventKeydownProduct enter", isBarcode);
         }
       } else {
         barCode = barCode + event.key;
         isBarcode = false;
-        console.log("eventKeydownProduct", isBarcode);
         handleDelayActionWhenInsertTextInSearchInput(
           autoCompleteRef,
           () => {
