@@ -54,7 +54,7 @@ const InventoryDefectCreate: React.FC = () => {
 
   const [formStoreData, setFormStoreData] = useState<Store | null>();
   const [isShowModalChangeStore, setIsShowModalChangeStore] = useState<boolean>(false);
-  const [defectStoreIdBak, setDefectStoreIdBak] = useState<number | null>(null);
+  const [defectStoreIdBak, setDefectStoreIdBak] = useState<number>();
   const [objSummaryTable, setObjSummaryTable] = useState<SummaryDefect>({
     total_defect: 0,
     total_on_hand: 0,
@@ -435,7 +435,6 @@ const InventoryDefectCreate: React.FC = () => {
       barCode = "";
 
       if (keyCode === "Enter" && code) {
-        setKeySearch("");
         const storeId = form.getFieldValue("store_id");
         if (!storeId) {
           showError("Vui lòng chọn cửa hàng");
@@ -448,6 +447,7 @@ const InventoryDefectCreate: React.FC = () => {
 
         if (res && res.items && Array.isArray(res.items) && res.items.length > 0) {
           onSelectProduct(res.items[0], dataTable);
+          setKeySearch(res.items[0].sku);
         }
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -474,7 +474,8 @@ const InventoryDefectCreate: React.FC = () => {
   const eventKeydown = useCallback(
     (event: KeyboardEvent) => {
       if (event.target instanceof HTMLInputElement) {
-        if (event.target.id === "search_product") {
+        // k call khi input được focus
+        if (document.activeElement && document.activeElement.id !== "search_product") {
           if (event.key !== "Enter") {
             barCode = barCode + event.key;
           }
@@ -609,6 +610,7 @@ const InventoryDefectCreate: React.FC = () => {
                 onSelect={onSelectProduct}
                 storeId={defectStoreIdBak}
                 dataSource={dataTable}
+                reloadVariantDataFlag={defectStoreIdBak}
               />
             </Form.Item>
             <Table
