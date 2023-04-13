@@ -1,16 +1,12 @@
 import AuthRoute from "component/auth.route";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Route, Switch } from "react-router-dom";
 import Login from "screens/login";
 import routesNotShowInMenu from "./list-routes-not-show-in-menu";
 import menu from "./menu";
 import extra from "./menu/extra";
-import axios from "axios";
-import { IP_IGNORE } from "config/app.config";
-import { Modal } from "antd";
-import { deleteAllCookies } from "utils/ApiUtils";
 const NotFoundScreen = React.lazy(() => import("screens/notfound.screen"));
 
 /**
@@ -58,87 +54,52 @@ const getAllRoute = (route: RouteMenu) => {
 };
 
 const MainRoute = () => {
-  //page state
-  const [visible, setVisible] = useState(false);
-  const [ipIgnore, setIPIgnore] = useState("");
-
-  const getIPAddress = async () => {
-    const res = await axios.get("https://geolocation-db.com/json/");
-    if (IP_IGNORE.includes(res.data.IPv4)) {
-      deleteAllCookies();
-    }
-
-    setIPIgnore(res.data.IPv4);
-  };
-
-  const handleOkeIpAddress = () => {
-    window.location.reload();
-  };
-
-  useEffect(() => {
-    //passing getData method to the lifecycle method
-    getIPAddress();
-  }, []);
   return (
     <>
-      {IP_IGNORE.includes(ipIgnore) ? (
-        Modal.info({
-          title: "Thông báo",
-          content: (
-            <>
-              Địa chỉ IP của bạn đã quá số lượt truy cập, vui lòng sử dụng địa chỉ IP mới hoặc mạng
-              mới.
-            </>
-          ),
-          onOk: handleOkeIpAddress,
-          okText: "Đồng ý",
-        })
-      ) : (
-        <Switch>
-          {listRoutesNotShowInMenu().map((item: RouteMenu) => (
-            <AuthRoute
-              key={item.key}
-              component={item.component}
-              exact={item.exact}
-              path={item.path}
-              title={item.title}
-              permissions={item.permissions}
-            />
-          ))}
-          {listMenu().map((item: RouteMenu) => (
-            <AuthRoute
-              key={item.key}
-              component={item.component}
-              exact={item.exact}
-              path={item.path}
-              title={item.title}
-              permissions={item.permissions}
-            />
-          ))}
-          {listExtraMenu().map((item: RouteMenu) => (
-            <AuthRoute
-              key={item.key}
-              component={item.component}
-              exact={item.exact}
-              path={item.path}
-              title={item.title}
-              permissions={item.permissions}
-            />
-          ))}
-          {childRoute.map((item: RouteMenu) => (
-            <AuthRoute
-              key={item.key}
-              component={item.component}
-              exact={item.exact}
-              path={item.path}
-              title={item.title}
-              permissions={item.permissions}
-            />
-          ))}
-          <Route path={UrlConfig.LOGIN} exact={true} component={Login} />
-          <Route component={NotFoundScreen} />
-        </Switch>
-      )}
+      <Switch>
+        {listRoutesNotShowInMenu().map((item: RouteMenu) => (
+          <AuthRoute
+            key={item.key}
+            component={item.component}
+            exact={item.exact}
+            path={item.path}
+            title={item.title}
+            permissions={item.permissions}
+          />
+        ))}
+        {listMenu().map((item: RouteMenu) => (
+          <AuthRoute
+            key={item.key}
+            component={item.component}
+            exact={item.exact}
+            path={item.path}
+            title={item.title}
+            permissions={item.permissions}
+          />
+        ))}
+        {listExtraMenu().map((item: RouteMenu) => (
+          <AuthRoute
+            key={item.key}
+            component={item.component}
+            exact={item.exact}
+            path={item.path}
+            title={item.title}
+            permissions={item.permissions}
+          />
+        ))}
+        {childRoute.map((item: RouteMenu) => (
+          <AuthRoute
+            key={item.key}
+            component={item.component}
+            exact={item.exact}
+            path={item.path}
+            title={item.title}
+            permissions={item.permissions}
+          />
+        ))}
+        <Route path={UrlConfig.LOGIN} exact={true} component={Login} />
+        <Route component={NotFoundScreen} />
+      </Switch>
     </>
   );
 };
