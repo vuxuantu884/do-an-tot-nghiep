@@ -202,9 +202,18 @@ export const orderSpecialReason = {
     title: "COD-Đóng thiếu hàng",
     value: "COD-Đóng thiếu hàng",
   },
+  // wtf thêu
+  // 34: {
+  //   title: "COD-Thêu",
+  //   value: "COD-Thêu",
+  // },
   34: {
-    title: "COD-Thêu",
-    value: "COD-Thêu",
+    title: "COD-Khách chuyển khoản",
+    value: "COD-Khách chuyển khoản",
+  },
+  35: {
+    title: "HVC-Huỷ sau xuất kho",
+    value: "HVC-Huỷ sau xuất kho",
   },
 };
 

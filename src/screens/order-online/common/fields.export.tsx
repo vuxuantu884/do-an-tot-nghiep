@@ -262,6 +262,8 @@ export const select_reason_especially_order = [
   "COD-Thay đổi CTCK",
   "COD-Gom hàng gửi 1 lần",
   "COD-Đóng thiếu hàng",
+  "COD-Khách chuyển khoản",
+  "HVC-Huỷ sau xuất kho",
 ].map((val) => {
   return {
     value: val,
