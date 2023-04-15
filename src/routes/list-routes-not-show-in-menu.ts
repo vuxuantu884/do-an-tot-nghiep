@@ -34,9 +34,9 @@ const routesNotShowInMenu: Array<RouteMenu> = [
   {
     path: UrlConfig.YDPAGE,
     exact: true,
-    title: "Kênh YDpage",
+    title: "Kênh Unichat",
     icon: "icon-YDpage",
-    component: YDpage,
+    component: Unichat,
     key: "social-YDpage",
     isShow: true,
     header: null,

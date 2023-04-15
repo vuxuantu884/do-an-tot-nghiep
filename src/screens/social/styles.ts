@@ -12,6 +12,17 @@ export const SocialStyled = styled.div`
     align-items: center;
     .image {
       margin-top: 40px;
+      @media screen and (max-width: 640px) {
+        width: 90%;
+      }
+
+      @media screen and (max-width: 768px) {
+        width: 85%;
+      }
+
+      @media screen and (max-width: 1024px) {
+        width: 65%;
+      }
     }
     .text-description {
       margin-top: 30px;
@@ -20,7 +31,7 @@ export const SocialStyled = styled.div`
         font-weight: 600;
         font-size: 30px;
         line-height: 38px;
-        color: #2A2A86;
+        color: #2a2a86;
       }
       .description {
         margin-top: 4px;
@@ -38,27 +49,29 @@ export const SocialStyled = styled.div`
         padding: 12px;
         display: flex;
         align-items: center;
-        width: 400px;
+        @media screen and (max-width: 640px) {
+          width: 400px;
+        }
         height: 100px;
-        margin-right: 40px;
         box-shadow: 0 4px 10px 0 #0000001a;
-        background: #FFFFFF;
+        background: #ffffff;
+        border-radius: 5px;
         &:hover {
           cursor: pointer;
           transition: 0.5s;
           box-shadow: 0 4px 10px 0 gray;
         }
         .text-button-title {
-          font-size: 14px;
+          font-size: 16px;
           font-weight: 600;
           line-height: 22px;
           .beta-text {
             font-weight: 400;
             font-size: 12px;
             line-height: 20px;
-            color: #52C41A;
-            background: #F6FFED;
-            border: 1px solid #B7EB8F;
+            color: #52c41a;
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
             border-radius: 2px;
             padding: 1px 8px;
           }

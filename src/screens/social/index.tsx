@@ -13,7 +13,6 @@ import { allSource } from "screens/social/helper";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import YodySocial from "assets/img/yody_social.svg";
-import ydpageImg from "assets/img/ydpage.svg";
 import yodyUnichatImg from "assets/img/yody_unichat.svg";
 
 const SocialNetworkChannel: React.FC = () => {
@@ -54,14 +53,6 @@ const SocialNetworkChannel: React.FC = () => {
           </div>
 
           <div className="button-option">
-            {/* <div className="social-button" onClick={goToFacebookYDpage}>
-              <img src={ydpageImg} style={{ marginRight: "12px" }} alt="" />
-              <div>
-                <div className="text-button-title">Kết nối <span style={{ color: "#2f54eb" }}>Facebook</span> với YDPAGE</div>
-                <div className="description-text">Ứng dụng quản lý và bán hàng trên Facebook dành riêng cho YODY.</div>
-              </div>
-            </div> */}
-
             <div className="social-button" onClick={goToFacebookUnichat}>
               <img src={yodyUnichatImg} style={{ marginRight: "12px" }} alt="" />
               <div>
@@ -69,11 +60,9 @@ const SocialNetworkChannel: React.FC = () => {
                   <span>
                     Kết nối <span style={{ color: "#2f54eb" }}>Facebook</span> với Unichat{" "}
                   </span>
-                  <span className={"beta-text"}>Beta</span>
                 </div>
                 <div className="description-text">
                   <div>Ứng dụng quản lý và bán hàng trên Facebook dành riêng cho YODY.</div>
-                  <div className={"text-bold"}>(Chỉ áp dụng với các đơn vị thử nghiệm)</div>
                 </div>
               </div>
             </div>
