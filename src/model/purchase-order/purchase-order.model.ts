@@ -6,6 +6,7 @@ import { PurchaseProcument, PurchaseProcumentLineItem } from "./purchase-procume
 import { PurchasePayments } from "./purchase-payment.model";
 import { PurchaseReturnOrder } from "./purchase-return.model";
 import { EnumOptionValueOrPercent } from "config/enum.config";
+import { Moment } from "moment";
 
 export interface PurchaseOrder extends BaseObject {
   dataSource: ProcurementTable[];
@@ -313,4 +314,9 @@ export interface PurchaseOrderReturnQuery extends BaseQuery {
   created_date_from?: string;
   created_date_to?: string;
   [key: string]: any;
+}
+
+export interface PurchaseOrderDeliverDateUpdate {
+  delivery_date: Date | string | Moment;
+  procurement_ids: Array<number>;
 }

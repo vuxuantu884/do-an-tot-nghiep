@@ -8,6 +8,7 @@ export interface PurchaseProcument extends BaseObject {
   reference: string;
   store_id: number;
   expect_receipt_date: string;
+  delivery_date: string;
   procurement_items: Array<PurchaseProcumentLineItem>;
   purchase_order: PurchaseOrder;
   status: string;
@@ -151,6 +152,7 @@ const POProcumentField = {
   store_id: "store_id",
   store: "store",
   expect_receipt_date: "expect_receipt_date",
+  delivery_date: "delivery_date",
   procurement_items: "procurement_items",
   status: "status",
   note: "note",

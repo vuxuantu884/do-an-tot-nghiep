@@ -379,13 +379,18 @@ const ProcurementDetailScreen: React.FC = () => {
                             {poData?.code}
                           </Link>
                         </div>
-                      </Col>
-                      <Col span={6}>
-                        <div>Mã tham chiếu:</div>
                         <div>
                           <Text strong>{poData?.reference}</Text>
                         </div>
                       </Col>
+                      {procurementData?.status === ProcurementStatus.RECEIVED && (
+                        <Col span={6}>
+                          Người nhận:{" "}
+                          <div>
+                            <Text strong>{procurementData?.stock_in_by}</Text>
+                          </div>
+                        </Col>
+                      )}
                       <Col span={6}>
                         <div>Nhà cung cấp:</div>
                         <div>
@@ -417,14 +422,17 @@ const ProcurementDetailScreen: React.FC = () => {
                           </Text>
                         </div>
                       </Col>
-                      {procurementData?.status === ProcurementStatus.RECEIVED && (
-                        <Col span={6}>
-                          Người nhận:{" "}
-                          <div>
-                            <Text strong>{procurementData?.stock_in_by}</Text>
-                          </div>
-                        </Col>
-                      )}
+                      <Col span={6}>
+                        Ngày xe hàng về:{" "}
+                        <div>
+                          <Text strong>
+                            {ConvertUtcToLocalDate(
+                              procurementData?.delivery_date,
+                              DATE_FORMAT.DDMMYYY,
+                            )}
+                          </Text>
+                        </div>
+                      </Col>
                       <Col span={6}>
                         {procurementData && (
                           <EditNote
