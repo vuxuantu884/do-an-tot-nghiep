@@ -3,7 +3,6 @@ import { FormInstance } from "antd/es/form/Form";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
 import ButtonAdd from "component/icon/ButtonAdd";
-import ButtonRemove from "component/icon/ButtonRemove";
 import { IConDivided } from "component/icon/Divided";
 import { IConPlan } from "component/icon/Plan";
 import { ICustomTableColumType } from "component/table/CustomTable";
@@ -15,6 +14,7 @@ import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import { ProcurementTable, PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import {
+  POProcumentField,
   PercentDate,
   PurchaseProcument,
   PurchaseProcumentLineItem,
@@ -23,14 +23,21 @@ import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purchase-order.provider";
-import { getPercentMonth } from "service/purchase-order/purchase-order.service";
+import {
+  changePODeliveryDate,
+  getPercentMonth,
+} from "service/purchase-order/purchase-order.service";
 import styled from "styled-components";
 import { callApiNative } from "utils/ApiUtils";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { ProcumentStatus, ProcurementStatus } from "utils/Constants";
 import { ConvertDateToUtc, DATE_FORMAT } from "utils/DateUtils";
-import { showError } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { v4 as uuidv4 } from "uuid";
+import DeliveryCarReceived from "assets/icon/delivery-car-received.svg";
+import DeliveryCarAccepted from "assets/icon/delivery-car-accepted.svg";
+import { HttpStatus } from "config/http-status.config";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 const DEFAULT_SPAN = window.screen.width <= 1360 ? 8 : window.screen.width <= 1600 ? 7 : 5;
 const DEFAULT_SCROLL = 50;
 const AMOUNT_COLUMNS = window.screen.width <= 1600 ? 3 : 5;
@@ -43,6 +50,7 @@ interface IExpectReceiptDates {
   uuid: string;
   option: EnumOptionValueOrPercent;
   value: number;
+  deliveryDate?: string;
 }
 
 interface IProps {
@@ -483,18 +491,86 @@ export const PoWareHouse = (props: IProps) => {
     setExpectReceiptDates([...expectReceiptDates]);
   };
 
+  const changeDeliveryDate = async (value: string, date: IExpectReceiptDates) => {
+    dispatch(showLoading());
+    try {
+      const procurements: Array<PurchaseProcument> = purchaseOrder.procurements.filter(
+        (pr: PurchaseProcument) => {
+          const expectedDate = moment(pr.expect_receipt_date).format(DATE_FORMAT.DDMMYYY);
+          return expectedDate === date.date && pr.status !== ProcumentStatus.CANCELLED;
+        },
+      );
+      const prIds = procurements.map((el: PurchaseProcument) => el.id);
+      const receiptDateArr = cloneDeep(expectReceiptDates);
+      const findReceiptDateIdx = receiptDateArr.findIndex(
+        (el: IExpectReceiptDates) => el.date === date.date,
+      );
+      const data = moment(value, "DD/MM/YYYY HH:mm").utc(true);
+      const response = await changePODeliveryDate(purchaseOrder.id, {
+        delivery_date: data,
+        procurement_ids: prIds,
+      });
+      const newProcurements = purchaseOrder.procurements.map((pr: PurchaseProcument) => {
+        if (procurements.find((el: PurchaseProcument) => pr.id === el.id)) {
+          return {
+            ...pr,
+            delivery_date: moment(value, DATE_FORMAT.DDMMYYY).format("YYYY-MM-DD[T]HH:mm:ss.SSSZ"),
+          };
+        } else {
+          return { ...pr };
+        }
+      });
+      if (findReceiptDateIdx !== -1 && response.code === HttpStatus.SUCCESS) {
+        receiptDateArr[findReceiptDateIdx].deliveryDate = value;
+        setExpectReceiptDates(receiptDateArr);
+        formMain?.setFieldsValue({ ...purchaseOrder, procurements: newProcurements });
+        showSuccess("Cập nhật ngày hàng về thành công");
+      } else if (!response.data && response.errors.length > 0) {
+        response.errors.forEach((err: string) => showError(err));
+      }
+    } catch (err) {
+      showSuccess("Đã có lỗi xảy ra!");
+    } finally {
+      dispatch(hideLoading());
+    }
+  };
+
   const title = useCallback(
     (date: IExpectReceiptDates, index: number, received: boolean, notReceived: boolean) => {
-      if (!(received || notReceived) && isEditDetail) {
+      if (date.status === ProcumentStatus.DRAFT && isEditDetail) {
         formMain?.setFieldsValue({
           ["expectedDate" + index]: date.date,
         });
       }
       return (
         <StyleHeader>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <StyledButton type="button">{index + 1}</StyledButton>
-            {date.isAdd || (!(received || notReceived) && isEditDetail) ? (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {date.status === ProcumentStatus.DRAFT ? null : date.deliveryDate ? (
+              <Tooltip title={date.deliveryDate}>
+                <img src={DeliveryCarReceived} alt="delivery-car" />
+              </Tooltip>
+            ) : (
+              <StyledCustomDatePicker>
+                <span className="deliver-date-input">
+                  <span className="deliver-date-icon">
+                    <img src={DeliveryCarAccepted} alt="delivery-car" />
+                  </span>
+                  <CustomDatePicker
+                    id={"expectedDate" + index}
+                    format={DATE_FORMAT.DDMMYYY}
+                    showTime={{ format: "HH:mm", defaultValue: moment("00:00", "HH:mm") }}
+                    showToday
+                    placeholder=""
+                    onChange={(value) => {
+                      if (!value) return;
+                      changeDeliveryDate(value, date);
+                    }}
+                  />
+                </span>
+              </StyledCustomDatePicker>
+            )}
+
+            {date.isAdd || (date.status === ProcumentStatus.DRAFT && isEditDetail) ? (
               <Form.Item
                 name={"expectedDate" + index}
                 rules={[
@@ -518,16 +594,9 @@ export const PoWareHouse = (props: IProps) => {
               </Form.Item>
             ) : (
               <>
-                <span
-                  style={{
-                    flex: "1",
-                    textAlign: "center",
-                  }}
-                >
-                  {date.date}
-                </span>
+                <span>{date.date}</span>
 
-                {notReceived && (
+                {date.status === ProcumentStatus.NOT_RECEIVED && (
                   <Tooltip title="Đã duyệt">
                     <span
                       style={{
@@ -540,7 +609,7 @@ export const PoWareHouse = (props: IProps) => {
                     </span>
                   </Tooltip>
                 )}
-                {received && (
+                {date.status === ProcumentStatus.RECEIVED && (
                   <Tooltip title="Đã nhận">
                     <span
                       style={{
@@ -557,7 +626,7 @@ export const PoWareHouse = (props: IProps) => {
             )}
           </div>
           {date.isAdd ||
-            (!(received || notReceived) && isEditDetail && (
+            (date.status === ProcumentStatus.DRAFT && isEditDetail && (
               <Row justify="end" style={{ margin: "4px 0", marginLeft: "20px" }}>
                 <Col span={24}>
                   <Input.Group compact style={{ display: "flex" }}>
@@ -618,26 +687,47 @@ export const PoWareHouse = (props: IProps) => {
 
       const procurementsExpectReceiptDates = Object.keys(procurementsFilter).map(
         (procurementsExpectReceiptDate) => {
-          // purchaseOrder.procurements = procurementSplit;
           const procurementFitterStatus = groupBy(
             result?.procurements.filter(
               (item) => item.expect_receipt_date === procurementsExpectReceiptDate,
             ),
             ProcurementLineItemField.status,
           );
+          let status: string = "";
 
-          let status: string =
-            Object.values(procurementFitterStatus)[0]?.length ===
-            procurementsFilter[procurementsExpectReceiptDate]?.length
-              ? (Object.keys(procurementFitterStatus)[0] as any)
-              : ProcurementStatus.not_received;
-
-          status =
-            Object.keys(procurementFitterStatus).includes(ProcurementStatus.draft) ||
-            Object.keys(procurementFitterStatus).includes(ProcurementStatus.not_received)
-              ? status
-              : ProcurementStatus.received;
-
+          const statues = Object.keys(procurementFitterStatus);
+          if (
+            statues.every(
+              (e: string) => e !== ProcurementStatus.draft && e !== ProcurementStatus.received,
+            )
+          ) {
+            status = ProcurementStatus.not_received;
+          } else if (statues.some((e: string) => e === ProcurementStatus.received)) {
+            status = ProcurementStatus.received;
+          } else {
+            status = ProcurementStatus.draft;
+          }
+          const procurementsDeliverDate = groupBy(
+            result?.procurements.filter(
+              (item) => item.expect_receipt_date === procurementsExpectReceiptDate,
+            ),
+            POProcumentField.delivery_date,
+          );
+          const deliverDates = Object.keys(procurementsDeliverDate);
+          let deliverDateValue = "";
+          if (
+            Object.values(procurementsDeliverDate)[0].length ===
+              procurementsFilter[procurementsExpectReceiptDate]?.length &&
+            !deliverDates.includes("null")
+          ) {
+            deliverDateValue = moment(deliverDates[0]).format(DATE_FORMAT.DDMMYYY);
+          } else if (deliverDates.length > 1 && deliverDates.includes("null")) {
+            const filterDeliverDate = deliverDates.filter((date: string) => date !== "null");
+            deliverDateValue =
+              filterDeliverDate.length > 0
+                ? moment(filterDeliverDate[0]).format(DATE_FORMAT.DDMMYYY)
+                : "";
+          }
           return {
             uuid:
               Object.values(procurementFitterStatus)[0]?.length > 0
@@ -650,6 +740,7 @@ export const PoWareHouse = (props: IProps) => {
               : "",
             option: EnumOptionValueOrPercent.PERCENT,
             value: 0,
+            deliveryDate: deliverDateValue,
           };
         },
       );
@@ -841,6 +932,7 @@ const StyledRowPoWareHouse = styled(Row)`
     top: 55px;
     z-index: 100;
   } */
+
   .ant-picker-clear {
     margin-right: 18px;
     padding-bottom: 38px;
@@ -848,6 +940,35 @@ const StyledRowPoWareHouse = styled(Row)`
     @media screen and (max-width: 1550px) {
       margin-right: 18px;
     }
+  }
+`;
+
+const StyledCustomDatePicker = styled.span`
+  margin-right: 5px;
+  .deliver-date-input {
+    position: relative;
+  }
+  .deliver-date-icon {
+    position: absolute;
+    top: -2px;
+  }
+  .deliver-date-input > .ant-picker {
+    width: 0px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    cursor: pointer;
+  }
+  .ant-picker-input > input {
+    color: transparent;
+    caret-color: transparent;
+    cursor: pointer;
+  }
+  .anticon-close-circle {
+    display: none;
+  }
+  .ant-picker-suffix {
+    display: none;
   }
 `;
 

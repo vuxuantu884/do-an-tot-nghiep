@@ -4,6 +4,7 @@ import {
   POStampPrinting,
   ProcumentLogQuery,
   PurchaseOrderBySupplierQuery,
+  PurchaseOrderDeliverDateUpdate,
   PurchaseOrderPercentsQuery,
   PurchaseOrderQuery,
   PurchaseOrderReturnQuery,
@@ -191,4 +192,14 @@ export const getPercentMonth = (query?: PurchaseOrderPercentsQuery) => {
   return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/asm/percent-month?`, {
     params: query,
   });
+};
+
+export const changePODeliveryDate = (
+  poId: number,
+  data: PurchaseOrderDeliverDateUpdate,
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.put(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/procurements/update-delivery-date`,
+    data,
+  );
 };
