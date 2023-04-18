@@ -113,7 +113,7 @@ function IssueCreate(): ReactElement {
 
   const onFinish = (values: any) => {
     try {
-      switch (values.operator) {
+      switch (releasePromotionListType) {
         case ReleasePromotionListType.EQUALS:
           handleFormFinish(values, listProductSelectImportNotExclude);
           break;
@@ -217,11 +217,11 @@ function IssueCreate(): ReactElement {
                 >
                   Lưu
                 </Button>
-                {allowActivePromotionRelease &&
+                {allowActivePromotionRelease && (
                   <Button type="primary" onClick={handleSaveAndActivate}>
                     Lưu và kích hoạt
                   </Button>
-                }
+                )}
               </>
             }
           />

@@ -236,9 +236,16 @@ const CreatePointAdjustment = () => {
     }
   };
 
-  const goToPointAdjustmentDetail = useCallback(() => {
-    history.push(`${UrlConfig.CUSTOMER2}-adjustments/${pointAdjustmentId}`);
-  }, [history, pointAdjustmentId]);
+  const goToPointAdjustmentDetail = useCallback(
+    (adjustmentId: number | null) => {
+      if (adjustmentId) {
+        history.push(`${UrlConfig.CUSTOMER2}-adjustments/${adjustmentId}`);
+      } else {
+        history.push(`${UrlConfig.CUSTOMER2}-adjustments/create`);
+      }
+    },
+    [history],
+  );
 
   const onUpdateEnd = useCallback(
     (data: any) => {
@@ -250,9 +257,9 @@ const CreatePointAdjustment = () => {
         const errorListValid = errorList?.filter((item: any) => item !== "");
         setErrorData(errorListValid);
         setIsVisibleErrorModal(true);
-      } else {
+      } else if (data?.id) {
         showSuccess("Tạo mới phiếu điều chỉnh thành công");
-        goToPointAdjustmentDetail();
+        goToPointAdjustmentDetail(data?.id);
       }
     },
     [formRef, goToPointAdjustmentDetail],
@@ -766,9 +773,9 @@ const CreatePointAdjustment = () => {
           visible={isVisibleErrorModal}
           title="Thêm mới phiếu điều chỉnh"
           maskClosable={false}
-          onCancel={goToPointAdjustmentDetail}
+          onCancel={() => goToPointAdjustmentDetail(pointAdjustmentId)}
           footer={
-            <Button type="primary" onClick={goToPointAdjustmentDetail}>
+            <Button type="primary" onClick={() => goToPointAdjustmentDetail(pointAdjustmentId)}>
               Xác nhận
             </Button>
           }
