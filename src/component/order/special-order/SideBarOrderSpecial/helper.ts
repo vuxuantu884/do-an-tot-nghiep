@@ -202,11 +202,7 @@ export const orderSpecialReason = {
     title: "COD-Đóng thiếu hàng",
     value: "COD-Đóng thiếu hàng",
   },
-  // wtf thêu
-  // 34: {
-  //   title: "COD-Thêu",
-  //   value: "COD-Thêu",
-  // },
+
   34: {
     title: "COD-Khách chuyển khoản",
     value: "COD-Khách chuyển khoản",
@@ -214,6 +210,18 @@ export const orderSpecialReason = {
   35: {
     title: "HVC-Huỷ sau xuất kho",
     value: "HVC-Huỷ sau xuất kho",
+  },
+  36: {
+    title: "COD-Thêu",
+    value: "COD-Thêu",
+  },
+  37: {
+    title: "Sale-Sai số: ngắn",
+    value: "Sale-Sai số: ngắn",
+  },
+  38: {
+    title: "Sale-Sai số: dài",
+    value: "Sale-Sai số: dài",
   },
 };
 

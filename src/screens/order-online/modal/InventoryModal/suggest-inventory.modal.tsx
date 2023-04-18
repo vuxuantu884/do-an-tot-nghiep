@@ -62,10 +62,10 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
   );
 
   useEffect(() => {
-    const khoTong = inventoryArray?.find((i) => i.store_id === 225);
+    const khoTong = inventoryArray?.find((i) => i.store_id === 214);
     console.log("khoTong khoTong", khoTong);
     const inventoryWithOutKhoTong = inventoryArray
-      ? inventoryArray?.filter((i) => i.store_id !== 225)
+      ? inventoryArray?.filter((i) => i.store_id !== 214)
       : [];
     const inventoryArrayCheckItemSuccess: any[] | null | undefined = inventoryWithOutKhoTong?.map(
       (item: any, index: number) => {
