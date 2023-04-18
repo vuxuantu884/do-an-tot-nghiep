@@ -451,7 +451,9 @@ const GroupDiscountList = (props: Props) => {
           return (
             <DiscountDetailListStyled>
               <Row justify="space-between" align="middle" className="product-row-action">
-                <Checkbox onChange={handleChangeDiscountAllProduct} checked={discountAllProduct}>Tất cả sản phẩm</Checkbox>
+                <Checkbox onChange={handleChangeDiscountAllProduct} checked={discountAllProduct}>
+                  Tất cả sản phẩm
+                </Checkbox>
                 <Space size={16}>
                   <Button
                     onClick={() => setShowImportModal(true)}
@@ -577,7 +579,7 @@ const GroupDiscountList = (props: Props) => {
               <Col span={3}>Chú ý:</Col>
               <Col span={19}>
                 <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
-                <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
+                <p>- Chuyển đổi file dưới dạng .XLSX trước khi tải dữ liệu</p>
                 <p>
                   - Tải file mẫu{" "}
                   <a
