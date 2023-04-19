@@ -10,7 +10,7 @@ import {
   ReleasePromotionListType,
 } from "model/promotion/price-rules.model";
 import moment from "moment";
-import React, { ReactElement, useCallback, useEffect, useContext } from "react";
+import React, { ReactElement, useCallback, useEffect, useContext, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import GeneralConditionForm from "screens/promotion/shared/general-condition.form";
@@ -20,7 +20,10 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import GeneralInfoForm from "screens/promotion/issue/components/GeneralInfoForm";
 import IssueProvider, { IssueContext } from "screens/promotion/issue/components/issue-provider";
 import { IssueStyled } from "screens/promotion/issue/issue-style";
-import { createPromotionReleaseAction } from "domain/actions/promotion/promo-code/promo-code.action";
+import {
+  activatePromotionReleaseAction,
+  createPromotionReleaseAction,
+} from "domain/actions/promotion/promo-code/promo-code.action";
 import { CreateReleasePromotionRuleType } from "screens/promotion/constants";
 import PromotionTypeForm from "screens/promotion/issue/components/PromotionTypeForm";
 import { scrollAndFocusToDomElement } from "utils/AppUtils";
@@ -46,26 +49,28 @@ function IssueCreate(): ReactElement {
   });
   /** */
 
+  const [isActivePromotionRelease, setIsActivePromotionRelease] = useState(false);
+
   const {
     setIsSetFormValues,
     registerWithMinistry,
     releasePromotionListType,
+    setReleasePromotionListType,
     listProductSelectImportNotExclude,
     listProductSelectImportHaveExclude,
+    promotionType,
     setPromotionType,
   } = useContext(IssueContext);
 
-  let isActive = true;
-
   /** Action: Lưu và kích hoạt */
   const handleSaveAndActivate = () => {
-    isActive = true;
+    setIsActivePromotionRelease(true);
     form.submit();
   };
 
   /** Action: Lưu */
   const save = async () => {
-    isActive = false;
+    setIsActivePromotionRelease(false);
     form.submit();
   };
 
@@ -111,32 +116,50 @@ function IssueCreate(): ReactElement {
     [releasePromotionListType],
   );
 
+  const onActivePromotionRelease = (idNumber: number) => {
+    dispatch(showLoading());
+    dispatch(
+      activatePromotionReleaseAction({ ids: [idNumber] }, (response) => {
+        dispatch(hideLoading());
+        if (response) {
+          showSuccess("Thêm mới và kích hoạt đợt phát hành thành công");
+          history.push(UrlConfig.PROMOTION + UrlConfig.PROMO_CODE + `/${idNumber}`);
+        }
+      }),
+    );
+  };
+
   const onFinish = (values: any) => {
     try {
-      switch (releasePromotionListType) {
-        case ReleasePromotionListType.EQUALS:
-          handleFormFinish(values, listProductSelectImportNotExclude);
-          break;
-        case ReleasePromotionListType.NOT_EQUAL_TO:
-          handleFormFinish(values, listProductSelectImportHaveExclude);
-          break;
-        case ReleasePromotionListType.OTHER_CONDITION:
-          values.operator = undefined;
-          break;
-        default:
-          break;
+      if (promotionType === PriceRuleMethod.DISCOUNT_CODE_QTY) {
+        switch (releasePromotionListType) {
+          case ReleasePromotionListType.EQUALS:
+            handleFormFinish(values, listProductSelectImportNotExclude);
+            break;
+          case ReleasePromotionListType.NOT_EQUAL_TO:
+            handleFormFinish(values, listProductSelectImportHaveExclude);
+            break;
+          case ReleasePromotionListType.OTHER_CONDITION:
+            values.operator = undefined;
+            break;
+          default:
+            break;
+        }
       }
 
       dispatch(showLoading());
       const body = transformData(values, PROMO_TYPE.MANUAL);
-      body.activated = isActive;
       body.is_registered = registerWithMinistry;
       dispatch(
         createPromotionReleaseAction(body, (result: PriceRule) => {
           dispatch(hideLoading());
           if (result) {
-            showSuccess("Thêm mới chương trình khuyến mại thành công");
-            history.push(UrlConfig.PROMOTION + UrlConfig.PROMO_CODE + `/${result.id}`);
+            if (isActivePromotionRelease) {
+              onActivePromotionRelease(result.id);
+            } else {
+              showSuccess("Thêm mới đợt phát hành thành công");
+              history.push(UrlConfig.PROMOTION + UrlConfig.PROMO_CODE + `/${result.id}`);
+            }
           }
         }),
       );
@@ -152,8 +175,9 @@ function IssueCreate(): ReactElement {
   useEffect(() => {
     setIsSetFormValues(true);
     setPromotionType(PriceRuleMethod.ORDER_THRESHOLD);
+    setReleasePromotionListType(PriceRuleMethod.ORDER_THRESHOLD);
     form.setFieldsValue(initialFormValues);
-  }, [form, setIsSetFormValues, setPromotionType]);
+  }, [form, setIsSetFormValues, setPromotionType, setReleasePromotionListType]);
 
   return (
     <ContentContainer

@@ -1,6 +1,7 @@
 import { Button, Col, Form, Row } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import {
+  enablePromotionGiftAction,
   getPromotionGiftDetailAction,
   getPromotionGiftProductApplyAction,
   getPromotionGiftVariantAction,
@@ -30,13 +31,13 @@ const GiftUpdate = () => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const history = useHistory();
-  let activePromotionGift = true;
 
   /** phân quyền */
   const [allowActiveGift] = useAuthorization({
     acceptPermissions: [PROMOTION_GIFT_PERMISSIONS.ACTIVE],
   });
   /** */
+  const [isActivePromotionGift, setIsActivePromotionGift] = useState(false);
 
   const { id } = useParams<{ id: string }>();
   const idNumber = parseInt(id);
@@ -50,7 +51,6 @@ const GiftUpdate = () => {
   const [isAllSource, setIsAllSource] = useState(true);
   // const [isUnlimitQuantity, setIsUnlimitQuantity] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const giftContext = useContext(GiftContext);
   const {
     setGiftMethod,
@@ -139,42 +139,54 @@ const GiftUpdate = () => {
   /**
    * Update discount
    */
+  const onActivePromotionGift = (idNumber: number) => {
+    dispatch(showLoading());
+    dispatch(
+      enablePromotionGiftAction(idNumber, (response) => {
+        dispatch(hideLoading());
+        if (response) {
+          showSuccess("Cập nhật và kích hoạt chương trình quà tặng thành công");
+          history.push(`${UrlConfig.PROMOTION}${UrlConfig.GIFT}/${idNumber}`);
+        }
+      }),
+    );
+  };
+
   const updateCallback = (data: PromotionGift) => {
     //Time out 2s để BE đẩy dữ liệu lên
     setTimeout(() => {
-      if (data) {
-        showSuccess("Cập nhật chương trình quà tặng thành công");
-        setIsSubmitting(false);
-        history.push(`${UrlConfig.PROMOTION}${UrlConfig.GIFT}/${idNumber}`);
-      }
-      setIsSubmitting(false);
       dispatch(hideLoading());
+      if (data) {
+        if (isActivePromotionGift) {
+          onActivePromotionGift(idNumber);
+        } else {
+          showSuccess("Cập nhật chương trình quà tặng thành công");
+          history.push(`${UrlConfig.PROMOTION}${UrlConfig.GIFT}/${idNumber}`);
+        }
+      }
     }, 2000);
   };
 
   const handleSubmit = (values: any) => {
     const formValues = form.getFieldsValue(true);
     try {
-      setIsSubmitting(true);
       const body = transformGiftRequest(formValues);
       body.id = idNumber;
       body.is_registered = registerWithMinistry;
-      body.activated = activePromotionGift;
       dispatch(showLoading());
       dispatch(updatePromotionGiftAction(body, updateCallback));
     } catch (error: any) {
-      setIsSubmitting(false);
       showError(error.message);
     }
   };
 
   const handleSaveAndActive = () => {
-    activePromotionGift = true;
+    setIsActivePromotionGift(true);
     form.submit();
   };
 
   const handleSaveOnly = () => {
-    activePromotionGift = false;
+    setIsActivePromotionGift(false);
     form.submit();
   };
   /**
@@ -346,11 +358,11 @@ const GiftUpdate = () => {
                 >
                   Lưu
                 </Button>
-                {allowActiveGift &&
+                {allowActiveGift && (
                   <Button type="primary" onClick={() => handleSaveAndActive()}>
                     Lưu và kích hoạt
                   </Button>
-                }
+                )}
               </>
             }
           />
