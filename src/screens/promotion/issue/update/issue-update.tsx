@@ -19,6 +19,7 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import GeneralInfoForm from "screens/promotion/issue/components/GeneralInfoForm";
 import IssueProvider, { IssueContext } from "screens/promotion/issue/components/issue-provider";
 import {
+  activatePromotionReleaseAction,
   getPriceRuleVariantExcludePaggingAction,
   getPromotionReleaseDetailAction,
   updatePromotionReleaseAction,
@@ -39,7 +40,6 @@ function IssueUpdate(): ReactElement {
   const dispatch = useDispatch();
   const { id } = useParams<{ id: string }>();
   const priceRuleId = parseInt(id);
-  let isActive = true;
 
   /** phân quyền */
   const [allowActivePromotionRelease] = useAuthorization({
@@ -51,10 +51,11 @@ function IssueUpdate(): ReactElement {
   const [isAllCustomer, setIsAllCustomer] = useState(true);
   const [isAllChannel, setIsAllChannel] = useState(true);
   const [isAllSource, setIsAllSource] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [data, setData] = useState<PriceRule>();
   const [listProductUpdate, setListProductUpdate] = useState<Array<any>>([]);
   const [loading, setLoading] = useState(true);
+  const [isActivePromotionRelease, setIsActivePromotionRelease] = useState(false);
+
   const {
     setIsSetFormValues,
     priceRuleData,
@@ -170,63 +171,82 @@ function IssueUpdate(): ReactElement {
     [releasePromotionListType],
   );
 
+  const onActivePromotionRelease = useCallback(
+    (idNumber: number) => {
+      dispatch(showLoading());
+      dispatch(
+        activatePromotionReleaseAction({ ids: [idNumber] }, (response) => {
+          dispatch(hideLoading());
+          if (response) {
+            showSuccess("Cập nhật và kích hoạt đợt phát hành thành công");
+            history.push(UrlConfig.PROMOTION + UrlConfig.PROMO_CODE + `/${idNumber}`);
+          }
+        }),
+      );
+    },
+    [dispatch, history],
+  );
+
   const onFinish = useCallback(
     (values: any) => {
       try {
-        switch (releasePromotionListType) {
-          case ReleasePromotionListType.EQUALS:
-            handleFormFinish(values, listProductSelectImportNotExclude);
-            break;
-          case ReleasePromotionListType.NOT_EQUAL_TO:
-            handleFormFinish(values, listProductSelectImportHaveExclude);
-            break;
-          default:
-            break;
+        if (promotionType === PriceRuleMethod.DISCOUNT_CODE_QTY) {
+          switch (releasePromotionListType) {
+            case ReleasePromotionListType.EQUALS:
+              handleFormFinish(values, listProductSelectImportNotExclude);
+              break;
+            case ReleasePromotionListType.NOT_EQUAL_TO:
+              handleFormFinish(values, listProductSelectImportHaveExclude);
+              break;
+            default:
+              break;
+          }
         }
 
-        setIsSubmitting(true);
         const body = transformData(values, PROMO_TYPE.MANUAL);
         body.id = priceRuleId;
         body.is_registered = registerWithMinistry;
-        body.activated = isActive;
         dispatch(showLoading());
         dispatch(
           updatePromotionReleaseAction(body, (result: PriceRule) => {
             dispatch(hideLoading());
             if (result) {
-              showSuccess("Cập nhật thành công");
-              history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${priceRuleId}`);
-              setIsSubmitting(false);
+              if (isActivePromotionRelease) {
+                onActivePromotionRelease(priceRuleId);
+              } else {
+                showSuccess("Cập nhật đợt phát hành thành công");
+                history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${priceRuleId}`);
+              }
             }
           }),
         );
       } catch (error: any) {
         showError(error.message);
-        setIsSubmitting(false);
       }
     },
     [
       dispatch,
       handleFormFinish,
       history,
-      isActive,
+      isActivePromotionRelease,
       listProductSelectImportHaveExclude,
       listProductSelectImportNotExclude,
       priceRuleId,
       registerWithMinistry,
       releasePromotionListType,
+      onActivePromotionRelease,
     ],
   );
 
   /** Action: Lưu và kích hoạt */
   const handleSaveAndActivate = () => {
-    isActive = true;
+    setIsActivePromotionRelease(true);
     form.submit();
   };
 
   /** Action: Lưu */
   const save = async () => {
-    isActive = false;
+    setIsActivePromotionRelease(false);
     form.submit();
   };
 

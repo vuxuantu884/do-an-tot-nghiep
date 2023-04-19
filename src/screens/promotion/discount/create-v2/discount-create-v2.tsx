@@ -4,7 +4,10 @@ import ContentContainer from "component/container/content.container";
 import { PriceRulesPermission } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { createPriceRuleAction } from "domain/actions/promotion/discount/discount.action";
+import {
+  bulkEnablePriceRulesAction,
+  createPriceRuleAction,
+} from "domain/actions/promotion/discount/discount.action";
 import { EntilementFormModel, PriceRuleMethod } from "model/promotion/price-rules.model";
 import moment from "moment";
 import React, { ReactElement, useContext, useEffect, useCallback, useState } from "react";
@@ -36,11 +39,29 @@ function DiscountCreateV2(): ReactElement {
   const { discountAllProduct, discountProductHaveExclude, registerWithMinistry } =
     discountUpdateContext;
 
+  const onActiveDiscount = useCallback(
+    (idNumber: number) => {
+      dispatch(showLoading());
+      dispatch(
+        bulkEnablePriceRulesAction({ ids: [idNumber] }, (response) => {
+          dispatch(hideLoading());
+          if (response) {
+            showSuccess("Thêm mới và kích hoạt chiết khấu thành công");
+            history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${idNumber}`);
+          }
+        }),
+      );
+    },
+    [dispatch, history],
+  );
+
   const handleSubmit = useCallback(
     (values: any) => {
       try {
         if (values.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD) {
-          values.entitlements[0].is_apply_all = discountProductHaveExclude ? false : discountAllProduct;
+          values.entitlements[0].is_apply_all = discountProductHaveExclude
+            ? false
+            : discountAllProduct;
           values.entitlements[0].is_exclude = discountProductHaveExclude;
 
           if (discountAllProduct && !discountProductHaveExclude) {
@@ -55,17 +76,20 @@ function DiscountCreateV2(): ReactElement {
           discountAllProduct,
           discountProductHaveExclude,
         );
-        body.activated = isActiveDiscount;
         body.is_registered = registerWithMinistry;
 
         dispatch(showLoading());
         dispatch(
           createPriceRuleAction(body, (data) => {
-            if (data) {
-              showSuccess("Lưu thành công");
-              history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${data.id}`);
-            }
             dispatch(hideLoading());
+            if (data) {
+              if (isActiveDiscount) {
+                onActiveDiscount(data.id);
+              } else {
+                showSuccess("Thêm mới chiết khấu thành công");
+                history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${data.id}`);
+              }
+            }
           }),
         );
       } catch (error: any) {
@@ -79,6 +103,7 @@ function DiscountCreateV2(): ReactElement {
       discountProductHaveExclude,
       dispatch,
       history,
+      onActiveDiscount,
       registerWithMinistry,
     ],
   );
@@ -176,11 +201,11 @@ function DiscountCreateV2(): ReactElement {
               >
                 Lưu
               </Button>
-              {allowActiveDiscount &&
+              {allowActiveDiscount && (
                 <Button type="primary" onClick={() => handleSaveAndActive()}>
                   Lưu và kích hoạt
                 </Button>
-              }
+              )}
             </>
           }
         />
