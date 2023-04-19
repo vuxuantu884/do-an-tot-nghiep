@@ -278,9 +278,20 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
   const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone] = useState<string>();
   // const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
+  const [printContent, setPrintContent] = useState("");
+  const [isShowReceiveProductConfirmModal, setIsShowReceiveProductConfirmModal] = useState(false);
+  const [returnPaymentMethodCode, setReturnPaymentMethodCode] = useState(PaymentMethodCode.CASH);
+  // khuyến mại
+  const [leftItemSuggestDiscounts, setLeftItemSuggestDiscounts] = useState<
+    LineItemCreateReturnSuggestDiscountResponseModel[]
+  >([]);
+  const [initOrderSuggestDiscount, setInitOrderSuggestDiscount] = useState<
+    SuggestDiscountResponseModel[]
+  >([]);
+  const [orderChannel, setOrderChannel] = useState(ADMIN_ORDER.channel_name);
 
   const printElementRef = useRef(null);
-  const [printContent, setPrintContent] = useState("");
+
   const printerContentHtml = () => {
     return `<div class='printerContent'>${printContent}<div>`;
   };
@@ -304,8 +315,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
     OrderDetail,
     fulfillments: ReturnOriginOrderDetail?.fulfillments,
   });
-
-  const [isShowReceiveProductConfirmModal, setIsShowReceiveProductConfirmModal] = useState(false);
 
   const recentAccount = useMemo(() => {
     return {
@@ -354,8 +363,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
       automatic_discount: false,
     };
   }, [userReducer.account?.code]);
-
-  const [returnPaymentMethodCode, setReturnPaymentMethodCode] = useState(PaymentMethodCode.CASH);
 
   const initialFormValueWithReturn = useMemo(() => {
     return {
@@ -513,6 +520,10 @@ const ScreenReturnCreate = (props: PropTypes) => {
           });
           setDiscountRate(discountRate);
         }
+      }
+
+      if (data?.channel_code) {
+        setOrderChannel(isOrderFromPOS(data) ? data?.channel_code : ADMIN_ORDER.channel_name);
       }
       // dispatch(StoreDetailAction(_data.store_id ? _data.store_id : 0, setReturnStore))
     }
@@ -1932,6 +1943,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     isEcommerceOrder={isEcommerceOrder}
                     initOrderSuggestDiscounts={initOrderSuggestDiscount}
                     // handleApplyDiscountItemCallback={handleApplyDiscountItemCallback}
+                    orderChannel={orderChannel}
                   />
                 )}
 
@@ -2620,14 +2632,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
       setIsReceivedReturnProducts(true);
     }
   }, [orderReturnType]);
-
-  // khuyến mại
-  const [leftItemSuggestDiscounts, setLeftItemSuggestDiscounts] = useState<
-    LineItemCreateReturnSuggestDiscountResponseModel[]
-  >([]);
-  const [initOrderSuggestDiscount, setInitOrderSuggestDiscount] = useState<
-    SuggestDiscountResponseModel[]
-  >([]);
 
   useEffect(() => {
     let result: LineItemCreateReturnSuggestDiscountResponseModel[] = [];
