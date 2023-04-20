@@ -50,6 +50,30 @@ export const PoSplitGoods = (props: IProps) => {
     [],
   );
 
+  const renderStoreName = (procurement: PurchaseProcument) => {
+    let storeName = procurement.store;
+    switch (procurement.store_id) {
+      case EnumStoreAnh.DEV:
+      case EnumStoreAnh.UAT:
+      case EnumStoreAnh.PROD:
+        storeName = "ASM Ánh";
+        break;
+      case EnumStoreTung.DEV:
+      case EnumStoreTung.UAT:
+      case EnumStoreTung.PROD:
+        storeName = "ASM Tùng";
+        break;
+      case EnumStoreHieu.DEV:
+      case EnumStoreHieu.UAT:
+      case EnumStoreHieu.PROD:
+        storeName = "ASM Hiếu";
+        break;
+      default:
+        break;
+    }
+    return storeName;
+  };
+
   useEffect(() => {
     const procurements = formMain?.getFieldsValue()?.procurements
       ? (formMain?.getFieldsValue()?.procurements as PurchaseProcument[])
@@ -216,8 +240,10 @@ export const PoSplitGoods = (props: IProps) => {
           return (
             <div className="style-store">
               <span className="title-shop">
-                <Tooltip title={store?.store_short_name ? store?.store_short_name : store.store}>
-                  {store?.store_short_name ? store?.store_short_name : store.store}
+                <Tooltip
+                  title={store?.store_short_name ? store?.store_short_name : renderStoreName(store)}
+                >
+                  {store?.store_short_name ? store?.store_short_name : renderStoreName(store)}
                 </Tooltip>
               </span>
               {isEditDetail && store?.status === ProcurementStatus.draft ? (
