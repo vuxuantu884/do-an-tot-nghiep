@@ -236,7 +236,7 @@ export const PoSplitGoods = (props: IProps) => {
                   />
                 </div>
               ) : (
-                <div className="shop-percent">({store?.percent || 0} %)</div>
+                <>({store?.percent || 0} %)</>
               )}
             </div>
           );
@@ -524,7 +524,7 @@ const StyledPOSplGood = styled.div`
   .style-store {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     justify-content: center;
     .shop-percent {
       min-width: 55px;
