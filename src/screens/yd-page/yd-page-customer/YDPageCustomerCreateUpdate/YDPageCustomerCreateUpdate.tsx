@@ -16,9 +16,11 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { GENDER_OPTIONS } from "utils/Constants";
 import { CustomerModel } from "model/request/customer.request";
 import { SOCIAL_CHANNEL } from "screens/yd-page/helper";
+import UnichatCustomerNote from "../UnichatCustomerNote/UnichatCustomerNote";
 
 const YDPageCustomerCreateUpdate = (props: any) => {
   const {
+    fbCustomerId,
     allowCreateCustomer,
     allowUpdateCustomer,
     customerGroups,
@@ -36,6 +38,9 @@ const YDPageCustomerCreateUpdate = (props: any) => {
     setFpDefaultPhone,
     setCustomerDefaultPhone,
     socialChannel,
+    userId,
+    customerNoteTags,
+    setCustomerNoteTags,
   } = props;
 
   const [form] = Form.useForm();
@@ -287,10 +292,9 @@ const YDPageCustomerCreateUpdate = (props: any) => {
           {/*Customer name*/}
           <Form.Item name="full_name" rules={[{ required: true, message: "Nhập tên khách hàng" }]}>
             <Input
+              disabled={true}
               maxLength={255}
               placeholder="Nhập tên khách hàng"
-              onBlur={(value) => handleBlurName(value.target.value)}
-              // onChange={(value) => handleChangeName(value.target.value)}
               className="item-input"
             />
           </Form.Item>
@@ -450,10 +454,8 @@ const YDPageCustomerCreateUpdate = (props: any) => {
             </>
           )}
 
-          <Divider style={{ margin: "8px 0" }} />
-
-          {/*Ghi chú*/}
-          {socialChannel !== SOCIAL_CHANNEL.UNICHAT &&
+          {/*Ghi chú YDPAGE */}
+          {socialChannel !== SOCIAL_CHANNEL.UNICHAT && (
             <>
               <div>
                 <b>Ghi chú</b>
@@ -513,7 +515,17 @@ const YDPageCustomerCreateUpdate = (props: any) => {
                 )}
               </div>
             </>
-          }
+          )}
+
+          {/*Ghi chú UNICHAT */}
+          {socialChannel === SOCIAL_CHANNEL.UNICHAT && (
+            <UnichatCustomerNote
+              fbCustomerId={fbCustomerId}
+              userId={userId}
+              customerNoteTags={customerNoteTags}
+              setCustomerNoteTags={setCustomerNoteTags}
+            />
+          )}
         </Card>
       </Form>
 

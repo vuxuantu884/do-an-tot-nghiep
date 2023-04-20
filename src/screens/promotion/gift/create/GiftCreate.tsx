@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useContext } from "react";
+import React, { ReactElement, useEffect, useContext, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { Button, Col, Form, Row } from "antd";
@@ -8,7 +8,10 @@ import ContentContainer from "component/container/content.container";
 import { PROMOTION_GIFT_PERMISSIONS } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { createPromotionGiftAction } from "domain/actions/promotion/gift/gift.action";
+import {
+  createPromotionGiftAction,
+  enablePromotionGiftAction,
+} from "domain/actions/promotion/gift/gift.action";
 import { GIFT_METHOD_ENUM } from "model/promotion/gift.model";
 import moment from "moment";
 import GeneralConditionForm from "screens/promotion/shared/general-condition.form";
@@ -24,22 +27,34 @@ function GiftCreate(): ReactElement {
   const history = useHistory();
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  let activePromotionGift = true;
 
   /** phân quyền */
   const [allowActiveGift] = useAuthorization({
     acceptPermissions: [PROMOTION_GIFT_PERMISSIONS.ACTIVE],
   });
   /** */
+  const [isActivePromotionGift, setIsActivePromotionGift] = useState(false);
 
   const giftContext = useContext(GiftContext);
   const { registerWithMinistry } = giftContext;
+
+  const onActivePromotionGift = (idNumber: number) => {
+    dispatch(showLoading());
+    dispatch(
+      enablePromotionGiftAction(idNumber, (response) => {
+        dispatch(hideLoading());
+        if (response) {
+          showSuccess("Thêm mới và kích hoạt chương trình quà tặng thành công");
+          history.push(`${UrlConfig.PROMOTION}${UrlConfig.GIFT}/${idNumber}`);
+        }
+      }),
+    );
+  };
 
   const handleSubmit = (values: any) => {
     try {
       const formValues = form.getFieldsValue(true);
       const body = transformGiftRequest(formValues);
-      body.activated = activePromotionGift;
       body.is_registered = registerWithMinistry;
 
       dispatch(showLoading());
@@ -47,11 +62,15 @@ function GiftCreate(): ReactElement {
         createPromotionGiftAction(body, (data) => {
           //Time out 2s để BE đẩy dữ liệu lên
           setTimeout(() => {
-            if (data) {
-              showSuccess("Tạo mới chương trình quà tặng thành công");
-              history.push(`${UrlConfig.PROMOTION}${UrlConfig.GIFT}/${data.id}`);
-            }
             dispatch(hideLoading());
+            if (data) {
+              if (isActivePromotionGift) {
+                onActivePromotionGift(data.id);
+              } else {
+                showSuccess("Thêm mới chương trình quà tặng thành công");
+                history.push(`${UrlConfig.PROMOTION}${UrlConfig.GIFT}/${data.id}`);
+              }
+            }
           }, 2000);
         }),
       );
@@ -62,12 +81,12 @@ function GiftCreate(): ReactElement {
   };
 
   const handleSaveAndActive = () => {
-    activePromotionGift = true;
+    setIsActivePromotionGift(true);
     form.submit();
   };
 
   const handleSaveOnly = () => {
-    activePromotionGift = false;
+    setIsActivePromotionGift(false);
     form.submit();
   };
 
@@ -157,11 +176,11 @@ function GiftCreate(): ReactElement {
               >
                 Lưu
               </Button>
-              {allowActiveGift &&
+              {allowActiveGift && (
                 <Button type="primary" onClick={() => handleSaveAndActive()}>
                   Lưu và kích hoạt
                 </Button>
-              }
+              )}
             </AuthWrapper>
           }
         />

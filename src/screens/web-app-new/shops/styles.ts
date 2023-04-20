@@ -49,18 +49,7 @@ export const StyledConfig = styled.div`
       margin: 5px 0;
     }
   }
-  .ant-row {
-    width: 100%;
-  }
-  .ant-col {
-    display: flex;
-    flex-direction: column;
-  }
-  .ant-form-item {
-    display: flex;
-    flex-direction: column;
-    margin: 0 0 14px;
-  }
+
   label {
     font-weight: 500;
   }

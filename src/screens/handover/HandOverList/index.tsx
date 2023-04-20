@@ -42,6 +42,10 @@ import HandoverFilter from "../component/filter/filter.component";
 import { HandoverTransfer, HandoverType } from "../handover.config";
 import { StyledComponent } from "./styled";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import exportIcon from "assets/icon/export.svg";
+import { exportFile, getFile } from "service/other/export.service";
+import ExportModal from "./Export.Modal";
+import { HttpStatus } from "config/http-status.config";
 
 interface MasterDataLoad<T> {
   isLoad: boolean;
@@ -137,6 +141,7 @@ const HandoverScreen: React.FC = () => {
   const [htmlContent, setHtmlContent] = useState<string | string[]>("");
 
   const [showSettingColumn, setShowSettingColumn] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   const onSelectedChange = useCallback(
     (selectedRow: Array<HandoverResponse>) => {
@@ -356,6 +361,7 @@ const HandoverScreen: React.FC = () => {
 
   const onFilter = useCallback((request: HandoverSearchRequest) => {
     setPrams(request);
+    setSelected([]);
   }, []);
 
   const handlePrintPack = useCallback(
@@ -559,6 +565,110 @@ const HandoverScreen: React.FC = () => {
         .finally(() => {});
     }
   }, [dispatch, history, isLoadedMasterData, params, storeAccess]);
+  const [listExportFile, setListExportFile] = useState<Array<string>>([]);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [statusExport, setStatusExport] = useState<number>(1);
+  const [exportError, setExportError] = useState<string>("");
+
+  const EXPORT_IDs = {
+    allHandovers: 1,
+    handoversOnThisPage: 2,
+    selectedHandovers: 3,
+    handoversFound: 4,
+  };
+
+  const onExport = useCallback(
+    (optionExport) => {
+      let newParams: any = { ...params };
+      switch (optionExport) {
+        case EXPORT_IDs.allHandovers:
+          newParams = {};
+          break;
+        case EXPORT_IDs.handoversOnThisPage:
+          newParams.page = data.metadata.page;
+          newParams.limit = data.metadata.limit;
+          break;
+        case EXPORT_IDs.selectedHandovers:
+          newParams = {
+            ids: selected,
+          };
+          break;
+        case EXPORT_IDs.handoversFound:
+          // delete newParams.page;
+          // delete newParams.limit;
+          break;
+        default:
+          break;
+      }
+
+      let queryParams = generateQuery(newParams);
+      exportFile({
+        conditions: queryParams,
+        type: "EXPORT_HANDOVER",
+        hidden_fields: "",
+      })
+        .then((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            setStatusExport(2);
+            showSuccess("Đã gửi yêu cầu xuất file");
+            setListExportFile([...listExportFile, response.data.code]);
+          }
+        })
+        .catch((error) => {
+          setStatusExport(4);
+          console.log("orders export file error", error);
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+        });
+    },
+    [
+      params,
+      EXPORT_IDs.allHandovers,
+      EXPORT_IDs.handoversOnThisPage,
+      EXPORT_IDs.selectedHandovers,
+      EXPORT_IDs.handoversFound,
+      data.metadata.page,
+      data.metadata.limit,
+      selected,
+      listExportFile,
+    ],
+  );
+  const checkExportFile = useCallback(() => {
+    let getFilePromises = listExportFile.map((code) => {
+      return getFile(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          setExportProgress(
+            Math.round((response.data.num_of_record / response.data.total) * 10000) / 100,
+          );
+          if (response.data && response.data.status === "FINISH") {
+            setStatusExport(3);
+            setExportProgress(100);
+            const fileCode = response.data.code;
+            const newListExportFile = listExportFile.filter((item) => {
+              return item !== fileCode;
+            });
+            window.open(response.data.url, "_self");
+            setListExportFile(newListExportFile);
+          }
+          if (response.data && response.data.status === "ERROR") {
+            setStatusExport(4);
+            setExportError(response.data.message);
+          }
+        } else {
+          setStatusExport(4);
+        }
+      });
+    });
+  }, [listExportFile]);
+  useEffect(() => {
+    if (listExportFile.length === 0 || statusExport === 3 || statusExport === 4) return;
+    checkExportFile();
+
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFile, checkExportFile, statusExport]);
 
   useEffect(() => {
     if (isLoadedMasterData) {
@@ -585,6 +695,17 @@ const HandoverScreen: React.FC = () => {
       extra={
         <Row>
           <Space size={12} style={{ marginLeft: "10px" }}>
+            <Button
+              type="default"
+              className="light"
+              size="large"
+              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+              onClick={() => {
+                setShowExportModal(true);
+              }}
+            >
+              Xuất file
+            </Button>
             <ButtonCreate
               size="small"
               path={`${UrlConfig.HANDOVER}/create`}
@@ -744,6 +865,22 @@ const HandoverScreen: React.FC = () => {
           subTitle={getSubTitle}
           visible={visibleDeleteConfirm}
         />
+        {showExportModal && (
+          <ExportModal
+            visible={showExportModal}
+            onCancel={() => {
+              setShowExportModal(false);
+              setExportProgress(0);
+              setStatusExport(1);
+            }}
+            onOk={(optionExport) => onExport(optionExport)}
+            total={data.metadata.total}
+            exportProgress={exportProgress}
+            statusExport={statusExport}
+            exportError={exportError}
+            selected={selected.length ? true : false}
+          />
+        )}
       </StyledComponent>
       <PrintComponent htmlContent={htmlContent} setHtmlContent={setHtmlContent} />
     </ContentContainer>

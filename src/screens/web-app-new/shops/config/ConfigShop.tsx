@@ -180,7 +180,7 @@ const ConfigShop = (props: ConfigShopProps) => {
   const renderComponent = () => {
     return (
       <StyledConfig className="padding-20">
-        <Form form={form} onFinish={(value) => handleConfigSetting(value)}>
+        <Form form={form} layout="vertical" onFinish={(value) => handleConfigSetting(value)}>
           <Row>
             <Col span={8}>
               <Form.Item
@@ -360,6 +360,7 @@ const ConfigShop = (props: ConfigShopProps) => {
                   placeholder="Chọn nguồn đơn hàng"
                   allowClear
                   mode="multiple"
+                  maxTagCount="responsive"
                   optionFilterProp="children"
                   onSearch={(value) => handleSearchingSource(value.trim() || "")}
                   onClear={() => handleSearchingSource("")}

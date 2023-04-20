@@ -18,7 +18,8 @@ import {
   disableBulkPromoCode,
   enableBulkPromoCode,
   getDiscountUsageDetailAction,
-  getListPromoCode, getPromotionReleaseDetailAction,
+  getListPromoCode,
+  getPromotionReleaseDetailAction,
   publishedBulkPromoCode,
   updatePromoCodeById,
 } from "domain/actions/promotion/promo-code/promo-code.action";
@@ -603,7 +604,9 @@ const ListCode = () => {
         },
         {
           name: promoValue?.code || "Chi tiết đợt phát hành",
-          path: promoValue?.id ? `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${promoValue?.id}` : "",
+          path: promoValue?.id
+            ? `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${promoValue?.id}`
+            : "",
         },
         {
           name: "Danh sách mã giảm giá",
@@ -612,7 +615,7 @@ const ListCode = () => {
       extra={
         <Row>
           <Space>
-            {allowExportPromotionCode &&
+            {allowExportPromotionCode && (
               <Button
                 disabled={isLoading}
                 size="large"
@@ -621,9 +624,9 @@ const ListCode = () => {
               >
                 Xuất file
               </Button>
-            }
+            )}
 
-            {allowUpdatePromotionRelease &&
+            {allowUpdatePromotionRelease && (
               <Button
                 className="ant-btn-outline ant-btn-primary"
                 size="large"
@@ -632,7 +635,7 @@ const ListCode = () => {
               >
                 Thêm mới mã giảm giá
               </Button>
-            }
+            )}
           </Space>
         </Row>
       }
@@ -860,7 +863,7 @@ const ListCode = () => {
             <Col span={3}>Chú ý:</Col>
             <Col span={19}>
               <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
-              <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
+              <p>- Chuyển đổi file dưới dạng .XLSX trước khi tải dữ liệu</p>
               <p>
                 - Tải file mẫu <a href={PROMOTION_CDN.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a>{" "}
               </p>

@@ -45,7 +45,7 @@ import {
   columnDiscountByRule,
   columnProductQuantitytByRule,
   DISCOUNT_STATUS,
-  DiscountUnitType
+  DiscountUnitType,
 } from "screens/promotion/constants";
 import DiscountRuleInfo from "../discount/components/discount-rule-info";
 import GeneralConditionDetail from "../shared/general-condition.detail";
@@ -688,14 +688,14 @@ const PromotionDetailScreen: React.FC = () => {
                     <span style={{ marginLeft: 14 }}>
                       {data.usage_limit
                         ? `Mỗi mã được sử dụng ${data.usage_limit} lần`
-                        : `Mỗi mã được sử dụng không bị giới số lần`}
+                        : `Mỗi mã được sử dụng không bị giới hạn số lần`}
                     </span>
                   </Col>
                 </Row>
                 <hr />
               </Card>
 
-              {!data.is_sms_voucher &&
+              {!data.is_sms_voucher && (
                 <Card
                   className="card"
                   title={
@@ -707,7 +707,9 @@ const PromotionDetailScreen: React.FC = () => {
                   {checkPromoCode && (
                     <Row gutter={30}>
                       <Col span={24}>
-                        <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/${idNumber}`}>
+                        <Link
+                          to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/${idNumber}`}
+                        >
                           Xem danh sách mã giảm giá của đợt phát hành
                         </Link>
                       </Col>
@@ -747,8 +749,8 @@ const PromotionDetailScreen: React.FC = () => {
                             />
                             <p style={{ fontWeight: 500 }}>Thêm mã thủ công</p>
                             <p>
-                              Sử dụng khi bạn chỉ phát hành số lượng ít mã giảm giá hoặc áp dụng 1 mã
-                              nhiều lần
+                              Sử dụng khi bạn chỉ phát hành số lượng ít mã giảm giá hoặc áp dụng 1
+                              mã nhiều lần
                             </p>
                           </div>
                           <div
@@ -757,18 +759,22 @@ const PromotionDetailScreen: React.FC = () => {
                           >
                             <img
                               style={{
-                                background: "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)",
+                                background:
+                                  "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)",
                               }}
                               src={AddListCouponIcon}
                               alt=""
                             />
                             <p style={{ fontWeight: 500 }}>Thêm mã ngẫu nhiên</p>
                             <p>
-                              Sử dụng khi bạn muốn tạo ra danh sách mã giảm giá ngẫu nhiên và phát cho
-                              mỗi khách hàng 1 mã
+                              Sử dụng khi bạn muốn tạo ra danh sách mã giảm giá ngẫu nhiên và phát
+                              cho mỗi khách hàng 1 mã
                             </p>
                           </div>
-                          <div className="card-discount-code" onClick={() => setShowImportFile(true)}>
+                          <div
+                            className="card-discount-code"
+                            onClick={() => setShowImportFile(true)}
+                          >
                             <img
                               style={{
                                 background:
@@ -786,7 +792,7 @@ const PromotionDetailScreen: React.FC = () => {
                     </Row>
                   )}
                 </Card>
-              }
+              )}
 
               {data.entitled_method === PriceRuleMethod.ORDER_THRESHOLD && (
                 <Card title={"Điều kiện mua hàng"}>
@@ -938,7 +944,9 @@ const PromotionDetailScreen: React.FC = () => {
                                 data.rule?.value,
                               )}${DiscountUnitType.FIXED_AMOUNT.label}`}</span>
                             )}
-                            <span>cho tất cả sản phẩm, <strong>loại trừ</strong> các sản phẩm sau:</span>
+                            <span>
+                              cho tất cả sản phẩm, <strong>loại trừ</strong> các sản phẩm sau:
+                            </span>
                           </div>
                         </>
                       )}
@@ -1116,7 +1124,7 @@ const PromotionDetailScreen: React.FC = () => {
             <Col span={3}>Chú ý:</Col>
             <Col span={19}>
               <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
-              <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
+              <p>- Chuyển đổi file dưới dạng .XLSX trước khi tải dữ liệu</p>
               <p>
                 - Tải file mẫu <a href={PROMOTION_CDN.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a>{" "}
               </p>

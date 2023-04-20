@@ -12,10 +12,7 @@ import { HttpStatus } from "config/http-status.config";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import _ from "lodash";
 import { ProductResponse, VariantResponse } from "model/product/product.model";
-import {
-  DiscountConditionRule,
-  ReleasePromotionListType,
-} from "model/promotion/price-rules.model";
+import { DiscountConditionRule, ReleasePromotionListType } from "model/promotion/price-rules.model";
 import { createRef, ReactElement, useCallback, useContext, useEffect, useState } from "react";
 import { RiUpload2Line } from "react-icons/ri";
 import { VscError } from "react-icons/vsc";
@@ -768,7 +765,7 @@ export default function GeneralProductQuantity(props: Props): ReactElement {
               <Col span={3}>Chú ý:</Col>
               <Col span={19}>
                 <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
-                <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
+                <p>- Chuyển đổi file dưới dạng .XLSX trước khi tải dữ liệu</p>
                 <p>
                   - Tải file mẫu{" "}
                   <a href={PROMOTION_CDN.PROMOTION_PRODUCT_QUANTITY_TEMPLATE_URL}>tại đây</a>

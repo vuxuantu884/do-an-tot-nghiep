@@ -156,17 +156,17 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
                 },
 
                 {
-                  align: "right",
-                  title: "SL Nhận hàng được duyệt",
+                  align: "center",
+                  title: "Được duyệt",
                   dataIndex: "procurement_items",
                   width: 180,
                   render: (value, item, index: number) =>
                     formatCurrency(POUtils.totalAcceptedQuantity(value)),
                 },
                 {
-                  align: "right",
+                  align: "center",
                   width: 120,
-                  title: <div style={{ color: "#27AE60" }}>SL Thực nhận</div>,
+                  title: <div style={{ color: "#27AE60" }}>Thực nhận</div>,
                   dataIndex: "procurement_items",
                   render: (value, item, index: number) => (
                     <div style={{ color: "#27AE60", fontWeight: 700 }}>

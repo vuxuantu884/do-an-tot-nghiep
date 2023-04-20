@@ -1,9 +1,6 @@
-import { Card, Checkbox, Col, Form, Radio, Row, Select } from "antd";
+import { Card, Col, Form, Radio, Row, Select } from "antd";
 import { FormInstance } from "antd/es/form/Form";
-import {
-  PriceRuleMethod,
-  ReleasePromotionListType,
-} from "model/promotion/price-rules.model";
+import { PriceRuleMethod, ReleasePromotionListType } from "model/promotion/price-rules.model";
 import React, { ReactElement, useContext } from "react";
 import { PRICE_RULE_FIELDS } from "screens/promotion/constants";
 import GeneralOrderThreshold from "screens/promotion/shared/general-order-threshold";
@@ -13,19 +10,18 @@ import IssueTypeForm from "./issue-type-form";
 const { Option } = Select;
 interface Props {
   form: FormInstance;
-  defaultReleasePromotionListType?: string;
 }
 
 function PromotionTypeForm(props: Props): ReactElement {
-  const { form, defaultReleasePromotionListType } = props;
+  const { form } = props;
   const {
     priceRuleData,
     promotionType,
     setPromotionType,
     releasePromotionListType,
     setReleasePromotionListType,
-    isSmsVoucher,
-    setIsSmsVoucher,
+    // isSmsVoucher,
+    // setIsSmsVoucher,
   } = useContext(IssueContext);
 
   const handleChangePromotionMethod = (value: string) => {
@@ -35,12 +31,13 @@ function PromotionTypeForm(props: Props): ReactElement {
   const handleChangeReleasePromotionList = (value: string) => {
     setReleasePromotionListType(value);
   };
-  const handleChangeSmsVoucherCheckbox = (value: any) => {
-    setIsSmsVoucher(value.target.checked);
-    form.setFieldsValue({
-      [PRICE_RULE_FIELDS.is_sms_voucher]: value.target.checked,
-    });
-  };
+
+  // const handleChangeSmsVoucherCheckbox = (value: any) => {
+  //   setIsSmsVoucher(value.target.checked);
+  //   form.setFieldsValue({
+  //     [PRICE_RULE_FIELDS.is_sms_voucher]: value.target.checked,
+  //   });
+  // };
 
   return (
     <div>
@@ -95,13 +92,8 @@ function PromotionTypeForm(props: Props): ReactElement {
         </Card>
       ) : (
         <Card title="Danh sách áp dụng">
-          <Form.Item name="operator">
+          <Form.Item>
             <Radio.Group
-              defaultValue={
-                defaultReleasePromotionListType
-                  ? defaultReleasePromotionListType
-                  : ReleasePromotionListType.EQUALS
-              }
               value={releasePromotionListType}
               onChange={(e) => handleChangeReleasePromotionList(e.target.value)}
               style={{ display: "flex", flexDirection: "column" }}

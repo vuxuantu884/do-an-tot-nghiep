@@ -1,6 +1,7 @@
 import { Button, Col, Form, Row } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import {
+  bulkEnablePriceRulesAction,
   getPriceRuleAction,
   getVariantsAction,
   updatePriceRuleByIdAction,
@@ -150,15 +151,35 @@ const DiscountUpdate = () => {
   /**
    * Update discount
    */
+  const onActiveDiscount = useCallback(
+    (discountId: number) => {
+      dispatch(showLoading());
+      dispatch(
+        bulkEnablePriceRulesAction({ ids: [discountId] }, (response) => {
+          dispatch(hideLoading());
+          if (response) {
+            showSuccess("Cập nhật và kích hoạt chiết khấu thành công");
+            history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${discountId}`);
+          }
+        }),
+      );
+    },
+    [dispatch, history],
+  );
+
   const updateCallback = useCallback(
     (data: PriceRule) => {
       dispatch(hideLoading());
       if (data) {
-        showSuccess("Cập nhật chiết khấu thành công");
-        history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${idNumber}`);
+        if (isActiveDiscount) {
+          onActiveDiscount(idNumber);
+        } else {
+          showSuccess("Cập nhật chiết khấu thành công");
+          history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${idNumber}`);
+        }
       }
     },
-    [dispatch, history, idNumber],
+    [dispatch, history, idNumber, isActiveDiscount, onActiveDiscount],
   );
 
   const handleSubmit = useCallback(
@@ -172,7 +193,9 @@ const DiscountUpdate = () => {
       values.entitlements = values.entitlements?.concat(_originalEntitlements);
 
       if (values.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD) {
-        values.entitlements[0].is_apply_all = discountProductHaveExclude ? false : discountAllProduct;
+        values.entitlements[0].is_apply_all = discountProductHaveExclude
+          ? false
+          : discountAllProduct;
         values.entitlements[0].is_exclude = discountProductHaveExclude;
 
         if (discountAllProduct && !discountProductHaveExclude) {
@@ -190,7 +213,6 @@ const DiscountUpdate = () => {
         );
         body.id = idNumber;
         body.is_registered = registerWithMinistry;
-        body.activated = isActiveDiscount;
         dispatch(showLoading());
         dispatch(updatePriceRuleByIdAction(body, updateCallback));
       } catch (error: any) {
@@ -198,7 +220,6 @@ const DiscountUpdate = () => {
       }
     },
     [
-      isActiveDiscount,
       discountAllProduct,
       discountProductHaveExclude,
       dispatch,
@@ -312,7 +333,10 @@ const DiscountUpdate = () => {
   useEffect(() => {
     if (_.isEmpty(discountData)) return;
 
-    const _discountAllProduct = discountData.entitlements[0]?.is_exclude || discountData.entitlements[0]?.is_apply_all || false;
+    const _discountAllProduct =
+      discountData.entitlements[0]?.is_exclude ||
+      discountData.entitlements[0]?.is_apply_all ||
+      false;
     setDiscountAllProduct(_discountAllProduct);
     setDiscountProductHaveExclude(discountData.entitlements[0]?.is_exclude || false);
   }, [discountData, setDiscountAllProduct, setDiscountProductHaveExclude]);
@@ -368,7 +392,9 @@ const DiscountUpdate = () => {
 
           <BottomBarContainer
             back="Quay lại chi tiết chiết khấu"
-            backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${idNumber}`)}
+            backAction={() =>
+              history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${idNumber}`)
+            }
             rightComponent={
               <>
                 <Button
@@ -381,11 +407,11 @@ const DiscountUpdate = () => {
                 >
                   Lưu
                 </Button>
-                {allowActiveDiscount &&
+                {allowActiveDiscount && (
                   <Button type="primary" onClick={() => handleSaveAndActive()}>
                     Lưu và kích hoạt
                   </Button>
-                }
+                )}
               </>
             }
           />

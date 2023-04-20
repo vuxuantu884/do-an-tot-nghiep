@@ -1,6 +1,7 @@
 import { Button, Col, Form, Row } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import {
+  bulkEnablePriceRulesAction,
   createPriceRuleAction,
   getPriceRuleAction,
   getVariantsAction,
@@ -141,46 +142,71 @@ const DiscountReplicate = () => {
   /**
    * Replicate discount
    */
-  const handleSubmit = useCallback((values: any) => {
-    try {
-      if (values.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD) {
-        values.entitlements[0].is_apply_all = discountProductHaveExclude ? false : discountAllProduct;
-        values.entitlements[0].is_exclude = discountProductHaveExclude;
-
-        if (discountAllProduct && !discountProductHaveExclude) {
-          values.entitlements[0].entitled_product_ids = [];
-          values.entitlements[0].entitled_variant_ids = [];
-        }
-      }
-
-      const body = transformData(
-        values,
-        PROMO_TYPE.AUTOMATIC,
-        discountAllProduct,
-        discountProductHaveExclude,
-      );
-      body.activated = isActiveDiscount;
+  const onActiveDiscount = useCallback(
+    (idNumber: number) => {
       dispatch(showLoading());
       dispatch(
-        createPriceRuleAction(body, (data) => {
-          if (data) {
-            showSuccess("Lưu thành công");
-            history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${data.id}`);
-          }
+        bulkEnablePriceRulesAction({ ids: [idNumber] }, (response) => {
           dispatch(hideLoading());
+          if (response) {
+            showSuccess("Nhân bản và kích hoạt chiết khấu thành công");
+            history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${idNumber}`);
+          }
         }),
       );
-    } catch (error: any) {
-      dispatch(hideLoading());
-      showError(error.message);
-    }
-  }, [
-    discountAllProduct,
-    discountProductHaveExclude,
-    dispatch,
-    history,
-    isActiveDiscount
-  ]);
+    },
+    [dispatch, history],
+  );
+
+  const handleSubmit = useCallback(
+    (values: any) => {
+      try {
+        if (values.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD) {
+          values.entitlements[0].is_apply_all = discountProductHaveExclude
+            ? false
+            : discountAllProduct;
+          values.entitlements[0].is_exclude = discountProductHaveExclude;
+
+          if (discountAllProduct && !discountProductHaveExclude) {
+            values.entitlements[0].entitled_product_ids = [];
+            values.entitlements[0].entitled_variant_ids = [];
+          }
+        }
+
+        const body = transformData(
+          values,
+          PROMO_TYPE.AUTOMATIC,
+          discountAllProduct,
+          discountProductHaveExclude,
+        );
+        dispatch(showLoading());
+        dispatch(
+          createPriceRuleAction(body, (data) => {
+            dispatch(hideLoading());
+            if (data) {
+              if (isActiveDiscount) {
+                onActiveDiscount(data.id);
+              } else {
+                showSuccess("Nhân bản chiết khấu thành công");
+                history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/${data.id}`);
+              }
+            }
+          }),
+        );
+      } catch (error: any) {
+        dispatch(hideLoading());
+        showError(error.message);
+      }
+    },
+    [
+      discountAllProduct,
+      discountProductHaveExclude,
+      dispatch,
+      history,
+      onActiveDiscount,
+      isActiveDiscount,
+    ],
+  );
 
   const handleSaveAndActive = () => {
     setIsActiveDiscount(true);
@@ -250,7 +276,10 @@ const DiscountReplicate = () => {
   useEffect(() => {
     if (_.isEmpty(discountData)) return;
 
-    const _discountAllProduct = discountData.entitlements[0]?.is_exclude || discountData.entitlements[0]?.is_apply_all || false;
+    const _discountAllProduct =
+      discountData.entitlements[0]?.is_exclude ||
+      discountData.entitlements[0]?.is_apply_all ||
+      false;
     setDiscountAllProduct(_discountAllProduct);
     setDiscountProductHaveExclude(discountData.entitlements[0]?.is_exclude || false);
   }, [discountData, setDiscountAllProduct, setDiscountProductHaveExclude]);
@@ -327,11 +356,11 @@ const DiscountReplicate = () => {
                 >
                   Lưu
                 </Button>
-                {allowActiveDiscount &&
+                {allowActiveDiscount && (
                   <Button type="primary" onClick={() => handleSaveAndActive()}>
                     Lưu và kích hoạt
                   </Button>
-                }
+                )}
               </>
             }
           />
