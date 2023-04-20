@@ -3,7 +3,7 @@ import YDPageOrders from "./yd-page-order-create/YDPageOrders";
 import YDPageCustomer from "screens/yd-page/yd-page-customer/YDPageCustomer";
 import { Tabs } from "antd";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import { YDPageCustomerResponse } from "model/response/ecommerce/fpage.response";
+import { YDPageCustomerResponse, customerNoteInfo } from "model/response/ecommerce/fpage.response";
 import { useQuery } from "utils/useQuery";
 import { useDispatch } from "react-redux";
 import { FpageCustomerSearchQuery } from "model/query/customer.query";
@@ -57,6 +57,15 @@ const initCustomerInfo: YDpageCustomerRequest = {
   customer_group_id: null,
 };
 
+export interface ICustomerNoteTags {
+  _id?: string;
+  created_at: Date;
+  created_by: string;
+  content: string;
+  updated_at?: Date;
+  updated_by?: string;
+}
+
 function YDPageAdmin() {
   let queryString = useQuery();
   const dispatch = useDispatch();
@@ -64,7 +73,9 @@ function YDPageAdmin() {
   const [customer, setCustomer] = React.useState<CustomerResponse | null>(null);
   const [newCustomerInfo, setNewCustomerInfo] = useState<YDpageCustomerRequest>(initCustomerInfo);
   const [isClearOrderTab, setIsClearOrderTab] = useState<boolean>(false);
-  const [socialChannel] = React.useState<string | null | undefined>(queryString?.get("socialChannel"));
+  const [socialChannel] = React.useState<string | null | undefined>(
+    queryString?.get("socialChannel"),
+  );
   const [fbCustomerId] = React.useState<string | null>(queryString?.get("fbCustomerId"));
   const [customerFbName] = React.useState<string | null>(queryString?.get("fbName"));
   const [defaultSourceId] = React.useState<number | null>(
@@ -83,6 +94,8 @@ function YDPageAdmin() {
   const [customerDefaultPhone, setCustomerDefaultPhone] = useState<string>("");
   const [customerPhones, setCustomerPhones] = useState<Array<string>>([]);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
+
+  const [customerNoteTags, setCustomerNoteTags] = useState<ICustomerNoteTags[]>([]);
 
   const [fbPageId] = React.useState<string | null>(queryString?.get("fbPageId"));
   const [userId] = React.useState<string | null>(queryString?.get("userId"));
@@ -163,7 +176,7 @@ function YDPageAdmin() {
 
   useEffect(() => {
     if (YDPageCustomerInfo) {
-      const { default_phone, phones } = YDPageCustomerInfo;
+      const { default_phone, phones, notes } = YDPageCustomerInfo;
       if (default_phone) {
         setCustomerPhone(default_phone);
         setCustomerDefaultPhone(default_phone);
@@ -171,6 +184,17 @@ function YDPageAdmin() {
         getCustomerWhenPhoneChange(phones[0]);
       }
       setCustomerPhones(phones);
+
+      if (notes && Array.isArray(notes)) {
+        const noteListSort = notes.sort((preNote: customerNoteInfo, nextNote: customerNoteInfo) => {
+          const preNoteDate = new Date(preNote.created_at).getTime();
+          const nextNoteDate = new Date(nextNote.created_at).getTime();
+
+          return nextNoteDate - preNoteDate;
+        });
+
+        setCustomerNoteTags(noteListSort);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [YDPageCustomerInfo]);
@@ -222,7 +246,7 @@ function YDPageAdmin() {
 
   const setFpDefaultPhone = useCallback(
     (phone: string) => {
-      if (phone === customerDefaultPhone)  return;
+      if (phone === customerDefaultPhone) return;
 
       if (fbCustomerId) {
         setCustomerPhone(phone);
@@ -289,6 +313,7 @@ function YDPageAdmin() {
       >
         <TabPane key="1" tab={<div>KHÁCH HÀNG</div>}>
           <YDPageCustomer
+            fbCustomerId={fbCustomerId}
             customerGroups={customerGroups}
             areaList={areaList}
             customer={customer}
@@ -306,6 +331,9 @@ function YDPageAdmin() {
             setFpDefaultPhone={setFpDefaultPhone}
             setCustomerDefaultPhone={setCustomerDefaultPhone}
             socialChannel={socialChannel}
+            userId={userId}
+            customerNoteTags={customerNoteTags}
+            setCustomerNoteTags={setCustomerNoteTags}
           />
         </TabPane>
         <TabPane key="2" tab={<div>TẠO ĐƠN</div>}>

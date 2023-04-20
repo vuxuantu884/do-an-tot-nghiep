@@ -21,7 +21,7 @@ const YDpage: React.FC = () => {
   const [source, setSource] = useState<String | null>(getYdpageSource());
   const [loadingYdpage, setLoadingYdpage] = useState<Boolean | null>(false);
   const [isLogining, setIsLogining] = useState<Boolean | null>(false);
-  
+
   const goToFacebookYDpage = () => {
     setSource(allSource.FACEBOOK);
     setYdpageSource(allSource.FACEBOOK);
@@ -123,11 +123,19 @@ const YDpage: React.FC = () => {
             </div>
 
             <div className="button-option">
-              <div className="social-button" style={{ marginRight: "0" }} onClick={goToFacebookYDpage}>
+              <div
+                className="social-button"
+                style={{ marginRight: "0" }}
+                onClick={goToFacebookYDpage}
+              >
                 <img src={ydpageImg} style={{ marginRight: "12px" }} alt="" />
                 <div>
-                  <div className="text-button-title">Kết nối <span style={{ color: "#2A2A86" }}>Facebook</span> với YDPAGE</div>
-                  <div className="description-text">Ứng dụng quản lý và bán hàng trên Facebook dành riêng cho YODY.</div>
+                  <div className="text-button-title">
+                    Kết nối <span style={{ color: "#2A2A86" }}>Facebook</span> với YDPAGE
+                  </div>
+                  <div className="description-text">
+                    Ứng dụng quản lý và bán hàng trên Facebook dành riêng cho YODY.
+                  </div>
                 </div>
               </div>
             </div>
