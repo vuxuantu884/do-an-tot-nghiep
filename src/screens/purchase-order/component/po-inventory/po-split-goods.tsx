@@ -236,7 +236,7 @@ export const PoSplitGoods = (props: IProps) => {
                   />
                 </div>
               ) : (
-                <>({store?.percent || 0} %)</>
+                <div style={{ minWidth: "48px" }}>({store?.percent || 0} %)</div>
               )}
             </div>
           );
