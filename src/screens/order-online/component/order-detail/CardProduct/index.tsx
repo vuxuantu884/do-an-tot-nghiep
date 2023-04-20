@@ -120,7 +120,7 @@ function UpdateProductCard(props: PropTypes) {
               </div>
             </div>
           </div>
-          {l.gifts.length > 0 &&
+          {l.gifts?.length > 0 &&
             l.gifts[0]?.discount_items.length > 0 &&
             l.gifts[0]?.discount_items[0]?.promotion_title && (
               <div className="yody-pos-addition yody-pos-gift 2">

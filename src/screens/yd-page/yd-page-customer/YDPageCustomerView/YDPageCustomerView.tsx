@@ -8,7 +8,12 @@ import NumberFormat from "react-number-format";
 import moment from "moment";
 
 import { showSuccess } from "utils/ToastUtils";
-import { formatCurrency, handleFetchApiError, isFetchApiSuccessful, isNullOrUndefined } from "utils/AppUtils";
+import {
+  formatCurrency,
+  handleFetchApiError,
+  isFetchApiSuccessful,
+  isNullOrUndefined,
+} from "utils/AppUtils";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import UrlConfig from "config/url.config";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -29,9 +34,11 @@ import { getOrderHistoryService } from "service/order/order.service";
 import { CustomerOrderHistoryResponse } from "model/response/order/order.response";
 import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import { SOCIAL_CHANNEL } from "screens/yd-page/helper";
+import UnichatCustomerNote from "../UnichatCustomerNote/UnichatCustomerNote";
 
 const YDPageCustomerView = (props: any) => {
   const {
+    fbCustomerId,
     allowUpdateCustomer,
     setIsEditCustomer,
     customer,
@@ -46,6 +53,9 @@ const YDPageCustomerView = (props: any) => {
     setFpDefaultPhone,
     setCustomerDefaultPhone,
     socialChannel,
+    userId,
+    customerNoteTags,
+    setCustomerNoteTags,
   } = props;
 
   const dispatch = useDispatch();
@@ -91,7 +101,8 @@ const YDPageCustomerView = (props: any) => {
     };
   }, []);
 
-  const [orderHistory, setOrderHistory] = useState<PageResponse<CustomerOrderHistoryResponse>>(defaultOrderHistory);
+  const [orderHistory, setOrderHistory] =
+    useState<PageResponse<CustomerOrderHistoryResponse>>(defaultOrderHistory);
   const [orderHistoryLoading, setOrderHistoryLoading] = useState<boolean>(false);
 
   const onPageChange = React.useCallback(
@@ -123,13 +134,7 @@ const YDPageCustomerView = (props: any) => {
     } else {
       setOrderHistory(defaultOrderHistory);
     }
-  }, [
-    customer,
-    customer.id,
-    defaultOrderHistory,
-    dispatch,
-    orderHistoryYDpageQuery,
-  ]);
+  }, [customer, customer.id, defaultOrderHistory, dispatch, orderHistoryYDpageQuery]);
   // end handle customer order history
 
   const status_order = [
@@ -515,8 +520,8 @@ const YDPageCustomerView = (props: any) => {
             ))}
           </div>
 
-          {/*Ghi chú*/}
-          {socialChannel !== SOCIAL_CHANNEL.UNICHAT &&
+          {/*Ghi chú YDPAGE */}
+          {socialChannel !== SOCIAL_CHANNEL.UNICHAT && (
             <div className="customer-note">
               <div>
                 <b>Ghi chú</b>
@@ -582,7 +587,17 @@ const YDPageCustomerView = (props: any) => {
                 </div>
               )}
             </div>
-          }
+          )}
+
+          {/*Ghi chú UNICHAT */}
+          {socialChannel === SOCIAL_CHANNEL.UNICHAT && (
+            <UnichatCustomerNote
+              fbCustomerId={fbCustomerId}
+              userId={userId}
+              customerNoteTags={customerNoteTags}
+              setCustomerNoteTags={setCustomerNoteTags}
+            />
+          )}
 
           {/*Lịch sử mua hàng*/}
           <div className="purchase-history">

@@ -18,6 +18,7 @@ const customersUpdatePermission = [
 
 const YDPageCustomer = (props: any) => {
   const {
+    fbCustomerId,
     customerGroups,
     areaList,
     customer,
@@ -35,6 +36,9 @@ const YDPageCustomer = (props: any) => {
     setFpDefaultPhone,
     setCustomerDefaultPhone,
     socialChannel,
+    userId,
+    customerNoteTags,
+    setCustomerNoteTags,
   } = props;
 
   const [allowCreateCustomer] = useAuthorization({
@@ -54,6 +58,7 @@ const YDPageCustomer = (props: any) => {
             <>
               {customer && !isEditCustomer && (
                 <YDPageCustomerView
+                  fbCustomerId={fbCustomerId}
                   allowUpdateCustomer={allowUpdateCustomer}
                   setIsEditCustomer={setIsEditCustomer}
                   customer={customer}
@@ -68,11 +73,15 @@ const YDPageCustomer = (props: any) => {
                   setFpDefaultPhone={setFpDefaultPhone}
                   setCustomerDefaultPhone={setCustomerDefaultPhone}
                   socialChannel={socialChannel}
+                  userId={userId}
+                  customerNoteTags={customerNoteTags}
+                  setCustomerNoteTags={setCustomerNoteTags}
                 />
               )}
 
               {(!customer || (customer && isEditCustomer)) && (
                 <YDPageCustomerCreateUpdate
+                  fbCustomerId={fbCustomerId}
                   allowCreateCustomer={allowCreateCustomer}
                   allowUpdateCustomer={allowUpdateCustomer}
                   customerGroups={customerGroups}
@@ -90,6 +99,9 @@ const YDPageCustomer = (props: any) => {
                   setFpDefaultPhone={setFpDefaultPhone}
                   setCustomerDefaultPhone={setCustomerDefaultPhone}
                   socialChannel={socialChannel}
+                  userId={userId}
+                  customerNoteTags={customerNoteTags}
+                  setCustomerNoteTags={setCustomerNoteTags}
                 />
               )}
             </>
