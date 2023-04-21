@@ -594,8 +594,8 @@ const HandoverScreen: React.FC = () => {
           };
           break;
         case EXPORT_IDs.handoversFound:
-          // delete newParams.page;
-          // delete newParams.limit;
+          delete newParams.page;
+          delete newParams.limit;
           break;
         default:
           break;
