@@ -446,6 +446,7 @@ export interface FeesResponse {
   transport_type_name: string;
   note: string;
   delivery: boolean;
+  is_suggested: boolean;
 }
 
 export interface StoreCustomResponse extends BaseObject {
