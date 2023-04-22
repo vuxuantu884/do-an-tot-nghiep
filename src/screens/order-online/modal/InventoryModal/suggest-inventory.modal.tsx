@@ -37,13 +37,14 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
   const rowHeight = 45;
 
   const [storeData, setStoreData] = useState<any[] | null | undefined>([]);
+  const [inventoryArrayMapped, setInventoryArrayMapped] = useState<any[] | null | undefined>([]);
 
   const [rowProductHeight, setRowProductHeight] = useState(rowHeight);
 
   const setAllAvailable = (variantId: number) => {
     let inventoryInt = 0;
-    if (inventoryArray && inventoryArray.length) {
-      inventoryArray.forEach((item) => {
+    if (inventoryArrayMapped && inventoryArrayMapped.length) {
+      inventoryArrayMapped.forEach((item) => {
         const variant = item.variant_inventories.find((i: any) => i.variant_id === variantId);
         variant && (inventoryInt += variant.available);
       });
@@ -53,12 +54,12 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
 
   const onSearchInventory = useCallback(
     (value: string) => {
-      let _item: StoreResponse[] | any = inventoryArray?.filter((x) =>
+      let _item: StoreResponse[] | any = inventoryArrayMapped?.filter((x) =>
         fullTextSearch(value.toLowerCase().trim(), x.store.toLowerCase()),
       );
       setStoreData(_item);
     },
-    [inventoryArray],
+    [inventoryArrayMapped],
   );
 
   useEffect(() => {
@@ -93,8 +94,10 @@ const SuggestInventoryModal: React.FC<SuggestInventoryModalProps> = (
     );
     if (khoTong) {
       setStoreData([khoTong, ...inventoryArrayCheckItemSuccess]);
+      setInventoryArrayMapped([khoTong, ...inventoryArrayCheckItemSuccess]);
     } else {
       setStoreData(inventoryArrayCheckItemSuccess);
+      setInventoryArrayMapped(inventoryArrayCheckItemSuccess);
     }
   }, [columnsItem, inventoryArray, storeId]);
 
