@@ -928,8 +928,6 @@ const ProductDetailScreen: React.FC = () => {
                               treeNodeFilterProp="title"
                               showSearch
                               className="selector"
-                              // onChange={onCategoryChange}
-                              disabled
                             >
                               {listCategory.map((item, index) => (
                                 <React.Fragment key={index}>{TreeCategory(item)}</React.Fragment>
