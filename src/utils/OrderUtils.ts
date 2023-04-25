@@ -16,6 +16,7 @@ import {
 } from "model/request/order.request";
 import {
   FulFillmentResponse,
+  OrderCorrelativeVariantResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
   OrderResponse,
@@ -25,6 +26,7 @@ import moment, { Moment } from "moment";
 import { ORDER_PERMISSIONS } from "../config/permissions/order.permission";
 import { select_type_especially_order } from "../screens/order-online/common/fields.export";
 import {
+  flattenArray,
   formatCurrency,
   getLineAmountAfterLineDiscount,
   getLineItemDiscountAmount,
@@ -938,4 +940,32 @@ export const isGiftLineItem = (type: string) => {
   const types = [EnumGiftType.BY_ORDER.toString(), EnumGiftType.BY_ITEM.toString()];
 
   return types.includes(type);
+};
+
+export const checkOrderGiftWithSplitOrder = (
+  _v: OrderCorrelativeVariantResponse,
+  _items: OrderLineItemResponse[],
+) => {
+  if (!_v.split) return false;
+  const newItem = [..._items, ..._v.items];
+  if (
+    newItem.some(
+      (p) =>
+        p.type === EnumGiftType.BY_ORDER ||
+        (p.gifts && p.gifts.length !== 0 && p.gifts.some((p) => p.type === EnumGiftType.BY_ORDER)),
+    )
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
+export const getFlattenLineItem = (_items: OrderLineItemRequest[]) => {
+  const itemsTypeNormal = _items.filter((item) => !isGiftLineItem(item.type));
+  const itemsTypeGiftFlatten = flattenArray(
+    itemsTypeNormal.filter((p) => p.gifts && p.gifts.length !== 0).map((p) => p.gifts),
+  );
+  const itemTypeGift = _items.filter((item) => isGiftLineItem(item.type));
+  return [...itemsTypeNormal, ...itemsTypeGiftFlatten, ...itemTypeGift];
 };

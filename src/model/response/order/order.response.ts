@@ -718,3 +718,9 @@ export interface ParamPromotion {
   states: string;
   page: number;
 }
+
+export interface OrderCorrelativeVariantResponse {
+  origin_order_code: string;
+  items: Array<OrderLineItemResponse>;
+  split: boolean;
+}

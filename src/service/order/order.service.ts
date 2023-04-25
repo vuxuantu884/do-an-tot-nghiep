@@ -48,6 +48,7 @@ import {
   OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
 import {
+  OrderCorrelativeVariantResponse,
   CustomerOrderHistoryResponse,
   DeliveryMappedStoreType,
   DeliveryServiceResponse,
@@ -577,4 +578,10 @@ export const getListPriceRuleGiftService = (
 ): Promise<BaseResponse<PageResponse<PromotionResponse>>> => {
   let params = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.PROMOTION}/price-rule-gifts?${params}`);
+};
+
+export const getOrderCorrelativeVariantService = (
+  code: string,
+): Promise<BaseResponse<OrderCorrelativeVariantResponse>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders/correlative-variants?order_code=${code}`);
 };
