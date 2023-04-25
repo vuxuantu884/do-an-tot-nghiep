@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Form, Input, DatePicker, Tag } from "antd";
+import { Button, Form, Input, DatePicker, Tag, Select } from "antd";
 import moment from "moment";
 import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
 import { CampaignListFilterStyled } from "screens/promotion/campaign/campaign.style";
@@ -7,6 +7,8 @@ import { PromotionCampaignQuery } from "model/promotion/campaign.model";
 import { RangePickerProps } from "antd/es/date-picker";
 import search from "assets/img/search.svg";
 import rightArrow from "assets/icon/right-arrow.svg";
+import { CAMPAIGN_STATUS } from "screens/promotion/constants";
+import { convertItemToArray } from "utils/AppUtils";
 
 const { Item } = Form;
 
@@ -16,7 +18,7 @@ type PromotionCampaignListFilterProps = {
 };
 
 const PromotionCampaignListFilter: React.FC<PromotionCampaignListFilterProps> = (
-  props: PromotionCampaignListFilterProps
+  props: PromotionCampaignListFilterProps,
 ) => {
   const { params, onFilter } = props;
   const [form] = Form.useForm();
@@ -28,6 +30,7 @@ const PromotionCampaignListFilter: React.FC<PromotionCampaignListFilterProps> = 
   const initialValues = useMemo(() => {
     return {
       ...params,
+      states: convertItemToArray(params.states),
     };
   }, [params]);
 
@@ -49,7 +52,7 @@ const PromotionCampaignListFilter: React.FC<PromotionCampaignListFilterProps> = 
     return endsDate ? formatDateFilter(endsDate) : undefined;
   }, [endsDate]);
 
-  const disabledDateStart: RangePickerProps['disabledDate'] = current => {
+  const disabledDateStart: RangePickerProps["disabledDate"] = (current) => {
     if (current && endDateValue) {
       return current > endDateValue;
     } else {
@@ -65,7 +68,7 @@ const PromotionCampaignListFilter: React.FC<PromotionCampaignListFilterProps> = 
     }
   };
 
-  const disabledDateEnd: RangePickerProps['disabledDate'] = current => {
+  const disabledDateEnd: RangePickerProps["disabledDate"] = (current) => {
     if (current && startDateValue) {
       return current < startDateValue;
     } else {
@@ -81,7 +84,7 @@ const PromotionCampaignListFilter: React.FC<PromotionCampaignListFilterProps> = 
     }
   };
   /** end handle apply date filter */
-  
+
   // on submit filter
   const onFinish = useCallback(
     (values: PromotionCampaignQuery) => {
@@ -93,11 +96,7 @@ const PromotionCampaignListFilter: React.FC<PromotionCampaignListFilterProps> = 
       };
       onFilter && onFilter(formValues);
     },
-    [
-      startsDate,
-      endsDate,
-      onFilter
-    ],
+    [startsDate, endsDate, onFilter],
   );
 
   /** handle tag filter */
@@ -111,16 +110,33 @@ const PromotionCampaignListFilter: React.FC<PromotionCampaignListFilterProps> = 
         value: initialValues.request,
       });
     }
-    
+
+    if (initialValues.states?.length) {
+      let statesFiltered = "";
+      initialValues.states.forEach((stateValue: string) => {
+        const state = CAMPAIGN_STATUS.find((item: any) => item.code === stateValue?.toUpperCase());
+        statesFiltered = state
+          ? statesFiltered + state.value + "; "
+          : statesFiltered + stateValue + "; ";
+      });
+      list.push({
+        key: "states",
+        name: "Trạng thái",
+        value: statesFiltered,
+      });
+    }
+
     if (initialValues.starts_date) {
-      let startsDateFilter = formatDateFilter(initialValues.starts_date)?.format(DATE_FORMAT.DDMMYYY);
+      let startsDateFilter = formatDateFilter(initialValues.starts_date)?.format(
+        DATE_FORMAT.DDMMYYY,
+      );
       list.push({
         key: "starts_date",
         name: "Từ ngày",
         value: startsDateFilter,
       });
     }
-    
+
     if (initialValues.ends_date) {
       let endsDateFilter = formatDateFilter(initialValues.ends_date)?.format(DATE_FORMAT.DDMMYYY);
       list.push({
@@ -133,6 +149,7 @@ const PromotionCampaignListFilter: React.FC<PromotionCampaignListFilterProps> = 
     return list;
   }, [
     initialValues.request,
+    initialValues.states,
     initialValues.starts_date,
     initialValues.ends_date,
   ]);
@@ -144,6 +161,9 @@ const PromotionCampaignListFilter: React.FC<PromotionCampaignListFilterProps> = 
       switch (tag.key) {
         case "request":
           onFilter && onFilter({ ...params, request: null });
+          break;
+        case "states":
+          onFilter && onFilter({ ...params, states: [] });
           break;
         case "starts_date":
           setStartsDate(null);
@@ -160,7 +180,6 @@ const PromotionCampaignListFilter: React.FC<PromotionCampaignListFilterProps> = 
     [onFilter, params],
   );
   /** end handle tag filter */
-  
 
   return (
     <CampaignListFilterStyled>
@@ -176,6 +195,23 @@ const PromotionCampaignListFilter: React.FC<PromotionCampaignListFilterProps> = 
               }}
               style={{ minWidth: "150px" }}
             />
+          </Item>
+
+          <Item name="states" className="select-state">
+            <Select
+              showArrow
+              allowClear
+              mode="multiple"
+              maxTagCount="responsive"
+              optionFilterProp="children"
+              placeholder="Chọn trạng thái"
+            >
+              {CAMPAIGN_STATUS?.map((item) => (
+                <Select.Option key={item.code} value={item.code}>
+                  {item.value}
+                </Select.Option>
+              ))}
+            </Select>
           </Item>
 
           <div className="filter-description">Thời gian áp dụng: </div>
@@ -214,12 +250,7 @@ const PromotionCampaignListFilter: React.FC<PromotionCampaignListFilterProps> = 
       <div className="filter-tags">
         {filters?.map((filter: any) => {
           return (
-            <Tag
-              key={filter.key}
-              className="tag"
-              closable
-              onClose={(e) => onCloseTag(e, filter)}
-            >
+            <Tag key={filter.key} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>
               {filter.name}: {filter.value}
             </Tag>
           );

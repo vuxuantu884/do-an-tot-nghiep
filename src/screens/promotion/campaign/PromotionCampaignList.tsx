@@ -16,13 +16,14 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import ContentContainer from "component/container/content.container";
 import { getPromotionCampaignListAction } from "domain/actions/promotion/campaign/campaign.action";
 import PromotionCampaignListFilter from "screens/promotion/campaign/components/PromotionCampaignListFilter";
-import { DISCOUNT_STATUS } from "screens/promotion/constants";
+import { CAMPAIGN_STATUS } from "screens/promotion/constants";
 import { EmptyDataTable } from "screens/promotion/campaign/components/EmptyDataTable";
 
 const initQuery: PromotionCampaignQuery = {
   page: 1,
   limit: 30,
   request: "",
+  states: [],
   starts_date: "",
   ends_date: "",
 };
@@ -35,22 +36,27 @@ const PromotionCampaignList = () => {
 
   const [params, setParams] = useState<PromotionCampaignQuery>(initQuery);
   const [tableLoading, setTableLoading] = useState<boolean>(true);
-  const [campaignListData, setCampaignListData] = useState<PageResponse<PromotionCampaignResponse>>({
-    metadata: {
-      limit: 30,
-      page: 1,
-      total: 0,
+  const [campaignListData, setCampaignListData] = useState<PageResponse<PromotionCampaignResponse>>(
+    {
+      metadata: {
+        limit: 30,
+        page: 1,
+        total: 0,
+      },
+      items: [],
     },
-    items: [],
-  });
+  );
 
   /** handle get promotion campaign list */
-  const getPromotionCampaignListCallback = useCallback((data: PageResponse<PromotionCampaignResponse> | null) => {
-    setTableLoading(false);
-    if (data) {
-      setCampaignListData(data);
-    }
-  }, []);
+  const getPromotionCampaignListCallback = useCallback(
+    (data: PageResponse<PromotionCampaignResponse> | null) => {
+      setTableLoading(false);
+      if (data) {
+        setCampaignListData(data);
+      }
+    },
+    [],
+  );
 
   const getPromotionCampaignList = useCallback(
     (params: PromotionCampaignQuery) => {
@@ -99,9 +105,9 @@ const PromotionCampaignList = () => {
       width: "150px",
       render: (item: any) => (
         <>
-          {item.starts_date &&
+          {item.starts_date && (
             <span>{moment(item.starts_date).format(DATE_FORMAT.DDMMYY_HHmm)}</span>
-          }
+          )}
         </>
       ),
     },
@@ -111,11 +117,11 @@ const PromotionCampaignList = () => {
       width: "150px",
       render: (item: any) => (
         <>
-          {item.ends_date ?
+          {item.ends_date ? (
             <span>{moment(item.ends_date)?.format(DATE_FORMAT.DDMMYY_HHmm)}</span>
-            :
+          ) : (
             <div style={{ textAlign: "center" }}>∞</div>
-          }
+          )}
         </>
       ),
     },
@@ -124,9 +130,7 @@ const PromotionCampaignList = () => {
       align: "center",
       width: "20%",
       render: (item: any) => {
-        return (
-          <div>{`${item.created_by || ""} - ${item.created_name || ""}`}</div>
-        );
+        return <div>{`${item.created_by || ""} - ${item.created_name || ""}`}</div>;
       },
     },
     {
@@ -135,7 +139,7 @@ const PromotionCampaignList = () => {
       align: "center",
       width: "150px",
       render: (state: string) => {
-        const StatusTag: ReactNode = DISCOUNT_STATUS.find((e) => e.code === state)?.Component ?? (
+        const StatusTag: ReactNode = CAMPAIGN_STATUS.find((e) => e.code === state)?.Component ?? (
           <Fragment />
         );
         return StatusTag;
@@ -160,7 +164,6 @@ const PromotionCampaignList = () => {
     }
   };
 
-
   return (
     <ContentContainer
       title="Quản lý chương trình KM"
@@ -179,22 +182,14 @@ const PromotionCampaignList = () => {
       ]}
       extra={
         <Link to={`${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}/create`}>
-          <Button
-            className="ant-btn-outline ant-btn-primary"
-            size="large"
-            icon={<PlusOutlined />}
-
-          >
-            Tạo mới chương trình khuyến mại
+          <Button className="ant-btn-outline ant-btn-primary" size="large" icon={<PlusOutlined />}>
+            Đăng ký chương trình khuyến mại
           </Button>
         </Link>
       }
     >
       <Card>
-        <PromotionCampaignListFilter
-          params={params}
-          onFilter={onFilter}
-        />
+        <PromotionCampaignListFilter params={params} onFilter={onFilter} />
         <CustomTable
           bordered
           isLoading={tableLoading}
@@ -203,7 +198,7 @@ const PromotionCampaignList = () => {
             offsetHeader: OFFSET_HEADER_UNDER_NAVBAR,
           }}
           locale={{
-            emptyText: <EmptyDataTable />
+            emptyText: <EmptyDataTable />,
           }}
           pagination={{
             pageSize: campaignListData?.metadata.limit || 0,

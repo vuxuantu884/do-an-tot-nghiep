@@ -4,7 +4,7 @@ import { ConfirmCancelModalStyled } from "screens/promotion/campaign/campaign.st
 import WarningExclamationCircleIcon from "assets/icon/warning-exclamation-circle.svg";
 import CloseIcon from "assets/icon/X_close.svg";
 
-const ConfirmCancelModal = (props: any) => {
+const ConfirmUpdatePromotionCampaignModal = (props: any) => {
   const { visible, onCancel, onOk } = props;
 
   return (
@@ -16,7 +16,7 @@ const ConfirmCancelModal = (props: any) => {
       title=""
       closable={false}
       onCancel={onCancel}
-      okText="Chấp nhận"
+      okText="Đồng ý"
       cancelText="Kiểm tra lại"
       onOk={onOk}
     >
@@ -34,11 +34,11 @@ const ConfirmCancelModal = (props: any) => {
           />
         </div>
         <div className="content-modal">
-          <div>Chương trình đã có sự thay đổi.</div>
-          <div>Bạn chấp nhận hủy bỏ các thay đổi này?</div>
+          <div>Chương trình đã có sự thay đổi. Các thay đổi có thể ảnh hưởng đến các chương trình khuyến mại con trong chiến dịch.</div>
+          <div>Bạn đồng ý lưu các thay đổi này?</div>
         </div>
       </ConfirmCancelModalStyled>
     </Modal>
   );
 };
-export default ConfirmCancelModal;
+export default ConfirmUpdatePromotionCampaignModal;
