@@ -1877,7 +1877,7 @@ function OrderCreateProduct(props: PropTypes) {
           if (splitLine || index === -1) {
             _items.unshift(item);
             if (!isAutomaticDiscount) {
-              calculateChangeMoney(_items);
+              // calculateChangeMoney(_items);
               handUpdateGiftWhenChangingOrderInformation(_items, calculateChangeMoney, 0);
             }
           } else {
@@ -2640,28 +2640,24 @@ function OrderCreateProduct(props: PropTypes) {
   useEffect(() => {
     if (isShouldUpdateDiscountRef.current && items && items?.length > 0) {
       let _items = [...items];
-      const isLineItemSemiAutomatic = _items.some((p) => p.isLineItemSemiAutomatic); // xác định là ck line item thủ công
-      const isOrderSemiAutomatic = promotion?.isOrderSemiAutomatic; //xác định là ck đơn hàng thủ công
-      if (isLineItemSemiAutomatic || isOrderSemiAutomatic) {
-        if (!props.isPageOrderUpdate) {
-          handUpdateGiftWhenChangingOrderInformation(_items, (_nextItems) => {
+
+      handUpdateGiftWhenChangingOrderInformation(_items, (_nextItems) => {
+        const isLineItemSemiAutomatic = _items.some((p) => p.isLineItemSemiAutomatic); // xác định là ck line item thủ công
+        const isOrderSemiAutomatic = promotion?.isOrderSemiAutomatic; //xác định là ck đơn hàng thủ công
+
+        if (isLineItemSemiAutomatic || isOrderSemiAutomatic) {
+          if (!props.isPageOrderUpdate) {
             handUpdateDiscountWhenChangingOrderInformation(_nextItems);
-          });
-        } else if (
-          !compareProducts(orderDetail?.items || [], items) ||
-          orderDetail?.customer_id !== customer?.id
-        ) {
-          handUpdateGiftWhenChangingOrderInformation(_items, (_nextItems) => {
+          } else if (
+            !compareProducts(orderDetail?.items || [], items) ||
+            orderDetail?.customer_id !== customer?.id
+          ) {
             handUpdateDiscountWhenChangingOrderInformation(_nextItems);
-          });
+          }
+        } else if (isAutomaticDiscount) {
+          handleApplyDiscount(_nextItems);
         }
-      } else if (isAutomaticDiscount) {
-        handUpdateGiftWhenChangingOrderInformation(_items, (_nextItem) => {
-          handleApplyDiscount(_nextItem);
-        });
-      } else {
-        handUpdateGiftWhenChangingOrderInformation(_items);
-      }
+      });
     } else isShouldUpdateDiscountRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeId, countFinishingUpdateSource, countFinishingUpdateCustomer]);
