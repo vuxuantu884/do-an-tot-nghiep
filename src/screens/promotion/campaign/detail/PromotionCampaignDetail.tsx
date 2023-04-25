@@ -209,7 +209,7 @@ const PromotionCampaignDetail: React.FC = () => {
             );
             break;
           case CAMPAIGN_STATUS_ENUM.REGISTERED:
-            if (!promotionCampaignDetail?.is_accountant_confirmed) {
+            if (!promotionCampaignDetail?.is_accountant_confirmed && isRegistered) {
               dispatch(hideLoading());
               showError("Kế toán chưa xác nhận đăng ký hoàn tất. Vui lòng kiểm tra lại.");
               break;
