@@ -109,6 +109,7 @@ import {
   compareProducts,
   getLineItemCalculationMoney,
   getPositionLineItem,
+  isGiftLineItem,
   lineItemsConvertInSearchPromotion,
   removeAllDiscountLineItems,
   removeDiscountLineItem,
@@ -127,6 +128,7 @@ import SuggestInventoryModal from "screens/order-online/modal/InventoryModal/sug
 import OrderSplitModal from "screens/order-online/modal/OrderSplitModal";
 import SearchProductComponent from "component/search-product";
 import AddGiftLineItem from "screens/order-online/component/AddGiftLineItem";
+import AddBag from "screens/order-online/component/AddBag";
 import { EnumGiftType } from "config/enum.config";
 
 type PropTypes = {
@@ -1736,6 +1738,31 @@ function OrderCreateProduct(props: PropTypes) {
     ],
   );
 
+  const addBagLineItem = useCallback(
+    (_lineItem: OrderLineItemRequest) => {
+      if (!items) {
+        return;
+      }
+      let _items = [...items];
+      let index = _items.findIndex((i) => i.variant_id === _lineItem.variant_id);
+      if (index === -1) {
+        _items.unshift(_lineItem);
+        calculateChangeMoney(_items);
+      } else {
+        let variantItems = _items[index];
+        variantItems.quantity += 1;
+        variantItems.line_amount_after_line_discount +=
+          variantItems.price - variantItems.discount_items[0]?.amount * variantItems.quantity;
+        variantItems.discount_items.forEach((single) => {
+          single.amount = single.value * variantItems.quantity;
+        });
+        calculateChangeMoney(_items);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [items],
+  );
+
   /**
    * kiểm tra Sản phẩm thêm ăn theo cấu hình cài đặt của tồn kho bán
    */
@@ -2626,6 +2653,7 @@ function OrderCreateProduct(props: PropTypes) {
             >
               Kiểm tra tồn
             </Button>
+            <AddBag addBag={(_v) => addBagLineItem(_v)} />
           </Space>
         }
       >
