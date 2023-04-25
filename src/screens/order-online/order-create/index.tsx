@@ -107,6 +107,7 @@ import {
   isSourceNameFacebook,
   convertReverseTypeInDiscountItem,
   convertStandardizeTypeInDiscountItem,
+  isGiftLineItem,
 } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
@@ -120,18 +121,6 @@ import { StyledComponent } from "./styles";
 let typeButton = "";
 
 export default function Order() {
-  const [allowOrderB2BWrite] = useAuthorization({
-    acceptPermissions: [ORDER_PERMISSIONS.ORDERS_B2B_WRITE],
-    not: false,
-  });
-
-  const [allowOrderB2BRead] = useAuthorization({
-    acceptPermissions: [ORDER_PERMISSIONS.ORDERS_B2B_READ],
-    not: false,
-  });
-
-  console.log("useAuthorization", allowOrderB2BWrite, allowOrderB2BRead);
-
   const isUserCanCreateOrder = useRef(true);
   const dispatch = useDispatch();
   const history = useHistory();
@@ -212,6 +201,7 @@ export default function Order() {
   const [orderType, setOrderType] = useState<string>(EnumOrderType.b2c);
 
   const [orderChannel, setOrderChannel] = useState(ADMIN_ORDER.channel_name);
+  const [giftTypeInOrder, setGiftTypeInOrder] = useState<string | null>(null);
 
   const queryParams = useQuery();
   const customerParam = queryParams.get("customer") || null;
@@ -542,7 +532,6 @@ export default function Order() {
   }, [totalOrderAmount, totalAmountPayment]);
 
   const handleCreateOrder = async (values: OrderRequest) => {
-    console.log("handleCreateOrder", values);
     const createOrder = async (createSpecialOrder?: (orderId: number) => Promise<void>) => {
       isUserCanCreateOrder.current = true;
       //return;
@@ -1062,14 +1051,16 @@ export default function Order() {
     ) => {
       let getGiftResponse = (itemNormal: OrderLineItemResponse) => {
         return response.items.filter((item) => {
-          return item.type === Type.GIFT && item.position === itemNormal.position;
+          return isGiftLineItem(item.type) && item.position === itemNormal.position;
         });
       };
+
       responseItems = response.items
         .filter((item) => {
-          return item.type !== Type.GIFT;
+          return !isGiftLineItem(item.type);
         })
         .map((item) => {
+          console.log("getGiftResponse", getGiftResponse(item));
           return {
             ...item,
             taxable: item.taxable,
@@ -1101,6 +1092,8 @@ export default function Order() {
         //   return { ...item };
         // }
       });
+
+      console.log("responseItems 111", responseItems);
       setItems(responseItems);
       dispatch(changeOrderLineItemsAction(responseItems));
       return responseItems;
@@ -1225,7 +1218,6 @@ export default function Order() {
 
     const handleResponseCloneOrder = async (response: OrderResponse) => {
       if (response) {
-        // console.log('response', response)
         const isFBOrder = response.channel_id === FACEBOOK.channel_id;
         let responseItems: OrderLineItemRequest[] = response.items;
         handleResponseItems(response, responseItems);
@@ -1332,6 +1324,11 @@ export default function Order() {
         }
         if (response.type) {
           setOrderType(response.type);
+        }
+
+        const giftLineItem = response.items.filter((item) => isGiftLineItem(item.type));
+        if (giftLineItem.length !== 0) {
+          setGiftTypeInOrder(giftLineItem[0].type);
         }
       }
     };
@@ -1643,6 +1640,7 @@ export default function Order() {
                       isSpecialOrderEcommerce={isSpecialOrderEcommerce}
                       orderType={orderType}
                       orderChannel={orderChannel}
+                      giftTypeInOrder={giftTypeInOrder}
                     />
                     <Card title="THANH TOÁN">
                       <OrderCreatePayments

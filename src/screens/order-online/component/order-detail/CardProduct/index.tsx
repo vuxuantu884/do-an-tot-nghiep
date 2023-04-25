@@ -29,7 +29,13 @@ import { successColor } from "utils/global-styles/variables";
 import { StyledComponent } from "./styles";
 import { DiscountUnitType } from "screens/promotion/constants";
 import { OrderStatus, FulFillmentStatus } from "utils/Constants";
-import { checkIfOrderSplit, fixOrderPositionItem, isOrderWholesale } from "utils/OrderUtils";
+import {
+  checkIfOrderSplit,
+  fixOrderPositionItem,
+  isGiftLineItem,
+  isOrderWholesale,
+} from "utils/OrderUtils";
+import { EnumGiftType } from "config/enum.config";
 
 type PropTypes = {
   shippingFeeInformedCustomer: number | null;
@@ -82,11 +88,6 @@ function UpdateProductCard(props: PropTypes) {
     width: "35%",
     className: "yody-pos-name",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
-      const gift =
-        props.OrderDetail?.items.filter(
-          (item) =>
-            item.position === l.position && item.type === Type.GIFT && l.type !== Type.SERVICE,
-        ) || [];
       return (
         <div
           className="w-100"
@@ -132,7 +133,9 @@ function UpdateProductCard(props: PropTypes) {
           {l.gifts
             ?.filter(
               (item) =>
-                item.position === l.position && item.type === Type.GIFT && l.type !== Type.SERVICE,
+                item.position === l.position &&
+                isGiftLineItem(item.type) &&
+                l.type !== Type.SERVICE,
             )
             .map((gift) => {
               return (
@@ -238,7 +241,6 @@ function UpdateProductCard(props: PropTypes) {
     width: "10%",
     className: "yody-table-point text-right 33",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
-      // console.log('item', item)
       return <div>{item?.point_add ? item.point_add : "-"}</div>;
     },
   };
