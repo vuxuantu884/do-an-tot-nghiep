@@ -2000,3 +2000,24 @@ export const mathRoundPercentage = (percentage: number) => {
 export const mathRoundAmount = (amount: number) => {
   return round(amount, AppConfig.mathRoundPrecision.amount);
 };
+
+export const compareNumberArray = (A: Array<number>, B: Array<number>, order?: boolean) => {
+  /**
+   * order = true: có so sánh thứ tự phần tử trong mảng
+   * order = false: không so sánh thứ tự phần tử trong mảng
+   * */
+  if (A.length !== B.length) {
+    return false;
+  } else {
+    if (!order) {
+      A.sort();
+      B.sort();
+    }
+    for (let i = 0; i < A.length; i++) {
+      if (A[i] !== B[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+};

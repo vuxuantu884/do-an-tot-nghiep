@@ -14,10 +14,7 @@ const PromotionsListModal = (props: any) => {
   const { visible, onCloseModal, onOkModal } = props;
 
   const promotionCampaignContext = useContext(PromotionCampaignContext);
-  const {
-    tempPromotionSelectedList,
-    setActiveTab,
-  } = promotionCampaignContext;
+  const { tempPromotionSelectedList, setActiveTab } = promotionCampaignContext;
 
   const onChangeTab = (activeKey: string) => {
     setActiveTab(activeKey);
@@ -29,14 +26,16 @@ const PromotionsListModal = (props: any) => {
       centered
       maskClosable={false}
       width={1200}
-      title="DANH SÁCH KHÁCH HÀNG ĐÃ SỬ DỤNG MÃ"
+      title="DANH SÁCH CÁC KHUYẾN MẠI"
       onCancel={onCloseModal}
       className="promotion-list-modal"
       footer={[
         <div className="modal-footer">
-          {tempPromotionSelectedList?.length > 0 &&
-            <div className="selected-number">Đã chọn {tempPromotionSelectedList.length} chương trình</div>
-          }
+          {tempPromotionSelectedList?.length > 0 && (
+            <div className="selected-number">
+              Đã chọn {tempPromotionSelectedList.length} chương trình
+            </div>
+          )}
           <Button
             className="ant-btn-outline ant-btn-primary"
             size="small"
@@ -45,13 +44,10 @@ const PromotionsListModal = (props: any) => {
           >
             Thêm chương trình
           </Button>
-        </div>
+        </div>,
       ]}
     >
-      <Tabs
-        defaultActiveKey={PROMOTION_TYPE.DISCOUNT}
-        onChange={onChangeTab}
-      >
+      <Tabs defaultActiveKey={PROMOTION_TYPE.DISCOUNT} onChange={onChangeTab}>
         <TabPane tab="Chiết khấu" key={PROMOTION_TYPE.DISCOUNT}>
           <DiscountListTab />
         </TabPane>

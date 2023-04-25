@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useEffect, useState } from "react";
+import React, { ReactElement, useContext, useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { Button, Form, Modal } from "antd";
@@ -8,88 +8,36 @@ import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { scrollAndFocusToDomElement } from "utils/AppUtils";
-import PromotionCampaignProvider from "screens/promotion/campaign/components/PromotionCampaignProvider";
+import PromotionCampaignProvider, { PromotionCampaignContext } from "screens/promotion/campaign/components/PromotionCampaignProvider";
 import PromotionCampaignForm from "screens/promotion/campaign/components/PromotionCampaignForm";
 import { createPromotionCampaignAction } from "domain/actions/promotion/campaign/campaign.action";
 import WarningExclamationCircleIcon from "assets/icon/warning-exclamation-circle.svg";
 import CloseIcon from "assets/icon/X_close.svg";
 import { ConfirmCancelModalStyled } from "screens/promotion/campaign/campaign.style";
-import PromotionCampaignStep from "screens/promotion/campaign/components/PromotionCampaignStep";
-import { CustomerSelectionOption } from "model/promotion/price-rules.model";
-import { CustomerConditionFields, DEFAULT_CUSTOMER_CONDITION_DATE } from "screens/promotion/campaign/campaign.helper";
-import moment from "moment/moment";
 
 function PromotionCampaignCreate(): ReactElement {
   const history = useHistory();
   const [form] = Form.useForm();
   const dispatch = useDispatch();
 
+  const promotionCampaignContext = useContext(PromotionCampaignContext);
+  const { selectedRowKeys } = promotionCampaignContext;
+
   const [isVisibleConfirmCancelModal, setIsVisibleConfirmCancelModal] = useState<boolean>(false);
 
-  useEffect(() => {
-    const initialValues = {
-      starts_date: moment(),
-      customer_selection: CustomerSelectionOption.ALL,
-    };
-    form.setFieldsValue(initialValues);
-  }, [form]);
-  
   /** handle create promotion campaign */
-  const transformFormValues = (values: any) => {
-    const body = {
-      ...values,
-      prerequisite_store_ids: values.prerequisite_store_ids ?? [],
-      prerequisite_customer_group_ids: values.prerequisite_customer_group_ids ?? [],
-      prerequisite_customer_loyalty_level_ids: values.prerequisite_customer_loyalty_level_ids ?? [],
-      prerequisite_genders: values.prerequisite_genders ?? [],
-      prerequisite_order_source_ids: values.prerequisite_order_source_ids ?? [],
-      prerequisite_sales_channel_names: values.prerequisite_sales_channel_names ?? [],
-    };
-
-    if (values.customer_selection === CustomerSelectionOption.ALL) {
-      body.prerequisite_birthday_duration = [];
-      body.prerequisite_wedding_duration = [];
-    } else {
-      /** handle customer birthday */
-      if (!values.starts_birthday && !values.ends_birthday) {
-        body.prerequisite_birthday_duration = [];
-      } else {
-        const startsBirthday = values.starts_birthday?.format('DDMM') || DEFAULT_CUSTOMER_CONDITION_DATE.START_DATE_OF_YEAR;
-        const endsBirthday = values.ends_birthday?.format('DDMM') || DEFAULT_CUSTOMER_CONDITION_DATE.END_DATE_OF_YEAR;
-        body.prerequisite_birthday_duration = [startsBirthday, endsBirthday];
-      }
-
-      /** handle customer wedding day */
-      if (!values.starts_wedding_day && !values.ends_wedding_day) {
-        body.prerequisite_wedding_duration = [];
-      } else {
-        const startsWeddingDay = values.starts_wedding_day?.format('DDMM') || DEFAULT_CUSTOMER_CONDITION_DATE.START_DATE_OF_YEAR;
-        const endsWeddingDay = values.ends_wedding_day?.format('DDMM') || DEFAULT_CUSTOMER_CONDITION_DATE.END_DATE_OF_YEAR;
-        body.prerequisite_wedding_duration = [startsWeddingDay, endsWeddingDay];
-      }
-    }
-
-    delete body[CustomerConditionFields.starts_birthday];
-    delete body[CustomerConditionFields.ends_birthday];
-    delete body[CustomerConditionFields.starts_wedding_day];
-    delete body[CustomerConditionFields.ends_wedding_day];
-
-    return body;
-  }
-
   const handleSubmit = useCallback((values: any) => {
     try {
-      if (!values) {
-        showError("Vui lòng kiểm tra lại dữ liệu.")
-        return;
-      }
-      const body = transformFormValues(values);
-
+      const body = {
+        ...values,
+        price_rule_ids: selectedRowKeys
+      };
+      
       dispatch(showLoading());
       dispatch(
         createPromotionCampaignAction(body, (data) => {
           if (data) {
-            showSuccess("Đăng ký chương trình khuyến mại thành công");
+            showSuccess("Tạo mới chương trình khuyến mại thành công");
             history.push(`${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}/${data.id}`);
           }
           dispatch(hideLoading());
@@ -99,13 +47,7 @@ function PromotionCampaignCreate(): ReactElement {
       dispatch(hideLoading());
       showError(error.message);
     }
-  }, [dispatch, history]);
-
-  const onFinishFailed = ({ errorFields }: any) => {
-    const element: any = document.getElementById(errorFields[0].name.join(""));
-    showError(errorFields?.[0]?.errors?.[0] || "Vui lòng kiểm tra lại dữ liệu");
-    scrollAndFocusToDomElement(element);
-  }
+  }, [dispatch, history, selectedRowKeys]);
   /** end handle update promotion campaign */
 
   const handleCancelCreate = () => {
@@ -121,7 +63,7 @@ function PromotionCampaignCreate(): ReactElement {
 
   return (
     <ContentContainer
-      title="Đăng ký chương trình"
+      title="Tạo mới chương trình khuyến mại"
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -131,30 +73,26 @@ function PromotionCampaignCreate(): ReactElement {
           name: "Khuyến mại",
         },
         {
-          name: "Quản lý CTKM",
+          name: "Quản lý chương trình KM",
           path: `${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}`,
         },
         {
-          name: "Đăng ký chương trình",
+          name: "Tạo mới chương trình khuyến mại",
           path: `${UrlConfig.PROMOTION}${UrlConfig.CAMPAIGN}/create`,
         },
       ]}
     >
-      <PromotionCampaignStep />
       <Form
         form={form}
         name="promotion_campaign_create"
         onFinish={handleSubmit}
         layout="vertical"
-        onFinishFailed={onFinishFailed}
+        onFinishFailed={({ errorFields }: any) => {
+          const element: any = document.getElementById(errorFields[0].name.join(""));
+          scrollAndFocusToDomElement(element);
+        }}
       >
-        <PromotionCampaignForm
-          form={form}
-          isAllChannel={true}
-          isAllCustomer={true}
-          isAllSource={true}
-          isAllStore={true}
-        />
+        <PromotionCampaignForm form={form} />
 
         <BottomBarContainer
           back="Quay lại danh sách chương trình KM"
@@ -172,7 +110,7 @@ function PromotionCampaignCreate(): ReactElement {
                 Hủy
               </Button>
               <Button type="primary" onClick={() => form.submit()}>
-                Đăng ký chương trình
+                Lưu chương trình KM
               </Button>
             </>
           }

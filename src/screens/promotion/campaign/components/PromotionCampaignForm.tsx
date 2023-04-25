@@ -1,45 +1,31 @@
-import React, { ReactElement, useCallback, useContext, useState } from "react";
+import React, { ReactElement } from "react";
 import {
   Card,
   Form,
   FormInstance,
   Input,
+  Row,
+  Col,
 } from "antd";
-import PromotionsListModal from "screens/promotion/campaign/components/promotion-list-modal/PromotionsListModal";
-import PromotionSelectedList from "screens/promotion/campaign/components/PromotionSelectedList";
-import { PromotionCampaignContext } from "screens/promotion/campaign/components/PromotionCampaignProvider";
+import PromotionCampaignConditionForm from "screens/promotion/campaign/components/PromotionCampaignConditionForm";
+import { PromotionCampaignFormStyled } from "screens/promotion/campaign/campaign.style";
 
 interface Props {
   form: FormInstance;
+  isAllStore?: boolean;
+  isAllChannel?: boolean;
+  isAllSource?: boolean;
+  isAllCustomer?: boolean;
 }
-function PromotionCampaignForm({ form }: Props): ReactElement {
-  const promotionCampaignContext = useContext(PromotionCampaignContext);
+
+function PromotionCampaignForm(props: Props): ReactElement {
   const {
-    tempPromotionSelectedList,
-    setTempPromotionSelectedList,
-    tempSelectedRowKeys,
-    setTempSelectedRowKeys,
-    promotionSelectedList,
-    setPromotionSelectedList,
-    selectedRowKeys,
-    setSelectedRowKeys,
-  } = promotionCampaignContext;
-
-  const [isVisiblePromotionListModal, setIsVisiblePromotionListModal] = useState<boolean>(false);
-  const onOpenPromotionListModal = () => {
-    setIsVisiblePromotionListModal(true);
-  };
-  const onClosePromotionListModal = useCallback(() => {
-    setIsVisiblePromotionListModal(false);
-    setTempPromotionSelectedList(promotionSelectedList);
-    setTempSelectedRowKeys(selectedRowKeys);
-  }, [promotionSelectedList, selectedRowKeys, setTempPromotionSelectedList, setTempSelectedRowKeys]);
-
-  const onOkPromotionListModal = useCallback(() => {
-    setIsVisiblePromotionListModal(false);
-    setPromotionSelectedList(tempPromotionSelectedList);
-    setSelectedRowKeys(tempSelectedRowKeys);
-  }, [setPromotionSelectedList, setSelectedRowKeys, tempPromotionSelectedList, tempSelectedRowKeys]);
+    form,
+    isAllChannel,
+    isAllSource,
+    isAllStore,
+    isAllCustomer
+  } = props;
 
   const onPressEnterNameInput = () => {
     let element: any = document.getElementById("name");
@@ -53,57 +39,90 @@ function PromotionCampaignForm({ form }: Props): ReactElement {
   };
 
   return (
-    <div>
-      <Card title="THÔNG TIN CHƯƠNG TRÌNH KHUYẾN MẠI">
-        <Form.Item
-          name="name"
-          label="Tên chương trình khuyến mại"
-          rules={[
-            {
-              required: true,
-              message: "Bạn cần bổ sung tên chương trình KM",
-            },
-            {
-              max: 255,
-              message: "Tên chương trình KM không được vượt quá 255 ký tự",
-            },
-          ]}
-        >
-          <Input
-            id="name"
-            placeholder="Nhập tên chương trình KM"
-            onPressEnter={onPressEnterNameInput}
-            onBlur={onBlurNameInput}
+    <PromotionCampaignFormStyled>
+      <Row gutter={24}>
+        <Col span={18}>
+          <Card title="THÔNG TIN CHƯƠNG TRÌNH KHUYẾN MẠI">
+            <div className="form-name">
+              <div className="name-description">Tên chương trình/ Thông điệp: <span style={{ color: "red" }}>*</span></div>
+              <Form.Item
+                name="name"
+                label=""
+                rules={[
+                  {
+                    required: true,
+                    message: "Bạn cần bổ sung tên chương trình KM",
+                  },
+                  {
+                    max: 255,
+                    message: "Tên chương trình KM không được vượt quá 255 ký tự",
+                  },
+                ]}
+                className={"name-input"}
+              >
+                <Input
+                  id="name"
+                  placeholder="Nhập tên chương trình KM"
+                  onPressEnter={onPressEnterNameInput}
+                  onBlur={onBlurNameInput}
+                />
+              </Form.Item>
+            </div>
+
+            <Row gutter={24}>
+              <Col span={12}>
+                <div className="content">Nội dung chương trình khuyến mại: <span style={{ color: "red" }}>*</span></div>
+                <Form.Item
+                  name="description"
+                  label=""
+                  rules={[
+                    {
+                      required: true,
+                      message: "Bạn cần bổ sung nội dung chương trình KM",
+                    },
+                    {
+                      max: 500,
+                      message: "Nội dung không được vượt quá 500 ký tự",
+                    },
+                  ]}
+                >
+                  <Input.TextArea
+                    id="description"
+                    placeholder="Nhập nội dung chương trình khuyến mại"
+                    style={{ minHeight: "200px" }}
+                  />
+                </Form.Item>
+              </Col>
+
+              <Col span={12}>
+                <Form.Item
+                  name="note"
+                  label="Ghi chú:"
+                  rules={[
+                    {
+                      max: 500,
+                      message: "Ghi chú không được vượt quá 500 ký tự",
+                    },
+                  ]}
+                >
+                  <Input.TextArea placeholder="Nhập ghi chú" style={{ minHeight: "200px" }} />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Card>
+        </Col>
+
+        <Col span={6}>
+          <PromotionCampaignConditionForm
+            form={form}
+            isAllChannel={isAllChannel}
+            isAllCustomer={isAllCustomer}
+            isAllSource={isAllSource}
+            isAllStore={isAllStore}
           />
-        </Form.Item>
-
-        <Form.Item
-          name="description"
-          label="Mô tả chương trình KM"
-          rules={[
-            {
-              max: 500,
-              message: "Mô tả không được vượt quá 500 ký tự",
-            },
-          ]}
-        >
-          <Input.TextArea placeholder="Nhập nội dung mô tả" autoSize={{ minRows: 5, maxRows: 10 }} />
-        </Form.Item>
-      </Card>
-
-      <PromotionSelectedList
-        isEdit
-        onOpenPromotionListModal={onOpenPromotionListModal}
-      />
-
-      {isVisiblePromotionListModal && (
-        <PromotionsListModal
-          visible={isVisiblePromotionListModal}
-          onOkModal={onOkPromotionListModal}
-          onCloseModal={onClosePromotionListModal}
-        />
-      )}
-    </div>
+        </Col>
+      </Row>
+    </PromotionCampaignFormStyled>
   );
 }
 export default PromotionCampaignForm;

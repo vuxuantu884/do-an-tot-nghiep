@@ -17,6 +17,7 @@ import React from "react";
 import { GiftEntitlementForm } from "model/promotion/gift.model";
 import moment from "moment/moment";
 import PromotionStatusTag from "screens/promotion/component/PromotionStatusTag";
+import { CAMPAIGN_STATUS_ENUM } from "screens/promotion/campaign/campaign.helper";
 const { Item } = Form;
 
 export const MAX_FIXED_DISCOUNT_VALUE = 999999999;
@@ -416,6 +417,34 @@ export const DISCOUNT_STATUS = [
     code: "CANCELLED",
     value: "Đã huỷ",
     Component: <PromotionStatusTag status={PriceRuleState.CANCELLED}>Đã huỷ</PromotionStatusTag>,
+  },
+];
+
+export const CAMPAIGN_STATUS = [
+  {
+    code: CAMPAIGN_STATUS_ENUM.PENDING,
+    value: "Chờ duyệt",
+    Component: <PromotionStatusTag status={CAMPAIGN_STATUS_ENUM.PENDING}>Chờ duyệt</PromotionStatusTag>,
+  },
+  {
+    code: CAMPAIGN_STATUS_ENUM.APPROVED,
+    value: "Chờ đăng ký",
+    Component: <PromotionStatusTag status={CAMPAIGN_STATUS_ENUM.APPROVED}>Chờ đăng ký</PromotionStatusTag>,
+  },
+  {
+    code: CAMPAIGN_STATUS_ENUM.REGISTERED,
+    value: "Chờ Setup",
+    Component: <PromotionStatusTag status={CAMPAIGN_STATUS_ENUM.REGISTERED}>Chờ Setup</PromotionStatusTag>,
+  },
+  {
+    code: CAMPAIGN_STATUS_ENUM.SET_UP,
+    value: "Chờ kích hoạt",
+    Component: <PromotionStatusTag status={CAMPAIGN_STATUS_ENUM.SET_UP}>Chờ kích hoạt</PromotionStatusTag>,
+  },
+  {
+    code: CAMPAIGN_STATUS_ENUM.ACTIVED,
+    value: "Đã kích hoạt",
+    Component: <PromotionStatusTag status={CAMPAIGN_STATUS_ENUM.ACTIVED}>Đã kích hoạt</PromotionStatusTag>,
   },
 ];
 
