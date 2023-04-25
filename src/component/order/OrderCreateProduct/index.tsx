@@ -829,18 +829,18 @@ function OrderCreateProduct(props: PropTypes) {
 
         if (
           giftType === EnumGiftType.BY_ITEM &&
-          _items.some((p) => p.gifts && p.gifts.length !== 0)
+          !_items.some((p) => p.gifts && p.gifts.length !== 0)
         ) {
           setLineItemUpdate(_items);
           return;
         }
 
         if (checkGiftTypeOrderOfOrderSplit()) {
-          handleCheckGiftTypeOrderUpdate(_itemsCollection);
+          await handleCheckGiftTypeOrderUpdate(_itemsCollection);
         } else if (giftType === EnumGiftType.BY_ITEM && _indexItem !== undefined) {
-          handleGiftUpdateFromIndex(_itemsCollection, _indexItem);
+          await handleGiftUpdateFromIndex(_itemsCollection, _indexItem);
         } else {
-          handleGiftAllUpdate(_itemsCollection);
+          await handleGiftAllUpdate(_itemsCollection);
         }
       } catch (e) {
         console.log(e);
@@ -2653,9 +2653,13 @@ function OrderCreateProduct(props: PropTypes) {
             orderDetail?.customer_id !== customer?.id
           ) {
             handUpdateDiscountWhenChangingOrderInformation(_nextItems);
+          } else {
+            setItems(_nextItems);
           }
         } else if (isAutomaticDiscount) {
           handleApplyDiscount(_nextItems);
+        } else {
+          setItems(_nextItems);
         }
       });
     } else isShouldUpdateDiscountRef.current = true;
