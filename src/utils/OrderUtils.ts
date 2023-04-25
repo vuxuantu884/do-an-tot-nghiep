@@ -61,6 +61,7 @@ import {
   ORDER_SUB_STATUS,
 } from "./Order.constants";
 import { fullTextSearch } from "./StringUtils";
+import { EnumGiftType } from "config/enum.config";
 
 export const isOrderDetailHasPointPayment = (
   OrderDetail: OrderResponse | null | undefined,
@@ -873,7 +874,7 @@ export const getPositionLineItem = (items: OrderLineItemRequest[]) => {
  * fix vị trí item quà tặng order
  */
 export const fixOrderPositionItem = (OrderDetail: OrderResponse) => {
-  const gifts = OrderDetail.items.filter((item) => item.type === Type.GIFT) || [];
+  const gifts = OrderDetail.items.filter((item) => isGiftLineItem(item.type)) || [];
   // thêm leftPositionQuantity để biết xem quà tặng đã add vào sản phẩm chưa
   const resultGifts = gifts.map((gift) => {
     return {
@@ -931,4 +932,10 @@ export const handleReCalculateReturnProductDiscountAmount = (item: OrderLineItem
   // item.single_distributed_order_discount = item.quantity
   //   ? (item.distributed_order_discount ?? 0) / item.quantity
   //   : item.quantity;
+};
+
+export const isGiftLineItem = (type: string) => {
+  const types = [EnumGiftType.BY_ORDER.toString(), EnumGiftType.BY_ITEM.toString()];
+
+  return types.includes(type);
 };

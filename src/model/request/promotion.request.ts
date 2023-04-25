@@ -32,13 +32,14 @@ export interface DiscountRequestModel {
   store_id: number | null;
   sales_channel_name: string;
   order_source_id: number | null;
-  assignee_code: string | null;
+  assignee_code?: string | null;
   line_items: LineItemRequestModel[];
-  applied_discount: {
+  applied_discount?: {
     code: string;
   } | null;
-  taxes_included: boolean | null;
-  tax_exempt: boolean | null;
+  taxes_included?: boolean | null;
+  tax_exempt?: boolean | null;
   keyword?: string | null;
   search_type?: string | null;
+  type?: "GIFT" | null;
 }

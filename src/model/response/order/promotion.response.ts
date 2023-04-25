@@ -10,7 +10,15 @@ export interface AppliedDiscountResponseModel {
   code: string | null;
   is_registered: boolean;
 }
-
+export interface ApplyDiscountGiftsResponseModel {
+  product_id: number;
+  variant_id: number;
+  sku: string;
+  on_hand: number;
+  name: string;
+  original_unit_price: number;
+  quantity: number;
+}
 export interface SuggestDiscountResponseModel {
   allocation_count: number | null;
   allocation_limit: number | null;
@@ -19,6 +27,7 @@ export interface SuggestDiscountResponseModel {
   value: number | null;
   value_type: string | null;
   is_registered: boolean;
+  gifts?: ApplyDiscountGiftsResponseModel[] | null;
 }
 
 export interface LineItemCreateReturnSuggestDiscountResponseModel

@@ -105,6 +105,7 @@ import {
   isSourceNameFacebook,
   convertReverseTypeInDiscountItem,
   convertStandardizeTypeInDiscountItem,
+  isGiftLineItem,
 } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
@@ -120,6 +121,7 @@ import useCalculateShippingFee from "../hooks/useCalculateShippingFee";
 import useGetDefaultReturnOrderReceivedStore from "../hooks/useGetDefaultReturnOrderReceivedStore";
 import useHandleMomoCreateShipment from "../hooks/useHandleMomoCreateShipment";
 import { StyledComponent } from "./styles";
+import { EnumGiftType } from "config/enum.config";
 
 type PropTypes = {
   id?: string;
@@ -318,8 +320,6 @@ export default function Order(props: PropTypes) {
     }
   }, [OrderDetail?.payment_status, OrderDetail?.status, OrderDetail?.fulfillments]);
   let levelOrder = setLevelOrder();
-
-  console.log("levelOrder 112", levelOrder);
 
   let initialForm: OrderRequest = useMemo(() => {
     return {
@@ -667,7 +667,6 @@ export default function Order(props: PropTypes) {
   };
 
   const handleUpdateOrder = (valuesCalculateReturnAmount: OrderRequest) => {
-    console.log("OrderRequest", valuesCalculateReturnAmount);
     //return;
     const updateOrder = (updateSpecialOrder?: (orderId: number) => Promise<void>) => {
       dispatch(showLoading());
@@ -764,7 +763,6 @@ export default function Order(props: PropTypes) {
     const element2: any = document.getElementById("btn-save-order-update");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(OrderDetail.fulfillments, values);
-    console.log("lstFulFillment", lstFulFillment);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
 
@@ -1067,6 +1065,7 @@ export default function Order(props: PropTypes) {
   // handle for ecommerce order
   const [isEcommerceOrder, setIsEcommerceOrder] = useState(false);
   const [ecommerceShipment, setEcommerceShipment] = useState<any>();
+  const [giftTypeInOrder, setGiftTypeInOrder] = useState<string | null>(null);
 
   const handleEcommerceOrder = (orderData: any) => {
     const orderChannel = orderData?.channel?.toLowerCase() || "";
@@ -1118,11 +1117,11 @@ export default function Order(props: PropTypes) {
         }
         if (response) {
           let giftResponse = response.items.filter((item) => {
-            return item.type === Type.GIFT;
+            return isGiftLineItem(item.type);
           });
           let responseItems: OrderLineItemRequest[] = response.items
             .filter((item) => {
-              return item.type !== Type.GIFT;
+              return !isGiftLineItem(item.type);
             })
             .map((item) => {
               return {
@@ -1184,15 +1183,6 @@ export default function Order(props: PropTypes) {
           }
           //convert type, discount item
           responseItems = responseItems.map((item) => {
-            // item = convertOrderLineItemRequest(item);
-            // return {
-            //   ...item,
-            //   gifts: item.gifts.map((p) => {
-            //     p = convertOrderLineItemRequest(p);
-            //     return p;
-            //   }),
-            // };
-
             item.discount_items = convertReverseTypeInDiscountItem(item.discount_items);
             return {
               ...item,
@@ -1201,19 +1191,6 @@ export default function Order(props: PropTypes) {
                 return p;
               }),
             };
-            // const _discountItem = item.discount_items[0];
-            // if (_discountItem) {
-            //   const _type = _discountItem.type || "";
-            //   _discountItem.sub_type = _type;
-            //   _discountItem.type = convertDiscountType(_type);
-            //   return {
-            //     ...item,
-            //     isLineItemSemiAutomatic: true,
-            //     discount_items: [_discountItem],
-            //   };
-            // } else {
-            //   return { ...item };
-            // }
           });
           setItems(responseItems);
           setOrderProductsAmount(response.total_line_amount_after_line_discount);
@@ -1263,9 +1240,6 @@ export default function Order(props: PropTypes) {
               type: convertReverseDiscountType(response?.discounts[0].type),
               isOrderSemiAutomatic: true,
             });
-            // if (response.discounts[0].discount_code) {
-            //   setCoupon(response.discounts[0].discount_code);
-            // }
           }
           setIsLoadForm(true);
           if (response.export_bill) {
@@ -1301,6 +1275,10 @@ export default function Order(props: PropTypes) {
 
           if (response.type) {
             setOrderType(response.type);
+          }
+          const giftLineItem = response.items.filter((item) => isGiftLineItem(item.type));
+          if (giftLineItem.length !== 0) {
+            setGiftTypeInOrder(giftLineItem[0].type);
           }
         }
         if (response.source) {
@@ -1755,6 +1733,7 @@ export default function Order(props: PropTypes) {
                       OrderDetail?.channel_code ||
                       ADMIN_ORDER.channel_name
                     }
+                    giftTypeInOrder={giftTypeInOrder}
                   />
                   <CardShowOrderPayments
                     OrderDetail={OrderDetail}

@@ -16,11 +16,12 @@ import { createRequest } from "./helper";
 // import { orderCreateAction } from "domain/actions/order/order.action";
 import UrlConfig from "config/url.config";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { Type } from "config/type.config";
 import { defaultSpecialOrderParams } from "component/order/special-order/SideBarOrderSpecial/helper";
 import { specialOrderServices } from "service/order/special-order.service";
 import { ACCOUNT_CODE_LOCAL_STORAGE } from "utils/LocalStorageUtils";
 import { orderPostApi } from "service/order/order.service";
+import { EnumGiftType } from "config/enum.config";
+import { isGiftLineItem } from "utils/OrderUtils";
 
 type Props = {
   visible?: boolean;
@@ -98,12 +99,12 @@ const OrderSplitModal: React.FC<Props> = (props: Props) => {
     const _order: OrderSplitModel = _.cloneDeep(props.OrderDetail);
     let getGiftResponse = (itemNormal: OrderLineItemResponse) => {
       return _order.items.filter((item) => {
-        return item.type === Type.GIFT && item.position === itemNormal.position;
+        return isGiftLineItem(item.type) && item.position === itemNormal.position;
       });
     };
     const _items = _order.items
       .filter((item) => {
-        return item.type !== Type.GIFT;
+        return !isGiftLineItem(item.type);
       })
       .map((item) => {
         return {
@@ -222,12 +223,12 @@ const OrderSplitModal: React.FC<Props> = (props: Props) => {
     const _order: OrderSplitModel = _.cloneDeep(props.OrderDetail);
     let getGiftResponse = (itemNormal: OrderLineItemResponse) => {
       return _order.items.filter((item) => {
-        return item.type === Type.GIFT && item.position === itemNormal.position;
+        return isGiftLineItem(item.type) && item.position === itemNormal.position;
       });
     };
     const _items = _order.items
       .filter((item) => {
-        return item.type !== Type.GIFT;
+        return !isGiftLineItem(item.type);
       })
       .map((item) => {
         return {
