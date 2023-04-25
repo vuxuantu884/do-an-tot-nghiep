@@ -1,3 +1,4 @@
+import { AppConfig } from "config/app.config";
 import { FulFillmentStatus } from "./Constants";
 
 export const ORDER_TYPES = {
@@ -310,3 +311,69 @@ export const DISPLAYED_ORDER_ACTION_LOGS = [
     title: "Hoàn tiền",
   },
 ];
+
+export enum EnumCustomGiftDiscountType {
+  product = "product",
+  order = "order",
+}
+
+const bagsVariantId = {
+  ztm0001: {
+    development: null,
+    uat: null,
+    production: 101266,
+  },
+  ztm0002: {
+    development: null,
+    uat: null,
+    production: 101267,
+  },
+  ztm4: {
+    development: 19198,
+    uat: 1232,
+    production: 905,
+  },
+  ztm1: {
+    development: 19223,
+    uat: 1311,
+    production: 928,
+  },
+  ztm2: {
+    development: 19215,
+    uat: 1297,
+    production: 920,
+  },
+};
+
+const getEnvironment = () => {
+  if (AppConfig.ENV === "development") {
+    return "development";
+  }
+  if (AppConfig.ENV === "uat") {
+    return "uat";
+  }
+  if (AppConfig.ENV === "production") {
+    return "production";
+  }
+  return "development";
+};
+
+const env = getEnvironment();
+
+export const BAGS_CONFIG = {
+  ztm0001: {
+    variant_id: bagsVariantId.ztm0001[env],
+  },
+  ztm0002: {
+    variant_id: bagsVariantId.ztm0002[env],
+  },
+  ztm4: {
+    variant_id: bagsVariantId.ztm4[env],
+  },
+  ztm1: {
+    variant_id: bagsVariantId.ztm1[env],
+  },
+  ztm2: {
+    variant_id: bagsVariantId.ztm2[env],
+  },
+} as const;
