@@ -345,14 +345,14 @@ const bagsVariantId = {
   },
 };
 
-const getEnvironment = () => {
-  if (AppConfig.ENV === "development") {
+export const getEnvironment = () => {
+  if (AppConfig.ENV === "DEV") {
     return "development";
   }
-  if (AppConfig.ENV === "uat") {
+  if (AppConfig.ENV === "UAT") {
     return "uat";
   }
-  if (AppConfig.ENV === "production") {
+  if (AppConfig.ENV === "PROD") {
     return "production";
   }
   return "development";
