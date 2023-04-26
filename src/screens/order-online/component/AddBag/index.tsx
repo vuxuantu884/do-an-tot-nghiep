@@ -18,11 +18,14 @@ import AddBagOutlined from "component/icon/AddBagOutlined";
 
 type Props = {
   addBag: (item: OrderLineItemRequest) => void;
+  disabled?: boolean;
+  children?: React.ReactNode;
 };
 
 const AddBag: React.FC<Props> = (props: Props) => {
   const { addBag } = props;
   const [bags, getBags] = useState<VariantResponse[]>([]);
+  const [visible, setVisible] = useState<boolean>(false);
 
   const createItem = (variant: VariantResponse) => {
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
@@ -120,8 +123,16 @@ const AddBag: React.FC<Props> = (props: Props) => {
   }, []);
   return (
     <StyledComponent>
-      <Popover placement="bottom" content={renderContent} trigger="click">
-        <Button icon={<AddBagOutlined />}>Thêm túi nhanh</Button>
+      <Popover
+        placement="bottom"
+        content={renderContent}
+        trigger="click"
+        visible={visible}
+        onVisibleChange={() => !props.disabled && setVisible(!visible)}
+      >
+        <Button icon={<AddBagOutlined />} disabled={props.disabled}>
+          {props.children}
+        </Button>
       </Popover>
     </StyledComponent>
   );

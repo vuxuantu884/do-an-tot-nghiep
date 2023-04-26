@@ -1,3 +1,4 @@
+import { Shipment } from "./../model/order/shipment.model";
 import { FulFillmentResponse } from "model/response/order/order.response";
 import { FulFillmentStatus } from "utils/Constants";
 import audioError from "assets/audio/am-bao-tra-loi-sai.wav";
@@ -125,4 +126,10 @@ export const showModalErrorAudio = (msg: React.ReactNode, title?: string | undef
   AudioErrorPlay.play();
   AudioErrorPlay.currentTime = 1;
   showModalError(msg, title);
+};
+
+export const getLogisticsInFulfillment = (fulfillment: FulFillmentResponse | any) => {
+  if (!fulfillment) return undefined; //không tìm thấy ffm
+  const logistics = fulfillment.shipment?.delivery_service_provider_code;
+  return logistics ?? undefined;
 };

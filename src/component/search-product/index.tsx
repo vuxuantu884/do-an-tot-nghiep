@@ -22,6 +22,7 @@ type Props = {
   placeholder?: string;
   reloadVariantDataFlag?: number;
   defaultActiveFirstOption?: boolean;
+  disabled?: boolean;
 };
 
 var barCode = "";
@@ -213,6 +214,7 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
         ref={autoCompleteRef}
         dropdownClassName="search-layout dropdown-search-header"
         style={{ width: "100%" }}
+        disabled={props.disabled}
       >
         <Input
           size="middle"

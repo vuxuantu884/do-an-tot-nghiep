@@ -95,10 +95,11 @@ import {
 import { DATE_FORMAT } from "utils/DateUtils";
 import {
   getFulfillmentActive,
+  getLogisticsInFulfillment,
   isFulfillmentConfirmed,
   sortFulfillments,
 } from "utils/fulfillmentUtils";
-import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
+import { ORDER_PAYMENT_STATUS, THIRD_PARTY_LOGISTICS_INTEGRATION } from "utils/Order.constants";
 import {
   canCreateShipment,
   checkIfECommerceByOrderChannelCodeUpdateOrder,
@@ -312,7 +313,11 @@ export default function Order(props: PropTypes) {
           !fulfillment ||
           fulfillment.shipment === null ||
           fulfillment.status === FulFillmentStatus.CANCELLED ||
-          isFulfillmentConfirmed(fulfillment)
+          (isFulfillmentConfirmed(fulfillment) &&
+            getLogisticsInFulfillment(fulfillment) !==
+              THIRD_PARTY_LOGISTICS_INTEGRATION.vnpost.code &&
+            getLogisticsInFulfillment(fulfillment) !==
+              THIRD_PARTY_LOGISTICS_INTEGRATION.nhattin.code)
         ) {
           if (
             !OrderDetail.payment_status ||

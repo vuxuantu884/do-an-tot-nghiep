@@ -2879,7 +2879,9 @@ function OrderCreateProduct(props: PropTypes) {
             >
               Kiểm tra tồn
             </Button>
-            <AddBag addBag={(_v) => addBagLineItem(_v)} />
+            <AddBag addBag={(_v) => addBagLineItem(_v)} disabled={levelOrder > 3}>
+              Thêm túi nhanh
+            </AddBag>
           </Space>
         }
       >
@@ -2971,6 +2973,7 @@ function OrderCreateProduct(props: PropTypes) {
                 placeholder="Tìm sản phẩm mã 7... (F3)/ Barcode sản phẩm"
                 storeId={storeId}
                 defaultActiveFirstOption={true}
+                disabled={levelOrder > 3}
               />
             </Form.Item>
           </Col>
