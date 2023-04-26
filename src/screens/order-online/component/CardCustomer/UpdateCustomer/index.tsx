@@ -974,6 +974,7 @@ const UpdateCustomer: React.FC<Props> = (props: Props) => {
                           suffixIcon={
                             <CalendarOutlined style={{ color: "#71767B", float: "left" }} />
                           }
+                          disabled={customer.birthday ? true : false}
                           onMouseLeave={() => {
                             const elm = document.getElementById("customer_update_birthday");
                             const newDate = elm?.getAttribute("value")
