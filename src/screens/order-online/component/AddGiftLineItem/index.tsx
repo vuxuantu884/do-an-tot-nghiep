@@ -26,6 +26,8 @@ import { VariantResponse } from "model/product/product.model";
 import { AppConfig } from "config/app.config";
 import { showError } from "utils/ToastUtils";
 import { EnumGiftType } from "config/enum.config";
+import GiftOrder from "assets/img/gift-order.png";
+import GiftItem from "assets/img/gift-item.png";
 
 type Props = {
   onOk: (
@@ -363,6 +365,11 @@ const AddGiftLineItem: React.FC<Props> = (props: Props) => {
                           value={item.price_rule_id}
                           disabled={disableSuggestDiscountRadioButton(item)}
                         >
+                          {item.isDiscountType === EnumGiftType.BY_ORDER ? (
+                            <img src={GiftOrder} width={18} alt="" />
+                          ) : (
+                            <img src={GiftItem} width={18} alt="" />
+                          )}{" "}
                           {item.title}
                         </Radio>
                       );
