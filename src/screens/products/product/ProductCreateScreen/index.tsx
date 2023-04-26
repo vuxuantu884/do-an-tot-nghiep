@@ -79,8 +79,6 @@ import { ImageProduct, ModalPickAvatar, UploadImageModal } from "../component";
 import { VariantImageModel } from "../component/UploadImageModal";
 import { StyledComponent } from "./styles";
 import BaseSelectPaging from "component/base/BaseSelect/BaseSelectPaging";
-import BaseSelectMerchans from "component/base/BaseSelect/BaseSelectMerchans";
-import { useFetchMerchans } from "hook/useFetchMerchans";
 import BaseSelect from "component/base/BaseSelect/BaseSelect";
 import CareModal from "screens/products/component/CareInformation";
 import { uniqBy } from "lodash";
@@ -89,6 +87,7 @@ import { VN_CODE } from "screens/settings/tax/helper";
 import useAuthorization from "hook/useAuthorization";
 import { ProductPermission } from "config/permissions/product.permission";
 import useFetchTaxConfig from "hook/useFetchTaxConfig";
+import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 const { TreeNode } = TreeSelect;
 const { Item, List } = Form;
 const { Option } = Select;
@@ -222,7 +221,6 @@ const ProductCreateScreen: React.FC = () => {
     metadata: { limit: 20, page: 1, total: 0 },
   });
   const [valueSearch, setValueSearch] = useState<string>("");
-  const { fetchMerchans, merchans, isLoadingMerchans } = useFetchMerchans();
   const { taxConfig } = useFetchTaxConfig();
   //end category
   //end state
@@ -1211,13 +1209,13 @@ const ProductCreateScreen: React.FC = () => {
               <Card className="card" title="Phòng Win">
                 <Item
                   name="merchandiser_code"
-                  label="Merchandiser"
+                  label="Mua hàng"
                   tooltip={{
                     title: "Chọn nhân viên mua hàng",
                     icon: <InfoCircleOutlined />,
                   }}
                 >
-                  <BaseSelectMerchans {...{ isLoadingMerchans, fetchMerchans, merchans }} />
+                  <AccountSearchPaging placeholder="Chọn nhân viên mua hàng" disabled />
                 </Item>
                 <Item
                   name="designer_code"
@@ -1226,11 +1224,14 @@ const ProductCreateScreen: React.FC = () => {
                     title: " Chọn nhân viên thiết kế",
                     icon: <InfoCircleOutlined />,
                   }}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn nhân viên thiết kế",
+                    },
+                  ]}
                 >
-                  <BaseSelectMerchans
-                    {...{ isLoadingMerchans, fetchMerchans, merchans }}
-                    placeholder="Chọn thiết kế"
-                  />
+                  <AccountSearchPaging placeholder="Chọn nhân viên thiết kế" />
                 </Item>
               </Card>
               <Card
