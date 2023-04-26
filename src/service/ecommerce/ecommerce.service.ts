@@ -313,6 +313,12 @@ export const gettingReplyFeedbacksApi = (body: any): Promise<any> => {
   return BaseAxios.post(requestUrl, body);
 };
 
+//ecommerce config - reload inventory
+export const reloadInventoryApi = (body: any): Promise<any> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/reload-warehouses`;
+  return BaseAxios.post(requestUrl, body);
+};
+
 //get log inventory follow variant
 export const getLogInventoryVariantApi = (variant_id: any) => {
   let link = `${ApiConfig.ECOMMERCE}/variants/sync-stock-logs/${variant_id}`;
