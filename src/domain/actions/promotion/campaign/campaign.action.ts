@@ -87,6 +87,14 @@ export const activePromotionCampaignAction = (
   return BaseAction(PromotionCampaignType.ACTIVE_PROMOTION_CAMPAIGN, { id, params, onResult });
 };
 
+export const disablePromotionCampaignAction = (
+  id: number,
+  params: UpdatePromotionCampaignStatusRequest,
+  onResult: (result: PromotionCampaignResponse) => void,
+) => {
+  return BaseAction(PromotionCampaignType.DISABLE_PROMOTION_CAMPAIGN, { id, params, onResult });
+};
+
 export const getPromotionCampaignLogsDetailAction = (
   id: number,
   onResult: (result: Array<PromotionCampaignLogsResponse>) => void,

@@ -10,6 +10,7 @@ import {
   getPromotionCampaignLogsDetailService,
   activePromotionCampaignService,
   updatePromotionCampaignItemService,
+  disablePromotionCampaignService,
 } from "service/promotion/campaign/campaign.service";
 import { YodyAction } from "base/base.action";
 import { takeLatest } from "typed-redux-saga";
@@ -109,6 +110,17 @@ function* activePromotionCampaignSaga(action: YodyAction) {
   );
 }
 
+function* disablePromotionCampaignSaga(action: YodyAction) {
+  const { id, params, onResult } = action.payload;
+  yield callApiSaga(
+    { notifyAction: "SHOW_ALL" },
+    onResult,
+    disablePromotionCampaignService,
+    id,
+    params,
+  );
+}
+
 function* getPromotionCampaignLogsDetailSaga(action: YodyAction) {
   const { id, onResult } = action.payload;
   yield callApiSaga(
@@ -134,6 +146,7 @@ export function* promotionCampaignSaga() {
     takeLatest(PromotionCampaignType.ACCOUNTANT_CONFIRM_REGISTER, accountantConfirmRegisterSaga),
     takeLatest(PromotionCampaignType.SETUP_PROMOTION_CAMPAIGN, setupPromotionCampaignSaga),
     takeLatest(PromotionCampaignType.ACTIVE_PROMOTION_CAMPAIGN, activePromotionCampaignSaga),
+    takeLatest(PromotionCampaignType.DISABLE_PROMOTION_CAMPAIGN, disablePromotionCampaignSaga),
     takeLatest(
       PromotionCampaignType.GET_PROMOTION_CAMPAIGN_LOG_DETAIL,
       getPromotionCampaignLogsDetailSaga,

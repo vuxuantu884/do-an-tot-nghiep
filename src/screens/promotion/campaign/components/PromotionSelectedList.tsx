@@ -125,7 +125,7 @@ function PromotionSelectedList({
       {
         title: "STT",
         align: "center",
-        width: "60px",
+        width: "40px",
         render: (value, row, index) => {
           return <span>{index + 1}</span>;
         },
@@ -167,7 +167,7 @@ function PromotionSelectedList({
       {
         title: "Thời gian",
         align: "center",
-        width: "150px",
+        width: "140px",
         render: (item: any) => (
           <DatePromotionColumn startDate={item.starts_date} endDate={item.ends_date} />
         ),
@@ -195,7 +195,7 @@ function PromotionSelectedList({
       {
         title: "Đăng ký BCT",
         align: "center",
-        width: "140px",
+        width: "100px",
         render: (item: any) => (
           <div>{item.is_registered ? <span>Đã đăng ký</span> : <span>Chưa đăng ký</span>}</div>
         ),
@@ -204,7 +204,7 @@ function PromotionSelectedList({
         title: "Trạng thái",
         dataIndex: "state",
         align: "center",
-        width: "140px",
+        width: "120px",
         render: (state: string) => {
           const StatusTag: ReactNode = DISCOUNT_STATUS.find((e: any) => e.code === state)
             ?.Component ?? <Fragment />;
@@ -215,7 +215,7 @@ function PromotionSelectedList({
 
     if (allowSetupPromotionCampaign) {
       defaultColumns.push({
-        width: "60px",
+        width: "40px",
         render: (item: any) => {
           return (
             <RemovePromotionColumnStyled>
