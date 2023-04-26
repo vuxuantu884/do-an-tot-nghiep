@@ -3,11 +3,14 @@ import { useDispatch } from "react-redux";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { useHistory } from "react-router-dom";
 import CustomSelect from "component/custom/select.custom";
-import { Button, Col, Form, FormInstance, Modal, Row, Select, Spin, Table } from "antd";
+import { Button, Col, Form, FormInstance, Modal, Row, Select, Spin, Table, Space } from "antd";
 
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
-import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
+import {
+  EcommerceResponse,
+  EcommerceShopInventory,
+} from "model/response/ecommerce/ecommerce.response";
 import { EcommerceRequest, EcommerceShopInventoryDto } from "model/request/ecommerce.request";
 import {
   ecommerceConfigUpdateAction,
@@ -39,7 +42,7 @@ import {
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import BaseResponse from "base/base.response";
-import { getEcommerceJobsApi } from "service/ecommerce/ecommerce.service";
+import { getEcommerceJobsApi, reloadInventoryApi } from "service/ecommerce/ecommerce.service";
 import { HttpStatus } from "config/http-status.config";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import ProgressConfigMultipleInventoryModal from "./ProgressConfigMultipleInventoryModal";
@@ -649,6 +652,31 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
     },
     [configDetail?.stock_available_min, handleConfigSetting],
   );
+
+  const onReloadInventory = useCallback(async () => {
+    const body = {
+      shop_id: configDetail?.id,
+      ecommerce_id: configDetail?.ecommerce_id,
+    };
+    try {
+      const res = await reloadInventoryApi(body);
+      if (!res.errors) {
+        const inventories: EcommerceShopInventory[] = res.data.inventories;
+        configDetail &&
+          setConfigDetail({
+            ...configDetail,
+            inventories,
+          });
+        showSuccess("Cập nhật kho hàng thành công");
+      } else {
+        res.errors.forEach((error: string) => {
+          showError(error);
+        });
+      }
+    } catch (error) {
+      showError("Lỗi cập nhật kho !!!");
+    }
+  }, [configDetail]);
 
   const onConfimChangeSafeInventory = useCallback(() => {
     handleConfigSetting(formRef.current?.getFieldsValue());
@@ -1320,14 +1348,26 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
             )}
 
             {allowShopsUpdate && (
-              <Button
-                type="primary"
-                htmlType="submit"
-                disabled={!configDetail || isLoading}
-                icon={<img src={saveIcon} alt="" />}
-              >
-                {isConfigExist ? "Lưu cấu hình" : "Tạo cấu hình"}
-              </Button>
+              <Space>
+                {configDetail &&
+                  (configDetail.ecommerce_id === 3 || configDetail.ecommerce_id === 4) && (
+                    <Button
+                      type="primary"
+                      disabled={!configDetail || isLoading}
+                      onClick={() => onReloadInventory()}
+                    >
+                      Cập nhật kho hàng
+                    </Button>
+                  )}
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  disabled={!configDetail || isLoading}
+                  icon={<img src={saveIcon} alt="" />}
+                >
+                  {configDetail ? "Lưu cấu hình" : "Tạo cấu hình"}
+                </Button>
+              </Space>
             )}
           </div>
         </Form>

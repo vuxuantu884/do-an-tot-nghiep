@@ -13,7 +13,7 @@ export interface EcommerceChangeOrderStatusReponse {
   success_list: Array<string>;
   error_list: Array<ChangeOrderStatusErrorLine>;
 }
-export interface EcommerceShopInventoryDto extends BaseObject {
+export interface EcommerceShopInventory extends BaseObject {
   store: String;
   store_id: Number;
   warehouse_id: Number | null;
@@ -40,7 +40,7 @@ export interface EcommerceResponse extends BaseObject {
   product_sync: String; // đồng bộ sản phẩm // Bằng tay và tự động
   auth_time: String; // thời gian bắt đầu kết nối
   expire_time: String; // thời gian hết hạn
-  inventories: Array<EcommerceShopInventoryDto>; // danh sách kho
+  inventories: Array<EcommerceShopInventory>; // danh sách kho
   source: String; // nguồn
   source_id: number; // id nguồn
   stores: Array<any>;
