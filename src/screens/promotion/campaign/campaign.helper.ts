@@ -13,6 +13,7 @@ export enum CAMPAIGN_STATUS_ENUM {
   REGISTERED = "REGISTERED",
   SET_UP = "SET_UP",
   ACTIVED = "ACTIVED",
+  DISABLED = "DISABLED",
 }
 
 export const CAMPAIGN_STEPS_LIST: Array<PromotionCampaignStep> = [

@@ -42,13 +42,13 @@
   }
   .modal-footer {
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
     align-items: center;
     .selected-number {
       font-weight: 600;
       font-size: 14px;
       line-height: 22px;
-      color: #2A2A86;
+      color: #2a2a86;
       margin-right: 12px;
     }
   }

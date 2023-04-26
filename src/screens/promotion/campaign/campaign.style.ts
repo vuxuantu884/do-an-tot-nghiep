@@ -180,6 +180,14 @@ export const PromotionCampaignDetailsStyled = styled.div`
     max-height: 250px;
     overflow: auto;
   }
+  .disable-button {
+    margin-right: 20px;
+    color: #f5222d;
+    border-color: #ffa39e;
+    &:hover {
+      background-color: #fff1f0;
+    }
+  }
 `;
 
 export const CustomerConditionDetailStyled = styled.div`

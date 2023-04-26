@@ -411,7 +411,9 @@ export const DISCOUNT_STATUS = [
   {
     code: "PENDING",
     value: "Chờ xác nhận",
-    Component: <PromotionStatusTag status={PriceRuleState.PENDING}>Chờ xác nhận</PromotionStatusTag>,
+    Component: (
+      <PromotionStatusTag status={PriceRuleState.PENDING}>Chờ xác nhận</PromotionStatusTag>
+    ),
   },
   {
     code: "CANCELLED",
@@ -424,27 +426,44 @@ export const CAMPAIGN_STATUS = [
   {
     code: CAMPAIGN_STATUS_ENUM.PENDING,
     value: "Chờ duyệt",
-    Component: <PromotionStatusTag status={CAMPAIGN_STATUS_ENUM.PENDING}>Chờ duyệt</PromotionStatusTag>,
+    Component: (
+      <PromotionStatusTag status={CAMPAIGN_STATUS_ENUM.PENDING}>Chờ duyệt</PromotionStatusTag>
+    ),
   },
   {
     code: CAMPAIGN_STATUS_ENUM.APPROVED,
     value: "Chờ đăng ký",
-    Component: <PromotionStatusTag status={CAMPAIGN_STATUS_ENUM.APPROVED}>Chờ đăng ký</PromotionStatusTag>,
+    Component: (
+      <PromotionStatusTag status={CAMPAIGN_STATUS_ENUM.APPROVED}>Chờ đăng ký</PromotionStatusTag>
+    ),
   },
   {
     code: CAMPAIGN_STATUS_ENUM.REGISTERED,
     value: "Chờ Setup",
-    Component: <PromotionStatusTag status={CAMPAIGN_STATUS_ENUM.REGISTERED}>Chờ Setup</PromotionStatusTag>,
+    Component: (
+      <PromotionStatusTag status={CAMPAIGN_STATUS_ENUM.REGISTERED}>Chờ Setup</PromotionStatusTag>
+    ),
   },
   {
     code: CAMPAIGN_STATUS_ENUM.SET_UP,
     value: "Chờ kích hoạt",
-    Component: <PromotionStatusTag status={CAMPAIGN_STATUS_ENUM.SET_UP}>Chờ kích hoạt</PromotionStatusTag>,
+    Component: (
+      <PromotionStatusTag status={CAMPAIGN_STATUS_ENUM.SET_UP}>Chờ kích hoạt</PromotionStatusTag>
+    ),
   },
   {
     code: CAMPAIGN_STATUS_ENUM.ACTIVED,
     value: "Đã kích hoạt",
-    Component: <PromotionStatusTag status={CAMPAIGN_STATUS_ENUM.ACTIVED}>Đã kích hoạt</PromotionStatusTag>,
+    Component: (
+      <PromotionStatusTag status={CAMPAIGN_STATUS_ENUM.ACTIVED}>Đã kích hoạt</PromotionStatusTag>
+    ),
+  },
+  {
+    code: CAMPAIGN_STATUS_ENUM.DISABLED,
+    value: "Tạm ngừng",
+    Component: (
+      <PromotionStatusTag status={CAMPAIGN_STATUS_ENUM.DISABLED}>Tạm ngừng</PromotionStatusTag>
+    ),
   },
 ];
 

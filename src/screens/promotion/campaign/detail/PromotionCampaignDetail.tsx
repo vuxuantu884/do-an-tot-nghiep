@@ -15,6 +15,7 @@ import {
   accountantConfirmRegisterAction,
   activePromotionCampaignAction,
   approvePromotionCampaignAction,
+  disablePromotionCampaignAction,
   getPromotionCampaignDetailAction,
   registerPromotionCampaignAction,
   setupPromotionCampaignAction,
@@ -24,7 +25,7 @@ import PromotionSelectedList from "screens/promotion/campaign/components/Promoti
 import PromotionCampaignProvider, {
   PromotionCampaignContext,
 } from "screens/promotion/campaign/components/PromotionCampaignProvider";
-import PromotionCampaignStep from "../components/PromotionCampaignStep";
+import PromotionCampaignStep from "screens/promotion/campaign/components/PromotionCampaignStep";
 import {
   CAMPAIGN_STEPS_LIST,
   CAMPAIGN_STATUS_ENUM,
@@ -92,6 +93,13 @@ const PromotionCampaignDetail: React.FC = () => {
           value: 4,
         };
         setCurrentStep(finishedStep);
+      } else if (data.state?.toUpperCase() === CAMPAIGN_STATUS_ENUM.DISABLED) {
+        const disabledStep = {
+          title: "Đăng ký chương trình",
+          key: CAMPAIGN_STATUS_ENUM.DISABLED,
+          value: 0,
+        };
+        setCurrentStep(disabledStep);
       } else {
         const step = CAMPAIGN_STEPS_LIST.find((item) => item.key === data.state?.toUpperCase());
         if (step) {
@@ -161,6 +169,7 @@ const PromotionCampaignDetail: React.FC = () => {
     return (
       currentStep.key === CAMPAIGN_STATUS_ENUM.REGISTERED ||
       currentStep.key === CAMPAIGN_STATUS_ENUM.ACTIVED ||
+      currentStep.key === CAMPAIGN_STATUS_ENUM.DISABLED ||
       currentStep.key === CAMPAIGN_STATUS_ENUM.SET_UP
     );
   }, [currentStep.key]);
@@ -249,6 +258,27 @@ const PromotionCampaignDetail: React.FC = () => {
       userReducerAccount?.user_name,
     ],
   );
+
+  /** Tạm ngừng chương trình khuyến mại */
+  const disablePromotionCampaign = useCallback(() => {
+    let params: any = {
+      updated_by: userReducerAccount?.user_name || "",
+      updated_name: userReducerAccount?.full_name || "",
+    };
+    dispatch(showLoading());
+    const successCallbackMessage = "Tạm ngừng chương trình khuyến mại thành công";
+    dispatch(
+      disablePromotionCampaignAction(idNumber, params, (data) => {
+        changePromotionCampaignStateCallback(data, successCallbackMessage);
+      }),
+    );
+  }, [
+    changePromotionCampaignStateCallback,
+    dispatch,
+    idNumber,
+    userReducerAccount?.full_name,
+    userReducerAccount?.user_name,
+  ]);
 
   const handleAccountantConfirmRegister = (accountantConfirmed: boolean) => {
     dispatch(showLoading());
@@ -450,6 +480,12 @@ const PromotionCampaignDetail: React.FC = () => {
                   <Link to={`${idNumber}/update`}>
                     <Button style={{ marginRight: "20px" }}>Chỉnh sửa chương trình</Button>
                   </Link>
+                )}
+
+                {allowActivePromotionCampaign && currentStep.key !== CAMPAIGN_STATUS_ENUM.DISABLED && (
+                  <Button onClick={disablePromotionCampaign} className={"disable-button"}>
+                    Tạm ngừng
+                  </Button>
                 )}
 
                 {allowApprovePromotionCampaign && currentStep.key === CAMPAIGN_STATUS_ENUM.PENDING && (

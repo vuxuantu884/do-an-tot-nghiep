@@ -92,6 +92,14 @@ export const activePromotionCampaignService = (
   return BaseAxios.put(`${ApiConfig.PROMOTION}${CAMPAIGNS}/${id}/active`, params);
 };
 
+/** Disable Promotion Campaign */
+export const disablePromotionCampaignService = (
+  id: number,
+  params: UpdatePromotionCampaignStatusRequest,
+): Promise<PromotionCampaignResponse> => {
+  return BaseAxios.put(`${ApiConfig.PROMOTION}${CAMPAIGNS}/${id}/disable`, params);
+};
+
 /** Get Promotion Campaign Logs Detail */
 export const getPromotionCampaignLogsDetailService = (
   id: number,
