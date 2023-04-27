@@ -13,8 +13,9 @@ import React, { useMemo } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch } from "react-redux";
 import { formatCurrency, getShippingAddressDefault, replaceFormatString } from "utils/AppUtils";
-import { checkIfOrderPageType } from "utils/OrderUtils";
+// import { checkIfOrderPageType } from "utils/OrderUtils";
 import { StyledComponent } from "./styles";
+import { dangerColor } from "utils/global-styles/variables";
 
 type PropTypes = {
   totalAmountCustomerNeedToPay: number | undefined;
@@ -38,49 +39,35 @@ type PropTypes = {
 
 interface DeliveryServiceWithFeeModel extends DeliveryServiceResponse {
   fees: FeesResponse[];
+  suggest: boolean;
 }
 
 function ShipmentMethodDeliverPartner(props: PropTypes) {
   const {
     totalAmountCustomerNeedToPay,
-    shippingServiceConfig,
+    // shippingServiceConfig,
     deliveryServices,
     infoFees,
     addressError,
     levelOrder = 0,
-    orderProductsAmount,
+    // orderProductsAmount,
     customer,
-    form,
+    // form,
     thirdPL,
     setThirdPL,
-    setShippingFeeInformedToCustomer,
+    // setShippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
-    orderPageType,
+    // orderPageType,
     handleChangeShippingFeeApplyOrderSettings,
   } = props;
 
-  const isOrderUpdatePage = checkIfOrderPageType.isOrderUpdatePage(orderPageType);
+  // const isOrderUpdatePage = checkIfOrderPageType.isOrderUpdatePage(orderPageType);
 
   const dispatch = useDispatch();
 
-  const serviceFees = useMemo(() => {
-    let services: DeliveryServiceWithFeeModel[] = [];
-    deliveryServices?.forEach((deliveryService) => {
-      const service = infoFees.filter(
-        (item) => item.delivery_service_code === deliveryService.code,
-      );
-      if (service.length) {
-        services.push({
-          ...deliveryService,
-          fees: service,
-        });
-      }
-    });
-    return services;
-  }, [deliveryServices, infoFees]);
-
   const shippingAddress = getShippingAddressDefault(customer);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleChangeThirdPLService = (
     serviceFee: DeliveryServiceWithFeeModel,
     fee: FeesResponse,
@@ -101,6 +88,38 @@ function ShipmentMethodDeliverPartner(props: PropTypes) {
     setThirdPL(thirdPLResult);
     dispatch(changeOrderThirdPLAction(thirdPLResult));
   };
+
+  const serviceFees = useMemo(() => {
+    let services: DeliveryServiceWithFeeModel[] = [];
+
+    deliveryServices?.forEach((deliveryService) => {
+      const service = infoFees.filter(
+        (item) => item.delivery_service_code === deliveryService.code,
+      );
+      const isSuggest = service.filter((item) => item.is_suggested);
+      if (service.length) {
+        services.push({
+          ...deliveryService,
+          fees: service,
+          suggest: isSuggest.length ? true : false,
+        });
+      }
+      if (isSuggest.length) {
+        handleChangeThirdPLService(
+          {
+            ...deliveryService,
+            fees: service,
+            suggest: isSuggest.length ? true : false,
+          },
+          isSuggest[0],
+        );
+      }
+    });
+    const newServices = services.sort((a: any, b: any) => b.suggest - a.suggest);
+
+    return newServices;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deliveryServices, infoFees]);
 
   const renderTableBody = () => {
     return serviceFees.map((serviceFee) => {
@@ -132,7 +151,10 @@ function ShipmentMethodDeliverPartner(props: PropTypes) {
                         }
                       />
                       <span className="checkmark"></span>
-                      {fee.transport_type_name}
+                      <span>{fee.transport_type_name}</span>
+                      <span style={{ color: dangerColor, fontWeight: 500 }}>
+                        {fee.is_suggested ? " - HVC gợi ý" : ""}
+                      </span>
                     </label>
                   </div>
                 );

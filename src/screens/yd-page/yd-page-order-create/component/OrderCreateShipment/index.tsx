@@ -31,6 +31,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getShippingAddressDefault,
+  getTotalAmount,
   handleCalculateShippingFeeApplyOrderSetting,
   SumWeight,
 } from "utils/AppUtils";
@@ -323,7 +324,9 @@ function OrderCreateShipment(props: PropType) {
       (getShippingAddressDefault(customer)?.city_id ||
         getShippingAddressDefault(customer)?.district_id) &&
       getShippingAddressDefault(customer)?.ward_id &&
-      getShippingAddressDefault(customer)?.full_address
+      getShippingAddressDefault(customer)?.full_address &&
+      items &&
+      items?.length > 0
     ) {
       let request = {
         from_city_id: storeDetail?.city_id,
@@ -351,6 +354,7 @@ function OrderCreateShipment(props: PropType) {
         insurance: 0,
         coupon: "",
         cod: 0,
+        product_value: getTotalAmount(items),
       };
       setAddressError("");
       dispatch(getFeesAction(request, setInfoFees));

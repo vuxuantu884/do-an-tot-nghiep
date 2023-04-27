@@ -48,7 +48,10 @@ import {
 import { DiscountRequestModel } from "model/request/promotion.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
-import { OrderResponse } from "model/response/order/order.response";
+import {
+  OrderCorrelativeVariantResponse,
+  OrderResponse,
+} from "model/response/order/order.response";
 import {
   ApplyCouponResponseModel,
   CustomApplyDiscount,
@@ -68,7 +71,6 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import AddGiftModal from "screens/order-online/modal/AddGiftModal/add-gift.modal";
 import { applyDiscountService } from "service/promotion/discount/discount.service";
 import {
   flattenArray,
@@ -98,24 +100,27 @@ import {
   ADMIN_ORDER,
   DISCOUNT_TYPE,
   EnumOrderType,
-  POS,
   PRODUCT_TYPE,
   ShipmentMethodOption,
   STORE_TYPE,
 } from "utils/Constants";
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import {
+  checkBag,
   checkIfECommerceByOrderChannelCode,
   checkIfECommerceByOrderChannelCodeUpdateOrder,
-  checkIfOrderSplit,
+  checkIfOrderSplit as checkIfSplitOrderIsValid,
+  checkOrderGiftWithSplitOrder,
   compareProducts,
+  getFlattenLineItem,
   getLineItemCalculationMoney,
   getPositionLineItem,
+  isGiftLineItem,
   lineItemsConvertInSearchPromotion,
   removeAllDiscountLineItems,
   removeDiscountLineItem,
 } from "utils/OrderUtils";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import { showError, showModalWarning, showSuccess, showWarning } from "utils/ToastUtils";
 import ImportProductByExcelButton from "./ImportProductByExcelButton";
 import CardProductBottom from "./CardProductBottom";
 import { StyledComponent } from "./styles";
@@ -128,6 +133,9 @@ import { getSuggestStoreInventory } from "service/core/store.service";
 import SuggestInventoryModal from "screens/order-online/modal/InventoryModal/suggest-inventory.modal";
 import OrderSplitModal from "screens/order-online/modal/OrderSplitModal";
 import SearchProductComponent from "component/search-product";
+import AddGiftLineItem from "screens/order-online/component/AddGiftLineItem";
+import AddBag from "screens/order-online/component/AddBag";
+import { EnumGiftType } from "config/enum.config";
 
 type PropTypes = {
   storeId: number | null;
@@ -181,6 +189,8 @@ type PropTypes = {
   };
   orderType?: string;
   orderChannel?: string;
+  giftTypeInOrder?: string | null;
+  orderCorrelativeVariant?: OrderCorrelativeVariantResponse;
 };
 
 // var barcode = "";
@@ -280,6 +290,7 @@ function OrderCreateProduct(props: PropTypes) {
     initItemSuggestDiscounts,
     initOrderSuggestDiscounts,
     handleApplyDiscountItemCallback,
+    orderCorrelativeVariant,
   } = props;
 
   const orderCustomer = useSelector(
@@ -337,7 +348,6 @@ function OrderCreateProduct(props: PropTypes) {
   };
   // const [loadingAutomaticDiscount] = useState(false);
   const [splitLine, setSplitLine] = useState<boolean>(false);
-  const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
   const [keySearchVariant, setKeySearchVariant] = useState("");
   // const [resultSearchVariant, setResultSearchVariant] = useState<PageResponse<VariantResponse>>({
   //   metadata: {
@@ -347,10 +357,7 @@ function OrderCreateProduct(props: PropTypes) {
   //   },
   //   items: [],
   // });
-
-  const [isVisibleGift, setVisibleGift] = useState(false);
   // const [searchProducts, setSearchProducts] = useState(false);
-  const [indexItem, setIndexItem] = useState<number>(-1);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
   // const [discountType, setDiscountType] = useState<string>(DISCOUNT_TYPE.MONEY);
   // const [isShowProductSearch, setIsShowProductSearch] = useState(true);
@@ -379,6 +386,9 @@ function OrderCreateProduct(props: PropTypes) {
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const [visibleOrderSplitModal, setVisibleOrderSplitModal] = useState<boolean>(false);
+  const [giftProgramForAllOrdersOrProduct, setGiftProgramForAllOrdersOrProduct] = useState<
+    string | null
+  >(null);
 
   const discountRate = promotion?.rate || 0;
   const discountValue = promotion?.value || 0;
@@ -420,112 +430,6 @@ function OrderCreateProduct(props: PropTypes) {
     }
     return;
   };
-
-  // const handleSearchBarcode = useCallback(
-  //   (barCode, items) => {
-  //     dispatch(
-  //       SearchBarCode(barCode, (data: VariantResponse) => {
-  //         if (data) {
-  //           let _items = [...items];
-  //           let index = _items.findIndex((i) => i.variant_id === data.id);
-  //           const item: OrderLineItemRequest = createItem(data);
-
-  //           item.position = items.length + 1;
-  //           if (true) {
-  //             if (splitLine || index === -1) {
-  //               _items.unshift(item);
-  //               if (!isAutomaticDiscount && !coupon) {
-  //                 calculateChangeMoney(_items);
-  //               }
-  //             } else {
-  //               let variantItems = _items.filter((item) => item.variant_id === data.id);
-  //               let firstIndex = 0;
-  //               variantItems[firstIndex].quantity += 1;
-  //               variantItems[firstIndex].line_amount_after_line_discount +=
-  //                 variantItems[firstIndex].price -
-  //                 variantItems[firstIndex].discount_items[0]?.amount *
-  //                   variantItems[firstIndex].quantity;
-  //               if (!isAutomaticDiscount && !coupon) {
-  //                 calculateChangeMoney(_items);
-  //               }
-  //             }
-  //           }
-
-  //           const isLineItemSemiAutomatic = _items.some((p) => p.isLineItemSemiAutomatic); // xác định là ck line item thủ công
-  //           const isOrderSemiAutomatic = promotion?.isOrderSemiAutomatic; //xác định là ck đơn hàng thủ công
-  //           if (isLineItemSemiAutomatic) {
-  //             if (
-  //               props.isPageOrderUpdate &&
-  //               !splitLine &&
-  //               items.some((p: any) => p.sku === item.sku && p?.discount_items[0])
-  //             ) {
-  //               const _index = _items.findIndex((p) => p.sku === item.sku);
-  //               _items[index].discount_items[0] &&
-  //                 handUpdateDiscountWhenChangingOrderInformation(_items, _index);
-  //             } else if (!props.isPageOrderUpdate) {
-  //               handUpdateDiscountWhenChangingOrderInformation(_items);
-  //             }
-  //           } else if (isOrderSemiAutomatic) {
-  //             handUpdateDiscountWhenChangingOrderInformation(_items);
-  //           } else if (isAutomaticDiscount) {
-  //             handleApplyDiscount(_items);
-  //           }
-  //           setIsInputSearchProductFocus(false);
-  //         }
-  //       }),
-  //     );
-  //   },
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   [couponInputText, dispatch, isAutomaticDiscount, splitLine, props.orderType],
-  // );
-
-  // const eventKeyPress = useCallback(
-  //   (event: KeyboardEvent) => {
-  //     if (event.target instanceof HTMLBodyElement) {
-  //       if (event.key !== "Enter") {
-  //         barcode = barcode + event.key;
-  //       } else if (event.key === "Enter") {
-  //         if (barcode !== "" && event && items) {
-  //           handleSearchBarcode(barcode, items);
-  //           barcode = "";
-  //         }
-  //       }
-  //       return;
-  //     }
-  //   },
-
-  //   [items, handleSearchBarcode],
-  // );
-
-  // const eventKeydown = useCallback(
-  //   (event: any) => {
-  //     if (event.target instanceof HTMLInputElement) {
-  //       if (event.target.id === "search_product") {
-  //         if (event.key !== "Enter") barcode = barcode + event.key;
-
-  //         if (event.key === "Enter") {
-  //           onClearVariantSearch();
-  //           isBarcode = true;
-  //           if (barcode !== "" && event && items) {
-  //             handleSearchBarcode(barcode, items);
-  //             barcode = "";
-  //           }
-  //         } else {
-  //           isBarcode = false;
-  //           handleDelayActionWhenInsertTextInSearchInput(
-  //             autoCompleteRef,
-  //             () => {
-  //               barcode = "";
-  //             },
-  //             500,
-  //           );
-  //         }
-  //       }
-  //     }
-  //   },
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   [handleSearchBarcode, items],
-  // );
 
   const isShouldUpdatePrivateNote = useMemo(() => {
     if (props.isPageOrderUpdate && form.getFieldValue("note")) {
@@ -574,17 +478,6 @@ function OrderCreateProduct(props: PropTypes) {
       return _amount;
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [items],
-  );
-
-  const showAddGiftModal = useCallback(
-    (index: number) => {
-      if (items) {
-        setIndexItem(index);
-        setItemGift([...items[index].gifts]);
-        setVisibleGift(true);
-      }
-    },
     [items],
   );
 
@@ -691,6 +584,271 @@ function OrderCreateProduct(props: PropTypes) {
     }
   };
 
+  const handUpdateGiftWhenChangingOrderInformation = (
+    _items: OrderLineItemRequest[],
+    nextFunction?: (nextItems: OrderLineItemRequest[]) => void,
+    _indexItem?: number,
+  ) => {
+    const setLineItemUpdate = (_v: OrderLineItemRequest[]) => {
+      if (nextFunction) {
+        nextFunction(_v);
+      } else {
+        setItems(_v);
+      }
+    };
+    const getItemsCollection = () => {
+      let _itemsCollection = _.cloneDeep(_items);
+      if (props.isPageOrderUpdate && orderCorrelativeVariant && orderCorrelativeVariant.split) {
+        _itemsCollection.push(...orderCorrelativeVariant.items);
+      }
+      _itemsCollection = getFlattenLineItem(_itemsCollection) as OrderLineItemRequest[];
+
+      return _itemsCollection;
+    };
+
+    const checkAllLineItemNoGift = (_v: OrderLineItemRequest[]) => {
+      const check1 = _v.some((p) => p.gifts && p.gifts.length !== 0);
+      const check2 =
+        orderCorrelativeVariant?.split && orderCorrelativeVariant?.items.length !== 0
+          ? orderCorrelativeVariant?.items.some((item) => isGiftLineItem(item.type))
+          : false;
+      return check1 || check2;
+    };
+
+    const checkLineItemNoGift = (index: number) => {
+      const item = _items[index];
+      if (item.gifts && item.gifts.length !== 0) {
+        return false;
+      }
+
+      return true;
+    };
+
+    const handleGiftAllUpdate = async (_itemsCollection: OrderLineItemRequest[]) => {
+      const _suggestedDiscounts = await callGiftApi(_itemsCollection);
+      const validGiftsInLineItem = _items.map((item) => {
+        let gifts: OrderLineItemRequest[] = item.gifts;
+        const priceRuleId =
+          item.gifts && item.gifts.length !== 0
+            ? item.gifts[0].discount_items && item.gifts[0].discount_items.length !== 0
+              ? item.gifts[0].discount_items[0].promotion_id || null
+              : null
+            : null;
+
+        const _giftType =
+          item.gifts && item.gifts.length !== 0
+            ? item.gifts[0].discount_items && item.gifts[0].discount_items.length !== 0
+              ? item.gifts[0].type
+              : null
+            : null;
+
+        if (!priceRuleId) {
+          gifts = [];
+        } else if (_giftType === EnumGiftType.BY_ITEM) {
+          const suggestedDiscountsWithGiftsInVariant = _suggestedDiscounts.filter(
+            (p: any) => p.variantCurrenId === item.variant_id,
+          );
+          if (!suggestedDiscountsWithGiftsInVariant.some((p) => p.price_rule_id === priceRuleId)) {
+            gifts = [];
+          }
+        } else if (_giftType === EnumGiftType.BY_ORDER) {
+          if (!_suggestedDiscounts.some((p) => p.price_rule_id === priceRuleId)) {
+            gifts = [];
+          }
+        } else {
+          gifts = [];
+        }
+
+        return {
+          ...item,
+          gifts: gifts,
+        };
+      });
+      console.log("validGiftsInLineItem", validGiftsInLineItem);
+
+      if (!checkAllLineItemNoGift(validGiftsInLineItem)) {
+        setGiftProgramForAllOrdersOrProduct(null);
+      }
+
+      setLineItemUpdate(validGiftsInLineItem);
+    };
+
+    const handleGiftUpdateFromIndex = async (
+      _itemsCollection: OrderLineItemRequest[],
+      index: number,
+    ) => {
+      if (index === -1) {
+        setLineItemUpdate(_items);
+        return;
+      } else if (checkLineItemNoGift(index)) {
+        setLineItemUpdate(_items);
+        return;
+      }
+
+      const _suggestedDiscounts = await callGiftApi(_itemsCollection);
+
+      let _item = _items[index];
+      const priceRuleId =
+        _item.gifts && _item.gifts.length !== 0
+          ? _item.gifts[0].discount_items && _item.gifts[0].discount_items.length !== 0
+            ? _item.gifts[0].discount_items[0].promotion_id || null
+            : null
+          : null;
+
+      const suggestedDiscountsWithGiftsInVariant = _suggestedDiscounts.filter(
+        (p: any) => p.variantCurrenId === _items[index].variant_id,
+      );
+      if (!suggestedDiscountsWithGiftsInVariant.some((p) => p.price_rule_id === priceRuleId)) {
+        _item.gifts = [];
+      }
+
+      if (!checkAllLineItemNoGift(_items)) {
+        setGiftProgramForAllOrdersOrProduct(null);
+      }
+
+      setLineItemUpdate(_items);
+    };
+
+    const handleCheckGiftTypeOrderUpdate = async (_itemsCollection: OrderLineItemRequest[]) => {
+      const _suggestedDiscounts = await callGiftApi(_itemsCollection);
+      const validateGift = (item: OrderLineItemRequest) => {
+        const priceRuleId =
+          item.discount_items && item.discount_items.length !== 0
+            ? item.discount_items[0].promotion_id || null
+            : null;
+
+        const _giftType = item.type;
+        if (!priceRuleId) return true;
+
+        if (_giftType !== EnumGiftType.BY_ORDER) return true;
+
+        if (_suggestedDiscounts.some((p) => p.price_rule_id === priceRuleId)) return true;
+        return false;
+      };
+
+      const check = _itemsCollection
+        .filter((item) => isGiftLineItem(item.type))
+        .some((item) => !validateGift(item));
+
+      if (check) {
+        showModalWarning(
+          "Chương trình quà tặng không thỏa mãn với đơn hàng, vui lòng kiểm tra lại các đơn hàng liên quan",
+          "Cảnh báo",
+        );
+      }
+
+      setLineItemUpdate(_items);
+    };
+
+    const callGiftApi = (_itemsCollection: OrderLineItemRequest[]) =>
+      new Promise<SuggestDiscountResponseModel[]>(async (resolve, reject) => {
+        const lineItemRequest = _itemsCollection.filter((item) => !isGiftLineItem(item.type));
+
+        const uniqueItems = [...lineItemRequest].filter(
+          (obj, index, self) => index === self.findIndex((o) => o.sku === obj.sku),
+        );
+
+        const param: DiscountRequestModel = {
+          order_id: null,
+          customer_id: customer?.id || null,
+          order_source_id: form.getFieldValue("source_id"),
+          store_id: form.getFieldValue("store_id"),
+          sales_channel_name: props.orderChannel || ADMIN_ORDER.channel_name,
+          type: "GIFT",
+          line_items:
+            uniqueItems?.map((_item) => ({
+              original_unit_price: _item.price,
+              product_id: _item.product_id,
+              quantity: _item.quantity,
+              sku: _item.sku,
+              variant_id: _item.variant_id,
+            })) || [],
+        };
+
+        const response = await applyDiscountService(param);
+        if (isFetchApiSuccessful(response)) {
+          const _suggestedDiscounts: SuggestDiscountResponseModel[] = [];
+          if (response.data.suggested_discounts && response.data.suggested_discounts.length !== 0) {
+            const customSuggestedDiscounts = response.data.suggested_discounts.map(
+              (p: SuggestDiscountResponseModel) => ({
+                ...p,
+                variantCurrenId: null,
+                isDiscountType: EnumGiftType.BY_ORDER,
+              }),
+            );
+            _suggestedDiscounts.push(...customSuggestedDiscounts);
+          }
+
+          if (response.data.line_items && response.data.line_items.length !== 0) {
+            const mapSuggestedDiscountsItem = response.data.line_items.map((p) => {
+              const map = p.suggested_discounts.map((p1) => ({
+                ...p1,
+                variantCurrenId: p.variant_id,
+              }));
+              return map;
+            });
+            const suggestedDiscountsItem = flattenArray(mapSuggestedDiscountsItem);
+
+            const suggestedDiscountsItemAddDiscountType = suggestedDiscountsItem.map((p: any) => ({
+              ...p,
+              variantCurrenId: p.variantCurrenId,
+              isDiscountType: EnumGiftType.BY_ITEM,
+            }));
+            _suggestedDiscounts.push(...suggestedDiscountsItemAddDiscountType);
+          }
+
+          const suggestedDiscountsWithGifts = _suggestedDiscounts.filter(
+            (p) => p.gifts && p.gifts?.length !== 0,
+          );
+
+          resolve(suggestedDiscountsWithGifts);
+        } else {
+          reject();
+        }
+      });
+
+    const checkGiftTypeOrderOfOrderSplit = () => {
+      return (
+        props.isPageOrderUpdate &&
+        orderCorrelativeVariant &&
+        orderCorrelativeVariant.split &&
+        orderCorrelativeVariant.items.some((item) => item.type === EnumGiftType.BY_ORDER)
+      );
+    };
+
+    (async () => {
+      try {
+        const _itemsCollection = getItemsCollection();
+
+        const giftType = _itemsCollection.find((p) => isGiftLineItem(p.type))?.type;
+
+        if (!checkAllLineItemNoGift(_items)) {
+          setLineItemUpdate(_items);
+          setGiftProgramForAllOrdersOrProduct(null);
+          return;
+        }
+
+        if (
+          giftType === EnumGiftType.BY_ITEM &&
+          !_items.some((p) => p.gifts && p.gifts.length !== 0)
+        ) {
+          setLineItemUpdate(_items);
+          return;
+        }
+
+        if (checkGiftTypeOrderOfOrderSplit()) {
+          await handleCheckGiftTypeOrderUpdate(_itemsCollection);
+        } else if (giftType === EnumGiftType.BY_ITEM && _indexItem !== undefined) {
+          await handleGiftUpdateFromIndex(_itemsCollection, _indexItem);
+        } else {
+          await handleGiftAllUpdate(_itemsCollection);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    })();
+  };
+
   const onChangeQuantity = (value: number | null, index: number) => {
     if (items) {
       let _items = _.cloneDeep(items);
@@ -712,7 +870,14 @@ function OrderCreateProduct(props: PropTypes) {
       _item.discount_rate = getLineItemDiscountRate(_item);
       _item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(_item);
 
-      handUpdateDiscountWhenChangingOrderInformation(_items, index);
+      // handUpdateDiscountWhenChangingOrderInformation(_items, index);
+      handUpdateGiftWhenChangingOrderInformation(
+        _items,
+        (_nextItems) => {
+          handUpdateDiscountWhenChangingOrderInformation(_nextItems, index);
+        },
+        index,
+      );
       if (_item.discount_items && _item.discount_items[0]) {
         handleApplyDiscountItemCallback && handleApplyDiscountItemCallback(_item);
       }
@@ -729,8 +894,13 @@ function OrderCreateProduct(props: PropTypes) {
       if (value) {
         if (value !== _items[index].price) {
           _items[index].price = value;
-          handUpdateDiscountWhenChangingOrderInformation(_items, index);
-          // handleDelayCalculateWhenChangeOrderInput(lineItemPriceInputTimeoutRef, _items);
+          handUpdateGiftWhenChangingOrderInformation(
+            _items,
+            (_nextItems) => {
+              handUpdateDiscountWhenChangingOrderInformation(_nextItems, index);
+            },
+            index,
+          );
         }
       } else {
         _items[index].price = 0;
@@ -738,35 +908,23 @@ function OrderCreateProduct(props: PropTypes) {
         _items[index].discount_amount = 0;
         _items[index].discount_value = 0;
         _items[index].discount_rate = 0;
-        handUpdateDiscountWhenChangingOrderInformation(_items, index);
-        // handleDelayCalculateWhenChangeOrderInput(lineItemPriceInputTimeoutRef, _items);
+        handUpdateGiftWhenChangingOrderInformation(
+          _items,
+          (_nextItems) => {
+            handUpdateDiscountWhenChangingOrderInformation(_nextItems, index);
+          },
+          index,
+        );
+        // handUpdateDiscountWhenChangingOrderInformation(_items, index);
       }
     }
   };
-
-  // const convertResultSearchVariant = useMemo(() => {
-  //   let options: any[] = [];
-  //   resultSearchVariant.items.forEach((item: VariantResponse, index: number) => {
-  //     options.push({
-  //       label: <SearchedVariant item={item} isWholesale={props.orderType === EnumOrderType.b2b} />,
-  //       value: item.id ? item.id.toString() : "",
-  //     });
-  //   });
-  //   return options;
-  // }, [resultSearchVariant, props.orderType]);
 
   const checkIfLineItemHasAutomaticDiscount = (lineItem: OrderLineItemRequest) => {
     return lineItem.discount_items.some(
       (discount) => discount.promotion_id && discount?.amount > 0,
     );
   };
-
-  // const checkIfOrderHasAutomaticDiscount = () => {
-  // 	if (promotion && promotion.promotion_id && promotion?.amount && promotion?.amount > 0) {
-  // 		return true;
-  // 	}
-  // 	return false;
-  // };
 
   const ProductColumn = {
     title: () => <div className="columnHeading__product">Sản phẩm</div>,
@@ -851,6 +1009,20 @@ function OrderCreateProduct(props: PropTypes) {
     if (isLineItemChanging) {
       return true;
     }
+    return false;
+  };
+
+  const isDisableAddGiftLineItem = () => {
+    if (
+      props.isPageOrderUpdate &&
+      orderCorrelativeVariant &&
+      orderCorrelativeVariant.split &&
+      orderCorrelativeVariant.items.some((p) => p.type === EnumGiftType.BY_ORDER)
+    ) {
+      return true;
+    }
+    if (giftProgramForAllOrdersOrProduct === EnumGiftType.BY_ORDER) return true;
+
     return false;
   };
 
@@ -1106,19 +1278,61 @@ function OrderCreateProduct(props: PropTypes) {
     width: "10%",
     className: "saleorder-product-card-action ",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
+      const priceRuleId =
+        l.gifts && l.gifts.length !== 0
+          ? l.gifts[0].discount_items && l.gifts[0].discount_items.length !== 0
+            ? l.gifts[0].discount_items[0].promotion_id || null
+            : null
+          : null;
       const menu = (
         <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
           <StyledComponent>
             <Menu.Item key="1">
-              <Button
-                type="text"
-                onClick={() => showAddGiftModal(index)}
-                className="columnBody__actions-button"
-              >
-                Thêm quà tặng
-              </Button>
+              <AddGiftLineItem
+                priceRuleId={priceRuleId}
+                giftProgramForAllOrdersOrProduct={giftProgramForAllOrdersOrProduct}
+                selectedItem={l}
+                itemsGift={l.gifts}
+                onOk={(
+                  _v: OrderLineItemRequest[],
+                  _giftProgramForAllOrdersOrProduct: string | null,
+                ) => {
+                  onOkConfirm(index, _v, _giftProgramForAllOrdersOrProduct);
+                }}
+                param={{
+                  order_id: null,
+                  customer_id: customer?.id || null,
+                  order_source_id: form.getFieldValue("source_id"),
+                  store_id: form.getFieldValue("store_id"),
+                  sales_channel_name: props.orderChannel || ADMIN_ORDER.channel_name,
+                  type: "GIFT",
+                  line_items:
+                    items?.map((_item) => ({
+                      original_unit_price: _item.price,
+                      product_id: _item.product_id,
+                      quantity: _item.quantity,
+                      sku: _item.sku,
+                      variant_id: _item.variant_id,
+                    })) || [],
+                }}
+                disabled={isDisableAddGiftLineItem() && !priceRuleId}
+              />
             </Menu.Item>
-            <Menu.Item key="2">
+            {priceRuleId && (
+              <Menu.Item key="2">
+                <Button
+                  type="text"
+                  onClick={() => {
+                    removeDiscountGiftFromLineItem(index);
+                  }}
+                  className="columnBody__actions-button"
+                >
+                  Xóa quà tặng
+                </Button>
+              </Menu.Item>
+            )}
+
+            <Menu.Item key="3">
               <Button
                 type="text"
                 onClick={() => {
@@ -1259,9 +1473,29 @@ function OrderCreateProduct(props: PropTypes) {
     _items.splice(index, 1);
     if (_items.length === 0) {
       calculateChangeMoney(_items, null);
-    } else {
-      handUpdateDiscountWhenChangingOrderInformation(_items, -1);
     }
+
+    console.log("orderDetail?.special_order?.type", orderDetail?.special_order?.type);
+    if (
+      orderDetail?.special_order?.type !== "orders_split" &&
+      props.isPageOrderUpdate &&
+      orderCorrelativeVariant &&
+      checkOrderGiftWithSplitOrder(orderCorrelativeVariant, _items)
+    ) {
+      handUpdateDiscountWhenChangingOrderInformation(_items, -1);
+    } else {
+      handUpdateGiftWhenChangingOrderInformation(
+        _items,
+        (_nextItems) => {
+          handUpdateDiscountWhenChangingOrderInformation(_nextItems, -1);
+        },
+        -1,
+      );
+    }
+    // else {
+    //   // handUpdateDiscountWhenChangingOrderInformation(_items, -1);
+    //   handUpdateChangingOrderInformation(_items, -1);
+    // }
   };
 
   const calculateDiscount = (_item: OrderLineItemRequest, _highestValueSuggestDiscount: any) => {
@@ -1508,6 +1742,22 @@ function OrderCreateProduct(props: PropTypes) {
       });
   };
 
+  const deleteAllGiftsInDiscount = (_v: ApplyCouponResponseModel) => {
+    const discountLineItems = _v.line_items.map((p) => ({
+      ...p,
+      suggested_discounts: p.suggested_discounts.filter(
+        (x) => !x.gifts || (x.gifts && x.gifts?.length === 0),
+      ),
+    }));
+
+    const discountOrder = _v.suggested_discounts.filter(
+      (x) => !x.gifts || (x.gifts && x.gifts?.length === 0),
+    );
+
+    _v.line_items = discountLineItems;
+    _v.suggested_discounts = discountOrder;
+  };
+
   /**
    * Cập nhật chiết khấu tự động
    * @param items
@@ -1546,6 +1796,7 @@ function OrderCreateProduct(props: PropTypes) {
     applyDiscountService(params)
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
+          deleteAllGiftsInDiscount(response.data); // xóa gift
           const itemClone = [...items];
           const newItem = itemClone.map((single) => {
             single.discount_items = [];
@@ -1611,292 +1862,6 @@ function OrderCreateProduct(props: PropTypes) {
       });
   };
 
-  //đóng
-  // const handleApplyCouponWhenInsertCoupon = async (coupon: string, _items = items) => {
-  //   isShouldUpdateCouponRef.current = true;
-  //   if (!_items || _items?.length === 0 || !coupon) {
-  //     return;
-  //   }
-  //   handleRemoveAllAutomaticDiscount();
-  //   coupon = coupon.trim();
-  //   if (!isAutomaticDiscount) {
-  //     let params: DiscountRequestModel = {
-  //       order_id: orderDetail?.id || null,
-  //       customer_id: customer?.id || null,
-  //       gender: customer?.gender || null,
-  //       customer_group_id: customer?.customer_group_id || null,
-  //       customer_loyalty_level_id: loyaltyPoint?.loyalty_level_id || null,
-  //       customer_type_id: customer?.type_id || null,
-  //       birthday_date: customer?.birthday || null,
-  //       wedding_date: customer?.wedding_date || null,
-  //       store_id: form.getFieldValue("store_id"),
-  //       sales_channel_name: isReturnOffline ? POS.source_name : ADMIN_ORDER.channel_name,
-  //       order_source_id: form.getFieldValue("source_id"),
-  //       assignee_code: customer?.responsible_staff_code || null,
-  //       line_items: lineItemsConvert(_items),
-  //       applied_discount: {
-  //         code: coupon,
-  //       },
-  //       taxes_included: true,
-  //       tax_exempt: false,
-  //     };
-  //     dispatch(showLoading());
-  //     setIsLoadingDiscount(true);
-  //     dispatch(changeIsLoadingDiscountAction(true));
-  //     await applyDiscountService(params)
-  //       .then(async (response: BaseResponse<ApplyCouponResponseModel>) => {
-  //         if (isFetchApiSuccessful(response)) {
-  //           const applyDiscountResponse = response.data.applied_discount;
-  //           if (applyDiscountResponse.invalid === true) {
-  //             showError(applyDiscountResponse.invalid_description);
-  //             if (
-  //               applyDiscountResponse.invalid_description === "Mã khuyến mại không tồn tại." ||
-  //               applyDiscountResponse.invalid_description === "Khuyến mại đã hết lượt sử dụng."
-  //             ) {
-  //               _items?.forEach((item) => {
-  //                 // removeDiscountItem(item);
-  //                 removeAutomaticDiscountItem(item);
-  //               });
-  //               setCouponInputText && setCouponInputText(coupon);
-  //             } else {
-  //               setCouponInputText && setCouponInputText(coupon);
-  //             }
-  //             setCoupon && setCoupon("");
-  //             setItems(_items);
-  //             calculateChangeMoney(_items);
-  //             setPromotion && setPromotion(null);
-  //           } else {
-  //             setCoupon && setCoupon(coupon);
-  //             setCouponInputText(coupon);
-  //             // const discount_code = applyDiscountResponse.code || undefined;
-  //             let couponType = applyDiscountResponse.value_type;
-  //             let listDiscountItem: any[] = [];
-  //             let totalAmount = getTotalAmountAfterDiscount(_items);
-  //             response.data.line_items.forEach((single) => {
-  //               if (listDiscountItem.some((a) => a.variant_id === single.variant_id)) {
-  //                 return;
-  //               } else if (single.applied_discount?.invalid !== false) {
-  //                 return;
-  //               } else {
-  //                 listDiscountItem.push(single);
-  //               }
-  //             });
-  //             let promotionResult = {
-  //               ...promotion,
-  //               sub_type: applyDiscountResponse.value_type || "",
-  //             };
-  //             switch (couponType) {
-  //               case DISCOUNT_VALUE_TYPE.percentage:
-  //                 if (applyDiscountResponse.value) {
-  //                   let discountRate = Math.min(100, applyDiscountResponse.value);
-  //                   let discountValue = (applyDiscountResponse.value / 100) * totalAmount;
-  //                   promotionResult = {
-  //                     amount: discountValue,
-  //                     discount_code: applyDiscountResponse.code,
-  //                     promotion_id: null,
-  //                     rate: discountRate,
-  //                     value: discountValue,
-  //                     sub_type: applyDiscountResponse.value_type || "",
-  //                   };
-  //                 }
-  //                 break;
-  //               case DISCOUNT_VALUE_TYPE.fixedAmount:
-  //                 if (applyDiscountResponse.value) {
-  //                   let discountValue = Math.min(applyDiscountResponse.value, totalAmount);
-  //                   let discountRate = (discountValue / totalAmount) * 100;
-  //                   promotionResult = {
-  //                     amount: discountValue,
-  //                     discount_code: applyDiscountResponse.code,
-  //                     promotion_id: null,
-  //                     rate: discountRate,
-  //                     value: discountValue,
-  //                     sub_type: applyDiscountResponse.value_type || "",
-  //                   };
-  //                 }
-  //                 break;
-  //               case DISCOUNT_VALUE_TYPE.fixedPrice:
-  //                 if (applyDiscountResponse.value) {
-  //                   let value = orderProductsAmount - applyDiscountResponse.value;
-  //                   let discountValue = Math.min(value, totalAmount);
-  //                   let discountRate = (discountValue / totalAmount) * 100;
-  //                   promotionResult = {
-  //                     amount: discountValue,
-  //                     discount_code: applyDiscountResponse.code,
-  //                     promotion_id: null,
-  //                     rate: discountRate,
-  //                     value: discountValue,
-  //                     sub_type: applyDiscountResponse.value_type || "",
-  //                   };
-  //                 }
-  //                 break;
-  //               // default là chiết khấu theo line
-  //               default:
-  //                 let lineItemDiscountArray = response.data.line_items.filter((single) => {
-  //                   return single.applied_discount?.invalid === false;
-  //                 });
-  //                 _items.forEach((singleItem) => {
-  //                   let itemDiscount = lineItemDiscountArray.find((singleLineItem) => {
-  //                     return singleLineItem.variant_id === singleItem.variant_id;
-  //                   });
-  //                   if (itemDiscount) {
-  //                     let applyDiscountLineItem = itemDiscount.applied_discount;
-  //                     let discount_value = 0;
-  //                     switch (applyDiscountLineItem?.value_type) {
-  //                       case DISCOUNT_VALUE_TYPE.percentage:
-  //                         discount_value = applyDiscountLineItem?.value
-  //                           ? (applyDiscountLineItem?.value / 100) * singleItem.price
-  //                           : 0;
-  //                         break;
-  //                       case DISCOUNT_VALUE_TYPE.fixedAmount:
-  //                         discount_value = applyDiscountLineItem?.value || 0;
-  //                         break;
-  //                       case DISCOUNT_VALUE_TYPE.fixedPrice:
-  //                         discount_value = applyDiscountLineItem?.value
-  //                           ? singleItem.price - applyDiscountLineItem?.value
-  //                           : 0;
-  //                         break;
-  //                       default:
-  //                         break;
-  //                     }
-  //                     if (discount_value > 0) {
-  //                       discount_value = Math.min(discount_value, singleItem.price);
-  //                       let discount_rate = (discount_value * 100) / singleItem.price;
-  //                       singleItem.discount_items = [
-  //                         {
-  //                           ...singleItem.discount_items[0],
-  //                           amount: singleItem.quantity * discount_value,
-  //                           value: discount_value,
-  //                           rate: discount_rate ? Math.round(discount_rate * 100) / 100 : 0,
-  //                           reason: applyDiscountLineItem?.title || null,
-  //                         },
-  //                       ];
-  //                       singleItem.discount_value = getLineItemDiscountValue(singleItem);
-  //                       singleItem.discount_rate = getLineItemDiscountRate(singleItem);
-  //                       singleItem.discount_amount = getLineItemDiscountAmount(singleItem);
-  //                       singleItem.line_amount_after_line_discount =
-  //                         getLineAmountAfterLineDiscount(singleItem);
-  //                     }
-  //                   } else {
-  //                     // removeDiscountItem(singleItem);
-  //                     removeAutomaticDiscountItem(singleItem);
-  //                   }
-  //                 });
-  //                 calculateChangeMoney(_items);
-  //                 setPromotion &&
-  //                   setPromotion({
-  //                     amount: 0,
-  //                     discount_code: applyDiscountResponse.code,
-  //                     promotion_id: null,
-  //                     rate: 0,
-  //                     value: 0,
-  //                     sub_type: applyDiscountResponse.value_type || "",
-  //                   });
-  //                 break;
-  //             }
-  //             if (isShouldUpdatePrivateNote) {
-  //               // form.setFieldsValue({
-  //               //   note: `(${applyDiscountResponse.code}-${applyDiscountResponse.title})`,
-  //               // });
-  //             }
-  //             setPromotionTitle(`(${applyDiscountResponse.code}-${applyDiscountResponse.title})`);
-  //             calculateChangeMoney(_items, promotionResult);
-  //           }
-  //         } else {
-  //           calculateChangeMoney(_items);
-  //           handleFetchApiError(response, "Áp dụng chiết khấu", dispatch);
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         calculateChangeMoney(_items);
-  //         showError("Có lỗi khi áp dụng chiết khấu!");
-  //       })
-  //       .finally(() => {
-  //         setIsLoadingDiscount(false);
-  //         dispatch(changeIsLoadingDiscountAction(false));
-  //         dispatch(hideLoading());
-  //       });
-  //   }
-  // };
-
-  // const onSearchVariantSelect = useCallback(
-  //   (v, o) => {
-  //     const selectProduct = () => {
-  //       if (isBarcode === true) return;
-  //       if (!items) {
-  //         return;
-  //       }
-
-  //       let newV = parseInt(v);
-  //       let _items = [...items];
-  //       let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);
-  //       let index = _items.findIndex((i) => i.variant_id === newV);
-  //       let r: VariantResponse = resultSearchVariant.items[indexSearch];
-  //       const item: OrderLineItemRequest = createItem(r);
-  //       item.position = getPositionLineItem(items);
-
-  //       if (r.id === newV && checkInventory(item) === true) {
-  //         if (splitLine || index === -1) {
-  //           _items.unshift(item);
-  //           if (!isAutomaticDiscount) {
-  //             calculateChangeMoney(_items);
-  //           }
-  //         } else {
-  //           let variantItems = _items.filter((item) => item.variant_id === newV);
-  //           let firstIndex = 0;
-  //           let selectedItem = variantItems[firstIndex];
-  //           selectedItem.quantity += 1;
-  //           selectedItem.line_amount_after_line_discount +=
-  //             selectedItem.price - selectedItem.discount_items[0]?.amount * selectedItem.quantity;
-  //           selectedItem.discount_items.forEach((single) => {
-  //             single.amount = single.value * selectedItem.quantity;
-  //           });
-  //           if (!isAutomaticDiscount) {
-  //             calculateChangeMoney(_items);
-  //           }
-  //         }
-  //       }
-
-  //       const isLineItemSemiAutomatic = _items.some((p) => p.isLineItemSemiAutomatic); // xác định là ck line item thủ công
-  //       const isOrderSemiAutomatic = promotion?.isOrderSemiAutomatic; //xác định là ck đơn hàng thủ công
-  //       if (isLineItemSemiAutomatic) {
-  //         if (
-  //           props.isPageOrderUpdate &&
-  //           !splitLine &&
-  //           items.some((p) => p.sku === item.sku && p?.discount_items[0])
-  //         ) {
-  //           const _index = _items.findIndex((p) => p.sku === item.sku);
-  //           _items[index].discount_items[0] &&
-  //             handUpdateDiscountWhenChangingOrderInformation(_items, _index);
-  //         } else if (!props.isPageOrderUpdate) {
-  //           handUpdateDiscountWhenChangingOrderInformation(_items);
-  //         }
-  //       } else if (isOrderSemiAutomatic) {
-  //         handUpdateDiscountWhenChangingOrderInformation(_items);
-  //       } else if (isAutomaticDiscount) {
-  //         handleApplyDiscount(_items);
-  //       }
-
-  //       setIsInputSearchProductFocus(false);
-  //       onClearVariantSearch();
-  //       autoCompleteRef?.current?.blur();
-  //     };
-  //     handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () => selectProduct());
-  //   },
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   [
-  //     items,
-  //     resultSearchVariant.items,
-  //     promotion,
-  //     isAutomaticDiscount,
-  //     couponInputText,
-  //     autoCompleteRef,
-  //     splitLine,
-  //     handleApplyDiscount,
-  //     handleApplyCouponWhenInsertCoupon,
-  //     props.orderType,
-  //   ],
-  // );
-
   const updateLineItemInformation = useCallback(
     (_variant: VariantResponse) => {
       const selectProduct = () => {
@@ -1907,20 +1872,15 @@ function OrderCreateProduct(props: PropTypes) {
         let _items = [...items];
         let index = _items.findIndex((i) => i.variant_id === _variant.id);
         const item: OrderLineItemRequest = createItem(_variant);
+        if (checkBag(item)) item.type = Type.GIFT;
         item.position = getPositionLineItem(items);
-        console.log(
-          "updateProductInformation",
-          index,
-          item,
-          _items,
-          orderConfig?.sellable_inventory,
-        );
 
         if (checkInventory(item, orderConfig?.sellable_inventory) === true) {
           if (splitLine || index === -1) {
             _items.unshift(item);
             if (!isAutomaticDiscount) {
-              calculateChangeMoney(_items);
+              // calculateChangeMoney(_items);
+              handUpdateGiftWhenChangingOrderInformation(_items, calculateChangeMoney, 0);
             }
           } else {
             let variantItems = _items.filter((item) => item.variant_id === _variant.id);
@@ -1933,29 +1893,49 @@ function OrderCreateProduct(props: PropTypes) {
               single.amount = single.value * selectedItem.quantity;
             });
             if (!isAutomaticDiscount) {
-              calculateChangeMoney(_items);
+              //calculateChangeMoney(_items);
+              handUpdateGiftWhenChangingOrderInformation(_items, calculateChangeMoney, index);
             }
           }
         }
 
         const isLineItemSemiAutomatic = _items.some((p) => p.isLineItemSemiAutomatic); // xác định là ck line item thủ công
         const isOrderSemiAutomatic = promotion?.isOrderSemiAutomatic; //xác định là ck đơn hàng thủ công
+        const _index = _items.findIndex((p) => p.sku === item.sku);
         if (isLineItemSemiAutomatic) {
           if (
             props.isPageOrderUpdate &&
             !splitLine &&
             items.some((p) => p.sku === item.sku && p?.discount_items[0])
           ) {
-            const _index = _items.findIndex((p) => p.sku === item.sku);
             _items[index].discount_items[0] &&
-              handUpdateDiscountWhenChangingOrderInformation(_items, _index);
+              handUpdateGiftWhenChangingOrderInformation(
+                _items,
+                (_nextItems) => {
+                  handUpdateDiscountWhenChangingOrderInformation(_nextItems, _index);
+                },
+                _index,
+              );
           } else if (!props.isPageOrderUpdate) {
-            handUpdateDiscountWhenChangingOrderInformation(_items);
+            handUpdateGiftWhenChangingOrderInformation(
+              _items,
+              (_nextItems) => {
+                handUpdateDiscountWhenChangingOrderInformation(_nextItems);
+              },
+              _index,
+            );
           }
         } else if (isOrderSemiAutomatic) {
-          handUpdateDiscountWhenChangingOrderInformation(_items);
+          handUpdateGiftWhenChangingOrderInformation(
+            _items,
+            (_nextItems) => {
+              handUpdateDiscountWhenChangingOrderInformation(_nextItems);
+            },
+            _index,
+          );
         } else if (isAutomaticDiscount) {
-          handleApplyDiscount(_items);
+          handUpdateGiftWhenChangingOrderInformation(_items, handleApplyDiscount, _index);
+          // handleApplyDiscount(_items);
         }
 
         // setIsInputSearchProductFocus(false);
@@ -1974,6 +1954,31 @@ function OrderCreateProduct(props: PropTypes) {
     ],
   );
 
+  const addBagLineItem = useCallback(
+    (_lineItem: OrderLineItemRequest) => {
+      if (!items) {
+        return;
+      }
+      let _items = [...items];
+      let index = _items.findIndex((i) => i.variant_id === _lineItem.variant_id);
+      if (index === -1) {
+        _items.unshift(_lineItem);
+        calculateChangeMoney(_items);
+      } else {
+        let variantItems = _items[index];
+        variantItems.quantity += 1;
+        variantItems.line_amount_after_line_discount +=
+          variantItems.price - variantItems.discount_items[0]?.amount * variantItems.quantity;
+        variantItems.discount_items.forEach((single) => {
+          single.amount = single.value * variantItems.quantity;
+        });
+        calculateChangeMoney(_items);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [items],
+  );
+
   /**
    * kiểm tra Sản phẩm thêm ăn theo cấu hình cài đặt của tồn kho bán
    */
@@ -1982,7 +1987,6 @@ function OrderCreateProduct(props: PropTypes) {
 
     let available = item.available === null ? 0 : item.available;
 
-    console.log("checkInventory", sellablInventory);
     if (available <= 0 && sellablInventory !== true) {
       showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
       return false;
@@ -2298,33 +2302,69 @@ function OrderCreateProduct(props: PropTypes) {
     return _variants;
   }, [items]);
 
-  const onUpdateData = useCallback(
-    (items: Array<OrderLineItemRequest>) => {
-      let data = [...items];
-      setItemGift(data);
+  const onOkConfirm = useCallback(
+    (
+      indexItem: number,
+      v: Array<OrderLineItemRequest>,
+      _giftProgramForAllOrdersOrProduct: string | null,
+    ) => {
+      if (!items) {
+        return;
+      }
+      let _items = _.cloneDeep(items);
+      let _itemGifts = v.map((p) => ({
+        ...p,
+        position: _items[indexItem].position,
+      }));
+
+      _items[indexItem].gifts = _itemGifts;
+
+      console.log("onOkConfirm 1", v);
+      console.log("onOkConfirm _items", _items);
+
+      setItems(_items);
+      setGiftProgramForAllOrdersOrProduct(_giftProgramForAllOrdersOrProduct);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [items],
+    [items, setItems],
   );
 
-  const onCancelConfirm = useCallback(() => {
-    setVisibleGift(false);
-  }, []);
+  const removeDiscountGiftFromLineItem = useCallback(
+    (indexItem: number) => {
+      if (!items) {
+        return;
+      }
+      let _items = _.cloneDeep(items);
 
-  const onOkConfirm = useCallback(() => {
-    if (!items) {
-      return;
-    }
-    setVisibleGift(false);
-    let _items = [...items];
-    let _itemGifts = [...itemGifts];
+      _items[indexItem].gifts = [];
 
-    _itemGifts.forEach((itemGift) => (itemGift.position = _items[indexItem].position));
-    _items[indexItem].gifts = itemGifts;
+      setItems(_items);
 
-    setItems(_items);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, itemGifts, indexItem]);
+      const giftNotExists = () => {
+        const allProductsWithGifts = _items?.filter((p) => p.gifts && p.gifts.length !== 0) || [];
+
+        if (
+          giftProgramForAllOrdersOrProduct === EnumGiftType.BY_ITEM &&
+          allProductsWithGifts?.length === 0
+        )
+          return true;
+
+        if (giftProgramForAllOrdersOrProduct === EnumGiftType.BY_ORDER) return true;
+        return false;
+      };
+
+      const giftOrderSplitNotExist = () => {
+        return orderCorrelativeVariant?.split && orderCorrelativeVariant?.items.length !== 0
+          ? !orderCorrelativeVariant?.items.some((item) => isGiftLineItem(item.type))
+          : true;
+      };
+
+      console.log("giftOrderSplitExist", giftOrderSplitNotExist());
+      if (giftNotExists() && giftOrderSplitNotExist()) {
+        setGiftProgramForAllOrdersOrProduct(null);
+      }
+    },
+    [giftProgramForAllOrdersOrProduct, items, setItems, orderCorrelativeVariant],
+  );
 
   // const removeCoupon = () => {
   //   if (promotion?.promotion_id || promotion?.discount_code) {
@@ -2344,7 +2384,6 @@ function OrderCreateProduct(props: PropTypes) {
     if (!items || items.length === 0) {
       return;
     }
-    // removeCoupon();
     let _items = [...items];
     _items.forEach((lineItem) => {
       if (lineItem.discount_items[0]?.promotion_id && !lineItem.isLineItemSemiAutomatic) {
@@ -2355,11 +2394,6 @@ function OrderCreateProduct(props: PropTypes) {
         lineItem.line_amount_after_line_discount = getLineAmountAfterLineDiscount(lineItem);
       }
     });
-    if (isShouldUpdatePrivateNote) {
-      // form.setFieldsValue({
-      //   note: undefined,
-      // });
-    }
 
     let _promotion: OrderDiscountRequest | null = { ...promotion };
     if (promotion?.isOrderSemiAutomatic !== true) {
@@ -2369,31 +2403,13 @@ function OrderCreateProduct(props: PropTypes) {
     calculateChangeMoney(_items, _promotion);
   };
 
-  // const onInputSearchProductFocus = () => {
-  //   setIsInputSearchProductFocus(true);
-  //   autoCompleteRef.current?.focus();
-  // };
-
-  // const onInputSearchProductBlur = () => {
-  //   setIsInputSearchProductFocus(false);
-  // };
-
   const onClearVariantSearch = () => {
     setKeySearchVariant("");
-    // setResultSearchVariant({
-    //   metadata: {
-    //     limit: 0,
-    //     page: 1,
-    //     total: 0,
-    //   },
-    //   items: [],
-    // });
   };
 
   const onChangeStore = useCallback(
     (value: number) => {
       setStoreId(value);
-      // setIsShowProductSearch(true);
       onClearVariantSearch();
       if (items && inventoryResponse) {
         let inventoryInStore = inventoryResponse?.find((p) => p.store_id === value);
@@ -2478,6 +2494,7 @@ function OrderCreateProduct(props: PropTypes) {
 
     applyDiscountService(params).then((response) => {
       if (isFetchApiSuccessful(response)) {
+        deleteAllGiftsInDiscount(response.data); // xóa gift
         const isDiscount = (
           _suggesteds: SuggestDiscountResponseModel[],
           _apply: AppliedDiscountResponseModel | null,
@@ -2565,6 +2582,7 @@ function OrderCreateProduct(props: PropTypes) {
     applyDiscountService(params)
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
+          deleteAllGiftsInDiscount(response.data); // xóa gift
           const suggestedDiscounts = response.data.suggested_discounts;
           const applyDiscount = response.data.applied_discount;
 
@@ -2593,12 +2611,6 @@ function OrderCreateProduct(props: PropTypes) {
       .catch(() => {})
       .finally(() => {});
   };
-
-  // useEffect(() => {
-  //   if (items && items.length > 0) {
-  //     setIsShowProductSearch(true);
-  //   }
-  // }, [items]);
 
   useEffect(() => {
     dispatch(StoreSearchListAction("", setStoreArrayResponse));
@@ -2630,42 +2642,39 @@ function OrderCreateProduct(props: PropTypes) {
   useEffect(() => {
     if (isShouldUpdateDiscountRef.current && items && items?.length > 0) {
       let _items = [...items];
-      const isLineItemSemiAutomatic = _items.some((p) => p.isLineItemSemiAutomatic); // xác định là ck line item thủ công
-      const isOrderSemiAutomatic = promotion?.isOrderSemiAutomatic; //xác định là ck đơn hàng thủ công
-      if (isLineItemSemiAutomatic || isOrderSemiAutomatic) {
-        if (!props.isPageOrderUpdate) {
-          handUpdateDiscountWhenChangingOrderInformation(_items);
-        } else if (
-          !compareProducts(orderDetail?.items || [], items) ||
-          orderDetail?.customer_id !== customer?.id
-        ) {
-          handUpdateDiscountWhenChangingOrderInformation(_items);
+
+      handUpdateGiftWhenChangingOrderInformation(_items, (_nextItems) => {
+        const isLineItemSemiAutomatic = _items.some((p) => p.isLineItemSemiAutomatic); // xác định là ck line item thủ công
+        const isOrderSemiAutomatic = promotion?.isOrderSemiAutomatic; //xác định là ck đơn hàng thủ công
+
+        if (isLineItemSemiAutomatic || isOrderSemiAutomatic) {
+          if (!props.isPageOrderUpdate) {
+            handUpdateDiscountWhenChangingOrderInformation(_nextItems);
+          } else if (
+            !compareProducts(orderDetail?.items || [], items) ||
+            orderDetail?.customer_id !== customer?.id
+          ) {
+            handUpdateDiscountWhenChangingOrderInformation(_nextItems);
+          } else {
+            setItems(_nextItems);
+          }
+        } else if (isAutomaticDiscount) {
+          handleApplyDiscount(_nextItems);
+        } else {
+          setItems(_nextItems);
         }
-      } else if (isAutomaticDiscount) {
-        handleApplyDiscount(items);
-      }
+      });
     } else isShouldUpdateDiscountRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeId, countFinishingUpdateSource, countFinishingUpdateCustomer]);
 
-  //đóng
-  // /**
-  //  * gọi lại api couponInputText khi thay đổi số lượng item
-  //  */
-  // useEffect(() => {
-  //   if (
-  //     !isAutomaticDiscount &&
-  //     isShouldUpdateCouponRef.current &&
-  //     couponInputText &&
-  //     items &&
-  //     items?.length > 0
-  //   ) {
-  //     handleApplyCouponWhenInsertCoupon(couponInputText, items);
-  //   }
+  useEffect(() => {
+    if (props.giftTypeInOrder) {
+      setGiftProgramForAllOrdersOrProduct(props.giftTypeInOrder);
+    }
+  }, [props.giftTypeInOrder]);
 
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);
-
+  console.log("giftProgramForAllOrdersOrProduct", giftProgramForAllOrdersOrProduct);
   // đợi 3s cho load trang xong thì sẽ update trong trường hợp clone
   useEffect(() => {
     if (!props.isPageOrderUpdate) {
@@ -2872,6 +2881,9 @@ function OrderCreateProduct(props: PropTypes) {
             >
               Kiểm tra tồn
             </Button>
+            <AddBag addBag={(_v) => addBagLineItem(_v)} disabled={levelOrder > 3}>
+              Thêm túi nhanh
+            </AddBag>
           </Space>
         }
       >
@@ -2963,18 +2975,19 @@ function OrderCreateProduct(props: PropTypes) {
                 placeholder="Tìm sản phẩm mã 7... (F3)/ Barcode sản phẩm"
                 storeId={storeId}
                 defaultActiveFirstOption={true}
+                disabled={levelOrder > 3}
               />
             </Form.Item>
           </Col>
         </Row>
-        <AddGiftModal
+        {/* <AddGiftModal
           items={itemGifts}
           onUpdateData={onUpdateData}
           onCancel={onCancelConfirm}
           onOk={onOkConfirm}
           visible={isVisibleGift}
           storeId={storeId}
-        />
+        /> */}
         <Table
           locale={{
             emptyText: (
@@ -3082,7 +3095,7 @@ function OrderCreateProduct(props: PropTypes) {
           />
         )}
 
-        {checkIfOrderSplit(orderDetail) && visibleOrderSplitModal && (
+        {checkIfSplitOrderIsValid(orderDetail) && visibleOrderSplitModal && (
           <OrderSplitModal
             setVisible={setVisibleOrderSplitModal}
             visible={visibleOrderSplitModal}

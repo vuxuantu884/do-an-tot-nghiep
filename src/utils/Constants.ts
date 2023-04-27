@@ -29,11 +29,11 @@ export const PaymentMethodType = {
 };
 
 export const OrderStatus = {
-  DRAFT: "draft",
-  FINALIZED: "finalized",
+  DRAFT: "draft", // đơn nháp
+  FINALIZED: "finalized", //đơn đã duyệt
   COMPLETED: "completed",
-  FINISHED: "finished",
-  CANCELLED: "cancelled",
+  FINISHED: "finished", // đơn hàng Đã kết thúc (đơn thành công)
+  CANCELLED: "cancelled", //đơn hàng đã hủy
   EXPIRED: "expired",
 };
 

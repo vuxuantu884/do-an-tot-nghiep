@@ -31,9 +31,13 @@ export const PROMOTION_GIFT_PERMISSIONS = {
 };
 
 export const PROMOTION_CAMPAIGN_PERMISSIONS = {
-  READ: "price_rules_campaign_read",
-  CREATE: "price_rules_campaign_create",
-  UPDATE: "price_rules_campaign_update",
+  READ: "price_rules_campaign_read",          // Xem CTKM
+  CREATE: "price_rules_campaign_create",      // Tạo mới CTKM
+  UPDATE: "price_rules_campaign_update",      // Sửa CTKM
+  APPROVE: "price_rules_campaign_approve",    // Duyệt chương trình
+  REGISTER: "price_rules_campaign_register",  // Đăng kí chương trình với sở công thương
+  SETUP: "price_rules_campaign_setup",        // Set up chương trình
+  ACTIVE: "price_rules_campaign_active",      // Kích hoạt chương trình
 };
 
 export { PromotionReleasePermission, PriceRulesPermission };

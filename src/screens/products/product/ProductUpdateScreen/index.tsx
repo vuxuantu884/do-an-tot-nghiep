@@ -1222,16 +1222,22 @@ const ProductDetailScreen: React.FC = () => {
                     </div>
                   </Card>
                   <Card className="card" title="Phòng Win">
-                    <div className="padding-20">
+                    <div>
                       <Item
                         name="merchandiser_code"
-                        label="Merchandiser"
+                        label="Mua hàng"
                         tooltip={{
                           title: "Chọn nhân viên mua hàng",
                           icon: <InfoCircleOutlined />,
                         }}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Vui lòng chọn nhân viên mua hàng",
+                          },
+                        ]}
                       >
-                        <AccountSearchPaging placeholder="Chọn Merchandiser" />
+                        <AccountSearchPaging placeholder="Chọn nhân viên mua hàng" />
                       </Item>
 
                       <Item
@@ -1241,6 +1247,12 @@ const ProductDetailScreen: React.FC = () => {
                           title: "Chọn nhân viên thiết kế",
                           icon: <InfoCircleOutlined />,
                         }}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Vui lòng chọn nhân viên thiết kế",
+                          },
+                        ]}
                       >
                         <AccountSearchPaging placeholder="Chọn nhân viên thiết kế" />
                       </Item>

@@ -16,8 +16,8 @@ const ConfirmCancelModal = (props: any) => {
       title=""
       closable={false}
       onCancel={onCancel}
-      okText="Đồng ý"
-      cancelText="Ở lại"
+      okText="Chấp nhận"
+      cancelText="Kiểm tra lại"
       onOk={onOk}
     >
       <ConfirmCancelModalStyled>
@@ -34,8 +34,8 @@ const ConfirmCancelModal = (props: any) => {
           />
         </div>
         <div className="content-modal">
-          <div>Mọi thay đổi sẽ không được lưu lại.</div>
-          <div>Bạn có đồng ý thoát?</div>
+          <div>Chương trình đã có sự thay đổi.</div>
+          <div>Bạn chấp nhận hủy bỏ các thay đổi này?</div>
         </div>
       </ConfirmCancelModalStyled>
     </Modal>

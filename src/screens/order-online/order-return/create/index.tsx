@@ -1,5 +1,5 @@
 import { deepClone } from "@datadog/browser-core";
-import { Button, Card, Col, Form, FormInstance, Modal, Row } from "antd";
+import { Button, Card, Col, Form, FormInstance, Input, Modal, Row } from "antd";
 import { RefSelectProps } from "antd/lib/select";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
@@ -2536,15 +2536,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
     //isOrderFromPOS(OrderDetail) &&
     if (shipmentMethodsToSelectSource.includes(shipmentMethod)) {
       setIsShowSelectOrderSources(true);
-      form.setFieldsValue({
-        source_id: OrderDetail?.source_id,
-      });
     } else {
       setIsShowSelectOrderSources(false);
-      form.setFieldsValue({
-        source_id: undefined,
-      });
     }
+    form.setFieldsValue({
+      source_id: OrderDetail?.source_id,
+    });
   }, [OrderDetail, OrderDetail?.source_id, form, shipmentMethod]);
 
   useEffect(() => {

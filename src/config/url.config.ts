@@ -7,6 +7,7 @@ const UrlConfig = {
   CATEGORIES: `/categories`,
   COLLECTIONS: `/collections`,
   PURCHASE_ORDERS: `/purchase-orders`,
+  PURCHASE_ORDERS_CONFIG_SKU: `/purchase-orders-config-sku`,
   INVENTORY: "/inventories",
   MATERIALS: `/materials`,
   SIZES: `/sizes`,

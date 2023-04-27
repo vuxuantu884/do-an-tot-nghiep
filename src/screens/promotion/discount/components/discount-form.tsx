@@ -36,8 +36,7 @@ function DiscountUpdateForm({
 }: Props): ReactElement {
   const discountUpdateContext = useContext(DiscountContext);
 
-  const { discountMethod, setDiscountMethod, registerWithMinistry, setRegisterWithMinistry } =
-    discountUpdateContext;
+  const { discountMethod, setDiscountMethod } = discountUpdateContext;
 
   const [unlimitedQuantity, setUnlimitedQuantity] = useState<boolean>(false);
   const [usageLimitPerCustomer, setUsageLimitPerCustomer] = useState<boolean>(false);
@@ -210,21 +209,21 @@ function DiscountUpdateForm({
               </Col>
             </Row>
 
-            <Row gutter={30}>
-              <Col span={24}>
-                <Form.Item style={{ marginBottom: 28 }}>
-                  <Space>
-                    <Switch
-                      checked={registerWithMinistry}
-                      onChange={(value) => {
-                        setRegisterWithMinistry(value);
-                      }}
-                    />
-                    Đã đăng ký Bộ công thương
-                  </Space>
-                </Form.Item>
-              </Col>
-            </Row>
+            {/*<Row gutter={30}>*/}
+            {/*  <Col span={24}>*/}
+            {/*    <Form.Item style={{ marginBottom: 28 }}>*/}
+            {/*      <Space>*/}
+            {/*        <Switch*/}
+            {/*          checked={registerWithMinistry}*/}
+            {/*          onChange={(value) => {*/}
+            {/*            setRegisterWithMinistry(value);*/}
+            {/*          }}*/}
+            {/*        />*/}
+            {/*        Đã đăng ký Bộ công thương*/}
+            {/*      </Space>*/}
+            {/*    </Form.Item>*/}
+            {/*  </Col>*/}
+            {/*</Row>*/}
           </Col>
         </Row>
       </Card>

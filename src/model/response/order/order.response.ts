@@ -446,6 +446,7 @@ export interface FeesResponse {
   transport_type_name: string;
   note: string;
   delivery: boolean;
+  is_suggested: boolean;
 }
 
 export interface StoreCustomResponse extends BaseObject {
@@ -716,4 +717,10 @@ export interface ParamPromotion {
   query?: string;
   states: string;
   page: number;
+}
+
+export interface OrderCorrelativeVariantResponse {
+  origin_order_code: string;
+  items: Array<OrderLineItemResponse>;
+  split: boolean;
 }

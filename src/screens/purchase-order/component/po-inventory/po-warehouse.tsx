@@ -11,7 +11,7 @@ import { EnumOptionValueOrPercent } from "config/enum.config";
 import { cloneDeep, groupBy } from "lodash";
 import { ProcurementLineItemField } from "model/procurement/field";
 import { POField } from "model/purchase-order/po-field";
-import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
+import { POLineItemType, PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import { ProcurementTable, PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import {
   POProcumentField,
@@ -197,9 +197,12 @@ export const PoWareHouse = (props: IProps) => {
         const monthChange =
           new Date(moment(value, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.MM_DD_YYYY)).getMonth() +
           1;
+        const lineItems = (
+          (formMain?.getFieldValue(POField.line_items) as PurchaseOrderLineItem[]) || []
+        ).filter((lineItem) => lineItem.type !== POLineItemType.SUPPLEMENT);
         const datePercents =
           ((await callApiNative({ isShowLoading: false }, dispatch, getPercentMonth, {
-            month: monthChange || new Date(Date.now()).getMonth() + 1,
+            sku: lineItems[0].sku.substring(0, 3),
           })) as PercentDate[]) || [];
         expectReceiptDates[index].date = value || "";
         const procurements: PurchaseProcument[] = (
@@ -289,12 +292,16 @@ export const PoWareHouse = (props: IProps) => {
       });
       setExpectReceiptDates([...expectReceiptDates]);
       handleSetRadio(expectReceiptDates);
+      const lineItems = (
+        (formMain?.getFieldValue(POField.line_items) as PurchaseOrderLineItem[]) || []
+      ).filter((lineItem) => lineItem.type !== POLineItemType.SUPPLEMENT);
+
       const datePercents = await callApiNative(
         { isShowLoading: false },
         dispatch,
         getPercentMonth,
         {
-          month: new Date(Date.now()).getMonth() + 1,
+          sku: lineItems[0].sku.substring(0, 3),
         },
       );
       // số store trả về

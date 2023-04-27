@@ -38,4 +38,9 @@ export const PromotionStatusStyle = styled.div`
     background: #FFF1F0;
     color: #F5222D;
   }
+  .registered {
+    border: 1px solid #FF7A45;
+    background: #FFF2E8;
+    color: #FA541C;
+  }
 `;

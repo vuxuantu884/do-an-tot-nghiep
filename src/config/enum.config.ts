@@ -45,6 +45,14 @@ enum EnumStoreTung {
   PROD = 16,
 }
 
+enum EnumStoreMienBac {
+  PROD = 338,
+  UAT = 186,
+}
+enum EnumStoreMienTrung {
+  PROD = 19,
+  UAT = 200,
+}
 enum EnumStoreHieu {
   DEV = 365,
   UAT = 200,
@@ -59,6 +67,11 @@ enum EnumOptionValueOrPercent {
 enum EnumCodeKey {
   ENTER = 13,
 }
+
+enum EnumGiftType {
+  BY_ITEM = "gift_by_item",
+  BY_ORDER = "gift_by_order",
+}
 export {
   EnumUploadStatus,
   EnumImportStatus,
@@ -70,4 +83,7 @@ export {
   EnumStoreHieu,
   EnumOptionValueOrPercent,
   EnumCodeKey,
+  EnumStoreMienBac,
+  EnumStoreMienTrung,
+  EnumGiftType,
 };
