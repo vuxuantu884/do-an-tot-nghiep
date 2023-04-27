@@ -5,6 +5,10 @@ import React from "react";
 const WorkShiftScheduleScreen = React.lazy(
   () => import("screens/work-shift/work-shift-schedule/WorkShiftSchedule"),
 );
+const WorkShiftScheduleDetailScreen = React.lazy(
+  () => import("screens/work-shift/work-shift-schedule-detail"),
+);
+
 const StaffListScreen = React.lazy(() => import("screens/work-shift/staff-list"));
 
 const workShiftRoute: Array<RouteMenu> = [
@@ -18,7 +22,20 @@ const workShiftRoute: Array<RouteMenu> = [
     isShow: true,
     header: null,
     // permissions: [],
-    subMenu: [],
+    subMenu: [
+      {
+        path: `${UrlConfig.WORK_SHIFT}/:id`,
+        exact: true,
+        title: "Chi tiết lịch phân ca",
+        icon: "icon-dot",
+        component: WorkShiftScheduleDetailScreen,
+        key: "work-shift-schedule-detail",
+        isShow: true,
+        header: null,
+        // permissions: [],
+        subMenu: [],
+      },
+    ],
   },
   {
     path: `${UrlConfig.WORK_SHIFT}/staff`,
