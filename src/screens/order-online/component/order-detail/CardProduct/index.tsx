@@ -380,7 +380,10 @@ function UpdateProductCard(props: PropTypes) {
               rowKey={(record) => record.id}
               columns={columns}
               dataSource={orderDetailCalculatePointInVariant?.items.filter(
-                (item) => item.type === Type.NORMAL || item.type === Type.SERVICE,
+                (item) =>
+                  item.type === Type.NORMAL ||
+                  item.type === Type.GIFT ||
+                  item.type === Type.SERVICE,
               )}
               className="sale-product-box-table2 w-100"
               tableLayout="fixed"

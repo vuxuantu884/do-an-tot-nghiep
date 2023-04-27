@@ -72,7 +72,7 @@ const AddGiftLineItem: React.FC<Props> = (props: Props) => {
   });
   const [resultPaging, setResultPaging] = useState<ResultPaging>(resultPagingDefault);
 
-  const [selectedVariantId, setSelectedVariantId] = useState<number[]>([]);
+  const [selectedVariant, setSelectedVariant] = useState<ApplyDiscountGiftsResponseModel[]>([]);
 
   const selectedVariantIdDefault = useMemo(() => {
     if (!itemsGift) return [];
@@ -127,9 +127,22 @@ const AddGiftLineItem: React.FC<Props> = (props: Props) => {
   ) => {
     const _suggestDiscountActive = _v?.find((p) => p.price_rule_id === _priceRuleId);
     if (_suggestDiscountActive && _suggestDiscountActive.gifts) {
-      setGiftProgramDisplayList(_suggestDiscountActive.gifts);
+      let _gifts = _suggestDiscountActive.gifts.map((p) => {
+        const _quantity = itemsGift?.find((x) => x.variant_id === p.variant_id)?.quantity || 1;
+        return {
+          ...p,
+          quantity: _quantity,
+        };
+      });
+
+      setGiftProgramDisplayList(_gifts);
+      const _suggestDiscounts = _gifts?.filter((p) =>
+        selectedVariantIdDefault.includes(p.variant_id),
+      );
+      setSelectedVariant(_suggestDiscounts);
     } else {
       setGiftProgramDisplayList([]);
+      setSelectedVariant([]);
     }
   };
 
@@ -154,17 +167,15 @@ const AddGiftLineItem: React.FC<Props> = (props: Props) => {
         taxable: false,
       };
 
-      const variantIdsApplyDiscount = giftProgramDisplayList
-        .map((p) => p.variant_id)
-        .filter((p) => selectedVariantId.includes(p));
-
-      if (variantIdsApplyDiscount.length === 0) {
+      if (selectedVariant.length === 0) {
         showError("Qùa tặng chưa được chọn");
         return;
       }
 
+      console.log("selectedVariant", selectedVariant);
+
       const initialRequest: any = {
-        variant_ids: variantIdsApplyDiscount,
+        variant_ids: selectedVariant.map((p) => p.variant_id),
         limit: giftProgramDisplayList.length,
       };
       dispatch(showLoading());
@@ -177,9 +188,10 @@ const AddGiftLineItem: React.FC<Props> = (props: Props) => {
           const _v = createItem(p);
           currentPromotion?.isDiscountType && (_v.type = currentPromotion?.isDiscountType);
           _v.discount_items = [orderDiscountModel];
-
+          _v.quantity = selectedVariant.find((p) => p.variant_id === _v.variant_id)?.quantity || 0;
           return _v;
         });
+
         onOk(_itemsGift, currentPromotion?.isDiscountType || null);
       } else {
         handleFetchApiError(response, "apply quà tặng", dispatch);
@@ -191,7 +203,7 @@ const AddGiftLineItem: React.FC<Props> = (props: Props) => {
     giftProgramDisplayList,
     onOk,
     selectedPriceRuleId,
-    selectedVariantId,
+    selectedVariant,
   ]);
 
   const onChangePaginationPromotion = (page: number, pageSize?: number) => {
@@ -202,11 +214,6 @@ const AddGiftLineItem: React.FC<Props> = (props: Props) => {
     setSelectedPriceRuleId((e.target.value as number) || null);
     if (e.target.value) {
       handleGiftProgramDisplayList(e.target.value, suggestDiscounts);
-      if (priceRuleId === e.target.value) {
-        setSelectedVariantId(selectedVariantIdDefault);
-      } else {
-        setSelectedVariantId([]);
-      }
     }
   };
 
@@ -254,11 +261,6 @@ const AddGiftLineItem: React.FC<Props> = (props: Props) => {
               _suggestedDiscounts.push(...suggestedDiscountsItemAddDiscountType);
             }
 
-            // const uniqueArraySuggestedDiscounts = _suggestedDiscounts.filter(
-            //   (obj, index, self) =>
-            //     index === self.findIndex((o) => o.price_rule_id === obj.price_rule_id),
-            // );
-
             const suggestedDiscountsWithGifts = _suggestedDiscounts.filter(
               (p) => p.gifts && p.gifts?.length !== 0,
             );
@@ -266,7 +268,6 @@ const AddGiftLineItem: React.FC<Props> = (props: Props) => {
             setSuggestDiscounts(suggestedDiscountsWithGifts);
             if (priceRuleId) {
               handleGiftProgramDisplayList(priceRuleId, suggestedDiscountsWithGifts);
-              setSelectedVariantId(selectedVariantIdDefault);
             } else {
               setGiftProgramDisplayList([]);
             }
@@ -366,9 +367,9 @@ const AddGiftLineItem: React.FC<Props> = (props: Props) => {
                           disabled={disableSuggestDiscountRadioButton(item)}
                         >
                           {item.isDiscountType === EnumGiftType.BY_ORDER ? (
-                            <img src={GiftOrder} width={18} alt="" />
+                            <img src={GiftOrder} width={15} alt="" />
                           ) : (
-                            <img src={GiftItem} width={18} alt="" />
+                            <img src={GiftItem} width={15} alt="" />
                           )}{" "}
                           {item.title}
                         </Radio>
@@ -389,10 +390,9 @@ const AddGiftLineItem: React.FC<Props> = (props: Props) => {
           <GiftSelected
             itemsGift={giftProgramDisplayList}
             onChangeSelected={(rows: ApplyDiscountGiftsResponseModel[]) => {
-              const rowsKey = rows.map((p) => p.variant_id);
-              setSelectedVariantId(rowsKey);
+              setSelectedVariant(rows);
             }}
-            rowsSelected={selectedVariantId}
+            rowsSelected={selectedVariant.map((p) => p.variant_id)}
           />
         </Row>
       </Modal>

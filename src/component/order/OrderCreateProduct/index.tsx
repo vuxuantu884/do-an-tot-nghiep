@@ -106,6 +106,7 @@ import {
 } from "utils/Constants";
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import {
+  checkBag,
   checkIfECommerceByOrderChannelCode,
   checkIfECommerceByOrderChannelCodeUpdateOrder,
   checkIfOrderSplit as checkIfSplitOrderIsValid,
@@ -1871,6 +1872,7 @@ function OrderCreateProduct(props: PropTypes) {
         let _items = [...items];
         let index = _items.findIndex((i) => i.variant_id === _variant.id);
         const item: OrderLineItemRequest = createItem(_variant);
+        if (checkBag(item)) item.type = Type.GIFT;
         item.position = getPositionLineItem(items);
 
         if (checkInventory(item, orderConfig?.sellable_inventory) === true) {

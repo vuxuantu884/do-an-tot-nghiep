@@ -61,6 +61,7 @@ import {
   OrderStatus,
   ORDER_PAYMENT_STATUS,
   ORDER_SUB_STATUS,
+  BAGS_CONFIG,
 } from "./Order.constants";
 import { fullTextSearch } from "./StringUtils";
 import { EnumGiftType } from "config/enum.config";
@@ -968,4 +969,19 @@ export const getFlattenLineItem = (_items: OrderLineItemRequest[]) => {
   );
   const itemTypeGift = _items.filter((item) => isGiftLineItem(item.type));
   return [...itemsTypeNormal, ...itemsTypeGiftFlatten, ...itemTypeGift];
+};
+
+export const checkBag = (item: OrderLineItemRequest) => {
+  const _bags = [
+    BAGS_CONFIG.ztm0002.variant_id,
+    BAGS_CONFIG.ztm0002.variant_id,
+    BAGS_CONFIG.ztm4.variant_id,
+    BAGS_CONFIG.ztm1.variant_id,
+    BAGS_CONFIG.ztm2.variant_id,
+  ];
+
+  if (_bags.includes(item.variant_id)) {
+    return true;
+  }
+  return false;
 };

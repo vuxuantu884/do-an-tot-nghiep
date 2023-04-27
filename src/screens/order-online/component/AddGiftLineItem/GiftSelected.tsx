@@ -1,10 +1,13 @@
-import { Table, Tooltip } from "antd";
+import { Input, InputNumber, Space, Table, Tooltip } from "antd";
 import { ColAddGift } from "./styled";
 import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ApplyDiscountGiftsResponseModel } from "model/response/order/promotion.response";
 import { ColumnsType } from "antd/lib/table";
+import { SearchOutlined } from "@ant-design/icons";
+import { fullTextSearch } from "utils/StringUtils";
+import _ from "lodash";
 
 type Props = {
   itemsGift?: ApplyDiscountGiftsResponseModel[];
@@ -12,6 +15,8 @@ type Props = {
   onChangeSelected: (rows: ApplyDiscountGiftsResponseModel[]) => void;
 };
 const GiftSelected: React.FC<Props> = (props: Props) => {
+  const [search, setSearch] = useState("");
+  const [dataSource, setDataSource] = useState<ApplyDiscountGiftsResponseModel[]>([]);
   const columns: ColumnsType<ApplyDiscountGiftsResponseModel> = [
     {
       title: "Sản phẩm",
@@ -38,10 +43,29 @@ const GiftSelected: React.FC<Props> = (props: Props) => {
       width: "100px",
       align: "center",
       render: (a: ApplyDiscountGiftsResponseModel, b: any, index: number) => (
-        <div>{a.quantity}</div>
+        <InputNumber
+          disabled
+          min={1}
+          value={a.quantity}
+          className="quantity-columns"
+          onChange={(e) => {
+            onChangeQuantity(index, e);
+          }}
+        />
       ),
     },
   ];
+
+  const onChangeQuantity = (index: number, quantity: number) => {
+    const dataSourceClone = _.cloneDeep(dataSource);
+    dataSourceClone[index].quantity = quantity;
+    setDataSource(dataSourceClone);
+
+    const selectedVariant = dataSourceClone.filter((p) =>
+      props.rowsSelected.includes(p.variant_id),
+    );
+    props.onChangeSelected(selectedVariant);
+  };
 
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: ApplyDiscountGiftsResponseModel[]) => {
@@ -49,11 +73,34 @@ const GiftSelected: React.FC<Props> = (props: Props) => {
     },
   };
 
+  useEffect(() => {
+    setDataSource(props.itemsGift || []);
+  }, [props.itemsGift]);
+
+  console.log("dataSource gift", dataSource);
   return (
     <>
       <ColAddGift span={14}>
-        <h4>Thêm quà tặng</h4>
+        <Space align="center" direction="horizontal" className="gift-item-title">
+          <h4>Thêm quà tặng</h4>
+          <Input
+            style={{ width: "200px" }}
+            size="small"
+            placeholder="Tìm kiếm sản phẩm"
+            suffix={<SearchOutlined />}
+            onChange={(e) => {
+              setSearch(e.target.value || "");
+            }}
+            onPressEnter={() => {
+              const searchGift: any = document.getElementById("search-gift");
+              searchGift?.select();
+            }}
+            id="search-gift"
+          />
+        </Space>
+
         <Table
+          className="gift-table-order-online"
           rowSelection={{
             selectedRowKeys: props.rowsSelected,
             type: "checkbox",
@@ -63,9 +110,15 @@ const GiftSelected: React.FC<Props> = (props: Props) => {
             emptyText: "Quà tặng trống",
           }}
           pagination={false}
-          dataSource={props.itemsGift}
+          dataSource={dataSource.filter(
+            (p) =>
+              fullTextSearch(search, p.name) ||
+              fullTextSearch(search, p.sku) ||
+              fullTextSearch(search, p.barcode),
+          )}
           columns={columns}
           rowKey={(record) => record.variant_id}
+          scroll={{ x: "auto", y: 500 }}
         />
       </ColAddGift>
     </>

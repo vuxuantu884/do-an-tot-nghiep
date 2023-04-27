@@ -13,6 +13,7 @@ export interface AppliedDiscountResponseModel {
 export interface ApplyDiscountGiftsResponseModel {
   product_id: number;
   variant_id: number;
+  barcode: string;
   sku: string;
   on_hand: number;
   name: string;

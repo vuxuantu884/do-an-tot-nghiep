@@ -72,7 +72,8 @@ const AddBag: React.FC<Props> = (props: Props) => {
   const handleAddBag = useCallback(
     (variant: VariantResponse) => {
       console.log("handleAddBag", variant);
-      const _v = createItem(variant);
+      let _v = createItem(variant);
+      _v.type = Type.GIFT;
       addBag(_v);
     },
     [addBag],
