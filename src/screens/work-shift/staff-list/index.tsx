@@ -3,7 +3,9 @@ import { Card } from "antd";
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import { StaffListStyled } from "screens/work-shift/work-shift-styled";
-const StaffList = () => {
+import StaffListFilter from "./Filter";
+import StaffListTable from "./Table";
+const StaffList: React.FC = () => {
   return (
     <StaffListStyled>
       <ContentContainer
@@ -18,9 +20,10 @@ const StaffList = () => {
           },
         ]}
       >
-        <div>
-          <Card>Danh sách nhân viên</Card>
-        </div>
+        <Card>
+          <StaffListFilter />
+          <StaffListTable />
+        </Card>
       </ContentContainer>
     </StaffListStyled>
   );

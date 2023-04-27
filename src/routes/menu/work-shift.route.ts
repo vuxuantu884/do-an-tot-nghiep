@@ -5,7 +5,7 @@ import React from "react";
 const WorkShiftScheduleScreen = React.lazy(
   () => import("screens/work-shift/work-shift-schedule/WorkShiftSchedule"),
 );
-const StaffListScreen = React.lazy(() => import("screens/work-shift/staff-list/StaffList"));
+const StaffListScreen = React.lazy(() => import("screens/work-shift/staff-list"));
 
 const workShiftRoute: Array<RouteMenu> = [
   {
