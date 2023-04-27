@@ -72,6 +72,7 @@ const UrlConfig = {
   KEY_DRIVER_ONLINE: "/key-driver-online",
   HANDOVER: `/handovers`,
   DAILY_REVENUE: `/daily-revenue`,
+  WORK_SHIFT: `/work-shift`,
   EXPENDITURE: `/expenditure`,
 };
 

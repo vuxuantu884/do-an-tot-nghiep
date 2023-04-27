@@ -19,12 +19,16 @@ import supplierRoutes from "./supplier.route";
 import warrantyRoute from "./warranty.route";
 import webAppRoute from "./web-app.route";
 import dailyRevenueRoute from "routes/menu/daily-revenue.route";
+import workShiftRoute from "routes/menu/work-shift.route";
 
 const Dashboard = React.lazy(() => import("screens/dashboard"));
 const Product = React.lazy(() => import("screens/products/product/ProductSearchScreen"));
 const OnlineOrders = React.lazy(() => import("screens/order-online/orders/online-orders.screen"));
 const PosOrders = React.lazy(() => import("screens/order-online/orders/offline-orders.screen"));
 const DailyRevenueScreen = React.lazy(() => import("screens/DailyRevenue/daily-revenue-list"));
+const WorkShiftScheduleScreen = React.lazy(
+  () => import("screens/work-shift/work-shift-schedule/WorkShiftSchedule"),
+);
 const Customer = React.lazy(() => import("screens/customer"));
 const Campaign = React.lazy(() => import("screens/marketing/campaign/Campaign"));
 const EcommerceConfig = React.lazy(() => import("screens/ecommerce/config"));
@@ -110,6 +114,17 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: dailyRevenueRoute,
+  },
+  {
+    path: UrlConfig.WORK_SHIFT,
+    exact: true,
+    title: "Phân ca",
+    icon: "icon-daily-revenue",
+    component: WorkShiftScheduleScreen,
+    key: "work-shift",
+    isShow: true,
+    header: null,
+    subMenu: workShiftRoute,
   },
   {
     path: UrlConfig.SHIPMENTS,
