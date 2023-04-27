@@ -287,7 +287,7 @@ export type POProgressResult = {
   message_errors: Array<string>;
 };
 export interface PurchaseOrderPercentsQuery {
-  month: number;
+  sku: string;
 }
 
 export interface PurchaseOrderReturn extends BaseObject {
@@ -319,4 +319,17 @@ export interface PurchaseOrderReturnQuery extends BaseQuery {
 export interface PurchaseOrderDeliverDateUpdate {
   delivery_date: Date | string | Moment;
   procurement_ids: Array<number>;
+}
+
+export interface PurchaseOrderPercentSales {
+  id: string;
+  code: string;
+  name: string;
+  percent_sale_stores: PurchaseOrderPercentSaleStores[];
+  isEdit: boolean;
+}
+
+export interface PurchaseOrderPercentSaleStores {
+  store_id: number;
+  percent: number;
 }

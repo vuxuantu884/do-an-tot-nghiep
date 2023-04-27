@@ -5,6 +5,7 @@ import {
   ProcumentLogQuery,
   PurchaseOrderBySupplierQuery,
   PurchaseOrderDeliverDateUpdate,
+  PurchaseOrderPercentSales,
   PurchaseOrderPercentsQuery,
   PurchaseOrderQuery,
   PurchaseOrderReturnQuery,
@@ -202,4 +203,15 @@ export const changePODeliveryDate = (
     `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/procurements/update-delivery-date`,
     data,
   );
+};
+
+export const getListPercentSales = (params: PurchaseOrderQuery): Promise<BaseResponse<any>> => {
+  return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/percent-sales`, { params });
+};
+
+export const updatePercentSales = (
+  id: string,
+  value: PurchaseOrderPercentSales,
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.put(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/percent-sales/${id}`, value);
 };
