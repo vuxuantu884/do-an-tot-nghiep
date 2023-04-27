@@ -9,6 +9,9 @@ import { PurchaseOrderTabUrl } from "screens/purchase-order/helper";
 const PurchaseOrderScreen = React.lazy(
   () => import("screens/purchase-order/PurchaseOrderScreen/PurchaseOrderScreen"),
 );
+const PurchaseOrderConfigSku = React.lazy(
+  () => import("screens/purchase-order/PurchaseOrderScreen/PurchaseOrderConfigSku"),
+);
 const PurchaseOrderDetail = React.lazy(
   () => import("screens/purchase-order/PurchaseOrderScreen/PurchaseOrderDetail"),
 );
@@ -291,6 +294,18 @@ const supplierRoutes: Array<RouteMenu> = [
         permissions: [SuppliersPermissions.READ],
       },
     ],
+  },
+  {
+    path: UrlConfig.PURCHASE_ORDERS_CONFIG_SKU,
+    exact: true,
+    title: "Quản lý tỉ lệ chia hàng",
+    icon: "icon-dot",
+    component: PurchaseOrderConfigSku,
+    key: "submenu237",
+    isShow: true,
+    header: null,
+    permissions: [PurchaseOrderPermission.read],
+    subMenu: [],
   },
 ];
 export default supplierRoutes;

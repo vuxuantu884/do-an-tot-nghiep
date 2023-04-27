@@ -45,6 +45,14 @@ enum EnumStoreTung {
   PROD = 16,
 }
 
+enum EnumStoreMienBac {
+  PROD = 338,
+  UAT = 186,
+}
+enum EnumStoreMienTrung {
+  PROD = 19,
+  UAT = 200,
+}
 enum EnumStoreHieu {
   DEV = 365,
   UAT = 200,
@@ -75,5 +83,7 @@ export {
   EnumStoreHieu,
   EnumOptionValueOrPercent,
   EnumCodeKey,
+  EnumStoreMienBac,
+  EnumStoreMienTrung,
   EnumGiftType,
 };
