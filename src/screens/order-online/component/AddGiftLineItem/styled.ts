@@ -45,4 +45,22 @@ export const RadioGroup = styled(Radio.Group)`
 
 export const ColAddGift = styled(Col)`
   padding-left: 10px;
+  .gift-item-title {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .quantity-columns {
+    width: 80px;
+  }
+  .quantity-columns input {
+    text-align: left;
+  }
+  /* .gift-table-order-online {
+    max-height: 500px;
+    overflow: hidden;
+    overflow-y: auto;
+  } */
 `;
