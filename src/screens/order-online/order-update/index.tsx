@@ -49,8 +49,6 @@ import {
   FulFillmentResponse,
   OrderResponse,
   StoreCustomResponse,
-  OrderCorrelativeVariantResponse,
-  OrderLineItemResponse,
 } from "model/response/order/order.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
@@ -62,11 +60,7 @@ import OrderFulfillmentHeader from "screens/order-online/component/OrderPackingA
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import useFetchOrderConfig from "screens/order-online/hooks/useFetchOrderConfig";
 import useFetchPaymentMethods from "screens/order-online/hooks/useFetchPaymentMethods";
-import {
-  deleteOrderService,
-  getOrderCorrelativeVariantService,
-  getStoreBankAccountNumbersService,
-} from "service/order/order.service";
+import { deleteOrderService, getStoreBankAccountNumbersService } from "service/order/order.service";
 import { specialOrderServices } from "service/order/special-order.service";
 import {
   formatCurrency,
@@ -113,7 +107,6 @@ import {
   convertReverseTypeInDiscountItem,
   convertStandardizeTypeInDiscountItem,
   isGiftLineItem,
-  getFlattenLineItem,
 } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
@@ -129,7 +122,6 @@ import useCalculateShippingFee from "../hooks/useCalculateShippingFee";
 import useGetDefaultReturnOrderReceivedStore from "../hooks/useGetDefaultReturnOrderReceivedStore";
 import useHandleMomoCreateShipment from "../hooks/useHandleMomoCreateShipment";
 import { StyledComponent } from "./styles";
-import { EnumGiftType } from "config/enum.config";
 
 type PropTypes = {
   id?: string;
@@ -175,9 +167,6 @@ export default function Order(props: PropTypes) {
     isEcommerce: false,
     isChange: false,
   });
-
-  const [orderCorrelativeVariantResponse, setOrderCorrelativeVariantResponse] =
-    useState<OrderCorrelativeVariantResponse>();
 
   const paymentMethods = useFetchPaymentMethods();
 
@@ -335,6 +324,8 @@ export default function Order(props: PropTypes) {
     }
   }, [OrderDetail?.payment_status, OrderDetail?.status, OrderDetail?.fulfillments]);
   let levelOrder = setLevelOrder();
+
+  console.log("levelOrder 112", levelOrder);
 
   let initialForm: OrderRequest = useMemo(() => {
     return {
@@ -682,6 +673,7 @@ export default function Order(props: PropTypes) {
   };
 
   const handleUpdateOrder = (valuesCalculateReturnAmount: OrderRequest) => {
+    console.log("OrderRequest", valuesCalculateReturnAmount);
     //return;
     const updateOrder = (updateSpecialOrder?: (orderId: number) => Promise<void>) => {
       dispatch(showLoading());
@@ -778,6 +770,7 @@ export default function Order(props: PropTypes) {
     const element2: any = document.getElementById("btn-save-order-update");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(OrderDetail.fulfillments, values);
+    console.log("lstFulFillment", lstFulFillment);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
 
@@ -1080,7 +1073,6 @@ export default function Order(props: PropTypes) {
   // handle for ecommerce order
   const [isEcommerceOrder, setIsEcommerceOrder] = useState(false);
   const [ecommerceShipment, setEcommerceShipment] = useState<any>();
-  const [giftTypeInOrder, setGiftTypeInOrder] = useState<string | null>(null);
 
   const handleEcommerceOrder = (orderData: any) => {
     const orderChannel = orderData?.channel?.toLowerCase() || "";
@@ -1117,231 +1109,213 @@ export default function Order(props: PropTypes) {
   // end handle for ecommerce order
 
   const fetchOrderDetailData = () => {
-    const handleOrderCorrelativeVariant = (
-      _orderCode: string,
-      nextFunction: (_data?: OrderCorrelativeVariantResponse) => void,
-    ) => {
-      (async () => {
-        const response = await getOrderCorrelativeVariantService(_orderCode);
-        if (isFetchApiSuccessful(response)) {
-          nextFunction(response.data);
-          setOrderCorrelativeVariantResponse(response.data);
-        } else {
-          nextFunction();
-          handleFetchApiError(response, "Lấy thông tin tách đơn", dispatch);
-        }
-      })();
-    };
-    const handleFetchDataSuccess = (response: OrderResponse) => {
-      const { customer_id } = response;
-      setOrderDetail(response);
-      handleEcommerceOrder(response);
-      if (customer_id) {
-        dispatch(
-          getCustomerDetailAction(customer_id, (responseCustomer) => {
-            setCustomer(responseCustomer);
-            dispatch(changeOrderCustomerAction(responseCustomer));
-          }),
-        );
-      }
-      if (response) {
-        let giftResponse = response.items.filter((item) => {
-          return isGiftLineItem(item.type);
-        });
-        let responseItems: OrderLineItemRequest[] = response.items
-          .filter((item) => {
-            return !isGiftLineItem(item.type);
-          })
-          .map((item) => {
-            return {
-              id: item.id,
-              sku: item.sku,
-              variant_id: item.variant_id,
-              variant: item.variant,
-              show_note: item.show_note,
-              variant_barcode: item.variant_barcode,
-              product_id: item.product_id,
-              product_type: item.product_type,
-              product_code: item.product_code,
-              quantity: item.quantity,
-              price: item.price,
-              amount: item.amount,
-              note: item.note,
-              type: item.type,
-              variant_image: item.variant_image,
-              unit: item.unit,
-              weight: item.weight,
-              weight_unit: item.weight_unit,
-              warranty: item.warranty,
-              tax_rate: item.tax_rate,
-              tax_include: item.tax_include,
-              taxable: item.taxable,
-              composite: false,
-              product: item.product,
-              is_composite: false,
-              line_amount_after_line_discount: item.line_amount_after_line_discount,
-              discount_items: item.discount_items.filter((single) => single.amount && single.value),
-              discount_rate: item.discount_rate,
-              discount_value: item.discount_value,
-              discount_amount: item.discount_amount,
-              position: item.position,
-              gifts: giftResponse.filter((single) => single.position === item.position),
-              available: item.available,
-            };
-          });
-        let newDatingShip = initialForm.dating_ship;
-        let newShipperCode = initialForm.shipper_code;
-        let new_payments = initialForm.payments;
-
-        if (activeSortedFulfillments && activeSortedFulfillments[0]) {
-          if (activeSortedFulfillments[0]?.shipment) {
-            newDatingShip = activeSortedFulfillments[0]?.shipment?.expected_received_date
-              ? moment(activeSortedFulfillments[0]?.shipment?.expected_received_date)
-              : undefined;
-            newShipperCode = activeSortedFulfillments[0]?.shipment?.shipper_code;
-          }
-          if (activeSortedFulfillments[0].shipment?.cod) {
-            //setPaymentMethod(PaymentMethodOption.COD);
-          } else if (response.payments && response.payments?.length > 0) {
-            setPaymentMethod(PaymentMethodOption.PRE_PAYMENT);
-            new_payments = response.payments;
-            setPayments(new_payments);
-          }
-        }
-        //convert type, discount item
-        responseItems = responseItems.map((item) => {
-          item.discount_items = convertReverseTypeInDiscountItem(item.discount_items);
-          return {
-            ...item,
-            gifts: item.gifts.map((p) => {
-              p.discount_items = convertReverseTypeInDiscountItem(p.discount_items);
-              return p;
-            }),
-          };
-        });
-        setItems(responseItems);
-        setOrderProductsAmount(response.total_line_amount_after_line_discount);
-        form.setFieldsValue({
-          ...initialForm,
-          customer_note: response.customer_note,
-          source_id: response.source_id,
-          account_code: response.account_code,
-          assignee_code: response.assignee_code,
-          store_id: response.store_id,
-          items: responseItems,
-          dating_ship: newDatingShip,
-          shipper_code: newShipperCode,
-          shipping_fee_informed_to_customer: response.shipping_fee_informed_to_customer,
-          payments: new_payments,
-          reference_code: response.reference_code,
-          url: response.url,
-          note: response.note,
-          // note: promotionUtils.getPrivateNoteFromResponse(response.note || ""),
-          tags: response.tags,
-          marketer_code: response.marketer_code ? response.marketer_code : null,
-          coordinator_code: response.coordinator_code ? response.coordinator_code : null,
-          sub_status_code: response.sub_status_code,
-          // automatic_discount: response.automatic_discount,
-          automatic_discount: false, // sửa đơn hàng ko mặc định bật chiết khấu tự động
-          uniform: response.uniform,
-          type: response.type || EnumOrderType.b2c,
-        });
-        setShippingFeeInformedToCustomer(response.shipping_fee_informed_to_customer);
-        setPromotionTitle(promotionUtils.getPromotionTextFromResponse(response.note || ""));
-
-        if (!canCreateShipment(response.fulfillments)) {
-          setShipmentMethod(0);
-        }
-        if (response.store_id) {
-          setStoreId(response.store_id);
-        }
-        if (response.tags) {
-          setTag(response.tags);
-        }
-        if (response?.discounts && response?.discounts[0]) {
-          setPromotion({
-            ...response?.discounts[0],
-            promotion_title:
-              response?.discounts[0].promotion_title || response?.discounts[0].reason,
-            sub_type: response?.discounts[0].type || DiscountValueType.FIXED_AMOUNT,
-            type: convertReverseDiscountType(response?.discounts[0].type),
-            isOrderSemiAutomatic: true,
-          });
-        }
-        setIsLoadForm(true);
-        if (response.export_bill) {
-          dispatch(setIsExportBillAction(true));
-        } else {
-          dispatch(setIsExportBillAction(false));
-        }
-        const bankPayment = response.payments?.find(
-          (single) =>
-            single.payment_method_code === PaymentMethodCode.BANK_TRANSFER &&
-            single.bank_account_number,
-        );
-        if (bankPayment) {
-          dispatch(changeSelectedStoreBankAccountAction(bankPayment.bank_account_number));
-        } else {
-          dispatch(setIsShouldSetDefaultStoreBankAccountAction(true));
-        }
-        if (response.billing_address) {
-          setBillingAddress({
-            ...response.billing_address,
-            order_id: response.id,
-          });
-        }
-        if (response?.payments) {
-          setPayments(response.payments);
-        }
-        if (checkIfECommerceByOrderChannelCodeUpdateOrder(response.special_order?.ecommerce)) {
-          setIsSpecialOrderEcommerce({
-            isEcommerce: true,
-            isChange: false,
-          });
-        }
-
-        if (response.type) {
-          setOrderType(response.type);
-        }
-      }
-      if (response.source) {
-        setOrderSource({
-          id: response.source_id,
-          code: response.source_code,
-          name: response.source,
-        } as any);
-      }
-    };
     dispatch(
       OrderDetailAction(id, async (response) => {
-        handleOrderCorrelativeVariant(
-          response.code,
-          (_dataOrderCorrelative?: OrderCorrelativeVariantResponse) => {
-            handleFetchDataSuccess(response);
+        const { customer_id } = response;
+        setOrderDetail(response);
+        handleEcommerceOrder(response);
+        if (customer_id) {
+          dispatch(
+            getCustomerDetailAction(customer_id, (responseCustomer) => {
+              setCustomer(responseCustomer);
+              dispatch(changeOrderCustomerAction(responseCustomer));
+            }),
+          );
+        }
+        if (response) {
+          let giftResponse = response.items.filter((item) => {
+            return isGiftLineItem(item.type);
+          });
+          let responseItems: OrderLineItemRequest[] = response.items
+            .filter((item) => {
+              return !isGiftLineItem(item.type);
+            })
+            .map((item) => {
+              return {
+                id: item.id,
+                sku: item.sku,
+                variant_id: item.variant_id,
+                variant: item.variant,
+                show_note: item.show_note,
+                variant_barcode: item.variant_barcode,
+                product_id: item.product_id,
+                product_type: item.product_type,
+                product_code: item.product_code,
+                quantity: item.quantity,
+                price: item.price,
+                amount: item.amount,
+                note: item.note,
+                type: item.type,
+                variant_image: item.variant_image,
+                unit: item.unit,
+                weight: item.weight,
+                weight_unit: item.weight_unit,
+                warranty: item.warranty,
+                tax_rate: item.tax_rate,
+                tax_include: item.tax_include,
+                taxable: item.taxable,
+                composite: false,
+                product: item.product,
+                is_composite: false,
+                line_amount_after_line_discount: item.line_amount_after_line_discount,
+                discount_items: item.discount_items.filter(
+                  (single) => single.amount && single.value,
+                ),
+                discount_rate: item.discount_rate,
+                discount_value: item.discount_value,
+                discount_amount: item.discount_amount,
+                position: item.position,
+                gifts: giftResponse.filter((single) => single.position === item.position),
+                available: item.available,
+              };
+            });
+          let newDatingShip = initialForm.dating_ship;
+          let newShipperCode = initialForm.shipper_code;
+          let new_payments = initialForm.payments;
 
-            //xử lí gán giá trị cho giftTypeInOrder
-            (() => {
-              const _itemsCollection = getFlattenLineItem(
-                response.items,
-              ) as OrderLineItemResponse[];
+          if (activeSortedFulfillments && activeSortedFulfillments[0]) {
+            if (activeSortedFulfillments[0]?.shipment) {
+              newDatingShip = activeSortedFulfillments[0]?.shipment?.expected_received_date
+                ? moment(activeSortedFulfillments[0]?.shipment?.expected_received_date)
+                : undefined;
+              newShipperCode = activeSortedFulfillments[0]?.shipment?.shipper_code;
+            }
+            if (activeSortedFulfillments[0].shipment?.cod) {
+              //setPaymentMethod(PaymentMethodOption.COD);
+            } else if (response.payments && response.payments?.length > 0) {
+              setPaymentMethod(PaymentMethodOption.PRE_PAYMENT);
+              new_payments = response.payments;
+              setPayments(new_payments);
+            }
+          }
+          //convert type, discount item
+          responseItems = responseItems.map((item) => {
+            // item = convertOrderLineItemRequest(item);
+            // return {
+            //   ...item,
+            //   gifts: item.gifts.map((p) => {
+            //     p = convertOrderLineItemRequest(p);
+            //     return p;
+            //   }),
+            // };
 
-              if (
-                _dataOrderCorrelative &&
-                _dataOrderCorrelative.split &&
-                _dataOrderCorrelative.items
-              ) {
-                _itemsCollection.push(..._dataOrderCorrelative.items);
-              }
+            item.discount_items = convertReverseTypeInDiscountItem(item.discount_items);
+            return {
+              ...item,
+              gifts: item.gifts.map((p) => {
+                p.discount_items = convertReverseTypeInDiscountItem(p.discount_items);
+                return p;
+              }),
+            };
+            // const _discountItem = item.discount_items[0];
+            // if (_discountItem) {
+            //   const _type = _discountItem.type || "";
+            //   _discountItem.sub_type = _type;
+            //   _discountItem.type = convertDiscountType(_type);
+            //   return {
+            //     ...item,
+            //     isLineItemSemiAutomatic: true,
+            //     discount_items: [_discountItem],
+            //   };
+            // } else {
+            //   return { ...item };
+            // }
+          });
+          setItems(responseItems);
+          setOrderProductsAmount(response.total_line_amount_after_line_discount);
+          form.setFieldsValue({
+            ...initialForm,
+            customer_note: response.customer_note,
+            source_id: response.source_id,
+            account_code: response.account_code,
+            assignee_code: response.assignee_code,
+            store_id: response.store_id,
+            items: responseItems,
+            dating_ship: newDatingShip,
+            shipper_code: newShipperCode,
+            shipping_fee_informed_to_customer: response.shipping_fee_informed_to_customer,
+            payments: new_payments,
+            reference_code: response.reference_code,
+            url: response.url,
+            note: response.note,
+            // note: promotionUtils.getPrivateNoteFromResponse(response.note || ""),
+            tags: response.tags,
+            marketer_code: response.marketer_code ? response.marketer_code : null,
+            coordinator_code: response.coordinator_code ? response.coordinator_code : null,
+            sub_status_code: response.sub_status_code,
+            // automatic_discount: response.automatic_discount,
+            automatic_discount: false, // sửa đơn hàng ko mặc định bật chiết khấu tự động
+            uniform: response.uniform,
+            type: response.type || EnumOrderType.b2c,
+          });
+          setShippingFeeInformedToCustomer(response.shipping_fee_informed_to_customer);
+          setPromotionTitle(promotionUtils.getPromotionTextFromResponse(response.note || ""));
 
-              const giftLineItemFilter = _itemsCollection.filter((p) => isGiftLineItem(p.type));
-              if (giftLineItemFilter.length !== 0) {
-                setGiftTypeInOrder(giftLineItemFilter[0].type);
-              } else {
-                setGiftTypeInOrder(null);
-              }
-            })();
-          },
-        );
+          if (!canCreateShipment(response.fulfillments)) {
+            setShipmentMethod(0);
+          }
+          if (response.store_id) {
+            setStoreId(response.store_id);
+          }
+          if (response.tags) {
+            setTag(response.tags);
+          }
+          if (response?.discounts && response?.discounts[0]) {
+            setPromotion({
+              ...response?.discounts[0],
+              promotion_title:
+                response?.discounts[0].promotion_title || response?.discounts[0].reason,
+              sub_type: response?.discounts[0].type || DiscountValueType.FIXED_AMOUNT,
+              type: convertReverseDiscountType(response?.discounts[0].type),
+              isOrderSemiAutomatic: true,
+            });
+            // if (response.discounts[0].discount_code) {
+            //   setCoupon(response.discounts[0].discount_code);
+            // }
+          }
+          setIsLoadForm(true);
+          if (response.export_bill) {
+            dispatch(setIsExportBillAction(true));
+          } else {
+            dispatch(setIsExportBillAction(false));
+          }
+          const bankPayment = response.payments?.find(
+            (single) =>
+              single.payment_method_code === PaymentMethodCode.BANK_TRANSFER &&
+              single.bank_account_number,
+          );
+          if (bankPayment) {
+            dispatch(changeSelectedStoreBankAccountAction(bankPayment.bank_account_number));
+          } else {
+            dispatch(setIsShouldSetDefaultStoreBankAccountAction(true));
+          }
+          if (response.billing_address) {
+            setBillingAddress({
+              ...response.billing_address,
+              order_id: response.id,
+            });
+          }
+          if (response?.payments) {
+            setPayments(response.payments);
+          }
+          if (checkIfECommerceByOrderChannelCodeUpdateOrder(response.special_order?.ecommerce)) {
+            setIsSpecialOrderEcommerce({
+              isEcommerce: true,
+              isChange: false,
+            });
+          }
+
+          if (response.type) {
+            setOrderType(response.type);
+          }
+        }
+        if (response.source) {
+          setOrderSource({
+            id: response.source_id,
+            code: response.source_code,
+            name: response.source,
+          } as any);
+        }
       }),
     );
   };
@@ -1787,8 +1761,6 @@ export default function Order(props: PropTypes) {
                       OrderDetail?.channel_code ||
                       ADMIN_ORDER.channel_name
                     }
-                    giftTypeInOrder={giftTypeInOrder}
-                    orderCorrelativeVariant={orderCorrelativeVariantResponse}
                   />
                   <CardShowOrderPayments
                     OrderDetail={OrderDetail}
