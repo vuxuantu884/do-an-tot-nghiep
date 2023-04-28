@@ -108,10 +108,7 @@ const SyncShopList: React.FC<SyncShopListProps> = (props: SyncShopListProps) => 
         dataIndex: "store",
         render: (value: any, data: any) => {
           let storeValue = value;
-          if (
-            data.ecommerce_id === ECOMMERCE_ID.TIKI ||
-            data.ecommerce_id === ECOMMERCE_ID.TIKTOK
-          ) {
+          if (data.ecommerce_id !== ECOMMERCE_ID.SHOPEE) {
             storeValue = "Đa kho";
           }
           return <div>{storeValue}</div>;
@@ -123,10 +120,7 @@ const SyncShopList: React.FC<SyncShopListProps> = (props: SyncShopListProps) => 
         render: (value: any, data: any) => {
           let inventories = "";
           data.inventories?.forEach((item: any) => {
-            if (
-              value?.ecommerce_id === ECOMMERCE_ID.TIKI ||
-              value?.ecommerce_id === ECOMMERCE_ID.TIKTOK
-            ) {
+            if (value?.ecommerce_id !== ECOMMERCE_ID.SHOPEE) {
               inventories = "Đa kho";
             } else {
               inventories = item.deleted ? inventories : inventories + item.store + ", ";

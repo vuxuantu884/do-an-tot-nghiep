@@ -205,7 +205,8 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
     if (
       configDetail &&
       (configDetail.ecommerce_id === ECOMMERCE_ID.TIKI ||
-        configDetail.ecommerce_id === ECOMMERCE_ID.TIKTOK)
+        configDetail.ecommerce_id === ECOMMERCE_ID.TIKTOK ||
+        configDetail.ecommerce_id === ECOMMERCE_ID.LAZADA)
     ) {
       let _listWareHouse: Array<any> = [];
       /** Lọc inventories deleted !== true và store_id !== null */
@@ -316,11 +317,10 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
   };
 
   const handleClearSingleWareHouse = (item: any) => {
-    const _listWareHouse = _.cloneDeep(listWareHouse);
+    const _listWareHouse = [...listWareHouse];
     const indexItem = _listWareHouse.findIndex((_item) => _item.warehouse_id === item.warehouse_id);
     _listWareHouse[indexItem].store = null;
     _listWareHouse[indexItem].store_id = null;
-    _listWareHouse[indexItem].warehouse_id = null;
     setListWareHouse(_listWareHouse);
   };
   /** end select single store */
@@ -556,6 +556,8 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
   //Render config multiple store for ecommerce
   const handleRenderConfigMultipleStore = useCallback((config: number) => {
     switch (config) {
+      case ECOMMERCE_ID.LAZADA:
+        return "Lazada";
       case ECOMMERCE_ID.TIKI:
         return "Tiki";
       case ECOMMERCE_ID.TIKTOK:
@@ -568,6 +570,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
   const handleConfigSetting = React.useCallback(
     (value: EcommerceRequest) => {
       if (configDetail) {
+        console.log("configDetail", configDetail);
         const id = configDetail?.id;
         const _isExist = configData && configData?.some((item) => item.id === id);
         let request = {
@@ -583,9 +586,12 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
 
         if (
           configDetail?.ecommerce_id === ECOMMERCE_ID.TIKI ||
-          configDetail?.ecommerce_id === ECOMMERCE_ID.TIKTOK
+          configDetail?.ecommerce_id === ECOMMERCE_ID.TIKTOK ||
+          configDetail?.ecommerce_id === ECOMMERCE_ID.LAZADA
         ) {
-          const invalidWarehouseConfig = listWareHouse.find((item) => !item.store_id);
+          const invalidWarehouseConfig = listWareHouse.find(
+            (item) => !item.store_id || item.store_id === -1,
+          );
           if (invalidWarehouseConfig) {
             showError(
               `Kho ${handleRenderConfigMultipleStore(configDetail?.ecommerce_id)} "${
@@ -644,6 +650,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
 
   const onSaveConfig = useCallback(
     (value: EcommerceRequest) => {
+      console.log("value value", value);
       if (value.stock_available_min !== configDetail?.stock_available_min) {
         setVisibleSafeInventoryModal(true);
       } else {
@@ -661,7 +668,8 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
     try {
       const res = await reloadInventoryApi(body);
       if (!res.errors) {
-        const inventories: EcommerceShopInventory[] = res.data.inventories;
+        const inventories: EcommerceShopInventory[] =
+          res.data && res.data.inventories ? res.data.inventories : [];
         configDetail &&
           setConfigDetail({
             ...configDetail,
@@ -827,7 +835,8 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
   const handleCheckShowStoreConfig = () => {
     if (
       configDetail?.ecommerce_id === ECOMMERCE_ID.TIKI ||
-      configDetail?.ecommerce_id === ECOMMERCE_ID.TIKTOK
+      configDetail?.ecommerce_id === ECOMMERCE_ID.TIKTOK ||
+      configDetail?.ecommerce_id === ECOMMERCE_ID.LAZADA
     )
       return;
 
@@ -864,7 +873,8 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
   const handleCheckWareHouseConfig = () => {
     if (
       configDetail?.ecommerce_id === ECOMMERCE_ID.TIKI ||
-      configDetail?.ecommerce_id === ECOMMERCE_ID.TIKTOK
+      configDetail?.ecommerce_id === ECOMMERCE_ID.TIKTOK ||
+      configDetail?.ecommerce_id === ECOMMERCE_ID.LAZADA
     )
       return;
 
@@ -1194,7 +1204,8 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
           </Row>
 
           {configDetail?.ecommerce_id === ECOMMERCE_ID.TIKI ||
-          configDetail?.ecommerce_id === ECOMMERCE_ID.TIKTOK ? (
+          configDetail?.ecommerce_id === ECOMMERCE_ID.TIKTOK ||
+          configDetail?.ecommerce_id === ECOMMERCE_ID.LAZADA ? (
             <Row gutter={24} style={{ padding: "24px 0" }}>
               <Col span={10}>
                 <span className="description-name">Cấu hình đa kho</span>
@@ -1349,16 +1360,15 @@ const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
 
             {allowShopsUpdate && (
               <Space>
-                {configDetail &&
-                  (configDetail.ecommerce_id === 3 || configDetail.ecommerce_id === 4) && (
-                    <Button
-                      type="primary"
-                      disabled={!configDetail || isLoading}
-                      onClick={() => onReloadInventory()}
-                    >
-                      Cập nhật kho hàng
-                    </Button>
-                  )}
+                {configDetail && configDetail.ecommerce_id !== 1 && (
+                  <Button
+                    type="primary"
+                    disabled={!configDetail || isLoading}
+                    onClick={() => onReloadInventory()}
+                  >
+                    Cập nhật kho hàng
+                  </Button>
+                )}
                 <Button
                   type="primary"
                   htmlType="submit"
