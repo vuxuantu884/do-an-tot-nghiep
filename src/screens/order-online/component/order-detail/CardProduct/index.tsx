@@ -382,7 +382,7 @@ function UpdateProductCard(props: PropTypes) {
               dataSource={orderDetailCalculatePointInVariant?.items.filter(
                 (item) =>
                   item.type === Type.NORMAL ||
-                  item.type === Type.GIFT ||
+                  // item.type === Type.GIFT ||
                   item.type === Type.SERVICE,
               )}
               className="sale-product-box-table2 w-100"

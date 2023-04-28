@@ -938,7 +938,7 @@ export const handleReCalculateReturnProductDiscountAmount = (item: OrderLineItem
 };
 
 export const isGiftLineItem = (type: string) => {
-  const types = [EnumGiftType.BY_ORDER.toString(), EnumGiftType.BY_ITEM.toString()];
+  const types = [EnumGiftType.BY_ORDER.toString(), EnumGiftType.BY_ITEM.toString(), Type.GIFT];
 
   return types.includes(type);
 };
