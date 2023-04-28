@@ -24,14 +24,12 @@ export const patchWorkShiftTableService = (
   return axiosClientV2.patch(`/admin/v2/work_shift_tables/${id}.json`, request);
 };
 
-export const getWorkShiftTableService = (request: any): Promise<WorkShiftTableResponse> => {
+export const getWorkShiftTableService = (request: any): Promise<any> => {
   let params = generateQuery(request);
   return axiosClientV2.get(`/admin/v2/work_shift_tables.json?${params}`);
 };
 
-export const postWorkShiftTableService = (
-  request: WorkShiftTableRequest,
-): Promise<WorkShiftTableResponse> => {
+export const postWorkShiftTableService = (request: WorkShiftTableRequest): Promise<any> => {
   return axiosClientV2.post(`/admin/v2/work_shift_tables.json`, request);
 };
 
