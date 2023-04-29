@@ -3,7 +3,7 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import React, { useState } from "react";
 import { StyledComponent } from "./styled";
-import AddShiftModal from "./modal/AddShiftModal";
+import AddShiftModal from "./component/AddShiftModal";
 
 const WorkShiftScheduleDetail: React.FC = () => {
   const [visibleShiftModal, setVisibleShiftModal] = useState(false);
