@@ -1,15 +1,17 @@
 import { Button, Modal, Row } from "antd";
 import React, { useState } from "react";
 import { StyledComponent } from "./styled";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 
 const SHIFT = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 const WEEK = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"];
 
 type Props = {
   visible?: boolean;
+  onCancel?: () => void;
 };
 const AddReceptionist: React.FC<Props> = (props: Props) => {
-  const { visible } = props;
+  const { visible, onCancel } = props;
 
   // const renderReceptionistCard: React.FC = () => {
   //   return;
@@ -53,7 +55,15 @@ const AddReceptionist: React.FC<Props> = (props: Props) => {
         ))}
       </Row>
       <Row className="sort-receptionist-footer">
-        <Button type="primary">Xác nhận</Button>
+        <Button
+          onClick={onCancel}
+          icon={<ArrowLeftOutlined />}
+          type="text"
+          title="Trở lại"
+        ></Button>
+        <Button type="primary" className="btn-confirm">
+          Xác nhận
+        </Button>
       </Row>
     </StyledComponent>
   );

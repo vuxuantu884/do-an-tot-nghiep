@@ -1,8 +1,10 @@
 import { Button, Modal, Row } from "antd";
 import React, { useState } from "react";
 import { StyledComponent } from "./styled";
-import AddConsultantModal from "./AddConsultant";
+import AddConsultant from "./AddConsultant";
 import AddReceptionist from "./AddReceptionist";
+import AddEmployeeReception from "./AddEmployeeReception";
+import { InfoCircleFilled } from "@ant-design/icons";
 
 type Props = {
   visible?: boolean;
@@ -12,26 +14,57 @@ const AddShiftModal: React.FC<Props> = (props: Props) => {
   const { visible, onCancel } = props;
   const [visibleAddConsultant, setVisibleAddConsultant] = useState(false);
   const [visibleAddReceptionist, setVisibleAddReceptionist] = useState(false);
+  const [visibleAddEmployeeReception, setAddEmployeeReception] = useState(false);
+
+  const onBackHome = () => {
+    setVisibleAddConsultant(false);
+    setVisibleAddReceptionist(false);
+    setAddEmployeeReception(false);
+  };
 
   const Content: React.FC = () => (
     <StyledComponent>
-      <Row>
-        <p className="text-shift-location-selector">Chọn vị trí bạn muốn xếp ca</p>
+      <Row className="shift-location-selector-header">
+        <p className="shift-location-selector-header-text">Chọn vị trí bạn muốn xếp ca</p>
+        <p className="shift-location-selector-header-text shift-location-selector-header-text-border">
+          <InfoCircleFilled className="yellow-gold pd-r-5" />
+          Bạn cần phân ca cho các vị trí khác trước khi phân ca cho chuyên gia tư vấn.
+        </p>
       </Row>
       <Row className="shift-location-selector">
         <div className="shift-location-selector-row shift-location-selector-bottom">
-          <Button type="primary">Cửa hàng trưởng</Button>
-          <Button type="primary" onClick={() => setVisibleAddConsultant(true)}>
+          <Button type="primary" className="button-deep-purple">
+            Cửa hàng trưởng
+          </Button>
+          <Button
+            type="primary"
+            className="button-deep-purple"
+            onClick={() => setVisibleAddConsultant(true)}
+          >
             Chuyên viên tư vấn
           </Button>
-          <Button type="primary">Chuyên viên thu ngân</Button>
+          <Button type="primary" className="button-deep-purple">
+            Chuyên viên thu ngân
+          </Button>
         </div>
         <div className="shift-location-selector-row">
-          <Button type="primary" onClick={() => setVisibleAddReceptionist(true)}>
+          <Button
+            type="primary"
+            className="button-deep-purple"
+            onClick={() => setVisibleAddReceptionist(true)}
+          >
             Nhân viên kho
           </Button>
-          <Button type="primary">Nhân viên tiếp đón</Button>
-          <Button type="primary">Setup cửa hàng</Button>
+          <Button
+            type="primary"
+            className="button-deep-purple"
+            onClick={() => setAddEmployeeReception(true)}
+          >
+            Nhân viên tiếp đón
+          </Button>
+          <Button type="primary" className="button-deep-purple">
+            Setup cửa hàng
+          </Button>
         </div>
       </Row>
     </StyledComponent>
@@ -48,9 +81,12 @@ const AddShiftModal: React.FC<Props> = (props: Props) => {
       footer={null}
       width={700}
     >
-      {!visibleAddConsultant && !visibleAddReceptionist && <Content />}
-      <AddConsultantModal visible={visibleAddConsultant} />
-      <AddReceptionist visible={visibleAddReceptionist} />
+      {!visibleAddConsultant && !visibleAddReceptionist && !visibleAddEmployeeReception && (
+        <Content />
+      )}
+      <AddConsultant visible={visibleAddConsultant} onCancel={onBackHome} />
+      <AddReceptionist visible={visibleAddReceptionist} onCancel={onBackHome} />
+      <AddEmployeeReception visible={visibleAddEmployeeReception} onCancel={onBackHome} />
     </Modal>
   );
 };

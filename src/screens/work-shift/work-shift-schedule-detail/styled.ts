@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { shiftCustomColor } from "../work-shift-helper";
 
 export const StyledComponent = styled.div`
   .page-header {
@@ -9,11 +10,11 @@ export const StyledComponent = styled.div`
       justify-content: space-between;
       button {
         white-space: initial;
-        width: 12.5%;
+        width: 19%;
         height: 100px;
       }
       .ant-card {
-        width: 30%;
+        width: 20%;
         min-height: 100px;
         .ant-card-body {
           /* display: flex;
@@ -21,35 +22,60 @@ export const StyledComponent = styled.div`
           align-items: center; */
           .text-revenue-plan {
             font-size: 16px;
-            color: #1677ff;
+            color: ${shiftCustomColor.deepPurple};
             &-number {
               display: flex;
               justify-content: space-between;
               &-right {
                 font-size: 18px;
                 font-weight: 600;
-                color: #2a2a86;
+                color: ${shiftCustomColor.darkBlue};
               }
             }
           }
           .text-working-hour-quota {
             font-size: 16px;
-            color: #1677ff;
+            color: ${shiftCustomColor.deepPurple};
             &-number {
               display: flex;
               justify-content: space-between;
               &-right {
                 font-size: 18px;
                 font-weight: 600;
-                color: #3ab67b;
+                color: ${shiftCustomColor.limeGreen};
               }
               &-left {
                 font-size: 18px;
                 font-weight: 600;
-                color: #2a2a86;
+                color: ${shiftCustomColor.darkBlue};
               }
             }
           }
+        }
+      }
+
+      @media only screen and (min-width: 1366px) {
+        .ant-card {
+          width: 30%;
+        }
+        button {
+          width: 12.5%;
+        }
+      }
+      @media only screen and (min-width: 1536px) {
+        .ant-card {
+          width: 25%;
+        }
+        button {
+          width: 16%;
+        }
+      }
+      @media only screen and (min-width: 1920px) {
+        .ant-card {
+          width: 20%;
+        }
+        button {
+          width: 19%;
         }
       }
     }

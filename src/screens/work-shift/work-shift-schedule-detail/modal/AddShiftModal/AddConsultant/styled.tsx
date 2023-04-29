@@ -1,13 +1,18 @@
+import { shiftCustomColor } from "screens/work-shift/work-shift-helper";
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
-  .text-sort-employee {
-    width: 100%;
-    text-align: center;
-    color: #2a2a86;
+  .employee-header {
+    padding-left: 30px;
+    padding-right: 30px;
+    &-text {
+      width: 100%;
+      text-align: center;
+      color: ${shiftCustomColor.blueViolet};
+    }
   }
 
-  .sort-employee {
+  .employee-content {
     min-height: 400px;
     display: flex;
     align-content: center;
@@ -25,8 +30,20 @@ export const StyledComponent = styled.div`
       button {
         white-space: initial;
         height: 70px;
-        background: #5858b6;
       }
     }
+  }
+
+  .employee-footer {
+    display: inline-flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 24px;
+  }
+
+  .button-deep-purple {
+    background: ${shiftCustomColor.deepPurple};
+    border-color: ${shiftCustomColor.deepPurple};
+    color: #fff;
   }
 `;

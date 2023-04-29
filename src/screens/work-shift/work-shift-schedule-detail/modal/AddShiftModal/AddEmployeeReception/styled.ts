@@ -2,24 +2,23 @@ import { shiftCustomColor } from "screens/work-shift/work-shift-helper";
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
-  .sort-receptionist-header {
+  .employee-reception-header {
     padding-left: 30px;
     padding-right: 30px;
-  }
-  .text-sort-receptionist {
-    width: 100%;
-    text-align: center;
-    color: ${shiftCustomColor.blueViolet};
-
-    &-border {
-      padding: 5px;
-      border: 1px solid #b0b0f2;
-      background: #f0f0fe;
-      color: #262626;
+    &-text {
+      width: 100%;
+      text-align: center;
+      color: ${shiftCustomColor.blueViolet};
+      &-border {
+        padding: 5px;
+        border: 1px solid #b0b0f2;
+        background: #f0f0fe;
+        color: ${shiftCustomColor.darkCharcoal};
+      }
     }
   }
 
-  .sort-receptionist {
+  .employee-reception-content {
     min-height: 400px;
     display: flex;
     align-content: center;
@@ -67,7 +66,7 @@ export const StyledComponent = styled.div`
       }
     }
   }
-  .sort-receptionist-footer {
+  .employee-reception-footer {
     display: inline-flex;
     justify-content: space-between;
     width: 100%;
@@ -78,9 +77,20 @@ export const StyledComponent = styled.div`
     }
   }
 
+  .employee-reception-selected-shift {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
   .button-gray {
-    background: #5858b6;
-    border-color: #5858b6;
+    background: ${shiftCustomColor.deepPurple};
+    border-color: ${shiftCustomColor.deepPurple};
     color: #fff;
+  }
+  .dark-charcoal {
+    color: ${shiftCustomColor.darkCharcoal};
+  }
+  .dark-grey {
+    color: ${shiftCustomColor.darkGrey};
   }
 `;
