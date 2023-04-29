@@ -80,4 +80,15 @@ export const StyledComponent = styled.div`
       }
     }
   }
+
+  .page-content {
+    .ant-card-body {
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+  }
+
+  .text-dark-Blue {
+    color: ${shiftCustomColor.darkBlue};
+  }
 `;

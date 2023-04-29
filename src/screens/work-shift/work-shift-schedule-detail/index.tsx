@@ -4,6 +4,7 @@ import UrlConfig from "config/url.config";
 import React, { useState } from "react";
 import { StyledComponent } from "./styled";
 import AddShiftModal from "./component/AddShiftModal";
+import WorkShiftScheduleDetailFilter from "./component/Filter";
 
 const WorkShiftScheduleDetail: React.FC = () => {
   const [visibleShiftModal, setVisibleShiftModal] = useState(false);
@@ -49,14 +50,16 @@ const WorkShiftScheduleDetail: React.FC = () => {
                   </div>
                 </Row>
               </Card>
-              <Button type="primary">Xuất excel</Button>
+              <Button className="text-dark-Blue">Nhân viên cửa hàng</Button>
               <Button type="primary" onClick={() => setVisibleShiftModal(true)}>
                 Thêm ca làm theo vị trí
               </Button>
               <Button type="primary">Đẩy lịch làm việc lên 1Office</Button>
             </Row>
           </div>
-          <Card>Bảng Lịch phân ca</Card>
+          <Card className="page-content">
+            <WorkShiftScheduleDetailFilter />
+          </Card>
         </StyledComponent>
       </ContentContainer>
       <AddShiftModal visible={visibleShiftModal} onCancel={() => setVisibleShiftModal(false)} />
