@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { StyledComponent } from "./styled";
 import AddShiftModal from "./component/AddShiftModal";
 import WorkShiftScheduleDetailFilter from "./component/Filter";
+import CalendarTable from "./component/CalendarTable";
 
 const WorkShiftScheduleDetail: React.FC = () => {
   const [visibleShiftModal, setVisibleShiftModal] = useState(false);
@@ -59,6 +60,7 @@ const WorkShiftScheduleDetail: React.FC = () => {
           </div>
           <Card className="page-content">
             <WorkShiftScheduleDetailFilter />
+            <CalendarTable />
           </Card>
         </StyledComponent>
       </ContentContainer>
