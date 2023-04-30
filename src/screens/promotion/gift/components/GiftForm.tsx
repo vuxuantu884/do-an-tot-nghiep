@@ -39,8 +39,8 @@ function GiftForm({
     setUnlimitedQuantity,
     usageLimitPerCustomer,
     setUsageLimitPerCustomer,
-    // registerWithMinistry,
-    // setRegisterWithMinistry,
+    registerWithMinistry,
+    setRegisterWithMinistry,
   } = giftContext;
 
   const onChangeGiftMethod = (value: GIFT_METHOD_ENUM) => {
@@ -222,19 +222,19 @@ function GiftForm({
             </Form.Item>
           </Col>
 
-          {/*<Col span={12}>*/}
-          {/*  <Form.Item style={{ marginBottom: 28 }}>*/}
-          {/*    <Space>*/}
-          {/*      <Switch*/}
-          {/*        checked={registerWithMinistry}*/}
-          {/*        onChange={(value) => {*/}
-          {/*          setRegisterWithMinistry(value);*/}
-          {/*        }}*/}
-          {/*      />*/}
-          {/*      Đã đăng ký Bộ công thương*/}
-          {/*    </Space>*/}
-          {/*  </Form.Item>*/}
-          {/*</Col>*/}
+          <Col span={12}>
+            <Form.Item style={{ marginBottom: 28 }}>
+              <Space>
+                <Switch
+                  checked={registerWithMinistry}
+                  onChange={(value) => {
+                    setRegisterWithMinistry(value);
+                  }}
+                />
+                Đã đăng ký Bộ công thương
+              </Space>
+            </Form.Item>
+          </Col>
         </Row>
       </Card>
 

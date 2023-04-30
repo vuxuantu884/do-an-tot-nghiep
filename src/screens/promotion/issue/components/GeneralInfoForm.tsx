@@ -1,10 +1,10 @@
-import React, { ReactElement } from "react";
-import { Card, Col, Form, Input, Row } from "antd";
+import React, { ReactElement, useContext } from "react";
+import { Card, Col, Form, Input, Row, Space, Switch } from "antd";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
-// import { IssueContext } from "screens/promotion/issue/components/issue-provider";
+import { IssueContext } from "screens/promotion/issue/components/issue-provider";
 
 function GeneralInfoForm(): ReactElement {
-  // const { registerWithMinistry, setRegisterWithMinistry } = useContext(IssueContext);
+  const { registerWithMinistry, setRegisterWithMinistry } = useContext(IssueContext);
 
   return (
     <div>
@@ -57,19 +57,19 @@ function GeneralInfoForm(): ReactElement {
             </Form.Item>
           </Col>
 
-          {/*<Col span={12} style={{ marginTop: 30 }}>*/}
-          {/*  <Form.Item>*/}
-          {/*    <Space>*/}
-          {/*      <Switch*/}
-          {/*        checked={registerWithMinistry}*/}
-          {/*        onChange={(value) => {*/}
-          {/*          setRegisterWithMinistry(value);*/}
-          {/*        }}*/}
-          {/*      />*/}
-          {/*      Đã đăng ký Bộ công thương*/}
-          {/*    </Space>*/}
-          {/*  </Form.Item>*/}
-          {/*</Col>*/}
+          <Col span={12} style={{ marginTop: 30 }}>
+            <Form.Item>
+              <Space>
+                <Switch
+                  checked={registerWithMinistry}
+                  onChange={(value) => {
+                    setRegisterWithMinistry(value);
+                  }}
+                />
+                Đã đăng ký Bộ công thương
+              </Space>
+            </Form.Item>
+          </Col>
         </Row>
       </Card>
     </div>
