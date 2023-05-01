@@ -27,7 +27,7 @@ interface ShiftTableModel {
   data: ShiftTableDataModel[];
 }
 type Props = {};
-const CalendarTable: React.FC<Props> = (props: Props) => {
+const CalendarShiftTable: React.FC<Props> = (props: Props) => {
   const getShift = () => {
     let result: ShiftModel[] = [];
     let ca: number = 8;
@@ -188,4 +188,4 @@ const CalendarTable: React.FC<Props> = (props: Props) => {
   );
 };
 
-export default CalendarTable;
+export default CalendarShiftTable;

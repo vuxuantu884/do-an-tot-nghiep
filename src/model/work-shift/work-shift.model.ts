@@ -24,3 +24,10 @@ export interface WorkShiftTableResponse extends WorkShiftBase {
   from_date: string;
   to_date: string;
 }
+
+export interface WorkShiftCellQuery {
+  select_query?: string | null;
+  issued_date?: string[];
+  work_hour_name?: string | null;
+  assigned_to?: string | null;
+}

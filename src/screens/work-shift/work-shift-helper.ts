@@ -22,4 +22,6 @@ export const WORK_SHIFT_LIST = () => {
       value: i,
     });
   }
+
+  return workShiftList;
 };

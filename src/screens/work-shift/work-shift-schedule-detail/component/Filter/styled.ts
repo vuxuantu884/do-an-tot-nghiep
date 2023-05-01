@@ -10,8 +10,12 @@ export const StyledComponent = styled.div`
       justify-content: space-between;
       gap: 8px;
 
-      &-left {
+      .page-filter-form {
         width: calc(99% - 100px);
+      }
+
+      &-left {
+        width: 100%;
         display: inline-flex;
         justify-content: flex-start;
         align-content: flex-start;

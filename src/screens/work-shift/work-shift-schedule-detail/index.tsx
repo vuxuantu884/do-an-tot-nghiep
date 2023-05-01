@@ -1,14 +1,74 @@
 import { Button, Card, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { StyledComponent } from "./styled";
 import AddShiftModal from "./component/AddShiftModal";
 import WorkShiftScheduleDetailFilter from "./component/Filter";
-import CalendarTable from "./component/CalendarTable";
+import CalendarShiftTable from "./component/CalendarShiftTable";
+import { useDispatch } from "react-redux";
+import { useHistory, useParams } from "react-router-dom";
+import queryString from "query-string";
+import { WorkShiftCellQuery } from "model/work-shift/work-shift.model";
+import { generateQuery } from "utils/AppUtils";
+import { getQueryParamsFromQueryString } from "utils/useQuery";
+import { EnumSelectedFilter } from "../work-shift-helper";
+import UserShiftTable from "./component/UserShiftTable";
 
+const initQueryDefault: WorkShiftCellQuery = {
+  select_query: EnumSelectedFilter.calendar,
+  issued_date: [],
+  work_hour_name: null,
+  assigned_to: null,
+};
+type WorkShiftCellParamModel = {
+  id: string;
+};
 const WorkShiftScheduleDetail: React.FC = () => {
+  const { id } = useParams<WorkShiftCellParamModel>();
+
+  const queryParamsParsed: any = queryString.parse(window.location.search);
+  const dispatch = useDispatch();
+  const history = useHistory();
+
+  const [params, setPrams] = useState<WorkShiftCellQuery>({
+    ...initQueryDefault,
+  });
   const [visibleShiftModal, setVisibleShiftModal] = useState(false);
+
+  const onFilter = useCallback(
+    (values: any) => {
+      let newPrams = { ...params, ...values };
+      let queryParam = generateQuery(newPrams);
+
+      if (queryParam) {
+        history.replace(`${UrlConfig.WORK_SHIFT}/${id}?${queryParam}`);
+        setPrams({ ...newPrams });
+      }
+    },
+    [history, params, id],
+  );
+
+  const fetchData = useCallback((query: WorkShiftCellQuery) => {
+    console.log("fetchData", query);
+  }, []);
+
+  useEffect(() => {
+    if (queryParamsParsed) {
+      let paramDefault: WorkShiftCellQuery = getQueryParamsFromQueryString(
+        queryParamsParsed,
+      ) as WorkShiftCellQuery;
+      let dataQuery: WorkShiftCellQuery = {
+        ...initQueryDefault,
+        ...paramDefault,
+      };
+      setPrams(dataQuery);
+      fetchData(dataQuery);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [history, window.location.search, fetchData]);
+
   return (
     <>
       <ContentContainer
@@ -59,8 +119,15 @@ const WorkShiftScheduleDetail: React.FC = () => {
             </Row>
           </div>
           <Card className="page-content">
-            <WorkShiftScheduleDetailFilter />
-            <CalendarTable />
+            <WorkShiftScheduleDetailFilter
+              params={params}
+              onFilter={onFilter}
+              validStartDate={"2023-05-01"}
+              validEndDate={"2023-05-11"}
+            />
+
+            {params.select_query === EnumSelectedFilter.calendar && <CalendarShiftTable />}
+            {params.select_query === EnumSelectedFilter.user && <UserShiftTable />}
           </Card>
         </StyledComponent>
       </ContentContainer>
