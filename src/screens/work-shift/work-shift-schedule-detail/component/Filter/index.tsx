@@ -137,7 +137,7 @@ const WorkShiftScheduleDetailFilter: React.FC<Props> = (props: Props) => {
           <Form
             className="page-filter-form"
             onFinish={onFinish}
-            onValuesChange={onFinish}
+            // onValuesChange={onFinish}
             ref={formSearchRef}
             initialValues={initialValues}
           >
@@ -148,6 +148,7 @@ const WorkShiftScheduleDetailFilter: React.FC<Props> = (props: Props) => {
                     style={{ width: "100%" }}
                     placeholder={["Từ ngày", "Đến ngày"]}
                     disabledDate={(current) => disabledDate(current)}
+                    format="DD/MM/YYYY"
                   />
                 </Form.Item>
               </Col>

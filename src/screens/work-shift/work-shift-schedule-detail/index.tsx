@@ -9,11 +9,19 @@ import CalendarShiftTable from "./component/CalendarShiftTable";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import queryString from "query-string";
-import { WorkShiftCellQuery } from "model/work-shift/work-shift.model";
+import {
+  WorkShiftCellQuery,
+  WorkShiftCellResponse,
+  WorkShiftTableResponse,
+} from "model/work-shift/work-shift.model";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
-import { EnumSelectedFilter } from "../work-shift-helper";
+import { EnumSelectedFilter, convertWorkShiftCellQuery } from "../work-shift-helper";
 import UserShiftTable from "./component/UserShiftTable";
+import {
+  getByIdWorkShiftTableService,
+  getWorkShiftCellsService,
+} from "service/work-shift/work-shift.service";
 
 const initQueryDefault: WorkShiftCellQuery = {
   select_query: EnumSelectedFilter.calendar,
@@ -31,10 +39,17 @@ const WorkShiftScheduleDetail: React.FC = () => {
   const dispatch = useDispatch();
   const history = useHistory();
 
+  const [isLoading, setIsLoading] = useState(true);
   const [params, setPrams] = useState<WorkShiftCellQuery>({
     ...initQueryDefault,
   });
   const [visibleShiftModal, setVisibleShiftModal] = useState(false);
+  const [workShiftTableResponse, setWorkShiftTableResponse] =
+    useState<WorkShiftTableResponse | null>(null);
+
+  const [WorkShiftCellsResponse, setWorkShiftCellsResponse] = useState<
+    WorkShiftCellResponse[] | null
+  >(null);
 
   const onFilter = useCallback(
     (values: any) => {
@@ -49,25 +64,67 @@ const WorkShiftScheduleDetail: React.FC = () => {
     [history, params, id],
   );
 
-  const fetchData = useCallback((query: WorkShiftCellQuery) => {
-    console.log("fetchData", query);
-  }, []);
+  const fetchDataWorkShiftable = (_id: number) => {
+    (async () => {
+      if (!_id) {
+        return;
+      }
+      try {
+        const response = await getByIdWorkShiftTableService(Number(_id));
+        setWorkShiftTableResponse(response.data);
+        setIsLoading(false);
+      } catch (e) {
+        console.log(e);
+      }
+    })();
+  };
+
+  const fetchDataWorkShiftCell = (query: WorkShiftCellQuery) => {
+    (async () => {
+      try {
+        const customQuery = convertWorkShiftCellQuery(query);
+        const response = await getWorkShiftCellsService(customQuery);
+        setWorkShiftCellsResponse(response.data);
+        setIsLoading(false);
+      } catch (e) {
+        console.log(e);
+      }
+    })();
+  };
 
   useEffect(() => {
-    if (queryParamsParsed) {
+    if (queryParamsParsed && workShiftTableResponse) {
       let paramDefault: WorkShiftCellQuery = getQueryParamsFromQueryString(
         queryParamsParsed,
       ) as WorkShiftCellQuery;
       let dataQuery: WorkShiftCellQuery = {
         ...initQueryDefault,
         ...paramDefault,
+        location_id: workShiftTableResponse.location_id,
       };
       setPrams(dataQuery);
-      fetchData(dataQuery);
+
+      if (
+        !dataQuery.issued_date ||
+        (dataQuery.issued_date && dataQuery.issued_date.length === 0) ||
+        (dataQuery.issued_date && !dataQuery.issued_date.some((p) => p))
+      ) {
+        dataQuery.issued_date = [
+          workShiftTableResponse.from_date || "",
+          workShiftTableResponse.to_date || "",
+        ];
+      }
+      fetchDataWorkShiftCell(dataQuery);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [history, window.location.search, fetchData]);
+  }, [history, window.location.search, workShiftTableResponse]);
+
+  useEffect(() => {
+    if (id) {
+      fetchDataWorkShiftable(Number(id));
+    }
+  }, [id]);
 
   return (
     <>
@@ -82,9 +139,10 @@ const WorkShiftScheduleDetail: React.FC = () => {
             name: "Lịch phân ca",
           },
           {
-            name: "Lịch làm việc Yody Nguyễn Tuân",
+            name: `${workShiftTableResponse?.title}`,
           },
         ]}
+        isLoading={isLoading}
       >
         <StyledComponent>
           <div className="page-header">
@@ -122,11 +180,13 @@ const WorkShiftScheduleDetail: React.FC = () => {
             <WorkShiftScheduleDetailFilter
               params={params}
               onFilter={onFilter}
-              validStartDate={"2023-05-01"}
-              validEndDate={"2023-05-11"}
+              validStartDate={workShiftTableResponse?.from_date}
+              validEndDate={workShiftTableResponse?.to_date}
             />
 
-            {params.select_query === EnumSelectedFilter.calendar && <CalendarShiftTable />}
+            {params.select_query === EnumSelectedFilter.calendar && (
+              <CalendarShiftTable WorkShiftCells={WorkShiftCellsResponse} />
+            )}
             {params.select_query === EnumSelectedFilter.user && <UserShiftTable />}
           </Card>
         </StyledComponent>

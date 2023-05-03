@@ -2,7 +2,7 @@ import { axiosClientV2 } from "base/base.axios";
 import { WorkShiftTableRequest, WorkShiftTableResponse } from "model/work-shift/work-shift.model";
 import { generateQuery } from "utils/AppUtils";
 
-export const getByIdWorkShiftTableService = (id: number): Promise<WorkShiftTableResponse> => {
+export const getByIdWorkShiftTableService = (id: number): Promise<any> => {
   return axiosClientV2.get(`/admin/v2/work_shift_tables/${id}.json`);
 };
 
@@ -36,4 +36,9 @@ export const postWorkShiftTableService = (request: WorkShiftTableRequest): Promi
 export const getWorkShiftTableCountService = (request: any): Promise<number> => {
   let params = generateQuery(request);
   return axiosClientV2.get(`/admin/v2/work_shift_tables/count.json?${params}`);
+};
+
+export const getWorkShiftCellsService = (request: any): Promise<any> => {
+  let params = generateQuery(request);
+  return axiosClientV2.get(`/admin/v2/work_shift_cells.json?${params}`);
 };
