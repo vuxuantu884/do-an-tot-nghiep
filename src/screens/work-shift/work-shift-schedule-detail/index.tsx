@@ -187,7 +187,9 @@ const WorkShiftScheduleDetail: React.FC = () => {
             {params.select_query === EnumSelectedFilter.calendar && (
               <CalendarShiftTable WorkShiftCells={WorkShiftCellsResponse} />
             )}
-            {params.select_query === EnumSelectedFilter.user && <UserShiftTable />}
+            {params.select_query === EnumSelectedFilter.user && (
+              <UserShiftTable WorkShiftCells={WorkShiftCellsResponse} />
+            )}
           </Card>
         </StyledComponent>
       </ContentContainer>
