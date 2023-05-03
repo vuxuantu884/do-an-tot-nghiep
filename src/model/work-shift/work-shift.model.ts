@@ -41,14 +41,14 @@ export interface WorkShiftAssignmentModel extends WorkShiftBase {
 }
 
 export interface WorkShiftCellResponse extends WorkShiftBase {
-  location_id?: number;
-  location_name?: string;
-  issued_date?: string;
-  work_hour_name?: string;
-  from_minutes?: number;
-  to_minutes?: number;
-  target_revenue?: number;
-  quota_by_hours?: number;
-  traffic?: number;
+  location_id?: number; //mã cửa hàng
+  location_name?: string; //tên cửa hàng
+  issued_date?: string; //ngày làm việc
+  work_hour_name?: string; //ca làm việc
+  from_minutes?: number; //thời gian bắt đầu của ca
+  to_minutes?: number; //thời gian kết thúc của ca
+  target_revenue?: number; //mục tiêu doanh thu trong ca
+  quota_by_hours?: number; //hạn mức thời gian trong ca
+  traffic?: number; //hạn mức nhân viên trong ca
   work_shift_assignment_dtos: WorkShiftAssignmentModel[];
 }

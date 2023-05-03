@@ -1,4 +1,5 @@
-import { WorkShiftCellQuery } from "model/work-shift/work-shift.model";
+import { WorkShiftCellQuery, WorkShiftCellResponse } from "model/work-shift/work-shift.model";
+import moment from "moment";
 
 export const shiftCustomColor = {
   darkCharcoal: "#262626",
@@ -54,4 +55,54 @@ export const convertWorkShiftCellQuery = (query: WorkShiftCellQuery) => {
   };
 
   return customQuery;
+};
+
+export const datesInRange = (startDate: string, endDate: string) => {
+  const _startDate = moment(startDate);
+  const _endDate = moment(endDate);
+  const datesInRange = [];
+
+  while (_startDate <= _endDate) {
+    datesInRange.push(_startDate.format("YYYY-MM-DD"));
+    _startDate.add(1, "day");
+  }
+  return datesInRange;
+};
+
+export const getDatesInWorkShift = (_workShiftCells: WorkShiftCellResponse[]) => {
+  const _fullDay = _workShiftCells?.map((p) => p.issued_date || "");
+  const uniqueDay = _fullDay.filter(
+    (obj, index, self) => index === self.findIndex((o) => o === obj),
+  );
+
+  for (let i = 0; i < uniqueDay.length - 1; i++) {
+    for (let j = i + 1; j < uniqueDay.length; j++) {
+      if (new Date(uniqueDay[i]) > new Date(uniqueDay[j])) {
+        const temp = uniqueDay[i];
+        uniqueDay[i] = uniqueDay[j];
+        uniqueDay[j] = temp;
+      }
+    }
+  }
+  return uniqueDay;
+};
+
+export const getAllShift = (_workShiftCells: WorkShiftCellResponse[]) => {
+  const _fullShift = _workShiftCells?.map((p) => p.work_hour_name || "");
+  const uniqueShift = _fullShift.filter(
+    (obj, index, self) => index === self.findIndex((o) => o === obj),
+  );
+
+  uniqueShift.sort((a, b) => {
+    const _a = a.replace(/ca/g, "");
+    const _b = b.replace(/ca/g, "");
+    if (Number(_a) < Number(_b)) {
+      return -1;
+    } else if (Number(_a) > Number(_b)) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+  return uniqueShift;
 };
