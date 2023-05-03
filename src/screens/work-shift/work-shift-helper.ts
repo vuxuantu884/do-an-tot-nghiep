@@ -12,6 +12,7 @@ export const shiftCustomColor = {
   lavenderMist: "#F0F0FE",
   lightGray: "#D9D9D9",
   lightSlateGray: "#F0F0F0",
+  orangeRed: "#F5222D",
 };
 
 export enum EnumSelectedFilter {

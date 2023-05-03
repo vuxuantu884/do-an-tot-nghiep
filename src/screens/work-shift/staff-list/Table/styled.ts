@@ -1,3 +1,4 @@
+import { shiftCustomColor } from "screens/work-shift/work-shift-helper";
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
@@ -11,5 +12,12 @@ export const StyledComponent = styled.div`
       .pause {
       }
     }
+  }
+
+  .dark-blue {
+    color: ${shiftCustomColor.darkBlue};
+  }
+  .orange-red {
+    color: ${shiftCustomColor.orangeRed};
   }
 `;

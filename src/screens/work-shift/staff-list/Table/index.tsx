@@ -2,6 +2,8 @@ import { Button, Space, Table, Tag } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import React from "react";
 import { StyledComponent } from "./styled";
+import ButtonTransfer from "../ButtonTransfer";
+import ButtonPause from "../ButtonPause";
 
 type Props = {};
 const StaffListTable: React.FC<Props> = (props: Props) => {
@@ -13,15 +15,15 @@ const StaffListTable: React.FC<Props> = (props: Props) => {
 
   const columns: ColumnsType<DataType> = [
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
+      title: "Tên nhân viên",
+      dataIndex: "ten_nhan_vien",
+      key: "ten_nhan_vien",
       render: (text) => <a>{text}</a>,
     },
     {
-      title: "Age",
-      dataIndex: "age",
-      key: "age",
+      title: "Chức vụ",
+      dataIndex: "chuc_vu",
+      key: "chuc_vu",
     },
     {
       title: "Thao tác",
@@ -30,12 +32,8 @@ const StaffListTable: React.FC<Props> = (props: Props) => {
       className: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button type="text" className="transfer">
-            Điều chuyển
-          </Button>
-          <Button type="text" className="pause">
-            Tạm ngưng
-          </Button>
+          <ButtonTransfer className="transfer dark-blue">Điều chuyển</ButtonTransfer>
+          <ButtonPause className="pause orange-red">Tạm ngưng</ButtonPause>
         </Space>
       ),
     },
