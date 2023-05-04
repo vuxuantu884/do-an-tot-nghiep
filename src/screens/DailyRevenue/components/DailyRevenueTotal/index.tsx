@@ -2,40 +2,29 @@ import { PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Form, Image, Row, Tag, Upload } from "antd";
 import { UploadFile } from "antd/es/upload/interface";
 import { RcFile, UploadProps } from "antd/lib/upload";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import {
+  DaiLyRevenuePermissionModel,
   DailyRevenueDetailModel,
   DailyRevenuePaymentStatusModel,
-  DaiLyRevenuePermissionModel,
   DailyRevenueVisibleCardElementModel,
+  ShopRevenueModel,
 } from "model/order/daily-revenue.model";
-import React, { useCallback, useEffect, useState } from "react";
-import { dailyRevenueStatus } from "screens/DailyRevenue/helper";
+import { useCallback, useEffect, useState } from "react";
+import { DailyRevenuePaymentMethods, dailyRevenueStatus } from "screens/DailyRevenue/helper";
+import { formatCurrency } from "utils/AppUtils";
 import { getArrayFromObject, renderFormatCurrency } from "utils/OrderUtils";
 import { showWarning } from "utils/ToastUtils";
-import costIcon from "./../../images/costIcon.svg";
-import revenueIcon from "./../../images/revenueIcon.svg";
-import surchargeIcon from "./../../images/surchargeIcon.svg";
 import { StyledComponent } from "./styles";
 
-type PropTypes = {
+type Props = {
   title: string;
   dailyRevenueDetail?: DailyRevenueDetailModel;
   visibleCardElement: DailyRevenueVisibleCardElementModel;
   handleClickPayMoney: (fileList: UploadFile<any>[]) => void;
   handleClickConfirmPayMoney: () => void;
   permissions: DaiLyRevenuePermissionModel;
-};
-
-enum MinusOrPlusType {
-  minus = "minus",
-  plus = "plus",
-}
-
-type ElementType = {
-  title: string;
-  iconUrl: string;
-  value?: number;
-  type: MinusOrPlusType;
+  shopRevenueModel: ShopRevenueModel | undefined;
 };
 
 const getBase64 = (file: RcFile): Promise<string> =>
@@ -46,7 +35,7 @@ const getBase64 = (file: RcFile): Promise<string> =>
     reader.onerror = (error) => reject(error);
   });
 
-function DailyRevenueTotal(props: PropTypes) {
+function DailyRevenueTotal(props: Props) {
   const {
     title,
     dailyRevenueDetail,
@@ -54,66 +43,177 @@ function DailyRevenueTotal(props: PropTypes) {
     handleClickPayMoney,
     handleClickConfirmPayMoney,
     permissions,
+    shopRevenueModel,
   } = props;
 
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
-  console.log("fileList", fileList);
 
   const separator = ";";
+
+  const dailyRevenuePaymentStatusArr: DailyRevenuePaymentStatusModel[] =
+    getArrayFromObject(dailyRevenueStatus);
 
   const initFileList = dailyRevenueDetail?.image_url
     ? dailyRevenueDetail?.image_url.split(separator)
     : [];
 
-  const elementArr: ElementType[] = [
+  const items: ShopRevenueModel[] = shopRevenueModel ? [shopRevenueModel] : [];
+
+  const calculateTotal = (startNumber: number, otherPaymentType: string) => {
+    let result = startNumber;
+    dailyRevenueDetail?.other_payments.forEach((single) => {
+      if (single?.method === otherPaymentType && single.payment > 0) {
+        result = result + single.payment;
+      }
+    });
+    return result;
+  };
+
+  /**
+   * Phương thức quẹt thẻ có card, mPos và sPos
+   */
+  const calculateCardTotal = (startNumber: number) => {
+    const cardArr = [
+      DailyRevenuePaymentMethods.mpos_payment.value,
+      DailyRevenuePaymentMethods.spos_payment.value,
+      DailyRevenuePaymentMethods.card_payment.value,
+    ] as string[];
+    let result = startNumber;
+    dailyRevenueDetail?.other_payments.forEach((single) => {
+      if (single?.method && cardArr.includes(single.method) && single.payment > 0) {
+        result = result + single.payment;
+      }
+    });
+    return result;
+  };
+
+  const calculateCashTotal = () => {
+    let result = shopRevenueModel?.cash_payments || 0;
+    dailyRevenueDetail?.other_payments.forEach((single) => {
+      if (single?.method === DailyRevenuePaymentMethods.cash_payment.value) {
+        result = result + single.payment;
+      }
+    });
+    result = result - (dailyRevenueDetail?.total_cost || 0);
+    return result;
+  };
+
+  const calculateOtherTotal = () => {
+    let result = shopRevenueModel?.unknown_payments || 0;
+    return result;
+  };
+
+  /**
+   * Tổng doanh thu + Tổng phụ thu - Tổng chi phí
+   */
+  const calculateTotalAmount = () => {
+    const totalShopRevenueAmount = shopRevenueModel ? shopRevenueModel.total_revenue : 0;
+    const totalOtherPayment = dailyRevenueDetail?.other_payment || 0;
+    const totalOtherCost = dailyRevenueDetail?.other_cost || 0;
+    let result = totalShopRevenueAmount + totalOtherPayment - totalOtherCost;
+    return result;
+  };
+
+  const columnFinal: Array<ICustomTableColumType<ShopRevenueModel>> = [
     {
-      title: "Tổng tiền mặt",
-      iconUrl: revenueIcon,
-      value: dailyRevenueDetail?.cash_payment,
-      type: MinusOrPlusType.plus,
+      title: "Tiền mặt",
+      dataIndex: "cash_payments",
+      key: "cash_payments",
+      render: (value: string) => {
+        const result = calculateCashTotal();
+        return <span className="noWrap">{formatCurrency(result)}</span>;
+      },
+      visible: true,
+      align: "right",
     },
     {
-      title: "Tổng phụ thu",
-      iconUrl: surchargeIcon,
-      value: dailyRevenueDetail?.other_payment,
-      type: MinusOrPlusType.plus,
+      title: "QR VNpay",
+      dataIndex: "vnpay_payments",
+      key: "vnpay_payments",
+      render: (value: string) => {
+        const result = calculateTotal(
+          shopRevenueModel?.vnpay_payments || 0,
+          DailyRevenuePaymentMethods.vnpay_payment.value,
+        );
+        return <span className="noWrap">{formatCurrency(result)}</span>;
+      },
+      visible: true,
+      align: "right",
     },
     {
-      title: "Tổng chi phí",
-      iconUrl: costIcon,
-      value: dailyRevenueDetail?.other_cost,
-      type: MinusOrPlusType.minus,
+      title: "QR Momo",
+      dataIndex: "momo_payments",
+      key: "momo_payments",
+      render: (value: string) => {
+        const result = calculateTotal(
+          shopRevenueModel?.momo_payments || 0,
+          DailyRevenuePaymentMethods.momo_payment.value,
+        );
+        return <span className="noWrap">{formatCurrency(result)}</span>;
+      },
+      visible: true,
+      align: "right",
+      // width: "25%",
+    },
+    {
+      title: "QR VCB",
+      dataIndex: "vcb_payments",
+      key: "vcb_payments",
+      render: (value: string) => {
+        const result = calculateTotal(
+          shopRevenueModel?.vcb_payments || 0,
+          DailyRevenuePaymentMethods.vcb_payment.value,
+        );
+        return <span className="noWrap">{formatCurrency(result)}</span>;
+      },
+      visible: true,
+      align: "right",
+      // width: "25%",
+    },
+    {
+      title: "Chuyển khoản",
+      dataIndex: "transfer_payments",
+      key: "transfer_payments",
+      render: (value: string) => {
+        const result = calculateTotal(
+          shopRevenueModel?.transfer_payments || 0,
+          DailyRevenuePaymentMethods.transfer_payment.value,
+        );
+        return <span className="noWrap">{formatCurrency(result)}</span>;
+      },
+      visible: true,
+      align: "right",
+      // width: "25%",
+    },
+
+    {
+      title: "Quẹt thẻ",
+      dataIndex: "card_payments",
+      key: "card_payments",
+      render: (value: string) => {
+        const result = calculateCardTotal(shopRevenueModel?.card_payments || 0);
+        return <span className="noWrap">{formatCurrency(result)}</span>;
+      },
+      visible: true,
+      align: "right",
+      // width: "25%",
+    },
+    {
+      title: "Thanh toán khác",
+      dataIndex: "unknown_payments",
+      key: "unknown_payments",
+      render: (value: string) => {
+        const result = calculateOtherTotal();
+        return <span className="noWrap">{formatCurrency(result)}</span>;
+      },
+      visible: true,
+      align: "right",
+      // width: "25%",
     },
   ];
-
-  const dailyRevenuePaymentStatusArr: DailyRevenuePaymentStatusModel[] =
-    getArrayFromObject(dailyRevenueStatus);
-
-  const renderMinusOrPlus = (single: ElementType, index: number) => {
-    if (index === 0 && single.type === MinusOrPlusType.plus) {
-      return null;
-    }
-    return <div className="separator">{single.type === MinusOrPlusType.plus ? "+" : "-"}</div>;
-  };
-
-  const renderSingleElement = (single: ElementType) => {
-    return (
-      <div className="singleElement">
-        <div className="singleElement__img">
-          <img src={single.iconUrl} alt="" />
-        </div>
-        <div className="singleElement__content">
-          <h4 className="title">{single.title}</h4>
-          <div className="amount">
-            <strong>{renderFormatCurrency(single.value)}</strong>
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   const getTagPaymentStatusClassName = (status: string | undefined) => {
     if (!status) {
@@ -215,27 +315,19 @@ function DailyRevenueTotal(props: PropTypes) {
   return (
     <StyledComponent>
       <Card title={title}>
-        <Row gutter={30} className="dailyRevenueTotal__calculator">
-          <Col span={6}>
-            <div className="totalWrapper">
-              <h4 className="title">Tổng phải nộp</h4>
-              <div className="amount">
-                <strong>{renderFormatCurrency(dailyRevenueDetail?.amount)}</strong>
-              </div>
-              <div className="separator">=</div>
-            </div>
-          </Col>
-          {elementArr.map((single, index) => {
-            return (
-              <React.Fragment key={index}>
-                <Col span={6} className="singleElement__wrapper">
-                  {renderMinusOrPlus(single, index)}
-                  {renderSingleElement(single)}
-                </Col>
-              </React.Fragment>
-            );
-          })}
-        </Row>
+        <div>
+          <CustomTable
+            showColumnSetting={false}
+            dataSource={items}
+            columns={columnFinal.filter((column) => column.visible)}
+            pagination={false}
+            rowKey={(item: ShopRevenueModel) => item.card_payments}
+          />
+          <div className="totalRow">
+            {" "}
+            <span className="title">Tổng:</span> {formatCurrency(calculateTotalAmount())}
+          </div>
+        </div>
         {visibleCardElement.totalRevenueCard.result && (
           <div className="sectionPayResult">
             <Row gutter={30}>

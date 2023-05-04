@@ -18,6 +18,7 @@ export interface DailyRevenueOtherPaymentModel extends BaseObject {
   cost: number;
   description: string;
   type: string;
+  method?: string;
 }
 
 export interface DailyRevenueDetailModel extends BaseObject, ShopRevenueModel {
@@ -60,6 +61,7 @@ export interface DailyRevenueOtherPaymentParamsModel {
   cost: number | undefined;
   description: string | undefined;
   type?: string;
+  method?: string;
 }
 
 export type DailyRevenuePaymentStatusModel = {
