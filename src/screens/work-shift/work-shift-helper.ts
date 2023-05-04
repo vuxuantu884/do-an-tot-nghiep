@@ -13,11 +13,18 @@ export const shiftCustomColor = {
   lightGray: "#D9D9D9",
   lightSlateGray: "#F0F0F0",
   orangeRed: "#F5222D",
+  LavenderBlue: "#B0B0F2",
+  AliceBlue: "#F0F0FE",
 };
 
 export enum EnumSelectedFilter {
   calendar = "calendar",
   user = "user",
+}
+
+export enum EnumShiftAssigner {
+  auto = "auto",
+  manual = "manual",
 }
 
 export const WORK_SHIFT_LIST = () => {

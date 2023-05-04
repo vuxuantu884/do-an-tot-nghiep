@@ -3,17 +3,17 @@ import styled from "styled-components";
 
 export const StyledComponent = styled.div`
   .shift-location-selector-header {
-    padding-left: 30px;
-    padding-right: 30px;
+    /* padding-left: 30px;
+    padding-right: 30px; */
     &-text {
       width: 100%;
-      text-align: center;
-      color: #2a2a86;
+      text-align: left;
+      color: ${shiftCustomColor.darkBlue};
+      font-size: 12px;
       &-border {
         padding: 5px;
-        border: 1px solid #ffe58f;
-        background: #fffbe6;
-        color: ${shiftCustomColor.darkCharcoal};
+        border: 1px solid ${shiftCustomColor.LavenderBlue};
+        background: ${shiftCustomColor.AliceBlue};
       }
     }
   }
@@ -22,30 +22,52 @@ export const StyledComponent = styled.div`
     min-height: 400px;
     display: flex;
     align-content: center;
-
-    &-bottom {
-      margin-bottom: 15px;
+    flex-direction: column;
+    row-gap: 32px !important;
+    &-row:first-child {
+      margin-top: 16px;
     }
     &-row {
-      display: flex;
-      justify-content: space-between;
       width: 100%;
+      display: inline-flex;
+      justify-content: space-between;
       align-items: center;
-
-      button {
-        white-space: initial;
-        height: 70px;
-        width: 31%;
-        //background: ${shiftCustomColor.deepPurple};
+      /* &-item {
+        button {
+          white-space: initial;
+          padding-left: 0px;
+        }
+      } */
+      &-icon {
+        display: inline-flex;
       }
     }
   }
+
   .yellow-gold {
     color: ${shiftCustomColor.yellowGold};
   }
   .pd-r-5 {
     padding-right: 5px;
   }
+
+  .lavender-blue {
+    color: ${shiftCustomColor.LavenderBlue};
+  }
+  .alice-blue {
+    color: ${shiftCustomColor.AliceBlue};
+  }
+
+  .dark-blue {
+    color: ${shiftCustomColor.darkBlue};
+  }
+  .bg-alice-blue {
+    background: ${shiftCustomColor.AliceBlue};
+  }
+  .border-lavender-blue {
+    border: 1px solid ${shiftCustomColor.LavenderBlue};
+  }
+
   .button-deep-purple {
     background: ${shiftCustomColor.deepPurple};
     border-color: ${shiftCustomColor.deepPurple};

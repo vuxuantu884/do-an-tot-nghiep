@@ -1,15 +1,15 @@
-import { Button, Radio, RadioChangeEvent, Row, Space } from "antd";
+import { Radio, RadioChangeEvent, Row, Space } from "antd";
 import React, { useState } from "react";
 import { StyledComponent } from "./styled";
-import { ArrowLeftOutlined } from "@ant-design/icons";
+import WorkShiftSelect from "../../WorkShiftSelect";
+import WorkShiftFooter from "../../WorkShiftFooter";
+import { EnumShiftAssigner } from "screens/work-shift/work-shift-helper";
 
-const SHIFTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
-const WEEKS = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"];
 type Props = { visible?: boolean; onCancel?: () => void };
 const AddEmployeeReception: React.FC<Props> = (props: Props) => {
   const { visible, onCancel } = props;
 
-  const [shiftSelection, setShiftSelection] = useState();
+  const [shiftSelection, setShiftSelection] = useState(EnumShiftAssigner.auto);
 
   const handleShiftSelectionChange = (e: RadioChangeEvent) => {
     setShiftSelection(e.target.value);
@@ -28,56 +28,18 @@ const AddEmployeeReception: React.FC<Props> = (props: Props) => {
       </Row>
       <Row className="employee-reception-selected-shift">
         <Radio.Group onChange={handleShiftSelectionChange} value={shiftSelection}>
-          <Space direction="vertical">
-            <Radio value={1} className="dark-charcoal ">
+          <Space direction="horizontal" size={"large"}>
+            <Radio value={EnumShiftAssigner.auto} className="dark-charcoal ">
               Tự động phân ca vào giờ cao điểm
             </Radio>
-            <Radio value={2} className="dark-charcoal ">
+            <Radio value={EnumShiftAssigner.manual} className="dark-charcoal ">
               Phân ca thủ công
             </Radio>
           </Space>
         </Radio.Group>
       </Row>
-      <Row className="employee-reception-content">
-        <div className="employee-reception-content-Card-header">
-          <div className="employee-reception-content-Card-header-left" style={{ width: "86px" }}>
-            Thứ
-          </div>
-          <div
-            className="employee-reception-content-Card-header-right"
-            style={{ width: "calc(100% - 86px)" }}
-          >
-            Ca làm việc
-          </div>
-        </div>
-        {WEEKS.map((value, index) => (
-          <div className="employee-reception-content-Card" key={index}>
-            <div className="employee-reception-content-Card-left">
-              <Button block className="button-gray">
-                {value}
-              </Button>
-            </div>
-            <div className="employee-reception-content-Card-right">
-              {SHIFTS.map((value, index) => (
-                <Button size="small" key={index} className="dark-grey">
-                  Ca {value}
-                </Button>
-              ))}
-            </div>
-          </div>
-        ))}
-      </Row>
-      <Row className="employee-reception-footer">
-        <Button
-          onClick={onCancel}
-          icon={<ArrowLeftOutlined />}
-          type="text"
-          title="Trở lại"
-        ></Button>
-        <Button type="primary" className="btn-confirm">
-          Xác nhận
-        </Button>
-      </Row>
+      {shiftSelection === EnumShiftAssigner.manual && <WorkShiftSelect />}
+      <WorkShiftFooter onCancel={onCancel} />
     </StyledComponent>
   );
 };

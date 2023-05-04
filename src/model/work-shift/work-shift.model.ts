@@ -52,3 +52,13 @@ export interface WorkShiftCellResponse extends WorkShiftBase {
   traffic?: number; //hạn mức nhân viên trong ca
   work_shift_assignment_dtos: WorkShiftAssignmentModel[];
 }
+
+export interface WorkShiftCellRequest {
+  locationId: number;
+  issuedDateTo: string;
+  issuedDateFrom: string;
+  fromMinutes: string;
+  toMinutes: string;
+  role: string;
+  suggestMethod: number;
+}

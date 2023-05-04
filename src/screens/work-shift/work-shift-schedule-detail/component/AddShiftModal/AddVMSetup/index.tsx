@@ -8,14 +8,16 @@ type Props = {
   visible?: boolean;
   onCancel?: () => void;
 };
-const AddReceptionist: React.FC<Props> = (props: Props) => {
+const AddVMSetup: React.FC<Props> = (props: Props) => {
   const { visible, onCancel } = props;
 
   if (!visible) return <></>;
   return (
     <StyledComponent>
       <Row className="sort-receptionist-header">
-        <p className="text-sort-receptionist">Chọn thời gian sắp xếp nhân viên kho</p>
+        <p className="text-sort-receptionist">
+          Chọn thời gian sắp xếp cho nhân viên setup cửa hàng (VM)
+        </p>
         <p className="text-sort-receptionist text-sort-receptionist-border">
           Từ 2 nhân viên trở lên hệ thống sẽ tự động phân phối luân phiên
         </p>
@@ -26,4 +28,4 @@ const AddReceptionist: React.FC<Props> = (props: Props) => {
   );
 };
 
-export default AddReceptionist;
+export default AddVMSetup;
