@@ -1,4 +1,4 @@
-import { Col, DatePicker, Form, Modal, Row, Space } from "antd";
+import { DatePicker, Form, Modal, Space } from "antd";
 import React from "react";
 import CustomSelect from "component/custom/select.custom";
 import "./styled.scss";

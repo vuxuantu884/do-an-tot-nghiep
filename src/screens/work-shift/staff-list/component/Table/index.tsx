@@ -1,4 +1,4 @@
-import { Button, Space, Table, Tag } from "antd";
+import { Space, Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import React from "react";
 import { StyledComponent } from "./styled";
