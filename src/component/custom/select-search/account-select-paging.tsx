@@ -21,6 +21,7 @@ export interface SelectContentProps extends SelectProps<any> {
   isGetName?: boolean | false;
   [name: string]: any;
   defaultAccountProps?: PageResponse<AccountResponse>;
+  isSearchAll?: boolean;
 }
 const defaultSelectProps: SelectProps<any> = {
   placeholder: "Chọn tài khoản",
@@ -47,6 +48,7 @@ function SelectSearch(contentProps: SelectContentProps) {
     isFilter,
     isGetName,
     defaultAccountProps,
+    isSearchAll,
     ...selectProps
   } = contentProps;
 
@@ -66,6 +68,7 @@ function SelectSearch(contentProps: SelectContentProps) {
   const handleSearch = (queryParams: AccountPublicSearchQueryModel) => {
     setIsSearching(true);
     const query = { status: "active", ...fixedQuery, ...queryParams };
+    isSearchAll && delete query.status;
     dispatch(
       searchAccountPublicAction(query, (response: PageResponse<AccountResponse>) => {
         if (response) {
@@ -96,12 +99,14 @@ function SelectSearch(contentProps: SelectContentProps) {
       code: userReducer.account?.code,
       full_name: userReducer.account?.full_name,
     };
+    const query = { ...fixedQuery, page: 1, limit: 30, status: "active" };
+    isSearchAll && delete query.status;
     const getDefaultOptions = async () => {
       const response = await callApiNative(
         { isShowError: true },
         dispatch,
         searchAccountPublicApi,
-        { ...fixedQuery, page: 1, limit: 30, status: "active" },
+        query,
       );
       const findUser = response?.items.find((item: any) => item.code === userReducer.account?.code);
 
@@ -132,7 +137,7 @@ function SelectSearch(contentProps: SelectContentProps) {
       return;
     }
     getDefaultOptions().then();
-  }, [defaultAccountProps, dispatch, fixedQuery, userReducer]);
+  }, [defaultAccountProps, dispatch, fixedQuery, isSearchAll, userReducer]);
 
   /**
    * Request giá trị mặc định để lên đầu cho select và thêm 1 số item khác để user cho thêm sự lựa cho
