@@ -184,4 +184,21 @@ export const StyledComponent = styled.div`
       margin-bottom: 0;
     }
   }
+  .custom-table {
+    margin-bottom: 15px;
+  }
+  .totalRow {
+    font-weight: 600;
+    color: ${textBodyColor};
+    padding: 5px 8px;
+    background: #f0f5ff;
+    .title {
+      color: ${textBodyColor};
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+  }
+  .sectionUploadPayment {
+    margin-top: 15px;
+  }
 `;

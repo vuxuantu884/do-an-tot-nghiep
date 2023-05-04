@@ -6,9 +6,9 @@ import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import useAuthorization from "hook/useAuthorization";
 import {
+  DaiLyRevenuePermissionModel,
   DailyRevenueDetailModel,
   DailyRevenueOtherPaymentParamsModel,
-  DaiLyRevenuePermissionModel,
   DailyRevenueVisibleCardElementModel,
   ShopRevenueModel,
 } from "model/order/daily-revenue.model";
@@ -16,9 +16,7 @@ import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
-import ShopCostAndSurchargeCard, {
-  ShopCostOrSurchargeModel,
-} from "screens/DailyRevenue/components/ShopCostAndSurchargeCard";
+import ShopCostCard from "screens/DailyRevenue/components/ShopCostCard";
 import ShopRevenueCard from "screens/DailyRevenue/components/ShopRevenueCard";
 import RevenueShopDetail from "screens/DailyRevenue/components/sidebar/RevenueShopDetail";
 import useFetchStoreDetail from "screens/order-online/hooks/useFetchStoreDetail";
@@ -35,9 +33,15 @@ import { getArrayFromObject } from "utils/OrderUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import DailyRevenueProgressBar from "../components/DailyRevenueProgressBar";
 import DailyRevenueTotal from "../components/DailyRevenueTotal";
+import ShopSurchargeCard from "../components/ShopSurchargeCard";
 import RevenueNote from "../components/sidebar/RevenueNote";
 import RevenueStatus from "../components/sidebar/RevenueStatus";
-import { dailyRevenueStatus, getDataReport, getParamReport } from "../helper";
+import {
+  DailyRevenuePaymentMethods,
+  dailyRevenueStatus,
+  getDataReport,
+  getParamReport,
+} from "../helper";
 import { StyledComponent } from "./styles";
 
 type DailyRevenueParamModel = {
@@ -192,13 +196,14 @@ function DailyRevenueDetail() {
     values: DailyRevenueOtherPaymentParamsModel,
     form: FormInstance<any>,
   ) => {
-    const { description, name, type } = values;
+    const { description, name, type, method } = values;
     const params: DailyRevenueOtherPaymentParamsModel = {
       cost: values.cost || 0,
       description,
       name,
       payment: values.payment || 0,
       type,
+      method,
     };
     dispatch(showLoading());
     dailyRevenueService
@@ -221,13 +226,14 @@ function DailyRevenueDetail() {
     values: DailyRevenueOtherPaymentParamsModel,
     form: FormInstance<any>,
   ) => {
-    const { description, name, type } = values;
+    const { description, name, type, method } = values;
     const params: DailyRevenueOtherPaymentParamsModel = {
       cost: values.cost || 0,
       description,
       name,
       payment: values.payment || 0,
       type,
+      method,
     };
     dispatch(showLoading());
     dailyRevenueService
@@ -580,22 +586,29 @@ function DailyRevenueDetail() {
               </Card>
             )}
             {visibleCardElement.shopCostCard.show && (
-              <ShopCostAndSurchargeCard
+              <ShopCostCard
                 dailyRevenueDetail={dailyRevenueDetail}
-                handleAddOtherPaymentItem={handleAddOtherPaymentItem}
-                handleEditOtherPaymentItem={handleEditOtherPaymentItem}
+                handleAddOtherPaymentItem={(values, form) => {
+                  // chi phí mặc định method là cash_payment
+                  values.method = DailyRevenuePaymentMethods.cash_payment.value;
+                  handleAddOtherPaymentItem(values, form);
+                }}
+                handleEditOtherPaymentItem={(otherPaymentId, values, form) => {
+                  // chi phí mặc định method là cash_payment
+                  values.method = DailyRevenuePaymentMethods.cash_payment.value;
+                  handleEditOtherPaymentItem(otherPaymentId, values, form);
+                }}
                 handleDeleteOtherPaymentItem={handleDeleteOtherPaymentItem}
                 visibleCardElement={visibleCardElement}
                 setVisibleCardElement={setVisibleCardElement}
                 dailyRevenueOtherPaymentTypes={dailyRevenueOtherPaymentTypes}
-                cardType={ShopCostOrSurchargeModel.cost}
                 isShowActionButton={visibleCardElement.shopCostCard.actionButton}
                 permissions={permissions}
               />
             )}
 
             {visibleCardElement.shopSurchargeCard.show && (
-              <ShopCostAndSurchargeCard
+              <ShopSurchargeCard
                 dailyRevenueDetail={dailyRevenueDetail}
                 handleAddOtherPaymentItem={handleAddOtherPaymentItem}
                 handleEditOtherPaymentItem={handleEditOtherPaymentItem}
@@ -603,7 +616,6 @@ function DailyRevenueDetail() {
                 visibleCardElement={visibleCardElement}
                 setVisibleCardElement={setVisibleCardElement}
                 dailyRevenueOtherPaymentTypes={dailyRevenueOtherPaymentTypes}
-                cardType={ShopCostOrSurchargeModel.surcharge}
                 isShowActionButton={visibleCardElement.shopSurchargeCard.actionButton}
                 permissions={permissions}
               />
@@ -618,6 +630,7 @@ function DailyRevenueDetail() {
                 handleClickPayMoney={handleClickPayMoney}
                 handleClickConfirmPayMoney={handleClickConfirmPayMoney}
                 permissions={permissions}
+                shopRevenueModel={shopRevenueModel}
               />
             </Form>
           </Col>

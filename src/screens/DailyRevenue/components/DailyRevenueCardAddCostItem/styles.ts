@@ -3,16 +3,21 @@ import styled from "styled-components";
 export const StyledComponent = styled.div`
   .formWrapper {
     position: relative;
-    padding-right: 154px;
   }
   .buttonGroup {
-    position: absolute;
-    top: 0;
-    right: 0;
+    margin-bottom: 10px;
+    text-align: right;
+    .inner {
+      text-align: center;
+    }
     button {
       &:not(:last-child) {
         margin-right: 10px;
       }
     }
+  }
+  .paymentSelectIcon {
+    width: 20px;
+    margin-right: 5px;
   }
 `;

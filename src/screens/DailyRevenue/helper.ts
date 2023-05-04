@@ -6,6 +6,15 @@ import { DailyRevenueTableModel } from "model/revenue";
 import { formatCurrency } from "utils/AppUtils";
 import { flatDataPaging } from "utils/Paging";
 import { generateRQuery } from "utils/ReportUtils";
+import bankTransferIcon from "./images/bankTransferIcon.png";
+import cardIcon from "./images/cardIcon.png";
+import cashIcon from "./images/cashIcon.png";
+import mPosIcon from "./images/mPosIcon.png";
+import momoIcon from "./images/momoIcon.png";
+import qRPayIcon from "./images/qRPayIcon.png";
+import sPosIcon from "./images/sPosIcon.png";
+import vcbIcon from "./images/vcbIcon.png";
+import vnPayIcon from "./images/vnPayIcon.png";
 
 export const columnsReport = {
   cashPayments: "cash_payments",
@@ -213,3 +222,46 @@ export const getTotalShopRevenueAmount = (value: ShopRevenueModel) => {
     .map((item) => item)
     .reduce((prev, next) => prev + next);
 };
+
+export const DailyRevenuePaymentMethods = {
+  cash_payment: {
+    title: "Tiền mặt",
+    value: "cash_payment",
+    iconUrl: cashIcon,
+  },
+  card_payment: {
+    title: "Quẹt thẻ",
+    value: "card_payment",
+    iconUrl: cardIcon,
+  },
+  momo_payment: {
+    title: "Momo",
+    value: "momo_payment",
+    iconUrl: momoIcon,
+  },
+  mpos_payment: {
+    title: "M-Pos",
+    value: "mpos_payment",
+    iconUrl: mPosIcon,
+  },
+  spos_payment: {
+    title: "S-Pos",
+    value: "spos_payment",
+    iconUrl: sPosIcon,
+  },
+  transfer_payment: {
+    title: "Chuyển khoản",
+    value: "transfer_payment",
+    iconUrl: bankTransferIcon,
+  },
+  vnpay_payment: {
+    title: "VNpay",
+    value: "vnpay_payment",
+    iconUrl: vnPayIcon,
+  },
+  vcb_payment: {
+    title: "VCB",
+    value: "vcb_payment",
+    iconUrl: vcbIcon,
+  },
+} as const;
