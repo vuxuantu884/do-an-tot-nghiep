@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { StyledComponent } from "./styled";
-import { ClockCircleOutlined, DollarCircleOutlined } from "@ant-design/icons";
+import { ClockCircleOutlined, DollarCircleOutlined, TeamOutlined } from "@ant-design/icons";
 import { Space } from "antd";
 import { getAllShift, getDatesInWorkShift } from "screens/work-shift/work-shift-helper";
 import UserFilled from "component/icon/UserFilled";
@@ -253,7 +253,7 @@ const CalendarShiftTable: React.FC<Props> = (props: Props) => {
                       <td className="condition" colSpan={2}>
                         {/* body 2 */}
                         <div className="revenue">
-                          <DollarCircleOutlined className="revenue-icon yellow-gold" />
+                          <DollarCircleOutlined className="revenue-icon dark-blue" />
                           <div className="revenue-text">
                             {column.dailyPlanRevenue.toLocaleString("vi-VN")}/
                             {column.dailyPlanRevenue.toLocaleString("vi-VN")}
@@ -274,7 +274,7 @@ const CalendarShiftTable: React.FC<Props> = (props: Props) => {
                       </td>
                       <td className="condition">
                         <div className="shift-plan">
-                          <ClockCircleOutlined className="shift-plan-icon yellow-gold" />
+                          <ClockCircleOutlined className="shift-plan-icon dark-blue" />
                           <div className="shift-plan-text fw-600">
                             {column.elapsedHours}/{column.fixedTotalHours}h
                           </div>
@@ -282,7 +282,7 @@ const CalendarShiftTable: React.FC<Props> = (props: Props) => {
                       </td>
                       <td className="condition">
                         <div className="shift-plan">
-                          <UserGroupCustomOutlined />
+                          <TeamOutlined className="dark-blue" />
                           <div className="shift-plan-text fw-600">
                             {column.usedEmployees}/{column.fixTotalUser}
                           </div>

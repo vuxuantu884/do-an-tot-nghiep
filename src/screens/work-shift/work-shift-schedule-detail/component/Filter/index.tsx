@@ -1,6 +1,6 @@
 import React, { useEffect, useState, createRef, useMemo, useCallback } from "react";
 import { StyledComponent } from "./styled";
-import { Button, Col, DatePicker, Form, FormInstance, Row } from "antd";
+import { Button, Col, DatePicker, Form, FormInstance, Row, Tooltip } from "antd";
 import CustomSelect from "component/custom/select.custom";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import { useDispatch } from "react-redux";
@@ -85,6 +85,12 @@ const WorkShiftScheduleDetailFilter: React.FC<Props> = (props: Props) => {
         query.select_query = selectedQuery;
       }
 
+      if (
+        !selectQuery ||
+        selectQuery === EnumSelectedFilter.calendar ||
+        selectedQuery === EnumSelectedFilter.calendar
+      )
+        query.assigned_to = null;
       onFilter && onFilter(query);
     },
     [formSearchRef, handleError, onFilter, selectQuery],
@@ -170,7 +176,7 @@ const WorkShiftScheduleDetailFilter: React.FC<Props> = (props: Props) => {
                   </CustomSelect>
                 </Form.Item>
               </Col>
-              <Col span={6}>
+              <Col span={6} hidden={selectQuery === EnumSelectedFilter.calendar}>
                 <Form.Item name="assigned_to">
                   <AccountCustomSearchSelect
                     placeholder="Tìm kiếm nhân viên"
@@ -192,24 +198,28 @@ const WorkShiftScheduleDetailFilter: React.FC<Props> = (props: Props) => {
           </Form>
 
           <Row className="page-filter-content-right">
-            <Button
-              icon={<CalendarOutlined />}
-              type={selectQuery === EnumSelectedFilter.calendar ? "primary" : "default"}
-              className={selectQuery !== EnumSelectedFilter.calendar ? "btn-calendar" : ""}
-              onClick={() => {
-                setSelectQuery(EnumSelectedFilter.calendar);
-                onFinish(EnumSelectedFilter.calendar);
-              }}
-            ></Button>
-            <Button
-              icon={<UserOutlined />}
-              type={selectQuery === EnumSelectedFilter.user ? "primary" : "default"}
-              className="btn-user"
-              onClick={() => {
-                setSelectQuery(EnumSelectedFilter.user);
-                onFinish(EnumSelectedFilter.user);
-              }}
-            ></Button>
+            <Tooltip placement="left" title={"Xem theo lịch"}>
+              <Button
+                icon={<CalendarOutlined />}
+                type={selectQuery === EnumSelectedFilter.calendar ? "primary" : "default"}
+                className={selectQuery !== EnumSelectedFilter.calendar ? "btn-calendar" : ""}
+                onClick={() => {
+                  setSelectQuery(EnumSelectedFilter.calendar);
+                  onFinish(EnumSelectedFilter.calendar);
+                }}
+              ></Button>
+            </Tooltip>
+            <Tooltip placement="bottom" title={"Xem theo nhân viên"}>
+              <Button
+                icon={<UserOutlined />}
+                type={selectQuery === EnumSelectedFilter.user ? "primary" : "default"}
+                className="btn-user"
+                onClick={() => {
+                  setSelectQuery(EnumSelectedFilter.user);
+                  onFinish(EnumSelectedFilter.user);
+                }}
+              ></Button>
+            </Tooltip>
           </Row>
         </Row>
       </div>

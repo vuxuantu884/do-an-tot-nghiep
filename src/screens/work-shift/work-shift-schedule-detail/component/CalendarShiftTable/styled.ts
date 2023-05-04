@@ -31,7 +31,7 @@ export const StyledComponent = styled.div`
   }
 
   .calendar-table .rules .condition {
-    padding: 11px;
+    padding: 6px 11px;
     /* width: 250px; */
     min-height: 54px;
     font-size: 14px;

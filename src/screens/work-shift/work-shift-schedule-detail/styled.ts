@@ -8,18 +8,23 @@ export const StyledComponent = styled.div`
     .page-header-content {
       display: flex;
       justify-content: space-between;
-      button {
+      .shift-scheduler {
         white-space: initial;
-        width: 19%;
-        height: 100px;
+        display: inline-flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 20%;
+        gap: 5px;
+        button {
+          height: 50%;
+        }
       }
       .ant-card {
-        width: 20%;
-        min-height: 100px;
+        width: 39.5%;
+        min-height: 73px;
+        margin-bottom: 0px;
         .ant-card-body {
-          /* display: flex;
-          justify-content: center;
-          align-items: center; */
+          padding: 10px 24px;
           .text-revenue-plan {
             font-size: 16px;
             color: ${shiftCustomColor.deepPurple};
@@ -27,6 +32,11 @@ export const StyledComponent = styled.div`
               display: flex;
               justify-content: space-between;
               &-right {
+                font-size: 18px;
+                font-weight: 600;
+                color: ${shiftCustomColor.darkBlue};
+              }
+              &-left {
                 font-size: 18px;
                 font-weight: 600;
                 color: ${shiftCustomColor.darkBlue};
@@ -54,7 +64,7 @@ export const StyledComponent = styled.div`
         }
       }
 
-      @media only screen and (min-width: 1366px) {
+      /* @media only screen and (min-width: 1366px) {
         .ant-card {
           width: 30%;
         }
@@ -69,13 +79,13 @@ export const StyledComponent = styled.div`
         button {
           width: 16%;
         }
-      }
+      } */
       @media only screen and (min-width: 1920px) {
         .ant-card {
-          width: 20%;
+          width: 39.5%;
         }
-        button {
-          width: 19%;
+        .shift-scheduler {
+          width: 20%;
         }
       }
     }
@@ -86,6 +96,10 @@ export const StyledComponent = styled.div`
       padding-top: 10px;
       padding-bottom: 10px;
     }
+  }
+
+  .extra-option button {
+    padding: 6px 35px;
   }
 
   .text-dark-Blue {

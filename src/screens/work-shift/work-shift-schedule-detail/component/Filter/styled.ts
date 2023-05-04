@@ -12,6 +12,9 @@ export const StyledComponent = styled.div`
 
       .page-filter-form {
         width: calc(99% - 100px);
+        .ant-form-item {
+          margin-bottom: 0px;
+        }
       }
 
       &-left {

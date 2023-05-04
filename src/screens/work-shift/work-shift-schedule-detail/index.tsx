@@ -1,4 +1,4 @@
-import { Button, Card, Row } from "antd";
+import { Button, Card, Row, Space } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import React, { useCallback, useEffect, useState } from "react";
@@ -143,6 +143,14 @@ const WorkShiftScheduleDetail: React.FC = () => {
           },
         ]}
         isLoading={isLoading}
+        extra={
+          <StyledComponent>
+            <Space className="extra-option">
+              <Button className="text-dark-Blue"> Xuất excel</Button>
+              <Button className="text-dark-Blue"> Đẩy lịch làm việc lên 1Office</Button>
+            </Space>
+          </StyledComponent>
+        }
       >
         <StyledComponent>
           <div className="page-header">
@@ -150,10 +158,10 @@ const WorkShiftScheduleDetail: React.FC = () => {
               <Card>
                 <Row>
                   <div className="text-revenue-plan">
-                    Doanh thu thực tế/ kế hoạch tuần
+                    Doanh thu thực tế / kế hoạch (đồng)
                     <div className="text-revenue-plan-number">
-                      <div className="text-revenue-plan-number-left"></div>
-                      <div className="text-revenue-plan-number-right">0 / 210.000.000</div>
+                      <div className="text-revenue-plan-number-left">0 / 210.000.000</div>
+                      <div className="text-revenue-plan-number-right"></div>
                     </div>
                   </div>
                 </Row>
@@ -161,19 +169,24 @@ const WorkShiftScheduleDetail: React.FC = () => {
               <Card>
                 <Row>
                   <div className="text-working-hour-quota">
-                    Giờ công sử dụng/ định mức tuần (h)
+                    Giờ công sử dụng / định mức (h)
                     <div className="text-working-hour-quota-number">
                       <div className="text-working-hour-quota-number-left">0/ 420h</div>
-                      <div className="text-working-hour-quota-number-right">dư 420h</div>
+                      {/* <div className="text-working-hour-quota-number-right">dư 420h</div> */}
                     </div>
                   </div>
                 </Row>
               </Card>
-              <Button className="text-dark-Blue">Nhân viên cửa hàng</Button>
-              <Button type="primary" onClick={() => setVisibleShiftModal(true)}>
+              {/* <Button className="text-dark-Blue">Nhân viên cửa hàng</Button> */}
+              {/* <Button type="primary" onClick={() => setVisibleShiftModal(true)}>
                 Thêm ca làm theo vị trí
-              </Button>
-              <Button type="primary">Đẩy lịch làm việc lên 1Office</Button>
+              </Button> */}
+              <div className="shift-scheduler">
+                <Button type="primary" onClick={() => setVisibleShiftModal(true)}>
+                  Thêm ca làm
+                </Button>
+                <Button type="primary">Lịch sử phân ca</Button>
+              </div>
             </Row>
           </div>
           <Card className="page-content">
