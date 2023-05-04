@@ -5,9 +5,8 @@ import {
   DailyRevenueOtherPaymentParamsModel,
   DailyRevenueOtherPaymentTypeArrModel,
 } from "model/order/daily-revenue.model";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
-import { ShopCostOrSurchargeModel } from "../ShopCostAndSurchargeCard";
 import { StyledComponent } from "./styles";
 
 export enum AmountItemTypeModel {
@@ -15,24 +14,22 @@ export enum AmountItemTypeModel {
   payment = "payment",
 }
 
-type PropTypes = {
+type Props = {
   isVisible: boolean;
   handleOkForm: (values: DailyRevenueOtherPaymentParamsModel, form: FormInstance<any>) => void;
   handleCancelForm: () => void;
   initialValues: DailyRevenueOtherPaymentParamsModel;
   form: FormInstance<any>;
-  cardType: ShopCostOrSurchargeModel;
   dailyRevenueOtherPaymentTypes: DailyRevenueOtherPaymentTypeArrModel | undefined;
 };
 
-function DailyRevenueCardAddItem(props: PropTypes) {
+function DailyRevenueCardAddCostItem(props: Props) {
   const {
     isVisible,
     handleOkForm,
     handleCancelForm,
     initialValues,
     form,
-    cardType,
     dailyRevenueOtherPaymentTypes,
   } = props;
 
@@ -55,37 +52,22 @@ function DailyRevenueCardAddItem(props: PropTypes) {
                 rules={[
                   {
                     required: true,
-                    message: `Vui lòng nhập tên ${
-                      cardType === ShopCostOrSurchargeModel.cost ? "chi phí" : "phụ thu"
+                    message: `Vui lòng nhập tên chi phí"
                     }!`,
                   },
                 ]}
               >
-                <Input
-                  placeholder={`Tên ${
-                    cardType === ShopCostOrSurchargeModel.cost ? "chi phí" : "phụ thu"
-                  }`}
-                />
+                <Input placeholder={`Tên chi phí`} />
               </Form.Item>
             </Col>
             <Col span={5}>
               <Form.Item
-                name={
-                  cardType === ShopCostOrSurchargeModel.cost
-                    ? AmountItemTypeModel.cost
-                    : AmountItemTypeModel.payment
-                }
+                name={AmountItemTypeModel.cost}
                 rules={[
                   () => ({
                     validator(_, value) {
                       if (!value || +value <= 0) {
-                        return Promise.reject(
-                          new Error(
-                            `Vui lòng nhập số tiền ${
-                              cardType === ShopCostOrSurchargeModel.cost ? "chi phí" : "phụ thu"
-                            }!`,
-                          ),
-                        );
+                        return Promise.reject(new Error(`Vui lòng nhập số tiền chi phí!`));
                       }
                       return Promise.resolve();
                     },
@@ -99,15 +81,14 @@ function DailyRevenueCardAddItem(props: PropTypes) {
                 />
               </Form.Item>
             </Col>
+
             <Col span={5}>
               <Form.Item
                 name="type"
                 rules={[
                   {
                     required: true,
-                    message: `Vui lòng chọn loại ${
-                      cardType === ShopCostOrSurchargeModel.cost ? "chi phí" : "phụ thu"
-                    }!`,
+                    message: `Vui lòng chọn loại chi phí!`,
                   },
                 ]}
               >
@@ -144,4 +125,4 @@ function DailyRevenueCardAddItem(props: PropTypes) {
   );
 }
 
-export default DailyRevenueCardAddItem;
+export default DailyRevenueCardAddCostItem;

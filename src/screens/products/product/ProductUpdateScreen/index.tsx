@@ -1254,7 +1254,7 @@ const ProductDetailScreen: React.FC = () => {
                           },
                         ]}
                       >
-                        <AccountSearchPaging placeholder="Chọn nhân viên thiết kế" />
+                        <AccountSearchPaging isSearchAll placeholder="Chọn nhân viên thiết kế" />
                       </Item>
                     </div>
                   </Card>

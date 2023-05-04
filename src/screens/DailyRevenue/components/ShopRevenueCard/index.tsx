@@ -14,7 +14,7 @@ import RefreshIcon from "./images/refreshIcon.svg";
 import ShopRevenueIcon from "./images/shopRevenueIcon.svg";
 import { StyledComponent } from "./styles";
 
-type PropTypes = {
+type Props = {
   dailyRevenueDetail: DailyRevenueDetailModel | undefined;
   shopRevenueModel: ShopRevenueModel | undefined;
   handleUpdateDailyRevenueDetail: () => void;
@@ -22,7 +22,7 @@ type PropTypes = {
   permissions: DaiLyRevenuePermissionModel;
 };
 
-function ShopRevenueCard(props: PropTypes) {
+function ShopRevenueCard(props: Props) {
   const {
     handleUpdateDailyRevenueDetail,
     shopRevenueModel,
