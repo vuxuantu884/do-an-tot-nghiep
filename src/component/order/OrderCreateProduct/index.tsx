@@ -2963,6 +2963,7 @@ function OrderCreateProduct(props: PropTypes) {
                 placeholder="Tìm sản phẩm mã 7... (F3)/ Barcode sản phẩm"
                 storeId={storeId}
                 defaultActiveFirstOption={true}
+                disabled={levelOrder > 3}
               />
             </Form.Item>
           </Col>
