@@ -39,7 +39,7 @@ const AddEmployeeReception: React.FC<Props> = (props: Props) => {
         </Radio.Group>
       </Row>
       {shiftSelection === EnumShiftAssigner.manual && <WorkShiftSelect />}
-      <WorkShiftFooter onCancel={onCancel} />
+      {/* <WorkShiftFooter onCancel={onCancel} /> */}
     </StyledComponent>
   );
 };

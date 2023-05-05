@@ -3,10 +3,10 @@ import { Button, Row } from "antd";
 import React from "react";
 import { StyledComponent } from "./styled";
 type Props = {
-  onCancel?: () => void;
+  onBackHome?: () => void;
 };
 const WorkShiftFooter: React.FC<Props> = (props: Props) => {
-  const { onCancel } = props;
+  const { onBackHome: onCancel } = props;
   return (
     <StyledComponent>
       <Row className="sort-receptionist-footer">

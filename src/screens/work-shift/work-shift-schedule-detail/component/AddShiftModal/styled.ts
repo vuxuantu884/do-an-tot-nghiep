@@ -7,13 +7,14 @@ export const StyledComponent = styled.div`
     padding-right: 30px; */
     &-text {
       width: 100%;
-      text-align: left;
+      text-align: center;
       color: ${shiftCustomColor.darkBlue};
       font-size: 12px;
       &-border {
-        padding: 5px;
+        padding: 5px 10px;
         border: 1px solid ${shiftCustomColor.LavenderBlue};
         background: ${shiftCustomColor.AliceBlue};
+        text-align: left;
       }
     }
   }
@@ -22,52 +23,30 @@ export const StyledComponent = styled.div`
     min-height: 400px;
     display: flex;
     align-content: center;
-    flex-direction: column;
-    row-gap: 32px !important;
-    &-row:first-child {
-      margin-top: 16px;
+
+    &-bottom {
+      margin-bottom: 15px;
     }
     &-row {
-      width: 100%;
-      display: inline-flex;
+      display: flex;
       justify-content: space-between;
+      width: 100%;
       align-items: center;
-      /* &-item {
-        button {
-          white-space: initial;
-          padding-left: 0px;
-        }
-      } */
-      &-icon {
-        display: inline-flex;
+
+      button {
+        white-space: initial;
+        height: 70px;
+        width: 31%;
+        //background: ${shiftCustomColor.deepPurple};
       }
     }
   }
-
   .yellow-gold {
     color: ${shiftCustomColor.yellowGold};
   }
   .pd-r-5 {
     padding-right: 5px;
   }
-
-  .lavender-blue {
-    color: ${shiftCustomColor.LavenderBlue};
-  }
-  .alice-blue {
-    color: ${shiftCustomColor.AliceBlue};
-  }
-
-  .dark-blue {
-    color: ${shiftCustomColor.darkBlue};
-  }
-  .bg-alice-blue {
-    background: ${shiftCustomColor.AliceBlue};
-  }
-  .border-lavender-blue {
-    border: 1px solid ${shiftCustomColor.LavenderBlue};
-  }
-
   .button-deep-purple {
     background: ${shiftCustomColor.deepPurple};
     border-color: ${shiftCustomColor.deepPurple};

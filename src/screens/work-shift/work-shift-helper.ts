@@ -27,6 +27,33 @@ export enum EnumShiftAssigner {
   manual = "manual",
 }
 
+export const SHIFT_ROLE = {
+  MANAGER: {
+    key: "Cửa hàng trưởng",
+    value: "Cửa hàng trưởng",
+  },
+  CONSULTANT: {
+    key: "Chuyên gia tư vấn",
+    value: "Chuyên gia tư vấn",
+  },
+  CASHIER: {
+    key: "Thu ngân",
+    value: "Chuyên viên thu ngân",
+  },
+  RECEPTION: {
+    key: "Tiếp đón khách hàng",
+    value: "Nhân viên tiếp đón",
+  },
+  WAREHOUSE: {
+    key: "Nhân viên Kho (CH)",
+    value: "Nhân viên kho",
+  },
+  VM: {
+    key: "VM instore",
+    value: "Setup cửa hàng",
+  },
+};
+
 export const WORK_SHIFT_LIST = () => {
   let workShiftList = [];
   let hours: number = 8;

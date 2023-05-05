@@ -23,7 +23,7 @@ const AddVMSetup: React.FC<Props> = (props: Props) => {
         </p>
       </Row>
       <WorkShiftSelect />
-      <WorkShiftFooter onCancel={onCancel} />
+      {/* <WorkShiftFooter onCancel={onCancel} /> */}
     </StyledComponent>
   );
 };

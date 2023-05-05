@@ -54,11 +54,11 @@ export interface WorkShiftCellResponse extends WorkShiftBase {
 }
 
 export interface WorkShiftCellRequest {
-  locationId: number;
-  issuedDateTo: string;
-  issuedDateFrom: string;
-  fromMinutes: string;
-  toMinutes: string;
-  role: string;
-  suggestMethod: number;
+  locationId?: number;
+  issuedDateTo?: string;
+  issuedDateFrom?: string;
+  fromMinutes?: string;
+  toMinutes?: string;
+  role?: string;
+  suggestMethod?: number;
 }

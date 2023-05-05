@@ -1,7 +1,7 @@
 import { Button, Card, Row, Space } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { StyledComponent } from "./styled";
 import AddShiftModal from "./component/AddShiftModal";
 import WorkShiftScheduleDetailFilter from "./component/Filter";
@@ -11,6 +11,7 @@ import { useHistory, useParams } from "react-router-dom";
 import queryString from "query-string";
 import {
   WorkShiftCellQuery,
+  WorkShiftCellRequest,
   WorkShiftCellResponse,
   WorkShiftTableResponse,
 } from "model/work-shift/work-shift.model";
@@ -21,7 +22,9 @@ import UserShiftTable from "./component/UserShiftTable";
 import {
   getByIdWorkShiftTableService,
   getWorkShiftCellsService,
+  putWorkShiftCellsService,
 } from "service/work-shift/work-shift.service";
+import { showError } from "utils/ToastUtils";
 
 const initQueryDefault: WorkShiftCellQuery = {
   select_query: EnumSelectedFilter.calendar,
@@ -50,6 +53,17 @@ const WorkShiftScheduleDetail: React.FC = () => {
   const [WorkShiftCellsResponse, setWorkShiftCellsResponse] = useState<
     WorkShiftCellResponse[] | null
   >(null);
+
+  const initialValue = useMemo(() => {
+    return workShiftTableResponse
+      ? {
+          locationId: workShiftTableResponse.location_id,
+          issuedDateTo: workShiftTableResponse.to_date,
+          issuedDateFrom: workShiftTableResponse.from_date,
+          suggestMethod: 1,
+        }
+      : null;
+  }, [workShiftTableResponse]);
 
   const onFilter = useCallback(
     (values: any) => {
@@ -91,6 +105,33 @@ const WorkShiftScheduleDetail: React.FC = () => {
       }
     })();
   };
+
+  const handleAddEmployeeToShift = useCallback(
+    (_v: WorkShiftCellRequest) => {
+      (async () => {
+        if (!initialValue) return;
+
+        const request: WorkShiftCellRequest = {
+          ...initialValue,
+          ..._v,
+        };
+
+        console.log("request", request);
+        try {
+          const response = await putWorkShiftCellsService(request);
+          console.log(response);
+          if (response && response.status === 200) {
+            setWorkShiftCellsResponse(response.data);
+          } else {
+          }
+        } catch (e) {
+          console.log(e);
+          showError("Có lỗi xảy ra, vui lòng thử lại");
+        }
+      })();
+    },
+    [initialValue],
+  );
 
   useEffect(() => {
     if (queryParamsParsed && workShiftTableResponse) {
@@ -197,16 +238,22 @@ const WorkShiftScheduleDetail: React.FC = () => {
               validEndDate={workShiftTableResponse?.to_date}
             />
 
-            {params.select_query === EnumSelectedFilter.calendar && (
-              <CalendarShiftTable WorkShiftCells={WorkShiftCellsResponse} />
-            )}
+            {params.select_query === EnumSelectedFilter.calendar &&
+              WorkShiftCellsResponse &&
+              WorkShiftCellsResponse.length !== 0 && (
+                <CalendarShiftTable WorkShiftCells={WorkShiftCellsResponse} />
+              )}
             {params.select_query === EnumSelectedFilter.user && (
               <UserShiftTable WorkShiftCells={WorkShiftCellsResponse} />
             )}
           </Card>
         </StyledComponent>
       </ContentContainer>
-      <AddShiftModal visible={visibleShiftModal} onCancel={() => setVisibleShiftModal(false)} />
+      <AddShiftModal
+        visible={visibleShiftModal}
+        onCancel={() => setVisibleShiftModal(false)}
+        onOK={handleAddEmployeeToShift}
+      />
     </>
   );
 };

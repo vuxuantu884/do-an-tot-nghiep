@@ -1,31 +1,30 @@
-import { Button, Modal, Row, Space, Tooltip, Typography } from "antd";
-import React, { useState } from "react";
+import { Button, Modal, Row } from "antd";
+import React, { useState, useCallback } from "react";
 import { StyledComponent } from "./styled";
-import AddConsultant from "./AddConsultant";
 import AddReceptionist from "./AddReceptionist";
 import AddEmployeeReception from "./AddEmployeeReception";
 import { InfoCircleFilled } from "@ant-design/icons";
 import AddVMSetup from "./AddVMSetup";
-const { Text, Link } = Typography;
+import { WorkShiftCellRequest } from "model/work-shift/work-shift.model";
+import { SHIFT_ROLE } from "screens/work-shift/work-shift-helper";
+import WorkShiftFooter from "../WorkShiftFooter";
+
 type Props = {
   visible?: boolean;
   onCancel?: () => void;
+  onOK: (request: WorkShiftCellRequest) => void;
 };
 const AddShiftModal: React.FC<Props> = (props: Props) => {
-  const { visible, onCancel } = props;
-  const [visibleAddConsultant, setVisibleAddConsultant] = useState(false);
+  const { visible, onCancel, onOK } = props;
   const [visibleAddReceptionist, setVisibleAddReceptionist] = useState(false);
   const [visibleAddEmployeeReception, setAddEmployeeReception] = useState(false);
   const [visibleAddVMSetup, setVisibleAddVMSetup] = useState(false);
+  const isHomeModal = !visibleAddReceptionist && !visibleAddEmployeeReception && !visibleAddVMSetup;
 
-  const isHomeModal =
-    !visibleAddConsultant &&
-    !visibleAddReceptionist &&
-    !visibleAddEmployeeReception &&
-    !visibleAddVMSetup;
+  const handleClearData = () => {};
 
   const onBackHome = () => {
-    setVisibleAddConsultant(false);
+    handleClearData();
     setVisibleAddReceptionist(false);
     setAddEmployeeReception(false);
     setVisibleAddVMSetup(false);
@@ -34,104 +33,78 @@ const AddShiftModal: React.FC<Props> = (props: Props) => {
   const Content: React.FC = () => (
     <StyledComponent>
       <Row className="shift-location-selector-header">
-        {/* <p className="shift-location-selector-header-text">Chọn vị trí bạn muốn xếp ca</p> */}
+        <p className="shift-location-selector-header-text">Chọn vị trí bạn muốn xếp ca</p>
         <p className="shift-location-selector-header-text shift-location-selector-header-text-border">
-          {/* <InfoCircleFilled className="yellow-gold pd-r-5" /> */}
-          Hệ thống sẽ cài đặt phân ca cho các vị trí vào ngày hôm sau.
-        </p>
-        <p className="shift-location-selector-header-text shift-location-selector-header-text-border">
-          Các vị trí setup cửa hàng, nhân viên kho, nhân viên tiếp đón cần cài đặt lần lượt.
+          <InfoCircleFilled className="yellow-gold pd-r-5" />
+          Bạn cần phân ca cho các vị trí khác trước khi phân ca cho chuyên gia tư vấn.
         </p>
       </Row>
       <Row className="shift-location-selector">
-        <Row className="shift-location-selector-row">
-          <div className="shift-location-selector-row-item">
-            <Link target="_blank">Cửa hàng trưởng</Link>
-          </div>
-          <div className="shift-location-selector-row-item shift-location-selector-row-icon">
-            <InfoCircleFilled className="yellow-gold" />
-          </div>
-        </Row>
-        <Row className="shift-location-selector-row">
-          <div className="shift-location-selector-row-item">
-            <Link target="_blank"> Chuyên gia tư vấn</Link>
-          </div>
-          <div className="shift-location-selector-row-item shift-location-selector-row-icon">
-            <InfoCircleFilled className="yellow-gold" />
-          </div>
-        </Row>
-        <Row className="shift-location-selector-row">
-          <div className="shift-location-selector-row-item">
-            <Link target="_blank"> Chuyên viên thu ngân</Link>
-          </div>
-          <div className="shift-location-selector-row-item shift-location-selector-row-icon">
-            <Tooltip title="Mô tả cài đặt ca làm cho vị trí">
-              <InfoCircleFilled className="yellow-gold" />
-            </Tooltip>
-          </div>
-        </Row>
-        <Row className="shift-location-selector-row">
-          <div className="shift-location-selector-row-item">
-            <Text className="dark-blue"> Setup cửa hàng (VM)</Text>
-          </div>
-          <div className="shift-location-selector-row-item shift-location-selector-row-icon">
-            <Button size="small" className="dark-blue" onClick={() => setVisibleAddVMSetup(true)}>
-              Cài đặt ca làm việc
-            </Button>
-          </div>
-        </Row>
-        <Row className="shift-location-selector-row">
-          <div className="shift-location-selector-row-item">
-            <Text className="dark-blue">Nhân viên kho</Text>
-          </div>
-          <div className="shift-location-selector-row-item shift-location-selector-row-icon">
-            <Button
-              size="small"
-              className="dark-blue"
-              onClick={() => setVisibleAddReceptionist(true)}
-            >
-              Cài đặt ca làm việc
-            </Button>
-          </div>
-        </Row>
-        <Row className="shift-location-selector-row">
-          <div className="shift-location-selector-row-item">
-            <Text className="dark-blue"> Nhân viên tiếp đón</Text>
-          </div>
-          <div className="shift-location-selector-row-item shift-location-selector-row-icon">
-            <Button
-              size="small"
-              className="dark-blue"
-              onClick={() => setAddEmployeeReception(true)}
-            >
-              Cài đặt ca làm việc
-            </Button>
-          </div>
-        </Row>
+        <div className="shift-location-selector-row shift-location-selector-bottom">
+          <Button
+            type="primary"
+            className="button-deep-purple"
+            onClick={() =>
+              onOK({
+                role: SHIFT_ROLE.MANAGER.key,
+              })
+            }
+          >
+            {SHIFT_ROLE.MANAGER.value}
+          </Button>
+          <Button
+            type="primary"
+            className="button-deep-purple"
+            onClick={() => onOK({ role: SHIFT_ROLE.CONSULTANT.key })}
+          >
+            {SHIFT_ROLE.CONSULTANT.value}
+          </Button>
+          <Button
+            type="primary"
+            className="button-deep-purple"
+            onClick={() => onOK({ role: SHIFT_ROLE.CASHIER.key })}
+          >
+            {SHIFT_ROLE.CASHIER.value}
+          </Button>
+        </div>
+        <div className="shift-location-selector-row">
+          <Button
+            type="primary"
+            className="button-deep-purple"
+            onClick={() => setVisibleAddReceptionist(true)}
+          >
+            Nhân viên kho
+          </Button>
+          <Button
+            type="primary"
+            className="button-deep-purple"
+            onClick={() => setAddEmployeeReception(true)}
+          >
+            Nhân viên tiếp đón
+          </Button>
+          <Button
+            type="primary"
+            className="button-deep-purple"
+            onClick={() => setVisibleAddVMSetup(true)}
+          >
+            Setup cửa hàng
+          </Button>
+        </div>
       </Row>
     </StyledComponent>
   );
   return (
     <Modal
-      title="Thêm ca làm"
+      title="Thêm ca làm cho các vị trí"
       visible={visible}
       onCancel={() => {
         onCancel && onCancel();
-        setVisibleAddConsultant(false);
-        setVisibleAddReceptionist(false);
-        setVisibleAddVMSetup(false);
+        onBackHome();
       }}
-      footer={
-        isHomeModal ? (
-          <Space>
-            <Button>Xác nhận</Button>
-          </Space>
-        ) : null
-      }
+      footer={!isHomeModal ? <WorkShiftFooter onBackHome={onBackHome} /> : null}
       width={700}
     >
       {isHomeModal && <Content />}
-      <AddConsultant visible={visibleAddConsultant} onCancel={onBackHome} />
       <AddReceptionist visible={visibleAddReceptionist} onCancel={onBackHome} />
       <AddEmployeeReception visible={visibleAddEmployeeReception} onCancel={onBackHome} />
       <AddVMSetup visible={visibleAddVMSetup} onCancel={onBackHome} />

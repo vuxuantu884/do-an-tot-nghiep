@@ -5,7 +5,7 @@ export const StyledComponent = styled.div`
     display: inline-flex;
     justify-content: space-between;
     width: 100%;
-    margin-top: 24px;
+    /* margin-top: 24px; */
     .btn-confirm {
       height: 40px;
       padding: 6px 24px;
