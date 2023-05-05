@@ -50,3 +50,8 @@ export const getWorkShiftCellsService = (request: any): Promise<any> => {
 export const putWorkShiftCellsService = (request: WorkShiftCellRequest): Promise<any> => {
   return axiosClientV2.put(`/admin/v2/work_shift_cells.json`, request);
 };
+
+export const getStaffActivityManagerService = (request: any): Promise<any> => {
+  let params = generateQuery(request);
+  return axiosClientV2.get(`/admin/v2/staff-activity-manager.json?${params}`);
+};
