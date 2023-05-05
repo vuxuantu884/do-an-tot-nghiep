@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { Button, Card } from "antd";
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
@@ -15,12 +15,19 @@ import arrowDown from "assets/icon/arrow-down.svg";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import { getCurrentUserService } from "service/accounts/account.service";
+import WorkShiftProvider, {
+  WorkShiftContext,
+} from "screens/work-shift/component/WorkShiftProvider";
 const WorkShiftSchedule = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
+
+  const workShiftContext = useContext(WorkShiftContext);
+  const { setAccountStores } = workShiftContext;
 
   const [isVisibleCreateScheduleModal, setIsVisibleCreateScheduleModal] = useState<boolean>(false);
-  const [locationId, setLocationId] = useState<number>(1);
-  const [locationName, setLocationName] = useState<string>("Yody Nguyễn Tuân");
   const [workShiftData, setWorkShiftData] = useState<any>();
 
   const groupWorkShiftByMonth = (data: Array<any>) => {
@@ -88,6 +95,17 @@ const WorkShiftSchedule = () => {
     getWorkShiftTableData({});
   }, [getWorkShiftTableData]);
 
+  const getCurrentUser = useCallback(async () => {
+    const account = await getCurrentUserService();
+    if (account.account_stores) {
+      setAccountStores(account.account_stores);
+    }
+  }, [setAccountStores]);
+
+  useEffect(() => {
+    getCurrentUser().then();
+  }, [getCurrentUser]);
+
   const handleCreateSchedule = () => {
     setIsVisibleCreateScheduleModal(true);
   };
@@ -99,7 +117,6 @@ const WorkShiftSchedule = () => {
     dispatch(showLoading());
     postWorkShiftTableService(request)
       .then((response) => {
-        console.log("postWorkShiftTableService: ", response);
         if (response?.data) {
           setIsVisibleCreateScheduleModal(false);
           getWorkShiftTableData({});
@@ -109,14 +126,20 @@ const WorkShiftSchedule = () => {
         }
       })
       .catch((error) => {
-        console.log("error.response", error.response);
-        if (error?.response?.data?.errors) {
-          showError(error?.response?.data?.errors);
+        console.log("error.response: ", error.response);
+        if (error?.response?.data?.errors?.base) {
+          showError(error?.response?.data?.errors?.base);
+        } else {
+          showError("Có lỗi xảy ra. Thêm lịch làm việc thất bại.");
         }
       })
       .finally(() => {
         dispatch(hideLoading());
       });
+  };
+
+  const goToWorkShiftDetail = (workShiftId: number) => {
+    history.push(`${UrlConfig.WORK_SHIFT}/${workShiftId}`);
   };
 
   return (
@@ -147,11 +170,15 @@ const WorkShiftSchedule = () => {
           <Card>
             {workShiftData?.map((workShift: any) => {
               return (
-                <div className={"work-shift-group"}>
+                <div className={"work-shift-group"} key={workShift.month}>
                   <div className={"work-shift-group-name"}>Tháng {workShift.month}</div>
                   {workShift?.data?.map((workShiftItem: any) => {
                     return (
-                      <div className={"work-shift-item"}>
+                      <div
+                        className={"work-shift-item"}
+                        onClick={() => goToWorkShiftDetail(workShiftItem.id)}
+                        key={workShiftItem.id}
+                      >
                         <div>{workShiftItem.title}</div>
                         <Link to={`${UrlConfig.WORK_SHIFT}/${workShiftItem.id}`}>
                           <img
@@ -177,12 +204,15 @@ const WorkShiftSchedule = () => {
           visible={isVisibleCreateScheduleModal}
           onOkModal={onOkCreateScheduleModal}
           onCloseModal={onCloseCreateScheduleModal}
-          locationId={locationId}
-          locationName={locationName}
         />
       )}
     </WorkShiftScheduleStyled>
   );
 };
 
-export default WorkShiftSchedule;
+const WorkShiftScheduleWithProvider = () => (
+  <WorkShiftProvider>
+    <WorkShiftSchedule />
+  </WorkShiftProvider>
+);
+export default WorkShiftScheduleWithProvider;

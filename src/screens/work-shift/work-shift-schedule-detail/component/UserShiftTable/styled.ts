@@ -33,6 +33,7 @@ export const StyledComponent = styled.div`
       display: flex;
       .user {
         min-width: 200px;
+        width: 15%;
         display: flex;
         flex-direction: column;
         justify-content: center;

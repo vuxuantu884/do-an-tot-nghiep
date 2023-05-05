@@ -34,6 +34,7 @@ export interface WorkShiftCellQuery {
 }
 
 export interface WorkShiftAssignmentModel extends WorkShiftBase {
+  id?: number;
   work_shift_cell_id?: number;
   assigned_to?: string;
   assigned_name?: string;
@@ -51,6 +52,51 @@ export interface WorkShiftCellResponse extends WorkShiftBase {
   quota_by_hours?: number; //hạn mức thời gian trong ca
   traffic?: number; //hạn mức nhân viên trong ca
   work_shift_assignment_dtos: WorkShiftAssignmentModel[];
+  assignments: WorkShiftAssignmentModel[];
+}
+
+export interface SearchStaffActivityManagerLocationParams {
+  locationId: number;
+  name: string;
+}
+export interface StaffActivityManagerResponse {
+  code?: string;
+  date_from?: string;
+  date_to?: string;
+  full_name?: string;
+  id?: number;
+  location_id?: number;
+  location_name?: string;
+  location_rotation_id?: number | null;
+  location_rotation_name?: string | null;
+  note?: string;
+  rank?: string;
+  role?: string;
+  status?: string;
+}
+export interface AddWorkShiftAssignmentRequest {
+  work_shift_cell_id: number;
+  assigned_to: string;
+  assigned_name: string;
+  role: string;
+}
+
+export interface DeleteWorkShiftAssignmentRequest extends AddWorkShiftAssignmentRequest {
+  note: string;
+}
+
+export interface WorkShiftAssignmentLogRequest {
+  workShiftCellId: number;
+}
+
+export interface WorkShiftAssignmentLogResponse {
+  action: string;
+  action_by: string;
+  action_date: string;
+  action_name: string;
+  id: number;
+  note: string;
+  work_shift_cells_id: number;
 }
 
 export interface WorkShiftCellRequest {

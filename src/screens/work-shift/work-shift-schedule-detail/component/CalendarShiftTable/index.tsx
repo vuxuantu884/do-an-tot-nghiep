@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { StyledComponent } from "./styled";
 import { ClockCircleOutlined, DollarCircleOutlined, TeamOutlined } from "@ant-design/icons";
 import { Space } from "antd";
@@ -7,6 +7,7 @@ import UserFilled from "component/icon/UserFilled";
 import UserGroupCustomOutlined from "component/icon/UsergroupCustomOutlined";
 import { WorkShiftCellResponse } from "model/work-shift/work-shift.model";
 import moment from "moment";
+import WorkShiftDetailModal from "../WorkShiftDetailModal/WorkShiftDetailModal";
 
 interface ScheduleDayHeaderTableModel {
   weekday: string;
@@ -18,6 +19,7 @@ interface ScheduleDayHeaderTableModel {
   overtimeHours: number; //Giờ công dư fixedTotalHours- elapsedHours
 }
 interface ScheduleDetailModel {
+  id: number;
   fixTotalRevenue: number; //doanh thu thực tế trong ca
   dailyPlanRevenue: number; //mục tiêu doanh thu trong ca
   fixedTotalHours: number; //hạn mức giờ công trong ca
@@ -42,6 +44,10 @@ type Props = {
 };
 const CalendarShiftTable: React.FC<Props> = (props: Props) => {
   const { WorkShiftCells } = props;
+
+  const [isVisibleWorkShiftDetailModal, setIsVisibleWorkShiftDetailModal] =
+    useState<boolean>(false);
+  const [workShiftDetailId, setWorkShiftDetailId] = useState<number>(0);
 
   const scheduleDayTableHeader = useMemo(() => {
     if (!WorkShiftCells) return [];
@@ -90,6 +96,7 @@ const CalendarShiftTable: React.FC<Props> = (props: Props) => {
           (p) => p.work_hour_name === workName && p.issued_date === issuedDate,
         );
         let cell: ScheduleDetailModel = {
+          id: findCell?.id || 0,
           fixTotalRevenue: 0,
           dailyPlanRevenue: findCell?.target_revenue || 0,
           elapsedHours: 0,
@@ -119,9 +126,6 @@ const CalendarShiftTable: React.FC<Props> = (props: Props) => {
     return rowsData;
   }, [WorkShiftCells]);
 
-  console.log("shiftTableBody", shiftTableBody, WorkShiftCells);
-  console.log("scheduleDayHeaderTable", scheduleDayTableHeader);
-
   const shiftPlanDetail = (title: string, quantity: number) => {
     const renderUser = () => {
       const r: React.ReactNode[] = [];
@@ -141,6 +145,17 @@ const CalendarShiftTable: React.FC<Props> = (props: Props) => {
       </>
     );
   };
+
+  /** Xử lý chi tiết ca làm việc */
+  const openWorkShiftDetailModal = (shiftInfo: any) => {
+    setIsVisibleWorkShiftDetailModal(true);
+    setWorkShiftDetailId(shiftInfo?.id || 0);
+  };
+  const onCloseWorkShiftDetailModal = () => {
+    setIsVisibleWorkShiftDetailModal(false);
+  };
+  /** ** */
+
   return (
     <StyledComponent>
       <div className="calendar-table">
@@ -299,7 +314,12 @@ const CalendarShiftTable: React.FC<Props> = (props: Props) => {
                       </td>
                       <td className="condition" colSpan={2}>
                         {/* body 5 */}
-                        <Space direction="vertical" size="small" style={{ display: "flex" }}>
+                        <Space
+                          direction="vertical"
+                          size="small"
+                          style={{ display: "flex" }}
+                          onClick={() => openWorkShiftDetailModal(column)}
+                        >
                           {shiftPlanDetail("CHT", column.cht)}
                           {shiftPlanDetail("CGTV", column.cgtv)}
                           {shiftPlanDetail("CNTN", column.cntn)}
@@ -330,6 +350,14 @@ const CalendarShiftTable: React.FC<Props> = (props: Props) => {
           </tbody>
         </table>
       </div>
+
+      {isVisibleWorkShiftDetailModal && (
+        <WorkShiftDetailModal
+          visible={isVisibleWorkShiftDetailModal}
+          onCloseModal={onCloseWorkShiftDetailModal}
+          workShiftDetailId={workShiftDetailId}
+        />
+      )}
     </StyledComponent>
   );
 };

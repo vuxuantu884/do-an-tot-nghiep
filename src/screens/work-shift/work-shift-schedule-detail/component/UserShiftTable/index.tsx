@@ -4,6 +4,8 @@ import { WorkShiftCellResponse } from "model/work-shift/work-shift.model";
 import UserFilled from "component/icon/UserFilled";
 import { ClockCircleOutlined } from "@ant-design/icons";
 import { StyledComponent } from "screens/work-shift/work-shift-schedule-detail/component/UserShiftTable/styled";
+import moment from "moment";
+import { DATE_FORMAT } from "utils/DateUtils";
 
 type Props = {
   WorkShiftCells: WorkShiftCellResponse[] | null;
@@ -34,19 +36,15 @@ const UserShiftTable: React.FC<Props> = (props: Props) => {
   };
 
   const getDateMonth = (issuedDate: string) => {
-    // Convert issued_date to a Date object
-    const newIssuedDate = new Date(issuedDate);
-    // Get the date in the format "DD/MM" (e.g. "03/04")
-    return newIssuedDate
-      .toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })
-      .replace(/\//g, "/");
+    const newDateObj = moment(issuedDate);
+    return newDateObj.format(DATE_FORMAT.DDMM);
   };
 
   const convertShiftDataToUser = useCallback((shiftCellData: any) => {
     let userData: any[] = [];
     shiftCellData?.forEach((shiftCell: any) => {
       const shiftNumber = getShiftNumber(shiftCell.work_hour_name);
-      shiftCell?.work_shift_assignment_dtos?.forEach((workShiftAssignment: any) => {
+      shiftCell?.assignments?.forEach((workShiftAssignment: any) => {
         const userAssigned = userData?.find(
           (item) => item.assignedTo === workShiftAssignment.assigned_to,
         );
@@ -69,6 +67,7 @@ const UserShiftTable: React.FC<Props> = (props: Props) => {
 
             const newUserAssigned = {
               ...userAssigned,
+              workingTime: userAssigned.workingTime + 1,
               userWorkingSchedule: newWorkingSchedule,
             };
 
@@ -88,6 +87,7 @@ const UserShiftTable: React.FC<Props> = (props: Props) => {
 
             const newUserAssigned = {
               ...userAssigned,
+              workingTime: userAssigned.workingTime + 1,
               userWorkingSchedule: [...userAssigned.userWorkingSchedule, newWorkingSchedule],
             };
 
@@ -109,7 +109,7 @@ const UserShiftTable: React.FC<Props> = (props: Props) => {
             userName: workShiftAssignment.assigned_name,
             assignedTo: workShiftAssignment.assigned_to,
             role: workShiftAssignment.role,
-            workingTime: 0,
+            workingTime: 1,
             userWorkingSchedule: [newWorkingSchedule],
           };
           userData.push(newUserAssigned);
@@ -158,7 +158,7 @@ const UserShiftTable: React.FC<Props> = (props: Props) => {
                   <div className="role fw-400">{shiftUserData.role}</div>
                   <div className="working-time">
                     <ClockCircleOutlined className="working-time-icon yellow-gold" />
-                    <div className="working-time-text fw-600">{shiftUserData.workingTime}</div>
+                    <div className="working-time-text fw-600">{shiftUserData.workingTime}h</div>
                   </div>
                 </td>
 

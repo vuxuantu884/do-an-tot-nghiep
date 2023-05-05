@@ -19,6 +19,9 @@ export const WorkShiftScheduleStyled = styled.div`
         justify-content: space-between;
         padding: 12px 10px;
         border-bottom: 1px solid #d9d9d9;
+        &:hover {
+          cursor: pointer;
+        }
       }
     }
   }
@@ -28,11 +31,8 @@ export const CreateScheduleModalStyled = styled.div`
   .ant-select {
     width: 100%;
     margin-bottom: 20px;
-    &:hover {
-      border: unset;
-      cursor: default;
-    }
   }
+
   .select-month {
     width: 100%;
     margin-bottom: 20px;

@@ -1,23 +1,26 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Modal, Select, DatePicker } from "antd";
 import { CreateScheduleModalStyled } from "screens/work-shift/work-shift-styled";
 import moment from "moment/moment";
 import { WorkShiftTableRequest } from "model/work-shift/work-shift.model";
-import "screens/promotion/campaign/components/promotion-list-modal/promotionListModalStyle.scss";
+import { WorkShiftContext } from "../component/WorkShiftProvider";
+import { showError } from "utils/ToastUtils";
+import { AccountStoreResponse } from "model/account/account.model";
 
 type CreateScheduleModalProps = {
   visible: boolean;
   onCloseModal: () => void;
   onOkModal: (params: WorkShiftTableRequest) => void;
-  locationName: string;
-  locationId: number;
 };
 
 const CreateScheduleModal = (props: CreateScheduleModalProps) => {
-  const { visible, onCloseModal, onOkModal, locationId, locationName } = props;
+  const { visible, onCloseModal, onOkModal } = props;
+  const workShiftContext = useContext(WorkShiftContext);
+  const { accountStores } = workShiftContext;
 
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
+  const [storeSelected, setStoreSelected] = useState<AccountStoreResponse>();
 
   const onChangeRangeDate = (dates: any, dateString: Array<string>) => {
     const _startDate = dates?.[0]?.format("YYYY-MM-DD");
@@ -26,10 +29,23 @@ const CreateScheduleModal = (props: CreateScheduleModalProps) => {
     setEndDate(_endDate || "");
   };
 
+  const onSelectStore = (value: number) => {
+    const _storeSelected = accountStores.find((store) => store.store_id === value);
+    setStoreSelected(_storeSelected);
+  };
+
   const handleOnOk = () => {
+    if (!storeSelected) {
+      showError("Cửa hàng không tồn tại. Vui lòng chọn lại.");
+      return;
+    }
+    if (!startDate || !endDate) {
+      showError("Vui lòng chọn thời gian.");
+      return;
+    }
     const createScheduleParams: WorkShiftTableRequest = {
-      location_id: locationId,
-      location_name: locationName,
+      location_id: storeSelected.store_id || 0,
+      location_name: storeSelected.store_name || "",
       from_date: startDate,
       to_date: endDate,
     };
@@ -46,13 +62,24 @@ const CreateScheduleModal = (props: CreateScheduleModalProps) => {
       okText="Thêm"
       onOk={handleOnOk}
       okButtonProps={{
-        disabled: !startDate || !endDate || !locationName,
+        disabled: !startDate || !endDate || !storeSelected,
       }}
       cancelText="Hủy"
       onCancel={onCloseModal}
     >
       <CreateScheduleModalStyled>
-        <Select showArrow={false} value={locationName} open={false} />
+        <Select
+          showSearch
+          optionFilterProp="children"
+          placeholder="Chọn cửa hàng"
+          onSelect={onSelectStore}
+        >
+          {accountStores?.map((item: any) => (
+            <Select.Option key={item.store_id} value={item.store_id}>
+              {item.store_name}
+            </Select.Option>
+          ))}
+        </Select>
 
         <DatePicker.RangePicker
           format="DD/MM/YYYY"

@@ -6,7 +6,6 @@ import { StyledComponent } from "./styled";
 import AddShiftModal from "./component/AddShiftModal";
 import WorkShiftScheduleDetailFilter from "./component/Filter";
 import CalendarShiftTable from "./component/CalendarShiftTable";
-import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import queryString from "query-string";
 import {
@@ -39,7 +38,6 @@ const WorkShiftScheduleDetail: React.FC = () => {
   const { id } = useParams<WorkShiftCellParamModel>();
 
   const queryParamsParsed: any = queryString.parse(window.location.search);
-  const dispatch = useDispatch();
   const history = useHistory();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -178,6 +176,7 @@ const WorkShiftScheduleDetail: React.FC = () => {
           },
           {
             name: "Lịch phân ca",
+            path: UrlConfig.WORK_SHIFT,
           },
           {
             name: `${workShiftTableResponse?.title}`,

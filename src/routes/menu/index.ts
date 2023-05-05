@@ -119,7 +119,7 @@ const menu: Array<RouteMenu> = [
     path: UrlConfig.WORK_SHIFT,
     exact: true,
     title: "Phân ca",
-    icon: "icon-daily-revenue",
+    icon: "icon-work-shift",
     component: WorkShiftScheduleScreen,
     key: "work-shift",
     isShow: true,
