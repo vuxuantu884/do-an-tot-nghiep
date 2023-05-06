@@ -48,6 +48,7 @@ const UrlConfig = {
   PROCUREMENT: "/procurements",
   INVENTORY_TRANSFERS: `/inventory-transfers`,
   INVENTORY_ADJUSTMENTS: `/inventory-adjustments`,
+  BIN_LOCATION: `/bin-location`,
   DEPARTMENT: `/departments`,
   DISCOUNT: `/discounts`,
   PROMO_CODE: `/issues`,

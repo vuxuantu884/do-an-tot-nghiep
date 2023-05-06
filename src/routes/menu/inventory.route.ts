@@ -52,6 +52,10 @@ const DetailInvetoryAdjustment = React.lazy(
 //Inventory
 const InventoryScreen = React.lazy(() => import("screens/products/inventory"));
 
+//BIN location
+const BinLocationList = React.lazy(() => import("screens/bin-location/BinLocationList"));
+const CreateBinLocation = React.lazy(() => import("screens/bin-location/CreateBinLocation"));
+
 export const inventory: Array<RouteMenu> = [
   {
     path: `${InventoryTabUrl.ALL}`,
@@ -89,7 +93,55 @@ export const inventory: Array<RouteMenu> = [
       },
     ],
   },
-
+  {
+    path: `${UrlConfig.BIN_LOCATION}`,
+    exact: true,
+    title: "Vị trí BIN",
+    icon: "icon-dot",
+    component: BinLocationList,
+    key: "submenu32",
+    isShow: false,
+    header: null,
+    // permissions: [InventoryTransferPermission.read],
+    subMenu: [
+      {
+        path: `${UrlConfig.BIN_LOCATION}/list`,
+        exact: true,
+        title: "Danh sách vị trí sản phẩm",
+        icon: "icon-dot",
+        component: BinLocationList,
+        key: "submenu32_1",
+        isShow: true,
+        header: null,
+        // permissions: [InventoryTransferPermission.read],
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.BIN_LOCATION}/histories`,
+        exact: true,
+        title: "Lịch sử chuyển vị trí",
+        icon: "icon-dot",
+        component: BinLocationList,
+        key: "submenu31_5",
+        isShow: true,
+        header: null,
+        // permissions: [InventoryTransferPermission.read],
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.BIN_LOCATION}/:storeId/create`,
+        exact: true,
+        title: "Chuyển vị trí",
+        icon: "icon-dot",
+        component: CreateBinLocation,
+        key: "submenu32_2",
+        isShow: true,
+        header: null,
+        permissions: [],
+        subMenu: [],
+      },
+    ],
+  },
   {
     path: `${UrlConfig.INVENTORY_TRANSFERS}/`,
     exact: true,
