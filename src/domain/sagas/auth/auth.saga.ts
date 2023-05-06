@@ -13,7 +13,7 @@ import { AuthenRequest } from "model/auth/roles.model";
 import { LoginResponse } from "model/account/account.model";
 import { call } from "redux-saga/effects";
 import { loginApi } from "service/accounts/account.service";
-import { removeToken, removeTourGuide, setToken } from "utils/LocalStorageUtils";
+import { removeBinLocation, removeToken, removeTourGuide, setToken } from "utils/LocalStorageUtils";
 import { showError } from "utils/ToastUtils";
 
 function* loginSaga(action: YodyAction) {
@@ -50,6 +50,7 @@ function* logoutSaga(action: YodyAction) {
 
   yield removeToken();
   yield removeTourGuide();
+  yield removeBinLocation();
   yield delay(1000);
   yield put(hideLoading());
   yield put(logoutSuccessAction());
@@ -58,6 +59,7 @@ function* logoutSaga(action: YodyAction) {
 function* unauthorizeSaga() {
   yield removeToken();
   yield removeTourGuide();
+  yield removeBinLocation();
   yield put(unauthorizedSuccessAction());
 }
 

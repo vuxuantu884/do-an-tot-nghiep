@@ -27,6 +27,10 @@ const removeTourGuide = () => {
   localStorage.removeItem("isShowForwardTourVar");
 };
 
+const removeBinLocation = () => {
+  localStorage.removeItem("storeBinLocation");
+};
+
 export const clearLocalStorage = () => {
   localStorage.clear();
 };
@@ -116,5 +120,6 @@ export {
   setWithExpiry,
   setSaveSearchhLocalStorage,
   getSaveSearchLocalStorage,
-  removeTourGuide
+  removeTourGuide,
+  removeBinLocation
 };
