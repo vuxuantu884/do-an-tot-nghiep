@@ -14,7 +14,7 @@ import { useDispatch } from "react-redux";
 import arrowDown from "assets/icon/arrow-down.svg";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import { getCurrentUserService } from "service/accounts/account.service";
 import WorkShiftProvider, {
@@ -180,15 +180,13 @@ const WorkShiftSchedule = () => {
                         key={workShiftItem.id}
                       >
                         <div>{workShiftItem.title}</div>
-                        <Link to={`${UrlConfig.WORK_SHIFT}/${workShiftItem.id}`}>
-                          <img
-                            src={arrowDown}
-                            alt=""
-                            style={{
-                              transform: "rotate(270deg)",
-                            }}
-                          />
-                        </Link>
+                        <img
+                          src={arrowDown}
+                          alt=""
+                          style={{
+                            transform: "rotate(270deg)",
+                          }}
+                        />
                       </div>
                     );
                   })}
@@ -204,8 +202,8 @@ const WorkShiftSchedule = () => {
           visible={isVisibleCreateScheduleModal}
           onOkModal={onOkCreateScheduleModal}
           onCloseModal={onCloseCreateScheduleModal}
-          locationId={locationId}
-          locationName={locationName}
+          // locationId={locationId}
+          // locationName={locationName}
         />
       )}
     </WorkShiftScheduleStyled>

@@ -1,14 +1,27 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { Button } from "antd";
 import { WORK_SHIFT_LIST } from "screens/work-shift/work-shift-helper";
 import { WorkShiftCellResponse } from "model/work-shift/work-shift.model";
 import UserFilled from "component/icon/UserFilled";
-import { ClockCircleOutlined } from "@ant-design/icons";
+import { ClockCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { StyledComponent } from "screens/work-shift/work-shift-schedule-detail/component/UserShiftTable/styled";
 import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
+import { Tooltip } from "antd";
+import iconDelete from "assets/icon/deleteIcon.svg";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import {
+  addWorkShiftAssignmentService,
+  deleteWorkShiftAssignmentService,
+} from "service/work-shift/work-shift.service";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { useDispatch } from "react-redux";
 
 type Props = {
   WorkShiftCells: WorkShiftCellResponse[] | null;
+  dateFilter: Array<string> | [];
+  dataQuery: any;
+  fetchDataWorkShiftCell: (dataQuery: any) => void;
 };
 
 const defaultShift = () => {
@@ -20,10 +33,22 @@ const defaultShift = () => {
 };
 
 const UserShiftTable: React.FC<Props> = (props: Props) => {
-  const { WorkShiftCells } = props;
+  const dispatch = useDispatch();
+  const { WorkShiftCells, dateFilter, fetchDataWorkShiftCell, dataQuery } = props;
 
   const [workShiftUserData, setWorkShiftUserData] = useState<any>();
 
+  const getAllFilterDate = (dateFilter: string[]) => {
+    const startDate = moment(dateFilter[0]);
+    const endDate = moment(dateFilter[1]);
+    const allDateFilled = [];
+    while (startDate <= endDate) {
+      allDateFilled.push(startDate.format("YYYY-MM-DD"));
+      startDate.add(1, "day");
+    }
+
+    return allDateFilled;
+  };
   const getShiftNumber = (workHourName: string) => {
     const temp = workHourName.replace(/\D/g, "");
     return parseInt(temp);
@@ -40,7 +65,8 @@ const UserShiftTable: React.FC<Props> = (props: Props) => {
     return newDateObj.format(DATE_FORMAT.DDMM);
   };
 
-  const convertShiftDataToUser = useCallback((shiftCellData: any) => {
+  const convertShiftDataToUser = useCallback((shiftCellData: any, dateFilter: string[]) => {
+    const allDateFilter = getAllFilterDate(dateFilter);
     let userData: any[] = [];
     shiftCellData?.forEach((shiftCell: any) => {
       const shiftNumber = getShiftNumber(shiftCell.work_hour_name);
@@ -53,64 +79,45 @@ const UserShiftTable: React.FC<Props> = (props: Props) => {
             (item: any) => item.issuedDate === shiftCell.issued_date,
           );
           if (workingSchedule) {
-            const shiftList = workingSchedule.shift;
-            shiftList[shiftNumber - 1] = shiftNumber;
-            const _workingSchedule = {
-              ...workingSchedule,
-              shift: shiftList,
-            };
-
-            const newWorkingSchedule = userAssigned.userWorkingSchedule?.filter(
-              (item: any) => item.issuedDate !== shiftCell.issued_date,
+            workingSchedule.shift[shiftNumber - 1] = shiftNumber;
+            const workingScheduleIndex = userAssigned.userWorkingSchedule?.findIndex(
+              (item: any) => item.issuedDate === shiftCell.issued_date,
             );
-            newWorkingSchedule.push(_workingSchedule);
+            if (workingScheduleIndex !== -1) {
+              userAssigned.userWorkingSchedule[workingScheduleIndex] = workingSchedule;
+            }
 
-            const newUserAssigned = {
-              ...userAssigned,
-              workingTime: userAssigned.workingTime + 1,
-              userWorkingSchedule: newWorkingSchedule,
-            };
+            userAssigned.workingTime = userAssigned.workingTime + 1;
 
-            userData = userData.filter(
-              (item) => item.assignedTo !== workShiftAssignment.assigned_to,
+            const userDataIndex = userData?.findIndex(
+              (userItem: any) => userItem.assignedTo === workShiftAssignment.assigned_to,
             );
-            userData.push(newUserAssigned);
-          } else {
-            const shiftList = defaultShift();
-            shiftList[shiftNumber - 1] = shiftNumber;
-            const newWorkingSchedule = {
-              issuedDate: shiftCell.issued_date,
-              weekday: getWeekday(shiftCell.issued_date),
-              date: getDateMonth(shiftCell.issued_date),
-              shift: shiftList,
-            };
-
-            const newUserAssigned = {
-              ...userAssigned,
-              workingTime: userAssigned.workingTime + 1,
-              userWorkingSchedule: [...userAssigned.userWorkingSchedule, newWorkingSchedule],
-            };
-
-            userData = userData.filter(
-              (item) => item.assignedTo !== workShiftAssignment.assigned_to,
-            );
-            userData.push(newUserAssigned);
+            if (userDataIndex !== -1) {
+              userData[userDataIndex] = userAssigned;
+            }
           }
         } else {
-          const shiftList = defaultShift();
-          shiftList[shiftNumber - 1] = shiftNumber;
-          const newWorkingSchedule = {
-            issuedDate: shiftCell.issued_date,
-            weekday: getWeekday(shiftCell.issued_date),
-            date: getDateMonth(shiftCell.issued_date),
-            shift: shiftList,
-          };
+          const userWorkingScheduleList = allDateFilter?.map((dateValue) => {
+            const shiftList = defaultShift();
+            if (dateValue === shiftCell.issued_date) {
+              shiftList[shiftNumber - 1] = shiftNumber;
+            }
+            return {
+              issuedDate: dateValue,
+              weekday: getWeekday(dateValue),
+              date: getDateMonth(dateValue),
+              shift: shiftList,
+            };
+          });
+
           const newUserAssigned = {
-            userName: workShiftAssignment.assigned_name,
+            id: workShiftAssignment.id,
+            workShiftCellId: workShiftAssignment.work_shift_cell_id,
+            assignedName: workShiftAssignment.assigned_name,
             assignedTo: workShiftAssignment.assigned_to,
             role: workShiftAssignment.role,
             workingTime: 1,
-            userWorkingSchedule: [newWorkingSchedule],
+            userWorkingSchedule: userWorkingScheduleList,
           };
           userData.push(newUserAssigned);
         }
@@ -121,9 +128,68 @@ const UserShiftTable: React.FC<Props> = (props: Props) => {
   }, []);
 
   useEffect(() => {
-    const _workShiftUserData = convertShiftDataToUser(WorkShiftCells);
+    const _workShiftUserData = convertShiftDataToUser(WorkShiftCells, dateFilter);
     setWorkShiftUserData(_workShiftUserData);
-  }, [WorkShiftCells, convertShiftDataToUser]);
+  }, [WorkShiftCells, convertShiftDataToUser, dateFilter]);
+
+  const reloadPage = () => {
+    // window.location.reload();
+    fetchDataWorkShiftCell(dataQuery);
+    let element: any = document.getElementById("user-work-shift-icon");
+    debugger;
+    element?.focus();
+    element?.click();
+    element?.onClick();
+  };
+
+  const handleAddWorkShiftAssignment = (shiftUserData: any) => {
+    const addStaffRequest = {
+      assigned_name: shiftUserData.assignedName,
+      assigned_to: shiftUserData.assignedTo,
+      role: shiftUserData.role,
+      work_shift_cell_id: shiftUserData.workShiftCellId,
+    };
+    dispatch(showLoading());
+    addWorkShiftAssignmentService(addStaffRequest)
+      .then(() => {
+        showSuccess("Thêm nhân sự trong ca thành công.");
+        reloadPage();
+      })
+      .catch((error) => {
+        dispatch(hideLoading());
+        console.log("error.response", error.response);
+        if (error?.response?.data?.errors) {
+          showError(error?.response?.data?.errors);
+        }
+      });
+  };
+  const handleDeleteWorkShiftAssignment = (shiftUserData: any) => {
+    const deleteStaffRequest = {
+      assigned_name: shiftUserData.assignedName,
+      assigned_to: shiftUserData.assignedTo,
+      role: shiftUserData.role,
+      work_shift_cell_id: shiftUserData.workShiftCellId,
+      note: "",
+    };
+    dispatch(showLoading());
+    deleteWorkShiftAssignmentService(shiftUserData.id, deleteStaffRequest)
+      .then((response) => {
+        dispatch(hideLoading());
+        if (response?.data) {
+          showSuccess(response?.data);
+        } else {
+          showSuccess("Xóa phân ca thành công.");
+        }
+        reloadPage();
+      })
+      .catch((error) => {
+        dispatch(hideLoading());
+        console.log("error.response", error.response);
+        if (error?.response?.data?.errors) {
+          showError(error?.response?.data?.errors);
+        }
+      });
+  };
 
   return (
     <StyledComponent>
@@ -154,7 +220,7 @@ const UserShiftTable: React.FC<Props> = (props: Props) => {
                 style={{ backgroundColor: `${index % 2 === 0 ? "#F5F5F5" : ""}` }}
               >
                 <td className="user">
-                  <div className="name fw-600">{shiftUserData.userName}</div>
+                  <div className="assigned-name fw-600">{shiftUserData.assignedName}</div>
                   <div className="role fw-400">{shiftUserData.role}</div>
                   <div className="working-time">
                     <ClockCircleOutlined className="working-time-icon yellow-gold" />
@@ -163,21 +229,61 @@ const UserShiftTable: React.FC<Props> = (props: Props) => {
                 </td>
 
                 <div className="user-shift-group">
-                  {shiftUserData?.userWorkingSchedule?.map((item: any, index: number) => (
-                    <tr
-                      key={`userWorkingSchedule${index}`}
-                      className="shift-group"
-                      style={{ height: `${100 / shiftUserData?.userWorkingSchedule?.length}%` }}
-                    >
-                      <td className="shift-date">{item.weekday}</td>
-                      <td className="shift-date">{item.date}</td>
-                      {item?.shift?.map((shiftItem: any, index: number) => (
-                        <td key={`shiftItem${index}`} className="shift">
-                          {shiftItem ? <UserFilled /> : <></>}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
+                  {shiftUserData?.userWorkingSchedule?.map(
+                    (workingScheduleItem: any, index: number) => (
+                      <tr
+                        key={`userWorkingSchedule${index}`}
+                        className="shift-group"
+                        style={{ height: `${100 / shiftUserData?.userWorkingSchedule?.length}%` }}
+                      >
+                        <td className="shift-date">{workingScheduleItem.weekday}</td>
+                        <td className="shift-date">{workingScheduleItem.date}</td>
+                        {workingScheduleItem?.shift?.map((shiftItem: any, index: number) => (
+                          <Tooltip
+                            title={
+                              shiftItem > 0 ? (
+                                <Button
+                                  type={"text"}
+                                  icon={
+                                    <img
+                                      alt=""
+                                      style={{ marginRight: 8, color: "#F5222D" }}
+                                      src={iconDelete}
+                                    />
+                                  }
+                                  onClick={() => handleDeleteWorkShiftAssignment(shiftUserData)}
+                                  style={{ fontWeight: 600, color: "#F5222D", padding: 0 }}
+                                >
+                                  Xóa ca làm việc
+                                </Button>
+                              ) : (
+                                <Button
+                                  type={"text"}
+                                  icon={
+                                    <PlusOutlined
+                                      style={{ width: "19px", height: "19px", color: "#262626" }}
+                                    />
+                                  }
+                                  onClick={() => handleAddWorkShiftAssignment(shiftUserData)}
+                                  style={{ fontWeight: 600, color: "#262626", padding: 0 }}
+                                >
+                                  Thêm ca làm việc
+                                </Button>
+                              )
+                            }
+                            trigger={["click"]}
+                            placement={"bottom"}
+                            color={"white"}
+                            overlayClassName={"shift-action"}
+                          >
+                            <td key={`shiftItem${index}`} className="shift shift-item">
+                              {shiftItem ? <UserFilled /> : <></>}
+                            </td>
+                          </Tooltip>
+                        ))}
+                      </tr>
+                    ),
+                  )}
                 </div>
               </tr>
             ))}

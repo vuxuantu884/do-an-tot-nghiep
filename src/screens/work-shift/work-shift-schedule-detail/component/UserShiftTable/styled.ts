@@ -38,7 +38,7 @@ export const StyledComponent = styled.div`
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        .name {
+        .assigned-name {
           font-size: 14px;
           line-height: 22px;
           color: ${shiftCustomColor.darkBlue};
@@ -78,11 +78,19 @@ export const StyledComponent = styled.div`
           justify-content: center;
           align-items: center;
         }
+        .shift-action {
+        }
         .shift {
           width: 6%;
           display: flex;
           justify-content: center;
           align-items: center;
+        }
+        .shift-item {
+          &:hover {
+            cursor: pointer;
+            background-color: ${shiftCustomColor.LavenderBlue};
+          }
         }
       }
     }

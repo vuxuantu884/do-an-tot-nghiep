@@ -82,7 +82,7 @@ export interface AddWorkShiftAssignmentRequest {
 }
 
 export interface DeleteWorkShiftAssignmentRequest extends AddWorkShiftAssignmentRequest {
-  note: string;
+  note?: string;
 }
 
 export interface WorkShiftAssignmentLogRequest {

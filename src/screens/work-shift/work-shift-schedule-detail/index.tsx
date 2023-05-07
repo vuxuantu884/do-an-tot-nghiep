@@ -23,6 +23,8 @@ import {
   getWorkShiftCellsService,
   putWorkShiftCellsService,
 } from "service/work-shift/work-shift.service";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { useDispatch } from "react-redux";
 import { showError } from "utils/ToastUtils";
 
 const initQueryDefault: WorkShiftCellQuery = {
@@ -35,6 +37,7 @@ type WorkShiftCellParamModel = {
   id: string;
 };
 const WorkShiftScheduleDetail: React.FC = () => {
+  const dispatch = useDispatch();
   const { id } = useParams<WorkShiftCellParamModel>();
 
   const queryParamsParsed: any = queryString.parse(window.location.search);
@@ -51,6 +54,9 @@ const WorkShiftScheduleDetail: React.FC = () => {
   const [WorkShiftCellsResponse, setWorkShiftCellsResponse] = useState<
     WorkShiftCellResponse[] | null
   >(null);
+
+  const [dateFilter, setDateFilter] = useState<Array<string>>([]);
+  const [dataQuery, setDataQuery] = useState<any>();
 
   const initialValue = useMemo(() => {
     return workShiftTableResponse
@@ -94,12 +100,15 @@ const WorkShiftScheduleDetail: React.FC = () => {
   const fetchDataWorkShiftCell = (query: WorkShiftCellQuery) => {
     (async () => {
       try {
+        dispatch(showLoading());
         const customQuery = convertWorkShiftCellQuery(query);
         const response = await getWorkShiftCellsService(customQuery);
+        dispatch(hideLoading());
         setWorkShiftCellsResponse(response.data);
         setIsLoading(false);
       } catch (e) {
         console.log(e);
+        dispatch(hideLoading());
       }
     })();
   };
@@ -136,6 +145,7 @@ const WorkShiftScheduleDetail: React.FC = () => {
       let paramDefault: WorkShiftCellQuery = getQueryParamsFromQueryString(
         queryParamsParsed,
       ) as WorkShiftCellQuery;
+
       let dataQuery: WorkShiftCellQuery = {
         ...initQueryDefault,
         ...paramDefault,
@@ -153,6 +163,8 @@ const WorkShiftScheduleDetail: React.FC = () => {
           workShiftTableResponse.to_date || "",
         ];
       }
+      setDateFilter(dataQuery.issued_date);
+      setDataQuery(dataQuery);
       fetchDataWorkShiftCell(dataQuery);
     }
 
@@ -243,7 +255,12 @@ const WorkShiftScheduleDetail: React.FC = () => {
                 <CalendarShiftTable WorkShiftCells={WorkShiftCellsResponse} />
               )}
             {params.select_query === EnumSelectedFilter.user && (
-              <UserShiftTable WorkShiftCells={WorkShiftCellsResponse} />
+              <UserShiftTable
+                WorkShiftCells={WorkShiftCellsResponse}
+                dateFilter={dateFilter}
+                dataQuery={dataQuery}
+                fetchDataWorkShiftCell={fetchDataWorkShiftCell}
+              />
             )}
           </Card>
         </StyledComponent>
