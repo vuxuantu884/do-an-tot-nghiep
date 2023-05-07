@@ -204,6 +204,8 @@ const WorkShiftSchedule = () => {
           visible={isVisibleCreateScheduleModal}
           onOkModal={onOkCreateScheduleModal}
           onCloseModal={onCloseCreateScheduleModal}
+          locationId={locationId}
+          locationName={locationName}
         />
       )}
     </WorkShiftScheduleStyled>

@@ -7,6 +7,8 @@ import React, { useState, useEffect, useCallback, createRef, useMemo } from "rea
 import { useDispatch } from "react-redux";
 import { StyledComponent } from "./styled";
 import { StaffQuery } from "model/staff/staff.model";
+import { WorkShiftRoleResponse } from "model/work-shift/work-shift.model";
+import { getWorkShiftRoleService } from "service/work-shift/work-shift.service";
 
 type Props = {
   params?: StaffQuery;
@@ -18,6 +20,7 @@ const StaffListFilter: React.FC<Props> = (props: Props) => {
   const formSearchRef = createRef<FormInstance>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
+  const [workShiftRole, setWorkShiftRole] = useState<WorkShiftRoleResponse[]>([]);
 
   const initialValues = useMemo(() => {
     return {
@@ -39,6 +42,19 @@ const StaffListFilter: React.FC<Props> = (props: Props) => {
       }),
     );
   }, [dispatch]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await getWorkShiftRoleService();
+        if (response.status === 200) {
+          setWorkShiftRole(response.data);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     formSearchRef.current?.setFieldsValue({
@@ -75,21 +91,11 @@ const StaffListFilter: React.FC<Props> = (props: Props) => {
                   optionFilterProp="children"
                   placeholder="Lọc theo vị trí"
                 >
-                  <CustomSelect.Option key={1} value={"1"}>
-                    vị trí 1
-                  </CustomSelect.Option>
-                  <CustomSelect.Option key={2} value={"2"}>
-                    vị trí 2
-                  </CustomSelect.Option>
-                  <CustomSelect.Option key={3} value={"3"}>
-                    vị trí 3
-                  </CustomSelect.Option>
-                  <CustomSelect.Option key={4} value={"4"}>
-                    vị trí 4
-                  </CustomSelect.Option>
-                  <CustomSelect.Option key={5} value={"5"}>
-                    vị trí 5
-                  </CustomSelect.Option>
+                  {workShiftRole.map((value, index) => (
+                    <CustomSelect.Option key={index} value={value.name}>
+                      {value.name}
+                    </CustomSelect.Option>
+                  ))}
                 </CustomSelect>
               </Form.Item>
             </Col>

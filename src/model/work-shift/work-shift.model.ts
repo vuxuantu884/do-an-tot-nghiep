@@ -108,3 +108,8 @@ export interface WorkShiftCellRequest {
   role?: string;
   suggest_method?: number;
 }
+
+export interface WorkShiftRoleResponse {
+  id: number;
+  name: string;
+}

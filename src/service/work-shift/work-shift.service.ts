@@ -88,3 +88,11 @@ export const getStaffActivityManagerService = (request: any): Promise<any> => {
   let params = generateQuery(request);
   return axiosClientV2.get(`/admin/v2/staff-activity-manager.json?${params}`);
 };
+
+export const getWorkShiftRoleService = (): Promise<any> => {
+  return axiosClientV2.get(`/admin/v2/work_shift_roles.json`);
+};
+
+export const getByIdWorkShiftRoleService = (id: number): Promise<any> => {
+  return axiosClientV2.get(`/admin/v2/work_shift_roles.json/${id}`);
+};
