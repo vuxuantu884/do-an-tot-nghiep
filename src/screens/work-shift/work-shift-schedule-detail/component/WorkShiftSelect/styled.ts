@@ -12,7 +12,7 @@ export const StyledComponent = styled.div`
 
     &-Card {
       display: inline-flex;
-      gap: 1px;
+      gap: 8px;
       height: 50px;
       &-header {
         padding-top: 10px;
@@ -31,12 +31,12 @@ export const StyledComponent = styled.div`
       &-right {
         display: inline-flex;
         flex-wrap: wrap;
-        justify-content: space-around;
+        justify-content: flex-end;
         align-content: space-between;
-        gap: 1px;
         button {
-          padding: 0px 24px;
           height: 50%;
+          border-radius: initial;
+          padding: 0px 26px;
         }
         .ant-btn > span {
           display: inline-block;
@@ -48,5 +48,10 @@ export const StyledComponent = styled.div`
 
   .yellow-gold {
     color: ${shiftCustomColor.yellowGold};
+  }
+  .button-gray {
+    background: ${shiftCustomColor.deepPurple};
+    /* border-color: ${shiftCustomColor.deepPurple}; */
+    color: #fff;
   }
 `;

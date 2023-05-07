@@ -21,12 +21,6 @@ export const StyledComponent = styled.div`
     padding-top: 10px;
     padding-bottom: 10px;
   }
-
-  .button-gray {
-    background: ${shiftCustomColor.deepPurple};
-    border-color: ${shiftCustomColor.deepPurple};
-    color: #fff;
-  }
   .dark-charcoal {
     color: ${shiftCustomColor.darkCharcoal};
   }

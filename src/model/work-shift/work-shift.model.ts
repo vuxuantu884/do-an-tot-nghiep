@@ -100,11 +100,11 @@ export interface WorkShiftAssignmentLogResponse {
 }
 
 export interface WorkShiftCellRequest {
-  locationId?: number;
-  issuedDateTo?: string;
-  issuedDateFrom?: string;
-  fromMinutes?: string;
-  toMinutes?: string;
+  location_id?: number;
+  issued_date_to?: string;
+  issued_date_from?: string;
+  from_minutes?: any;
+  to_minutes?: any;
   role?: string;
-  suggestMethod?: number;
+  suggest_method?: number;
 }

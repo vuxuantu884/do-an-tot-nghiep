@@ -17,6 +17,11 @@ export const shiftCustomColor = {
   AliceBlue: "#F0F0FE",
 };
 
+export interface WeeksShiftModel {
+  week: string;
+  shift: number[];
+}
+
 export enum EnumSelectedFilter {
   calendar = "calendar",
   user = "user",

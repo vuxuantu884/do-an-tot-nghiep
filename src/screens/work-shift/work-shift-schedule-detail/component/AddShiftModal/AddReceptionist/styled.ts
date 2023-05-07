@@ -28,10 +28,4 @@ export const StyledComponent = styled.div`
       padding: 6px 24px;
     }
   }
-
-  .button-gray {
-    background: #5858b6;
-    border-color: #5858b6;
-    color: #fff;
-  }
 `;

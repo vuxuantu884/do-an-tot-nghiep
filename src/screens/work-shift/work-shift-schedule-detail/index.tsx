@@ -55,10 +55,10 @@ const WorkShiftScheduleDetail: React.FC = () => {
   const initialValue = useMemo(() => {
     return workShiftTableResponse
       ? {
-          locationId: workShiftTableResponse.location_id,
-          issuedDateTo: workShiftTableResponse.to_date,
-          issuedDateFrom: workShiftTableResponse.from_date,
-          suggestMethod: 1,
+          location_id: workShiftTableResponse.location_id,
+          issued_date_to: workShiftTableResponse.to_date,
+          issued_date_from: workShiftTableResponse.from_date,
+          suggest_method: 1,
         }
       : null;
   }, [workShiftTableResponse]);
