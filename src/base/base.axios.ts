@@ -172,6 +172,10 @@ export function getAxiosBaseV2(
           ? process.env.REACT_APP_GIT_COMMIT_HASH
           : "no-git-commit-hash"
       }`;
+      const token = getToken();
+      if (token != null) {
+        request.headers["Authorization"] = `Bearer ${token}`;
+      }
       // thêm user code
       const accountCode = localStorage.getItem(ACCOUNT_CODE_LOCAL_STORAGE);
       if (accountCode) {
