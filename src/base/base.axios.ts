@@ -201,5 +201,5 @@ export function getAxiosBaseV2(
   return axiosInstance;
 }
 
-export const axiosClientV2 = getAxiosBaseV2({}, true);
+export const axiosClientV2 = getAxiosBaseV2({ baseURL: process.env.REACT_APP_BASE_URL_V2 }, true);
 export default BaseAxios;
