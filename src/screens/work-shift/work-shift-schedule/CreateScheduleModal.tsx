@@ -45,7 +45,7 @@ const CreateScheduleModal = (props: CreateScheduleModalProps) => {
     }
     const createScheduleParams: WorkShiftTableRequest = {
       location_id: storeSelected.store_id || 0,
-      location_name: storeSelected.store_name || "",
+      location_name: storeSelected.store || "",
       from_date: startDate,
       to_date: endDate,
     };
@@ -74,9 +74,9 @@ const CreateScheduleModal = (props: CreateScheduleModalProps) => {
           placeholder="Chọn cửa hàng"
           onSelect={onSelectStore}
         >
-          {accountStores?.map((item: any) => (
-            <Select.Option key={item.store_id} value={item.store_id}>
-              {item.store_name}
+          {accountStores?.map((item: AccountStoreResponse) => (
+            <Select.Option key={item.store_id} value={item.store_id || 0}>
+              {item.store}
             </Select.Option>
           ))}
         </Select>

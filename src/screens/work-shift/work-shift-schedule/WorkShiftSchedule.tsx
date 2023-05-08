@@ -10,22 +10,25 @@ import {
   getWorkShiftTableService,
   postWorkShiftTableService,
 } from "service/work-shift/work-shift.service";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import arrowDown from "assets/icon/arrow-down.svg";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { useHistory } from "react-router-dom";
-import { useHistory } from "react-router-dom";
-import { getCurrentUserService } from "service/accounts/account.service";
+// import { getCurrentUserService } from "service/accounts/account.service";
 import WorkShiftProvider, {
   WorkShiftContext,
 } from "screens/work-shift/component/WorkShiftProvider";
+import { RootReducerType } from "model/reducers/RootReducerType";
 const WorkShiftSchedule = () => {
   const dispatch = useDispatch();
   const history = useHistory();
 
   const workShiftContext = useContext(WorkShiftContext);
   const { setAccountStores } = workShiftContext;
+  const account_stores = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.account_stores,
+  );
 
   const [isVisibleCreateScheduleModal, setIsVisibleCreateScheduleModal] = useState<boolean>(false);
   const [workShiftData, setWorkShiftData] = useState<any>();
@@ -96,10 +99,14 @@ const WorkShiftSchedule = () => {
   }, [getWorkShiftTableData]);
 
   const getCurrentUser = useCallback(async () => {
-    const account = await getCurrentUserService();
-    if (account.account_stores) {
-      setAccountStores(account.account_stores);
+    // const account = await getCurrentUserService();
+    if ((account_stores || []).length > 0) {
+      setAccountStores(account_stores || []);
     }
+
+    // if (account.account_stores) {
+    //   setAccountStores(account.account_stores);
+    // }
   }, [setAccountStores]);
 
   useEffect(() => {
