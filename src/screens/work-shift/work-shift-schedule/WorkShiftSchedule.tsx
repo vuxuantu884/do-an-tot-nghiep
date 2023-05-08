@@ -20,6 +20,7 @@ import WorkShiftProvider, {
   WorkShiftContext,
 } from "screens/work-shift/component/WorkShiftProvider";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { getAllStore, getStorePublicService } from "service/core/store.service";
 const WorkShiftSchedule = () => {
   const dispatch = useDispatch();
   const history = useHistory();
@@ -99,14 +100,12 @@ const WorkShiftSchedule = () => {
   }, [getWorkShiftTableData]);
 
   const getCurrentUser = useCallback(async () => {
-    // const account = await getCurrentUserService();
     if ((account_stores || []).length > 0) {
       setAccountStores(account_stores || []);
+    } else {
+      const account_stores = await getAllStore();
+      setAccountStores(account_stores.data || []);
     }
-
-    // if (account.account_stores) {
-    //   setAccountStores(account.account_stores);
-    // }
   }, [setAccountStores]);
 
   useEffect(() => {

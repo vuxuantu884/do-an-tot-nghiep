@@ -89,7 +89,7 @@ export const convertWorkShiftCellQuery = (query: WorkShiftCellQuery) => {
   const customQuery = {
     "locationId.equals": query.location_id,
     "assignedTo.equals": query.assigned_to,
-    "workHourName.equals": query.work_hour_name,
+    "workHourName.in": query.work_hour_name,
     "issuedDate.greaterThanOrEqual": formDate,
     "issuedDate.lessThanOrEqual": toDate,
   };

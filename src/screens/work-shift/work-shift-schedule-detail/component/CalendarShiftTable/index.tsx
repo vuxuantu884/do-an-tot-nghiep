@@ -112,11 +112,12 @@ const CalendarShiftTable: React.FC<Props> = (props: Props) => {
         };
         columnsData.push(cell);
       });
-
+      const from_hour = new Date("1970-01-01T" + findShift?.from_hour);
+      const to_hour = new Date("1970-01-01T" + findShift?.to_hour);
       let rowsItemData: ShiftTableBodyModel = {
         name: findShift?.work_hour_name || "",
-        formHours: findShift?.from_minutes || 0,
-        toHours: findShift?.to_minutes || 0,
+        formHours: from_hour.getHours() || 0,
+        toHours: to_hour.getHours() || 0,
         data: columnsData,
       };
 
@@ -251,102 +252,105 @@ const CalendarShiftTable: React.FC<Props> = (props: Props) => {
             })}
           </colgroup>
           <tbody>
-            {shiftTableBody.map((row, index) => (
-              <>
-                <tr key={`${index}1`}>
-                  <td className="condition" rowSpan={3}>
-                    <div className="shift-view">
-                      <span className="shift-view-ca">{row.name}</span>
-                      <span className="shift-view-time">
-                        {row.formHours}h-{row.toHours}h
-                      </span>
-                    </div>
-                  </td>
+            {shiftTableBody.map((row, index) => {
+              console.log("row", row);
+              return (
+                <>
+                  <tr key={`${index}1`}>
+                    <td className="condition" rowSpan={3}>
+                      <div className="shift-view">
+                        <span className="shift-view-ca">{row.name}</span>
+                        <span className="shift-view-time">
+                          {row.formHours}h-{row.toHours}h
+                        </span>
+                      </div>
+                    </td>
 
-                  {row.data.map((column) => (
-                    <>
-                      <td className="condition" colSpan={2}>
-                        {/* body 2 */}
-                        <div className="revenue">
-                          <DollarCircleOutlined className="revenue-icon dark-blue" />
-                          <div className="revenue-text">
-                            {column.dailyPlanRevenue.toLocaleString("vi-VN")}/
-                            {column.dailyPlanRevenue.toLocaleString("vi-VN")}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="condition" hidden>
-                        body 3
-                      </td>
-                    </>
-                  ))}
-                </tr>
-                <tr key={`${index}2`}>
-                  {row.data.map((column) => (
-                    <>
-                      <td className="condition" hidden>
-                        body 4
-                      </td>
-                      <td className="condition">
-                        <div className="shift-plan">
-                          <ClockCircleOutlined className="shift-plan-icon dark-blue" />
-                          <div className="shift-plan-text fw-600">
-                            {column.elapsedHours}/{column.fixedTotalHours}h
-                          </div>
-                        </div>
-                      </td>
-                      <td className="condition">
-                        <div className="shift-plan">
-                          <TeamOutlined className="dark-blue" />
-                          <div className="shift-plan-text fw-600">
-                            {column.usedEmployees}/{column.fixTotalUser}
-                          </div>
-                        </div>
-                      </td>
-                    </>
-                  ))}
-                </tr>
-                <tr key={`${index}3`}>
-                  {row.data.map((column) => (
-                    <>
-                      <td className="condition" hidden>
-                        body 4
-                      </td>
-                      <td className="condition" colSpan={2}>
-                        {/* body 5 */}
-                        <Space
-                          direction="vertical"
-                          size="small"
-                          style={{ display: "flex" }}
-                          onClick={() => openWorkShiftDetailModal(column)}
-                        >
-                          {shiftPlanDetail("CHT", column.cht)}
-                          {shiftPlanDetail("CGTV", column.cgtv)}
-                          {shiftPlanDetail("CNTN", column.cntn)}
-                          {shiftPlanDetail("KHO", column.kho)}
-                          {shiftPlanDetail("CGTĐ", column.cgtd)}
-                          {shiftPlanDetail("SETUP", column.setup)}
-                          {/* <div className="shift-plan-detail">
-                            <div className="shift-plan-detail-text shift-plan-detail-font dark-grey">
-                              CHT(1):
-                            </div>
-                            <div className="shift-plan-detail-icon dark-blue ">
-                              <UserOutlined />
-                              <UserOutlined />
-                              <UserOutlined />
+                    {row.data.map((column) => (
+                      <>
+                        <td className="condition" colSpan={2}>
+                          {/* body 2 */}
+                          <div className="revenue">
+                            <DollarCircleOutlined className="revenue-icon dark-blue" />
+                            <div className="revenue-text">
+                              {column.dailyPlanRevenue.toLocaleString("vi-VN")}/
+                              {column.dailyPlanRevenue.toLocaleString("vi-VN")}
                             </div>
                           </div>
-                         */}
-                        </Space>
-                      </td>
-                      <td className="condition" hidden>
-                        body 6
-                      </td>
-                    </>
-                  ))}
-                </tr>
-              </>
-            ))}
+                        </td>
+                        <td className="condition" hidden>
+                          body 3
+                        </td>
+                      </>
+                    ))}
+                  </tr>
+                  <tr key={`${index}2`}>
+                    {row.data.map((column) => (
+                      <>
+                        <td className="condition" hidden>
+                          body 4
+                        </td>
+                        <td className="condition">
+                          <div className="shift-plan">
+                            <ClockCircleOutlined className="shift-plan-icon dark-blue" />
+                            <div className="shift-plan-text fw-600">
+                              {column.elapsedHours}/{column.fixedTotalHours}h
+                            </div>
+                          </div>
+                        </td>
+                        <td className="condition">
+                          <div className="shift-plan">
+                            <TeamOutlined className="dark-blue" />
+                            <div className="shift-plan-text fw-600">
+                              {column.usedEmployees}/{column.fixTotalUser}
+                            </div>
+                          </div>
+                        </td>
+                      </>
+                    ))}
+                  </tr>
+                  <tr key={`${index}3`}>
+                    {row.data.map((column) => (
+                      <>
+                        <td className="condition" hidden>
+                          body 4
+                        </td>
+                        <td className="condition" colSpan={2}>
+                          {/* body 5 */}
+                          <Space
+                            direction="vertical"
+                            size="small"
+                            style={{ display: "flex" }}
+                            onClick={() => openWorkShiftDetailModal(column)}
+                          >
+                            {shiftPlanDetail("CHT", column.cht)}
+                            {shiftPlanDetail("CGTV", column.cgtv)}
+                            {shiftPlanDetail("CNTN", column.cntn)}
+                            {shiftPlanDetail("KHO", column.kho)}
+                            {shiftPlanDetail("CGTĐ", column.cgtd)}
+                            {shiftPlanDetail("SETUP", column.setup)}
+                            {/* <div className="shift-plan-detail">
+                              <div className="shift-plan-detail-text shift-plan-detail-font dark-grey">
+                                CHT(1):
+                              </div>
+                              <div className="shift-plan-detail-icon dark-blue ">
+                                <UserOutlined />
+                                <UserOutlined />
+                                <UserOutlined />
+                              </div>
+                            </div>
+                           */}
+                          </Space>
+                        </td>
+                        <td className="condition" hidden>
+                          body 6
+                        </td>
+                      </>
+                    ))}
+                  </tr>
+                </>
+              );
+            })}
           </tbody>
         </table>
       </div>
