@@ -115,7 +115,7 @@ const CalendarShiftTable: React.FC<Props> = (props: Props) => {
       const from_hour = new Date("1970-01-01T" + findShift?.from_hour);
       const to_hour = new Date("1970-01-01T" + findShift?.to_hour);
       let rowsItemData: ShiftTableBodyModel = {
-        name: findShift?.work_hour_name || "",
+        name: findShift?.work_hour_title || "",
         formHours: from_hour.getHours() || 0,
         toHours: to_hour.getHours() || 0,
         data: columnsData,

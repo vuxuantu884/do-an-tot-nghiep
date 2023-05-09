@@ -1,5 +1,10 @@
-import { WorkShiftCellQuery, WorkShiftCellResponse } from "model/work-shift/work-shift.model";
+import {
+  WorkHour,
+  WorkShiftCellQuery,
+  WorkShiftCellResponse,
+} from "model/work-shift/work-shift.model";
 import moment from "moment";
+import { getAllCaWorkShift } from "service/work-shift/work-shift.service";
 
 export const shiftCustomColor = {
   darkCharcoal: "#262626",
@@ -59,17 +64,27 @@ export const SHIFT_ROLE = {
   },
 };
 
-export const WORK_SHIFT_LIST = () => {
-  let workShiftList = [];
-  let hours: number = 8;
-  for (let i = 1; i <= 14; i++) {
-    workShiftList.push({
-      name: `Ca ${i}`,
-      value: i,
-      formHours: hours + i - 1,
-      toHours: hours + i,
-    });
-  }
+export const WORK_SHIFT_LIST = async () => {
+  let workShiftList: WorkHour[] = [];
+  const res = await getAllCaWorkShift();
+  console.log(res);
+  workShiftList = res.data.map((workHour: WorkHour) => {
+    const from_hour = new Date("1970-01-01T" + workHour?.from_hour).getHours();
+    const to_hour = new Date("1970-01-01T" + workHour?.to_hour).getHours();
+    return {
+      ...workHour,
+      from_hour,
+      to_hour,
+    };
+  });
+  // for (let i = 1; i <= 14; i++) {
+  //   workShiftList.push({
+  //     name: `Ca ${i}`,
+  //     value: i,
+  //     formHours: hours + i - 1,
+  //     toHours: hours + i,
+  //   });
+  // }
 
   return workShiftList;
 };
@@ -89,7 +104,7 @@ export const convertWorkShiftCellQuery = (query: WorkShiftCellQuery) => {
   const customQuery = {
     "locationId.equals": query.location_id,
     "assignedTo.equals": query.assigned_to,
-    "workHourName.in": query.work_hour_name,
+    "workHourName.equals": query.work_hour_name,
     "issuedDate.greaterThanOrEqual": formDate,
     "issuedDate.lessThanOrEqual": toDate,
   };

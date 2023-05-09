@@ -55,6 +55,7 @@ export interface WorkShiftCellResponse extends WorkShiftBase {
   assignments: WorkShiftAssignmentModel[];
   to_hour: string;
   from_hour: string;
+  work_hour_title?: string;
 }
 
 export interface SearchStaffActivityManagerLocationParams {
@@ -114,4 +115,14 @@ export interface WorkShiftCellRequest {
 export interface WorkShiftRoleResponse {
   id: number;
   name: string;
+}
+
+export interface WorkHour {
+  from_hour: string | number;
+  from_minutes: number;
+  id: number;
+  name: string;
+  title: string;
+  to_hour: string | number;
+  to_minutes: number;
 }

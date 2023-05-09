@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "antd";
 import { WORK_SHIFT_LIST } from "screens/work-shift/work-shift-helper";
-import { WorkShiftCellResponse } from "model/work-shift/work-shift.model";
+import { WorkHour, WorkShiftCellResponse } from "model/work-shift/work-shift.model";
 import UserFilled from "component/icon/UserFilled";
 import { ClockCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { StyledComponent } from "screens/work-shift/work-shift-schedule-detail/component/UserShiftTable/styled";
@@ -37,6 +37,7 @@ const UserShiftTable: React.FC<Props> = (props: Props) => {
   const { WorkShiftCells, dateFilter, fetchDataWorkShiftCell, dataQuery } = props;
 
   const [workShiftUserData, setWorkShiftUserData] = useState<any>();
+  const [workShiftList, setWorkShiftList] = useState<WorkHour[]>([]);
 
   const getAllFilterDate = (dateFilter: string[]) => {
     const startDate = moment(dateFilter[0]);
@@ -150,7 +151,7 @@ const UserShiftTable: React.FC<Props> = (props: Props) => {
       work_shift_cell_id: shiftUserData.workShiftCellId,
     };
     dispatch(showLoading());
-    addWorkShiftAssignmentService(addStaffRequest)
+    addWorkShiftAssignmentService(shiftUserData.id, addStaffRequest)
       .then(() => {
         showSuccess("Thêm nhân sự trong ca thành công.");
         reloadPage();
@@ -191,6 +192,12 @@ const UserShiftTable: React.FC<Props> = (props: Props) => {
       });
   };
 
+  useEffect(() => {
+    async () => {
+      const res = await WORK_SHIFT_LIST();
+      setWorkShiftList(res);
+    };
+  }, []);
   return (
     <StyledComponent>
       <div className="user-shift-table">
@@ -201,9 +208,9 @@ const UserShiftTable: React.FC<Props> = (props: Props) => {
               <div className="shift-group">
                 <th className="shift-date">Thứ</th>
                 <th className="shift-date">Ngày</th>
-                {WORK_SHIFT_LIST().map((shift) => (
-                  <th key={shift.value} className="shift">
-                    {shift.name}
+                {workShiftList.map((shift) => (
+                  <th key={shift.id} className="shift">
+                    {shift.title}
                   </th>
                 ))}
               </div>

@@ -20,7 +20,11 @@ const { Option } = Select;
 
 type WorkShiftStaffTabProps = {
   workShiftDetailData: WorkShiftCellResponse | null;
-  onAddStaff: (addStaffRequest: AddWorkShiftAssignmentRequest, callback: () => void) => void;
+  onAddStaff: (
+    workShiftAssignmentId: number,
+    addStaffRequest: AddWorkShiftAssignmentRequest,
+    callback: () => void,
+  ) => void;
   onDeleteStaff: (
     workShiftAssignmentId: number,
     deleteStaffRequest: DeleteWorkShiftAssignmentRequest,
@@ -123,7 +127,7 @@ const WorkShiftStaffTab = (props: WorkShiftStaffTabProps) => {
       assigned_name: staffSelected.full_name || "",
       role: staffSelected.role || "",
     };
-    onAddStaff && onAddStaff(addStaffRequest, onClearStaffList);
+    onAddStaff && onAddStaff(workShiftDetailData?.id || 0, addStaffRequest, onClearStaffList);
   };
   const onSelectStaffList = (staffId: string | number, option: any) => {
     const _staffSelected = staffList.find((account) => Number(account.id) === Number(staffId));

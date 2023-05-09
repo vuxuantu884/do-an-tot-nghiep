@@ -96,9 +96,13 @@ const WorkShiftDetailModal = (props: WorkShiftDetailModalProps) => {
     getWorkShiftDetailData();
   }, [getWorkShiftDetailData]);
 
-  const onAddStaff = (addStaffRequest: AddWorkShiftAssignmentRequest, callback: () => void) => {
+  const onAddStaff = (
+    workShiftAssignmentId: number,
+    addStaffRequest: AddWorkShiftAssignmentRequest,
+    callback: () => void,
+  ) => {
     dispatch(showLoading());
-    addWorkShiftAssignmentService(addStaffRequest)
+    addWorkShiftAssignmentService(workShiftAssignmentId, addStaffRequest)
       .then(() => {
         showSuccess("Thêm nhân sự trong ca thành công.");
         getWorkShiftDetailData();

@@ -8,7 +8,7 @@ import { AccountResponse } from "model/account/account.model";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { CalendarOutlined, UserOutlined } from "@ant-design/icons";
 import { EnumSelectedFilter } from "screens/work-shift/work-shift-helper";
-import { WorkShiftCellQuery } from "model/work-shift/work-shift.model";
+import { WorkHour, WorkShiftCellQuery } from "model/work-shift/work-shift.model";
 import moment from "moment";
 import { WORK_SHIFT_LIST } from "screens/work-shift/work-shift-helper";
 
@@ -28,8 +28,7 @@ const WorkShiftScheduleDetailFilter: React.FC<Props> = (props: Props) => {
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
 
   const [selectQuery, setSelectQuery] = useState(EnumSelectedFilter.calendar);
-
-  const workShiftList = WORK_SHIFT_LIST();
+  const [workShiftList, setWorkShiftList] = useState<WorkHour[]>([]);
 
   const initialValues = useMemo(() => {
     return {
@@ -136,6 +135,13 @@ const WorkShiftScheduleDetailFilter: React.FC<Props> = (props: Props) => {
       setSelectQuery(initialValues.select_query as EnumSelectedFilter);
   }, [formSearchRef, initialValues]);
 
+  useEffect(() => {
+    (async () => {
+      const res = await WORK_SHIFT_LIST();
+      setWorkShiftList(res);
+    })();
+  }, []);
+
   return (
     <StyledComponent>
       <div className="page-filter">
@@ -168,11 +174,13 @@ const WorkShiftScheduleDetailFilter: React.FC<Props> = (props: Props) => {
                     optionFilterProp="children"
                     placeholder="Chọn ca"
                   >
-                    {workShiftList.map((value, index) => (
-                      <CustomSelect.Option key={index} value={value.name}>
-                        {value.name}
-                      </CustomSelect.Option>
-                    ))}
+                    {workShiftList.map((value, index: number) => {
+                      return (
+                        <CustomSelect.Option key={index} value={value.name}>
+                          {value.title}
+                        </CustomSelect.Option>
+                      );
+                    })}
                   </CustomSelect>
                 </Form.Item>
               </Col>

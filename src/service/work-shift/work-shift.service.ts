@@ -59,18 +59,25 @@ export const getStaffActivityManagerLocationService = (
 };
 
 export const addWorkShiftAssignmentService = (
+  workShiftAssignmentId: number,
   request: AddWorkShiftAssignmentRequest,
 ): Promise<any> => {
-  return axiosClientV2.post(`/admin/v2/work_shift_assignments.json`, request);
+  return axiosClientV2.post(
+    `/admin/v2/work_shift_cells/${workShiftAssignmentId}/work_shift_assignments.json`,
+    request,
+  );
 };
 
 export const deleteWorkShiftAssignmentService = (
   workShiftAssignmentId: number,
   request: DeleteWorkShiftAssignmentRequest,
 ): Promise<any> => {
-  return axiosClientV2.delete(`/admin/v2/work_shift_assignments/${workShiftAssignmentId}.json`, {
-    data: request,
-  });
+  return axiosClientV2.delete(
+    `/admin/v2/work_shift_cells/${workShiftAssignmentId}/work_shift_assignments.json`,
+    {
+      data: request,
+    },
+  );
 };
 
 export const getWorkShiftAssignmentLogService = (
@@ -95,4 +102,8 @@ export const getWorkShiftRoleService = (): Promise<any> => {
 
 export const getByIdWorkShiftRoleService = (id: number): Promise<any> => {
   return axiosClientV2.get(`/admin/v2/work_shift_roles.json/${id}`);
+};
+
+export const getAllCaWorkShift = (): Promise<any> => {
+  return axiosClientV2.get(`/admin/v2/work_hours.json`);
 };
