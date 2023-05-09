@@ -193,10 +193,10 @@ const UserShiftTable: React.FC<Props> = (props: Props) => {
   };
 
   useEffect(() => {
-    async () => {
+    (async () => {
       const res = await WORK_SHIFT_LIST();
       setWorkShiftList(res);
-    };
+    })();
   }, []);
   return (
     <StyledComponent>
